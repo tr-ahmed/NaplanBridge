@@ -1,0 +1,14 @@
+<div class="p-6 bg-gray-100 min-h-screen text-right">
+  <h2 class="text-2xl font-bold text-red-700">
+    مرحبًا، {{ admin.name }}
+  </h2>
+  <p class="mb-2">👥 عدد المستخدمين: {{ admin.totalUsers }}</p>
+  <p class="mb-4">📚 عدد الدروس المسجلة: {{ admin.totalCourses }}</p>
+
+  <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">
+    إدارة المستخدمين
+  </button>
+  <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800 ml-2">
+    إدارة المواد الدراسية
+  </button>
+</div>

@@ -1,0 +1,17 @@
+<div class="p-8 text-right bg-gray-100 min-h-screen">
+  <h2 class="text-2xl font-bold text-blue-700">
+    مرحبًا، {{ student.fullName }}
+  </h2>
+  <p class="text-lg mb-4">السنة الدراسية: {{ student.grade }}</p>
+
+  <h3 class="text-xl mb-2">📚 المواد الدراسية:</h3>
+  <ul class="space-y-2">
+    <li *ngFor="let subject of student.subjects">
+      <button
+        class="bg-green-500 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded"
+      >
+        {{ subject }}
+      </button>
+    </li>
+  </ul>
+</div>
