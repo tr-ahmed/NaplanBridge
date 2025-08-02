@@ -7,21 +7,31 @@ import { Router } from '@angular/router';
 export class AuthService {
   constructor(private router: Router) {}
 
-  // ✅ دالة تسجيل حساب جديد (Fake مبدئيًا)
-  register(name: string, email: string, password: string) {
-    const user = { name, email, password, role: 'student' }; // مبدئيًا الطالب فقط
-    localStorage.setItem('user', JSON.stringify(user));
-    alert('✅ تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن');
+  // ✅ Register a new account
+  register(user: {
+    name: string;
+    email: string;
+    password: string;
+    phone: string;
+    age: number | null;
+  }): void {
+    const userData = {
+      ...user,
+      role: 'student'
+    };
+
+    localStorage.setItem('user', JSON.stringify(userData));
+    alert('✅ Account created successfully! You can now log in.');
     this.router.navigate(['/auth/login']);
   }
 
-  // ✅ دالة تسجيل الدخول
-  login(email: string, password: string) {
+  // ✅ Login method
+  login(email: string, password: string, rememberMe = false): boolean {
     const userData = localStorage.getItem('user');
 
     if (!userData) {
-      alert('⚠️ لا يوجد مستخدم مسجل! قم بإنشاء حساب أولاً');
-      return;
+      alert('⚠️ No registered user found! Please sign up first.');
+      return false;
     }
 
     const user = JSON.parse(userData);
@@ -29,21 +39,33 @@ export class AuthService {
     if (user.email === email && user.password === password) {
       localStorage.setItem('token', 'fake-jwt-token');
       localStorage.setItem('role', user.role);
-      this.router.navigate(['/admin']);
+      localStorage.setItem('currentUser', JSON.stringify(user));
+
+      if (rememberMe) {
+        localStorage.setItem('rememberedEmail', email);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+      }
+
+      this.router.navigate(['/auth/register']);
+      return true;
     } else {
-      alert('❌ البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      return false;
     }
   }
 
-  logout() {
+  // ✅ Logout method
+  logout(): void {
     localStorage.clear();
     this.router.navigate(['/auth/login']);
   }
 
+  // ✅ Check if the user is authenticated
   isAuthenticated(): boolean {
     return !!localStorage.getItem('token');
   }
 
+  // ✅ Get current user role
   getRole(): string | null {
     return localStorage.getItem('role');
   }

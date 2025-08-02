@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
+import { AuthService } from '../auth.service'; // adjust the path as needed
 
 @Component({
   selector: 'app-login',
@@ -9,13 +10,34 @@ import { AuthService } from '../auth.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   email = '';
   password = '';
+  rememberMe = false;
+  errorMessage = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
-  onLogin() {
-    this.authService.login(this.email, this.password);
+  ngOnInit(): void {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      this.email = savedEmail;
+      this.rememberMe = true;
+    }
+  }
+
+  onLogin(): void {
+    this.errorMessage = '';
+
+    if (!this.email || !this.password) {
+      this.errorMessage = '⚠️ Please enter both email and password.';
+      return;
+    }
+
+    const success = this.authService.login(this.email, this.password, this.rememberMe);
+
+    if (!success) {
+      this.errorMessage = '❌ Incorrect email or password.';
+    }
   }
 }
