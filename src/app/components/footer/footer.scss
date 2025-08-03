@@ -1,0 +1,18 @@
+/* Footer component styles - Using Tailwind CSS utility classes */
+/* Additional custom styles can be added here if needed */
+
+/* Custom hover effects and transitions that extend Tailwind */
+.social-link:hover {
+  transform: translateY(-2px);
+}
+
+/* Smooth transitions for interactive elements */
+.footer a {
+  transition: all 0.3s ease;
+}
+
+/* Custom focus styles for accessibility */
+.footer a:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
