@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiBaseUrl: '/api' // Use proxy for development - this must be relative!
+  apiBaseUrl: 'http://naplanbridge.runasp.net' // Direct API calls without proxy
 };
