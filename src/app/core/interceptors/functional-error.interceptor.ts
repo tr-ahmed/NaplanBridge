@@ -7,7 +7,7 @@ import { ToastService } from '../services/toast.service';
  * Functional HTTP error interceptor for handling API errors globally
  */
 export const functionalErrorInterceptor: HttpInterceptorFn = (req, next) => {
-  const toastService = inject(ToastService);
+  const toastService: ToastService = inject(ToastService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -43,17 +43,20 @@ export const functionalErrorInterceptor: HttpInterceptorFn = (req, next) => {
           break;
 
         case 0:
-          errorMessage = 'Network error. Please check your connection.';
+          // Network error or CORS issue
+          if (error.error instanceof ProgressEvent) {
+            errorMessage = 'Network error or CORS issue. Please check your connection or contact support.';
+          } else {
+            errorMessage = 'Network error. Please check your connection.';
+          }
           break;
 
         default:
           errorMessage = error.error?.message || `Error ${error.status}: ${error.statusText}`;
       }
 
-      // Show error toast notification (if toastService is available)
-      if (toastService && typeof toastService.showError === 'function') {
-        toastService.showError(errorMessage);
-      }
+      // Show error toast notification
+      toastService.showError(errorMessage);
 
       // Re-throw the error so components can handle it if needed
       return throwError(() => ({

@@ -64,11 +64,27 @@
         }
       </ul>
 
-      <!-- Login Button & Mobile Menu Toggle -->
+      <!-- Login/Logout Button & Mobile Menu Toggle -->
       <div class="flex items-center space-x-4">
-        <a routerLink="/auth/login" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-300 text-center">
-          Login
-        </a>
+        <!-- Desktop Login/Logout Button -->
+        @if (isLoggedIn) {
+          <div class="hidden md:flex items-center space-x-3">
+            @if (userName) {
+              <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
+            }
+            <button
+              (click)="handleLogout()"
+              class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-300">
+              Logout
+            </button>
+          </div>
+        } @else {
+          <a
+            routerLink="/auth/login"
+            class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-300 text-center">
+            Login
+          </a>
+        }
 
         <!-- Mobile Menu Toggle -->
         <button
@@ -105,9 +121,27 @@
             </li>
           }
           <li class="pt-2">
-            <button class="w-full bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300">
-              Login
-            </button>
+            @if (isLoggedIn) {
+              <div class="space-y-2">
+                @if (userName) {
+                  <div class="text-center text-gray-700 font-medium px-4 py-1">
+                    Welcome, {{ userName }}
+                  </div>
+                }
+                <button
+                  (click)="handleLogout()"
+                  class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300">
+                  Logout
+                </button>
+              </div>
+            } @else {
+              <a
+                routerLink="/auth/login"
+                class="block w-full bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300 text-center"
+                (click)="toggleMobileMenu()">
+                Login
+              </a>
+            }
           </li>
         </ul>
       </div>

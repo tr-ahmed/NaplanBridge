@@ -55,12 +55,25 @@ export class ParentApiService {
   login(loginData: LoginRequest): Observable<ApiResult<AuthResponse>> {
     const url = `${this.baseUrl}/Account/login`;
 
+    console.log('🔍 API Debug Info:');
+    console.log('Base URL:', this.baseUrl);
+    console.log('Full URL:', url);
+    console.log('Login Data:', loginData);
+
     return this.http.post<AuthResponse>(url, loginData).pipe(
-      map((response: AuthResponse) => ({
-        success: true as const,
-        data: response
-      })),
+      map((response: AuthResponse) => {
+        console.log('✅ Login Success Response:', response);
+        return {
+          success: true as const,
+          data: response
+        };
+      }),
       catchError((error) => {
+        console.error('❌ Login Error:', error);
+        console.error('Error Status:', error.status);
+        console.error('Error Message:', error.message);
+        console.error('Error Body:', error.error);
+
         // Parse error response for better error handling
         const errorResult = this.parseErrorResponse(error.error);
         return of({
