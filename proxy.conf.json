@@ -1,5 +1,5 @@
 {
-  "/api/*": {
+  "/api": {
     "target": "http://naplanbridge.runasp.net",
     "secure": false,
     "changeOrigin": true,
