@@ -1,7 +1,10 @@
 ---
 applyTo: '**'
 ---
+
+
 ## GitHub Copilot Instructions for an Angular 17 Project
+
 ### AppPATH: D:\Private\Ahmed Hamdi\angular\my-angular-app>
 
 **Goal:** Create a modern and complete Angular 17 project leveraging its latest features like standalone components, new control flow, and best practices for structure, validation, error handling, security, styling with Tailwind CSS, and documentation.
@@ -188,6 +191,16 @@ withInterceptors([functionalErrorInterceptor])
   * How to contribute or extend the app
 * Include API contracts and interface documentation under `docs/interfaces.md`
 * Optionally integrate tools like [Compodoc](https://compodoc.app/) for auto-generating technical documentation from your Angular codebase
+
+---
+
+### 13. Run the App:
+
+* To serve the application with Hot Module Replacement (HMR):
+
+```bash
+ng serve -o --hmr
+```
 
 ---
 

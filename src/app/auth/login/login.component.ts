@@ -1,42 +1,152 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { LoginRequest } from '../../models/auth.models';
+
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './login.component.html'
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
-  email = '';
-  password = '';
-  rememberMe = false;
-  errorMessage = '';
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private toastService = inject(ToastService);
+  private router = inject(Router);
 
-  constructor(private authService: AuthService, private router: Router) {}
+  // Loading state signal
+  isLoading = signal(false);
+
+  // Reactive form for login
+  loginForm: FormGroup = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]],
+    rememberMe: [false]
+  });
 
   ngOnInit(): void {
+    // Load saved email if remember me was checked
     const savedEmail = localStorage.getItem('rememberedEmail');
     if (savedEmail) {
-      this.email = savedEmail;
-      this.rememberMe = true;
+      this.loginForm.patchValue({
+        email: savedEmail,
+        rememberMe: true
+      });
     }
   }
 
+  /**
+   * Handle form submission
+   */
   onLogin(): void {
-    this.errorMessage = '';
+    if (this.loginForm.valid) {
+      this.isLoading.set(true);
 
-    if (!this.email || !this.password) {
-      this.errorMessage = '⚠️ Please enter both email and password.';
-      return;
+      // Extract form data and prepare API request
+      const formValue = this.loginForm.value;
+      const loginData: LoginRequest = {
+        email: formValue.email,
+        password: formValue.password
+      };
+
+      // Call authentication service
+      this.authService.login(loginData).subscribe({
+        next: (result) => {
+          this.isLoading.set(false);
+
+          if (result.success) {
+            const currentUser = this.authService.currentUser();
+            this.toastService.showSuccess(`Welcome back, ${currentUser?.userName}!`);
+
+            // Handle remember me functionality
+            if (formValue.rememberMe) {
+              localStorage.setItem('rememberedEmail', formValue.email);
+            } else {
+              localStorage.removeItem('rememberedEmail');
+            }
+
+            // Navigate to appropriate dashboard
+            this.authService.navigateToUserDashboard();
+          } else {
+            this.handleLoginError(result.message || 'Login failed');
+          }
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          console.error('Login error:', error);
+          this.toastService.showError('Login failed. Please try again.');
+        }
+      });
+    } else {
+      this.markFormGroupTouched();
+      this.toastService.showWarning('Please fill in all required fields correctly.');
+    }
+  }
+
+  /**
+   * Handle login errors and display validation messages
+   */
+  private handleLoginError(errorMessage: string): void {
+    // Display the main error message
+    this.toastService.showError(errorMessage);
+
+    // Clear password field on error for security
+    this.loginForm.patchValue({ password: '' });
+  }
+
+  /**
+   * Mark all form fields as touched to show validation errors
+   */
+  private markFormGroupTouched(): void {
+    Object.keys(this.loginForm.controls).forEach(key => {
+      const control = this.loginForm.get(key);
+      control?.markAsTouched();
+    });
+  }
+
+  /**
+   * Get error message for a specific field
+   */
+  getFieldError(fieldName: string): string {
+    const control = this.loginForm.get(fieldName);
+
+    if (control?.errors && control.touched) {
+      if (control.errors['required']) {
+        return `${this.getFieldDisplayName(fieldName)} is required`;
+      }
+      if (control.errors['email']) {
+        return 'Please enter a valid email address';
+      }
+      if (control.errors['serverError']) {
+        return control.errors['serverError'];
+      }
     }
 
-    const success = this.authService.login(this.email, this.password, this.rememberMe);
+    return '';
+  }
 
-    if (!success) {
-      this.errorMessage = ' Incorrect email or password.';
-    }
+  /**
+   * Get display name for form fields
+   */
+  private getFieldDisplayName(fieldName: string): string {
+    const displayNames: { [key: string]: string } = {
+      'email': 'Email',
+      'password': 'Password'
+    };
+
+    return displayNames[fieldName] || fieldName;
+  }
+
+  /**
+   * Check if a field has errors and is touched
+   */
+  hasFieldError(fieldName: string): boolean {
+    const control = this.loginForm.get(fieldName);
+    return !!(control?.errors && control.touched);
   }
 }
