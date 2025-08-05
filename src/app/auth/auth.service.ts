@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface LoginResponse {
   userName: string;
@@ -35,8 +36,14 @@ export class AuthService {
   // ✅ Login method using API
   login(email: string, password: string, rememberMe = false): Observable<boolean> {
     const loginData: LoginRequest = { email, password };
+    const loginUrl = `${environment.apiBaseUrl}/Account/login`;
 
-    return this.http.post<LoginResponse>('/api/Account/login', loginData).pipe(
+    console.log('🔍 API Debug Info:');
+    console.log('Base URL:', environment.apiBaseUrl);
+    console.log('Full URL:', loginUrl);
+    console.log('Login Data:', loginData);
+
+    return this.http.post<LoginResponse>(loginUrl, loginData).pipe(
       map((response: LoginResponse) => {
         // Store authentication data
         localStorage.setItem('token', response.token);
@@ -63,7 +70,10 @@ export class AuthService {
         return true; // Return success
       }),
       catchError((error) => {
-        console.error('Login failed:', error);
+        console.error('❌ Login Error:', error);
+        console.log(' Error Status:', error.status);
+        console.log(' Error Message:', error.status === 0 ? 'Network error or CORS issue. Please check your connection or contact support.' : error.message);
+        console.log(' Error Body:', error.error);
         this.authStatusSubject.next(false);
         return of(false);
       })
@@ -128,6 +138,11 @@ export class AuthService {
   getCurrentUser(): any {
     const userData = localStorage.getItem('currentUser');
     return userData ? JSON.parse(userData) : null;
+  }
+
+  // ✅ Get authentication token
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 
   // ✅ Get remembered email
