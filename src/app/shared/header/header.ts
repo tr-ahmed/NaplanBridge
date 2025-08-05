@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from '../../auth/auth.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -20,7 +20,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     { label: 'Plans', route: '/plans', icon: 'star' },
     { label: 'Courses', route: '/courses', icon: 'book' },
     { label: 'Blog', route: '/blog', icon: 'article' },
-    { label: 'Contact', route: '/contact', icon: 'mail' }
+    { label: 'Contact', route: '/contact', icon: 'mail' },
+    { label: '🧪 API Test', route: '/api-test', icon: 'bug_report' }
   ];
 
   /**
@@ -45,16 +46,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Subscribe to authentication status changes
     this.authSubscription.add(
-      this.authService.currentUser$.subscribe(user => {
-        this.isLoggedIn = !!user;
-        this.userName = user?.userName || '';
+      this.authService.authStatus$.subscribe(isAuth => {
+        this.isLoggedIn = isAuth;
+        if (isAuth) {
+          this.userName = this.authService.getUserName() || '';
+        } else {
+          this.userName = '';
+        }
       })
     );
 
-    // Also check initial auth status using signals
+    // Also check initial auth status
     this.isLoggedIn = this.authService.isAuthenticated();
-    const currentUser = this.authService.currentUser();
-    this.userName = currentUser?.userName || '';
+    this.userName = this.authService.getUserName() || '';
   }
 
   ngOnDestroy(): void {

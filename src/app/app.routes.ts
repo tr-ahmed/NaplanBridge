@@ -6,6 +6,7 @@ export const routes: Routes = [
   { path: 'home', redirectTo: '', pathMatch: 'full' },
   { path: 'auth/login', loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent) },
   { path: 'auth/register', loadComponent: () => import('./auth/register/register.component').then(m => m.RegisterComponent) },
+  { path: 'api-test', loadComponent: () => import('./features/api-test/api-test.component').then(m => m.ApiTestComponent) },
   { path: 'terms', loadComponent: () => import('./features/terms/terms.component').then(m => m.TermsComponent) },
   // Add more routes here as needed
   // { path: 'about', component: AboutComponent },
