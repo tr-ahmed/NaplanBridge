@@ -39,7 +39,7 @@ export class AuthService {
     const loginUrl = `${environment.apiBaseUrl}/Account/login`;
 
     console.log('🔍 API Debug Info:');
-    console.log('Base URL:', environment.apiBaseUrl);
+    console.log('Base URL v1:', environment.apiBaseUrl);
     console.log('Full URL:', loginUrl);
     console.log('Login Data:', loginData);
 
