@@ -42,10 +42,10 @@ const headers = new HttpHeaders({
 });
 
 const body = {
-  userName: 'ahmedh555',
+  userName: 'ahmed999',
   password: 'Aa246886',
-  year: 11,
-  age: 2
+  year: 9,
+  age: 5
 };
 
 this.http.post('https://naplanbridge.runasp.net/api/Account/register-student', body, { headers })
