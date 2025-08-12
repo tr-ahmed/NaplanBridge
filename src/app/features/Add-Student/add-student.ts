@@ -1,7 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -17,7 +17,6 @@ export class AddStudentComponent {
   success = false;
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
-    // Initialize the form after fb is available
     this.addStudentForm = this.fb.group({
       userName: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -36,7 +35,18 @@ export class AddStudentComponent {
     this.loading = true;
     const payload = this.addStudentForm.value;
 
-    this.http.post(`${environment.apiBaseUrl}/Account/register-student`, payload).subscribe({
+    // Get token from localStorage (or any storage you use)
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.post(
+      `${environment.apiBaseUrl}/Account/register-student`,
+      payload,
+      { headers }
+    ).subscribe({
       next: () => {
         this.success = true;
         this.addStudentForm.reset();
