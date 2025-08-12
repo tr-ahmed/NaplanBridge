@@ -48,7 +48,7 @@ const body = {
   age: 2
 };
 
-this.http.post('https://naplanbridge.runasp.net/api/Account/register-parent', body, { headers })
+this.http.post('https://naplanbridge.runasp.net/api/Account/register-student', body, { headers })
   .subscribe(
     res => console.log('✅ Success:', res),
     err => console.error('❌ Error:', err)
