@@ -10,51 +10,67 @@
     <h2 class="text-xl font-bold text-blue-900 text-center mb-6">Add New Student</h2>
 
     <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
-      <!-- Student Name -->
+      <!-- userName -->
       <div>
-        <label class="block text-sm font-medium text-blue-900 mb-1">Student Name</label>
+        <label class="block text-sm font-medium text-blue-900 mb-1">Username</label>
         <input
           type="text"
-          formControlName="studentName"
-          [class]="addStudentForm.get('studentName')?.invalid && addStudentForm.get('studentName')?.touched ?
+          formControlName="userName"
+          [class]="addStudentForm.get('userName')?.invalid && addStudentForm.get('userName')?.touched ?
             'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
             'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
-          placeholder="Enter student name"
+          placeholder="Enter username"
         />
-        @if (addStudentForm.get('studentName')?.invalid && addStudentForm.get('studentName')?.touched) {
-          <small class="text-red-500 text-xs mt-1">Student name is required.</small>
+        @if (addStudentForm.get('userName')?.invalid && addStudentForm.get('userName')?.touched) {
+          <small class="text-red-500 text-xs mt-1">Username is required.</small>
         }
       </div>
 
-      <!-- Birth Date -->
+      <!-- password -->
       <div>
-        <label class="block text-sm font-medium text-blue-900 mb-1">Birth Date</label>
+        <label class="block text-sm font-medium text-blue-900 mb-1">Password</label>
         <input
-          type="date"
-          formControlName="birthDate"
-          [class]="addStudentForm.get('birthDate')?.invalid && addStudentForm.get('birthDate')?.touched ?
+          type="password"
+          formControlName="password"
+          [class]="addStudentForm.get('password')?.invalid && addStudentForm.get('password')?.touched ?
             'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
             'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
-          placeholder="Select birth date"
+          placeholder="Enter password"
         />
-        @if (addStudentForm.get('birthDate')?.invalid && addStudentForm.get('birthDate')?.touched) {
-          <small class="text-red-500 text-xs mt-1">Birth date is required.</small>
+        @if (addStudentForm.get('password')?.invalid && addStudentForm.get('password')?.touched) {
+          <small class="text-red-500 text-xs mt-1">Password is required (min 6 chars).</small>
         }
       </div>
 
-      <!-- School Year -->
+      <!-- year -->
       <div>
-        <label class="block text-sm font-medium text-blue-900 mb-1">School Year</label>
+        <label class="block text-sm font-medium text-blue-900 mb-1">Year</label>
         <input
-          type="text"
-          formControlName="schoolYear"
-          [class]="addStudentForm.get('schoolYear')?.invalid && addStudentForm.get('schoolYear')?.touched ?
+          type="number"
+          formControlName="year"
+          [class]="addStudentForm.get('year')?.invalid && addStudentForm.get('year')?.touched ?
             'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
             'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
-          placeholder="e.g., 2025"
+          placeholder="Enter year"
         />
-        @if (addStudentForm.get('schoolYear')?.invalid && addStudentForm.get('schoolYear')?.touched) {
-          <small class="text-red-500 text-xs mt-1">School year is required.</small>
+        @if (addStudentForm.get('year')?.invalid && addStudentForm.get('year')?.touched) {
+          <small class="text-red-500 text-xs mt-1">Year is required.</small>
+        }
+      </div>
+
+      <!-- age -->
+      <div>
+        <label class="block text-sm font-medium text-blue-900 mb-1">Age</label>
+        <input
+          type="number"
+          formControlName="age"
+          [class]="addStudentForm.get('age')?.invalid && addStudentForm.get('age')?.touched ?
+            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+          placeholder="Enter age"
+        />
+        @if (addStudentForm.get('age')?.invalid && addStudentForm.get('age')?.touched) {
+          <small class="text-red-500 text-xs mt-1">Age is required and must be positive.</small>
         }
       </div>
 
