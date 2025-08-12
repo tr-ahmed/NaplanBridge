@@ -63,13 +63,14 @@
       <!-- Buttons (far right) -->
       <div class="flex items-center space-x-4 order-3">
         @if (isLoggedIn) {
+                      @if (userName) {
+              <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
+            }
           <button routerLink="/add-student" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold" (click)="navigateToAddStudent()">
             Add Student
           </button>
           <div class="hidden md:flex items-center space-x-3">
-            @if (userName) {
-              <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
-            }
+
             <button (click)="handleLogout()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold">
               Logout
             </button>
