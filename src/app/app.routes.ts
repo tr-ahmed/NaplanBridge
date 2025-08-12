@@ -7,6 +7,10 @@ export const routes: Routes = [
   { path: 'auth/login', loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent) },
   { path: 'auth/register', loadComponent: () => import('./auth/register/register.component').then(m => m.RegisterComponent) },
   { path: 'terms', loadComponent: () => import('./features/terms/terms.component').then(m => m.TermsComponent) },
+  {
+    path: 'add-student',
+    loadComponent: () => import('./features/Add-Student/add-student').then(m => m.AddStudentComponent)
+  },
   // Add more routes here as needed
   // { path: 'about', component: AboutComponent },
   // { path: 'courses', component: CoursesComponent },

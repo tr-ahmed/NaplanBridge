@@ -4,6 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:proxy": "node server.js",
+    "start:dev": "concurrently \"npm run start:proxy\" \"npm start\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -27,6 +29,9 @@
     "@angular/platform-browser": "^20.1.0",
     "@angular/router": "^20.1.0",
     "@fortawesome/fontawesome-free": "^7.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
@@ -37,6 +42,7 @@
     "@angular/compiler-cli": "^20.1.0",
     "@types/jasmine": "~5.1.0",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^7.6.0",
     "jasmine-core": "~5.8.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
