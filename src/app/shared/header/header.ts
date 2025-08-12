@@ -13,10 +13,6 @@ import { Subscription, filter } from 'rxjs';
   styleUrl: './header.scss'
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-navigateToAddStudent() {
-throw new Error('Method not implemented.');
-}
-
   navigationItems = [
     { label: 'Home', route: '/', icon: 'home' },
     { label: 'About Us', route: '/about', icon: 'info' },
@@ -34,7 +30,7 @@ throw new Error('Method not implemented.');
   private authSubscription: Subscription = new Subscription();
   private routeSubscription: Subscription = new Subscription();
 
-constructor(public authService: AuthService, public router: Router) {}
+  constructor(public authService: AuthService, public router: Router) {}
 
   ngOnInit(): void {
     // ✅ Subscribe to auth state
@@ -74,5 +70,9 @@ constructor(public authService: AuthService, public router: Router) {}
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  navigateToAddStudent() {
+    this.router.navigate(['/add-student']);
   }
 }

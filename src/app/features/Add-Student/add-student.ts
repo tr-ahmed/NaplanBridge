@@ -28,19 +28,30 @@ export class AddStudentComponent {
   onSubmit() {
     this.error = null;
     this.success = false;
+
     if (this.addStudentForm.invalid) {
       this.addStudentForm.markAllAsTouched();
       return;
     }
-    this.loading = true;
-    const payload = this.addStudentForm.value;
 
     // Get token from localStorage (or any storage you use)
     const token = localStorage.getItem('token');
+    if (!token) {
+      this.error = '⚠️ You are not logged in. Please log in to continue.';
+      return;
+    }
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
+
+    this.loading = true;
+    const payload = this.addStudentForm.value;
+
+    console.log('🚀 Sending request to:', `${environment.apiBaseUrl}/Account/register-student`);
+    console.log('📦 Payload:', payload);
+    console.log('🔑 Token:', token);
 
     this.http.post(
       `${environment.apiBaseUrl}/Account/register-student`,
@@ -53,6 +64,7 @@ export class AddStudentComponent {
         this.loading = false;
       },
       error: (err) => {
+        console.error('❌ API Error:', err);
         this.error = err?.error?.message || 'Failed to add student. Please try again.';
         this.loading = false;
       }
