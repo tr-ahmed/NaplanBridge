@@ -34,40 +34,25 @@ export class AddStudentComponent {
       return;
     }
 
-    // Get token from localStorage (or any storage you use)
-    const token = localStorage.getItem('token');
-    if (!token) {
-      this.error = '⚠️ You are not logged in. Please log in to continue.';
-      return;
-    }
+  const token = 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNiIsInVuaXF1ZV9uYW1lIjoiYWhtZWRoMzQzIiwicm9sZSI6WyJNZW1iZXIiLCJQYXJlbnQiXSwibmJmIjoxNzU1MDMzNTQxLCJleHAiOjE3NTU2MzgzNDEsImlhdCI6MTc1NTAzMzU0MX0.9o70xRFKo93i94QWgwU9UcnmBTC8zRLfs6031IBMIhwGsv2rSnsXdZRh4DSfoht649ANmwCEsCYjPnUb0ftHmg'; // التوكن اللي عندك
 
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
+const headers = new HttpHeaders({
+  'Authorization': `Bearer ${token}`,
+  'Content-Type': 'application/json'
+});
 
-    this.loading = true;
-    const payload = this.addStudentForm.value;
+const body = {
+  userName: 'ahmedh555',
+  password: 'Aa246886',
+  year: 11,
+  age: 2
+};
 
-    console.log('🚀 Sending request to:', `${environment.apiBaseUrl}/Account/register-student`);
-    console.log('📦 Payload:', payload);
-    console.log('🔑 Token:', token);
+this.http.post('https://naplanbridge.runasp.net/api/Account/register-parent', body, { headers })
+  .subscribe(
+    res => console.log('✅ Success:', res),
+    err => console.error('❌ Error:', err)
+  );
 
-    this.http.post(
-      `${environment.apiBaseUrl}/Account/register-student`,
-      payload,
-      { headers }
-    ).subscribe({
-      next: () => {
-        this.success = true;
-        this.addStudentForm.reset();
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('❌ API Error:', err);
-        this.error = err?.error?.message || 'Failed to add student. Please try again.';
-        this.loading = false;
-      }
-    });
   }
 }
