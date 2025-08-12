@@ -61,7 +61,7 @@ export class ApiDebugService {
       baseUrl: this.baseUrl,
       environment: environment,
       fullLoginUrl: `${this.baseUrl}/Account/login`,
-      fullRegisterUrl: `${this.baseUrl}/Account/register-parent`
+      fullRegisterUrl: `${this.baseUrl}/Auth/register-parent`
     };
   }
 }
