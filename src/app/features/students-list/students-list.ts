@@ -28,6 +28,7 @@ export class StudentsListComponent implements OnInit {
   fetchStudents() {
     this.loading = true;
     this.error = null;
+
     const token = localStorage.getItem('authToken');
     if (!token) {
       this.error = 'Auth token not found.';
@@ -35,9 +36,12 @@ export class StudentsListComponent implements OnInit {
       return;
     }
 
+    // استخراج الـ parentId من التوكن (JWT)
     let parentId: string | undefined;
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));      parentId = payload.parentId || payload.id || payload.userId;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // عدل اسم الخاصية حسب ما يظهر في payload (مثلاً: id أو userId أو parentId)
+      parentId = payload.id || payload.parentId || payload.userId;
     } catch (e) {
       this.error = 'Invalid token format.';
       this.loading = false;
@@ -50,20 +54,20 @@ export class StudentsListComponent implements OnInit {
       return;
     }
 
+    const url = `${environment.apiBaseUrl}/User/get-children/${parentId}`;
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
 
-    this.http.get<Student[]>(`${environment.apiBaseUrl}/User/get-children/${parentId}`, { headers })
-      .subscribe({
-        next: (data) => {
-          this.students = data;
-          this.loading = false;
-        },
-        error: (err) => {
-          this.error = err?.error?.message || 'Failed to load students.';
-          this.loading = false;
-        }
-      });
+    this.http.get<Student[]>(url, { headers }).subscribe({
+      next: (data) => {
+        this.students = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err?.error?.message || 'Failed to load students.';
+        this.loading = false;
+      }
+    });
   }
 }
