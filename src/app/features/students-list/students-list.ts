@@ -69,5 +69,9 @@ export class StudentsListComponent implements OnInit {
         this.loading = false;
       }
     });
+    
+  }
+    getAvatar(name: string) {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e40af&color=fff&size=128`;
   }
 }

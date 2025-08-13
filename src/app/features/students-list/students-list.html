@@ -1,16 +1,46 @@
-<div class="container mx-auto py-8">
-  <h2 class="text-2xl font-bold mb-6 text-blue-900">My Students</h2>
-  @if (loading) {
-    <div>Loading...</div>
-  } @else if (error) {
-    <div class="text-red-600">{{ error }}</div>
-  } @else if (students.length === 0) {
-    <div>No students found.</div>
-  } @else {
-    <ul>
-      @for (student of students; let i = $index; track i) {
-        <li>{{ student.userName }} - Year: {{ student.year }} - Age: {{ student.age }}</li>
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-900 to-blue-600 py-16">
+  <div class="container mx-auto px-6 text-center text-white">
+    <h1 class="text-4xl font-bold mb-4">My Students</h1>
+    <p class="text-lg opacity-80">Meet the amazing students enrolled in our program</p>
+  </div>
+</section>
+
+<!-- Loading / Error -->
+@if (loading) {
+  <div class="text-center py-10 text-gray-500">Loading...</div>
+}
+@if (error) {
+  <div class="text-center py-10 text-red-500">{{ error }}</div>
+}
+
+<!-- Cards -->
+@if (!loading && !error) {
+  <section class="bg-gray-50 py-12">
+    <div class="container mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      
+      @for (student of students; track student.id) {
+        <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition transform">
+          <div class="flex justify-center mb-4">
+            <div class="w-20 h-20 rounded-full overflow-hidden border-4 border-blue-100">
+              <img [src]="getAvatar(student.userName)" [alt]="student.userName" class="w-full h-full object-cover">
+            </div>
+          </div>
+          <h3 class="text-lg font-bold text-gray-800 text-center mb-2">{{ student.userName }}</h3>
+          <p class="flex items-center justify-center text-gray-600 mb-1">
+            📚 <span class="ml-2">Year: <span class="font-semibold">{{ student.year }}</span></span>
+          </p>
+          <p class="flex items-center justify-center text-gray-600">
+            🎂 <span class="ml-2">Age: <span class="font-semibold">{{ student.age }}</span></span>
+          </p>
+          <div class="mt-4 flex justify-center">
+            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+              View Profile
+            </button>
+          </div>
+        </div>
       }
-    </ul>
-  }
-</div>
+
+    </div>
+  </section>
+}
