@@ -15,7 +15,7 @@ import { Subscription, filter } from 'rxjs';
 export class HeaderComponent implements OnInit, OnDestroy {
   navigationItems = [
     { label: 'Home', route: '/', icon: 'home' },
-    { label: 'About Us', route: '/about', icon: 'info' },
+    { label: 'About Us', route: '/', icon: 'info', fragment: 'about', isAboutSection: true },
     { label: 'Plans', route: '/plans', icon: 'star' },
     { label: 'Courses', route: '/courses', icon: 'book' },
     { label: 'Blog', route: '/blog', icon: 'article' },
@@ -29,6 +29,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private authSubscription: Subscription = new Subscription();
   private routeSubscription: Subscription = new Subscription();
+isAboutSectionVisible: any;
 
   constructor(public authService: AuthService, public router: Router) {}
 
@@ -74,5 +75,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   navigateToAddStudent() {
     this.router.navigate(['/add-student']);
+  }
+
+  navigateToAboutSection() {
+    // إذا كنت بالفعل على الصفحة الرئيسية فقط اعمل scroll
+    if (this.router.url === '/' || this.router.url.startsWith('/#')) {
+      setTimeout(() => {
+        const el = document.getElementById('about');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      // انتقل للصفحة الرئيسية مع fragment
+      this.router.navigate(['/'], { fragment: 'about' });
+    }
   }
 }
