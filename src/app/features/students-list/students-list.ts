@@ -36,12 +36,10 @@ export class StudentsListComponent implements OnInit {
       return;
     }
 
-    // استخراج الـ parentId من التوكن (JWT)
-    let parentId: string | undefined;
+    let parentId: number | undefined;
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      // عدل اسم الخاصية حسب ما يظهر في payload (مثلاً: id أو userId أو parentId)
-      parentId = payload.id || payload.parentId || payload.userId;
+      parentId = Number(payload.nameid); // التحويل لرقم
     } catch (e) {
       this.error = 'Invalid token format.';
       this.loading = false;
@@ -56,7 +54,8 @@ export class StudentsListComponent implements OnInit {
 
     const url = `${environment.apiBaseUrl}/User/get-children/${parentId}`;
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
     });
 
     this.http.get<Student[]>(url, { headers }).subscribe({
@@ -65,6 +64,7 @@ export class StudentsListComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
+        console.error('API Error:', err);
         this.error = err?.error?.message || 'Failed to load students.';
         this.loading = false;
       }
