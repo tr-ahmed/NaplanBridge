@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 interface Student {
   id: number;
@@ -12,12 +14,16 @@ interface Student {
 @Component({
   selector: 'app-students-list',
   standalone: true,
-  templateUrl: './students-list.html'
+   imports: [RouterLink, CommonModule],
+
+  templateUrl: './students-list.html',
+  
 })
 export class StudentsListComponent implements OnInit {
   students: Student[] = [];
   loading = false;
   error: string | null = null;
+  router: any;
 
   constructor(private http: HttpClient) {}
 
@@ -73,5 +79,8 @@ export class StudentsListComponent implements OnInit {
   }
     getAvatar(name: string) {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e40af&color=fff&size=128`;
+  }
+    navigateToAddStudent() {
+    this.router.navigate(['/add-student']);
   }
 }

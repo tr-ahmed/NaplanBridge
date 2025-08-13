@@ -73,10 +73,6 @@ isAboutSectionVisible: any;
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
-  navigateToAddStudent() {
-    this.router.navigate(['/add-student']);
-  }
-
   navigateToAboutSection() {
     // إذا كنت بالفعل على الصفحة الرئيسية فقط اعمل scroll
     if (this.router.url === '/' || this.router.url.startsWith('/#')) {

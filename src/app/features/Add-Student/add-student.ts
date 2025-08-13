@@ -3,6 +3,10 @@ import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { Router } from '@angular/router';
+
+// استورد SweetAlert2
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-add-student',
@@ -16,7 +20,11 @@ export class AddStudentComponent {
   error: string | null = null;
   success = false;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private router: Router
+  ) {
     this.addStudentForm = this.fb.group({
       userName: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -51,10 +59,26 @@ export class AddStudentComponent {
         this.success = true;
         this.addStudentForm.reset();
         this.loading = false;
+        // SweetAlert2 success
+        Swal.fire({
+          icon: 'success',
+          title: 'Student added successfully!',
+          showConfirmButton: false,
+          timer: 1500
+        }).then(() => {
+          // Navigate to students list
+          this.router.navigate(['/students']);
+        });
       },
       error: (err) => {
         this.error = err?.error?.message || 'Failed to add student. Please try again.';
         this.loading = false;
+        // SweetAlert2 error
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: this.error ?? ''
+        });
       }
     });
   }
