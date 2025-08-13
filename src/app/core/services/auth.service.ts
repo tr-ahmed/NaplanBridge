@@ -176,7 +176,7 @@ export class AuthService {
         this.router.navigate(['/teacher/dashboard']);
         break;
       case 'parent':
-        this.router.navigate(['/parent/dashboard']);
+        this.router.navigate(['/students']);
         break;
       case 'student':
         this.router.navigate(['/student/dashboard']);
