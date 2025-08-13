@@ -1,0 +1,16 @@
+<div class="container mx-auto py-8">
+  <h2 class="text-2xl font-bold mb-6 text-blue-900">My Students</h2>
+  @if (loading) {
+    <div>Loading...</div>
+  } @else if (error) {
+    <div class="text-red-600">{{ error }}</div>
+  } @else if (students.length === 0) {
+    <div>No students found.</div>
+  } @else {
+    <ul>
+      @for (student of students; let i = $index; track i) {
+        <li>{{ student.userName }} - Year: {{ student.year }} - Age: {{ student.age }}</li>
+      }
+    </ul>
+  }
+</div>

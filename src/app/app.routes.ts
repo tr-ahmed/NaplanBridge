@@ -11,6 +11,10 @@ export const routes: Routes = [
     path: 'add-student',
     loadComponent: () => import('./features/Add-Student/add-student').then(m => m.AddStudentComponent)
   },
+  {
+    path: 'students',
+    loadComponent: () => import('./features/students-list/students-list').then(m => m.StudentsListComponent)
+  },
   // Add more routes here as needed
   // { path: 'about', component: AboutComponent },
   // { path: 'courses', component: CoursesComponent },
