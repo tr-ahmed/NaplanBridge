@@ -1,8 +1,19 @@
+<br><br>
 <!-- Hero Section -->
 <section class="bg-gradient-to-r from-blue-900 to-blue-600 py-16">
   <div class="container mx-auto px-6 text-center text-white">
-    <h1 class="text-4xl font-bold mb-4">My Students</h1>
+    <h1 class="text-4xl font-bold mb-4">My Children</h1>
     <p class="text-lg opacity-80">Meet the amazing students enrolled in our program</p>
+    <!--  Add Student -->
+    <div class="mt-8 flex justify-center">
+      <button
+        routerLink="/add-student"
+        class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-6 py-2 rounded-lg font-semibold bg-transparent outline-none transition-all duration-200 min-w-[120px] max-w-[180px] w-auto text-base"
+        style="box-sizing: border-box;"
+      >
+        + Add Student
+      </button>
+    </div>
   </div>
 </section>
 
@@ -28,10 +39,10 @@
           </div>
           <h3 class="text-lg font-bold text-gray-800 text-center mb-2">{{ student.userName }}</h3>
           <p class="flex items-center justify-center text-gray-600 mb-1">
-            📚 <span class="ml-2">Year: <span class="font-semibold">{{ student.year }}</span></span>
+             <span class="ml-2">Year: <span class="font-semibold">{{ student.year }}</span></span>
           </p>
           <p class="flex items-center justify-center text-gray-600">
-            🎂 <span class="ml-2">Age: <span class="font-semibold">{{ student.age }}</span></span>
+             <span class="ml-2">Age: <span class="font-semibold">{{ student.age }}</span></span>
           </p>
           <div class="mt-4 flex justify-center">
             <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition">

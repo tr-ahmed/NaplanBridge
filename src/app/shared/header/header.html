@@ -73,11 +73,10 @@
             <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
           }
           <button
-            routerLink="/add-student"
+            routerLink="/students"
             class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold bg-transparent outline-none transition-all duration-200 min-w-[120px] max-w-[180px] w-auto text-base"
-            style="box-sizing: border-box;"
-            (click)="navigateToAddStudent()">
-            Add Student
+            style="box-sizing: border-box;">
+            My Children
           </button>
           <button
             (click)="handleLogout()"
@@ -126,8 +125,8 @@
       }
       @if (isLoggedIn) {
         <li>
-          <a routerLink="/add-student" (click)="toggleMobileMenu()" class="block border border-primary-500 text-primary-500 font-semibold rounded-lg px-6 py-2 bg-transparent outline-none transition-all duration-200">
-            Add Student
+          <a routerLink="/students" (click)="toggleMobileMenu()" class="block border border-primary-500 text-primary-500 font-semibold rounded-lg px-6 py-2 bg-transparent outline-none transition-all duration-200">
+            My Children
           </a>
         </li>
         <li>
