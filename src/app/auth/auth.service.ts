@@ -87,7 +87,7 @@ export class AuthService {
     } else if (roles.includes('Teacher')) {
       this.router.navigate(['/teacher/dashboard']);
     } else if (roles.includes('Parent')) {
-      this.router.navigate(['/parent/dashboard']);
+      this.router.navigate(['/students']);
     } else {
       this.router.navigate(['/student/dashboard']);
     }
