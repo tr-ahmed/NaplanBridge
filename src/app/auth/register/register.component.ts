@@ -167,7 +167,7 @@ export class RegisterComponent {
         return `${this.getFieldDisplayName(fieldName)} must be no more than ${control.errors['maxlength'].requiredLength} characters`;
       }
       if (control.errors['pattern']) {
-        return 'Please enter a valid Egyptian phone number (e.g., 01012345678)';
+        return 'Please enter a valid  phone number ';
       }
       if (control.errors['min']) {
         return `Age must be at least ${control.errors['min'].min}`;
