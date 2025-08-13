@@ -35,8 +35,8 @@ export class AddStudentComponent {
     this.loading = true;
     const payload = this.addStudentForm.value;
 
-    // Get token from localStorage (or any storage you use)
-    const token = localStorage.getItem('token');
+    // Get token from localStorage with correct key
+    const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
