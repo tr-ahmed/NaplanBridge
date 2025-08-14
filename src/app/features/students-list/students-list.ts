@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AddStudentComponent } from "../Add-Student/add-student";
 
 interface Student {
   id: number;
@@ -14,7 +15,7 @@ interface Student {
 @Component({
   selector: 'app-students-list',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, AddStudentComponent],
   templateUrl: './students-list.html',
 })
 export class StudentsListComponent implements OnInit {
@@ -23,10 +24,12 @@ export class StudentsListComponent implements OnInit {
   error: string | null = null;
 
   // Pagination signals
-  pageSize = 8;
+  pageSize = 4;
   currentPage = signal(1);
   router: any;
-pageNumbers: any;
+  pageNumbers: any;
+
+  showAddStudentModal = false;
 
   get totalPages() {
     return Math.ceil(this.students.length / this.pageSize);
@@ -89,12 +92,12 @@ pageNumbers: any;
         this.loading = false;
       }
     });
-    
+
   }
-    getAvatar(name: string) {
+  getAvatar(name: string) {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e40af&color=fff&size=128`;
   }
-    navigateToAddStudent() {
+  navigateToAddStudent() {
     this.router.navigate(['/add-student']);
   }
 
@@ -102,5 +105,13 @@ pageNumbers: any;
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage.set(page);
     }
+  }
+
+  openAddStudentModal() {
+    this.showAddStudentModal = true;
+  }
+
+  closeAddStudentModal() {
+    this.showAddStudentModal = false;
   }
 }
