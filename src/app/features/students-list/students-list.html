@@ -28,30 +28,56 @@
 <!-- Cards -->
 @if (!loading && !error) {
   <section class="bg-gray-50 py-12">
-    <div class="container mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-      
-      @for (student of students; track student.id) {
-        <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition transform">
-          <div class="flex justify-center mb-4">
-            <div class="w-20 h-20 rounded-full overflow-hidden border-4 border-blue-100">
-              <img [src]="getAvatar(student.userName)" [alt]="student.userName" class="w-full h-full object-cover">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        @for (student of pagedStudents(); track student.id) {
+          <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl hover:-translate-y-1 transition transform">
+            <div class="flex justify-center mb-4">
+              <div class="w-20 h-20 rounded-full overflow-hidden border-4 border-blue-100">
+                <img [src]="getAvatar(student.userName)" [alt]="student.userName" class="w-full h-full object-cover">
+              </div>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 text-center mb-2">{{ student.userName }}</h3>
+            <p class="flex items-center justify-center text-gray-600 mb-1">
+               <span class="ml-2">Year: <span class="font-semibold">{{ student.year }}</span></span>
+            </p>
+            <p class="flex items-center justify-center text-gray-600">
+               <span class="ml-2">Age: <span class="font-semibold">{{ student.age }}</span></span>
+            </p>
+            <div class="mt-4 flex justify-center">
+              <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+                View Profile
+              </button>
             </div>
           </div>
-          <h3 class="text-lg font-bold text-gray-800 text-center mb-2">{{ student.userName }}</h3>
-          <p class="flex items-center justify-center text-gray-600 mb-1">
-             <span class="ml-2">Year: <span class="font-semibold">{{ student.year }}</span></span>
-          </p>
-          <p class="flex items-center justify-center text-gray-600">
-             <span class="ml-2">Age: <span class="font-semibold">{{ student.age }}</span></span>
-          </p>
-          <div class="mt-4 flex justify-center">
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition">
-              View Profile
+        }
+      </div>
+
+      <!-- Pagination Controls -->
+      @if (totalPages > 1) {
+        <div class="flex justify-center mt-8 space-x-2">
+          <button
+            class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-blue-100"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)">
+            Prev
+          </button>
+          @for (page of pageNumbers; track page) {
+            <button
+              class="px-3 py-1 rounded border border-gray-300"
+              [ngClass]="{'bg-blue-600 text-white': currentPage() === page, 'bg-white text-gray-700 hover:bg-blue-100': currentPage() !== page}"
+              (click)="goToPage(page)">
+              {{ page }}
             </button>
-          </div>
+          }
+          <button
+            class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-blue-100"
+            [disabled]="currentPage() === totalPages"
+            (click)="goToPage(currentPage() + 1)">
+            Next
+          </button>
         </div>
       }
-
     </div>
   </section>
 }

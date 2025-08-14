@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -14,16 +14,30 @@ interface Student {
 @Component({
   selector: 'app-students-list',
   standalone: true,
-   imports: [RouterLink, CommonModule],
-
+  imports: [RouterLink, CommonModule],
   templateUrl: './students-list.html',
-  
 })
 export class StudentsListComponent implements OnInit {
   students: Student[] = [];
   loading = false;
   error: string | null = null;
+
+  // Pagination signals
+  pageSize = 8;
+  currentPage = signal(1);
   router: any;
+pageNumbers: any;
+
+  get totalPages() {
+    return Math.ceil(this.students.length / this.pageSize);
+  }
+
+  pagedStudents = computed(() =>
+    this.students.slice(
+      (this.currentPage() - 1) * this.pageSize,
+      this.currentPage() * this.pageSize
+    )
+  );
 
   constructor(private http: HttpClient) {}
 
@@ -82,5 +96,11 @@ export class StudentsListComponent implements OnInit {
   }
     navigateToAddStudent() {
     this.router.navigate(['/add-student']);
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage.set(page);
+    }
   }
 }
