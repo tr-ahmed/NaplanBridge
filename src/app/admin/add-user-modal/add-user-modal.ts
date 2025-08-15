@@ -3,6 +3,7 @@ import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import Swal from 'sweetalert2';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-add-user-modal',
@@ -44,7 +45,7 @@ export class AddUserModalComponent {
       'Content-Type': 'application/json'
     });
 
-    this.http.post('https://naplanbridge.runasp.net/api/Account/register-teacher', payload, { headers })
+    this.http.post(`${environment.apiBaseUrl}/Account/register-teacher`, payload, { headers })
       .subscribe({
         next: (res) => {
           Swal.fire({ icon: 'success', title: 'Teacher added successfully!', timer: 1500, showConfirmButton: false });
