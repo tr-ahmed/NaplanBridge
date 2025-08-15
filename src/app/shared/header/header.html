@@ -66,86 +66,60 @@
         }
       </ul>
 
-      <!-- Buttons (far right) -->
-      <div class="flex items-center space-x-4 order-3">
-        @if (isLoggedIn) {
-          @if (userName) {
-            <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
-          }
-          <button
-            routerLink="/students"
-            class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold bg-transparent outline-none transition-all duration-200 min-w-[120px] max-w-[180px] w-auto text-base"
-            style="box-sizing: border-box;">
-            My Children
-          </button>
-          <button
-            (click)="handleLogout()"
-            class="hidden md:block border border-red-500 text-red-500 hover:bg-red-50 px-6 py-2 rounded-lg font-semibold bg-transparent outline-none transition-all duration-200">
-            Logout
-          </button>
-        } @else {
-          @if (isLoginPage) {
-            <a routerLink="/auth/register" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold">
-              Register
-            </a>
-          } @else {
-            <a routerLink="/auth/register" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold">
-              Register
-            </a>
-            <a routerLink="/auth/login" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold">
-              Login
-            </a>
-          }
-        }
+<!-- Buttons (far right) -->
+<div class="flex items-center space-x-4 order-3">
+  @if (isLoggedIn) {
+    @if (userName) {
+      <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
+    }
 
-        <!-- Mobile toggle button -->
-        <button class="md:hidden flex flex-col space-y-1 p-2" (click)="toggleMobileMenu()" [class.active]="isMobileMenuOpen" aria-label="Toggle navigation">
-          <span class="block w-6 h-0.5 bg-gray-600 transition-transform duration-300" [class.rotate-45]="isMobileMenuOpen" [class.translate-y-1.5]="isMobileMenuOpen"></span>
-          <span class="block w-6 h-0.5 bg-gray-600 transition-opacity duration-300" [class.opacity-0]="isMobileMenuOpen"></span>
-          <span class="block w-6 h-0.5 bg-gray-600 transition-transform duration-300" [class.-rotate-45]="isMobileMenuOpen" [class.-translate-y-1.5]="isMobileMenuOpen"></span>
-        </button>
-      </div>
+    @if (userRole?.includes('parent')) {
+      <button routerLink="/students" class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold">
+        My Children
+      </button>
+    }
+    @if (userRole?.includes('admin')) {
+      <button routerLink="/admin/dashboard" class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold">
+        Admin Dashboard
+      </button>
+    }
+    @if (userRole?.includes('teacher')) {
+      <button routerLink="/teacher/dashboard" class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold">
+        Teacher Dashboard
+      </button>
+    }
+    @if (userRole?.includes('student')) {
+      <button routerLink="/my-courses" class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold">
+        My Courses
+      </button>
+    }
+
+    <button (click)="handleLogout()" class="hidden md:block border border-red-500 text-red-500 hover:bg-red-50 px-6 py-2 rounded-lg font-semibold">
+      Logout
+    </button>
+  } @else {
+    @if (isLoginPage) {
+      <a routerLink="/auth/register" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold">
+        Register
+      </a>
+    } @else {
+      <a routerLink="/auth/register" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold">
+        Register
+      </a>
+      <a routerLink="/auth/login" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold">
+        Login
+      </a>
+    }
+  }
+
+  <!-- Mobile toggle button -->
+  <button class="md:hidden flex flex-col space-y-1 p-2" (click)="toggleMobileMenu()" [class.active]="isMobileMenuOpen" aria-label="Toggle navigation">
+    <span class="block w-6 h-0.5 bg-gray-600 transition-transform duration-300" [class.rotate-45]="isMobileMenuOpen" [class.translate-y-1.5]="isMobileMenuOpen"></span>
+    <span class="block w-6 h-0.5 bg-gray-600 transition-opacity duration-300" [class.opacity-0]="isMobileMenuOpen"></span>
+    <span class="block w-6 h-0.5 bg-gray-600 transition-transform duration-300" [class.-rotate-45]="isMobileMenuOpen" [class.-translate-y-1.5]="isMobileMenuOpen"></span>
+  </button>
+</div>
+
     </nav>
-  </div>
-
-  <!-- Mobile Menu (shows only on small screens) -->
-  <div
-    class="md:hidden absolute top-full left-0 w-full bg-white shadow-lg border-t border-gray-200 z-40 transition-all duration-300"
-    [class.hidden]="!isMobileMenuOpen"
-  >
-    <ul class="flex flex-col py-4 space-y-2">
-      @for (item of navigationItems; track item.route) {
-        <li>
-          <a [routerLink]="item.route"
-             (click)="toggleMobileMenu()"
-             class="block px-6 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 font-medium transition-all duration-200">
-            {{ item.label }}
-          </a>
-        </li>
-      }
-      @if (isLoggedIn) {
-        <li>
-          <a routerLink="/students" (click)="toggleMobileMenu()" class="block border border-primary-500 text-primary-500 font-semibold rounded-lg px-6 py-2 bg-transparent outline-none transition-all duration-200">
-            My Children
-          </a>
-        </li>
-        <li>
-          <button (click)="handleLogout(); toggleMobileMenu()" class="block w-full text-left border border-red-500 text-red-500 font-semibold rounded-lg px-6 py-2 bg-transparent outline-none transition-all duration-200">
-            Logout
-          </button>
-        </li>
-      } @else {
-        <li>
-          <a routerLink="/auth/login" (click)="toggleMobileMenu()" class="block px-6 py-2 text-primary-500 font-semibold">
-            Login
-          </a>
-        </li>
-        <li>
-          <a routerLink="/auth/register" (click)="toggleMobileMenu()" class="block px-6 py-2 text-primary-500 font-semibold">
-            Register
-          </a>
-        </li>
-      }
-    </ul>
   </div>
 </header>

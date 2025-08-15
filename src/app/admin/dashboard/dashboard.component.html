@@ -1,14 +1,271 @@
-<div class="p-6 bg-gray-100 min-h-screen text-right">
-  <h2 class="text-2xl font-bold text-red-700">
-    مرحبًا، {{ admin.name }}
-  </h2>
-  <p class="mb-2">👥 عدد المستخدمين: {{ admin.totalUsers }}</p>
-  <p class="mb-4">📚 عدد الدروس المسجلة: {{ admin.totalCourses }}</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NAPLANBridge Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .btn:focus:not(:focus-visible){outline:none;box-shadow:none}
+  </style>
+</head>
+<body class="bg-[#F5F7FA] text-gray-900">
+  <div class="min-h-screen flex">
 
-  <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">
-    إدارة المستخدمين
-  </button>
-  <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800 ml-2">
-    إدارة المواد الدراسية
-  </button>
-</div>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[#0F376B] text-white flex flex-col">
+      <!-- Brand -->
+      <div class="flex items-center gap-3 px-5 py-4 border-b border-white/10">
+        <div class="w-10 h-10 rounded-full bg-white/15 grid place-content-center text-lg font-black">N</div>
+        <div class="text-xl font-bold">NAPLAN<span class="text-orange-400">Bridge</span></div>
+      </div>
+
+      <!-- Nav -->
+      <nav class="flex-1 p-3 space-y-1">
+        <!-- selected -->
+        <a href="#" class="group flex items-center gap-3 px-4 py-2 rounded-xl bg-white/10">
+          <!-- icons always white -->
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 12l9-9 9 9"/><path d="M9 21V9h6v12"/>
+          </svg>
+          <span class="font-medium">Dashboard</span>
+        </a>
+
+        <a href="#" class="group flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-white/10">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <span class="font-medium">User management</span>
+        </a>
+
+        <a href="#" class="group flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-white/10">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 10h18"/>
+          </svg>
+          <span class="font-medium">content management</span>
+        </a>
+
+        <a href="#" class="group flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-white/10">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 3v18h18"/><path d="M19 13l-5 5-4-4-3 3"/>
+          </svg>
+          <span class="font-medium">Analytics</span>
+        </a>
+
+        <a href="#" class="group flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-white/10">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M20 7h-9a4 4 0 0 0-4 4v7"/><path d="M9 7V4a2 2 0 0 1 2-2h3"/><path d="M3 17h11a4 4 0 0 0 4-4V7"/>
+          </svg>
+          <span class="font-medium">Financial reports</span>
+        </a>
+
+        <a href="#" class="group flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-white/10">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.04 3.3l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .69.28 1.35.78 1.82.23.22.51.39.82.48V12c-.31.09-.59.26-.82.48A2.64 2.64 0 0 0 19.4 15z"/>
+          </svg>
+          <span class="font-medium">System setting</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar footer -->
+      <div class="mt-auto border-t border-white/10">
+        <div class="flex items-center gap-3 px-5 py-3">
+    <div class="w-10 h-10 rounded-full border-2 border-gray-300 overflow-hidden shadow-md">
+      <img src="https://i.pravatar.cc/40?img=5" alt="User" class="w-full h-full object-cover" />
+    </div>          <div class="leading-tight">
+            <div class="text-sm font-medium">Admin user</div>
+          </div>
+        </div>
+        <a href="#" class="block px-5 py-2 text-sm hover:bg-white/10 rounded-lg">Logout</a>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 p-6">
+      <!-- Top bar -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="relative w-[520px] max-w-full">
+          <input type="text" placeholder="Search user, content or analytic"
+                 class="w-full pl-11 pr-4 py-2.5 rounded-2xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#407BFF]/30"/>
+          <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button class="btn inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#EAF1FF] text-[#1D4ED8] border border-[#D6E4FF]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export report
+          </button>
+          <button class="btn px-4 py-2 rounded-xl bg-[#0F376B] text-white">+ Add user</button>
+  <div class="flex items-center gap-4">
+    <!-- Notification Bell -->
+    <div class="relative">
+      <button class="w-10 h-10 rounded-full bg-[#0F376B] flex items-center justify-center hover:bg-blue-300 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
+        </svg>
+      </button>
+      <!-- Notification Dot -->
+      <span class="absolute top-1 right-1 block w-2 h-2 bg-red-500 rounded-full"></span>
+    </div>
+
+    <!-- User Avatar -->
+    <div class="w-10 h-10 rounded-full border-2 border-gray-300 overflow-hidden shadow-md">
+      <img src="https://i.pravatar.cc/40?img=5" alt="User" class="w-full h-full object-cover" />
+    </div>
+  </div>        </div>
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-[22px] font-bold">Admin dashboard</h1>
+      <p class="text-gray-500 mb-4">Monitor and manage your education platform</p>
+
+      <!-- KPI cards -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+        <!-- card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div class="text-[#2F5BAA] font-semibold">Total Users</div>
+          <div class="mt-1 flex items-end justify-between">
+            <div class="text-3xl font-bold tracking-tight">12,450</div>
+            <span class="px-2 py-1 text-sm rounded-lg bg-[#EAF8F0] text-[#2E8B57] font-semibold">+12.8%</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div class="text-[#2F5BAA] font-semibold">Active teachers</div>
+          <div class="mt-1 flex items-end justify-between">
+            <div class="text-3xl font-bold tracking-tight">8,320</div>
+            <span class="px-2 py-1 text-sm rounded-lg bg-[#EAF8F0] text-[#2E8B57] font-semibold">+6.2%</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div class="text-[#2F5BAA] font-semibold">New enrollments</div>
+          <div class="mt-1 flex items-end justify-between">
+            <div class="text-3xl font-bold tracking-tight">950</div>
+            <span class="px-2 py-1 text-sm rounded-lg bg-[#FFECEF] text-[#E74C3C] font-semibold">-60%</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div class="text-[#2F5BAA] font-semibold">Monthly revenue</div>
+          <div class="mt-1 flex items-end justify-between">
+            <div class="text-3xl font-bold tracking-tight">$25,300</div>
+            <span class="px-2 py-1 text-sm rounded-lg bg-[#EAF8F0] text-[#2E8B57] font-semibold">+18%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts row -->
+      <section class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+        <!-- Line chart -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div class="text-[#2F5BAA] font-semibold">Revenue and user growth</div>
+          <div class="text-sm text-gray-500">monthly revenue and user acquisition trends</div>
+          <div class="mt-4 h-[260px]">
+            <canvas id="lineChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Donut + legend -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div class="text-[#2F5BAA] font-semibold">User distribution</div>
+          <div class="text-sm text-gray-500">Breakdown of platform users</div>
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+            <canvas id="donutChart" class="max-h-[250px]"></canvas>
+            <ul class="space-y-2 text-sm">
+              <li class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded-sm bg-[#3B82F6]"></span> Students</li>
+              <li class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded-sm bg-[#A855F7]"></span> Teachers</li>
+              <li class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded-sm bg-[#F472B6]"></span> Parents</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom row -->
+      <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <!-- System Health -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div class="text-[17px] font-semibold">System Health</div>
+          <div class="text-sm text-gray-500 mb-3">Current system status and performance</div>
+
+          <div class="flex items-center justify-between py-3 border-y border-gray-100">
+            <div class="font-medium">Server Status</div>
+            <span class="px-2 py-1 rounded-lg bg-[#EAF8F0] text-[#2E8B57] text-sm font-semibold">Operational</span>
+          </div>
+          <div class="flex items-center justify-between py-3">
+            <div class="font-medium">Database</div>
+            <span class="px-2 py-1 rounded-lg bg-[#EAF8F0] text-[#2E8B57] text-sm font-semibold">Operational</span>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div class="text-[17px] font-semibold">Recent Activity</div>
+          <div class="text-sm text-gray-500 mb-3">Latest system activities and events</div>
+
+          <div class="flex items-center justify-between py-3 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-[#EAF1FF] text-[#1D4ED8] grid place-content-center">👤</div>
+              <div class="font-medium">John Smith registered as a teacher</div>
+            </div>
+            <div class="text-sm text-gray-500">25m Ago</div>
+          </div>
+
+          <div class="flex items-center justify-between py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-[#EAF8F0] text-[#2E8B57] grid place-content-center">💳</div>
+              <div class="font-medium">Payment of $350 received</div>
+            </div>
+            <div class="text-sm text-gray-500">25m Ago</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Line chart
+    new Chart(document.getElementById('lineChart'), {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          data: [19500, 19200, 20000, 22200, 23800, 20500],
+          borderColor: '#6C8DFF',
+          backgroundColor: '#6C8DFF',
+          borderWidth: 2,
+          tension: 0.35,
+          pointRadius: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: 'rgba(0,0,0,0.06)' } }
+        }
+      }
+    });
+
+    // Donut chart
+    new Chart(document.getElementById('donutChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Students', 'Teachers', 'Parents'],
+        datasets: [{
+          data: [50, 35, 15],
+          backgroundColor: ['#3B82F6', '#A855F7', '#F472B6'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        cutout: '60%',
+        plugins: { legend: { display: false } }
+      }
+    });
+  </script>
+</body>
+</html>

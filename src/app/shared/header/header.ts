@@ -25,11 +25,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isMobileMenuOpen = false;
   isLoggedIn = false;
   userName = '';
+userRole: string[] | null = null;
   isLoginPage = false;
 
   private authSubscription: Subscription = new Subscription();
   private routeSubscription: Subscription = new Subscription();
-isAboutSectionVisible: any;
 
   constructor(public authService: AuthService, public router: Router) {}
 
@@ -39,6 +39,7 @@ isAboutSectionVisible: any;
       this.authService.currentUser$.subscribe(user => {
         this.isLoggedIn = !!user;
         this.userName = user?.userName || '';
+        this.userRole = user?.roles || null; // ✅ احفظ الدور من الـ user
       })
     );
 
@@ -46,6 +47,7 @@ isAboutSectionVisible: any;
     this.isLoggedIn = this.authService.isAuthenticated();
     const currentUser = this.authService.currentUser();
     this.userName = currentUser?.userName || '';
+    this.userRole = currentUser?.roles || null; // ✅ احفظ الدور في البداية
 
     // ✅ Subscribe to route changes
     this.routeSubscription = this.router.events
@@ -74,14 +76,12 @@ isAboutSectionVisible: any;
   }
 
   navigateToAboutSection() {
-    // إذا كنت بالفعل على الصفحة الرئيسية فقط اعمل scroll
     if (this.router.url === '/' || this.router.url.startsWith('/#')) {
       setTimeout(() => {
         const el = document.getElementById('about');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } else {
-      // انتقل للصفحة الرئيسية مع fragment
       this.router.navigate(['/'], { fragment: 'about' });
     }
   }
