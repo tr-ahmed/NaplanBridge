@@ -12,7 +12,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/Add-Student/add-student').then(m => m.AddStudentComponent)
   },
   {
-    path: 'students',
+    path: 'parent',
     loadComponent: () => import('./features/students-list/students-list').then(m => m.StudentsListComponent)
   },
     {
