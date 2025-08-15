@@ -1,7 +1,7 @@
 <!-- Main App Layout -->
 <div class="min-h-screen flex flex-col bg-gradient-to-br from-blue-800 to-blue-900">
   <!-- Header Component -->
-<app-header *ngIf="!isDashboardPage"></app-header>
+<app-header></app-header>
 
   <!-- Main Content Area -->
   <main class="flex-1">
@@ -9,7 +9,7 @@
   </main>
 <app-scroll-to-top />
   <!-- Footer Component -->
-<app-footer *ngIf="!isDashboardPage"></app-footer>
+<app-footer></app-footer>
 
   <!-- Toast Container for notifications -->
   <app-toast-container></app-toast-container>

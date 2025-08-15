@@ -13,17 +13,7 @@ import { filter } from 'rxjs';
   styleUrl: './app.scss'
 })
 export class AppComponent {
-  isDashboardPage = false;
 
-  constructor(private router: Router) {
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-.subscribe((event: any) => {
-  const currentUrl = event.urlAfterRedirects;
-  this.isDashboardPage = currentUrl.startsWith('/admin/dashboard');
-});
-
-  }
   protected readonly title = signal('NAPLAN-Bridge Learning Platform');
   
 }
