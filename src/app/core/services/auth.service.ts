@@ -145,21 +145,23 @@ export class AuthService {
    * Get user's primary role for navigation purposes
    */
 getPrimaryRole(): string | null {
-  const roles = this.currentUserSubject.value?.roles || [];
+  const roles = this.userRoles() || [];
   if (!roles || roles.length === 0) return null;
 
-  // شيل Member لأنه ثابت ومش معبر عن حاجة
-  const filteredRoles = roles.filter(r => r !== 'Member');
-
+  // فلترة Member
+  const filteredRoles = roles.filter(r => r.toLowerCase() !== 'member');
   if (filteredRoles.length === 0) return null;
 
-  // الأولوية: Admin > Teacher > Parent > Student
-  if (filteredRoles.includes('Admin')) return 'Admin';
-  if (filteredRoles.includes('Teacher')) return 'Teacher';
-  if (filteredRoles.includes('Parent')) return 'Parent';
-  if (filteredRoles.includes('Student')) return 'Student';
+  // أولوية الأدوار
+  const rolePriority = ['admin', 'teacher', 'parent', 'student'];
 
-  // fallback (لو فيه أي رول تاني مش متوقع)
+  for (const priorityRole of rolePriority) {
+    if (filteredRoles.some(userRole => userRole.toLowerCase() === priorityRole)) {
+      return priorityRole.charAt(0).toUpperCase() + priorityRole.slice(1); // Admin, Teacher, ...
+    }
+  }
+
+  // fallback → لو فيه أي رول غريب
   return filteredRoles[0];
 }
 
