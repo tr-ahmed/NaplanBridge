@@ -179,7 +179,7 @@ getPrimaryRole(): string | null {
       case 'teacher':
         this.router.navigate(['/teacher/dashboard']);
         break;
-      case 'parent':
+      case 'Parent':
         this.router.navigate(['/students']);
         break;
       case 'student':
