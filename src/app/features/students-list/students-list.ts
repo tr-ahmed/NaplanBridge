@@ -15,7 +15,7 @@ interface Student {
 @Component({
   selector: 'app-students-list',
   standalone: true,
-  imports: [RouterLink, CommonModule, AddStudentComponent],
+  imports: [RouterLink, CommonModule],
   templateUrl: './students-list.html',
 })
 export class StudentsListComponent implements OnInit {
