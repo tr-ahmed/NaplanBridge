@@ -144,23 +144,25 @@ export class AuthService {
   /**
    * Get user's primary role for navigation purposes
    */
-  getPrimaryRole(): string | null {
-    const roles = this.userRoles();
+getPrimaryRole(): string | null {
+  const roles = this.currentUserSubject.value?.roles || [];
+  if (!roles || roles.length === 0) return null;
 
-    if (roles.length === 0) return null;
+  // شيل Member لأنه ثابت ومش معبر عن حاجة
+  const filteredRoles = roles.filter(r => r !== 'Member');
 
-    // Priority order for role-based navigation
-    const rolePriority = ['admin', 'teacher', 'parent', 'student'];
+  if (filteredRoles.length === 0) return null;
 
-    for (const priorityRole of rolePriority) {
-      if (roles.some(userRole => userRole.toLowerCase() === priorityRole)) {
-        return priorityRole;
-      }
-    }
+  // الأولوية: Admin > Teacher > Parent > Student
+  if (filteredRoles.includes('Admin')) return 'Admin';
+  if (filteredRoles.includes('Teacher')) return 'Teacher';
+  if (filteredRoles.includes('Parent')) return 'Parent';
+  if (filteredRoles.includes('Student')) return 'Student';
 
-    // Return first role if none match priority
-    return roles[0].toLowerCase();
-  }
+  // fallback (لو فيه أي رول تاني مش متوقع)
+  return filteredRoles[0];
+}
+
 
   /**
    * Navigate user to appropriate dashboard based on their role
