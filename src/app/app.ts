@@ -15,5 +15,17 @@ import { filter } from 'rxjs';
 export class AppComponent {
 
   protected readonly title = signal('NAPLAN-Bridge Learning Platform');
-  
+    showHeader = true;
+
+  constructor(private router: Router) {
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.urlAfterRedirects === '/admin/dashboard') {
+          this.showHeader = false;
+        } else {
+          this.showHeader = true;
+        }
+      });
+  }
 }
