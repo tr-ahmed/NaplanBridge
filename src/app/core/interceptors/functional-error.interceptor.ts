@@ -1,14 +1,11 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
-import { ToastService } from '../services/toast.service';
+import Swal from 'sweetalert2';
 
 /**
  * Functional HTTP error interceptor for handling API errors globally
  */
 export const functionalErrorInterceptor: HttpInterceptorFn = (req, next) => {
-  const toastService: ToastService = inject(ToastService);
-
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       let errorMessage = 'An unexpected error occurred';
@@ -55,8 +52,13 @@ export const functionalErrorInterceptor: HttpInterceptorFn = (req, next) => {
           errorMessage = error.error?.message || `Error ${error.status}: ${error.statusText}`;
       }
 
-      // Show error toast notification
-      toastService.showError(errorMessage);
+      // ✅ Show SweetAlert2 popup
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: errorMessage,
+        confirmButtonColor: '#d33'
+      });
 
       // Re-throw the error so components can handle it if needed
       return throwError(() => ({
