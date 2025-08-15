@@ -12,19 +12,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/Add-Student/add-student').then(m => m.AddStudentComponent)
   },
   {
-    path: 'parent',
+    path: '/parent/dashboard',
     loadComponent: () => import('./features/students-list/students-list').then(m => m.StudentsListComponent)
   },
     {
-    path: 'student',
+    path: '/student/dashboard',
     loadComponent: () => import('./student/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
       {
-    path: 'admin',
+    path: '/admin/dashboard',
     loadComponent: () => import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
        {
-    path: 'teacher',
+    path: '/teacher/dashboard',
     loadComponent: () => import('./teacher/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
   // Add more routes here as needed

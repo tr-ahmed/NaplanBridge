@@ -39,7 +39,7 @@ export class AuthService {
       const user: AuthResponse = {
         userName,
         token,
-        roles: JSON.parse(roles) as string[]
+        roles: JSON.parse(roles)
       };
 
       this.setCurrentUser(user);
@@ -144,25 +144,23 @@ export class AuthService {
   /**
    * Get user's primary role for navigation purposes
    */
-getPrimaryRole(): string | null {
-  const roles = this.currentUserSubject.value?.roles || [];
-  if (!roles || roles.length === 0) return null;
+  getPrimaryRole(): string | null {
+    const roles = this.userRoles();
 
-  // شيل Member لأنه ثابت ومش معبر عن حاجة
-  const filteredRoles = roles.filter(r => r !== 'Member');
+    if (roles.length === 0) return null;
 
-  if (filteredRoles.length === 0) return null;
+    // Priority order for role-based navigation
+    const rolePriority = ['admin', 'teacher', 'parent', 'student'];
 
-  // الأولوية: Admin > Teacher > Parent > Student
-  if (filteredRoles.includes('Admin')) return 'Admin';
-  if (filteredRoles.includes('Teacher')) return 'Teacher';
-  if (filteredRoles.includes('Parent')) return 'Parent';
-  if (filteredRoles.includes('Student')) return 'Student';
+    for (const priorityRole of rolePriority) {
+      if (roles.some(userRole => userRole.toLowerCase() === priorityRole)) {
+        return priorityRole;
+      }
+    }
 
-  // fallback (لو فيه أي رول تاني مش متوقع)
-  return filteredRoles[0];
-}
-
+    // Return first role if none match priority
+    return roles[0].toLowerCase();
+  }
 
   /**
    * Navigate user to appropriate dashboard based on their role
@@ -172,16 +170,16 @@ getPrimaryRole(): string | null {
 
     switch (primaryRole) {
       case 'admin':
-        this.router.navigate(['/admin']);
+        this.router.navigate(['/admin/dashboard']);
         break;
       case 'teacher':
-        this.router.navigate(['/teacher']);
+        this.router.navigate(['/teacher/dashboard']);
         break;
       case 'parent':
-        this.router.navigate(['/parent']);
+        this.router.navigate(['/parent/dashboard']);
         break;
       case 'student':
-        this.router.navigate(['/student']);
+        this.router.navigate(['/student/dashboard']);
         break;
       default:
         this.router.navigate(['/home']);
