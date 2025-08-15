@@ -10,7 +10,7 @@ import { Subscription, filter } from 'rxjs';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './header.html',
-  styleUrl: './header.scss'
+  styleUrls: ['./header.scss']   // ✅ تصحيح
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   navigationItems = [
@@ -25,45 +25,38 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isMobileMenuOpen = false;
   isLoggedIn = false;
   userName = '';
-  userRole: string | null = null;   // ✅ الدور الأساسي (Admin / Teacher / Parent / Student)
+  userRole: string | null = null;
   isLoginPage = false;
 
-  private authSubscription: Subscription = new Subscription();
-  private routeSubscription: Subscription = new Subscription();
-  isAboutSectionVisible: any;
+  private subscriptions = new Subscription();
 
   constructor(public authService: AuthService, public router: Router) {}
 
   ngOnInit(): void {
     // ✅ Subscribe to auth state
-    this.authSubscription.add(
+    this.subscriptions.add(
       this.authService.currentUser$.subscribe(user => {
         this.isLoggedIn = !!user;
         this.userName = user?.userName || '';
-        this.userRole = this.authService.getPrimaryRole(); // الدور الأساسي
+        this.userRole = this.authService.getPrimaryRole();
       })
     );
 
-    // ✅ Initial auth check
-    this.isLoggedIn = this.authService.isAuthenticated();
-    const currentUser = this.authService.currentUser();
-    this.userName = currentUser?.userName || '';
-    this.userRole = this.authService.getPrimaryRole();
-
     // ✅ Subscribe to route changes
-    this.routeSubscription = this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: any) => {
-        this.isLoginPage = event.url.includes('/auth/login');
-      });
+    this.subscriptions.add(
+      this.router.events
+        .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event: any) => {
+          this.isLoginPage = event.url.includes('/auth/login');
+        })
+    );
 
-    // ✅ Set initial value for isLoginPage
+    // ✅ Initial value for isLoginPage
     this.isLoginPage = this.router.url.includes('/auth/login');
   }
 
   ngOnDestroy(): void {
-    this.authSubscription.unsubscribe();
-    this.routeSubscription.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   handleLogout(): void {
@@ -77,14 +70,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   navigateToAboutSection() {
-    // إذا كنت بالفعل على الصفحة الرئيسية فقط اعمل scroll
     if (this.router.url === '/' || this.router.url.startsWith('/#')) {
       setTimeout(() => {
         const el = document.getElementById('about');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } else {
-      // انتقل للصفحة الرئيسية مع fragment
       this.router.navigate(['/'], { fragment: 'about' });
     }
   }
