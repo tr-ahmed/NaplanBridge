@@ -25,11 +25,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isMobileMenuOpen = false;
   isLoggedIn = false;
   userName = '';
-userRole: string[] | null = null;
+  userRole: string | null = null;   // ✅ الدور الأساسي (Admin / Teacher / Parent / Student)
   isLoginPage = false;
 
   private authSubscription: Subscription = new Subscription();
   private routeSubscription: Subscription = new Subscription();
+  isAboutSectionVisible: any;
 
   constructor(public authService: AuthService, public router: Router) {}
 
@@ -39,7 +40,7 @@ userRole: string[] | null = null;
       this.authService.currentUser$.subscribe(user => {
         this.isLoggedIn = !!user;
         this.userName = user?.userName || '';
-        this.userRole = user?.roles || null; // ✅ احفظ الدور من الـ user
+        this.userRole = this.authService.getPrimaryRole(); // الدور الأساسي
       })
     );
 
@@ -47,7 +48,7 @@ userRole: string[] | null = null;
     this.isLoggedIn = this.authService.isAuthenticated();
     const currentUser = this.authService.currentUser();
     this.userName = currentUser?.userName || '';
-    this.userRole = currentUser?.roles || null; // ✅ احفظ الدور في البداية
+    this.userRole = this.authService.getPrimaryRole();
 
     // ✅ Subscribe to route changes
     this.routeSubscription = this.router.events
@@ -76,12 +77,14 @@ userRole: string[] | null = null;
   }
 
   navigateToAboutSection() {
+    // إذا كنت بالفعل على الصفحة الرئيسية فقط اعمل scroll
     if (this.router.url === '/' || this.router.url.startsWith('/#')) {
       setTimeout(() => {
         const el = document.getElementById('about');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } else {
+      // انتقل للصفحة الرئيسية مع fragment
       this.router.navigate(['/'], { fragment: 'about' });
     }
   }

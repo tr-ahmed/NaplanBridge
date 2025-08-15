@@ -39,7 +39,7 @@ export class AuthService {
       const user: AuthResponse = {
         userName,
         token,
-        roles: JSON.parse(roles)
+        roles: JSON.parse(roles) as string[]
       };
 
       this.setCurrentUser(user);

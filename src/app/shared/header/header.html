@@ -73,28 +73,36 @@
       <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
     }
 
-    @if (userRole?.includes('parent')) {
-      <button routerLink="/students" class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold">
+    <!-- ✅ زر واحد حسب الدور -->
+    @if (userRole === 'Admin') {
+      <button
+        routerLink="/admin/dashboard"
+        class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
+        Admin Panel
+      </button>
+    } @else if (userRole === 'Teacher') {
+      <button
+        routerLink="/teacher/dashboard"
+        class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
+        Teacher Panel
+      </button>
+    } @else if (userRole === 'Parent') {
+      <button
+        routerLink="/students"
+        class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
         My Children
       </button>
-    }
-    @if (userRole?.includes('admin')) {
-      <button routerLink="/admin/dashboard" class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold">
-        Admin Dashboard
-      </button>
-    }
-    @if (userRole?.includes('teacher')) {
-      <button routerLink="/teacher/dashboard" class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold">
-        Teacher Dashboard
-      </button>
-    }
-    @if (userRole?.includes('student')) {
-      <button routerLink="/my-courses" class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold">
-        My Courses
+    } @else if (userRole === 'Student') {
+      <button
+        routerLink="/student/dashboard"
+        class="hidden md:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
+        My Dashboard
       </button>
     }
 
-    <button (click)="handleLogout()" class="hidden md:block border border-red-500 text-red-500 hover:bg-red-50 px-6 py-2 rounded-lg font-semibold">
+    <button
+      (click)="handleLogout()"
+      class="hidden md:block border border-red-500 text-red-500 hover:bg-red-50 px-6 py-2 rounded-lg font-semibold bg-transparent outline-none transition-all duration-200">
       Logout
     </button>
   } @else {
@@ -121,5 +129,46 @@
 </div>
 
     </nav>
+  </div>
+
+  <!-- Mobile Menu (shows only on small screens) -->
+  <div
+    class="md:hidden absolute top-full left-0 w-full bg-white shadow-lg border-t border-gray-200 z-40 transition-all duration-300"
+    [class.hidden]="!isMobileMenuOpen"
+  >
+    <ul class="flex flex-col py-4 space-y-2">
+      @for (item of navigationItems; track item.route) {
+        <li>
+          <a [routerLink]="item.route"
+             (click)="toggleMobileMenu()"
+             class="block px-6 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 font-medium transition-all duration-200">
+            {{ item.label }}
+          </a>
+        </li>
+      }
+      @if (isLoggedIn) {
+        <li>
+          <a routerLink="/students" (click)="toggleMobileMenu()" class="block border border-primary-500 text-primary-500 font-semibold rounded-lg px-6 py-2 bg-transparent outline-none transition-all duration-200">
+            My Children
+          </a>
+        </li>
+        <li>
+          <button (click)="handleLogout(); toggleMobileMenu()" class="block w-full text-left border border-red-500 text-red-500 font-semibold rounded-lg px-6 py-2 bg-transparent outline-none transition-all duration-200">
+            Logout
+          </button>
+        </li>
+      } @else {
+        <li>
+          <a routerLink="/auth/login" (click)="toggleMobileMenu()" class="block px-6 py-2 text-primary-500 font-semibold">
+            Login
+          </a>
+        </li>
+        <li>
+          <a routerLink="/auth/register" (click)="toggleMobileMenu()" class="block px-6 py-2 text-primary-500 font-semibold">
+            Register
+          </a>
+        </li>
+      }
+    </ul>
   </div>
 </header>
