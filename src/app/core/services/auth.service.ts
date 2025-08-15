@@ -172,16 +172,16 @@ getPrimaryRole(): string | null {
 
     switch (primaryRole) {
       case 'admin':
-        this.router.navigate(['/admin/dashboard']);
+        this.router.navigate(['/admin']);
         break;
       case 'teacher':
-        this.router.navigate(['/teacher/dashboard']);
+        this.router.navigate(['/teacher']);
         break;
       case 'parent':
-        this.router.navigate(['/parent/dashboard']);
+        this.router.navigate(['/parent']);
         break;
       case 'student':
-        this.router.navigate(['/student/dashboard']);
+        this.router.navigate(['/student']);
         break;
       default:
         this.router.navigate(['/home']);
