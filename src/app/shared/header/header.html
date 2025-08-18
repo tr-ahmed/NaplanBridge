@@ -39,12 +39,27 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <ul class="absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <li><a routerLink="/courses/mathematics" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Mathematics</a></li>
-                <li><a routerLink="/courses/reading" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Reading</a></li>
-                <li><a routerLink="/courses/writing" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Writing</a></li>
-                <li><a routerLink="/courses/language" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Language Conventions</a></li>
-                <li><a routerLink="/courses/all" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 border-t border-gray-100 mt-1 pt-3">View All Courses</a></li>
+              <ul class="absolute left-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <li><a (click)="navigateToCoursesWithFilter('mathematics')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2">
+                  <i class="fas fa-calculator text-blue-600"></i>
+                  Mathematics
+                </a></li>
+                <li><a (click)="navigateToCoursesWithFilter('reading')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2">
+                  <i class="fas fa-book-open text-green-600"></i>
+                  Reading
+                </a></li>
+                <li><a (click)="navigateToCoursesWithFilter('writing')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2">
+                  <i class="fas fa-pen text-purple-600"></i>
+                  Writing
+                </a></li>
+                <li><a (click)="navigateToCoursesWithFilter('language')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2">
+                  <i class="fas fa-language text-orange-600"></i>
+                  Language Conventions
+                </a></li>
+                <li><a routerLink="/courses" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 border-t border-gray-100 mt-1 pt-3 flex items-center gap-2">
+                  <i class="fas fa-list text-gray-600"></i>
+                  View All Courses
+                </a></li>
               </ul>
             </li>
           } @else if (item.isAboutSection) {
@@ -71,6 +86,58 @@
         <!-- Desktop Login/Logout Button -->
         @if (isLoggedIn) {
           <div class="hidden md:flex items-center space-x-3">
+            <!-- Cart Icon -->
+            <button
+              (click)="navigateToCart()"
+              class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
+              </svg>
+              @if (cartItemCount > 0) {
+                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {{ cartItemCount }}
+                </span>
+              }
+            </button>
+
+            <!-- Notifications Icon -->
+            <div class="relative" clickOutside (clickOutside)="closeNotificationsDropdown()">
+              <button
+                (click)="toggleNotificationsDropdown()"
+                class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+                @if (unreadNotificationsCount > 0) {
+                  <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {{ unreadNotificationsCount }}
+                  </span>
+                }
+              </button>
+
+              <!-- Notifications Dropdown -->
+              @if (showNotificationsDropdown) {
+                <div class="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                  <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                      <h3 class="font-semibold text-gray-900">Notifications</h3>
+                      <button
+                        (click)="navigateToNotifications(); closeNotificationsDropdown()"
+                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        View All
+                      </button>
+                    </div>
+                  </div>
+                  <div class="max-h-96 overflow-y-auto">
+                    <!-- Quick notifications preview will be added here -->
+                    <div class="p-4 text-center text-gray-500">
+                      <p>Click "View All" to see your notifications</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
             @if (userName) {
               <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
             }

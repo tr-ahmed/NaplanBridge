@@ -20,6 +20,18 @@ export const routes: Routes = [
     loadComponent: () => import('./features/terms/terms.component').then(m => m.TermsComponent)
   },
   {
+    path: 'courses',
+    loadComponent: () => import('./features/courses/courses.component').then(m => m.CoursesComponent)
+  },
+  {
+    path: 'cart',
+    loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent)
+  },
+  {
+    path: 'notifications',
+    loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent)
+  },
+  {
     path: 'add-student',
     loadComponent: () => import('./features/Add-Student/add-student').then(m => m.AddStudentComponent)
   },

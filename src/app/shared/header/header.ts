@@ -3,12 +3,15 @@ import { Router, NavigationEnd } from '@angular/router';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { CoursesService } from '../../core/services/courses.service';
+import { NotificationService } from '../../core/services/notification.service';
+import { ClickOutsideDirective } from '../directives/click-outside.directive';
 import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, CommonModule],
+  imports: [RouterLink, RouterLinkActive, CommonModule, ClickOutsideDirective],
   templateUrl: './header.html',
   styleUrls: ['./header.scss']   // ✅ تصحيح
 })
@@ -28,9 +31,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userRole: string | null = null;
   isLoginPage = false;
 
+  // Cart and notifications
+  cartItemCount = 0;
+  unreadNotificationsCount = 0;
+  showNotificationsDropdown = false;
+
   private subscriptions = new Subscription();
 
-  constructor(public authService: AuthService, public router: Router) {}
+  constructor(
+    public authService: AuthService,
+    public router: Router,
+    private coursesService: CoursesService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit(): void {
     // ✅ Subscribe to auth state
@@ -39,6 +52,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.isLoggedIn = !!user;
         this.userName = user?.userName || '';
         this.userRole = this.authService.getPrimaryRole();
+
+        // Initialize services when user is logged in
+        if (this.isLoggedIn) {
+          this.initializeCartAndNotifications();
+        }
       })
     );
 
@@ -53,6 +71,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     // ✅ Initial value for isLoginPage
     this.isLoginPage = this.router.url.includes('/auth/login');
+  }
+
+  /**
+   * Initialize cart and notifications when user is logged in
+   */
+  private initializeCartAndNotifications(): void {
+    // Subscribe to cart changes
+    this.subscriptions.add(
+      this.coursesService.cart$.subscribe(cart => {
+        this.cartItemCount = cart.totalItems;
+      })
+    );
+
+    // Subscribe to notification changes
+    this.subscriptions.add(
+      this.notificationService.getUnreadCount().subscribe(count => {
+        this.unreadNotificationsCount = count;
+      })
+    );
+
+    // Load initial data
+    this.notificationService.getNotifications().subscribe();
+    this.notificationService.getNotificationStats().subscribe();
   }
 
   ngOnDestroy(): void {
@@ -81,5 +122,42 @@ export class HeaderComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/'], { fragment: 'about' });
     }
+  }
+
+  /**
+   * Navigate to cart page
+   */
+  navigateToCart(): void {
+    this.router.navigate(['/cart']);
+  }
+
+  /**
+   * Navigate to notifications page
+   */
+  navigateToNotifications(): void {
+    this.router.navigate(['/notifications']);
+  }
+
+  /**
+   * Toggle notifications dropdown
+   */
+  toggleNotificationsDropdown(): void {
+    this.showNotificationsDropdown = !this.showNotificationsDropdown;
+  }
+
+  /**
+   * Close notifications dropdown
+   */
+  closeNotificationsDropdown(): void {
+    this.showNotificationsDropdown = false;
+  }
+
+  /**
+   * Navigate to courses with subject filter
+   */
+  navigateToCoursesWithFilter(subject: string): void {
+    this.router.navigate(['/courses'], {
+      queryParams: { subject: subject }
+    });
   }
 }
