@@ -13,7 +13,7 @@ import { Subscription, filter } from 'rxjs';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule, ClickOutsideDirective],
   templateUrl: './header.html',
-  styleUrls: ['./header.scss']   // ✅ تصحيح
+  styleUrls: ['./header.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   navigationItems = [
@@ -35,6 +35,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   cartItemCount = 0;
   unreadNotificationsCount = 0;
   showNotificationsDropdown = false;
+  recentNotifications: any[] = []; // Store recent notifications for dropdown
 
   private subscriptions = new Subscription();
 
@@ -88,6 +89,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.notificationService.getUnreadCount().subscribe(count => {
         this.unreadNotificationsCount = count;
+      })
+    );
+
+    // Subscribe to notifications for dropdown preview
+    this.subscriptions.add(
+      this.notificationService.notifications$.subscribe(notifications => {
+        // Get the 5 most recent notifications for dropdown preview
+        this.recentNotifications = notifications
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 5);
       })
     );
 
@@ -159,5 +170,68 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigate(['/courses'], {
       queryParams: { subject: subject }
     });
+  }
+
+  /**
+   * Get notification icon based on type
+   */
+  getNotificationIcon(type: string): string {
+    const icons = {
+      course: 'fas fa-book',
+      success: 'fas fa-check-circle',
+      warning: 'fas fa-exclamation-triangle',
+      error: 'fas fa-times-circle',
+      info: 'fas fa-info-circle',
+      system: 'fas fa-cog'
+    };
+    return icons[type as keyof typeof icons] || 'fas fa-bell';
+  }
+
+  /**
+   * Get notification color based on type
+   */
+  getNotificationColor(type: string): string {
+    const colors = {
+      course: 'text-blue-600',
+      success: 'text-green-600',
+      warning: 'text-yellow-600',
+      error: 'text-red-600',
+      info: 'text-blue-500',
+      system: 'text-gray-600'
+    };
+    return colors[type as keyof typeof colors] || 'text-gray-600';
+  }
+
+  /**
+   * Get relative time string
+   */
+  getRelativeTime(date: Date): string {
+    const now = new Date();
+    const diff = now.getTime() - new Date(date).getTime();
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return new Date(date).toLocaleDateString();
+  }
+
+  /**
+   * Handle notification click in dropdown
+   */
+  onDropdownNotificationClick(notification: any): void {
+    // Mark as read if unread
+    if (!notification.isRead) {
+      this.notificationService.markAsRead(notification.id).subscribe();
+    }
+
+    // Navigate if has action URL
+    if (notification.actionUrl) {
+      this.closeNotificationsDropdown();
+      this.router.navigate([notification.actionUrl]);
+    }
   }
 }

@@ -15,5 +15,5 @@ import { filter } from 'rxjs';
 export class AppComponent {
 
   protected readonly title = signal('NAPLAN-Bridge Learning Platform');
-  
+
 }
