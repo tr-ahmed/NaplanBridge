@@ -74,7 +74,7 @@
             @if (userName) {
               <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
             }
-            
+
             <!-- ✅ Role-based dashboard button -->
             @if (userRole === 'Admin') {
               <button
@@ -101,7 +101,7 @@
                 My Dashboard
               </button>
             }
-            
+
             <button
               (click)="handleLogout()"
               class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-300">
