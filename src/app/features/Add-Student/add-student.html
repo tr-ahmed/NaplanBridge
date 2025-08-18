@@ -1,0 +1,100 @@
+<br>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-100 px-4">
+  <div class="bg-white p-8 rounded-[10px] shadow-2xl w-full max-w-3xl border border-dashed border-blue-500">
+
+    <!-- Logo -->
+    <div class="flex justify-center">
+      <img src="assets/img/logo.png" alt="Logo" class="w-24 h-24 rounded-full" />
+    </div>
+
+    <!-- Title -->
+    <h2 class="text-xl font-bold text-blue-900 text-center mb-6">Add New Student</h2>
+
+    <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
+      <!-- userName -->
+      <div>
+        <label class="block text-sm font-medium text-blue-900 mb-1">Username</label>
+        <input
+          type="text"
+          formControlName="userName"
+          [class]="addStudentForm.get('userName')?.invalid && addStudentForm.get('userName')?.touched ?
+            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+          placeholder="Enter username"
+        />
+        @if (addStudentForm.get('userName')?.invalid && addStudentForm.get('userName')?.touched) {
+          <small class="text-red-500 text-xs mt-1">Username is required.</small>
+        }
+      </div>
+
+      <!-- password -->
+      <div>
+        <label class="block text-sm font-medium text-blue-900 mb-1">Password</label>
+        <input
+          type="password"
+          formControlName="password"
+          [class]="addStudentForm.get('password')?.invalid && addStudentForm.get('password')?.touched ?
+            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+          placeholder="Enter password"
+        />
+        @if (addStudentForm.get('password')?.invalid && addStudentForm.get('password')?.touched) {
+          <small class="text-red-500 text-xs mt-1">Password is required (min 6 chars).</small>
+        }
+      </div>
+
+      <!-- year -->
+      <div>
+        <label class="block text-sm font-medium text-blue-900 mb-1">Year</label>
+        <input
+          type="number"
+          formControlName="year"
+          [class]="addStudentForm.get('year')?.invalid && addStudentForm.get('year')?.touched ?
+            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+          placeholder="Enter year"
+        />
+        @if (addStudentForm.get('year')?.invalid && addStudentForm.get('year')?.touched) {
+          <small class="text-red-500 text-xs mt-1">Year is required.</small>
+        }
+      </div>
+
+      <!-- age -->
+      <div>
+        <label class="block text-sm font-medium text-blue-900 mb-1">Age</label>
+        <input
+          type="number"
+          formControlName="age"
+          [class]="addStudentForm.get('age')?.invalid && addStudentForm.get('age')?.touched ?
+            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+          placeholder="Enter age"
+        />
+        @if (addStudentForm.get('age')?.invalid && addStudentForm.get('age')?.touched) {
+          <small class="text-red-500 text-xs mt-1">Age is required and must be positive.</small>
+        }
+      </div>
+
+      <!-- Error & Success Messages -->
+      @if (error) {
+        <div class="mb-4 text-red-600 text-center">{{ error }}</div>
+      }
+      @if (success) {
+        <div class="mb-4 text-green-600 text-center">Student added successfully!</div>
+      }
+
+      <!-- Submit Button -->
+      <div class="text-center mt-6">
+        <button
+          type="submit"
+          [disabled]="loading || addStudentForm.invalid"
+          [class]="loading || addStudentForm.invalid ?
+            'bg-gray-400 text-white py-2 px-4 rounded-lg font-semibold w-full cursor-not-allowed' :
+            'bg-primary-500 hover:bg-primary-600 text-white py-2 px-4 rounded-lg font-semibold w-full'"
+        >
+          @if (loading) { Adding student... } @else { Add Student }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

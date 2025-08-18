@@ -144,23 +144,27 @@ export class AuthService {
   /**
    * Get user's primary role for navigation purposes
    */
-  getPrimaryRole(): string | null {
-    const roles = this.userRoles();
+getPrimaryRole(): string | null {
+  const roles = this.userRoles() || [];
+  if (!roles || roles.length === 0) return null;
 
-    if (roles.length === 0) return null;
+  // فلترة Member
+  const filteredRoles = roles.filter(r => r.toLowerCase() !== 'member');
+  if (filteredRoles.length === 0) return null;
 
-    // Priority order for role-based navigation
-    const rolePriority = ['admin', 'teacher', 'parent', 'student'];
+  // أولوية الأدوار
+  const rolePriority = ['admin', 'teacher', 'parent', 'student'];
 
-    for (const priorityRole of rolePriority) {
-      if (roles.some(userRole => userRole.toLowerCase() === priorityRole)) {
-        return priorityRole;
-      }
+  for (const priorityRole of rolePriority) {
+    if (filteredRoles.some(userRole => userRole.toLowerCase() === priorityRole)) {
+      return priorityRole.charAt(0).toUpperCase() + priorityRole.slice(1); // Admin, Teacher, ...
     }
-
-    // Return first role if none match priority
-    return roles[0].toLowerCase();
   }
+
+  // fallback → لو فيه أي رول غريب
+  return filteredRoles[0];
+}
+
 
   /**
    * Navigate user to appropriate dashboard based on their role
@@ -169,16 +173,16 @@ export class AuthService {
     const primaryRole = this.getPrimaryRole();
 
     switch (primaryRole) {
-      case 'admin':
+      case 'Admin':
         this.router.navigate(['/admin/dashboard']);
         break;
-      case 'teacher':
+      case 'Teacher':
         this.router.navigate(['/teacher/dashboard']);
         break;
-      case 'parent':
+      case 'Parent':
         this.router.navigate(['/parent/dashboard']);
         break;
-      case 'student':
+      case 'Student':
         this.router.navigate(['/student/dashboard']);
         break;
       default:

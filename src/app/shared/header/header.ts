@@ -1,69 +1,64 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
-import { Subscription } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-header',
+  standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './header.html',
-  styleUrl: './header.scss'
+  styleUrls: ['./header.scss']   // ✅ تصحيح
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  /**
-   * Navigation menu items for the header
-   */
   navigationItems = [
     { label: 'Home', route: '/', icon: 'home' },
-    { label: 'About Us', route: '/about', icon: 'info' },
+    { label: 'About Us', route: '/', icon: 'info', fragment: 'about', isAboutSection: true },
     { label: 'Plans', route: '/plans', icon: 'star' },
     { label: 'Courses', route: '/courses', icon: 'book' },
     { label: 'Blog', route: '/blog', icon: 'article' },
     { label: 'Contact', route: '/contact', icon: 'mail' }
   ];
 
-  /**
-   * Toggle mobile menu visibility
-   */
   isMobileMenuOpen = false;
-
-  /**
-   * Authentication status
-   */
   isLoggedIn = false;
-
-  /**
-   * Current user name
-   */
   userName = '';
+  userRole: string | null = null;
+  isLoginPage = false;
 
-  private authSubscription: Subscription = new Subscription();
+  private subscriptions = new Subscription();
 
-  constructor(private authService: AuthService) {}
+  constructor(public authService: AuthService, public router: Router) {}
 
   ngOnInit(): void {
-    // Subscribe to authentication status changes
-    this.authSubscription.add(
+    // ✅ Subscribe to auth state
+    this.subscriptions.add(
       this.authService.currentUser$.subscribe(user => {
         this.isLoggedIn = !!user;
         this.userName = user?.userName || '';
+        this.userRole = this.authService.getPrimaryRole();
       })
     );
 
-    // Also check initial auth status using signals
-    this.isLoggedIn = this.authService.isAuthenticated();
-    const currentUser = this.authService.currentUser();
-    this.userName = currentUser?.userName || '';
+    // ✅ Subscribe to route changes
+    this.subscriptions.add(
+      this.router.events
+        .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event: any) => {
+          this.isLoginPage = event.url.includes('/auth/login');
+        })
+    );
+
+    // ✅ Initial value for isLoginPage
+    this.isLoginPage = this.router.url.includes('/auth/login');
   }
 
   ngOnDestroy(): void {
-    this.authSubscription.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
-  /**
-   * Handle logout
-   */
   handleLogout(): void {
     if (confirm('Are you sure you want to logout?')) {
       this.authService.logout();
@@ -75,5 +70,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  navigateToAboutSection() {
+    if (this.router.url === '/' || this.router.url.startsWith('/#')) {
+      setTimeout(() => {
+        const el = document.getElementById('about');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      this.router.navigate(['/'], { fragment: 'about' });
+    }
   }
 }

@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'http://naplanbridge.runasp.net/api'
+  apiBaseUrl: 'https://naplanbridge.runasp.net/api'
 };

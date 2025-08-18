@@ -1,13 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-home',
+  standalone: true,
   imports: [RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   /**
    * Hero section content data
    */
@@ -80,6 +81,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private animationFrame?: number;
   private startTime = Date.now();
   private imageOffsets: { x: number; y: number; rotation: number }[] = [];
+
+  constructor(private route: ActivatedRoute) {}
 
   /**
    * Initialize component and start animations
@@ -184,5 +187,16 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   goToSlide(index: number): void {
     this.currentSlide = index;
+  }
+
+  ngAfterViewInit() {
+    this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        const el = document.getElementById(fragment);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    });
   }
 }

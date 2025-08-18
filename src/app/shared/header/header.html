@@ -1,13 +1,10 @@
-<header class="bg-white shadow-lg sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<header class="bg-white shadow-lg fixed top-0 left-0 w-full z-50">
+  <div class="w-full px-2">
     <nav class="flex justify-between items-center py-2 min-h-[4rem]">
-      <!-- Logo/Brand -->
-      <div class="flex-shrink-0">
+      <!-- Logo (far left) -->
+      <div class="flex-shrink-0 order-1">
         <a routerLink="/" class="flex items-center text-decoration-none">
-          <img
-            src="assets/img/logo.png"
-            alt="NAPLAN Bridge Logo"
-            class="w-auto mr-3 h-14"
+          <img src="assets/img/logo.png" alt="NAPLAN Bridge Logo" class="w-auto mr-3 h-14"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
           <div class="text-center" style="display: none;">
             <span class="text-xl font-bold text-primary-500 leading-none">NAPLAN</span>
@@ -16,22 +13,22 @@
         </a>
       </div>
 
-      <!-- Desktop Navigation -->
-      <ul class="hidden md:flex space-x-8 list-none" style="align-items: center;">
+      <!-- Navigation (center) -->
+      <ul class="hidden md:flex space-x-8 list-none order-2 items-center">
         @for (item of navigationItems; track item.route) {
           @if (item.label === 'Plans') {
             <li class="relative group">
               <button class="text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-3 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1">
                 {{ item.label }}
                 <svg class="w-4 h-4 transform group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               <ul class="absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <li><a routerLink="/plans/basic" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 transition-colors">Basic Plan</a></li>
-                <li><a routerLink="/plans/premium" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 transition-colors">Premium Plan</a></li>
-                <li><a routerLink="/plans/enterprise" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 transition-colors">Enterprise Plan</a></li>
-                <li><a routerLink="/plans/compare" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 transition-colors">Compare Plans</a></li>
+                <li><a routerLink="/plans/basic" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Basic Plan</a></li>
+                <li><a routerLink="/plans/premium" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Premium Plan</a></li>
+                <li><a routerLink="/plans/enterprise" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Enterprise Plan</a></li>
+                <li><a routerLink="/plans/compare" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Compare Plans</a></li>
               </ul>
             </li>
           } @else if (item.label === 'Courses') {
@@ -39,24 +36,29 @@
               <button class="text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-3 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1">
                 {{ item.label }}
                 <svg class="w-4 h-4 transform group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               <ul class="absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <li><a routerLink="/courses/mathematics" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 transition-colors">Mathematics</a></li>
-                <li><a routerLink="/courses/reading" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 transition-colors">Reading</a></li>
-                <li><a routerLink="/courses/writing" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 transition-colors">Writing</a></li>
-                <li><a routerLink="/courses/language" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 transition-colors">Language Conventions</a></li>
-                <li><a routerLink="/courses/all" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-500 transition-colors border-t border-gray-100 mt-1 pt-3">View All Courses</a></li>
+                <li><a routerLink="/courses/mathematics" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Mathematics</a></li>
+                <li><a routerLink="/courses/reading" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Reading</a></li>
+                <li><a routerLink="/courses/writing" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Writing</a></li>
+                <li><a routerLink="/courses/language" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Language Conventions</a></li>
+                <li><a routerLink="/courses/all" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 border-t border-gray-100 mt-1 pt-3">View All Courses</a></li>
               </ul>
+            </li>
+          } @else if (item.isAboutSection) {
+            <li>
+              <a class="px-3 py-2 rounded-lg font-medium transition-all duration-300 no-underline hover:text-primary-500 hover:bg-blue-50 cursor-pointer"
+                 (click)="navigateToAboutSection()">
+                {{ item.label }}
+              </a>
             </li>
           } @else {
             <li>
-              <a
-                [routerLink]="item.route"
-                routerLinkActive="text-primary-500 bg-blue-50 font-semibold"
-                [routerLinkActiveOptions]="{ exact: item.route === '/' }"
-                class="text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-3 py-2 rounded-lg font-medium transition-all duration-300 no-underline">
+              <a [routerLink]="item.route"
+                 routerLinkActive="text-primary-500 bg-blue-50 font-semibold"
+                 class="px-3 py-2 rounded-lg font-medium transition-all duration-300 no-underline hover:text-primary-500 hover:bg-blue-50">
                 {{ item.label }}
               </a>
             </li>
@@ -65,13 +67,41 @@
       </ul>
 
       <!-- Login/Logout Button & Mobile Menu Toggle -->
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-4 order-3">
         <!-- Desktop Login/Logout Button -->
         @if (isLoggedIn) {
           <div class="hidden md:flex items-center space-x-3">
             @if (userName) {
               <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
             }
+            
+            <!-- ✅ Role-based dashboard button -->
+            @if (userRole === 'Admin') {
+              <button
+                routerLink="/admin/dashboard"
+                class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
+                Admin Panel
+              </button>
+            } @else if (userRole === 'Teacher') {
+              <button
+                routerLink="/teacher/dashboard"
+                class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
+                Teacher Panel
+              </button>
+            } @else if (userRole === 'Parent') {
+              <button
+                routerLink="/parent/dashboard"
+                class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
+                My Children
+              </button>
+            } @else if (userRole === 'Student') {
+              <button
+                routerLink="/student/dashboard"
+                class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
+                My Dashboard
+              </button>
+            }
+            
             <button
               (click)="handleLogout()"
               class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-300">
@@ -79,11 +109,18 @@
             </button>
           </div>
         } @else {
-          <a
-            routerLink="/auth/login"
-            class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-300 text-center">
-            Login
-          </a>
+          @if (isLoginPage) {
+            <a routerLink="/auth/register" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold">
+              Register
+            </a>
+          } @else {
+            <a routerLink="/auth/register" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold">
+              Register
+            </a>
+            <a routerLink="/auth/login" class="hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold">
+              Login
+            </a>
+          }
         }
 
         <!-- Mobile Menu Toggle -->
@@ -145,6 +182,4 @@
           </li>
         </ul>
       </div>
-    }
-  </div>
 </header>

@@ -1,0 +1,1 @@
+this.http.post('/api/Account/register-parent', data)

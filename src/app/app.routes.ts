@@ -1,16 +1,57 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/home';
+import { inject } from '@angular/core';
+import { AuthService } from './core/services/auth.service';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'home', redirectTo: '', pathMatch: 'full' },
-  { path: 'auth/login', loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent) },
-  { path: 'auth/register', loadComponent: () => import('./auth/register/register.component').then(m => m.RegisterComponent) },
-  { path: 'terms', loadComponent: () => import('./features/terms/terms.component').then(m => m.TermsComponent) },
-  // Add more routes here as needed
-  // { path: 'about', component: AboutComponent },
-  // { path: 'courses', component: CoursesComponent },
-  // { path: 'blog', component: BlogComponent },
-  // { path: 'contact', component: ContactComponent },
-  { path: '**', redirectTo: '' } // Wildcard route for 404 pages
+
+  {
+    path: 'auth/login',
+    loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'auth/register',
+    loadComponent: () => import('./auth/register/register.component').then(m => m.RegisterComponent)
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./features/terms/terms.component').then(m => m.TermsComponent)
+  },
+  {
+    path: 'add-student',
+    loadComponent: () => import('./features/Add-Student/add-student').then(m => m.AddStudentComponent)
+  },
+
+  // Parent Dashboard
+  {
+    path: 'parent/dashboard',
+    loadComponent: () => import('./features/students-list/students-list').then(m => m.StudentsListComponent),
+    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Parent']
+  },
+
+  // Student Dashboard
+  {
+    path: 'student/dashboard',
+    loadComponent: () => import('./student/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Student']
+  },
+
+  // Admin Dashboard
+  {
+    path: 'admin/dashboard',
+    loadComponent: () => import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin']
+  },
+
+  // Teacher Dashboard
+  {
+    path: 'teacher/dashboard',
+    loadComponent: () => import('./teacher/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Teacher']
+  },
+
+  // fallback
+  { path: '**', redirectTo: '' }
 ];
