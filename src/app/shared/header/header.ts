@@ -234,4 +234,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.router.navigate([notification.actionUrl]);
     }
   }
+
+    isAdminDashboard(): boolean {
+    return this.router.url.startsWith('/admin/dashboard');
+  }
+
 }
