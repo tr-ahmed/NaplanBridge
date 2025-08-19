@@ -43,4 +43,12 @@ export class FooterComponent {
     { platform: 'LinkedIn', url: '#', icon: 'fab fa-linkedin-in' },
     { platform: 'YouTube', url: '#', icon: 'fab fa-youtube' }
   ];
+  router: any;
+
+    isAdminDashboard(): boolean {
+    return this.router.url.startsWith('/admin/dashboard');
+  }
+
+
+  
 }

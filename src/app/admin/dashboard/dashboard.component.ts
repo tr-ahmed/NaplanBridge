@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { HttpErrorResponse } from '@angular/common/http';
-
+import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -40,13 +40,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentPage = signal(1);
 window: any;
 
-  constructor(private http: HttpClient) {}
+  // The current user's name (fetched from the authentication service)
+  userName: string = 'Admin User';
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
+
   ngOnDestroy(): void {
     throw new Error('Method not implemented.');
   }
 
   ngOnInit() {
     this.fetchUsers();
+
+    // Get the username from the authentication service if available
+    // If you are using a signal for currentUser, call it as a function to access the value
+    const currentUser = this.authService.currentUser?.();
+    this.userName = currentUser?.userName ?? 'Admin ';
   }
 
 
