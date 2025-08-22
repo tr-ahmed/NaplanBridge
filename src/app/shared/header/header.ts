@@ -17,12 +17,12 @@ import { Subscription, filter } from 'rxjs';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   navigationItems = [
-    { label: 'Home', route: '/', icon: 'home' },
-    { label: 'About Us', route: '/', icon: 'info', fragment: 'about', isAboutSection: true },
-    { label: 'Plans', route: '/plans', icon: 'star' },
-    { label: 'Courses', route: '/courses', icon: 'book' },
-    { label: 'Blog', route: '/blog', icon: 'article' },
-    { label: 'Contact', route: '/contact', icon: 'mail' }
+    { id: 1, label: 'Home', route: '/', icon: 'home' },
+    { id: 2, label: 'About Us', route: '/', icon: 'info', fragment: 'about', isAboutSection: true },
+    { id: 3, label: 'Plans', route: '/plans', icon: 'star' },
+    { id: 4, label: 'Courses', route: '/courses', icon: 'book' },
+    { id: 5, label: 'Blog', route: '/blog', icon: 'article' },
+    { id: 6, label: 'Contact', route: '/contact', icon: 'mail' }
   ];
 
   isMobileMenuOpen = false;
@@ -236,7 +236,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
     isAdminDashboard(): boolean {
-    return this.router.url.startsWith('/admin/dashboard');
+    return this.router.url.startsWith('/content-management');
   }
 
 }

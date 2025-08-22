@@ -414,6 +414,70 @@ export const ApiNodes = {
       message: 'Notification created successfully',
       notificationId: 'new-notification-id'
     }
+  },
+
+  // ===== LESSONS API =====
+
+  // Get all lessons
+  getAllLessons: {
+    url: '/api/lessons',
+    method: 'GET' as const,
+    mockData: [] as any[] // Will be populated by the service
+  },
+
+  // Get lesson by ID
+  getLessonById: {
+    url: '/api/lessons/:id',
+    method: 'GET' as const,
+    mockData: {} as any // Will be populated by the service
+  },
+
+  // Get lessons by course ID
+  getLessonsByCourse: {
+    url: '/api/courses/:courseId/lessons',
+    method: 'GET' as const,
+    mockData: [] as any[]
+  },
+
+  // Get student lessons with progress
+  getStudentLessons: {
+    url: '/api/students/:studentId/lessons',
+    method: 'GET' as const,
+    mockData: [] as any[]
+  },
+
+  // Update lesson progress
+  updateLessonProgress: {
+    url: '/api/lessons/:id/progress',
+    method: 'PUT' as const,
+    mockData: {
+      success: true,
+      message: 'Progress updated successfully'
+    }
+  },
+
+  // Rate a lesson
+  ratLesson: {
+    url: '/api/lessons/:id/rate',
+    method: 'POST' as const,
+    mockData: {
+      success: true,
+      message: 'Lesson rated successfully'
+    }
+  },
+
+  // Get lesson statistics for student
+  getStudentLessonStats: {
+    url: '/api/students/:studentId/lessons/stats',
+    method: 'GET' as const,
+    mockData: {
+      completedLessons: 0,
+      totalLessons: 0,
+      completionRate: 0,
+      totalTimeSpent: 0,
+      averageRating: 0,
+      currentStreak: 0
+    }
   }
 };
 

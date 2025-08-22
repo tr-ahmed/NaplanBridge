@@ -40,15 +40,20 @@
         <i class="fas fa-tachometer-alt"></i>
         <span>Dashboard</span>
       </a> -->
-      <a href="#" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white active" style="background:rgba(255,255,255,0.08)">
-        <i class="fas fa-users"></i>
-        <span>User Management</span>
-      </a>
+<a routerLink="/admin/dashboard"
+   routerLinkActive="bg-white/20"
+   class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 text-white active">
+  <i class="fas fa-users"></i>
+  <span>User Management</span>
+</a>
+
+<a href="/admin/content"
+   class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 text-white">
+  <i class="fas fa-book"></i>
+  <span>Content Management</span>
+</a>
+
       <!-- <a href="#" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-        <i class="fas fa-book"></i>
-        <span>Courses</span>
-      </a>
-      <a href="#" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
         <i class="fas fa-chart-bar"></i>
         <span>Reports</span>
       </a>

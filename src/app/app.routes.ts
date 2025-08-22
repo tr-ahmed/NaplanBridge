@@ -43,11 +43,10 @@ export const routes: Routes = [
     canActivate: [() => inject(AuthService).getPrimaryRole() === 'Parent']
   },
 
-  // Student Dashboard
+  // Student Dashboard and Routes
   {
-    path: 'student/dashboard',
-    loadComponent: () => import('./student/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Student']
+    path: 'student',
+    loadChildren: () => import('./student/student.routes').then(m => m.STUDENT_ROUTES)
   },
 
   // Admin Dashboard
@@ -56,6 +55,15 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin']
   },
+
+
+
+    // Admin Content Management
+  {
+    path: 'admin/content',
+    loadComponent: () => import('./pages/content-management/content-management').then(m => m.ContentManagementComponent),
+  },
+
 
   // Teacher Dashboard
   {

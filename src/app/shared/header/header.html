@@ -16,7 +16,7 @@
 
       <!-- Navigation (center) -->
       <ul class="hidden md:flex space-x-8 list-none order-2 items-center">
-        @for (item of navigationItems; track item.route) {
+        @for (item of navigationItems; track item.id) {
           @if (item.label === 'Plans') {
             <li class="relative group">
               <button class="text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-3 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1">
@@ -267,7 +267,7 @@
     @if (isMobileMenuOpen) {
       <div class="md:hidden bg-white border-t border-gray-200 py-4">
         <ul class="space-y-2 list-none">
-          @for (item of navigationItems; track item.route) {
+          @for (item of navigationItems; track item.id) {
             <li>
               <a
                 [routerLink]="item.route"

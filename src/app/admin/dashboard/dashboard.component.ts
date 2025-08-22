@@ -7,10 +7,14 @@ import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
+import { RouterLink } from '@angular/router';
+import { RouterModule } from '@angular/router';
+
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, AddUserModalComponent, FormsModule],
+  imports: [RouterLink,CommonModule, AddUserModalComponent, FormsModule,RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -46,6 +50,7 @@ window: any;
   constructor(
     private http: HttpClient,
     private authService: AuthService
+    
   ) {}
 
   ngOnDestroy(): void {
@@ -304,5 +309,5 @@ window: any;
     this.currentPage.set(1);
   }
 
-  
+
 }
