@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NAPLANBridge - Subscription & Billing</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50" style="font-family: 'Inter', sans-serif;">
+
+<!-- Toggle Sidebar Button -->
+<button
+  class="fixed top-6 right-6 z-50 rounded-full shadow-lg p-3 transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400 border-0"
+  (click)="toggleSidebar()"
+  aria-label="Toggle sidebar"
+  style="
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
+    color: #fff;
+  "
+>
+  <i class="fas" [class.fa-chevron-right]="sidebarCollapsed" [class.fa-chevron-left]="!sidebarCollapsed"></i>
+</button>
+
+<!-- Sidebar -->
+<aside class="sidebar" [class.collapsed]="sidebarCollapsed" id="sidebar"
+  style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);box-shadow:0 8px 32px rgba(31,38,135,.37);border-top-right-radius:2rem;border-bottom-right-radius:2rem;min-height:100vh;">
+  <div class="sidebar-logo d-flex align-items-center py-4 px-3">
+    <div class="me-3" style="background:rgba(255,255,255,0.2);width:48px;height:48px;" class="rounded-circle d-flex align-items-center justify-content-center shadow">
+      <span class="fw-bold fs-4 text-blue-700">N</span>
+    </div>
+    <div class="fw-bold fs-5 text-white">NAPLAN<span class="text-warning">Bridge</span></div>
+  </div>
+  <nav class="sidebar-nav mt-4">
+    <a [routerLink]="'/admin/dashboard'" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-users"></i>
+      <span>User Management</span>
+    </a>
+    <a [routerLink]="'/admin/content'" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-book"></i>
+      <span>Content Management</span>
+    </a>
+    <a [routerLink]="'/admin/subscriptions'"
+       class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all text-white active"
+       style="background:rgba(255,255,255,0.08)">
+      <i class="fas fa-credit-card"></i>
+      <span>Subscription & Billing</span>
+    </a>
+  </nav>
+  <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
+    <div class="d-flex align-items-center gap-3">
+      <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
+      <div>
+        <div class="fw-medium text-white">{{ userName }}</div>
+        <small class="text-white-50">Super Admin</small>
+      </div>
+    </div>
+    <a href="#" class="d-block mt-3 text-white-50 small"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content" [class.expanded]="sidebarCollapsed" id="mainContent">
+  <div class="container-fluid py-4">
+
+    <!-- Header -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <h1 class="h3 fw-bold">Subscription & Billing</h1>
+        <p class="text-muted">Manage Plans, Subscriptions, Payments, and Coupons</p>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4 g-3">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-lg text-white" style="background:linear-gradient(135deg,#2563eb 0%,#1e293b 100%);">
+          <div class="card-body">
+            <i class="fas fa-box-open fa-lg opacity-75 mb-2"></i>
+            <div class="fw-bold">Plans</div>
+            <h4 class="mb-0">{{ stats.plans }}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-lg text-white" style="background:linear-gradient(135deg,#22c55e 0%,#166534 100%);">
+          <div class="card-body">
+            <i class="fas fa-sync fa-lg opacity-75 mb-2"></i>
+            <div class="fw-bold">Active Subs</div>
+            <h4 class="mb-0">{{ stats.activeSubs }}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-lg text-white" style="background:linear-gradient(135deg,#f97316 0%,#b45309 100%);">
+          <div class="card-body">
+            <i class="fas fa-receipt fa-lg opacity-75 mb-2"></i>
+            <div class="fw-bold">Invoices (30d)</div>
+            <h4 class="mb-0">{{ stats.invoices30d }}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-lg text-white" style="background:linear-gradient(135deg,#a855f7 0%,#6d28d9 100%);">
+          <div class="card-body">
+            <i class="fas fa-dollar-sign fa-lg opacity-75 mb-2"></i>
+            <div class="fw-bold">Revenue (30d)</div>
+            <h4 class="mb-0">{{ stats.revenue30d | currency:currencyCode }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-pills custom-tabs mb-4 justify-content-center" role="tablist">
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab==='plans'" (click)="setActiveTab('plans')" type="button">
+          <i class="fas fa-box-open me-2"></i> Plans
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab==='subs'" (click)="setActiveTab('subs')" type="button">
+          <i class="fas fa-sync me-2"></i> Subscriptions
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab==='payments'" (click)="setActiveTab('payments')" type="button">
+          <i class="fas fa-credit-card me-2"></i> Payments
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab==='coupons'" (click)="setActiveTab('coupons')" type="button">
+          <i class="fas fa-tags me-2"></i> Coupons
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- PLANS TAB -->
+      <div class="tab-pane fade show active" *ngIf="activeTab==='plans'">
+        <div class="row g-3 mb-3 align-items-end filters-container">
+          <div class="col-12 col-md-auto">
+            <button class="btn btn-gradient" (click)="openAdd('plan')">
+              <i class="fas fa-plus me-1"></i> Add Plan
+            </button>
+          </div>
+          <div class="col-12 col-md">
+            <input class="form-control" placeholder="Search plans..." [(ngModel)]="search.plans" (input)="onFilterChange()">
+          </div>
+          <div class="col-12 col-md-auto">
+            <select class="form-select" [(ngModel)]="filters.planStatus" (change)="onFilterChange()">
+              <option value="">All Status</option>
+              <option>Active</option>
+              <option>Archived</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-auto">
+            <select class="form-select" [(ngModel)]="filters.interval" (change)="onFilterChange()">
+              <option value="">All Intervals</option>
+              <option value="month">Monthly</option>
+              <option value="year">Yearly</option>
+            </select>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th>#</th><th>Plan</th><th>Price</th><th>Interval</th><th>Trial</th><th>Status</th><th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of paged.plans; let i=index">
+                  <td>{{ (planPage-1)*pageSize + i + 1 }}</td>
+                  <td class="fw-semibold">{{ p.name }}</td>
+                  <td>{{ p.price | currency:currencyCode }}</td>
+                  <td class="text-capitalize">{{ p.interval }}</td>
+                  <td>{{ p.trialDays || 0 }}d</td>
+                  <td>
+                    <span class="badge rounded-pill"
+                          [class.bg-success]="p.status==='Active'"
+                          [class.bg-secondary]="p.status!=='Active'">{{ p.status }}</span>
+                  </td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary me-1" (click)="openPlanPreview(p)"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('plan', p)"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('plan', p)"><i class="fas fa-trash-alt"></i></button>
+                  </td>
+                </tr>
+                <tr *ngIf="paged.plans.length===0">
+                  <td colspan="7" class="text-center py-4 text-muted">No plans found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+            <div>Showing {{ pStart }}–{{ pEnd }} of {{ filtered.plans.length }}</div>
+            <div class="d-flex gap-2 btn-group-responsive">
+              <button class="btn btn-sm btn-outline-secondary" (click)="goPlanPage(planPage-1)" [disabled]="planPage===1">Previous</button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="goPlanPage(planPage+1)" [disabled]="planPage===planTotalPages">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBSCRIPTIONS TAB -->
+      <div class="tab-pane fade show active" *ngIf="activeTab==='subs'">
+        <div class="row g-3 mb-3 align-items-end filters-container">
+          <div class="col-12 col-md-auto">
+            <button class="btn btn-gradient" (click)="openAdd('subscription')"><i class="fas fa-plus me-1"></i> Add Subscription</button>
+          </div>
+          <div class="col-12 col-md">
+            <input class="form-control" placeholder="Search by user or plan..." [(ngModel)]="search.subs" (input)="onFilterChange()">
+          </div>
+          <div class="col-12 col-md-auto">
+            <select class="form-select" [(ngModel)]="filters.subStatus" (change)="onFilterChange()">
+              <option value="">All Status</option>
+              <option>Active</option><option>Past Due</option><option>Canceled</option><option>Trialing</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-auto">
+            <select class="form-select" [(ngModel)]="filters.planId" (change)="onFilterChange()">
+              <option [ngValue]="null">All Plans</option>
+              <option *ngFor="let p of plans" [ngValue]="p.id">{{ p.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th>#</th><th>User</th><th>Plan</th><th>Start</th><th>Renewal</th><th>Status</th><th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let s of paged.subs; let i=index">
+                  <td>{{ (subPage-1)*pageSize + i + 1 }}</td>
+                  <td>{{ s.userName }}</td>
+                  <td>{{ getPlanName(s.planId) }}</td>
+                  <td>{{ s.startDate | date:'mediumDate' }}</td>
+                  <td>{{ s.renewalDate | date:'mediumDate' }}</td>
+                  <td>
+                    <span class="badge rounded-pill"
+                      [class.bg-success]="s.status==='Active' || s.status==='Trialing'"
+                      [class.bg-warning]="s.status==='Past Due'"
+                      [class.bg-secondary]="s.status==='Canceled'">{{ s.status }}</span>
+                  </td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary me-1" (click)="openSubPreview(s)"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('subscription', s)"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('subscription', s)"><i class="fas fa-trash-alt"></i></button>
+                  </td>
+                </tr>
+                <tr *ngIf="paged.subs.length===0">
+                  <td colspan="7" class="text-center py-4 text-muted">No subscriptions found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+            <div>Showing {{ sStart }}–{{ sEnd }} of {{ filtered.subs.length }}</div>
+            <div class="d-flex gap-2 btn-group-responsive">
+              <button class="btn btn-sm btn-outline-secondary" (click)="goSubPage(subPage-1)" [disabled]="subPage===1">Previous</button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="goSubPage(subPage+1)" [disabled]="subPage===subTotalPages">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENTS TAB -->
+      <div class="tab-pane fade show active" *ngIf="activeTab==='payments'">
+        <div class="row g-3 mb-3 align-items-end filters-container">
+          <div class="col-12 col-md">
+            <input class="form-control" placeholder="Search by user, invoice, txn..." [(ngModel)]="search.payments" (input)="onFilterChange()">
+          </div>
+          <div class="col-12 col-md-auto">
+            <select class="form-select" [(ngModel)]="filters.paymentStatus" (change)="onFilterChange()">
+              <option value="">All Status</option>
+              <option>Paid</option><option>Refunded</option><option>Failed</option><option>Pending</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-auto">
+            <select class="form-select" [(ngModel)]="filters.method" (change)="onFilterChange()">
+              <option value="">All Methods</option>
+              <option>Card</option><option>Bank Transfer</option><option>Cash</option>
+            </select>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th>#</th><th>Invoice</th><th>User</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of paged.payments; let i=index">
+                  <td>{{ (paymentPage-1)*pageSize + i + 1 }}</td>
+                  <td>{{ p.invoiceNo }}</td>
+                  <td>{{ p.userName }}</td>
+                  <td>{{ p.amount | currency:currencyCode }}</td>
+                  <td>{{ p.method }}</td>
+                  <td>{{ p.date | date:'medium' }}</td>
+                  <td>
+                    <span class="badge rounded-pill"
+                      [class.bg-success]="p.status==='Paid'"
+                      [class.bg-danger]="p.status==='Failed'"
+                      [class.bg-warning]="p.status==='Pending'"
+                      [class.bg-secondary]="p.status==='Refunded'">{{ p.status }}</span>
+                  </td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary me-1" (click)="openPaymentPreview(p)"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('payment', p)"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('payment', p)"><i class="fas fa-trash-alt"></i></button>
+                  </td>
+                </tr>
+                <tr *ngIf="paged.payments.length===0">
+                  <td colspan="8" class="text-center py-4 text-muted">No payments found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+            <div>Showing {{ payStart }}–{{ payEnd }} of {{ filtered.payments.length }}</div>
+            <div class="d-flex gap-2 btn-group-responsive">
+              <button class="btn btn-sm btn-outline-secondary" (click)="goPaymentPage(paymentPage-1)" [disabled]="paymentPage===1">Previous</button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="goPaymentPage(paymentPage+1)" [disabled]="paymentPage===paymentTotalPages">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COUPONS TAB -->
+      <div class="tab-pane fade show active" *ngIf="activeTab==='coupons'">
+        <div class="row g-3 mb-3 align-items-end filters-container">
+          <div class="col-12 col-md-auto">
+            <button class="btn btn-gradient" (click)="openAdd('coupon')"><i class="fas fa-plus me-1"></i> Add Coupon</button>
+          </div>
+          <div class="col-12 col-md">
+            <input class="form-control" placeholder="Search coupons..." [(ngModel)]="search.coupons" (input)="onFilterChange()">
+          </div>
+          <div class="col-12 col-md-auto">
+            <select class="form-select" [(ngModel)]="filters.couponStatus" (change)="onFilterChange()">
+              <option value="">All Status</option>
+              <option>Active</option><option>Expired</option><option>Scheduled</option>
+            </select>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th>#</th><th>Code</th><th>Type</th><th>Value</th><th>Max Uses</th><th>Valid</th><th>Status</th><th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let c of paged.coupons; let i=index">
+                  <td>{{ (couponPage-1)*pageSize + i + 1 }}</td>
+                  <td class="fw-semibold">{{ c.code }}</td>
+                  <td>{{ c.type }}</td>
+                  <td>{{ c.value }}<span *ngIf="c.type==='Percent'">%</span></td>
+                  <td>{{ c.maxUses || '—' }}</td>
+                  <td>{{ c.validFrom | date:'shortDate' }} → {{ c.validTo | date:'shortDate' }}</td>
+                  <td>
+                    <span class="badge rounded-pill"
+                      [class.bg-success]="c.status==='Active'"
+                      [class.bg-secondary]="c.status!=='Active'">{{ c.status }}</span>
+                  </td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('coupon', c)"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('coupon', c)"><i class="fas fa-trash-alt"></i></button>
+                  </td>
+                </tr>
+                <tr *ngIf="paged.coupons.length===0">
+                  <td colspan="8" class="text-center py-4 text-muted">No coupons found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+            <div>Showing {{ cStart }}–{{ cEnd }} of {{ filtered.coupons.length }}</div>
+            <div class="d-flex gap-2 btn-group-responsive">
+              <button class="btn btn-sm btn-outline-secondary" (click)="goCouponPage(couponPage-1)" [disabled]="couponPage===1">Previous</button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="goCouponPage(couponPage+1)" [disabled]="couponPage===couponTotalPages">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Dynamic Add/Edit Modal -->
+<div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="isFormOpen">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ formMode==='add' ? 'Add' : 'Edit' }} {{ entityTitle }}</h5>
+        <button type="button" class="btn-close" (click)="closeForm()"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- PLAN FORM -->
+        <ng-container *ngIf="entityType==='plan'">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Name</label>
+              <input class="form-control" [(ngModel)]="form.name">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Price</label>
+              <input type="number" class="form-control" [(ngModel)]="form.price">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Interval</label>
+              <select class="form-select" [(ngModel)]="form.interval">
+                <option value="month">Monthly</option>
+                <option value="year">Yearly</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Trial (days)</label>
+              <input type="number" class="form-control" [(ngModel)]="form.trialDays">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Status</label>
+              <select class="form-select" [(ngModel)]="form.status">
+                <option>Active</option><option>Archived</option>
+              </select>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Features (comma separated)</label>
+              <input class="form-control" [(ngModel)]="form.features">
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- SUBSCRIPTION FORM -->
+        <ng-container *ngIf="entityType==='subscription'">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">User</label>
+              <select class="form-select" [(ngModel)]="form.userId">
+                <option *ngFor="let u of users" [ngValue]="u.id">{{ u.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Plan</label>
+              <select class="form-select" [(ngModel)]="form.planId">
+                <option *ngFor="let p of plans" [ngValue]="p.id">{{ p.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Start</label>
+              <input type="date" class="form-control" [(ngModel)]="form.startDate">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Renewal</label>
+              <input type="date" class="form-control" [(ngModel)]="form.renewalDate">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Status</label>
+              <select class="form-select" [(ngModel)]="form.status">
+                <option>Active</option><option>Past Due</option><option>Canceled</option><option>Trialing</option>
+              </select>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Notes</label>
+              <textarea class="form-control" rows="2" [(ngModel)]="form.notes"></textarea>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- PAYMENT FORM -->
+        <ng-container *ngIf="entityType==='payment'">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Invoice No</label>
+              <input class="form-control" [(ngModel)]="form.invoiceNo">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">User</label>
+              <select class="form-select" [(ngModel)]="form.userId">
+                <option *ngFor="let u of users" [ngValue]="u.id">{{ u.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Amount</label>
+              <input type="number" class="form-control" [(ngModel)]="form.amount">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Method</label>
+              <select class="form-select" [(ngModel)]="form.method">
+                <option>Card</option><option>Bank Transfer</option><option>Cash</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date</label>
+              <input type="datetime-local" class="form-control" [(ngModel)]="form.date">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Status</label>
+              <select class="form-select" [(ngModel)]="form.status">
+                <option>Paid</option><option>Refunded</option><option>Failed</option><option>Pending</option>
+              </select>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Transaction ID</label>
+              <input class="form-control" [(ngModel)]="form.txnId">
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- COUPON FORM -->
+        <ng-container *ngIf="entityType==='coupon'">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Code</label>
+              <input class="form-control" [(ngModel)]="form.code" placeholder="SPRING25">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Type</label>
+              <select class="form-select" [(ngModel)]="form.type">
+                <option>Percent</option><option>Fixed</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Value</label>
+              <input type="number" class="form-control" [(ngModel)]="form.value">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Max Uses</label>
+              <input type="number" class="form-control" [(ngModel)]="form.maxUses">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Valid From</label>
+              <input type="date" class="form-control" [(ngModel)]="form.validFrom">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Valid To</label>
+              <input type="date" class="form-control" [(ngModel)]="form.validTo">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Status</label>
+              <select class="form-select" [(ngModel)]="form.status">
+                <option>Active</option><option>Expired</option><option>Scheduled</option>
+              </select>
+            </div>
+          </div>
+        </ng-container>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" (click)="closeForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="submitForm()">
+          <i class="fas fa-save me-1"></i> Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="previewOpen">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ preview.title }}</h5>
+        <button type="button" class="btn-close" (click)="closePreview()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="preview.type==='plan'">
+          <div class="mb-2"><strong>Price:</strong> {{ preview.price | currency:currencyCode }} / {{ preview.interval }}</div>
+          <div class="mb-2"><strong>Trial:</strong> {{ preview.trialDays || 0 }} days</div>
+          <div><strong>Features:</strong>
+            <ul class="mb-0"><li *ngFor="let f of preview.features">{{ f }}</li></ul>
+          </div>
+        </div>
+
+        <div *ngIf="preview.type==='payment'">
+          <div class="mb-2"><strong>Invoice:</strong> {{ preview.invoiceNo }}</div>
+          <div class="mb-2"><strong>User:</strong> {{ preview.userName }}</div>
+          <div class="mb-2"><strong>Amount:</strong> {{ preview.amount | currency:currencyCode }}</div>
+          <div class="mb-2"><strong>Status:</strong> {{ preview.status }}</div>
+          <div class="mb-2"><strong>Txn ID:</strong> {{ preview.txnId }}</div>
+          <div class="text-muted small">Date: {{ preview.date | date:'medium' }} • Method: {{ preview.method }}</div>
+        </div>
+
+        <div *ngIf="preview.type==='subscription'">
+          <div class="mb-2"><strong>User:</strong> {{ preview.userName }}</div>
+          <div class="mb-2"><strong>Plan:</strong> {{ preview.planName }}</div>
+          <div class="mb-2"><strong>Status:</strong> {{ preview.status }}</div>
+          <div class="text-muted small">Start: {{ preview.startDate | date:'mediumDate' }} • Renewal: {{ preview.renewalDate | date:'mediumDate' }}</div>
+          <p class="mt-3 text-muted">{{ preview.notes }}</p>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" (click)="closePreview()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

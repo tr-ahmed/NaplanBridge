@@ -45,9 +45,6 @@ export class FooterComponent {
   ];
   router: any;
 
-    isAdminDashboard(): boolean {
-    return this.router.url.startsWith('/admin/dashboard');
-  }
 
 
   

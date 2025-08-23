@@ -25,7 +25,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
-  
+    handleLogout(): void {
+    if (confirm('Are you sure you want to logout?')) {
+      this.authService.logout();
+    }
+  }
   // User data
   admin = {
     name: 'Admin',

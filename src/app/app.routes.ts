@@ -53,7 +53,7 @@ export const routes: Routes = [
   {
     path: 'admin/dashboard',
     loadComponent: () => import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin']
+    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin'  ]
   },
 
 
@@ -68,9 +68,15 @@ export const routes: Routes = [
   // Teacher Dashboard
   {
     path: 'teacher/dashboard',
-    loadComponent: () => import('./teacher/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Teacher']
+    loadComponent: () => import('./teacher/dashboard/dashboard.component').then(m => m.ContentManagementComponent),
   },
+
+{
+  path: 'admin/subscriptions',
+  loadComponent: () => import('./pages/subscriptions-admin/subscriptions-admin')
+    .then(m => m.SubscriptionManagementComponent)
+},
+
 
   // fallback
   { path: '**', redirectTo: '' }

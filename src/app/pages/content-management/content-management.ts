@@ -3,6 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../../core/services/auth.service';
+
+
+
+
 import Swal from 'sweetalert2';
 
 type Id = number;
@@ -38,7 +44,8 @@ export class ContentManagementComponent implements OnInit {
   sidebarCollapsed = false;
   userName = 'Admin User';
 yearPages: any;
-  toggleSidebar() { this.sidebarCollapsed = !this.sidebarCollapsed; }
+
+toggleSidebar() { this.sidebarCollapsed = !this.sidebarCollapsed; }
 
   // ===== Data stores =====
   years: Year[] = [];
@@ -115,6 +122,7 @@ status: any; yearId: Id|null; subjectId: Id|null; termId: Id|null; weekId: Id|nu
   preview: any = {};
 
   activeTab: string = 'years';
+courseTab: string = 'lessons';
 
   dropdownOpen = false;
 
@@ -122,7 +130,7 @@ status: any; yearId: Id|null; subjectId: Id|null; termId: Id|null; weekId: Id|nu
 
   ngOnInit(): void {
     this.loadAllFromStorage();
-    if (this.years.length === 0) this.seedDummyData();
+    // if (this.years.length === 0) this.seedDummyData();
     this.refreshAll();
   }
 
@@ -141,38 +149,38 @@ status: any; yearId: Id|null; subjectId: Id|null; termId: Id|null; weekId: Id|nu
   }
 
   // ===== Dummy data =====
-  seedDummyData() {
-    this.years = [
-      { id: 1, name: 'Year 7', sortOrder: 1 },
-      { id: 2, name: 'Year 8', sortOrder: 2 }
-    ];
-    this.subjects = [
-      { id: 1, name: 'Math',    yearId: 1, yearName: 'Year 7' },
-      { id: 2, name: 'English', yearId: 1, yearName: 'Year 7' },
-      { id: 3, name: 'Science', yearId: 2, yearName: 'Year 8' }
-    ];
-    this.terms = [
-      { id: 1, name: 'Term 1', subjectId: 1, yearId: 1, subjectName: 'Math', yearName: 'Year 7' },
-      { id: 2, name: 'Term 2', subjectId: 1, yearId: 1, subjectName: 'Math', yearName: 'Year 7' }
-    ];
-    this.weeks = [
-      { id: 1, name: 'Week 1', termId: 1, sortOrder: 1, termName: 'Term 1', subjectName: 'Math', yearName: 'Year 7' },
-      { id: 2, name: 'Week 2', termId: 1, sortOrder: 2, termName: 'Term 1', subjectName: 'Math', yearName: 'Year 7' }
-    ];
-    this.courses = [
-      { id: 1, title: 'Algebra Basics', status: 'Active', yearId: 1, yearName: 'Year 7', subjectId: 1, subjectName: 'Math', teacherId: 1, teacherName: 'Mr. Smith', description: 'Intro to Algebra', lessons:[{title:'Intro'}], resources:[{name:'PDF'}] }
-    ];
-    this.lessons = [
-      { id: 1, title: 'Fractions Basics', type: 'Video', linkType: 'week', weekId: 1, weekName: 'Week 1',
-        subjectId: 1, subjectName: 'Math', yearId: 1, yearName: 'Year 7',
-        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Fractions explained' },
-      { id: 2, title: 'Linear Equations', type: 'Video', linkType: 'course', courseId: 1, courseTitle: 'Algebra Basics',
-        subjectId: 1, subjectName: 'Math', yearId: 1, yearName: 'Year 7', videoUrl: '' }
-    ];
-    this.teachers = [
-      { id: 1, name: 'Mr. Smith' }, { id: 2, name: 'Ms. Jane' }
-    ];
-  }
+  // seedDummyData() {
+  //   this.years = [
+  //     { id: 1, name: 'Year 7', sortOrder: 1 },
+  //     { id: 2, name: 'Year 8', sortOrder: 2 }
+  //   ];
+  //   this.subjects = [
+  //     { id: 1, name: 'Math',    yearId: 1, yearName: 'Year 7' },
+  //     { id: 2, name: 'English', yearId: 1, yearName: 'Year 7' },
+  //     { id: 3, name: 'Science', yearId: 2, yearName: 'Year 8' }
+  //   ];
+  //   this.terms = [
+  //     { id: 1, name: 'Term 1', subjectId: 1, yearId: 1, subjectName: 'Math', yearName: 'Year 7' },
+  //     { id: 2, name: 'Term 2', subjectId: 1, yearId: 1, subjectName: 'Math', yearName: 'Year 7' }
+  //   ];
+  //   this.weeks = [
+  //     { id: 1, name: 'Week 1', termId: 1, sortOrder: 1, termName: 'Term 1', subjectName: 'Math', yearName: 'Year 7' },
+  //     { id: 2, name: 'Week 2', termId: 1, sortOrder: 2, termName: 'Term 1', subjectName: 'Math', yearName: 'Year 7' }
+  //   ];
+  //   this.courses = [
+  //     { id: 1, title: 'Algebra Basics', status: 'Active', yearId: 1, yearName: 'Year 7', subjectId: 1, subjectName: 'Math', teacherId: 1, teacherName: 'Mr. Smith', description: 'Intro to Algebra', lessons:[{title:'Intro'}], resources:[{name:'PDF'}] }
+  //   ];
+  //   this.lessons = [
+  //     { id: 1, title: 'Fractions Basics', type: 'Video', linkType: 'week', weekId: 1, weekName: 'Week 1',
+  //       subjectId: 1, subjectName: 'Math', yearId: 1, yearName: 'Year 7',
+  //       videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Fractions explained' },
+  //     { id: 2, title: 'Linear Equations', type: 'Video', linkType: 'course', courseId: 1, courseTitle: 'Algebra Basics',
+  //       subjectId: 1, subjectName: 'Math', yearId: 1, yearName: 'Year 7', videoUrl: '' }
+  //   ];
+  //   this.teachers = [
+  //     { id: 1, name: 'Mr. Smith' }, { id: 2, name: 'Ms. Jane' }
+  //   ];
+  // }
 
   // ===== Helpers =====
   trackById = (_: number, item: any) => item.id;
@@ -186,14 +194,12 @@ status: any; yearId: Id|null; subjectId: Id|null; termId: Id|null; weekId: Id|nu
 
   // ===== Filtering / Paging =====
   onFilterChange() {
-    // فلترة السنوات
     this.filteredYears = this.years.filter(y =>
       (!this.filters.yearId || y.id === this.filters.yearId) &&
       (!this.searchTerm || y.name.toLowerCase().includes(this.searchTerm.toLowerCase()))
     );
     this.pagedYears = this.filteredYears.slice((this.yearPage - 1) * this.pageSize, this.yearPage * this.pageSize);
 
-    // فلترة المواد
     this.filteredSubjects = this.subjects.filter(s =>
       (!this.filters.yearId || s.yearId === this.filters.yearId) &&
       (!this.filters.subjectId || s.id === this.filters.subjectId) &&
@@ -201,7 +207,6 @@ status: any; yearId: Id|null; subjectId: Id|null; termId: Id|null; weekId: Id|nu
     );
     this.pagedSubjects = this.filteredSubjects.slice((this.subjectPage - 1) * this.pageSize, this.subjectPage * this.pageSize);
 
-    // فلترة التيرمات
     this.filteredTerms = this.terms.filter(t =>
       (!this.filters.yearId || t.yearId === this.filters.yearId) &&
       (!this.filters.subjectId || t.subjectId === this.filters.subjectId) &&
@@ -210,7 +215,6 @@ status: any; yearId: Id|null; subjectId: Id|null; termId: Id|null; weekId: Id|nu
     );
     this.pagedTerms = this.filteredTerms.slice((this.termPage - 1) * this.pageSize, this.termPage * this.pageSize);
 
-    // فلترة الأسابيع
     this.filteredWeeks = this.weeks.filter(w => {
       // Find the term for this week to get yearId and subjectId
       const term = this.terms.find(t => t.id === w.termId);
@@ -224,7 +228,6 @@ status: any; yearId: Id|null; subjectId: Id|null; termId: Id|null; weekId: Id|nu
     });
     this.pagedWeeks = this.filteredWeeks.slice((this.weekPage - 1) * this.pageSize, this.weekPage * this.pageSize);
 
-    // فلترة الدروس
     this.filteredLessons = this.lessons.filter(l =>
       (!this.filters.yearId || l.yearId === this.filters.yearId) &&
       (!this.filters.subjectId || l.subjectId === this.filters.subjectId) &&
@@ -233,7 +236,6 @@ status: any; yearId: Id|null; subjectId: Id|null; termId: Id|null; weekId: Id|nu
     );
     this.pagedLessons = this.filteredLessons.slice((this.lessonPage - 1) * this.pageSize, this.lessonPage * this.pageSize);
 
-    // فلترة الكورسات
     this.filteredCourses = this.courses.filter(c =>
       (!this.filters.yearId || c.yearId === this.filters.yearId) &&
       (!this.filters.subjectId || c.subjectId === this.filters.subjectId) &&
@@ -265,6 +267,9 @@ status: any; yearId: Id|null; subjectId: Id|null; termId: Id|null; weekId: Id|nu
     saveToStorage('courses', this.courses);
     saveToStorage('teachers', this.teachers);
   }
+
+ 
+
 
   applyFilters() {
     const q = (this.searchTerm || '').toLowerCase();

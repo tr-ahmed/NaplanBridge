@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { ContentManagementComponent } from './dashboard/dashboard.component';
 import { roleGuard } from '../auth/role.guard';
 
 export const TEACHER_ROUTES: Routes = [
   {
     path: '',
-    component: DashboardComponent,
+    component: ContentManagementComponent,
     canActivate: [roleGuard('teacher')] // ✅ مسموح للمعلم فقط
   }
 ];

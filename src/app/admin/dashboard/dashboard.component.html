@@ -27,53 +27,41 @@
 </button>
 
   <!-- Sidebar -->
-  <aside class="sidebar" [class.collapsed]="sidebarCollapsed" id="sidebar"
-    style="background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); border-top-right-radius: 2rem; border-bottom-right-radius: 2rem; min-height: 100vh;">
-    <div class="sidebar-logo d-flex align-items-center py-4 px-3">
-      <div class="me-3 bg-white/20 rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 48px; height: 48px;">
-        <span class="fw-bold fs-4 text-blue-700">N</span>
-      </div>
-      <div class="fw-bold fs-5 text-white">NAPLAN<span class="text-warning">Bridge</span></div>
+<aside class="sidebar" [class.collapsed]="sidebarCollapsed" id="sidebar"
+  style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);box-shadow:0 8px 32px rgba(31,38,135,.37);border-top-right-radius:2rem;border-bottom-right-radius:2rem;min-height:100vh;">
+  <div class="sidebar-logo d-flex align-items-center py-4 px-3">
+    <div class="me-3" style="background:rgba(255,255,255,0.2);width:48px;height:48px;" class="rounded-circle d-flex align-items-center justify-content-center shadow">
+      <span class="fw-bold fs-4 text-blue-700">N</span>
     </div>
-    <nav class="sidebar-nav mt-4">
-      <!-- <a href="#" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-      </a> -->
-<a routerLink="/admin/dashboard"
-   routerLinkActive="bg-white/20"
-   class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 text-white active">
-  <i class="fas fa-users"></i>
-  <span>User Management</span>
-</a>
-
-<a href="/admin/content"
-   class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 text-white">
-  <i class="fas fa-book"></i>
-  <span>Content Management</span>
-</a>
-
-      <!-- <a href="#" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-        <i class="fas fa-chart-bar"></i>
-        <span>Reports</span>
-      </a>
-      <a href="#" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </a> -->
-    </nav>
-    <div class="sidebar-profile mt-auto px-4 py-4 border-t border-white/10">
-      <div class="d-flex align-items-center gap-3">
-        <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
-        <div>
-          <div class="fw-medium text-white">{{ userName }}</div>
-          <small class="text-white-50">Super Admin</small>
-        </div>
+    <div class="fw-bold fs-5 text-white">NAPLAN<span class="text-warning">Bridge</span></div>
+  </div>
+  <nav class="sidebar-nav mt-4">
+    <a [routerLink]="'/admin/dashboard'" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all text-white active">
+      <i class="fas fa-users"></i>
+      <span>User Management</span>
+    </a>
+    <a href="/admin/content" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-book"></i>
+      <span>Content Management</span>
+    </a>
+    <a href="/admin/subscriptions"
+       class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all  hover:bg-white/10  text-white "
+      >
+      <i class="fas fa-credit-card"></i>
+      <span>Subscription & Billing</span>
+    </a>
+  </nav>
+  <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
+    <div class="d-flex align-items-center gap-3">
+      <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
+      <div>
+        <div class="fw-medium text-white">{{ userName }}</div>
+        <small class="text-white-50">Super Admin</small>
       </div>
-      <a href="#" class="d-block mt-3 text-white-50 small"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
     </div>
-  </aside>
-
+    <a href="#" class="d-block mt-3 text-white-50 small"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+  </div>
+</aside>
   <!-- Main Content -->
   <main class="main-content" [class.expanded]="sidebarCollapsed" id="mainContent">
     <div class="container-fluid py-4">
