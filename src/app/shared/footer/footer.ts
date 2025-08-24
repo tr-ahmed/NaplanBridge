@@ -1,5 +1,6 @@
+
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-footer',
@@ -33,6 +34,10 @@ export class FooterComponent {
     ]
   };
 
+  
+  constructor(
+    public router: Router,
+  ) {}
   /**
    * Social media links with FontAwesome icons
    */
@@ -43,8 +48,13 @@ export class FooterComponent {
     { platform: 'LinkedIn', url: '#', icon: 'fab fa-linkedin-in' },
     { platform: 'YouTube', url: '#', icon: 'fab fa-youtube' }
   ];
-  router: any;
 
+isAdminDashboard(): boolean {
+  return this.router.url.startsWith('/admin/dashboard') 
+      || this.router.url.startsWith('/admin/content')
+       || this.router.url.startsWith('/admin/subscriptions');
+      
+}
 
 
   

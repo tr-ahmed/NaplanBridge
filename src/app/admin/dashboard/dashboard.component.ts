@@ -222,17 +222,16 @@ window: any;
     try {
       const authToken = localStorage.getItem('authToken') || '';
       const rolesQueryParam = selectedRoles.join(',');
-      
-      await this.http.post(
-        `${environment.apiBaseUrl}/Admin/edit-user-roles/${encodeURIComponent(user.userName)}?roles=${encodeURIComponent(rolesQueryParam)}`,
-        null,
-        {
-          headers: new HttpHeaders({
-            'accept': '*/*',
-            'Authorization': `Bearer ${authToken}`
-          })
-        }
-      ).toPromise();
+await this.http.put(
+  `${environment.apiBaseUrl}/Admin/edit-user-roles/${encodeURIComponent(user.userName)}?roles=${encodeURIComponent(rolesQueryParam)}`,
+  null,
+  {
+    headers: new HttpHeaders({
+      'accept': '*/*',
+      'Authorization': `Bearer ${authToken}`
+    })
+  }
+).toPromise()
 
       user.roles = selectedRoles;
       Swal.fire('Success!', 'Roles updated successfully', 'success');
@@ -312,6 +311,14 @@ window: any;
   onRoleFilterChange() {
     this.currentPage.set(1);
   }
+  isOpen = false;
 
+  toggleMenu() {
+    this.isOpen = !this.isOpen;
+  }
+
+  closeMenu() {
+    this.isOpen = false;
+  }
 
 }

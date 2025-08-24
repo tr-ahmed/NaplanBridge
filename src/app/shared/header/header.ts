@@ -237,7 +237,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
 isAdminDashboard(): boolean {
   return this.router.url.startsWith('/admin/dashboard') 
-      || this.router.url.startsWith('/admin/content');
+      || this.router.url.startsWith('/admin/content')
+       || this.router.url.startsWith('/admin/subscriptions');
+      
 }
 
 

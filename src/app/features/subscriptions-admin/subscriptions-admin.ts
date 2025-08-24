@@ -27,11 +27,12 @@ interface Subscription {
   id: number;
   userId: number;
   planId: number;
+      userName?: string;
+
   startDate: string | Date;
   renewalDate: string | Date;
   status: SubStatus;
   notes?: string;
-    userName?: string;
 
   
 }
@@ -96,8 +97,8 @@ userName: string = 'Admin';
     {id:1,name:'Sara Ali'},{id:2,name:'Omar Khan'},{id:3,name:'John Smith'}
   ];
   subs: Subscription[] = [
-    { id:11, userId:1, planId:2, startDate:new Date('2024-08-01'), renewalDate:new Date('2025-08-01'), status:'Active' },
-    { id:12, userId:2, planId:1, startDate:new Date('2025-05-10'), renewalDate:new Date('2025-06-10'), status:'Past Due', notes:'Payment failed last cycle' },
+    { id:11, userId:1,userName:'Sara Ali', planId:2, startDate:new Date('2024-08-01'), renewalDate:new Date('2025-08-01'), status:'Active' },
+    { id:12, userId:2,userName:'Omar Khan', planId:1, startDate:new Date('2025-05-10'), renewalDate:new Date('2025-06-10'), status:'Past Due', notes:'Payment failed last cycle' },
   ];
   payments: Payment[] = [
     { id:101, invoiceNo:'INV-1001', userId:1, userName:'Sara Ali', amount:99, method:'Card', date:new Date(), status:'Paid', txnId:'ch_abc123' },
@@ -151,7 +152,9 @@ userName: string = 'Admin';
   get paymentTotalPages(){ return Math.max(1, Math.ceil(this.filtered.payments.length/this.pageSize)); }
   get couponTotalPages(){ return Math.max(1, Math.ceil(this.filtered.coupons.length/this.pageSize)); }
 
-  constructor(){ this.onFilterChange(); }
+  constructor(public authService: AuthService){ 
+    this.onFilterChange();
+  }
 
   // Helpers
   rangeStart(page:number,total:number){ return total? (page-1)*this.pageSize+1 : 0; }
@@ -358,5 +361,22 @@ userName: string = 'Admin';
     const d = new Date();
     const pad=(n:number)=> String(n).padStart(2,'0');
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+
+  isOpen = false;
+
+  toggleMenu() {
+    this.isOpen = !this.isOpen;
+  }
+
+  closeMenu() {
+    this.isOpen = false;
+  }
+
+    handleLogout(): void {
+    if (confirm('Are you sure you want to logout?')) {
+      this.authService.logout();
+    }
   }
 }

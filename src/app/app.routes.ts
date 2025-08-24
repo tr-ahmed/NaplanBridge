@@ -61,7 +61,9 @@ export const routes: Routes = [
     // Admin Content Management
   {
     path: 'admin/content',
-    loadComponent: () => import('./pages/content-management/content-management').then(m => m.ContentManagementComponent),
+    loadComponent: () => import('./features/content-management/content-management').then(m => m.ContentManagementComponent),
+        canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin'  ]
+
   },
 
 
@@ -73,7 +75,7 @@ export const routes: Routes = [
 
 {
   path: 'admin/subscriptions',
-  loadComponent: () => import('./pages/subscriptions-admin/subscriptions-admin')
+  loadComponent: () => import('./features/subscriptions-admin/subscriptions-admin')
     .then(m => m.SubscriptionManagementComponent)
 },
 
