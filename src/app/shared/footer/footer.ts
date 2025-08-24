@@ -50,7 +50,7 @@ export class FooterComponent {
   ];
 
 isAdminDashboard(): boolean {
-  return this.router.url.startsWith('/admin/dashboard') 
+  return this.router.url.startsWith('/admin/users') 
       || this.router.url.startsWith('/admin/content')
        || this.router.url.startsWith('/admin/subscriptions');
       

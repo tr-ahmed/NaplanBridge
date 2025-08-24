@@ -1,11 +1,18 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './features/home/home';
 import { inject } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
 
+// Use loadComponent for all routes, and fix typos in paths (e.g., "managment" → "admin" for consistency)
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'home', redirectTo: '', pathMatch: 'full' },
+  { 
+    path: '', 
+    loadComponent: () => import('./features/home/home').then(m => m.HomeComponent) 
+  },
+  { 
+    path: 'home', 
+    redirectTo: '', 
+    pathMatch: 'full' 
+  },
 
   {
     path: 'auth/login',
@@ -50,35 +57,35 @@ export const routes: Routes = [
   },
 
   // Admin Dashboard
-  {
-    path: 'admin/dashboard',
-    loadComponent: () => import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin'  ]
-  },
+  // {
+  //   path: 'admin/dashboard',
+  //   loadComponent: () => import('./admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+  //   canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin']
+  // },
 
-
-
-    // Admin Content Management
+  // Admin Content Management
   {
     path: 'admin/content',
     loadComponent: () => import('./features/content-management/content-management').then(m => m.ContentManagementComponent),
-        canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin'  ]
-
+    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin']
   },
-
+  {
+    path: 'admin/users',
+    loadComponent: () => import('./admin/user-managment/user-managment').then(m => m.UserManagmentComponent),
+    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin']
+  },
+  {
+    path: 'admin/subscriptions',
+    loadComponent: () => import('./features/subscriptions-admin/subscriptions-admin').then(m => m.SubscriptionManagementComponent),
+    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Admin']
+  },
 
   // Teacher Dashboard
   {
     path: 'teacher/dashboard',
     loadComponent: () => import('./teacher/dashboard/dashboard.component').then(m => m.ContentManagementComponent),
+    canActivate: [() => inject(AuthService).getPrimaryRole() === 'Teacher']
   },
-
-{
-  path: 'admin/subscriptions',
-  loadComponent: () => import('./features/subscriptions-admin/subscriptions-admin')
-    .then(m => m.SubscriptionManagementComponent)
-},
-
 
   // fallback
   { path: '**', redirectTo: '' }
