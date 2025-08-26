@@ -188,14 +188,12 @@ courseTab: string = 'lessons';
 
   // ===== Filtering / Paging =====
   onFilterChange() {
-    // فلترة السنوات
     this.filteredYears = this.years.filter(y =>
       (!this.filters.yearId || y.id === this.filters.yearId) &&
       (!this.searchTerm || y.name.toLowerCase().includes(this.searchTerm.toLowerCase()))
     );
     this.pagedYears = this.filteredYears.slice((this.yearPage - 1) * this.pageSize, this.yearPage * this.pageSize);
 
-    // فلترة المواد
     this.filteredSubjects = this.subjects.filter(s =>
       (!this.filters.yearId || s.yearId === this.filters.yearId) &&
       (!this.filters.subjectId || s.id === this.filters.subjectId) &&
@@ -203,7 +201,6 @@ courseTab: string = 'lessons';
     );
     this.pagedSubjects = this.filteredSubjects.slice((this.subjectPage - 1) * this.pageSize, this.subjectPage * this.pageSize);
 
-    // فلترة التيرمات
     this.filteredTerms = this.terms.filter(t =>
       (!this.filters.yearId || t.yearId === this.filters.yearId) &&
       (!this.filters.subjectId || t.subjectId === this.filters.subjectId) &&
@@ -212,9 +209,7 @@ courseTab: string = 'lessons';
     );
     this.pagedTerms = this.filteredTerms.slice((this.termPage - 1) * this.pageSize, this.termPage * this.pageSize);
 
-    // فلترة الأسابيع
     this.filteredWeeks = this.weeks.filter(w => {
-      // Find the term for this week to get yearId and subjectId
       const term = this.terms.find(t => t.id === w.termId);
       return (
         (!this.filters.yearId || term?.yearId === this.filters.yearId) &&
@@ -226,7 +221,6 @@ courseTab: string = 'lessons';
     });
     this.pagedWeeks = this.filteredWeeks.slice((this.weekPage - 1) * this.pageSize, this.weekPage * this.pageSize);
 
-    // فلترة الدروس
     this.filteredLessons = this.lessons.filter(l =>
       (!this.filters.yearId || l.yearId === this.filters.yearId) &&
       (!this.filters.subjectId || l.subjectId === this.filters.subjectId) &&

@@ -43,7 +43,7 @@
   <i class="fas fa-users"></i>
   <span>User Management</span>
 </a> -->
-<a [routerLink]="'/admin/content'" class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white active" style="background:rgba(255,255,255,0.08)">
+<a  class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white active" style="background:rgba(255,255,255,0.08)">
   <i class="fas fa-book"></i>
   <span>Content Management</span>
 </a>
@@ -65,8 +65,68 @@
 
 
   <div class="container-fluid py-4">
-    
-    <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="relative w-[520px] max-w-full">
+          <input type="text" class="form-control ps-10" placeholder="Search content..." [(ngModel)]="searchTerm"
+            (input)="onFilterChange()">
+          <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button
+          [routerLink]="'/home'"
+            class="btn btn-gradient inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition w-full sm:w-auto"
+            type="button">
+            <span class="whitespace-nowrap"> home</span>
+          </button>
+          <div class="flex items-center gap-4">
+            <!-- Notification Bell -->
+            <div class="relative">
+              <button
+                class="w-10 h-10 rounded-full bg-[#0F376B] flex items-center justify-center hover:bg-blue-300 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="currentColor"
+                  viewBox="0 0 20 20">
+                  <path
+                    d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
+                </svg>
+              </button>
+              <!-- Notification Dot -->
+              <span class="absolute top-1 right-1 block w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+
+            <!-- User Avatar -->
+            <div class="relative inline-block text-left">
+              <!-- Avatar -->
+              <div class="w-12 h-12 rounded-full border-2 border-gray-300 overflow-hidden shadow-md cursor-pointer"
+                >
+                <img src="https://i.pravatar.cc/48?img=11" alt="User" class="w-full h-full object-cover" />
+              </div>
+
+              <!-- Dropdown -->
+              <div 
+                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                <ul class="py-1 text-gray-700">
+                  <li>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">Profile</button>
+                  </li>
+                  <li>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">Settings</button>
+                  </li>
+                  <li>
+                    <button 
+                      class="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100">Logout</button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>    <!-- Header -->
     <div class="row mb-4">
       <div class="col-12">
         <h1 class="h3 fw-bold">Content Management</h1>

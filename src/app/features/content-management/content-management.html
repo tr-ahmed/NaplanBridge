@@ -83,9 +83,10 @@
 
         <div class="flex items-center gap-3">
           <button
+          [routerLink]="'/home'"
             class="btn btn-gradient inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition w-full sm:w-auto"
             type="button">
-            <span class="whitespace-nowrap"> <i class="fa-solid fa-download me-1"></i> Export report</span>
+            <span class="whitespace-nowrap"> home</span>
           </button>
           <div class="flex items-center gap-4">
             <!-- Notification Bell -->
@@ -368,7 +369,7 @@
                   <tr *ngFor="let s of pagedSubjects; let i = index; trackBy: trackById">
                     <td>{{ (subjectPage - 1) * pageSize + i + 1 }}</td>
                     <td class="fw-semibold">{{ s.name }}</td>
-                    <td><span class="badge badge-light">{{ s.level }}</span></td>
+                    <td>{{ s.level }}</td>
                     <td>{{ nameTeacher(s.teacherId) }}</td>
                     <td>{{ nameCategory(s.categoryId) }}</td>
                     <td>${{ s.price | number:'1.2-2' }}</td>
