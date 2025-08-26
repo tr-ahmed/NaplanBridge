@@ -43,50 +43,73 @@ export class LoginComponent implements OnInit {
   /**
    * Handle form submission
    */
-  onLogin(): void {
-    if (this.loginForm.valid) {
-      this.isLoading.set(true);
+onLogin(): void {
+  if (this.loginForm.valid) {
+    this.isLoading.set(true);
 
-      // Extract form data and prepare API request
-      const formValue = this.loginForm.value;
-      const loginData: LoginRequest = {
-        email: formValue.email,
-        password: formValue.password
-      };
+    // Extract form data and prepare API request
+    const formValue = this.loginForm.value;
+    const loginData: LoginRequest = {
+      email: formValue.email,
+      password: formValue.password
+    };
 
-      // Call authentication service
-      this.authService.login(loginData).subscribe({
-        next: (result) => {
-          this.isLoading.set(false);
+    // Call authentication service
+    this.authService.login(loginData).subscribe({
+      next: (result) => {
+        this.isLoading.set(false);
 
-          if (result.success) {
-            const currentUser = this.authService.currentUser();
-            this.toastService.showSuccess(`Welcome back, ${currentUser?.userName}!`);
+        if (result.success) {
+          const currentUser = this.authService.currentUser();
+          this.toastService.showSuccess(`Welcome back, ${currentUser?.userName}!`);
 
-            // Handle remember me functionality
-            if (formValue.rememberMe) {
-              localStorage.setItem('rememberedEmail', formValue.email);
-            } else {
-              localStorage.removeItem('rememberedEmail');
-            }
-
-            // Navigate to appropriate dashboard
-            this.authService.navigateToUserDashboard();
+          // Handle remember me functionality
+          if (formValue.rememberMe) {
+            localStorage.setItem('rememberedEmail', formValue.email);
           } else {
-            this.handleLoginError(result.message || 'Login failed');
+            localStorage.removeItem('rememberedEmail');
           }
-        },
-        error: (error) => {
-          this.isLoading.set(false);
-          console.error('Login error:', error);
-          this.toastService.showError('Login failed. Please try again.');
+
+          // Check if user needs to select a role (has multiple non-Member roles)
+          const roles = this.authService.userRoles();
+          const nonMemberRoles = roles.filter(role => role.toLowerCase() !== 'member');
+          
+          // If user has multiple roles and hasn't selected one yet, redirect to role selection
+          if (nonMemberRoles.length > 1 && !this.authService.isRoleSelected()) {
+            this.router.navigate(['/select-role']);
+          } 
+          // Otherwise, determine where to navigate based on role selection or primary role
+          else {
+            // If user already selected a role, use that
+            if (this.authService.isRoleSelected() && this.authService.selectedRole()) {
+              this.authService.navigateToDashboard(this.authService.selectedRole()!);
+            } 
+            // Otherwise, use primary role
+            else {
+              const primaryRole = this.authService.getPrimaryRole();
+              if (primaryRole) {
+                this.authService.navigateToDashboard(primaryRole.toLowerCase());
+              } else {
+                // Fallback for users with only Member role
+                this.router.navigate(['/home']);
+              }
+            }
+          }
+        } else {
+          this.handleLoginError(result.message || 'Login failed');
         }
-      });
-    } else {
-      this.markFormGroupTouched();
-      this.toastService.showWarning('Please fill in all required fields correctly.');
-    }
+      },
+      error: (error) => {
+        this.isLoading.set(false);
+        console.error('Login error:', error);
+        this.toastService.showError('Login failed. Please try again.');
+      }
+    });
+  } else {
+    this.markFormGroupTouched();
+    this.toastService.showWarning('Please fill in all required fields correctly.');
   }
+}
 
   /**
    * Handle login errors and display validation messages
