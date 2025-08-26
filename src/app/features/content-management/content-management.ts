@@ -3,54 +3,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { AuthService } from '../../core/services/auth.service';
-import { environment } from '../../../environments/environment';
+import { finalize } from 'rxjs/operators';
 
 import Swal from 'sweetalert2';
 
-type Id = number;
+import { AuthService } from '../../core/services/auth.service';
+import { ContentService, Year, Subject, Term, Week, Lesson, Category, YearSubject, Teacher, Resource } from '../../core/services/content.service';
 
-interface Year { id: Id; number: number; }
-interface Subject { 
-  id: Id; 
-  name: string; 
-  description: string;
-  price: number;
-  originalPrice: number;
-  discountPercentage: number;
-  imageUrl: string;
-  level: string;
-  duration: number;
-  teacherName: string;
-  studentCount: number;
-  weekNumber: number;
-  termNumber: number;
-  categoryName: string;
-  categoryDescription: string;
-  categoryId: number;
-  teacherId: number;
-}
-interface Term { id: Id; number: number; yearSubjectId: Id; }
-interface Week { id: Id; number: number; termId: Id; }
-interface Lesson {
-  id: Id; 
-  title: string; 
-  videoUrl: string;
-  description: string;
-  weekId: Id;
-}
-interface Category {
-  id: Id; 
-  name: string; 
-  description: string;
-}
-interface YearSubject {
-  id: Id;
-  yearId: Id;
-  yearNumber: number;
-  subject: Subject;
-}
+type Id = number;
 
 @Component({
   selector: 'app-content-management',
@@ -62,8 +22,6 @@ interface YearSubject {
 export class ContentManagementComponent implements OnInit {
   sidebarCollapsed = false;
   userName = 'Admin User';
-  yearPages: any;
-  courses: any;
 
   toggleSidebar() { this.sidebarCollapsed = !this.sidebarCollapsed; }
 
@@ -75,22 +33,30 @@ export class ContentManagementComponent implements OnInit {
   lessons: Lesson[] = [];
   categories: Category[] = [];
   yearSubjects: YearSubject[] = [];
-  teachers: { id: number; name: string; roles: string[] }[] = [];
+  teachers: Teacher[] = [];
+  subjectResources: Resource[] = [];
 
   // ===== Stats =====
   stats = { years: 0, subjects: 0, terms: 0, weeks: 0, lessons: 0, categories: 0 };
 
   // ===== Filters/Search =====
   filters: {
-    status?: any; yearId: Id|null; subjectId: Id|null; termId: Id|null; weekId: Id|null; type: ''|'lesson'|'category' 
+    status?: any;
+    yearId: Id | null;
+    subjectId: Id | null;
+    termId: Id | null;
+    weekId: Id | null;
+    type: '' | 'lesson' | 'category';
+    categoryId: Id | null;
   } = {
-    yearId: null,
-    subjectId: null,
-    termId: null,
-    weekId: null,
-    type: '',
-    status: ''
-  };
+      yearId: null,
+      subjectId: null,
+      termId: null,
+      weekId: null,
+      type: '',
+      status: '',
+      categoryId: null
+    };
 
   isOpen = false;
 
@@ -123,30 +89,30 @@ export class ContentManagementComponent implements OnInit {
   pagedLessons: Lesson[] = [];
   pagedCategories: Category[] = [];
 
-  get yearTotalPages()   { return Math.max(1, Math.ceil(this.filteredYears.length   / this.pageSize)); }
-  get subjectTotalPages(){ return Math.max(1, Math.ceil(this.filteredSubjects.length/ this.pageSize)); }
-  get termTotalPages()   { return Math.max(1, Math.ceil(this.filteredTerms.length   / this.pageSize)); }
-  get weekTotalPages()   { return Math.max(1, Math.ceil(this.filteredWeeks.length   / this.pageSize)); }
+  get yearTotalPages() { return Math.max(1, Math.ceil(this.filteredYears.length / this.pageSize)); }
+  get subjectTotalPages() { return Math.max(1, Math.ceil(this.filteredSubjects.length / this.pageSize)); }
+  get termTotalPages() { return Math.max(1, Math.ceil(this.filteredTerms.length / this.pageSize)); }
+  get weekTotalPages() { return Math.max(1, Math.ceil(this.filteredWeeks.length / this.pageSize)); }
   get lessonTotalPages() { return Math.max(1, Math.ceil(this.filteredLessons.length / this.pageSize)); }
   get categoryTotalPages() { return Math.max(1, Math.ceil(this.filteredCategories.length / this.pageSize)); }
 
-  get yStart(){ return this.filteredYears.length   ? (this.yearPage-1)*this.pageSize+1 : 0; }
-  get yEnd()  { return Math.min(this.yearPage*this.pageSize, this.filteredYears.length); }
-  get sStart(){ return this.filteredSubjects.length? (this.subjectPage-1)*this.pageSize+1 : 0; }
-  get sEnd()  { return Math.min(this.subjectPage*this.pageSize, this.filteredSubjects.length); }
-  get tStart(){ return this.filteredTerms.length   ? (this.termPage-1)*this.pageSize+1 : 0; }
-  get tEnd()  { return Math.min(this.termPage*this.pageSize, this.filteredTerms.length); }
-  get wStart(){ return this.filteredWeeks.length   ? (this.weekPage-1)*this.pageSize+1 : 0; }
-  get wEnd()  { return Math.min(this.weekPage*this.pageSize, this.filteredWeeks.length); }
-  get lStart(){ return this.filteredLessons.length ? (this.lessonPage-1)*this.pageSize+1 : 0; }
-  get lEnd()  { return Math.min(this.lessonPage*this.pageSize, this.filteredLessons.length); }
-  get cStart(){ return this.filteredCategories.length ? (this.categoryPage-1)*this.pageSize+1 : 0; }
-  get cEnd()  { return Math.min(this.categoryPage*this.pageSize, this.filteredCategories.length); }
+  get yStart() { return this.filteredYears.length ? (this.yearPage - 1) * this.pageSize + 1 : 0; }
+  get yEnd() { return Math.min(this.yearPage * this.pageSize, this.filteredYears.length); }
+  get sStart() { return this.filteredSubjects.length ? (this.subjectPage - 1) * this.pageSize + 1 : 0; }
+  get sEnd() { return Math.min(this.subjectPage * this.pageSize, this.filteredSubjects.length); }
+  get tStart() { return this.filteredTerms.length ? (this.termPage - 1) * this.pageSize + 1 : 0; }
+  get tEnd() { return Math.min(this.termPage * this.pageSize, this.filteredTerms.length); }
+  get wStart() { return this.filteredWeeks.length ? (this.weekPage - 1) * this.pageSize + 1 : 0; }
+  get wEnd() { return Math.min(this.weekPage * this.pageSize, this.filteredWeeks.length); }
+  get lStart() { return this.filteredLessons.length ? (this.lessonPage - 1) * this.pageSize + 1 : 0; }
+  get lEnd() { return Math.min(this.lessonPage * this.pageSize, this.filteredLessons.length); }
+  get cStart() { return this.filteredCategories.length ? (this.categoryPage - 1) * this.pageSize + 1 : 0; }
+  get cEnd() { return Math.min(this.categoryPage * this.pageSize, this.filteredCategories.length); }
 
   // ===== Modals =====
   isFormOpen = false;
   formMode: 'add' | 'edit' = 'add';
-  entityType: 'year'|'subject'|'term'|'week'|'lesson'|'category' = 'year';
+  entityType: 'year' | 'subject' | 'term' | 'week' | 'lesson' | 'category' = 'year';
   entityTitle = '';
   form: any = {};
 
@@ -158,23 +124,26 @@ export class ContentManagementComponent implements OnInit {
 
   dropdownOpen = false;
 
-  private apiBaseUrl = environment.apiBaseUrl || 'https://naplanbridge.runasp.net';
+  // Resource management
+  resourceModalOpen = false;
+  resourceFormOpen = false;
+  selectedSubject: Subject | null = null;
+  editingResource: Resource | null = null;
+  // In the component class, update the resourceForm initialization:
+  resourceForm: any = {
+    title: '',
+    fileUrl: '',
+    yearSubjectId: null
+  };
 
   constructor(
-    private sanitizer: DomSanitizer, 
+    private sanitizer: DomSanitizer,
     private authService: AuthService,
-    private http: HttpClient
-  ) {}
+    private contentService: ContentService
+  ) { }
 
   ngOnInit(): void {
     this.loadAllFromAPI();
-  }
-
-  private getHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
   }
 
   // ===== API Calls =====
@@ -183,7 +152,7 @@ export class ContentManagementComponent implements OnInit {
       // Load years first
       await this.loadYears();
 
-      // Load subjects, teachers, lessons, categories in parallel (they don't depend on terms/weeks)
+      // Load subjects, teachers, lessons, categories in parallel
       await Promise.all([
         this.loadSubjects(),
         this.loadTeachers(),
@@ -194,7 +163,7 @@ export class ContentManagementComponent implements OnInit {
       // Load yearSubjects (depends on years)
       await this.loadYearSubjects();
 
-      // IMPORTANT: load terms first, then weeks (weeks depend on terms)
+      // Load terms first, then weeks (weeks depend on terms)
       await this.loadTerms();
       await this.loadWeeks();
 
@@ -208,8 +177,7 @@ export class ContentManagementComponent implements OnInit {
 
   async loadYears(): Promise<void> {
     try {
-      const headers = this.getHeaders();
-      this.years = await this.http.get<Year[]>(`${this.apiBaseUrl}/Years`, { headers }).toPromise() || [];
+      this.years = await this.contentService.getYears().toPromise() || [];
     } catch (error) {
       console.error('Error loading years:', error);
       throw error;
@@ -218,8 +186,7 @@ export class ContentManagementComponent implements OnInit {
 
   async loadSubjects(): Promise<void> {
     try {
-      const headers = this.getHeaders();
-      this.subjects = await this.http.get<Subject[]>(`${this.apiBaseUrl}/Subjects`, { headers }).toPromise() || [];
+      this.subjects = await this.contentService.getSubjects().toPromise() || [];
     } catch (error) {
       console.error('Error loading subjects:', error);
       throw error;
@@ -228,12 +195,7 @@ export class ContentManagementComponent implements OnInit {
 
   async loadTeachers(): Promise<void> {
     try {
-      const headers = this.getHeaders();
-      const users = await this.http.get<{ id: number; userName: string; roles: string[] }[]>(
-        `${this.apiBaseUrl}/Admin/users-with-roles`,
-        { headers }
-      ).toPromise() || [];
-
+      const users = await this.contentService.getTeachers().toPromise() || [];
       this.teachers = users
         .filter(u => u.roles?.some(r => r.toLowerCase() === 'teacher'))
         .map(u => ({
@@ -249,8 +211,7 @@ export class ContentManagementComponent implements OnInit {
 
   async loadLessons(): Promise<void> {
     try {
-      const headers = this.getHeaders();
-      this.lessons = await this.http.get<Lesson[]>(`${this.apiBaseUrl}/Lessons`, { headers }).toPromise() || [];
+      this.lessons = await this.contentService.getLessons().toPromise() || [];
     } catch (error) {
       console.error('Error loading lessons:', error);
       throw error;
@@ -259,8 +220,7 @@ export class ContentManagementComponent implements OnInit {
 
   async loadCategories(): Promise<void> {
     try {
-      const headers = this.getHeaders();
-      this.categories = await this.http.get<Category[]>(`${this.apiBaseUrl}/Categories`, { headers }).toPromise() || [];
+      this.categories = await this.contentService.getCategories().toPromise() || [];
     } catch (error) {
       console.error('Error loading categories:', error);
       throw error;
@@ -269,12 +229,10 @@ export class ContentManagementComponent implements OnInit {
 
   async loadYearSubjects(): Promise<void> {
     try {
-      const headers = this.getHeaders();
       this.yearSubjects = [];
 
-      // parallelize requests per year for speed (but still await all)
       const promises = this.years.map(year =>
-        this.http.get<YearSubject[]>(`${this.apiBaseUrl}/YearSubjects/by-year/${year.id}`, { headers }).toPromise()
+        this.contentService.getYearSubjectsByYear(year.id).toPromise()
           .then(r => r || [])
           .catch(err => { console.error(`Error loading yearSubjects for year ${year.id}:`, err); return []; })
       );
@@ -289,12 +247,10 @@ export class ContentManagementComponent implements OnInit {
 
   async loadTerms(): Promise<void> {
     try {
-      const headers = this.getHeaders();
       this.terms = [];
 
-      // parallelize per yearSubject for speed
       const promises = this.yearSubjects.map(ys =>
-        this.http.get<Term[]>(`${this.apiBaseUrl}/Terms/by-yearsubject/${ys.id}`, { headers }).toPromise()
+        this.contentService.getTermsByYearSubject(ys.id).toPromise()
           .then(r => r || [])
           .catch(err => { console.error(`Error loading terms for yearSubject ${ys.id}:`, err); return []; })
       );
@@ -309,12 +265,10 @@ export class ContentManagementComponent implements OnInit {
 
   async loadWeeks(): Promise<void> {
     try {
-      const headers = this.getHeaders();
       this.weeks = [];
 
-      // IMPORTANT: terms should already be loaded before calling this method.
       const promises = this.terms.map(term =>
-        this.http.get<Week[]>(`${this.apiBaseUrl}/Weeks/by-term/${term.id}`, { headers }).toPromise()
+        this.contentService.getWeeksByTerm(term.id).toPromise()
           .then(r => r || [])
           .catch(err => { console.error(`Error loading weeks for term ${term.id}:`, err); return []; })
       );
@@ -327,6 +281,15 @@ export class ContentManagementComponent implements OnInit {
     }
   }
 
+  async loadSubjectResources(subjectId: number): Promise<void> {
+    try {
+      this.subjectResources = await this.contentService.getSubjectResources(subjectId).toPromise() || [];
+    } catch (error) {
+      console.error('Error loading subject resources:', error);
+      Swal.fire('Error', 'Failed to load resources', 'error');
+    }
+  }
+
   toggleDropdown() {
     this.dropdownOpen = !this.dropdownOpen;
   }
@@ -334,20 +297,46 @@ export class ContentManagementComponent implements OnInit {
   // ===== Helpers =====
   trackById = (_: number, item: any) => item.id;
 
-  numberYear(id: Id|undefined|null){ return this.years.find(y=>y.id===id)?.number || 0; }
-  nameSubject(id: Id|undefined|null){ return this.subjects.find(s=>s.id===id)?.name || ''; }
-  numberTerm(id: Id|undefined|null){ return this.terms.find(t=>t.id===id)?.number || 0; }
-  numberWeek(id: Id|undefined|null){ return this.weeks.find(w=>w.id===id)?.number || 0; }
-  nameCategory(id: Id|undefined|null){ return this.categories.find(c=>c.id===id)?.name || ''; }
-  nameTeacher(id: Id|undefined|null){ return this.teachers.find(t=>t.id===id)?.name || ''; }
+  numberYear(id: Id | undefined | null) { return this.years.find(y => y.id === id)?.number || 0; }
+  nameSubject(id: Id | undefined | null) { return this.subjects.find(s => s.id === id)?.name || ''; }
+  numberTerm(id: Id | undefined | null) { return this.terms.find(t => t.id === id)?.number || 0; }
+  numberWeek(id: Id | undefined | null) { return this.weeks.find(w => w.id === id)?.number || 0; }
+  nameCategory(id: Id | undefined | null) { return this.categories.find(c => c.id === id)?.name || ''; }
+  nameTeacher(id: Id | undefined | null) { return this.teachers.find(t => t.id === id)?.name || ''; }
+
+  getSubjectCountForCategory(categoryId: Id): number {
+    return this.subjects.filter(s => s.categoryId === categoryId).length;
+  }
+
+  getTermIdFromWeekId(weekId: Id): Id | null {
+    const week = this.weeks.find(w => w.id === weekId);
+    return week ? week.termId : null;
+  }
+
+  getSubjectIdFromWeekId(weekId: Id): Id | null {
+    const week = this.weeks.find(w => w.id === weekId);
+    if (!week) return null;
+
+    const term = this.terms.find(t => t.id === week.termId);
+    if (!term) return null;
+
+    const yearSubject = this.yearSubjects.find(ys => ys.id === term.yearSubjectId);
+    return yearSubject ? yearSubject.subject.id : null;
+  }
+
+  getYearIdFromTermId(termId: Id): Id | null {
+    const term = this.terms.find(t => t.id === termId);
+    if (!term) return null;
+
+    const yearSubject = this.yearSubjects.find(ys => ys.id === term.yearSubjectId);
+    return yearSubject ? yearSubject.yearId : null;
+  }
 
   // ===== Filtering / Paging =====
-  // Simplify: use refreshAll so behavior is consistent
   onFilterChange() {
     this.resetPaging();
   }
 
-  // Helper methods to get year/subject IDs from relations
   private getYearIdForSubject(subjectId: Id): Id | null {
     const yearSubject = this.yearSubjects.find(ys => ys.subject?.id === subjectId);
     return yearSubject ? yearSubject.yearId : null;
@@ -409,8 +398,9 @@ export class ContentManagementComponent implements OnInit {
     // SUBJECTS
     this.filteredSubjects = this.subjects.filter(s => {
       const byYear = this.filters.yearId ? this.getYearIdForSubject(s.id) === this.filters.yearId : true;
-      const bySearch = !q || s.name.toLowerCase().includes(q);
-      return byYear && bySearch;
+      const byCategory = this.filters.categoryId ? s.categoryId === this.filters.categoryId : true;
+      const bySearch = !q || s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q);
+      return byYear && byCategory && bySearch;
     });
 
     // TERMS
@@ -421,7 +411,7 @@ export class ContentManagementComponent implements OnInit {
       return byYear && bySubject && bySearch;
     });
 
-    // WEEKS: now consider yearId and subjectId via term -> yearSubject
+    // WEEKS
     this.filteredWeeks = this.weeks.filter(w => {
       const term = this.terms.find(t => t.id === w.termId);
       const byYear = this.filters.yearId ? (term && this.getYearIdForTerm(term.yearSubjectId) === this.filters.yearId) : true;
@@ -437,28 +427,28 @@ export class ContentManagementComponent implements OnInit {
       const byYear = this.filters.yearId ? this.getYearIdForLesson(l.weekId) === this.filters.yearId : true;
       const bySubject = this.filters.subjectId ? this.getSubjectIdForLesson(l.weekId) === this.filters.subjectId : true;
       const byWeek = this.filters.weekId ? l.weekId === this.filters.weekId : true;
-      const bySearch = !q || l.title.toLowerCase().includes(q);
+      const bySearch = !q || l.title.toLowerCase().includes(q) || l.description.toLowerCase().includes(q);
       return byTypeFilter && byYear && bySubject && byWeek && bySearch;
     });
 
     // CATEGORIES
     this.filteredCategories = this.categories.filter(c => {
       const byTypeFilter = this.filters.type ? this.filters.type === 'category' : true;
-      const bySearch = !q || c.name.toLowerCase().includes(q);
+      const bySearch = !q || c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q);
       return byTypeFilter && bySearch;
     });
   }
 
   updatePaged() {
-    this.pagedYears    = this.slicePage(this.filteredYears,   this.yearPage);
-    this.pagedSubjects = this.slicePage(this.filteredSubjects,this.subjectPage);
-    this.pagedTerms    = this.slicePage(this.filteredTerms,   this.termPage);
-    this.pagedWeeks    = this.slicePage(this.filteredWeeks,   this.weekPage);
-    this.pagedLessons  = this.slicePage(this.filteredLessons, this.lessonPage);
-    this.pagedCategories  = this.slicePage(this.filteredCategories, this.categoryPage);
+    this.pagedYears = this.slicePage(this.filteredYears, this.yearPage);
+    this.pagedSubjects = this.slicePage(this.filteredSubjects, this.subjectPage);
+    this.pagedTerms = this.slicePage(this.filteredTerms, this.termPage);
+    this.pagedWeeks = this.slicePage(this.filteredWeeks, this.weekPage);
+    this.pagedLessons = this.slicePage(this.filteredLessons, this.lessonPage);
+    this.pagedCategories = this.slicePage(this.filteredCategories, this.categoryPage);
   }
 
-  slicePage<T>(arr: T[], page: number){ const start=(page-1)*this.pageSize; return arr.slice(start, start+this.pageSize); }
+  slicePage<T>(arr: T[], page: number) { const start = (page - 1) * this.pageSize; return arr.slice(start, start + this.pageSize); }
 
   updateStats() {
     this.stats = {
@@ -472,15 +462,15 @@ export class ContentManagementComponent implements OnInit {
   }
 
   // Paging actions
-  goYearPage(p: number){ if(p>=1 && p<=this.yearTotalPages)   { this.yearPage=p; this.updatePaged(); } }
-  goSubjectPage(p: number){ if(p>=1 && p<=this.subjectTotalPages){ this.subjectPage=p; this.updatePaged(); } }
-  goTermPage(p: number){ if(p>=1 && p<=this.termTotalPages)   { this.termPage=p; this.updatePaged(); } }
-  goWeekPage(p: number){ if(p>=1 && p<=this.weekTotalPages)   { this.weekPage=p; this.updatePaged(); } }
-  goLessonPage(p: number){ if(p>=1 && p<=this.lessonTotalPages){ this.lessonPage=p; this.updatePaged(); } }
-  goCategoryPage(p: number){ if(p>=1 && p<=this.categoryTotalPages){ this.categoryPage=p; this.updatePaged(); } }
+  goYearPage(p: number) { if (p >= 1 && p <= this.yearTotalPages) { this.yearPage = p; this.updatePaged(); } }
+  goSubjectPage(p: number) { if (p >= 1 && p <= this.subjectTotalPages) { this.subjectPage = p; this.updatePaged(); } }
+  goTermPage(p: number) { if (p >= 1 && p <= this.termTotalPages) { this.termPage = p; this.updatePaged(); } }
+  goWeekPage(p: number) { if (p >= 1 && p <= this.weekTotalPages) { this.weekPage = p; this.updatePaged(); } }
+  goLessonPage(p: number) { if (p >= 1 && p <= this.lessonTotalPages) { this.lessonPage = p; this.updatePaged(); } }
+  goCategoryPage(p: number) { if (p >= 1 && p <= this.categoryTotalPages) { this.categoryPage = p; this.updatePaged(); } }
 
   // ===== Add/Edit =====
-  openAdd(type: 'year'|'subject'|'term'|'week'|'lesson'|'category'){
+  openAdd(type: 'year' | 'subject' | 'term' | 'week' | 'lesson' | 'category') {
     this.formMode = 'add';
     this.entityType = type;
     this.entityTitle = this.capitalize(type);
@@ -497,7 +487,7 @@ export class ContentManagementComponent implements OnInit {
     this.isFormOpen = true;
   }
 
-  openEdit(type: 'year'|'subject'|'term'|'week'|'lesson'|'category', entity: any){
+  openEdit(type: 'year' | 'subject' | 'term' | 'week' | 'lesson' | 'category', entity: any) {
     this.formMode = 'edit';
     this.entityType = type;
     this.entityTitle = this.capitalize(type);
@@ -505,7 +495,7 @@ export class ContentManagementComponent implements OnInit {
     this.isFormOpen = true;
   }
 
-  closeForm(){ this.isFormOpen = false; }
+  closeForm() { this.isFormOpen = false; }
 
   async submitForm() {
     try {
@@ -534,8 +524,6 @@ export class ContentManagementComponent implements OnInit {
   }
 
   private async addEntity(): Promise<void> {
-    const headers = this.getHeaders();
-
     switch (this.entityType) {
       case 'year': {
         const { number } = this.form;
@@ -543,7 +531,7 @@ export class ContentManagementComponent implements OnInit {
           Swal.fire('Error', 'Please provide a year number.', 'error');
           throw new Error('Validation failed');
         }
-        const newYear = await this.http.post<Year>(`${this.apiBaseUrl}/Years`, { number }, { headers }).toPromise();
+        const newYear = await this.contentService.addYear({ number }).toPromise();
         if (newYear) this.years.push(newYear);
         break;
       }
@@ -558,8 +546,11 @@ export class ContentManagementComponent implements OnInit {
           duration,
           categoryId,
           teacherId,
+          yearId,
           termNumber,
-          weekNumbers
+          weekNumbers,
+          objectives,
+          color
         } = this.form;
 
         if (
@@ -567,11 +558,11 @@ export class ContentManagementComponent implements OnInit {
           !description ||
           originalPrice == null ||
           discountPercentage == null ||
-          !imageUrl ||
           !level ||
           duration == null ||
           categoryId == null ||
           teacherId == null ||
+          yearId == null ||
           termNumber == null ||
           !Array.isArray(weekNumbers) || weekNumbers.length === 0
         ) {
@@ -579,21 +570,28 @@ export class ContentManagementComponent implements OnInit {
           throw new Error('Validation failed');
         }
 
+        // Calculate price based on discount
+        const price = originalPrice * (1 - (discountPercentage / 100));
+
         const payload = {
           name,
           description,
           originalPrice,
           discountPercentage,
+          price,
           imageUrl,
           level,
           duration,
           categoryId,
           teacherId,
+          yearId,
           termNumber,
-          weekNumbers
+          weekNumbers,
+          objectives,
+          color
         };
 
-        const newSubject = await this.http.post<Subject>(`${this.apiBaseUrl}/Subjects`, payload, { headers }).toPromise();
+        const newSubject = await this.contentService.addSubject(payload).toPromise();
         if (newSubject) this.subjects.push(newSubject);
         break;
       }
@@ -603,7 +601,7 @@ export class ContentManagementComponent implements OnInit {
           Swal.fire('Error', 'Please provide term number and yearSubjectId.', 'error');
           throw new Error('Validation failed');
         }
-        const newTerm = await this.http.post<Term>(`${this.apiBaseUrl}/Terms`, { number, yearSubjectId }, { headers }).toPromise();
+        const newTerm = await this.contentService.addTerm({ number, yearSubjectId }).toPromise();
         if (newTerm) this.terms.push(newTerm);
         break;
       }
@@ -613,29 +611,29 @@ export class ContentManagementComponent implements OnInit {
           Swal.fire('Error', 'Please provide week number and termId.', 'error');
           throw new Error('Validation failed');
         }
-        const newWeek = await this.http.post<Week>(`${this.apiBaseUrl}/Weeks`, { number, termId }, { headers }).toPromise();
+        const newWeek = await this.contentService.addWeek({ number, termId }).toPromise();
         if (newWeek) this.weeks.push(newWeek);
         break;
       }
       case 'lesson': {
-        const { title, videoUrl, description, weekId } = this.form;
+        const { title, videoUrl, description, weekId, duration, objectives } = this.form;
         if (!title || !videoUrl || !description || weekId == null) {
           Swal.fire('Error', 'Please fill all required lesson fields.', 'error');
           throw new Error('Validation failed');
         }
-        const payload = { title, videoUrl, description, weekId };
-        const newLesson = await this.http.post<Lesson>(`${this.apiBaseUrl}/Lessons`, payload, { headers }).toPromise();
+        const payload = { title, videoUrl, description, weekId, duration, objectives };
+        const newLesson = await this.contentService.addLesson(payload).toPromise();
         if (newLesson) this.lessons.push(newLesson);
         break;
       }
       case 'category': {
-        const { name, description } = this.form;
+        const { name, description, color } = this.form;
         if (!name || !description) {
           Swal.fire('Error', 'Please fill all required category fields.', 'error');
           throw new Error('Validation failed');
         }
-        const payload = { name, description };
-        const newCategory = await this.http.post<Category>(`${this.apiBaseUrl}/Categories`, payload, { headers }).toPromise();
+        const payload = { name, description, color };
+        const newCategory = await this.contentService.addCategory(payload).toPromise();
         if (newCategory) this.categories.push(newCategory);
         break;
       }
@@ -645,37 +643,37 @@ export class ContentManagementComponent implements OnInit {
   }
 
   private async updateEntity() {
-    const headers = this.getHeaders();
-
     switch (this.entityType) {
       case 'year':
-        await this.http.put(`${this.apiBaseUrl}/Years/${this.form.id}`, this.form, { headers }).toPromise();
+        await this.contentService.updateYear(this.form.id, this.form).toPromise();
         this.years = this.years.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'subject':
-        await this.http.put(`${this.apiBaseUrl}/Subjects/${this.form.id}`, this.form, { headers }).toPromise();
+        // Calculate price based on discount
+        this.form.price = this.form.originalPrice * (1 - (this.form.discountPercentage / 100));
+        await this.contentService.updateSubject(this.form.id, this.form).toPromise();
         this.subjects = this.subjects.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'term':
-        await this.http.put(`${this.apiBaseUrl}/Terms/${this.form.id}`, this.form, { headers }).toPromise();
+        await this.contentService.updateTerm(this.form.id, this.form).toPromise();
         this.terms = this.terms.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'week':
-        await this.http.put(`${this.apiBaseUrl}/Weeks/${this.form.id}`, this.form, { headers }).toPromise();
+        await this.contentService.updateWeek(this.form.id, this.form).toPromise();
         this.weeks = this.weeks.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'lesson':
-        await this.http.put(`${this.apiBaseUrl}/Lessons/${this.form.id}`, this.form, { headers }).toPromise();
+        await this.contentService.updateLesson(this.form.id, this.form).toPromise();
         this.lessons = this.lessons.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'category':
-        await this.http.put(`${this.apiBaseUrl}/Categories/${this.form.id}`, this.form, { headers }).toPromise();
+        await this.contentService.updateCategory(this.form.id, this.form).toPromise();
         this.categories = this.categories.map(x => x.id === this.form.id ? this.form : x);
         break;
     }
   }
 
-  async confirmDelete(type: 'year'|'subject'|'term'|'week'|'lesson'|'category', entity: any) {
+  async confirmDelete(type: 'year' | 'subject' | 'term' | 'week' | 'lesson' | 'category', entity: any) {
     const result = await Swal.fire({
       title: `Delete this ${type}?`,
       text: 'Are you sure you want to delete this item?',
@@ -687,31 +685,29 @@ export class ContentManagementComponent implements OnInit {
 
     if (result.isConfirmed) {
       try {
-        const headers = this.getHeaders();
-
-        switch(type){
+        switch (type) {
           case 'year':
-            await this.http.delete(`${this.apiBaseUrl}/Years/${entity.id}`, { headers }).toPromise();
+            await this.contentService.deleteYear(entity.id).toPromise();
             this.years = this.years.filter(x => x.id !== entity.id);
             break;
           case 'subject':
-            await this.http.delete(`${this.apiBaseUrl}/Subjects/${entity.id}`, { headers }).toPromise();
+            await this.contentService.deleteSubject(entity.id).toPromise();
             this.subjects = this.subjects.filter(x => x.id !== entity.id);
             break;
           case 'term':
-            await this.http.delete(`${this.apiBaseUrl}/Terms/${entity.id}`, { headers }).toPromise();
+            await this.contentService.deleteTerm(entity.id).toPromise();
             this.terms = this.terms.filter(x => x.id !== entity.id);
             break;
           case 'week':
-            await this.http.delete(`${this.apiBaseUrl}/Weeks/${entity.id}`, { headers }).toPromise();
+            await this.contentService.deleteWeek(entity.id).toPromise();
             this.weeks = this.weeks.filter(x => x.id !== entity.id);
             break;
           case 'lesson':
-            await this.http.delete(`${this.apiBaseUrl}/Lessons/${entity.id}`, { headers }).toPromise();
+            await this.contentService.deleteLesson(entity.id).toPromise();
             this.lessons = this.lessons.filter(x => x.id !== entity.id);
             break;
           case 'category':
-            await this.http.delete(`${this.apiBaseUrl}/Categories/${entity.id}`, { headers }).toPromise();
+            await this.contentService.deleteCategory(entity.id).toPromise();
             this.categories = this.categories.filter(x => x.id !== entity.id);
             break;
         }
@@ -731,9 +727,9 @@ export class ContentManagementComponent implements OnInit {
     }
   }
 
-  defaultFormFor(type: string){
-    switch(type){
-      case 'year':   
+  defaultFormFor(type: string) {
+    switch (type) {
+      case 'year':
         return { number: 0 };
       case 'subject':
         return {
@@ -741,14 +737,17 @@ export class ContentManagementComponent implements OnInit {
           description: '',
           originalPrice: 0,
           discountPercentage: 0,
+          price: 0,
           imageUrl: '',
           level: '',
           duration: 0,
-          categoryId: 0,
-          teacherId: 0,
-          yearId: 0,
+          categoryId: null,
+          teacherId: null,
+          yearId: null,
           termNumber: 0,
-          weekNumbers: [0]
+          weekNumbers: [],
+          objectives: '',
+          color: ''
         };
       case 'term':
         return {
@@ -758,27 +757,129 @@ export class ContentManagementComponent implements OnInit {
       case 'week':
         return { number: 0, termId: this.terms[0]?.id ?? null };
       case 'lesson':
-        return { 
-          title: '', 
+        return {
+          title: '',
           videoUrl: '',
           description: '',
-          weekId: this.weeks[0]?.id ?? null
+          weekId: this.weeks[0]?.id ?? null,
+          duration: 0,
+          objectives: ''
         };
       case 'category':
-        return { 
-          name: '', 
-          description: ''
+        return {
+          name: '',
+          description: '',
+          color: ''
         };
       default: return {};
     }
   }
 
-  hydrateNamesBeforeSave(){
+  hydrateNamesBeforeSave() {
     // No-op: server handles relations by IDs
   }
 
+  // ===== Resource Management =====
+async manageResources(lesson: Lesson) {
+  this.selectedLesson = lesson;
+  await this.loadLessonResources(lesson.id);
+  this.resourceModalOpen = true;
+}
+
+
+  closeResourceModal() {
+    this.resourceModalOpen = false;
+    this.selectedSubject = null;
+    this.subjectResources = [];
+  }
+
+// تحديث نموذج إضافة مورد
+openAddResource() {
+  this.editingResource = null;
+  this.resourceForm = {
+    title: '',
+    fileUrl: '',
+    lessonId: this.selectedLesson?.id // تغيير من subjectId إلى lessonId
+  };
+  this.resourceFormOpen = true;
+}
+// تحديث طريقة تحميل موارد الدرس
+async loadLessonResources(lessonId: number): Promise<void> {
+  try {
+    this.lessonResources = await this.contentService.getLessonResources(lessonId).toPromise() || [];
+  } catch (error) {
+    console.error('Error loading lesson resources:', error);
+    Swal.fire('Error', 'Failed to load resources', 'error');
+  }
+}
+
+
+  closeResourceForm() {
+    this.resourceFormOpen = false;
+    this.editingResource = null;
+  }
+
+
+  // Update the saveResource method to use the correct API structure:
+  // Update the saveResource method in the component
+async saveResource() {
+  try {
+    const resourceData = {
+      title: this.resourceForm.title,
+      fileUrl: this.resourceForm.fileUrl,
+      lessonId: this.resourceForm.lessonId // تغيير من subjectId إلى lessonId
+    };
+    
+    if (this.editingResource) {
+      await this.contentService.updateResource(this.editingResource.id!, resourceData).toPromise();
+      this.lessonResources = this.lessonResources.map(r => 
+        r.id === this.editingResource!.id ? { ...r, ...resourceData } : r
+      );
+    } else {
+      const newResource = await this.contentService.addResource(resourceData).toPromise();
+      if (newResource) this.lessonResources.push(newResource);
+    }
+    
+    this.closeResourceForm();
+    Swal.fire('Success', `Resource ${this.editingResource ? 'updated' : 'added'} successfully`, 'success');
+  } catch (error) {
+    console.error('Error saving resource:', error);
+    Swal.fire('Error', `Failed to ${this.editingResource ? 'update' : 'add'} resource`, 'error');
+  }
+}
+
+selectedLesson: Lesson | null = null;
+
+lessonResources: Resource[] = [];
+
+  async deleteResource(resource: Resource) {
+    const result = await Swal.fire({
+      title: 'Delete this resource?',
+      text: 'Are you sure you want to delete this resource?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        if (resource.id !== undefined) {
+          await this.contentService.deleteResource(resource.id).toPromise();
+          this.subjectResources = this.subjectResources.filter(r => r.id !== resource.id);
+          Swal.fire('Success', 'Resource deleted successfully', 'success');
+        } else {
+          throw new Error('Resource id is undefined');
+        }
+      } catch (error) {
+        console.error('Error deleting resource:', error);
+        Swal.fire('Error', 'Failed to delete resource', 'error');
+      }
+    }
+  }
+
   // ===== Preview =====
-  openLessonPreview(lesson: Lesson){
+  openLessonPreview(lesson: Lesson) {
     const safe: SafeResourceUrl | undefined = lesson.videoUrl
       ? this.sanitizer.bypassSecurityTrustResourceUrl(lesson.videoUrl)
       : undefined;
@@ -786,16 +887,16 @@ export class ContentManagementComponent implements OnInit {
     this.previewOpen = true;
   }
 
-  openCategoryView(category: Category){
+  openCategoryView(category: Category) {
     this.preview = { ...category, type: 'category' };
     this.previewOpen = true;
   }
 
-  closePreview(){ this.previewOpen = false; }
+  closePreview() { this.previewOpen = false; }
 
   // ===== Relations / navigate to children tab =====
-  viewChildren(type: 'year'|'subject'|'term'|'week', entity: any){
-    switch(type){
+  viewChildren(type: 'year' | 'subject' | 'term' | 'week', entity: any) {
+    switch (type) {
       case 'year':
         this.filters.yearId = entity.id;
         this.activateTab('tab-subjects');
@@ -821,16 +922,16 @@ export class ContentManagementComponent implements OnInit {
   }
 
   // Activate bootstrap tab by id (data-bs-target)
-  activateTab(tabPaneId: string){
+  activateTab(tabPaneId: string) {
     const trigger = document.querySelector<HTMLElement>(`[data-bs-target="#${tabPaneId}"]`);
-    if(trigger && (window as any).bootstrap){
+    if (trigger && (window as any).bootstrap) {
       const tab = new (window as any).bootstrap.Tab(trigger);
       tab.show();
     }
   }
 
   // ===== utils =====
-  capitalize(s: string){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+  capitalize(s: string) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
   setActiveTab(tab: string) {
     this.activeTab = tab;
@@ -849,4 +950,11 @@ export class ContentManagementComponent implements OnInit {
     if (id == null) return undefined;
     return this.yearSubjects.find(ys => ys.id === id);
   }
+
+  getYearSubjectName(yearSubjectId: number): string {
+    const yearSubject = this.yearSubjects.find(ys => ys.id === yearSubjectId);
+    return yearSubject ? `Year ${yearSubject.yearNumber} - ${yearSubject.subject.name}` : 'Unknown';
+  }
+
+
 }
