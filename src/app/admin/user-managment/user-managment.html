@@ -71,8 +71,7 @@
     <div class="container-fluid py-4">
       <div class="flex items-center justify-between mb-6">
         <div class="relative w-[520px] max-w-full">
-          <input type="text" class="form-control ps-10" placeholder="Search content..." [(ngModel)]="searchTerm"
-            >
+
           <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8" />
@@ -82,10 +81,10 @@
 
         <div class="flex items-center gap-3">
           <button
-          [routerLink]="'/home'"
             class="btn btn-gradient inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition w-full sm:w-auto"
             type="button">
-            <span class="whitespace-nowrap"> home  </span>
+            <span class="whitespace-nowrap"> <i class="fa-solid fa-download me-1"></i> Export report</span>
+
           </button>
           <div class="flex items-center gap-4">
             <!-- Notification Bell -->

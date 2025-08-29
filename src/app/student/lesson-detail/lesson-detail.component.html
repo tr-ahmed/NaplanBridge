@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50 pt-20 pb-8" dir="rtl">
+<div class="min-h-screen bg-gray-50 pt-20 pb-8" dir="ltr">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Loading State -->
     @if (loading()) {
@@ -14,12 +14,12 @@
       <!-- Error State -->
       <div class="text-center py-12">
         <div class="text-red-400 text-6xl mb-4">⚠️</div>
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل الدرس</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Error Loading Lesson</h3>
         <p class="text-gray-600 mb-4">{{ error() }}</p>
         <button
           (click)="backToLessons()"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-          العودة للدروس
+          Back to Lessons
         </button>
       </div>
     } @else if (lesson()) {
@@ -29,7 +29,7 @@
           <button
             (click)="backToLessons()"
             class="hover:text-gray-800 transition-colors">
-            مكتبة الدروس
+            Lessons Library
           </button>
           <span>/</span>
           <span class="text-gray-800">{{ lesson()?.title }}</span>
@@ -40,12 +40,12 @@
           <button
             (click)="goToPreviousLesson()"
             class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-            ← الدرس السابق
+            ← Previous Lesson
           </button>
           <button
             (click)="goToNextLesson()"
             class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-            الدرس التالي →
+            Next Lesson →
           </button>
         </div>
       </div>
@@ -62,18 +62,18 @@
                   <!-- Placeholder for video player -->
                   <div class="text-white text-center">
                     <div class="text-6xl mb-4">🎥</div>
-                    <p class="mb-4">مشغل الفيديو</p>
+                    <p class="mb-4">Video Player</p>
                     <button
                       (click)="togglePlay()"
                       [class]="isPlaying() ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'"
                       class="px-6 py-3 text-white rounded-lg transition-colors">
-                      {{ isPlaying() ? 'إيقاف' : 'تشغيل' }}
+                      {{ isPlaying() ? 'Pause' : 'Play' }}
                     </button>
                   </div>
                 } @else {
                   <div class="text-white text-center">
                     <div class="text-6xl mb-4">📖</div>
-                    <p>محتوى الدرس غير متاح</p>
+                    <p>Lesson content not available</p>
                   </div>
                 }
               </div>
@@ -119,7 +119,7 @@
                   </div>
 
                   <div class="text-white text-sm">
-                    الجودة: 720p
+                    Quality: 720p
                   </div>
                 </div>
               </div>
@@ -144,22 +144,28 @@
             </div>
 
             <!-- Meta Information -->
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 py-4 border-t border-gray-200">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-t border-gray-200">
               <div class="text-center">
                 <div class="text-2xl text-blue-600 mb-1">⏱️</div>
-                <div class="text-sm text-gray-600">المدة</div>
+                <div class="text-sm text-gray-600">Duration</div>
                 <div class="font-semibold">{{ formatDuration(lesson()?.duration || 0) }}</div>
               </div>
 
               <div class="text-center">
                 <div class="text-2xl text-green-600 mb-1">📊</div>
-                <div class="text-sm text-gray-600">التقدم</div>
+                <div class="text-sm text-gray-600">Progress</div>
                 <div class="font-semibold">{{ watchProgress() }}%</div>
               </div>
 
               <div class="text-center">
+                <div class="text-2xl text-yellow-600 mb-1">⭐</div>
+                <div class="text-sm text-gray-600">Rating</div>
+                <div class="font-semibold">{{ lesson()?.rating }}/5</div>
+              </div>
+
+              <div class="text-center">
                 <div class="text-2xl text-purple-600 mb-1">📅</div>
-                <div class="text-sm text-gray-600">الفصل/الأسبوع</div>
+                <div class="text-sm text-gray-600">Term</div>
                 <div class="font-semibold">{{ lesson()?.term }}/{{ lesson()?.week }}</div>
               </div>
             </div>
@@ -170,78 +176,21 @@
                 (click)="markAsCompleted()"
                 [disabled]="progress()?.isCompleted"
                 class="flex-1 bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
-                {{ progress()?.isCompleted ? '✅ مكتمل' : 'وضع علامة كمكتمل' }}
+                {{ progress()?.isCompleted ? '✅ Completed' : 'Mark as Complete' }}
               </button>
 
               <button
-                (click)="toggleMessagesPanel()"
+                (click)="openRatingModal()"
                 class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                💬 الرسائل
+                ⭐ Rate
               </button>
             </div>
           </div>
 
-          <!-- Messages Panel -->
-          @if (showMessagesPanel()) {
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">رسائل الدرس</h3>
-                <button
-                  (click)="toggleMessagesPanel()"
-                  class="text-gray-400 hover:text-gray-600">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
-
-              <!-- Messages List -->
-              <div class="max-h-64 overflow-y-auto mb-4 space-y-3">
-                @if (messages().length === 0) {
-                  <div class="text-center py-8 text-gray-500">
-                    <div class="text-4xl mb-2">💬</div>
-                    <p>لا توجد رسائل بعد</p>
-                    <p class="text-sm">ابدأ المحادثة مع المعلم</p>
-                  </div>
-                } @else {
-                  @for (message of messages(); track message.id) {
-                    <div class="flex gap-3"
-                         [class]="message.senderType === 'student' ? 'justify-start' : 'justify-end'">
-                      <div [class]="message.senderType === 'student' ? 'bg-blue-100 text-blue-900' : 'bg-gray-100 text-gray-900'"
-                           class="max-w-[70%] p-3 rounded-lg">
-                        <div class="flex items-center justify-between mb-1">
-                          <span class="text-xs font-medium">{{ message.senderName }}</span>
-                          <span class="text-xs text-gray-500">{{ formatMessageTime(message.createdAt) }}</span>
-                        </div>
-                        <p class="text-sm">{{ message.message }}</p>
-                      </div>
-                    </div>
-                  }
-                }
-              </div>
-
-              <!-- Send Message Form -->
-              <div class="flex gap-3">
-                <input
-                  type="text"
-                  [(ngModel)]="newMessage"
-                  placeholder="اكتب رسالتك هنا..."
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  (keyup.enter)="sendMessage()">
-                <button
-                  (click)="sendMessage()"
-                  [disabled]="!newMessage().trim()"
-                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                  إرسال
-                </button>
-              </div>
-            </div>
-          }
-
           <!-- Lesson Resources -->
           @if (lesson()?.resources && lesson()!.resources.length > 0) {
             <div class="bg-white rounded-lg shadow-md p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">موارد الدرس</h3>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Lesson Resources</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @for (resource of lesson()?.resources; track resource.id) {
                   <div class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
@@ -260,11 +209,11 @@
                     </div>
                     @if (resource.downloadable) {
                       <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors">
-                        تحميل
+                        Download
                       </button>
                     } @else {
                       <button class="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 transition-colors">
-                        فتح
+                        Open
                       </button>
                     }
                   </div>
@@ -276,74 +225,130 @@
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-          <!-- Progress Card -->
-          <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">تقدمك</h3>
+        <!-- Progress Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Your Progress</h3>
 
-            <!-- Circular Progress -->
-            <div class="flex justify-center mb-4">
-              <div class="relative w-24 h-24">
-                <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none"></circle>
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    stroke="#3B82F6"
-                    stroke-width="8"
-                    fill="none"
-                    stroke-linecap="round"
-                    [attr.stroke-dasharray]="251.33"
-                    [attr.stroke-dashoffset]="251.33 * (1 - watchProgress() / 100)"
-                    class="transition-all duration-300">
-                  </circle>
-                </svg>
-                <div class="absolute inset-0 flex items-center justify-center">
-                  <span class="text-lg font-bold text-gray-900">{{ watchProgress() | number:'1.0-0' }}%</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Progress Stats -->
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between">
-                <span class="text-gray-600">الوقت المنقضي:</span>
-                <span class="font-medium">{{ formatTime(currentTime()) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">الوقت المتبقي:</span>
-                <span class="font-medium">{{ formatTime(duration() - currentTime()) }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">المحاولات:</span>
-                <span class="font-medium">{{ progress()?.attempts || 1 }}</span>
+          <!-- Circular Progress -->
+          <div class="flex justify-center mb-4">
+            <div class="relative w-24 h-24">
+              <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none"></circle>
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  [attr.stroke]="getProgressColor(watchProgress()).replace('bg-', '#')"
+                  stroke-width="8"
+                  fill="none"
+                  stroke-linecap="round"
+                  [attr.stroke-dasharray]="251.33"
+                  [attr.stroke-dashoffset]="251.33 * (1 - watchProgress() / 100)"
+                  class="transition-all duration-300">
+                </circle>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="text-lg font-bold text-gray-900">{{ watchProgress() | number:'1.0-0' }}%</span>
               </div>
             </div>
           </div>
 
-          <!-- Quick Messages -->
+          <!-- Progress Stats -->
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Time Spent:</span>
+              <span class="font-medium">{{ formatTime(currentTime()) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Time Remaining:</span>
+              <span class="font-medium">{{ formatTime(duration() - currentTime()) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Attempts:</span>
+              <span class="font-medium">{{ progress()?.attempts || 1 }}</span>
+            </div>
+          </div>
+        </div>          <!-- Rating Card -->
           <div class="bg-white rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">رسائل سريعة</h3>
-            
-            @if (messages().length > 0) {
-              <div class="space-y-2 mb-4">
-                @for (message of messages().slice(-2); track message.id) {
-                  <div class="p-2 bg-gray-50 rounded text-sm">
-                    <div class="font-medium text-xs mb-1">{{ message.senderName }}</div>
-                    <p class="text-gray-700 truncate">{{ message.message }}</p>
-                  </div>
-                }
-              </div>
-            }
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Rate Lesson</h3>
 
+            <!-- Current Rating -->
+            <div class="text-center mb-4">
+              <div class="text-3xl font-bold text-gray-900 mb-1">{{ lesson()?.rating }}</div>
+              <div class="text-yellow-400 text-lg mb-1">{{ renderStars(lesson()?.rating || 0) }}</div>
+              <div class="text-sm text-gray-600">{{ lesson()?.totalRatings }} ratings</div>
+            </div>
+
+            <!-- Rate Lesson Button -->
             <button
-              (click)="toggleMessagesPanel()"
-              class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-              💬 إرسال رسالة للمعلم
+              (click)="openRatingModal()"
+              class="w-full bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors">
+              Rate This Lesson
             </button>
           </div>
         </div>
       </div>
+
+      <!-- Rating Modal -->
+      @if (showRatingModal()) {
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold">Rate Lesson</h3>
+              <button
+                (click)="closeRatingModal()"
+                class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+
+            <p class="text-gray-600 mb-4">{{ lesson()?.title }}</p>
+
+            <!-- Star Rating -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+              <div class="flex gap-1 justify-center">
+                @for (star of [1, 2, 3, 4, 5]; track star) {
+                  <button
+                    (click)="setRating(star)"
+                    [class]="star <= newRating() ? 'text-yellow-400' : 'text-gray-300'"
+                    class="text-3xl hover:text-yellow-400 transition-colors">
+                    ★
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Comment -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Comment (Optional)</label>
+              <textarea
+                [(ngModel)]="newComment"
+                rows="3"
+                placeholder="Write your comment here..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none">
+              </textarea>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+              <button
+                (click)="submitRating()"
+                [disabled]="newRating() === 0"
+                class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                Submit Rating
+              </button>
+              <button
+                (click)="closeRatingModal()"
+                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     }
   </div>
 </div>

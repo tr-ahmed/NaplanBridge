@@ -1,11 +1,9 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { LessonsService } from '../../core/services/lessons.service';
-import { SubjectsService } from '../../core/services/subjects.service';
 import { StudentLesson, LessonFilter } from '../../models/lesson.models';
-import { Subject } from '../../models/course.models';
 
 @Component({
   selector: 'app-lessons',
@@ -17,20 +15,16 @@ import { Subject } from '../../models/course.models';
 export class LessonsComponent implements OnInit {
   studentLessons = signal<StudentLesson[]>([]);
   filteredLessons = signal<StudentLesson[]>([]);
-  subjects = signal<Subject[]>([]);
   loading = signal(false);
-  error = signal<string | null>(null);
-
-  // Current subject and lesson info
-  currentSubject = signal<Subject | null>(null);
-  currentSubjectId = signal<number | null>(null);
 
   // Filter options
   filters = signal<LessonFilter>({});
+  subjects = ['Mathematics', 'English', 'Science', 'HASS'];
   difficulties = ['Easy', 'Medium', 'Hard'];
 
   // Search and filter
   searchTerm = signal('');
+  selectedSubject = signal('');
   selectedDifficulty = signal('');
   selectedCompletion = signal('');
   sortBy = signal('order');
@@ -39,90 +33,38 @@ export class LessonsComponent implements OnInit {
   currentPage = signal(1);
   itemsPerPage = 12;
 
+  // Rating modal
+  showRatingModal = signal(false);
+  selectedLessonForRating = signal<StudentLesson | null>(null);
+  newRating = signal(0);
+  newComment = signal('');
+
   // Helper arrays for templates
   skeletonItems = Array(12).fill(0);
 
   constructor(
     private lessonsService: LessonsService,
-    private subjectsService: SubjectsService,
-    private router: Router,
-    private route: ActivatedRoute
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadSubjects();
-
-    // Check for query parameters
-    this.route.queryParams.subscribe(params => {
-      if (params['subjectId']) {
-        this.currentSubjectId.set(parseInt(params['subjectId']));
-        this.loadLessonsForSubject(parseInt(params['subjectId']));
-      } else {
-        this.loadAllLessons();
-      }
-    });
+    this.loadLessons();
   }
 
-  private loadSubjects(): void {
-    this.subjectsService.getEnrolledSubjects(1).subscribe({
-      next: (subjects) => {
-        this.subjects.set(subjects);
-
-        // Set current subject if subjectId is provided
-        const subjectId = this.currentSubjectId();
-        if (subjectId) {
-          const subject = subjects.find(s => s.id === subjectId);
-          this.currentSubject.set(subject || null);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading subjects:', error);
-      }
-    });
-  }
-
-  private loadAllLessons(): void {
+  private loadLessons(): void {
     this.loading.set(true);
-    this.error.set(null);
 
     this.lessonsService.getStudentLessons(1).subscribe({
-      next: (lessons: StudentLesson[]) => {
+      next: (lessons) => {
         this.studentLessons.set(lessons);
         this.applyFilters();
         this.loading.set(false);
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Error loading lessons:', error);
-        this.error.set('حدث خطأ في تحميل الدروس');
         this.loading.set(false);
       }
     });
-  }
-
-  private loadLessonsForSubject(subjectId: number): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.lessonsService.getLessonsBySubject(subjectId).subscribe({
-      next: (lessons: StudentLesson[]) => {
-        this.studentLessons.set(lessons);
-        this.applyFilters();
-        this.loading.set(false);
-      },
-      error: (error: any) => {
-        console.error('Error loading lessons for subject:', error);
-        this.error.set('حدث خطأ في تحميل دروس المادة');
-        this.loading.set(false);
-      }
-    });
-  }
-
-  switchSubject(subjectId: number): void {
-    this.router.navigate(['/student/lessons'], { queryParams: { subjectId } });
-  }
-
-  viewAllLessons(): void {
-    this.router.navigate(['/student/lessons']);
   }
 
   applyFilters(): void {
@@ -136,6 +78,11 @@ export class LessonsComponent implements OnInit {
         sl.lesson.description.toLowerCase().includes(term) ||
         sl.lesson.courseName.toLowerCase().includes(term)
       );
+    }
+
+    // Apply subject filter
+    if (this.selectedSubject()) {
+      filtered = filtered.filter(sl => sl.lesson.subject === this.selectedSubject());
     }
 
     // Apply difficulty filter
@@ -154,6 +101,8 @@ export class LessonsComponent implements OnInit {
       switch (this.sortBy()) {
         case 'title':
           return a.lesson.title.localeCompare(b.lesson.title);
+        case 'rating':
+          return b.lesson.rating - a.lesson.rating;
         case 'duration':
           return a.lesson.duration - b.lesson.duration;
         case 'progress':
@@ -170,6 +119,12 @@ export class LessonsComponent implements OnInit {
   onSearchChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.searchTerm.set(target.value);
+    this.applyFilters();
+  }
+
+  onSubjectChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.selectedSubject.set(target.value);
     this.applyFilters();
   }
 
@@ -193,6 +148,7 @@ export class LessonsComponent implements OnInit {
 
   clearFilters(): void {
     this.searchTerm.set('');
+    this.selectedSubject.set('');
     this.selectedDifficulty.set('');
     this.selectedCompletion.set('');
     this.sortBy.set('order');
@@ -215,15 +171,44 @@ export class LessonsComponent implements OnInit {
     }
   }
 
-  startLesson(studentLesson: StudentLesson): void {
-    this.router.navigate(['/student/lessons', studentLesson.lesson.id]);
+  openRatingModal(studentLesson: StudentLesson): void {
+    this.selectedLessonForRating.set(studentLesson);
+    this.newRating.set(0);
+    this.newComment.set('');
+    this.showRatingModal.set(true);
   }
 
-  continueFromLastLesson(): void {
-    const subject = this.currentSubject();
-    if (subject && subject.lastLessonId) {
-      this.router.navigate(['/student/lessons', subject.lastLessonId]);
+  closeRatingModal(): void {
+    this.showRatingModal.set(false);
+    this.selectedLessonForRating.set(null);
+  }
+
+  setRating(rating: number): void {
+    this.newRating.set(rating);
+  }
+
+  submitRating(): void {
+    const lesson = this.selectedLessonForRating();
+    if (lesson && this.newRating() > 0) {
+      this.lessonsService.rateLesson(
+        lesson.lesson.id,
+        this.newRating(),
+        this.newComment()
+      ).subscribe({
+        next: () => {
+          // Update the lesson rating locally
+          lesson.lesson.rating = this.newRating();
+          this.closeRatingModal();
+        },
+        error: (error) => {
+          console.error('Error submitting rating:', error);
+        }
+      });
     }
+  }
+
+  startLesson(studentLesson: StudentLesson): void {
+    this.router.navigate(['/student/lessons', studentLesson.lesson.id]);
   }
 
   getProgressColor(progress: number): string {
@@ -244,11 +229,25 @@ export class LessonsComponent implements OnInit {
 
   formatDuration(minutes: number): string {
     if (minutes < 60) {
-      return `${minutes}د`;
+      return `${minutes}min`;
     }
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 ? `${hours}س ${remainingMinutes}د` : `${hours}س`;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
+  }
+
+  renderStars(rating: number): string {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    let stars = '★'.repeat(fullStars);
+    if (hasHalfStar) stars += '☆';
+    const emptyStars = 5 - Math.ceil(rating);
+    stars += '☆'.repeat(emptyStars);
+    return stars;
+  }
+
+  getRatingStars(rating: number): boolean[] {
+    return Array(5).fill(false).map((_, index) => index < rating);
   }
 
   getPaginationPages(): number[] {

@@ -30,14 +30,13 @@ export interface Subject {
 export interface Term { id: number; number: number; yearSubjectId: number; }
 export interface Week { id: number; number: number; termId: number; }
 export interface Lesson {
-  id?: number; 
+  id: number;
   title: string;
   videoUrl: string;
   description: string;
   weekId: number;
   duration?: number;
   objectives?: string;
-  posterUrl?: string;
 }
 export interface Category {
   id: number;
@@ -53,22 +52,14 @@ export interface YearSubject {
 }
 export interface Teacher { id: number; name: string; roles: string[]; }
 export interface Resource {
-  id?: number;
+  id: number;
   title: string;
   fileUrl: string;
-  lessonId: number; 
-  description?: string;
-  type?: string;
-  fileSize?: string;
-  isDownloadable?: boolean;
-}
-
-export interface CreateLessonDto {
-  title: string;
-  description: string;
-  posterUrl: string;
-  videoUrl: string;
-  weekId: number;
+  yearSubjectId: number;
+  description?: string; // Optional if your API doesn't need it
+  type?: string;        // Optional if your API doesn't need it
+  fileSize?: string;    // Optional if your API doesn't need it
+  isDownloadable?: boolean; // Optional if your API doesn't need it
 }
 
 @Injectable({
@@ -149,48 +140,23 @@ export class ContentService {
       { headers: this.getHeaders() }
     );
   }
-// Lessons Service
 
-getLessons(): Observable<Lesson[]> {
-  return this.http.get<Lesson[]>(`${this.apiBaseUrl}/Lessons`, { headers: this.getHeaders() });
-}
+  // Lessons
+  getLessons(): Observable<Lesson[]> {
+    return this.http.get<Lesson[]>(`${this.apiBaseUrl}/Lessons`, { headers: this.getHeaders() });
+  }
 
-addLesson(lesson: Lesson): Observable<Lesson> {
-  const dto: CreateLessonDto = {
-    title: lesson.title,
-    description: lesson.description,
-    posterUrl: lesson.posterUrl ?? 'https://via.placeholder.com/300x200.png',
-    videoUrl: lesson.videoUrl,
-    weekId: lesson.weekId
-  };
+  addLesson(lesson: any): Observable<Lesson> {
+    return this.http.post<Lesson>(`${this.apiBaseUrl}/Lessons`, lesson, { headers: this.getHeaders() });
+  }
 
-  return this.http.post<Lesson>(
-    `${this.apiBaseUrl}/Lessons`,
-    dto,
-    { headers: this.getHeaders() }
-  );
-}
+  updateLesson(id: number, lesson: Lesson): Observable<any> {
+    return this.http.put(`${this.apiBaseUrl}/Lessons/${id}`, lesson, { headers: this.getHeaders() });
+  }
 
-updateLesson(id: number, lesson: Lesson): Observable<any> {
-  const dto: CreateLessonDto = {
-    title: lesson.title,
-    description: lesson.description,
-    posterUrl: lesson.posterUrl ?? 'https://via.placeholder.com/300x200.png',
-    videoUrl: lesson.videoUrl,
-    weekId: lesson.weekId
-  };
-
-  return this.http.put(
-    `${this.apiBaseUrl}/Lessons/${id}`,
-    dto,
-    { headers: this.getHeaders() }
-  );
-}
-
-deleteLesson(id: number): Observable<any> {
-  return this.http.delete(`${this.apiBaseUrl}/Lessons/${id}`, { headers: this.getHeaders() });
-}
-
+  deleteLesson(id: number): Observable<any> {
+    return this.http.delete(`${this.apiBaseUrl}/Lessons/${id}`, { headers: this.getHeaders() });
+  }
 
   // Categories
   getCategories(): Observable<Category[]> {
@@ -247,17 +213,4 @@ deleteLesson(id: number): Observable<any> {
   deleteWeek(id: number): Observable<any> {
     return this.http.delete(`${this.apiBaseUrl}/Weeks/${id}`, { headers: this.getHeaders() });
   }
-
-getLessonResources(lessonId: number): Observable<Resource[]> {
-  return this.http.get<Resource[]>(`${this.apiBaseUrl}/Lessons/${lessonId}/resources`, { 
-    headers: this.getHeaders() 
-  });
-}
-
-getLesson(id: number): Observable<Lesson> {
-  return this.http.get<Lesson>(`${this.apiBaseUrl}/Lessons/${id}`, { 
-    headers: this.getHeaders() 
-  });
-}
-
 }

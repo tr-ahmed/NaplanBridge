@@ -1,4 +1,4 @@
-<!-- header.component.html -->
+@if (!isAdminDashboard()) {
 <header class="bg-white shadow-lg fixed top-0 left-0 w-full z-50">
   <div class="w-full px-2">
     <nav class="flex justify-between items-center py-2 min-h-[4rem]">
@@ -197,29 +197,26 @@
               <span class="text-gray-700 font-medium">Welcome, {{ userName }}</span>
             }
 
-            <!-- Role-based dashboard buttons -->
+            <!-- ✅ Role-based dashboard button -->
             @if (userRole === 'Admin') {
               <button
                 routerLink="/admin/users"
                 class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
                 Admin Panel
               </button>
-            } 
-            @if (userRole === 'Teacher') {
+            } @else if (userRole === 'Teacher') {
               <button
                 routerLink="/teacher/dashboard"
                 class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
                 Teacher Panel
               </button>
-            } 
-            @if (userRole === 'Parent') {
+            } @else if (userRole === 'Parent') {
               <button
                 routerLink="/parent/dashboard"
                 class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
                 My Children
               </button>
-            } 
-            @if (userRole === 'Student') {
+            } @else if (userRole === 'Student') {
               <button
                 routerLink="/student/dashboard"
                 class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
@@ -290,41 +287,6 @@
                     Welcome, {{ userName }}
                   </div>
                 }
-                
-                <!-- Mobile Role-based buttons -->
-                @if (userRole === 'Admin') {
-                  <a
-                    routerLink="/admin/users"
-                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200"
-                    (click)="toggleMobileMenu()">
-                    Admin Panel
-                  </a>
-                } 
-                @if (userRole === 'Teacher') {
-                  <a
-                    routerLink="/teacher/dashboard"
-                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200"
-                    (click)="toggleMobileMenu()">
-                    Teacher Panel
-                  </a>
-                } 
-                @if (userRole === 'Parent') {
-                  <a
-                    routerLink="/parent/dashboard"
-                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200"
-                    (click)="toggleMobileMenu()">
-                    My Children
-                  </a>
-                } 
-                @if (userRole === 'Student') {
-                  <a
-                    routerLink="/student/dashboard"
-                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200"
-                    (click)="toggleMobileMenu()">
-                    My Dashboard
-                  </a>
-                }
-                
                 <button
                   (click)="handleLogout()"
                   class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300">
@@ -345,3 +307,4 @@
     }
   </div>
 </header>
+}

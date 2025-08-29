@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LessonsService } from '../../core/services/lessons.service';
-import { MessagesService } from '../../core/services/messages.service';
-import { Lesson, LessonProgress, LessonMessage } from '../../models/lesson.models';
+import { Lesson, LessonProgress } from '../../models/lesson.models';
 
 @Component({
   selector: 'app-lesson-detail',
@@ -16,15 +15,8 @@ import { Lesson, LessonProgress, LessonMessage } from '../../models/lesson.model
 export class LessonDetailComponent implements OnInit {
   lesson = signal<Lesson | null>(null);
   progress = signal<LessonProgress | null>(null);
-  messages = signal<LessonMessage[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
-
-  // Student data
-  student = {
-    id: 1,
-    name: 'أحمد محمد'
-  };
 
   // Expose Math for template
   Math = Math;
@@ -35,9 +27,10 @@ export class LessonDetailComponent implements OnInit {
   duration = signal(0);
   volume = signal(50);
 
-  // Messages
-  newMessage = signal('');
-  showMessagesPanel = signal(false);
+  // Rating modal
+  showRatingModal = signal(false);
+  newRating = signal(0);
+  newComment = signal('');
 
   // Progress tracking
   watchProgress = signal(0);
@@ -45,8 +38,7 @@ export class LessonDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private lessonsService: LessonsService,
-    private messagesService: MessagesService
+    private lessonsService: LessonsService
   ) {}
 
   ngOnInit(): void {
@@ -54,7 +46,6 @@ export class LessonDetailComponent implements OnInit {
       const lessonId = parseInt(params['id']);
       if (lessonId) {
         this.loadLesson(lessonId);
-        this.loadMessages(lessonId);
       }
     });
   }
@@ -64,7 +55,7 @@ export class LessonDetailComponent implements OnInit {
     this.error.set(null);
 
     this.lessonsService.getLessonById(id).subscribe({
-      next: (lesson: Lesson | null) => {
+      next: (lesson) => {
         if (lesson) {
           this.lesson.set(lesson);
           this.duration.set(lesson.duration * 60); // Convert minutes to seconds
@@ -74,7 +65,7 @@ export class LessonDetailComponent implements OnInit {
         }
         this.loading.set(false);
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Error loading lesson:', error);
         this.error.set('حدث خطأ في تحميل الدرس');
         this.loading.set(false);
@@ -87,7 +78,7 @@ export class LessonDetailComponent implements OnInit {
     // For now, we'll create mock progress
     const mockProgress: LessonProgress = {
       lessonId,
-      studentId: this.student.id,
+      studentId: 1,
       progress: Math.floor(Math.random() * 80),
       timeSpent: Math.floor(Math.random() * 30),
       currentPosition: Math.floor(Math.random() * 1800), // 30 minutes max
@@ -97,19 +88,6 @@ export class LessonDetailComponent implements OnInit {
     this.progress.set(mockProgress);
     this.currentTime.set(mockProgress.currentPosition || 0);
     this.watchProgress.set(mockProgress.progress);
-  }
-
-  private loadMessages(lessonId: number): void {
-    this.messagesService.getLessonMessages(lessonId).subscribe({
-      next: (messages) => {
-        this.messages.set(messages);
-        // Mark messages as read
-        this.messagesService.markMessagesAsRead(lessonId, this.student.id).subscribe();
-      },
-      error: (error) => {
-        console.error('Error loading messages:', error);
-      }
-    });
   }
 
   // Video player controls
@@ -149,7 +127,7 @@ export class LessonDetailComponent implements OnInit {
     if (lesson) {
       this.lessonsService.updateProgress(
         lesson.id,
-        this.student.id,
+        1, // studentId
         this.watchProgress(),
         Math.floor(this.currentTime() / 60), // time spent in minutes
         this.currentTime()
@@ -160,7 +138,7 @@ export class LessonDetailComponent implements OnInit {
   markAsCompleted(): void {
     const lesson = this.lesson();
     if (lesson) {
-      this.lessonsService.markAsCompleted(lesson.id, this.student.id).subscribe({
+      this.lessonsService.markAsCompleted(lesson.id, 1).subscribe({
         next: () => {
           this.watchProgress.set(100);
           const updatedProgress = this.progress();
@@ -175,30 +153,38 @@ export class LessonDetailComponent implements OnInit {
     }
   }
 
-  // Messages system
-  toggleMessagesPanel(): void {
-    this.showMessagesPanel.set(!this.showMessagesPanel());
+  // Rating system
+  openRatingModal(): void {
+    this.showRatingModal.set(true);
+    this.newRating.set(0);
+    this.newComment.set('');
   }
 
-  sendMessage(): void {
-    const message = this.newMessage().trim();
-    const lesson = this.lesson();
+  closeRatingModal(): void {
+    this.showRatingModal.set(false);
+  }
 
-    if (message && lesson) {
-      this.messagesService.sendMessage(
+  setRating(rating: number): void {
+    this.newRating.set(rating);
+  }
+
+  submitRating(): void {
+    const lesson = this.lesson();
+    if (lesson && this.newRating() > 0) {
+      this.lessonsService.rateLesson(
         lesson.id,
-        this.student.id,
-        this.student.name,
-        'student',
-        message
+        this.newRating(),
+        this.newComment()
       ).subscribe({
-        next: (newMessage) => {
-          const currentMessages = this.messages();
-          this.messages.set([...currentMessages, newMessage]);
-          this.newMessage.set('');
+        next: () => {
+          // Update lesson rating locally
+          lesson.rating = this.newRating();
+          lesson.totalRatings += 1;
+          this.lesson.set({ ...lesson });
+          this.closeRatingModal();
         },
         error: (error) => {
-          console.error('Error sending message:', error);
+          console.error('Error submitting rating:', error);
         }
       });
     }
@@ -257,12 +243,17 @@ export class LessonDetailComponent implements OnInit {
     return 'bg-red-500';
   }
 
-  formatMessageTime(date: Date): string {
-    return new Intl.DateTimeFormat('ar-EG', {
-      hour: '2-digit',
-      minute: '2-digit',
-      day: '2-digit',
-      month: '2-digit'
-    }).format(date);
+  renderStars(rating: number): string {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    let stars = '★'.repeat(fullStars);
+    if (hasHalfStar) stars += '☆';
+    const emptyStars = 5 - Math.ceil(rating);
+    stars += '☆'.repeat(emptyStars);
+    return stars;
+  }
+
+  getRatingStars(rating: number): boolean[] {
+    return Array(5).fill(false).map((_, index) => index < rating);
   }
 }

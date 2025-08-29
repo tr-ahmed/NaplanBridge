@@ -105,36 +105,6 @@ export class LessonsService {
   }
 
   /**
-   * Get lessons for a specific subject
-   */
-  getLessonsBySubject(subjectId: number): Observable<StudentLesson[]> {
-    this.loading.set(true);
-    this.error.set(null);
-
-    const endpoint = ApiNodes.getLessonsBySubject;
-    const url = `${this.baseUrl}${endpoint.url.replace(':subjectId', subjectId.toString())}`;
-
-    if (this.useMock) {
-      const allLessons = this.getMockStudentLessons();
-      const subjectLessons = allLessons.filter(sl => sl.lesson.subjectId === subjectId);
-
-      return of(subjectLessons).pipe(
-        tap(() => this.loading.set(false))
-      );
-    }
-
-    return this.http.get<StudentLesson[]>(url).pipe(
-      tap(() => this.loading.set(false)),
-      catchError((error: HttpErrorResponse) => {
-        console.warn('API call failed, using mock data:', error);
-        this.error.set('Failed to load subject lessons');
-        this.loading.set(false);
-        return of([]);
-      })
-    );
-  }
-
-  /**
    * Update lesson progress
    */
   updateProgress(
@@ -185,6 +155,29 @@ export class LessonsService {
   }
 
   /**
+   * Rate a lesson
+   */
+  rateLesson(lessonId: number, rating: number, comment?: string): Observable<boolean> {
+    const endpoint = ApiNodes.ratLesson;
+    const url = `${this.baseUrl}${endpoint.url.replace(':id', lessonId.toString())}`;
+
+    const ratingData = {
+      rating,
+      comment
+    };
+
+    if (this.useMock) {
+      console.log('Mock: Rating lesson', ratingData);
+      return of(true);
+    }
+
+    return this.http.post<any>(url, ratingData).pipe(
+      map(() => true),
+      catchError(() => of(true))
+    );
+  }
+
+  /**
    * Get student statistics
    */
   getStudentStatistics(studentId: number): Observable<StudentLessonStats> {
@@ -198,6 +191,7 @@ export class LessonsService {
         totalLessons: mockLessons.length,
         completionRate: 0,
         totalTimeSpent: mockLessons.reduce((total, sl) => total + sl.progress.timeSpent, 0),
+        averageRating: mockLessons.reduce((total, sl) => total + sl.lesson.rating, 0) / mockLessons.length,
         currentStreak: 5
       };
       stats.completionRate = (stats.completedLessons / stats.totalLessons) * 100;
@@ -212,6 +206,7 @@ export class LessonsService {
           totalLessons: 0,
           completionRate: 0,
           totalTimeSpent: 0,
+          averageRating: 0,
           currentStreak: 0
         };
         return of(stats);
@@ -225,7 +220,7 @@ export class LessonsService {
     if (!filter) return lessons;
 
     return lessons.filter(lesson => {
-      if (filter.subjectId && lesson.subjectId !== filter.subjectId) return false;
+      if (filter.subject && lesson.subject !== filter.subject) return false;
       if (filter.difficulty && lesson.difficulty !== filter.difficulty) return false;
       if (filter.isCompleted !== undefined && lesson.isCompleted !== filter.isCompleted) return false;
       if (filter.term && lesson.term !== filter.term) return false;
@@ -240,8 +235,7 @@ export class LessonsService {
         id: 1,
         title: 'مقدمة في الرياضيات',
         description: 'تعلم أساسيات الرياضيات والعمليات الحسابية الأساسية',
-        subjectId: 1,
-        subjectName: 'الرياضيات',
+        subject: 'Mathematics',
         courseName: 'الرياضيات الأساسية',
         courseId: 1,
         duration: 45,
@@ -253,6 +247,8 @@ export class LessonsService {
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         videoUrl: 'https://example.com/video1.mp4',
+        rating: 4.5,
+        totalRatings: 12,
         resources: [
           {
             id: 1,
@@ -260,6 +256,13 @@ export class LessonsService {
             type: 'pdf',
             url: '/assets/resources/math-basics.pdf',
             downloadable: true
+          },
+          {
+            id: 2,
+            name: 'تمارين الرياضيات',
+            type: 'exercise',
+            url: '/student/exercises/1',
+            downloadable: false
           }
         ],
         prerequisites: [],
@@ -267,14 +270,13 @@ export class LessonsService {
           'فهم العمليات الحسابية الأساسية',
           'حل المسائل الرياضية البسيطة'
         ],
-        lastAccessedAt: new Date(Date.now() - 86400000)
+        lastAccessedAt: new Date(Date.now() - 86400000) // 1 day ago
       },
       {
         id: 2,
         title: 'قواعد اللغة الإنجليزية',
         description: 'تعلم قواعد اللغة الإنجليزية الأساسية والنحو',
-        subjectId: 3,
-        subjectName: 'اللغة الإنجليزية',
+        subject: 'English',
         courseName: 'اللغة الإنجليزية الأساسية',
         courseId: 2,
         duration: 60,
@@ -286,6 +288,8 @@ export class LessonsService {
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         videoUrl: 'https://example.com/video2.mp4',
+        rating: 4.2,
+        totalRatings: 8,
         resources: [
           {
             id: 3,
@@ -293,6 +297,13 @@ export class LessonsService {
             type: 'pdf',
             url: '/assets/resources/english-grammar.pdf',
             downloadable: true
+          },
+          {
+            id: 4,
+            name: 'اختبار القواعد',
+            type: 'quiz',
+            url: '/student/quizzes/1',
+            downloadable: false
           }
         ],
         prerequisites: [],
@@ -300,14 +311,13 @@ export class LessonsService {
           'فهم القواعد النحوية الأساسية',
           'تكوين جمل صحيحة نحوياً'
         ],
-        lastAccessedAt: new Date(Date.now() - 172800000)
+        lastAccessedAt: new Date(Date.now() - 172800000) // 2 days ago
       },
       {
         id: 3,
         title: 'علوم الطبيعة',
         description: 'استكشاف عالم العلوم والظواهر الطبيعية',
-        subjectId: 2,
-        subjectName: 'العلوم',
+        subject: 'Science',
         courseName: 'العلوم الطبيعية',
         courseId: 3,
         duration: 50,
@@ -319,6 +329,8 @@ export class LessonsService {
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         videoUrl: 'https://example.com/video3.mp4',
+        rating: 4.7,
+        totalRatings: 15,
         resources: [
           {
             id: 5,
@@ -326,6 +338,13 @@ export class LessonsService {
             type: 'pdf',
             url: '/assets/resources/natural-sciences.pdf',
             downloadable: true
+          },
+          {
+            id: 6,
+            name: 'تجارب علمية',
+            type: 'exercise',
+            url: '/student/experiments/1',
+            downloadable: false
           }
         ],
         prerequisites: [],
@@ -333,14 +352,13 @@ export class LessonsService {
           'فهم الظواهر الطبيعية',
           'إجراء تجارب علمية بسيطة'
         ],
-        lastAccessedAt: new Date(Date.now() - 259200000)
+        lastAccessedAt: new Date(Date.now() - 259200000) // 3 days ago
       },
       {
         id: 4,
         title: 'التاريخ والجغرافيا',
         description: 'تعلم تاريخ وجغرافية أستراليا والعالم',
-        subjectId: 4,
-        subjectName: 'التاريخ',
+        subject: 'HASS',
         courseName: 'الدراسات الاجتماعية',
         courseId: 4,
         duration: 40,
@@ -352,6 +370,8 @@ export class LessonsService {
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         videoUrl: 'https://example.com/video4.mp4',
+        rating: 4.3,
+        totalRatings: 10,
         resources: [
           {
             id: 7,
@@ -366,14 +386,13 @@ export class LessonsService {
           'معرفة تاريخ أستراليا',
           'فهم الجغرافيا الأسترالية'
         ],
-        lastAccessedAt: new Date(Date.now() - 345600000)
+        lastAccessedAt: new Date(Date.now() - 345600000) // 4 days ago
       },
       {
         id: 5,
         title: 'الرياضيات المتقدمة',
         description: 'مفاهيم رياضية متقدمة والجبر الأساسي',
-        subjectId: 1,
-        subjectName: 'الرياضيات',
+        subject: 'Mathematics',
         courseName: 'الرياضيات المتقدمة',
         courseId: 5,
         duration: 70,
@@ -385,6 +404,8 @@ export class LessonsService {
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         videoUrl: 'https://example.com/video5.mp4',
+        rating: 4.6,
+        totalRatings: 6,
         resources: [
           {
             id: 8,
@@ -392,6 +413,13 @@ export class LessonsService {
             type: 'pdf',
             url: '/assets/resources/algebra.pdf',
             downloadable: true
+          },
+          {
+            id: 9,
+            name: 'تمارين الجبر',
+            type: 'exercise',
+            url: '/student/exercises/2',
+            downloadable: false
           }
         ],
         prerequisites: [1],
@@ -404,8 +432,7 @@ export class LessonsService {
         id: 6,
         title: 'الكتابة الإبداعية',
         description: 'تطوير مهارات الكتابة الإبداعية باللغة الإنجليزية',
-        subjectId: 3,
-        subjectName: 'اللغة الإنجليزية',
+        subject: 'English',
         courseName: 'الكتابة الإبداعية',
         courseId: 6,
         duration: 55,
@@ -417,6 +444,8 @@ export class LessonsService {
         isLocked: true,
         thumbnailUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         videoUrl: 'https://example.com/video6.mp4',
+        rating: 4.8,
+        totalRatings: 4,
         resources: [
           {
             id: 10,
