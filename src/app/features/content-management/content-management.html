@@ -632,63 +632,7 @@
     </div>
   </div>
 
-  <!-- Modal إضافة/تعديل درس - إضافة حقل الـ Poster -->
-  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="isFormOpen && entityType==='lesson'">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{{ formMode==='add' ? 'Add' : 'Edit' }} Lesson</h5>
-          <button type="button" class="btn-close" (click)="closeForm()"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-12">
-              <label class="form-label">Title *</label>
-              <input class="form-control" [(ngModel)]="form.title" placeholder="Fractions Basics" required>
-            </div>
-            <div class="col-md-12">
-              <label class="form-label">Poster URL</label>
-              <input class="form-control" [(ngModel)]="form.posterUrl" placeholder="https://...">
-              <div class="form-text">URL for lesson poster image</div>
-            </div>
-            <div class="col-md-12">
-              <label class="form-label">Video URL *</label>
-              <input class="form-control" [(ngModel)]="form.videoUrl" placeholder="https://..." required>
-              <div class="form-text">YouTube, Vimeo, or direct video link</div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Week *</label>
-              <select class="form-select" [(ngModel)]="form.weekId" required>
-                <option [ngValue]="null">Select Week</option>
-                <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">
-                  Week {{ w.number }} (Term {{ numberTerm(w.termId) }})
-                </option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Duration (minutes)</label>
-              <input type="number" class="form-control" [(ngModel)]="form.duration" min="1" placeholder="e.g., 45">
-            </div>
-            <div class="col-md-12">
-              <label class="form-label">Description *</label>
-              <textarea class="form-control" rows="4" [(ngModel)]="form.description" required></textarea>
-            </div>
-            <div class="col-md-12">
-              <label class="form-label">Learning Objectives</label>
-              <textarea class="form-control" rows="3" [(ngModel)]="form.objectives"
-                placeholder="What students will learn..."></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-light" (click)="closeForm()">Cancel</button>
-          <button class="btn btn-primary" (click)="submitForm()">
-            <i class="fas fa-save me-1"></i> {{ formMode === 'add' ? 'Add' : 'Update' }} Lesson
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
 
         <!-- Categories Tab -->
@@ -756,6 +700,7 @@
 
     </div>
   </main>
+  <!-- Modal lesson -->
 
   <!-- Dynamic Add/Edit Modal -->
   <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="isFormOpen">
@@ -888,40 +833,67 @@
           </ng-container>
 
           <!-- Lesson -->
-          <ng-container *ngIf="entityType==='lesson'">
-            <div class="row g-3">
-              <div class="col-md-12">
-                <label class="form-label">Title *</label>
-                <input class="form-control" [(ngModel)]="form.title" placeholder="Fractions Basics" required>
-              </div>
-              <div class="col-md-12">
-                <label class="form-label">Video URL *</label>
-                <input class="form-control" [(ngModel)]="form.videoUrl" placeholder="https://..." required>
-                <div class="form-text">YouTube, Vimeo, or direct video link</div>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Week *</label>
-                <select class="form-select" [(ngModel)]="form.weekId" required>
-                  <option [ngValue]="null">Select Week</option>
-                  <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">
-                    Week {{ w.number }} (Term {{ numberTerm(w.termId) }})
-                  </option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Duration (minutes)</label>
-                <input type="number" class="form-control" [(ngModel)]="form.duration" min="1" placeholder="e.g., 45">
-              </div>
-              <div class="col-md-12">
-                <label class="form-label">Description *</label>
-                <textarea class="form-control" rows="4" [(ngModel)]="form.description" required></textarea>
-              </div>
-              <div class="col-md-12">
-                <label class="form-label">Learning Objectives</label>
-                <textarea class="form-control" rows="3" [(ngModel)]="form.objectives" placeholder="What students will learn..."></textarea>
-              </div>
-            </div>
-          </ng-container>
+<div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="isFormOpen && entityType==='lesson'">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ formMode==='add' ? 'Add' : 'Edit' }} Lesson</h5>
+        <button type="button" class="btn-close" (click)="closeForm()"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-3">
+
+          <!-- Title -->
+          <div class="col-md-12">
+            <label class="form-label">Title *</label>
+            <input class="form-control" [(ngModel)]="form.title" name="title" placeholder="Fractions Basics" required>
+          </div>
+
+<!-- Poster URL -->
+<div class="col-md-12">
+  <label class="form-label">Poster URL *</label>
+  <input class="form-control" [(ngModel)]="form.posterUrl" name="posterUrl" placeholder="https://..." required>
+  <div class="form-text">URL for lesson poster image</div>
+</div>
+
+          <!-- Video URL -->
+          <div class="col-md-12">
+            <label class="form-label">Video URL *</label>
+            <input class="form-control" [(ngModel)]="form.videoUrl" name="videoUrl" placeholder="https://..." required>
+            <div class="form-text">YouTube, Vimeo, or direct video link</div>
+          </div>
+
+          <!-- Week -->
+          <div class="col-md-12">
+            <label class="form-label">Week *</label>
+            <select class="form-select" [(ngModel)]="form.weekId" name="weekId" required>
+              <option [ngValue]="null">Select Week</option>
+              <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">
+                Week {{ w.id }} (Term {{ numberTerm(w.termId) }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Description -->
+          <div class="col-md-12">
+            <label class="form-label">Description *</label>
+            <textarea class="form-control" rows="4" [(ngModel)]="form.description" name="description" required></textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-light" (click)="closeForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="submitForm()">
+          <i class="fas fa-save me-1"></i> {{ formMode === 'add' ? 'Add' : 'Update' }} Lesson
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
           <!-- Category -->
           <ng-container *ngIf="entityType==='category'">

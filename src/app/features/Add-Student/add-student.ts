@@ -67,7 +67,7 @@ export class AddStudentComponent {
           timer: 1500
         }).then(() => {
           // Navigate to students list
-          this.router.navigate(['/students']);
+          this.router.navigate(['/parent/dashboard']);
         });
       },
       error: (err) => {

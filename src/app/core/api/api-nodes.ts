@@ -446,6 +446,13 @@ export const ApiNodes = {
     mockData: [] as any[]
   },
 
+  // Get lessons by subject ID
+  getLessonsBySubject: {
+    url: '/api/subjects/:subjectId/lessons',
+    method: 'GET' as const,
+    mockData: [] as any[]
+  },
+
   // Update lesson progress
   updateLessonProgress: {
     url: '/api/lessons/:id/progress',

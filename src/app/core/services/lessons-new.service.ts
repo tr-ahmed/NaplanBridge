@@ -260,6 +260,13 @@ export class LessonsService {
             type: 'pdf',
             url: '/assets/resources/math-basics.pdf',
             downloadable: true
+          },
+          {
+            id: 2,
+            name: 'تمارين الرياضيات',
+            type: 'exercise',
+            url: '/student/exercises/1',
+            downloadable: false
           }
         ],
         prerequisites: [],
@@ -267,7 +274,7 @@ export class LessonsService {
           'فهم العمليات الحسابية الأساسية',
           'حل المسائل الرياضية البسيطة'
         ],
-        lastAccessedAt: new Date(Date.now() - 86400000)
+        lastAccessedAt: new Date(Date.now() - 86400000) // 1 day ago
       },
       {
         id: 2,
@@ -293,6 +300,13 @@ export class LessonsService {
             type: 'pdf',
             url: '/assets/resources/english-grammar.pdf',
             downloadable: true
+          },
+          {
+            id: 4,
+            name: 'اختبار القواعد',
+            type: 'quiz',
+            url: '/student/quizzes/1',
+            downloadable: false
           }
         ],
         prerequisites: [],
@@ -300,7 +314,7 @@ export class LessonsService {
           'فهم القواعد النحوية الأساسية',
           'تكوين جمل صحيحة نحوياً'
         ],
-        lastAccessedAt: new Date(Date.now() - 172800000)
+        lastAccessedAt: new Date(Date.now() - 172800000) // 2 days ago
       },
       {
         id: 3,
@@ -326,6 +340,13 @@ export class LessonsService {
             type: 'pdf',
             url: '/assets/resources/natural-sciences.pdf',
             downloadable: true
+          },
+          {
+            id: 6,
+            name: 'تجارب علمية',
+            type: 'exercise',
+            url: '/student/experiments/1',
+            downloadable: false
           }
         ],
         prerequisites: [],
@@ -333,7 +354,7 @@ export class LessonsService {
           'فهم الظواهر الطبيعية',
           'إجراء تجارب علمية بسيطة'
         ],
-        lastAccessedAt: new Date(Date.now() - 259200000)
+        lastAccessedAt: new Date(Date.now() - 259200000) // 3 days ago
       },
       {
         id: 4,
@@ -366,7 +387,7 @@ export class LessonsService {
           'معرفة تاريخ أستراليا',
           'فهم الجغرافيا الأسترالية'
         ],
-        lastAccessedAt: new Date(Date.now() - 345600000)
+        lastAccessedAt: new Date(Date.now() - 345600000) // 4 days ago
       },
       {
         id: 5,
@@ -392,6 +413,13 @@ export class LessonsService {
             type: 'pdf',
             url: '/assets/resources/algebra.pdf',
             downloadable: true
+          },
+          {
+            id: 9,
+            name: 'تمارين الجبر',
+            type: 'exercise',
+            url: '/student/exercises/2',
+            downloadable: false
           }
         ],
         prerequisites: [1],

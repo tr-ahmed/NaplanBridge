@@ -22,6 +22,23 @@ export interface Course {
 }
 
 /**
+ * Interface for Subject data
+ */
+export interface Subject {
+  id: number;
+  name: string;
+  description: string;
+  imageUrl: string;
+  color: string;
+  totalLessons: number;
+  completedLessons: number;
+  lastLessonId?: number;
+  progressPercentage: number;
+  isEnrolled: boolean;
+  enrollmentDate?: Date;
+}
+
+/**
  * Interface for Course Filter options
  */
 export interface CourseFilter {

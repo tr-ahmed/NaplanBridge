@@ -86,12 +86,12 @@ export class LessonsComponent implements OnInit {
     this.error.set(null);
 
     this.lessonsService.getStudentLessons(1).subscribe({
-      next: (lessons: StudentLesson[]) => {
+      next: (lessons) => {
         this.studentLessons.set(lessons);
         this.applyFilters();
         this.loading.set(false);
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Error loading lessons:', error);
         this.error.set('حدث خطأ في تحميل الدروس');
         this.loading.set(false);
@@ -104,12 +104,12 @@ export class LessonsComponent implements OnInit {
     this.error.set(null);
 
     this.lessonsService.getLessonsBySubject(subjectId).subscribe({
-      next: (lessons: StudentLesson[]) => {
+      next: (lessons) => {
         this.studentLessons.set(lessons);
         this.applyFilters();
         this.loading.set(false);
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Error loading lessons for subject:', error);
         this.error.set('حدث خطأ في تحميل دروس المادة');
         this.loading.set(false);

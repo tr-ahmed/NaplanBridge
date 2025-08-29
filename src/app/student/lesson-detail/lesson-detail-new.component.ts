@@ -64,7 +64,7 @@ export class LessonDetailComponent implements OnInit {
     this.error.set(null);
 
     this.lessonsService.getLessonById(id).subscribe({
-      next: (lesson: Lesson | null) => {
+      next: (lesson) => {
         if (lesson) {
           this.lesson.set(lesson);
           this.duration.set(lesson.duration * 60); // Convert minutes to seconds
@@ -74,7 +74,7 @@ export class LessonDetailComponent implements OnInit {
         }
         this.loading.set(false);
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Error loading lesson:', error);
         this.error.set('حدث خطأ في تحميل الدرس');
         this.loading.set(false);
