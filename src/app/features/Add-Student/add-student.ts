@@ -5,7 +5,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
 
-// استورد SweetAlert2
 import Swal from 'sweetalert2';
 
 @Component({
