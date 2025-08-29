@@ -29,15 +29,35 @@ export interface Subject {
 }
 export interface Term { id: number; number: number; yearSubjectId: number; }
 export interface Week { id: number; number: number; termId: number; }
+
+// اللي بيرجع من الـ API
 export interface Lesson {
-  id: number;
+  id?: number;
   title: string;
-  videoUrl: string;
   description: string;
   weekId: number;
   duration?: number;
   objectives?: string;
+  posterUrl?: string;
+  videoUrl?: string;
 }
+
+export interface CreateLessonDto {
+  title: string;
+  description: string;
+  weekId: number;
+  posterFile: File;
+  videoFile: File;
+}
+
+export interface UpdateLessonDto {
+  title: string;
+  description: string;
+  weekId: number;
+  posterFile?: File;
+  videoFile?: File;
+}
+
 export interface Category {
   id: number;
   name: string;
@@ -52,14 +72,22 @@ export interface YearSubject {
 }
 export interface Teacher { id: number; name: string; roles: string[]; }
 export interface Resource {
-  id: number;
+  id?: number;
   title: string;
   fileUrl: string;
-  yearSubjectId: number;
-  description?: string; // Optional if your API doesn't need it
-  type?: string;        // Optional if your API doesn't need it
-  fileSize?: string;    // Optional if your API doesn't need it
-  isDownloadable?: boolean; // Optional if your API doesn't need it
+  lessonId: number; 
+  description?: string;
+  type?: string;
+  fileSize?: string;
+  isDownloadable?: boolean;
+}
+
+export interface CreateLessonDto {
+  title: string;
+  description: string;
+  posterUrl: string;
+  videoUrl: string;
+  weekId: number;
 }
 
 @Injectable({
@@ -73,11 +101,16 @@ export class ContentService {
     private authService: AuthService
   ) { }
 
-  private getHeaders(): HttpHeaders {
+  // If jsonContentType is false, do not set Content-Type (for FormData); otherwise, set to application/json
+  private getHeaders(jsonContentType: boolean = true): HttpHeaders {
     const token = this.authService.getToken();
-    return new HttpHeaders({
+    const headersConfig: { [header: string]: string } = {
       'Authorization': `Bearer ${token}`
-    });
+    };
+    if (jsonContentType) {
+      headersConfig['Content-Type'] = 'application/json';
+    }
+    return new HttpHeaders(headersConfig);
   }
 
   // Years
@@ -140,23 +173,51 @@ export class ContentService {
       { headers: this.getHeaders() }
     );
   }
+// Lessons Service
 
-  // Lessons
-  getLessons(): Observable<Lesson[]> {
-    return this.http.get<Lesson[]>(`${this.apiBaseUrl}/Lessons`, { headers: this.getHeaders() });
+getLessons(): Observable<Lesson[]> {
+  return this.http.get<Lesson[]>(`${this.apiBaseUrl}/Lessons`, { headers: this.getHeaders() });
+}
+
+addLesson(title: string, description: string, weekId: number, posterFile: File, videoFile: File): Observable<Lesson> {
+  const formData = new FormData();
+  formData.append('Title', title);
+  formData.append('Description', description);
+  formData.append('WeekId', weekId.toString());
+  formData.append('PosterFile', posterFile, posterFile.name);
+  formData.append('VideoFile', videoFile, videoFile.name);
+
+  return this.http.post<Lesson>(
+    `${this.apiBaseUrl}/Lessons`,
+    formData,
+    { headers: this.getHeaders(false) } // مهم: false عشان ميتحطش Content-Type json
+  );
+}
+
+updateLesson(id: number, title: string, description: string, weekId: number, posterFile?: File, videoFile?: File): Observable<any> {
+  const formData = new FormData();
+  formData.append('Title', title);
+  formData.append('Description', description);
+  formData.append('WeekId', weekId.toString());
+
+  if (posterFile) {
+    formData.append('PosterFile', posterFile, posterFile.name);
+  }
+  if (videoFile) {
+    formData.append('VideoFile', videoFile, videoFile.name);
   }
 
-  addLesson(lesson: any): Observable<Lesson> {
-    return this.http.post<Lesson>(`${this.apiBaseUrl}/Lessons`, lesson, { headers: this.getHeaders() });
-  }
+  return this.http.put(
+    `${this.apiBaseUrl}/Lessons/${id}`,
+    formData,
+    { headers: this.getHeaders(false) }
+  );
+}
 
-  updateLesson(id: number, lesson: Lesson): Observable<any> {
-    return this.http.put(`${this.apiBaseUrl}/Lessons/${id}`, lesson, { headers: this.getHeaders() });
-  }
+deleteLesson(id: number): Observable<any> {
+  return this.http.delete(`${this.apiBaseUrl}/Lessons/${id}`, { headers: this.getHeaders() });
+}
 
-  deleteLesson(id: number): Observable<any> {
-    return this.http.delete(`${this.apiBaseUrl}/Lessons/${id}`, { headers: this.getHeaders() });
-  }
 
   // Categories
   getCategories(): Observable<Category[]> {
@@ -213,4 +274,17 @@ export class ContentService {
   deleteWeek(id: number): Observable<any> {
     return this.http.delete(`${this.apiBaseUrl}/Weeks/${id}`, { headers: this.getHeaders() });
   }
+
+getLessonResources(lessonId: number): Observable<Resource[]> {
+  return this.http.get<Resource[]>(`${this.apiBaseUrl}/Lessons/${lessonId}/resources`, { 
+    headers: this.getHeaders() 
+  });
+}
+
+getLesson(id: number): Observable<Lesson> {
+  return this.http.get<Lesson>(`${this.apiBaseUrl}/Lessons/${id}`, { 
+    headers: this.getHeaders() 
+  });
+}
+
 }

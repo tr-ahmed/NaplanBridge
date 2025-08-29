@@ -1,12 +1,10 @@
+// auth.service.ts
 import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, map } from 'rxjs';
 import { ParentApiService } from './parent-api.service';
 import { LoginRequest, ParentRegisterRequest, AuthResponse } from '../../models/auth.models';
 
-/**
- * Enhanced authentication service that handles login, registration, and user state
- */
 @Injectable({
   providedIn: 'root'
 })
@@ -18,22 +16,23 @@ export class AuthService {
   isAuthenticated = signal(false);
   currentUser = signal<AuthResponse | null>(null);
   userRoles = signal<string[]>([]);
+  
+  // Role selection signals
+  isRoleSelected = signal(false);
+  selectedRole = signal<string | null>(null);
 
   constructor(
     private parentApiService: ParentApiService,
     private router: Router
   ) {
-    // Initialize authentication state from localStorage
     this.initializeAuthState();
   }
 
-  /**
-   * Initialize authentication state from stored data
-   */
   private initializeAuthState(): void {
     const token = localStorage.getItem('authToken');
     const userName = localStorage.getItem('userName');
     const roles = localStorage.getItem('userRoles');
+    const selectedRole = localStorage.getItem('selectedRole');
 
     if (token && userName && roles) {
       const user: AuthResponse = {
@@ -43,12 +42,15 @@ export class AuthService {
       };
 
       this.setCurrentUser(user);
+      
+      // Initialize role selection state
+      if (selectedRole) {
+        this.selectedRole.set(selectedRole);
+        this.isRoleSelected.set(true);
+      }
     }
   }
 
-  /**
-   * Login with email and password
-   */
   login(loginRequest: LoginRequest): Observable<{ success: boolean; message?: string }> {
     return this.parentApiService.login(loginRequest).pipe(
       map(result => {
@@ -62,9 +64,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Register a new parent account
-   */
   register(registerRequest: ParentRegisterRequest): Observable<{ success: boolean; message?: string }> {
     return this.parentApiService.registerParent(registerRequest).pipe(
       map(result => {
@@ -78,55 +77,39 @@ export class AuthService {
     );
   }
 
-  /**
-   * Set the current authenticated user
-   */
   private setCurrentUser(user: AuthResponse): void {
-    // Update signals
     this.currentUser.set(user);
     this.isAuthenticated.set(true);
     this.userRoles.set(user.roles);
 
-    // Update BehaviorSubject for observables
     this.currentUserSubject.next(user);
 
-    // Store in localStorage
     localStorage.setItem('authToken', user.token);
     localStorage.setItem('userName', user.userName);
     localStorage.setItem('userRoles', JSON.stringify(user.roles));
   }
 
-  /**
-   * Logout the current user
-   */
   logout(): void {
-    // Clear signals
     this.currentUser.set(null);
     this.isAuthenticated.set(false);
     this.userRoles.set([]);
+    this.selectedRole.set(null);
+    this.isRoleSelected.set(false);
 
-    // Clear BehaviorSubject
     this.currentUserSubject.next(null);
 
-    // Clear localStorage
     localStorage.removeItem('authToken');
     localStorage.removeItem('userName');
     localStorage.removeItem('userRoles');
+    localStorage.removeItem('selectedRole');
 
-    // Navigate to login
     this.router.navigate(['/auth/login']);
   }
 
-  /**
-   * Get the current authentication token
-   */
   getToken(): string | null {
     return localStorage.getItem('authToken');
   }
 
-  /**
-   * Check if user has a specific role
-   */
   hasRole(role: string): boolean {
     const roles = this.userRoles();
     return roles.some(userRole =>
@@ -134,91 +117,99 @@ export class AuthService {
     );
   }
 
-  /**
-   * Check if user has any of the specified roles
-   */
   hasAnyRole(roles: string[]): boolean {
     return roles.some(role => this.hasRole(role));
   }
 
-  /**
-   * Get user's primary role for navigation purposes
-   */
-getPrimaryRole(): string | null {
-  const roles = this.userRoles() || [];
-  if (!roles || roles.length === 0) return null;
+  getPrimaryRole(): string | null {
+    const roles = this.userRoles() || [];
+    if (!roles || roles.length === 0) return null;
 
-  // فلترة Member
-  const filteredRoles = roles.filter(r => r.toLowerCase() !== 'member');
-  if (filteredRoles.length === 0) return null;
+    // Filter out Member role
+    const filteredRoles = roles.filter(r => r.toLowerCase() !== 'member');
+    if (filteredRoles.length === 0) return null;
 
-  // أولوية الأدوار
-  const rolePriority = ['admin', 'teacher', 'parent', 'student'];
+    // Role priority
+    const rolePriority = ['admin', 'teacher', 'parent', 'student'];
 
-  for (const priorityRole of rolePriority) {
-    if (filteredRoles.some(userRole => userRole.toLowerCase() === priorityRole)) {
-      return priorityRole.charAt(0).toUpperCase() + priorityRole.slice(1); // Admin, Teacher, ...
+    for (const priorityRole of rolePriority) {
+      if (filteredRoles.some(userRole => userRole.toLowerCase() === priorityRole)) {
+        return priorityRole.charAt(0).toUpperCase() + priorityRole.slice(1);
+      }
     }
+
+    // Fallback to first available role
+    return filteredRoles[0];
   }
 
-  // fallback → لو فيه أي رول غريب
-  return filteredRoles[0];
-}
+  selectUserRole(role: string): void {
+    if (!this.hasRole(role)) {
+      throw new Error('User does not have this role');
+    }
 
+    this.selectedRole.set(role);
+    this.isRoleSelected.set(true);
+    localStorage.setItem('selectedRole', role);
+    
+    this.navigateToDashboard(role);
+  }
 
-  /**
-   * Navigate user to appropriate dashboard based on their role
-   */
-  navigateToUserDashboard(): void {
-    const primaryRole = this.getPrimaryRole();
-
-    switch (primaryRole) {
-      case 'Admin':
+   navigateToDashboard(role: string): void {
+    switch(role.toLowerCase()) {
+      case 'admin':
         this.router.navigate(['/admin/users']);
         break;
-      case 'Teacher':
+      case 'teacher':
         this.router.navigate(['/teacher/dashboard']);
         break;
-      case 'Parent':
+      case 'parent':
         this.router.navigate(['/parent/dashboard']);
         break;
-      case 'Student':
+      case 'student':
         this.router.navigate(['/student/dashboard']);
         break;
       default:
         this.router.navigate(['/home']);
-        break;
     }
   }
-
-  /**
-   * Refresh authentication token (if refresh endpoint exists)
-   */
+// Add this method to your AuthService
+navigateToUserDashboard(): void {
+  // If user already selected a role, use that
+  if (this.isRoleSelected() && this.selectedRole()) {
+    this.navigateToDashboard(this.selectedRole()!);
+    return;
+  }
+  
+  // Otherwise, determine primary role and navigate
+  const primaryRole = this.getPrimaryRole();
+  if (primaryRole) {
+    this.navigateToDashboard(primaryRole.toLowerCase());
+  } else {
+    // Fallback for users with only Member role or no roles
+    this.router.navigate(['/home']);
+  }
+}
   refreshToken(): Observable<boolean> {
-    // TODO: Implement token refresh when API endpoint is available
-    // For now, return false to indicate refresh not available
     return new Observable(observer => {
       observer.next(false);
       observer.complete();
     });
   }
 
-  /**
-   * Check if the current token is expired (basic check)
-   */
   isTokenExpired(): boolean {
     const token = this.getToken();
     if (!token) return true;
 
     try {
-      // Basic JWT token expiration check
       const payload = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Math.floor(Date.now() / 1000);
-
       return payload.exp < currentTime;
     } catch (error) {
-      // If we can't parse the token, consider it expired
       return true;
     }
   }
+
+
+
+
 }

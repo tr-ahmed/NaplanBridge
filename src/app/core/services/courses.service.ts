@@ -263,7 +263,6 @@ export class CoursesService {
       if (filter.subject && course.subject !== filter.subject) return false;
       if (filter.category && course.category !== filter.category) return false;
       if (filter.level && course.level !== filter.level) return false;
-      if (filter.rating && course.rating < filter.rating) return false;
       if (filter.priceRange) {
         if (course.price < filter.priceRange.min || course.price > filter.priceRange.max) {
           return false;
