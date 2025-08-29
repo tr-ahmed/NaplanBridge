@@ -30,7 +30,6 @@ export interface Subject {
 export interface Term { id: number; number: number; yearSubjectId: number; }
 export interface Week { id: number; number: number; termId: number; }
 
-// اللي بيرجع من الـ API
 export interface Lesson {
   id?: number;
   title: string;
@@ -190,7 +189,7 @@ addLesson(title: string, description: string, weekId: number, posterFile: File, 
   return this.http.post<Lesson>(
     `${this.apiBaseUrl}/Lessons`,
     formData,
-    { headers: this.getHeaders(false) } // مهم: false عشان ميتحطش Content-Type json
+    { headers: this.getHeaders(false) } 
   );
 }
 

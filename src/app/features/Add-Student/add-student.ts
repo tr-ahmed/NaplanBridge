@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
 
+// استورد SweetAlert2
 import Swal from 'sweetalert2';
 
 @Component({
@@ -66,7 +67,7 @@ export class AddStudentComponent {
           timer: 1500
         }).then(() => {
           // Navigate to students list
-          this.router.navigate(['/parent/dashboard']);
+          this.router.navigate(['/students']);
         });
       },
       error: (err) => {
