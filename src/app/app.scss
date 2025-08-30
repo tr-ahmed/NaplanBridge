@@ -1,11 +1,6 @@
 /* App Layout Styles with Tailwind CSS */
 
-/* Global styles that complement Tailwind */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Note: CSS reset moved to global styles.scss to avoid conflicts with Tailwind classes */
 
 html, body {
   height: 100%;

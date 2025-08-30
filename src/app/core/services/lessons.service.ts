@@ -233,10 +233,10 @@ export class LessonsService {
     return [
       {
         id: 1,
-        title: 'مقدمة في الرياضيات',
-        description: 'تعلم أساسيات الرياضيات والعمليات الحسابية الأساسية',
+        title: 'Introduction to Mathematics',
+        description: 'Learn the fundamentals of mathematics and basic arithmetic operations',
         subject: 'Mathematics',
-        courseName: 'الرياضيات الأساسية',
+        courseName: 'Basic Mathematics',
         courseId: 1,
         duration: 45,
         difficulty: 'Easy',
@@ -252,14 +252,14 @@ export class LessonsService {
         resources: [
           {
             id: 1,
-            name: 'مرجع الرياضيات الأساسية',
+            name: 'Basic Mathematics Reference',
             type: 'pdf',
             url: '/assets/resources/math-basics.pdf',
             downloadable: true
           },
           {
             id: 2,
-            name: 'تمارين الرياضيات',
+            name: 'Mathematics Exercises',
             type: 'exercise',
             url: '/student/exercises/1',
             downloadable: false
@@ -267,17 +267,17 @@ export class LessonsService {
         ],
         prerequisites: [],
         learningObjectives: [
-          'فهم العمليات الحسابية الأساسية',
-          'حل المسائل الرياضية البسيطة'
+          'Understand basic arithmetic operations',
+          'Solve simple mathematical problems'
         ],
         lastAccessedAt: new Date(Date.now() - 86400000) // 1 day ago
       },
       {
         id: 2,
-        title: 'قواعد اللغة الإنجليزية',
-        description: 'تعلم قواعد اللغة الإنجليزية الأساسية والنحو',
+        title: 'English Grammar Basics',
+        description: 'Learn fundamental English grammar rules and sentence structure',
         subject: 'English',
-        courseName: 'اللغة الإنجليزية الأساسية',
+        courseName: 'Basic English Language',
         courseId: 2,
         duration: 60,
         difficulty: 'Medium',
@@ -293,14 +293,14 @@ export class LessonsService {
         resources: [
           {
             id: 3,
-            name: 'كتاب قواعد اللغة الإنجليزية',
+            name: 'English Grammar Book',
             type: 'pdf',
             url: '/assets/resources/english-grammar.pdf',
             downloadable: true
           },
           {
             id: 4,
-            name: 'اختبار القواعد',
+            name: 'Grammar Quiz',
             type: 'quiz',
             url: '/student/quizzes/1',
             downloadable: false
@@ -308,17 +308,17 @@ export class LessonsService {
         ],
         prerequisites: [],
         learningObjectives: [
-          'فهم القواعد النحوية الأساسية',
-          'تكوين جمل صحيحة نحوياً'
+          'Understand basic grammatical rules',
+          'Form grammatically correct sentences'
         ],
         lastAccessedAt: new Date(Date.now() - 172800000) // 2 days ago
       },
       {
         id: 3,
-        title: 'علوم الطبيعة',
-        description: 'استكشاف عالم العلوم والظواهر الطبيعية',
+        title: 'Natural Sciences',
+        description: 'Explore the world of science and natural phenomena',
         subject: 'Science',
-        courseName: 'العلوم الطبيعية',
+        courseName: 'Natural Sciences',
         courseId: 3,
         duration: 50,
         difficulty: 'Medium',
@@ -334,14 +334,14 @@ export class LessonsService {
         resources: [
           {
             id: 5,
-            name: 'كتاب العلوم الطبيعية',
+            name: 'Natural Sciences Book',
             type: 'pdf',
             url: '/assets/resources/natural-sciences.pdf',
             downloadable: true
           },
           {
             id: 6,
-            name: 'تجارب علمية',
+            name: 'Scientific Experiments',
             type: 'exercise',
             url: '/student/experiments/1',
             downloadable: false
@@ -349,17 +349,17 @@ export class LessonsService {
         ],
         prerequisites: [],
         learningObjectives: [
-          'فهم الظواهر الطبيعية',
-          'إجراء تجارب علمية بسيطة'
+          'Understand natural phenomena',
+          'Conduct simple scientific experiments'
         ],
         lastAccessedAt: new Date(Date.now() - 259200000) // 3 days ago
       },
       {
         id: 4,
-        title: 'التاريخ والجغرافيا',
-        description: 'تعلم تاريخ وجغرافية أستراليا والعالم',
+        title: 'History and Geography',
+        description: 'Learn about Australian and world history and geography',
         subject: 'HASS',
-        courseName: 'الدراسات الاجتماعية',
+        courseName: 'Social Studies',
         courseId: 4,
         duration: 40,
         difficulty: 'Easy',
@@ -375,7 +375,7 @@ export class LessonsService {
         resources: [
           {
             id: 7,
-            name: 'أطلس أستراليا',
+            name: 'Australian Atlas',
             type: 'pdf',
             url: '/assets/resources/australia-atlas.pdf',
             downloadable: true
@@ -383,17 +383,17 @@ export class LessonsService {
         ],
         prerequisites: [],
         learningObjectives: [
-          'معرفة تاريخ أستراليا',
-          'فهم الجغرافيا الأسترالية'
+          'Know Australian history',
+          'Understand Australian geography'
         ],
         lastAccessedAt: new Date(Date.now() - 345600000) // 4 days ago
       },
       {
         id: 5,
-        title: 'الرياضيات المتقدمة',
-        description: 'مفاهيم رياضية متقدمة والجبر الأساسي',
+        title: 'Advanced Mathematics',
+        description: 'Advanced mathematical concepts and basic algebra',
         subject: 'Mathematics',
-        courseName: 'الرياضيات المتقدمة',
+        courseName: 'Advanced Mathematics',
         courseId: 5,
         duration: 70,
         difficulty: 'Hard',
@@ -409,14 +409,14 @@ export class LessonsService {
         resources: [
           {
             id: 8,
-            name: 'كتاب الجبر',
+            name: 'Algebra Textbook',
             type: 'pdf',
             url: '/assets/resources/algebra.pdf',
             downloadable: true
           },
           {
             id: 9,
-            name: 'تمارين الجبر',
+            name: 'Algebra Exercises',
             type: 'exercise',
             url: '/student/exercises/2',
             downloadable: false
@@ -424,16 +424,16 @@ export class LessonsService {
         ],
         prerequisites: [1],
         learningObjectives: [
-          'فهم مفاهيم الجبر الأساسي',
-          'حل المعادلات الخطية'
+          'Understand basic algebra concepts',
+          'Solve linear equations'
         ]
       },
       {
         id: 6,
-        title: 'الكتابة الإبداعية',
-        description: 'تطوير مهارات الكتابة الإبداعية باللغة الإنجليزية',
+        title: 'Creative Writing',
+        description: 'Develop creative writing skills in English',
         subject: 'English',
-        courseName: 'الكتابة الإبداعية',
+        courseName: 'Creative Writing',
         courseId: 6,
         duration: 55,
         difficulty: 'Hard',
@@ -449,7 +449,7 @@ export class LessonsService {
         resources: [
           {
             id: 10,
-            name: 'دليل الكتابة الإبداعية',
+            name: 'Creative Writing Guide',
             type: 'pdf',
             url: '/assets/resources/creative-writing.pdf',
             downloadable: true
@@ -457,8 +457,8 @@ export class LessonsService {
         ],
         prerequisites: [2],
         learningObjectives: [
-          'كتابة نصوص إبداعية',
-          'تطوير الأسلوب الشخصي في الكتابة'
+          'Write creative texts',
+          'Develop personal writing style'
         ]
       }
     ];

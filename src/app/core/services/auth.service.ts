@@ -16,7 +16,7 @@ export class AuthService {
   isAuthenticated = signal(false);
   currentUser = signal<AuthResponse | null>(null);
   userRoles = signal<string[]>([]);
-  
+
   // Role selection signals
   isRoleSelected = signal(false);
   selectedRole = signal<string | null>(null);
@@ -42,7 +42,7 @@ export class AuthService {
       };
 
       this.setCurrentUser(user);
-      
+
       // Initialize role selection state
       if (selectedRole) {
         this.selectedRole.set(selectedRole);
@@ -150,7 +150,7 @@ export class AuthService {
     this.selectedRole.set(role);
     this.isRoleSelected.set(true);
     localStorage.setItem('selectedRole', role);
-    
+
     this.navigateToDashboard(role);
   }
 
@@ -179,7 +179,7 @@ navigateToUserDashboard(): void {
     this.navigateToDashboard(this.selectedRole()!);
     return;
   }
-  
+
   // Otherwise, determine primary role and navigate
   const primaryRole = this.getPrimaryRole();
   if (primaryRole) {
@@ -208,8 +208,4 @@ navigateToUserDashboard(): void {
       return true;
     }
   }
-
-
-
-
 }

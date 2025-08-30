@@ -20,7 +20,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     { id: 1, label: 'Home', route: '/', icon: 'home' },
     { id: 2, label: 'About Us', route: '/', icon: 'info', fragment: 'about', isAboutSection: true },
     { id: 3, label: 'Plans', route: '/plans', icon: 'star' },
-    { id: 4, label: 'Courses', route: '/courses', icon: 'book' },
+    { id: 4, label: 'Subjects', route: '/courses', icon: 'book' },
     { id: 5, label: 'Blog', route: '/blog', icon: 'article' },
     { id: 6, label: 'Contact', route: '/contact', icon: 'mail' }
   ];
@@ -236,10 +236,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
 isAdminDashboard(): boolean {
-  return this.router.url.startsWith('/admin/users') 
+  return this.router.url.startsWith('/admin/users')
       || this.router.url.startsWith('/admin/content')
        || this.router.url.startsWith('/admin/subscriptions');
-      
+
 }
 
 

@@ -7,11 +7,12 @@ import { takeUntil } from 'rxjs/operators';
 
 import { Course, CourseFilter, Cart } from '../../models/course.models';
 import { CoursesService } from '../../core/services/courses.service';
+import { NewsletterComponent } from '../../shared/newsletter/newsletter.component';
 
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NewsletterComponent],
   templateUrl: './courses.component.html',
   styleUrls: ['./courses.component.scss']
 })
@@ -26,7 +27,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   cart = signal<Cart>({ items: [], totalAmount: 0, totalItems: 0 });
 
   // Filter options
-  selectedTerm = signal<number>(1);
+  selectedTerm = signal<number>(0); // 0 means no term filter
   selectedSubject = signal<string>('');
   selectedLevel = signal<string>('');
   selectedCategory = signal<string>('');
@@ -35,7 +36,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   itemsPerPage = 8;
 
   // Filter and pagination options
-  terms = [1, 2, 3, 4];
+  terms = [0, 1, 2, 3, 4]; // 0 = All Terms
   subjects = ['Math', 'English', 'Science', 'HASS'];
   levels = ['Beginner', 'Intermediate', 'Advanced'];
   categories = ['Language', 'Mathematics', 'Science', 'Social Studies'];
@@ -107,7 +108,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
    */
   loadCourses(): void {
     const filter: CourseFilter = {
-      term: this.selectedTerm(),
+      term: this.selectedTerm() > 0 ? this.selectedTerm() : undefined,
       subject: this.selectedSubject() || undefined,
       level: this.selectedLevel() || undefined,
       category: this.selectedCategory() || undefined
@@ -255,6 +256,18 @@ export class CoursesComponent implements OnInit, OnDestroy {
           }
         });
     }
+  }
+
+  /**
+   * Navigate to lessons for a specific course/subject
+   */
+  viewLessons(course: Course): void {
+    this.router.navigate(['/lessons'], {
+      queryParams: {
+        subject: course.subject,
+        courseId: course.id
+      }
+    });
   }
 
   /**

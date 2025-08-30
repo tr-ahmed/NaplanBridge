@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
+import { NewsletterComponent } from '../../shared/newsletter/newsletter.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, NewsletterComponent],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })

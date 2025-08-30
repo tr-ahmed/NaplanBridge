@@ -5,14 +5,14 @@ import { authGuard } from './auth/auth.guard';
 import { RoleSelectionGuard } from './auth/role-selection/role-selection.guard';
 
 export const routes: Routes = [
-  { 
-    path: '', 
-    loadComponent: () => import('./features/home/home').then(m => m.HomeComponent) 
+  {
+    path: '',
+    loadComponent: () => import('./features/home/home').then(m => m.HomeComponent)
   },
-  { 
-    path: 'home', 
-    redirectTo: '', 
-    pathMatch: 'full' 
+  {
+    path: 'home',
+    redirectTo: '',
+    pathMatch: 'full'
   },
 
   // Authentication routes
@@ -43,6 +43,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/courses/courses.component').then(m => m.CoursesComponent)
   },
   {
+    path: 'lessons',
+    loadComponent: () => import('./features/lessons/lessons.component').then(m => m.LessonsComponent)
+  },
+  {
+    path: 'lesson/:id',
+    loadComponent: () => import('./features/lesson-detail/lesson-detail.component').then(m => m.LessonDetailComponent)
+  },
+  {
     path: 'cart',
     loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent)
   },
@@ -62,12 +70,12 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
   },
 
-  // Student Dashboard and Routes
-  {
-    path: 'student',
-    loadChildren: () => import('./student/student.routes').then(m => m.STUDENT_ROUTES),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
-  },
+  // Student Dashboard and Routes (commented out until student routes are created)
+  // {
+  //   path: 'student',
+  //   loadChildren: () => import('./student/student.routes').then(m => m.STUDENT_ROUTES),
+  //   canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  // },
 
   // Admin Content Management
   {

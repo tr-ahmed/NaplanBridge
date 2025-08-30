@@ -1,14 +1,22 @@
 <!-- Hero Section -->
-<section class="hero-section bg-gradient-to-r from-blue-900 to-blue-600 py-16 text-white">
-  <div class="container mx-auto px-6 text-center">
-    <h1 class="text-4xl md:text-5xl font-bold mb-4">Our Courses</h1>
-    <p class="text-xl mb-8 max-w-3xl mx-auto leading-relaxed">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros
-      elementum tristique.
+<section class="hero-section relative w-full min-h-[60vh] flex items-center justify-center text-white bg-cover bg-center bg-no-repeat pt-20"
+         style="background-image: linear-gradient(rgba(30, 58, 138, 0.5), rgba(37, 99, 235, 0.7)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80');">
+  <div class="container mx-auto px-6 text-center relative z-10">
+    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">Our Subjects</h1>
+    <p class="text-xl md:text-2xl mb-8 max-w-4xl mx-auto leading-relaxed">
+      Discover our comprehensive collection of subjects designed to help you achieve your learning goals
     </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
+      <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 shadow-lg">
+        Browse All Subjects
+      </button>
+      <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors duration-200">
+        View Categories
+      </button>
+    </div>
   </div>
 </section><!-- Main Content -->
-<div class="container mx-auto px-6 py-12">
+<div class="container mx-auto px-6 py-12 !pt-8">
   <!-- Filters Section -->
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
     <div class="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
@@ -25,7 +33,11 @@
               [class.bg-gray-100]="selectedTerm() !== term"
               [class.text-gray-700]="selectedTerm() !== term"
               class="px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-md">
-              Term {{ term }}
+              @if (term === 0) {
+                All Terms
+              } @else {
+                Term {{ term }}
+              }
             </button>
           }
         </div>
@@ -61,7 +73,7 @@
               type="text"
               [value]="searchQuery()"
               (input)="onSearchChange($any($event.target).value)"
-              placeholder="Search courses, instructors, or topics..."
+              placeholder="Search subjects, instructors, or topics..."
               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,17 +118,29 @@
     </div>
   </div>
 
-  <!-- Week Header -->
+  <!-- Subjects Header -->
   <div class="text-center mb-8">
-    <h2 class="text-3xl font-bold text-blue-900 mb-2">Week {{ selectedTerm() }}</h2>
-    <p class="text-gray-600">Explore our comprehensive course offerings</p>
+    <h2 class="text-3xl font-bold text-white mb-2">
+      @if (selectedTerm() > 0) {
+        Term {{ selectedTerm() }} Subjects
+      } @else {
+        Available Subjects
+      }
+    </h2>
+    <p class="text-white">
+      @if (selectedSubject()) {
+        Showing {{ selectedSubject() }} subjects
+      } @else {
+        Explore our comprehensive subject offerings
+      }
+    </p>
   </div>
 
   <!-- Loading State -->
   @if (loading()) {
     <div class="flex justify-center items-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      <span class="ml-3 text-gray-600">Loading courses...</span>
+      <span class="ml-3 text-gray-600">Loading subjects...</span>
     </div>
   }
 
@@ -132,18 +156,18 @@
     </div>
   }
 
-  <!-- Courses Grid -->
+  <!-- Subjects Grid -->
   @if (!loading() && paginatedCourses().length > 0) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
       @for (course of paginatedCourses(); track course.id) {
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group">
-          <!-- Course Image -->
+          <!-- Subject Image -->
           <div class="relative h-48 overflow-hidden">
             <img
               [src]="course.imageUrl"
               [alt]="course.name"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              onerror="this.src='https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Course+Image'">
+              onerror="this.src='https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Subject+Image'">
 
             <!-- Discount Badge -->
             @if (course.originalPrice && course.originalPrice > course.price) {
@@ -161,19 +185,19 @@
             </div>
           </div>
 
-          <!-- Course Content -->
+          <!-- Subject Content -->
           <div class="p-6">
-            <!-- Course Name -->
+            <!-- Subject Name -->
             <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
               {{ course.name }}
             </h3>
 
-            <!-- Course Description -->
+            <!-- Subject Description -->
             <p class="text-gray-600 text-sm mb-3 line-clamp-3">
               {{ course.description }}
             </p>
 
-            <!-- Course Meta -->
+            <!-- Subject Meta -->
             <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
               <span>{{ course.instructor }}</span>
               <span>{{ course.duration }}</span>
@@ -214,6 +238,13 @@
 
             <!-- Action Buttons -->
             <div class="mt-4 flex gap-2">
+              <!-- View Lessons Button (Always visible) -->
+              <button
+                (click)="viewLessons(course)"
+                class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 text-sm">
+                View Lessons
+              </button>
+
               @if (isInCart(course.id)) {
                 <button
                   (click)="removeFromCart(course.id)"
@@ -227,10 +258,13 @@
                   Add to Cart
                 </button>
               }
+            </div>
 
+            <!-- Secondary Action -->
+            <div class="mt-2">
               <button
                 (click)="enrollNow(course)"
-                class="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors duration-200 text-sm">
+                class="w-full border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors duration-200 text-sm py-2">
                 Enroll Now
               </button>
             </div>
@@ -246,7 +280,7 @@
       <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
       </svg>
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">No courses found</h3>
+      <h3 class="text-xl font-semibold text-gray-900 mb-2">No subjects found</h3>
       <p class="text-gray-600 mb-4">Try adjusting your filters or search terms.</p>
       <button
         (click)="clearFilters()"
@@ -304,30 +338,9 @@
     </div>
   }
 
-  <!-- Newsletter Section -->
-  <section class="bg-gray-50 rounded-2xl p-8 mt-16 text-center">
-    <h2 class="text-2xl font-bold text-gray-900 mb-4">Hear From Our Learners</h2>
-    <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
-      Discover how we is making a difference in the lives of our students. Read inspiring stories and
-      testimonials from learners around the globe.
-    </p>
-
-    <div class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-      <input
-        type="email"
-        placeholder="Email address"
-        class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-      <button
-        class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200">
-        Sign Up
-      </button>
-    </div>
-
-    <p class="text-xs text-gray-500 mt-3">
-      By signing up, you agree to our Terms and Conditions.
-    </p>
-  </section>
 </div>
+  <!-- Newsletter Section -->
+  <app-newsletter></app-newsletter>
 
 <!-- Shopping Cart Floating Button (if items in cart) -->
 @if (cartItemCount() > 0) {

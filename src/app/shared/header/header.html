@@ -32,7 +32,7 @@
                 <li><a routerLink="/plans/compare" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500">Compare Plans</a></li>
               </ul>
             </li>
-          } @else if (item.label === 'Courses') {
+          } @else if (item.label === 'Subjects') {
             <li class="relative group">
               <button class="text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-3 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1">
                 {{ item.label }}
@@ -59,7 +59,7 @@
                 </a></li>
                 <li><a routerLink="/courses" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 border-t border-gray-100 mt-1 pt-3 flex items-center gap-2">
                   <i class="fas fa-list text-gray-600"></i>
-                  View All Courses
+                  View All Subjects
                 </a></li>
               </ul>
             </li>
@@ -204,21 +204,21 @@
                 class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
                 Admin Panel
               </button>
-            } 
+            }
             @if (userRole === 'Teacher') {
               <button
                 routerLink="/teacher/dashboard"
                 class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
                 Teacher Panel
               </button>
-            } 
+            }
             @if (userRole === 'Parent') {
               <button
                 routerLink="/parent/dashboard"
                 class="border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200">
                 My Children
               </button>
-            } 
+            }
             @if (userRole === 'Student') {
               <button
                 routerLink="/student/dashboard"
@@ -290,7 +290,7 @@
                     Welcome, {{ userName }}
                   </div>
                 }
-                
+
                 <!-- Mobile Role-based buttons -->
                 @if (userRole === 'Admin') {
                   <a
@@ -299,7 +299,7 @@
                     (click)="toggleMobileMenu()">
                     Admin Panel
                   </a>
-                } 
+                }
                 @if (userRole === 'Teacher') {
                   <a
                     routerLink="/teacher/dashboard"
@@ -307,7 +307,7 @@
                     (click)="toggleMobileMenu()">
                     Teacher Panel
                   </a>
-                } 
+                }
                 @if (userRole === 'Parent') {
                   <a
                     routerLink="/parent/dashboard"
@@ -315,7 +315,7 @@
                     (click)="toggleMobileMenu()">
                     My Children
                   </a>
-                } 
+                }
                 @if (userRole === 'Student') {
                   <a
                     routerLink="/student/dashboard"
@@ -324,7 +324,7 @@
                     My Dashboard
                   </a>
                 }
-                
+
                 <button
                   (click)="handleLogout()"
                   class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300">

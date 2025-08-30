@@ -231,16 +231,20 @@ export class CoursesService {
     if (this.useMock) {
       // Remove from cart after enrollment
       this.removeFromCart(courseId).subscribe();
+      // Add to enrolled courses
+      this.addToEnrolledCourses(courseId);
       return of(true);
     }
 
     return this.http.post<any>(url, { courseId }).pipe(
       map(() => {
         this.removeFromCart(courseId).subscribe();
+        this.addToEnrolledCourses(courseId);
         return true;
       }),
       catchError(() => {
         this.removeFromCart(courseId).subscribe();
+        this.addToEnrolledCourses(courseId);
         return of(true);
       })
     );
@@ -253,7 +257,78 @@ export class CoursesService {
     this.useMock = useMock;
   }
 
+  /**
+   * Check if user is enrolled in a course
+   */
+  isEnrolledInCourse(courseId: number): Observable<boolean> {
+    const endpoint = ApiNodes.checkEnrollment;
+    const url = `${this.baseUrl}${endpoint.url.replace(':id', courseId.toString())}`;
+
+    if (this.useMock) {
+      const enrolledCourses = this.getEnrolledCoursesFromStorage();
+      return of(enrolledCourses.includes(courseId));
+    }
+
+    return this.http.get<{ enrolled: boolean }>(url).pipe(
+      map(response => response.enrolled),
+      catchError(() => {
+        const enrolledCourses = this.getEnrolledCoursesFromStorage();
+        return of(enrolledCourses.includes(courseId));
+      })
+    );
+  }
+
+  /**
+   * Get user's enrolled courses
+   */
+  getEnrolledCourses(): Observable<Course[]> {
+    const endpoint = ApiNodes.getEnrolledCourses;
+    const url = `${this.baseUrl}${endpoint.url}`;
+
+    if (this.useMock) {
+      const enrolledCourseIds = this.getEnrolledCoursesFromStorage();
+      const allCourses = this.getMockCourses();
+      const enrolledCourses = allCourses.filter((course: Course) => enrolledCourseIds.includes(course.id));
+      return of(enrolledCourses);
+    }
+
+    return this.http.get<Course[]>(url).pipe(
+      catchError(() => {
+        const enrolledCourseIds = this.getEnrolledCoursesFromStorage();
+        const allCourses = this.getMockCourses();
+        const enrolledCourses = allCourses.filter((course: Course) => enrolledCourseIds.includes(course.id));
+        return of(enrolledCourses);
+      })
+    );
+  }
+
   // Private helper methods
+
+  private getMockCourses(): Course[] {
+    return ApiNodes.getAllCourses.mockData;
+  }
+
+  private getEnrolledCoursesFromStorage(): number[] {
+    try {
+      const enrolledCourses = localStorage.getItem('naplanbridge_enrolled_courses');
+      return enrolledCourses ? JSON.parse(enrolledCourses) : [];
+    } catch (error) {
+      console.warn('Failed to load enrolled courses from localStorage:', error);
+      return [];
+    }
+  }
+
+  private addToEnrolledCourses(courseId: number): void {
+    try {
+      const enrolledCourses = this.getEnrolledCoursesFromStorage();
+      if (!enrolledCourses.includes(courseId)) {
+        enrolledCourses.push(courseId);
+        localStorage.setItem('naplanbridge_enrolled_courses', JSON.stringify(enrolledCourses));
+      }
+    } catch (error) {
+      console.warn('Failed to save enrolled course to localStorage:', error);
+    }
+  }
 
   private filterCourses(courses: Course[], filter?: CourseFilter): Course[] {
     if (!filter) return courses;

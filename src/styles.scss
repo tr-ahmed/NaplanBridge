@@ -67,11 +67,15 @@
   --font-size-4xl: 2.5rem;
 }
 
-/* Global reset and base styles */
+/* Global reset and base styles - simplified to avoid conflicts with Tailwind */
 * {
+  box-sizing: border-box;
+}
+
+/* Reset only for elements that don't have Tailwind classes */
+body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
