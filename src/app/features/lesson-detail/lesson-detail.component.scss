@@ -1,5 +1,96 @@
 /* Lesson Detail Component Styles */
 
+/* Responsive Tab Navigation */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+  
+  &::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+  }
+}
+
+/* Mobile-first responsive tab navigation */
+nav {
+  /* Ensure smooth scrolling on mobile */
+  scroll-behavior: smooth;
+  
+  /* Add scroll indicators on mobile */
+  @media (max-width: 767px) {
+    position: relative;
+    
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    &::before {
+      left: 0;
+      background: linear-gradient(to right, rgba(255, 255, 255, 1), transparent);
+    }
+    
+    &::after {
+      right: 0;
+      background: linear-gradient(to left, rgba(255, 255, 255, 1), transparent);
+    }
+  }
+}
+
+/* Responsive content containers */
+.lesson-content {
+  /* Responsive padding */
+  @media (max-width: 640px) {
+    padding: 1rem;
+  }
+  
+  @media (min-width: 641px) and (max-width: 1024px) {
+    padding: 1.5rem;
+  }
+  
+  @media (min-width: 1025px) {
+    padding: 2rem;
+  }
+}
+
+/* Responsive form layouts */
+.form-grid {
+  display: grid;
+  gap: 1rem;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+  
+  @media (min-width: 641px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Responsive button groups */
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+  
+  @media (min-width: 641px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
 /* Video Player Enhancements */
 .video-container {
   position: relative;
