@@ -232,6 +232,48 @@ export class ContentManagementComponent implements OnInit {
     this.loadAllFromAPI();
   }
 
+// دالة محسنة لاستخراج الرسائل الإنجليزية من الأخطاء
+private extractEnglishError(error: any): string {
+  // إذا كان الخطأ يحتوي على originalError والذي بدوره يحتوي على error نصي
+  if (error.originalError && error.originalError.error && typeof error.originalError.error === 'string') {
+    return error.originalError.error;
+  }
+  
+  // إذا كان الخطأ يحتوي على خاصية error نصية مباشرة
+  if (error.error && typeof error.error === 'string') {
+    return error.error;
+  }
+  
+  // إذا كان الخطأ يحتوي على خاصية message نصية
+  if (error.message && typeof error.message === 'string') {
+    return error.message;
+  }
+  
+  // إذا كان الخطأ نصاً مباشراً
+  if (typeof error === 'string') {
+    return error;
+  }
+  
+  // إذا كان الخطأ يحتوي على nested error object
+  if (error.originalError && error.originalError.error && typeof error.originalError.error === 'object') {
+    // تحقق من الخصائص الشائعة في الكائن المتداخل
+    const possibleProperties = ['message', 'error', 'detail', 'title', 'reason'];
+    for (const prop of possibleProperties) {
+      if (error.originalError.error[prop] && typeof error.originalError.error[prop] === 'string') {
+        return error.originalError.error[prop];
+      }
+    }
+  }
+  
+  // إذا كان الخطأ يحتوي على تفاصيل إضافية
+  if (error.details && typeof error.details === 'string') {
+    return error.details;
+  }
+  
+  // إذا لم نستطع استخراج رسالة، نعيد رسالة افتراضية
+  return 'An unknown error occurred. Please try again.';
+}
+
   // ===== API Calls =====
   async loadAllFromAPI() {
     try {
@@ -257,7 +299,7 @@ export class ContentManagementComponent implements OnInit {
       this.refreshAll();
     } catch (error) {
       console.error('Error loading data from API:', error);
-      Swal.fire('Error', 'Failed to load data from server', 'error');
+      Swal.fire('Error', this.extractEnglishError(error), 'error');
     }
   }
 
@@ -395,7 +437,7 @@ export class ContentManagementComponent implements OnInit {
           .toPromise()) || [];
     } catch (error) {
       console.error('Error loading subject resources:', error);
-      Swal.fire('Error', 'Failed to load resources', 'error');
+      Swal.fire('Error', this.extractEnglishError(error), 'error');
     }
   }
 
@@ -737,11 +779,7 @@ export class ContentManagementComponent implements OnInit {
       });
     } catch (error) {
       console.error('Error saving entity:', error);
-      Swal.fire(
-        'Error',
-        `Failed to ${this.formMode} ${this.entityType}`,
-        'error'
-      );
+      Swal.fire('Error', this.extractEnglishError(error), 'error');
     }
   }
 
@@ -964,7 +1002,7 @@ case 'lesson': {
         });
       } catch (error) {
         console.error('Error deleting entity:', error);
-        Swal.fire('Error', 'Failed to delete item', 'error');
+        Swal.fire('Error', this.extractEnglishError(error), 'error');
       }
     }
   }
@@ -1056,7 +1094,7 @@ case 'lesson': {
         [];
     } catch (error) {
       console.error('Error loading lesson resources:', error);
-      Swal.fire('Error', 'Failed to load resources', 'error');
+      Swal.fire('Error', this.extractEnglishError(error), 'error');
     }
   }
 
@@ -1096,11 +1134,7 @@ case 'lesson': {
       );
     } catch (error) {
       console.error('Error saving resource:', error);
-      Swal.fire(
-        'Error',
-        `Failed to ${this.editingResource ? 'update' : 'add'} resource`,
-        'error'
-      );
+      Swal.fire('Error', this.extractEnglishError(error), 'error');
     }
   }
 
@@ -1131,7 +1165,7 @@ case 'lesson': {
         }
       } catch (error) {
         console.error('Error deleting resource:', error);
-        Swal.fire('Error', 'Failed to delete resource', 'error');
+        Swal.fire('Error', this.extractEnglishError(error), 'error');
       }
     }
   }
@@ -1227,6 +1261,43 @@ onFileChange(event: any, field: 'posterFile' | 'videoFile') {
     this.form[field] = event.target.files[0];
   }
 }
+
+// في المكون TypeScript
+formErrors: any = {};
+
+validateField(fieldName: string, value: any) {
+  switch (fieldName) {
+    case 'number':
+      if (!value || value < 1 || value > 12) {
+        this.formErrors.number = 'Year number must be between 1 and 12';
+      } else {
+        delete this.formErrors.number;
+      }
+      break;
+    case 'name':
+      if (!value || value.trim().length < 2) {
+        this.formErrors.name = 'Name is required and must be at least 2 characters';
+      } else {
+        delete this.formErrors.name;
+      }
+      break;
+    case 'originalPrice':
+      if (!value || value < 0) {
+        this.formErrors.originalPrice = 'Price must be a positive number';
+      } else {
+        delete this.formErrors.originalPrice;
+      }
+      break;
+    // أضف التحقق لباقي الحقول
+    default:
+      break;
+  }
+}
+
+isFormValid(): boolean {
+  return Object.keys(this.formErrors).length === 0;
+}
+
 
 
 

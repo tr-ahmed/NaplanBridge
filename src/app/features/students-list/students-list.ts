@@ -4,6 +4,7 @@ import { environment } from '../../../environments/environment';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AddStudentComponent } from "../Add-Student/add-student";
+import Swal from 'sweetalert2';
 
 interface Student {
   id: number;
@@ -113,5 +114,46 @@ export class StudentsListComponent implements OnInit {
 
   closeAddStudentModal() {
     this.showAddStudentModal = false;
+  }
+
+  /**
+   * Delete a student by ID using the API
+   * @param studentId Student's ID
+   */
+  async deleteStudent(studentId: number) {
+    const confirm = await Swal.fire({
+      title: 'Delete Student?',
+      text: 'Are you sure you want to delete this student?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (confirm.isConfirmed) {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        Swal.fire('Error', 'Auth token not found.', 'error');
+        return;
+      }
+
+      const url = `${environment.apiBaseUrl}/User/delete-student/${studentId}`;
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      });
+
+      try {
+        await this.http.delete(url, { headers }).toPromise();
+        this.students = this.students.filter(s => s.id !== studentId);
+        Swal.fire('Deleted', 'Student has been deleted successfully.', 'success');
+      } catch (error: any) {
+        const errorMsg =
+          error?.error?.message ||
+          error?.message ||
+          'An error occurred while deleting the student.';
+        Swal.fire('Error', errorMsg, 'error');
+      }
+    }
   }
 }

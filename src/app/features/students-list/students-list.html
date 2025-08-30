@@ -42,9 +42,14 @@
             <p class="flex items-center justify-center text-gray-600">
                <span class="ml-2">Age: <span class="font-semibold">{{ student.age }}</span></span>
             </p>
-            <div class="mt-4 flex justify-center">
+            <div class="mt-4 flex justify-center space-x-2">
               <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition">
                 View Profile
+              </button>
+              <button
+                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition"
+                (click)="deleteStudent(student.id)">
+                Delete
               </button>
             </div>
           </div>

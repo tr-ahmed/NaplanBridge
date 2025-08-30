@@ -12,7 +12,39 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+  <style>
+    .is-invalid {
+      border-color: #dc3545 !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .is-valid {
+      border-color: #198754 !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .invalid-feedback, .valid-feedback {
+      display: block;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .form-control.is-invalid:focus, .form-select.is-invalid:focus {
+      box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .form-control.is-valid:focus, .form-select.is-valid:focus {
+      box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+  </style>
 </head>
 
 <body class="bg-gray-50">
@@ -716,7 +748,21 @@
             <div class="row g-3">
               <div class="col-md-12">
                 <label class="form-label">Year Number *</label>
-                <input type="number" class="form-control" [(ngModel)]="form.number" placeholder="7, 8, 9..." min="1" max="12" required>
+                <input type="number" class="form-control" 
+                  [class.is-invalid]="formErrors.number" 
+                  [class.is-valid]="form.number && !formErrors.number"
+                  [(ngModel)]="form.number" 
+                  (input)="validateField('number', form.number)" 
+                  placeholder="7, 8, 9..." 
+                  min="1" 
+                  max="12" 
+                  required>
+                <div *ngIf="formErrors.number" class="invalid-feedback">
+                  {{ formErrors.number }}
+                </div>
+                <div *ngIf="form.number && !formErrors.number" class="valid-feedback">
+                  Looks good!
+                </div>
                 <div class="form-text">Enter the year number (e.g., 7 for Year 7)</div>
               </div>
             </div>
@@ -727,71 +773,210 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Name *</label>
-                <input class="form-control" [(ngModel)]="form.name" placeholder="Subject name" required>
+                <input class="form-control" 
+                  [class.is-invalid]="formErrors.name" 
+                  [class.is-valid]="form.name && !formErrors.name"
+                  [(ngModel)]="form.name" 
+                  (input)="validateField('name', form.name)" 
+                  placeholder="Subject name" 
+                  required>
+                <div *ngIf="formErrors.name" class="invalid-feedback">
+                  {{ formErrors.name }}
+                </div>
+                <div *ngIf="form.name && !formErrors.name" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Level *</label>
-                <select class="form-select" [(ngModel)]="form.level" required>
+                <select class="form-select" 
+                  [class.is-invalid]="formErrors.level" 
+                  [class.is-valid]="form.level && !formErrors.level"
+                  [(ngModel)]="form.level" 
+                  (change)="validateField('level', form.level)" 
+                  required>
                   <option value="">Select Level</option>
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate">Intermediate</option>
                   <option value="Advanced">Advanced</option>
                 </select>
+                <div *ngIf="formErrors.level" class="invalid-feedback">
+                  {{ formErrors.level }}
+                </div>
+                <div *ngIf="form.level && !formErrors.level" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Teacher *</label>
-                <select class="form-select" [(ngModel)]="form.teacherId" required>
+                <select class="form-select" 
+                  [class.is-invalid]="formErrors.teacherId" 
+                  [class.is-valid]="form.teacherId && !formErrors.teacherId"
+                  [(ngModel)]="form.teacherId" 
+                  (change)="validateField('teacherId', form.teacherId)" 
+                  required>
                   <option [ngValue]="null">Select Teacher</option>
                   <option *ngFor="let t of teachers; trackBy: trackById" [ngValue]="t.id">{{ t.name }}</option>
                 </select>
+                <div *ngIf="formErrors.teacherId" class="invalid-feedback">
+                  {{ formErrors.teacherId }}
+                </div>
+                <div *ngIf="form.teacherId && !formErrors.teacherId" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Category *</label>
-                <select class="form-select" [(ngModel)]="form.categoryId" required>
+                <select class="form-select" 
+                  [class.is-invalid]="formErrors.categoryId" 
+                  [class.is-valid]="form.categoryId && !formErrors.categoryId"
+                  [(ngModel)]="form.categoryId" 
+                  (change)="validateField('categoryId', form.categoryId)" 
+                  required>
                   <option [ngValue]="null">Select Category</option>
                   <option *ngFor="let c of categories; trackBy: trackById" [ngValue]="c.id">{{ c.name }}</option>
                 </select>
+                <div *ngIf="formErrors.categoryId" class="invalid-feedback">
+                  {{ formErrors.categoryId }}
+                </div>
+                <div *ngIf="form.categoryId && !formErrors.categoryId" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Original Price ($) *</label>
-                <input type="number" class="form-control" [(ngModel)]="form.originalPrice" min="0" step="0.01" required>
+                <input type="number" class="form-control" 
+                  [class.is-invalid]="formErrors.originalPrice" 
+                  [class.is-valid]="form.originalPrice && !formErrors.originalPrice"
+                  [(ngModel)]="form.originalPrice" 
+                  (input)="validateField('originalPrice', form.originalPrice)" 
+                  min="0" 
+                  step="0.01" 
+                  required>
+                <div *ngIf="formErrors.originalPrice" class="invalid-feedback">
+                  {{ formErrors.originalPrice }}
+                </div>
+                <div *ngIf="form.originalPrice && !formErrors.originalPrice" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Discount Percentage (%)</label>
-                <input type="number" class="form-control" [(ngModel)]="form.discountPercentage" min="0" max="100">
+                <input type="number" class="form-control" 
+                  [class.is-invalid]="formErrors.discountPercentage" 
+                  [class.is-valid]="form.discountPercentage !== null && !formErrors.discountPercentage"
+                  [(ngModel)]="form.discountPercentage" 
+                  (input)="validateField('discountPercentage', form.discountPercentage)" 
+                  min="0" 
+                  max="100">
+                <div *ngIf="formErrors.discountPercentage" class="invalid-feedback">
+                  {{ formErrors.discountPercentage }}
+                </div>
+                <div *ngIf="form.discountPercentage !== null && !formErrors.discountPercentage" class="valid-feedback">
+                  Looks good!
+                </div>
                 <div class="form-text">Enter 0 for no discount</div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Duration (hours) *</label>
-                <input type="number" class="form-control" [(ngModel)]="form.duration" min="0" step="0.5" required>
+                <input type="number" class="form-control" 
+                  [class.is-invalid]="formErrors.duration" 
+                  [class.is-valid]="form.duration && !formErrors.duration"
+                  [(ngModel)]="form.duration" 
+                  (input)="validateField('duration', form.duration)" 
+                  min="0" 
+                  step="0.5" 
+                  required>
+                <div *ngIf="formErrors.duration" class="invalid-feedback">
+                  {{ formErrors.duration }}
+                </div>
+                <div *ngIf="form.duration && !formErrors.duration" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Year *</label>
-                <select class="form-select" [(ngModel)]="form.yearId" required>
+                <select class="form-select" 
+                  [class.is-invalid]="formErrors.yearId" 
+                  [class.is-valid]="form.yearId && !formErrors.yearId"
+                  [(ngModel)]="form.yearId" 
+                  (change)="validateField('yearId', form.yearId)" 
+                  required>
                   <option [ngValue]="null">Select Year</option>
                   <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.number }}</option>
                 </select>
+                <div *ngIf="formErrors.yearId" class="invalid-feedback">
+                  {{ formErrors.yearId }}
+                </div>
+                <div *ngIf="form.yearId && !formErrors.yearId" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Term Number *</label>
-                <input type="number" class="form-control" [(ngModel)]="form.termNumber" min="1" max="4" required>
+                <input type="number" class="form-control" 
+                  [class.is-invalid]="formErrors.termNumber" 
+                  [class.is-valid]="form.termNumber && !formErrors.termNumber"
+                  [(ngModel)]="form.termNumber" 
+                  (input)="validateField('termNumber', form.termNumber)" 
+                  min="1" 
+                  max="4" 
+                  required>
+                <div *ngIf="formErrors.termNumber" class="invalid-feedback">
+                  {{ formErrors.termNumber }}
+                </div>
+                <div *ngIf="form.termNumber && !formErrors.termNumber" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Week Numbers *</label>
                 <input type="text" class="form-control"
-                       placeholder="e.g. 1,2,3"
-                       [value]="form.weekNumbers?.join(',')" 
-                       (input)="onWeekNumbersInput($event)" required>
+                  [class.is-invalid]="formErrors.weekNumbers" 
+                  [class.is-valid]="form.weekNumbers && form.weekNumbers.length > 0 && !formErrors.weekNumbers"
+                  placeholder="e.g. 1,2,3"
+                  [value]="form.weekNumbers?.join(',')" 
+                  (input)="onWeekNumbersInput($event); validateField('weekNumbers', form.weekNumbers)" 
+                  required>
+                <div *ngIf="formErrors.weekNumbers" class="invalid-feedback">
+                  {{ formErrors.weekNumbers }}
+                </div>
+                <div *ngIf="form.weekNumbers && form.weekNumbers.length > 0 && !formErrors.weekNumbers" class="valid-feedback">
+                  Looks good!
+                </div>
                 <div class="form-text">Enter week numbers separated by commas</div>
               </div>
               <div class="col-md-12">
                 <label class="form-label">Image URL</label>
-                <input class="form-control" [(ngModel)]="form.imageUrl" placeholder="https://...">
+                <input class="form-control" 
+                  [class.is-invalid]="formErrors.imageUrl" 
+                  [class.is-valid]="form.imageUrl && !formErrors.imageUrl"
+                  [(ngModel)]="form.imageUrl" 
+                  (input)="validateField('imageUrl', form.imageUrl)" 
+                  placeholder="https://...">
+                <div *ngIf="formErrors.imageUrl" class="invalid-feedback">
+                  {{ formErrors.imageUrl }}
+                </div>
+                <div *ngIf="form.imageUrl && !formErrors.imageUrl" class="valid-feedback">
+                  Looks good!
+                </div>
                 <div class="form-text">Provide a URL for the subject cover image</div>
               </div>
               <div class="col-md-12">
                 <label class="form-label">Description *</label>
-                <textarea class="form-control" rows="4" [(ngModel)]="form.description" required></textarea>
+                <textarea class="form-control" 
+                  [class.is-invalid]="formErrors.description" 
+                  [class.is-valid]="form.description && !formErrors.description"
+                  rows="4" 
+                  [(ngModel)]="form.description" 
+                  (input)="validateField('description', form.description)" 
+                  required></textarea>
+                <div *ngIf="formErrors.description" class="invalid-feedback">
+                  {{ formErrors.description }}
+                </div>
+                <div *ngIf="form.description && !formErrors.description" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
             </div>
           </ng-container>
@@ -801,16 +986,41 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Term Number *</label>
-                <input type="number" class="form-control" [(ngModel)]="form.number" min="1" max="4" placeholder="1, 2, 3, 4" required>
+                <input type="number" class="form-control" 
+                  [class.is-invalid]="formErrors.number" 
+                  [class.is-valid]="form.number && !formErrors.number"
+                  [(ngModel)]="form.number" 
+                  (input)="validateField('number', form.number)" 
+                  min="1" 
+                  max="4" 
+                  placeholder="1, 2, 3, 4" 
+                  required>
+                <div *ngIf="formErrors.number" class="invalid-feedback">
+                  {{ formErrors.number }}
+                </div>
+                <div *ngIf="form.number && !formErrors.number" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Year Subject *</label>
-                <select class="form-select" [(ngModel)]="form.yearSubjectId" required>
+                <select class="form-select" 
+                  [class.is-invalid]="formErrors.yearSubjectId" 
+                  [class.is-valid]="form.yearSubjectId && !formErrors.yearSubjectId"
+                  [(ngModel)]="form.yearSubjectId" 
+                  (change)="validateField('yearSubjectId', form.yearSubjectId)" 
+                  required>
                   <option [ngValue]="null">Select Year Subject</option>
                   <option *ngFor="let ys of yearSubjects; trackBy: trackById" [ngValue]="ys.id">
                     Year {{ ys.yearNumber }} - {{ ys.subject.name }}
                   </option>
                 </select>
+                <div *ngIf="formErrors.yearSubjectId" class="invalid-feedback">
+                  {{ formErrors.yearSubjectId }}
+                </div>
+                <div *ngIf="form.yearSubjectId && !formErrors.yearSubjectId" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
             </div>
           </ng-container>
@@ -820,94 +1030,205 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Week Number *</label>
-                <input type="number" class="form-control" [(ngModel)]="form.number" min="1" max="52" placeholder="1, 2, 3..." required>
+                <input type="number" class="form-control" 
+                  [class.is-invalid]="formErrors.number" 
+                  [class.is-valid]="form.number && !formErrors.number"
+                  [(ngModel)]="form.number" 
+                  (input)="validateField('number', form.number)" 
+                  min="1" 
+                  max="52" 
+                  placeholder="1, 2, 3..." 
+                  required>
+                <div *ngIf="formErrors.number" class="invalid-feedback">
+                  {{ formErrors.number }}
+                </div>
+                <div *ngIf="form.number && !formErrors.number" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Term *</label>
-                <select class="form-select" [(ngModel)]="form.termId" required>
+                <select class="form-select" 
+                  [class.is-invalid]="formErrors.termId" 
+                  [class.is-valid]="form.termId && !formErrors.termId"
+                  [(ngModel)]="form.termId" 
+                  (change)="validateField('termId', form.termId)" 
+                  required>
                   <option [ngValue]="null">Select Term</option>
                   <option *ngFor="let t of terms; trackBy: trackById" [ngValue]="t.id">Term {{ t.number }} (Year {{ numberYear(getYearIdFromTermId(t.id)) }})</option>
                 </select>
+                <div *ngIf="formErrors.termId" class="invalid-feedback">
+                  {{ formErrors.termId }}
+                </div>
+                <div *ngIf="form.termId && !formErrors.termId" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
             </div>
           </ng-container>
 
           <!-- Lesson -->
-<div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="isFormOpen && entityType==='lesson'">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{{ formMode==='add' ? 'Add' : 'Edit' }} Lesson</h5>
-        <button type="button" class="btn-close" (click)="closeForm()"></button>
-      </div>
+          <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="isFormOpen && entityType==='lesson'">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">{{ formMode==='add' ? 'Add' : 'Edit' }} Lesson</h5>
+                  <button type="button" class="btn-close" (click)="closeForm()"></button>
+                </div>
 
-      <div class="modal-body">
-        <div class="row g-3">
+                <div class="modal-body">
+                  <div class="row g-3">
 
-          <!-- Title -->
-          <div class="col-md-12">
-            <label class="form-label">Title *</label>
-            <input class="form-control" [(ngModel)]="form.title" name="title" placeholder="Fractions Basics" required>
+                    <!-- Title -->
+                    <div class="col-md-12">
+                      <label class="form-label">Title *</label>
+                      <input class="form-control" 
+                        [class.is-invalid]="formErrors.title" 
+                        [class.is-valid]="form.title && !formErrors.title"
+                        [(ngModel)]="form.title" 
+                        (input)="validateField('title', form.title)" 
+                        name="title" 
+                        placeholder="Fractions Basics" 
+                        required>
+                      <div *ngIf="formErrors.title" class="invalid-feedback">
+                        {{ formErrors.title }}
+                      </div>
+                      <div *ngIf="form.title && !formErrors.title" class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                    <!-- Poster -->
+                    <div class="col-md-12">
+                      <label class="form-label">Poster</label>
+                      <input type="file" class="form-control" 
+                        [class.is-invalid]="formErrors.posterFile && formErrors.posterFile"
+                        (change)="onFileChange($event, 'posterFile'); validateField('posterFile', form.posterFile)">
+                      <div *ngIf="formErrors.posterFile" class="invalid-feedback">
+                        {{ formErrors.posterFile }}
+                      </div>
+                      <div class="form-text">Upload poster image OR provide a URL</div>
+                      <input class="form-control mt-2" 
+                        [class.is-invalid]="formErrors.posterUrl" 
+                        [class.is-valid]="form.posterUrl && !formErrors.posterUrl"
+                        [(ngModel)]="form.posterUrl" 
+                        (input)="validateField('posterUrl', form.posterUrl)" 
+                        name="posterUrl" 
+                        placeholder="https://...">
+                      <div *ngIf="formErrors.posterUrl" class="invalid-feedback">
+                        {{ formErrors.posterUrl }}
+                      </div>
+                      <div *ngIf="form.posterUrl && !formErrors.posterUrl" class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                    <!-- Video -->
+                    <div class="col-md-12">
+                      <label class="form-label">Video</label>
+                      <input type="file" class="form-control" 
+                        [class.is-invalid]="formErrors.videoFile" 
+                        (change)="onFileChange($event, 'videoFile'); validateField('videoFile', form.videoFile)">
+                      <div *ngIf="formErrors.videoFile" class="invalid-feedback">
+                        {{ formErrors.videoFile }}
+                      </div>
+                      <div class="form-text">Upload video file OR provide a URL (YouTube, Vimeo, etc.)</div>
+                      <input class="form-control mt-2" 
+                        [class.is-invalid]="formErrors.videoUrl" 
+                        [class.is-valid]="form.videoUrl && !formErrors.videoUrl"
+                        [(ngModel)]="form.videoUrl" 
+                        (input)="validateField('videoUrl', form.videoUrl)" 
+                        name="videoUrl" 
+                        placeholder="https://...">
+                      <div *ngIf="formErrors.videoUrl" class="invalid-feedback">
+                        {{ formErrors.videoUrl }}
+                      </div>
+                      <div *ngIf="form.videoUrl && !formErrors.videoUrl" class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                    <!-- Week -->
+                    <div class="col-md-12">
+                      <label class="form-label">Week *</label>
+                      <select class="form-select" 
+                        [class.is-invalid]="formErrors.weekId" 
+                        [class.is-valid]="form.weekId && !formErrors.weekId"
+                        [(ngModel)]="form.weekId" 
+                        (change)="validateField('weekId', form.weekId)" 
+                        name="weekId" 
+                        required>
+                        <option [ngValue]="null">Select Week</option>
+                        <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">
+                          Week {{ w.id }} (Term {{ numberTerm(w.termId) }})
+                        </option>
+                      </select>
+                      <div *ngIf="formErrors.weekId" class="invalid-feedback">
+                        {{ formErrors.weekId }}
+                      </div>
+                      <div *ngIf="form.weekId && !formErrors.weekId" class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-md-12">
+                      <label class="form-label">Description *</label>
+                      <textarea class="form-control" 
+                        [class.is-invalid]="formErrors.description" 
+                        [class.is-valid]="form.description && !formErrors.description"
+                        rows="4" 
+                        [(ngModel)]="form.description" 
+                        (input)="validateField('description', form.description)" 
+                        name="description" 
+                        required></textarea>
+                      <div *ngIf="formErrors.description" class="invalid-feedback">
+                        {{ formErrors.description }}
+                      </div>
+                      <div *ngIf="form.description && !formErrors.description" class="valid-feedback">
+                        Looks good!
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="modal-footer">
+                  <button class="btn btn-light" (click)="closeForm()">Cancel</button>
+                  <button class="btn btn-primary" [disabled]="!isFormValid()" (click)="submitForm()">
+                    <i class="fas fa-save me-1"></i> {{ formMode === 'add' ? 'Add' : 'Update' }} Lesson
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <!-- Poster -->
-          <div class="col-md-12">
-            <label class="form-label">Poster</label>
-            <input type="file" class="form-control" (change)="onFileChange($event, 'posterFile')">
-            <div class="form-text">Upload poster image OR provide a URL</div>
-            <input class="form-control mt-2" [(ngModel)]="form.posterUrl" name="posterUrl" placeholder="https://...">
-          </div>
-
-          <!-- Video -->
-          <div class="col-md-12">
-            <label class="form-label">Video</label>
-            <input type="file" class="form-control" (change)="onFileChange($event, 'videoFile')">
-            <div class="form-text">Upload video file OR provide a URL (YouTube, Vimeo, etc.)</div>
-            <input class="form-control mt-2" [(ngModel)]="form.videoUrl" name="videoUrl" placeholder="https://...">
-          </div>
-
-          <!-- Week -->
-          <div class="col-md-12">
-            <label class="form-label">Week *</label>
-            <select class="form-select" [(ngModel)]="form.weekId" name="weekId" required>
-              <option [ngValue]="null">Select Week</option>
-              <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">
-                Week {{ w.id }} (Term {{ numberTerm(w.termId) }})
-              </option>
-            </select>
-          </div>
-
-          <!-- Description -->
-          <div class="col-md-12">
-            <label class="form-label">Description *</label>
-            <textarea class="form-control" rows="4" [(ngModel)]="form.description" name="description" required></textarea>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-light" (click)="closeForm()">Cancel</button>
-        <button class="btn btn-primary" (click)="submitForm()">
-          <i class="fas fa-save me-1"></i> {{ formMode === 'add' ? 'Add' : 'Update' }} Lesson
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
 
           <!-- Category -->
           <ng-container *ngIf="entityType==='category'">
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Name *</label>
-                <input class="form-control" [(ngModel)]="form.name" placeholder="Mathematics / Science ..." required>
+                <input class="form-control" 
+                  [class.is-invalid]="formErrors.name" 
+                  [class.is-valid]="form.name && !formErrors.name"
+                  [(ngModel)]="form.name" 
+                  (input)="validateField('name', form.name)" 
+                  placeholder="Mathematics / Science ..." 
+                  required>
+                <div *ngIf="formErrors.name" class="invalid-feedback">
+                  {{ formErrors.name }}
+                </div>
+                <div *ngIf="form.name && !formErrors.name" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
-              <div class="col-md-6">
+              <!-- <div class="col-md-6">
                 <label class="form-label">Color Tag</label>
-                <select class="form-select" [(ngModel)]="form.color">
+                <select class="form-select" 
+                  [class.is-invalid]="formErrors.color" 
+                  [class.is-valid]="form.color && !formErrors.color"
+                  [(ngModel)]="form.color" 
+                  (change)="validateField('color', form.color)">
                   <option value="">Select Color</option>
                   <option value="primary">Blue</option>
                   <option value="success">Green</option>
@@ -916,10 +1237,28 @@
                   <option value="info">Cyan</option>
                   <option value="purple">Purple</option>
                 </select>
-              </div>
+                <div *ngIf="formErrors.color" class="invalid-feedback">
+                  {{ formErrors.color }}
+                </div>
+                <div *ngIf="form.color && !formErrors.color" class="valid-feedback">
+                  Looks good!
+                </div>
+              </div> -->
               <div class="col-md-12">
                 <label class="form-label">Description *</label>
-                <textarea class="form-control" rows="4" [(ngModel)]="form.description" required></textarea>
+                <textarea class="form-control" 
+                  [class.is-invalid]="formErrors.description" 
+                  [class.is-valid]="form.description && !formErrors.description"
+                  rows="4" 
+                  [(ngModel)]="form.description" 
+                  (input)="validateField('description', form.description)" 
+                  required></textarea>
+                <div *ngIf="formErrors.description" class="invalid-feedback">
+                  {{ formErrors.description }}
+                </div>
+                <div *ngIf="form.description && !formErrors.description" class="valid-feedback">
+                  Looks good!
+                </div>
               </div>
             </div>
           </ng-container>
@@ -927,7 +1266,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-light" (click)="closeForm()">Cancel</button>
-          <button class="btn btn-primary" (click)="submitForm()">
+          <button class="btn btn-primary" [disabled]="!isFormValid()" (click)="submitForm()">
             <i class="fas fa-save me-1"></i> {{ formMode === 'add' ? 'Add' : 'Update' }} {{ entityTitle }}
           </button>
         </div>
