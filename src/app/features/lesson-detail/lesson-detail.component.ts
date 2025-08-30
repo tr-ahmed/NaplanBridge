@@ -510,6 +510,85 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     this.isVideoPlaying.set(false);
   }
 
+  onVideoLoadedMetadata(event: any): void {
+    const duration = event.target.duration;
+    this.videoDuration.set(duration);
+    console.log('Video loaded with duration:', duration);
+  }
+
+  onVideoError(event: any): void {
+    console.error('Video playback error:', event);
+    // You can add user notification here
+  }
+
+  onVideoClick(event: any): void {
+    // Handle video click events if needed
+    console.log('Video clicked');
+  }
+
+  playVideo(): void {
+    const videoElement = document.querySelector('video') as HTMLVideoElement;
+    if (videoElement) {
+      videoElement.play();
+    }
+  }
+
+  /**
+   * Poster management methods
+   */
+  onPosterImageError(event: any): void {
+    console.warn('Poster image failed to load, using fallback');
+    // Set a fallback image or hide the poster
+    event.target.style.display = 'none';
+  }
+
+  updatePosterUrl(newUrl: string): void {
+    const currentLesson = this.lesson();
+    if (currentLesson) {
+      // In a real app, this would update the lesson in the backend
+      currentLesson.posterUrl = newUrl.trim() || undefined;
+      console.log('Poster URL updated:', newUrl);
+    }
+  }
+
+  generatePosterFromThumbnail(): void {
+    const currentLesson = this.lesson();
+    if (currentLesson && currentLesson.thumbnailUrl) {
+      currentLesson.posterUrl = currentLesson.thumbnailUrl;
+      console.log('Poster generated from thumbnail');
+    }
+  }
+
+  clearPoster(): void {
+    const currentLesson = this.lesson();
+    if (currentLesson) {
+      currentLesson.posterUrl = undefined;
+      console.log('Poster cleared');
+    }
+  }
+
+  saveLessonSettings(): void {
+    const currentLesson = this.lesson();
+    if (currentLesson) {
+      // In a real app, this would save to the backend
+      console.log('Saving lesson settings:', currentLesson);
+      
+      // Show success message (you can replace with a proper toast service)
+      alert('Lesson settings saved successfully!');
+    }
+  }
+
+  /**
+   * Get the best available poster URL with fallback
+   */
+  getVideoPosterUrl(): string | undefined {
+    const lesson = this.lesson();
+    if (!lesson) return undefined;
+    
+    // Prefer dedicated poster URL, fallback to thumbnail, then to a default
+    return lesson.posterUrl || lesson.thumbnailUrl || '/assets/img/default-video-poster.jpg';
+  }
+
   seekToTime(timestamp: number): void {
     const videoElement = document.querySelector('video') as HTMLVideoElement;
     if (videoElement) {

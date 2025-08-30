@@ -8,6 +8,7 @@ export interface Lesson {
   courseId: number;
   courseName: string;
   videoUrl?: string;
+  posterUrl?: string; // Video poster/thumbnail for video player
   duration: number; // in minutes
   order: number;
   isCompleted: boolean;
@@ -17,7 +18,7 @@ export interface Lesson {
   subject: string;
   term: number;
   week: number;
-  thumbnailUrl?: string;
+  thumbnailUrl?: string; // General lesson thumbnail for cards/lists
   resources: LessonResource[];
   isLocked: boolean;
   completedAt?: Date;
