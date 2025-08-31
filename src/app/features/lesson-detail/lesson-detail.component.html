@@ -134,7 +134,7 @@
         <div class="border-b border-gray-200">
           <!-- Mobile Dropdown Navigation (for very small screens) -->
           <div class="block sm:hidden px-4 py-3">
-            <select 
+            <select
               [value]="activeTab()"
               (change)="setActiveTab($any($event.target).value)"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
@@ -280,13 +280,13 @@
                     (click)="onVideoClick($event)">
                     <source [src]="lesson()!.videoUrl" type="video/mp4">
                     <p class="text-white p-4">
-                      Your browser does not support the video tag. 
+                      Your browser does not support the video tag.
                       <a [href]="lesson()!.videoUrl" class="text-blue-400 underline" download>
                         Download the video
                       </a>
                     </p>
                   </video>
-                  
+
                   <!-- Custom Play Button Overlay -->
                   @if (!isVideoPlaying()) {
                     <div class="video-overlay show" (click)="playVideo()">
@@ -295,7 +295,7 @@
                       </div>
                     </div>
                   }
-                  
+
                   <!-- Video Info Overlay -->
                   <div class="absolute top-4 left-4 right-4 text-white">
                     <div class="bg-black bg-opacity-50 rounded-lg p-3 backdrop-blur-sm">
@@ -553,17 +553,17 @@
                 <!-- Quiz Results -->
                 <div class="text-center space-y-6">
                   <div class="inline-flex items-center justify-center w-20 h-20 rounded-full"
-                       [class.bg-green-100]="quizScore() >= 70"
-                       [class.bg-yellow-100]="quizScore() >= 50 && quizScore() < 70"
-                       [class.bg-red-100]="quizScore() < 50">
+                         [class.bg-green-100]="quizScore() >= 70"
+                         [class.bg-yellow-100]="quizScore() >= 50 && quizScore() < 70"
+                         [class.bg-red-100]="quizScore() < 50">
                     <i class="text-3xl"
-                       [class.fas]="true"
-                       [class.fa-trophy]="quizScore() >= 70"
-                       [class.text-green-600]="quizScore() >= 70"
-                       [class.fa-medal]="quizScore() >= 50 && quizScore() < 70"
-                       [class.text-yellow-600]="quizScore() >= 50 && quizScore() < 70"
-                       [class.fa-times-circle]="quizScore() < 50"
-                       [class.text-red-600]="quizScore() < 50"></i>
+                         [class.fas]="true"
+                         [class.fa-trophy]="quizScore() >= 70"
+                         [class.text-green-600]="quizScore() >= 70"
+                         [class.fa-medal]="quizScore() >= 50 && quizScore() < 70"
+                         [class.text-yellow-600]="quizScore() >= 50 && quizScore() < 70"
+                         [class.fa-times-circle]="quizScore() < 50"
+                         [class.text-red-600]="quizScore() < 50"></i>
                   </div>
 
                   <div>
@@ -847,7 +847,7 @@
           <!-- Quiz Maker Tab -->
           @if (activeTab() === 'quiz-maker' && canEditContent()) {
             <div class="space-y-8">
-              
+
               <!-- Lesson Management Section -->
               <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
                 <div class="flex items-center justify-between mb-6">
@@ -865,8 +865,8 @@
                     <h4 class="font-semibold text-gray-800 mb-3">Current Video Poster</h4>
                     <div class="relative bg-gray-900 rounded-lg overflow-hidden">
                       @if (getVideoPosterUrl()) {
-                        <img 
-                          [src]="getVideoPosterUrl()" 
+                        <img
+                          [src]="getVideoPosterUrl()"
                           [alt]="'Poster for ' + lesson()!.title"
                           class="w-full aspect-video object-cover"
                           (error)="onPosterImageError($event)">
@@ -959,284 +959,285 @@
                   }
                 </div>
 
-              <!-- Quiz Creation Form -->
-              @if (isCreatingQuiz()) {
-                <div class="bg-orange-50 rounded-lg p-6">
-                  <div class="flex items-center justify-between mb-4">
-                    <h4 class="text-lg font-semibold text-orange-900">
-                      {{ isEditingQuiz() ? 'Edit Quiz' : 'Create New Quiz' }}
-                    </h4>
-                    <button
-                      (click)="cancelQuizCreation()"
-                      class="text-orange-600 hover:text-orange-800">
-                      <i class="fas fa-times"></i>
-                    </button>
-                  </div>
-
-                  <!-- Quiz Basic Info -->
-                  <form [formGroup]="quizMakerForm" class="space-y-4 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label class="block text-sm font-medium text-orange-900 mb-2">Quiz Title</label>
-                        <input
-                          formControlName="title"
-                          type="text"
-                          class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          placeholder="Enter quiz title">
-                      </div>
-                      <div>
-                        <label class="block text-sm font-medium text-orange-900 mb-2">Time Limit (minutes)</label>
-                        <input
-                          formControlName="timeLimit"
-                          type="number"
-                          min="1"
-                          class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          placeholder="30">
-                      </div>
-                      <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-orange-900 mb-2">Description</label>
-                        <textarea
-                          formControlName="description"
-                          rows="3"
-                          class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
-                          placeholder="Enter quiz description"></textarea>
-                      </div>
-                      <div>
-                        <label class="block text-sm font-medium text-orange-900 mb-2">Passing Score (%)</label>
-                        <input
-                          formControlName="passingScore"
-                          type="number"
-                          min="0"
-                          max="100"
-                          class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          placeholder="70">
-                      </div>
-                      <div class="flex items-center">
-                        <input
-                          formControlName="isActive"
-                          type="checkbox"
-                          class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                        <label class="ml-2 text-sm text-orange-900">Active</label>
-                      </div>
+                <!-- Quiz Creation Form -->
+                @if (isCreatingQuiz()) {
+                  <div class="bg-orange-50 rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                      <h4 class="text-lg font-semibold text-orange-900">
+                        {{ isEditingQuiz() ? 'Edit Quiz' : 'Create New Quiz' }}
+                      </h4>
+                      <button
+                        (click)="cancelQuizCreation()"
+                        class="text-orange-600 hover:text-orange-800">
+                        <i class="fas fa-times"></i>
+                      </button>
                     </div>
-                  </form>
 
-                  <!-- Add Questions Section -->
-                  <div class="border-t border-orange-200 pt-6">
-                    <h5 class="text-md font-semibold text-orange-900 mb-4">Add Questions</h5>
-
-                    <form [formGroup]="quizQuestionForm" (ngSubmit)="addQuestionToQuiz()" class="space-y-4 mb-6">
-                      <div>
-                        <label class="block text-sm font-medium text-orange-900 mb-2">Question</label>
-                        <textarea
-                          formControlName="question"
-                          rows="2"
-                          class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
-                          placeholder="Enter your question"></textarea>
-                      </div>
+                    <!-- Quiz Basic Info -->
+                    <form [formGroup]="quizMakerForm" class="space-y-4 mb-6">
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label class="block text-sm font-medium text-orange-900 mb-2">Option A</label>
+                          <label class="block text-sm font-medium text-orange-900 mb-2">Quiz Title</label>
                           <input
-                            formControlName="option1"
+                            formControlName="title"
                             type="text"
                             class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            placeholder="Option A">
+                            placeholder="Enter quiz title">
                         </div>
                         <div>
-                          <label class="block text-sm font-medium text-orange-900 mb-2">Option B</label>
+                          <label class="block text-sm font-medium text-orange-900 mb-2">Time Limit (minutes)</label>
                           <input
-                            formControlName="option2"
-                            type="text"
-                            class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            placeholder="Option B">
-                        </div>
-                        <div>
-                          <label class="block text-sm font-medium text-orange-900 mb-2">Option C</label>
-                          <input
-                            formControlName="option3"
-                            type="text"
-                            class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            placeholder="Option C">
-                        </div>
-                        <div>
-                          <label class="block text-sm font-medium text-orange-900 mb-2">Option D</label>
-                          <input
-                            formControlName="option4"
-                            type="text"
-                            class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            placeholder="Option D">
-                        </div>
-                        <div>
-                          <label class="block text-sm font-medium text-orange-900 mb-2">Correct Answer</label>
-                          <select
-                            formControlName="correctAnswer"
-                            class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                            <option value="0">Option A</option>
-                            <option value="1">Option B</option>
-                            <option value="2">Option C</option>
-                            <option value="3">Option D</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label class="block text-sm font-medium text-orange-900 mb-2">Points</label>
-                          <input
-                            formControlName="points"
+                            formControlName="timeLimit"
                             type="number"
                             min="1"
                             class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            placeholder="1">
+                            placeholder="30">
+                        </div>
+                        <div class="md:col-span-2">
+                          <label class="block text-sm font-medium text-orange-900 mb-2">Description</label>
+                          <textarea
+                            formControlName="description"
+                            rows="3"
+                            class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                            placeholder="Enter quiz description"></textarea>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-orange-900 mb-2">Passing Score (%)</label>
+                          <input
+                            formControlName="passingScore"
+                            type="number"
+                            min="0"
+                            max="100"
+                            class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            placeholder="70">
+                        </div>
+                        <div class="flex items-center">
+                          <input
+                            formControlName="isActive"
+                            type="checkbox"
+                            class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                          <label class="ml-2 text-sm text-orange-900">Active</label>
                         </div>
                       </div>
-                      <div>
-                        <label class="block text-sm font-medium text-orange-900 mb-2">Explanation (Optional)</label>
-                        <textarea
-                          formControlName="explanation"
-                          rows="2"
-                          class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
-                          placeholder="Explain why this is the correct answer"></textarea>
-                      </div>
-                      <button
-                        type="submit"
-                        [disabled]="quizQuestionForm.invalid"
-                        class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="fas fa-plus mr-2"></i>
-                        Add Question
-                      </button>
                     </form>
 
-                    <!-- Questions List -->
-                    @if (currentQuizMaker()?.questions && currentQuizMaker()!.questions.length > 0) {
-                      <div class="space-y-3">
-                        <h6 class="text-sm font-semibold text-orange-900">Questions ({{ currentQuizMaker()!.questions.length }}) - Total Points: {{ getTotalQuizPoints() }}</h6>
-                        @for (question of currentQuizMaker()!.questions; track question.id; let i = $index) {
-                          <div class="bg-white border border-orange-200 rounded-lg p-4">
-                            <div class="flex items-start justify-between">
-                              <div class="flex-1">
-                                <div class="font-medium text-gray-900 mb-2">{{ i + 1 }}. {{ question.question }}</div>
-                                <div class="grid grid-cols-2 gap-2 text-sm">
-                                  @for (option of question.options; track $index; let j = $index) {
-                                    <div class="flex items-center">
-                                      <span
-                                        [class.text-green-600]="j === question.correctAnswer"
-                                        [class.font-semibold]="j === question.correctAnswer"
-                                        class="text-gray-700">
-                                        {{ getOptionLetter(j) }}. {{ option }}
-                                        @if (j === question.correctAnswer) {
-                                          <i class="fas fa-check text-green-600 ml-1"></i>
-                                        }
-                                      </span>
+                    <!-- Add Questions Section -->
+                    <div class="border-t border-orange-200 pt-6">
+                      <h5 class="text-md font-semibold text-orange-900 mb-4">Add Questions</h5>
+
+                      <form [formGroup]="quizQuestionForm" (ngSubmit)="addQuestionToQuiz()" class="space-y-4 mb-6">
+                        <div>
+                          <label class="block text-sm font-medium text-orange-900 mb-2">Question</label>
+                          <textarea
+                            formControlName="question"
+                            rows="2"
+                            class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                            placeholder="Enter your question"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label class="block text-sm font-medium text-orange-900 mb-2">Option A</label>
+                            <input
+                              formControlName="option1"
+                              type="text"
+                              class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              placeholder="Option A">
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium text-orange-900 mb-2">Option B</label>
+                            <input
+                              formControlName="option2"
+                              type="text"
+                              class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              placeholder="Option B">
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium text-orange-900 mb-2">Option C</label>
+                            <input
+                              formControlName="option3"
+                              type="text"
+                              class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              placeholder="Option C">
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium text-orange-900 mb-2">Option D</label>
+                            <input
+                              formControlName="option4"
+                              type="text"
+                              class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              placeholder="Option D">
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium text-orange-900 mb-2">Correct Answer</label>
+                            <select
+                              formControlName="correctAnswer"
+                              class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                              <option value="0">Option A</option>
+                              <option value="1">Option B</option>
+                              <option value="2">Option C</option>
+                              <option value="3">Option D</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium text-orange-900 mb-2">Points</label>
+                            <input
+                              formControlName="points"
+                              type="number"
+                              min="1"
+                              class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              placeholder="1">
+                          </div>
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium text-orange-900 mb-2">Explanation (Optional)</label>
+                          <textarea
+                            formControlName="explanation"
+                            rows="2"
+                            class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                            placeholder="Explain why this is the correct answer"></textarea>
+                        </div>
+                        <button
+                          type="submit"
+                          [disabled]="quizQuestionForm.invalid"
+                          class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                          <i class="fas fa-plus mr-2"></i>
+                          Add Question
+                        </button>
+                      </form>
+
+                      <!-- Questions List -->
+                      @if (currentQuizMaker()?.questions && currentQuizMaker()!.questions.length > 0) {
+                        <div class="space-y-3">
+                          <h6 class="text-sm font-semibold text-orange-900">Questions ({{ currentQuizMaker()!.questions.length }}) - Total Points: {{ getTotalQuizPoints() }}</h6>
+                          @for (question of currentQuizMaker()!.questions; track question.id; let i = $index) {
+                            <div class="bg-white border border-orange-200 rounded-lg p-4">
+                              <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                  <div class="font-medium text-gray-900 mb-2">{{ i + 1 }}. {{ question.question }}</div>
+                                  <div class="grid grid-cols-2 gap-2 text-sm">
+                                    @for (option of question.options; track $index; let j = $index) {
+                                      <div class="flex items-center">
+                                        <span
+                                          [class.text-green-600]="j === question.correctAnswer"
+                                          [class.font-semibold]="j === question.correctAnswer"
+                                          class="text-gray-700">
+                                          {{ getOptionLetter(j) }}. {{ option }}
+                                          @if (j === question.correctAnswer) {
+                                            <i class="fas fa-check text-green-600 ml-1"></i>
+                                          }
+                                        </span>
+                                      </div>
+                                    }
+                                  </div>
+                                  @if (question.explanation) {
+                                    <div class="text-sm text-gray-600 mt-2">
+                                      <strong>Explanation:</strong> {{ question.explanation }}
                                     </div>
                                   }
+                                  <div class="text-sm text-orange-600 font-medium mt-1">Points: {{ question.points }}</div>
                                 </div>
-                                @if (question.explanation) {
-                                  <div class="text-sm text-gray-600 mt-2">
-                                    <strong>Explanation:</strong> {{ question.explanation }}
-                                  </div>
-                                }
-                                <div class="text-sm text-orange-600 font-medium mt-1">Points: {{ question.points }}</div>
+                                <button
+                                  (click)="removeQuestionFromQuiz(question.id)"
+                                  class="text-red-600 hover:text-red-800 ml-4">
+                                  <i class="fas fa-trash"></i>
+                                </button>
                               </div>
+                            </div>
+                          }
+                        </div>
+                      }
+
+                      <!-- Save Quiz Button -->
+                      <div class="flex items-center gap-4 mt-6 pt-4 border-t border-orange-200">
+                        <button
+                          (click)="saveQuiz()"
+                          [disabled]="quizMakerForm.invalid || !currentQuizMaker()?.questions?.length"
+                          class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                          <i class="fas fa-save mr-2"></i>
+                          {{ isEditingQuiz() ? 'Update Quiz' : 'Save Quiz' }}
+                        </button>
+                        <button
+                          (click)="cancelQuizCreation()"
+                          class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <!-- Existing Quizzes -->
+                  @if (hasQuizMakers()) {
+                    <div class="space-y-4">
+                      <h4 class="text-lg font-semibold text-gray-900">Existing Quizzes</h4>
+                      @for (quiz of quizMakers(); track quiz.id) {
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
+                          <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                              <div class="flex items-center gap-3 mb-2">
+                                <h5 class="text-lg font-semibold text-gray-900">{{ quiz.title }}</h5>
+                                <span
+                                  [class.bg-green-100]="quiz.isActive"
+                                  [class.text-green-800]="quiz.isActive"
+                                  [class.bg-gray-100]="!quiz.isActive"
+                                  [class.text-gray-800]="!quiz.isActive"
+                                  class="px-2 py-1 rounded-full text-xs font-medium">
+                                  {{ quiz.isActive ? 'Active' : 'Inactive' }}
+                                </span>
+                              </div>
+                              <p class="text-gray-600 mb-3">{{ quiz.description }}</p>
+                              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                  <span class="text-gray-500">Questions:</span>
+                                  <span class="font-medium text-gray-900 ml-1">{{ quiz.questions.length }}</span>
+                                </div>
+                                <div>
+                                  <span class="text-gray-500">Time Limit:</span>
+                                  <span class="font-medium text-gray-900 ml-1">{{ quiz.timeLimit }}min</span>
+                                </div>
+                                <div>
+                                  <span class="text-gray-500">Passing Score:</span>
+                                  <span class="font-medium text-gray-900 ml-1">{{ quiz.passingScore }}%</span>
+                                </div>
+                                <div>
+                                  <span class="text-gray-500">Total Points:</span>
+                                  <span class="font-medium text-gray-900 ml-1">{{ getQuizTotalPoints(quiz) }}</span>
+                                </div>
+                              </div>
+                              <div class="text-xs text-gray-500 mt-2">
+                                Created by {{ quiz.createdBy }} on {{ quiz.createdAt | date:'short' }}
+                              </div>
+                            </div>
+                            <div class="flex items-center gap-2 ml-4">
                               <button
-                                (click)="removeQuestionFromQuiz(question.id)"
-                                class="text-red-600 hover:text-red-800 ml-4">
+                                (click)="toggleQuizStatus(quiz.id)"
+                                [class.bg-green-600]="!quiz.isActive"
+                                [class.bg-gray-600]="quiz.isActive"
+                                class="text-white px-3 py-1 rounded text-sm hover:opacity-80 transition-opacity">
+                                {{ quiz.isActive ? 'Deactivate' : 'Activate' }}
+                              </button>
+                              <button
+                                (click)="editQuiz(quiz)"
+                                class="text-blue-600 hover:text-blue-800 p-2">
+                                <i class="fas fa-edit"></i>
+                              </button>
+                              <button
+                                (click)="deleteQuiz(quiz.id)"
+                                class="text-red-600 hover:text-red-800 p-2">
                                 <i class="fas fa-trash"></i>
                               </button>
                             </div>
                           </div>
-                        }
-                      </div>
-                    }
-
-                    <!-- Save Quiz Button -->
-                    <div class="flex items-center gap-4 mt-6 pt-4 border-t border-orange-200">
-                      <button
-                        (click)="saveQuiz()"
-                        [disabled]="quizMakerForm.invalid || !currentQuizMaker()?.questions?.length"
-                        class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="fas fa-save mr-2"></i>
-                        {{ isEditingQuiz() ? 'Update Quiz' : 'Save Quiz' }}
-                      </button>
-                      <button
-                        (click)="cancelQuizCreation()"
-                        class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                        Cancel
-                      </button>
+                        </div>
+                      }
                     </div>
-                  </div>
-                </div>
-              }
-
-              <!-- Existing Quizzes -->
-              @if (hasQuizMakers()) {
-                <div class="space-y-4">
-                  <h4 class="text-lg font-semibold text-gray-900">Existing Quizzes</h4>
-                  @for (quiz of quizMakers(); track quiz.id) {
-                    <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200">
-                      <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                          <div class="flex items-center gap-3 mb-2">
-                            <h5 class="text-lg font-semibold text-gray-900">{{ quiz.title }}</h5>
-                            <span
-                              [class.bg-green-100]="quiz.isActive"
-                              [class.text-green-800]="quiz.isActive"
-                              [class.bg-gray-100]="!quiz.isActive"
-                              [class.text-gray-800]="!quiz.isActive"
-                              class="px-2 py-1 rounded-full text-xs font-medium">
-                              {{ quiz.isActive ? 'Active' : 'Inactive' }}
-                            </span>
-                          </div>
-                          <p class="text-gray-600 mb-3">{{ quiz.description }}</p>
-                          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            <div>
-                              <span class="text-gray-500">Questions:</span>
-                              <span class="font-medium text-gray-900 ml-1">{{ quiz.questions.length }}</span>
-                            </div>
-                            <div>
-                              <span class="text-gray-500">Time Limit:</span>
-                              <span class="font-medium text-gray-900 ml-1">{{ quiz.timeLimit }}min</span>
-                            </div>
-                            <div>
-                              <span class="text-gray-500">Passing Score:</span>
-                              <span class="font-medium text-gray-900 ml-1">{{ quiz.passingScore }}%</span>
-                            </div>
-                            <div>
-                              <span class="text-gray-500">Total Points:</span>
-                              <span class="font-medium text-gray-900 ml-1">{{ getQuizTotalPoints(quiz) }}</span>
-                            </div>
-                          </div>
-                          <div class="text-xs text-gray-500 mt-2">
-                            Created by {{ quiz.createdBy }} on {{ quiz.createdAt | date:'short' }}
-                          </div>
-                        </div>
-                        <div class="flex items-center gap-2 ml-4">
-                          <button
-                            (click)="toggleQuizStatus(quiz.id)"
-                            [class.bg-green-600]="!quiz.isActive"
-                            [class.bg-gray-600]="quiz.isActive"
-                            class="text-white px-3 py-1 rounded text-sm hover:opacity-80 transition-opacity">
-                            {{ quiz.isActive ? 'Deactivate' : 'Activate' }}
-                          </button>
-                          <button
-                            (click)="editQuiz(quiz)"
-                            class="text-blue-600 hover:text-blue-800 p-2">
-                            <i class="fas fa-edit"></i>
-                          </button>
-                          <button
-                            (click)="deleteQuiz(quiz.id)"
-                            class="text-red-600 hover:text-red-800 p-2">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      </div>
+                  } @else {
+                    <div class="text-center py-8">
+                      <i class="fas fa-clipboard-list text-4xl text-gray-400 mb-4"></i>
+                      <p class="text-gray-600">No quizzes created yet. Create your first quiz above!</p>
                     </div>
                   }
-                </div>
-              } @else if (!isCreatingQuiz()) {
-                <div class="text-center py-8">
-                  <i class="fas fa-clipboard-list text-4xl text-gray-400 mb-4"></i>
-                  <p class="text-gray-600">No quizzes created yet. Create your first quiz above!</p>
-                </div>
-              }
+                }
+              </div>
             </div>
           }
 
