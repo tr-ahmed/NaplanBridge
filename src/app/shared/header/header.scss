@@ -1,5 +1,207 @@
 /* Custom styles for header component using Tailwind */
 
+/* Prevent text wrapping globally in header */
+header * {
+  white-space: nowrap;
+}@media (min-width: 1600px) {
+  .nav-button {
+    font-size: 17px;
+  }
+
+  .user-welcome {
+    font-size: 16px;
+    max-width: 150px;
+  }
+
+  .role-button {
+    font-size: 16px;
+  }
+
+  .action-button {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1800px) {
+  .nav-button {
+    font-size: 18px;
+  }
+
+  .user-welcome {
+    font-size: 17px;
+    max-width: 170px;
+  }
+
+  .role-button {
+    font-size: 17px;
+  }
+
+  .action-button {
+    font-size: 17px;
+  }
+}
+/* Font sizing for navigation elements */
+.nav-button {
+  font-size: 10px; /* Very small base size to prevent wrapping */
+}
+
+/* User welcome text responsive sizing */
+.user-welcome {
+  font-size: 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+/* Role button responsive sizing */
+.role-button {
+  font-size: 9px;
+}
+
+/* Action button responsive sizing */
+.action-button {
+  font-size: 9px;
+}
+
+/* Responsive breakpoints for font sizes */
+@media (min-width: 1024px) {
+  .nav-button {
+    font-size: 11px;
+  }
+
+  .user-welcome {
+    font-size: 10px;
+    max-width: 90px;
+  }
+
+  .role-button {
+    font-size: 10px;
+  }
+
+  .action-button {
+    font-size: 10px;
+  }
+}
+
+@media (min-width: 1150px) {
+  .nav-button {
+    font-size: 12px;
+  }
+
+  .user-welcome {
+    font-size: 11px;
+    max-width: 100px;
+  }
+
+  .role-button {
+    font-size: 11px;
+  }
+
+  .action-button {
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .nav-button {
+    font-size: 13px;
+  }
+
+  .user-welcome {
+    font-size: 12px;
+    max-width: 110px;
+  }
+
+  .role-button {
+    font-size: 12px;
+  }
+
+  .action-button {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 1300px) {
+  .nav-button {
+    font-size: 14px;
+  }
+
+  .user-welcome {
+    font-size: 13px;
+    max-width: 120px;
+  }
+
+  .role-button {
+    font-size: 13px;
+  }
+
+  .action-button {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .nav-button {
+    font-size: 15px;
+  }
+
+  .user-welcome {
+    font-size: 14px;
+    max-width: 130px;
+  }
+
+  .role-button {
+    font-size: 14px;
+  }
+
+  .action-button {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1500px) {
+  .nav-button {
+    font-size: 16px;
+  }
+
+  .user-welcome {
+    font-size: 15px;
+    max-width: 140px;
+  }
+
+  .role-button {
+    font-size: 15px;
+  }
+
+  .action-button {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .nav-button {
+    font-size: 16px;
+  }
+
+  .user-welcome {
+    font-size: 15px;
+    max-width: 160px;
+  }
+
+  .role-button {
+    font-size: 15px;
+  }
+
+  .action-button {
+    font-size: 15px;
+  }
+}
+
+/* Allow text wrapping only for specific notification content */
+.notification-content {
+  white-space: normal;
+}
+
 /* Line clamp utilities for notifications */
 .line-clamp-1 {
   display: -webkit-box;
@@ -7,6 +209,7 @@
   line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  white-space: normal;
 }
 
 .line-clamp-2 {
@@ -15,6 +218,7 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  white-space: normal;
 }
 
 /* Remove default link underlines */
@@ -40,4 +244,99 @@ button.active {
   .hamburger-line:nth-child(3) {
     transform: rotate(-45deg) translate(7px, -6px);
   }
+}
+
+/* Responsive header adjustments */
+@media (max-width: 1024px) {
+  /* Force smaller padding and spacing on smaller screens */
+  .nav-button, .role-button, .action-button {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* Reduce space between elements */
+  header nav .order-3 > * + * {
+    margin-left: 0.25rem !important;
+  }
+
+  /* Ensure navigation spacing is minimal */
+  ul.lg\\:space-x-4 > li + li {
+    margin-left: 0.5rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Ensure mobile header doesn't overflow */
+  header nav {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  /* Smaller spacing for mobile */
+  .flex.items-center.space-x-4 > * + * {
+    margin-left: 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Even smaller spacing for very small screens */
+  header nav {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+
+  /* Ensure logo doesn't get too small */
+  .logo-container img {
+    min-width: 80px;
+  }
+}
+
+/* Ensure buttons don't shrink */
+button, a[class*="bg-"] {
+  flex-shrink: 0;
+}
+
+/* Responsive navigation adjustments */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  /* Adjust spacing for lg screens */
+  ul.lg\\:space-x-4 > li + li {
+    margin-left: 1rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  /* Optimal spacing for xl screens */
+  ul.xl\\:space-x-6 > li + li {
+    margin-left: 1.5rem;
+  }
+}
+
+/* Dropdown positioning fixes for smaller screens */
+@media (max-width: 1024px) {
+  .group:hover ul.absolute {
+    left: auto;
+    right: 0;
+  }
+}
+
+/* Notification dropdown responsive width */
+@media (max-width: 480px) {
+  .notifications-dropdown {
+    width: calc(100vw - 2rem);
+    left: 1rem !important;
+    right: 1rem !important;
+  }
+}
+
+/* Text truncation for user welcome message */
+.user-welcome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Responsive sizing handled above */
+}
+
+/* Ensure mobile menu doesn't interfere with content */
+.mobile-menu {
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
 }

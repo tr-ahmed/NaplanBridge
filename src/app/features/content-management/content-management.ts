@@ -1267,13 +1267,6 @@ formErrors: any = {};
 
 validateField(fieldName: string, value: any) {
   switch (fieldName) {
-    case 'number':
-      if (!value || value < 1 || value > 12) {
-        this.formErrors.number = 'Year number must be between 1 and 12';
-      } else {
-        delete this.formErrors.number;
-      }
-      break;
     case 'name':
       if (!value || value.trim().length < 2) {
         this.formErrors.name = 'Name is required and must be at least 2 characters';
@@ -1281,18 +1274,102 @@ validateField(fieldName: string, value: any) {
         delete this.formErrors.name;
       }
       break;
+
+    case 'level':
+      if (!value) {
+        this.formErrors.level = 'Level is required';
+      } else {
+        delete this.formErrors.level;
+      }
+      break;
+
+    case 'teacherId':
+      if (!value) {
+        this.formErrors.teacherId = 'Teacher is required';
+      } else {
+        delete this.formErrors.teacherId;
+      }
+      break;
+
+    case 'categoryId':
+      if (!value) {
+        this.formErrors.categoryId = 'Category is required';
+      } else {
+        delete this.formErrors.categoryId;
+      }
+      break;
+
     case 'originalPrice':
-      if (!value || value < 0) {
+      if (value === null || value === undefined || value < 0) {
         this.formErrors.originalPrice = 'Price must be a positive number';
       } else {
         delete this.formErrors.originalPrice;
       }
       break;
-    // أضف التحقق لباقي الحقول
+
+    case 'discountPercentage':
+      if (value !== null && value !== undefined && (value < 0 || value > 100)) {
+        this.formErrors.discountPercentage = 'Discount must be between 0 and 100';
+      } else {
+        delete this.formErrors.discountPercentage;
+      }
+      break;
+
+    case 'duration':
+      if (!value || value <= 0) {
+        this.formErrors.duration = 'Duration must be greater than 0';
+      } else {
+        delete this.formErrors.duration;
+      }
+      break;
+
+    case 'yearId':
+      if (!value) {
+        this.formErrors.yearId = 'Year is required';
+      } else {
+        delete this.formErrors.yearId;
+      }
+      break;
+
+    case 'termNumber':
+      if (!value || value < 1 || value > 4) {
+        this.formErrors.termNumber = 'Term number must be between 1 and 4';
+      } else {
+        delete this.formErrors.termNumber;
+      }
+      break;
+
+    case 'weekNumbers':
+      if (!value || value.length === 0) {
+        this.formErrors.weekNumbers = 'At least one week number is required';
+      } else if (!value.every((n: number) => Number.isInteger(n) && n > 0)) {
+        this.formErrors.weekNumbers = 'Week numbers must be positive integers';
+      } else {
+        delete this.formErrors.weekNumbers;
+      }
+      break;
+
+    case 'imageUrl':
+      if (value && !/^https?:\/\/.+\..+/.test(value)) {
+        this.formErrors.imageUrl = 'Image URL must be valid (http/https)';
+      } else {
+        delete this.formErrors.imageUrl;
+      }
+      break;
+
+    case 'description':
+      if (!value || value.trim().length < 10) {
+        this.formErrors.description = 'Description is required and must be at least 10 characters';
+      } else {
+        delete this.formErrors.description;
+      }
+      break;
+
     default:
       break;
   }
 }
+
 
 isFormValid(): boolean {
   return Object.keys(this.formErrors).length === 0;

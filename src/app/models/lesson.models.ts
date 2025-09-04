@@ -7,37 +7,24 @@ export interface Lesson {
   description: string;
   courseId: number;
   courseName: string;
-  subjectId: number;
-  subjectName: string;
   videoUrl?: string;
+  posterUrl?: string; // Video poster/thumbnail for video player
   duration: number; // in minutes
   order: number;
   isCompleted: boolean;
+  rating: number;
+  totalRatings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
+  subject: string;
   term: number;
   week: number;
-  thumbnailUrl?: string;
+  thumbnailUrl?: string; // General lesson thumbnail for cards/lists
   resources: LessonResource[];
   isLocked: boolean;
   completedAt?: Date;
   lastAccessedAt?: Date;
   prerequisites?: number[]; // lesson IDs that must be completed first
   learningObjectives?: string[]; // learning goals for this lesson
-  messages?: LessonMessage[]; // messages between student and teacher
-}
-
-/**
- * Interface for messages between student and teacher in a lesson
- */
-export interface LessonMessage {
-  id: number;
-  lessonId: number;
-  senderId: number;
-  senderName: string;
-  senderType: 'student' | 'teacher';
-  message: string;
-  createdAt: Date;
-  isRead: boolean;
 }
 
 /**
@@ -52,9 +39,16 @@ export interface LessonResource {
 }
 
 /**
- * Interface for Lesson Rating - REMOVED as per requirements
+ * Interface for Lesson Rating
  */
-// Rating system removed - no longer needed
+export interface LessonRating {
+  id: number;
+  lessonId: number;
+  studentId: number;
+  rating: number; // 1-5 stars
+  comment?: string;
+  createdAt: Date;
+}
 
 /**
  * Interface for Lesson Progress
@@ -86,11 +80,12 @@ export interface StudentLesson {
  */
 export interface LessonFilter {
   courseId?: number;
-  subjectId?: number;
+  subject?: string;
   term?: number;
   week?: number;
   difficulty?: string;
   isCompleted?: boolean;
+  rating?: number;
 }
 
 /**
@@ -101,5 +96,6 @@ export interface StudentLessonStats {
   totalLessons: number;
   completionRate: number; // percentage
   totalTimeSpent: number; // in minutes
+  averageRating: number;
   currentStreak: number; // consecutive days of study
 }

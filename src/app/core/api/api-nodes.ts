@@ -446,13 +446,6 @@ export const ApiNodes = {
     mockData: [] as any[]
   },
 
-  // Get lessons by subject ID
-  getLessonsBySubject: {
-    url: '/api/subjects/:subjectId/lessons',
-    method: 'GET' as const,
-    mockData: [] as any[]
-  },
-
   // Update lesson progress
   updateLessonProgress: {
     url: '/api/lessons/:id/progress',
@@ -485,6 +478,22 @@ export const ApiNodes = {
       averageRating: 0,
       currentStreak: 0
     }
+  },
+
+  // Check course enrollment status
+  checkEnrollment: {
+    url: '/api/courses/:id/enrollment',
+    method: 'GET' as const,
+    mockData: {
+      enrolled: false
+    }
+  },
+
+  // Get user's enrolled courses
+  getEnrolledCourses: {
+    url: '/api/user/enrolled-courses',
+    method: 'GET' as const,
+    mockData: []
   }
 };
 

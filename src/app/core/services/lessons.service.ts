@@ -105,36 +105,6 @@ export class LessonsService {
   }
 
   /**
-   * Get lessons for a specific subject
-   */
-  getLessonsBySubject(subjectId: number): Observable<StudentLesson[]> {
-    this.loading.set(true);
-    this.error.set(null);
-
-    const endpoint = ApiNodes.getLessonsBySubject;
-    const url = `${this.baseUrl}${endpoint.url.replace(':subjectId', subjectId.toString())}`;
-
-    if (this.useMock) {
-      const allLessons = this.getMockStudentLessons();
-      const subjectLessons = allLessons.filter(sl => sl.lesson.subjectId === subjectId);
-
-      return of(subjectLessons).pipe(
-        tap(() => this.loading.set(false))
-      );
-    }
-
-    return this.http.get<StudentLesson[]>(url).pipe(
-      tap(() => this.loading.set(false)),
-      catchError((error: HttpErrorResponse) => {
-        console.warn('API call failed, using mock data:', error);
-        this.error.set('Failed to load subject lessons');
-        this.loading.set(false);
-        return of([]);
-      })
-    );
-  }
-
-  /**
    * Update lesson progress
    */
   updateProgress(
@@ -185,6 +155,29 @@ export class LessonsService {
   }
 
   /**
+   * Rate a lesson
+   */
+  rateLesson(lessonId: number, rating: number, comment?: string): Observable<boolean> {
+    const endpoint = ApiNodes.ratLesson;
+    const url = `${this.baseUrl}${endpoint.url.replace(':id', lessonId.toString())}`;
+
+    const ratingData = {
+      rating,
+      comment
+    };
+
+    if (this.useMock) {
+      console.log('Mock: Rating lesson', ratingData);
+      return of(true);
+    }
+
+    return this.http.post<any>(url, ratingData).pipe(
+      map(() => true),
+      catchError(() => of(true))
+    );
+  }
+
+  /**
    * Get student statistics
    */
   getStudentStatistics(studentId: number): Observable<StudentLessonStats> {
@@ -198,6 +191,7 @@ export class LessonsService {
         totalLessons: mockLessons.length,
         completionRate: 0,
         totalTimeSpent: mockLessons.reduce((total, sl) => total + sl.progress.timeSpent, 0),
+        averageRating: mockLessons.reduce((total, sl) => total + sl.lesson.rating, 0) / mockLessons.length,
         currentStreak: 5
       };
       stats.completionRate = (stats.completedLessons / stats.totalLessons) * 100;
@@ -212,6 +206,7 @@ export class LessonsService {
           totalLessons: 0,
           completionRate: 0,
           totalTimeSpent: 0,
+          averageRating: 0,
           currentStreak: 0
         };
         return of(stats);
@@ -225,7 +220,7 @@ export class LessonsService {
     if (!filter) return lessons;
 
     return lessons.filter(lesson => {
-      if (filter.subjectId && lesson.subjectId !== filter.subjectId) return false;
+      if (filter.subject && lesson.subject !== filter.subject) return false;
       if (filter.difficulty && lesson.difficulty !== filter.difficulty) return false;
       if (filter.isCompleted !== undefined && lesson.isCompleted !== filter.isCompleted) return false;
       if (filter.term && lesson.term !== filter.term) return false;
@@ -238,11 +233,10 @@ export class LessonsService {
     return [
       {
         id: 1,
-        title: 'مقدمة في الرياضيات',
-        description: 'تعلم أساسيات الرياضيات والعمليات الحسابية الأساسية',
-        subjectId: 1,
-        subjectName: 'الرياضيات',
-        courseName: 'الرياضيات الأساسية',
+        title: 'Introduction to Mathematics',
+        description: 'Learn the fundamentals of mathematics and basic arithmetic operations',
+        subject: 'Mathematics',
+        courseName: 'Basic Mathematics',
         courseId: 1,
         duration: 45,
         difficulty: 'Easy',
@@ -252,30 +246,39 @@ export class LessonsService {
         isCompleted: true,
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        posterUrl: 'https://images.unsplash.com/photo-1596495577886-d920f1fb7238?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         videoUrl: 'https://example.com/video1.mp4',
+        rating: 4.5,
+        totalRatings: 12,
         resources: [
           {
             id: 1,
-            name: 'مرجع الرياضيات الأساسية',
+            name: 'Basic Mathematics Reference',
             type: 'pdf',
             url: '/assets/resources/math-basics.pdf',
             downloadable: true
+          },
+          {
+            id: 2,
+            name: 'Mathematics Exercises',
+            type: 'exercise',
+            url: '/student/exercises/1',
+            downloadable: false
           }
         ],
         prerequisites: [],
         learningObjectives: [
-          'فهم العمليات الحسابية الأساسية',
-          'حل المسائل الرياضية البسيطة'
+          'Understand basic arithmetic operations',
+          'Solve simple mathematical problems'
         ],
-        lastAccessedAt: new Date(Date.now() - 86400000)
+        lastAccessedAt: new Date(Date.now() - 86400000) // 1 day ago
       },
       {
         id: 2,
-        title: 'قواعد اللغة الإنجليزية',
-        description: 'تعلم قواعد اللغة الإنجليزية الأساسية والنحو',
-        subjectId: 3,
-        subjectName: 'اللغة الإنجليزية',
-        courseName: 'اللغة الإنجليزية الأساسية',
+        title: 'English Grammar Basics',
+        description: 'Learn fundamental English grammar rules and sentence structure',
+        subject: 'English',
+        courseName: 'Basic English Language',
         courseId: 2,
         duration: 60,
         difficulty: 'Medium',
@@ -285,30 +288,39 @@ export class LessonsService {
         isCompleted: false,
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        posterUrl: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         videoUrl: 'https://example.com/video2.mp4',
+        rating: 4.2,
+        totalRatings: 8,
         resources: [
           {
             id: 3,
-            name: 'كتاب قواعد اللغة الإنجليزية',
+            name: 'English Grammar Book',
             type: 'pdf',
             url: '/assets/resources/english-grammar.pdf',
             downloadable: true
+          },
+          {
+            id: 4,
+            name: 'Grammar Quiz',
+            type: 'quiz',
+            url: '/student/quizzes/1',
+            downloadable: false
           }
         ],
         prerequisites: [],
         learningObjectives: [
-          'فهم القواعد النحوية الأساسية',
-          'تكوين جمل صحيحة نحوياً'
+          'Understand basic grammatical rules',
+          'Form grammatically correct sentences'
         ],
-        lastAccessedAt: new Date(Date.now() - 172800000)
+        lastAccessedAt: new Date(Date.now() - 172800000) // 2 days ago
       },
       {
         id: 3,
-        title: 'علوم الطبيعة',
-        description: 'استكشاف عالم العلوم والظواهر الطبيعية',
-        subjectId: 2,
-        subjectName: 'العلوم',
-        courseName: 'العلوم الطبيعية',
+        title: 'Natural Sciences',
+        description: 'Explore the world of science and natural phenomena',
+        subject: 'Science',
+        courseName: 'Natural Sciences',
         courseId: 3,
         duration: 50,
         difficulty: 'Medium',
@@ -318,30 +330,39 @@ export class LessonsService {
         isCompleted: false,
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        posterUrl: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         videoUrl: 'https://example.com/video3.mp4',
+        rating: 4.7,
+        totalRatings: 15,
         resources: [
           {
             id: 5,
-            name: 'كتاب العلوم الطبيعية',
+            name: 'Natural Sciences Book',
             type: 'pdf',
             url: '/assets/resources/natural-sciences.pdf',
             downloadable: true
+          },
+          {
+            id: 6,
+            name: 'Scientific Experiments',
+            type: 'exercise',
+            url: '/student/experiments/1',
+            downloadable: false
           }
         ],
         prerequisites: [],
         learningObjectives: [
-          'فهم الظواهر الطبيعية',
-          'إجراء تجارب علمية بسيطة'
+          'Understand natural phenomena',
+          'Conduct simple scientific experiments'
         ],
-        lastAccessedAt: new Date(Date.now() - 259200000)
+        lastAccessedAt: new Date(Date.now() - 259200000) // 3 days ago
       },
       {
         id: 4,
-        title: 'التاريخ والجغرافيا',
-        description: 'تعلم تاريخ وجغرافية أستراليا والعالم',
-        subjectId: 4,
-        subjectName: 'التاريخ',
-        courseName: 'الدراسات الاجتماعية',
+        title: 'History and Geography',
+        description: 'Learn about Australian and world history and geography',
+        subject: 'HASS',
+        courseName: 'Social Studies',
         courseId: 4,
         duration: 40,
         difficulty: 'Easy',
@@ -352,10 +373,12 @@ export class LessonsService {
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         videoUrl: 'https://example.com/video4.mp4',
+        rating: 4.3,
+        totalRatings: 10,
         resources: [
           {
             id: 7,
-            name: 'أطلس أستراليا',
+            name: 'Australian Atlas',
             type: 'pdf',
             url: '/assets/resources/australia-atlas.pdf',
             downloadable: true
@@ -363,18 +386,17 @@ export class LessonsService {
         ],
         prerequisites: [],
         learningObjectives: [
-          'معرفة تاريخ أستراليا',
-          'فهم الجغرافيا الأسترالية'
+          'Know Australian history',
+          'Understand Australian geography'
         ],
-        lastAccessedAt: new Date(Date.now() - 345600000)
+        lastAccessedAt: new Date(Date.now() - 345600000) // 4 days ago
       },
       {
         id: 5,
-        title: 'الرياضيات المتقدمة',
-        description: 'مفاهيم رياضية متقدمة والجبر الأساسي',
-        subjectId: 1,
-        subjectName: 'الرياضيات',
-        courseName: 'الرياضيات المتقدمة',
+        title: 'Advanced Mathematics',
+        description: 'Advanced mathematical concepts and basic algebra',
+        subject: 'Mathematics',
+        courseName: 'Advanced Mathematics',
         courseId: 5,
         duration: 70,
         difficulty: 'Hard',
@@ -385,28 +407,36 @@ export class LessonsService {
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         videoUrl: 'https://example.com/video5.mp4',
+        rating: 4.6,
+        totalRatings: 6,
         resources: [
           {
             id: 8,
-            name: 'كتاب الجبر',
+            name: 'Algebra Textbook',
             type: 'pdf',
             url: '/assets/resources/algebra.pdf',
             downloadable: true
+          },
+          {
+            id: 9,
+            name: 'Algebra Exercises',
+            type: 'exercise',
+            url: '/student/exercises/2',
+            downloadable: false
           }
         ],
         prerequisites: [1],
         learningObjectives: [
-          'فهم مفاهيم الجبر الأساسي',
-          'حل المعادلات الخطية'
+          'Understand basic algebra concepts',
+          'Solve linear equations'
         ]
       },
       {
         id: 6,
-        title: 'الكتابة الإبداعية',
-        description: 'تطوير مهارات الكتابة الإبداعية باللغة الإنجليزية',
-        subjectId: 3,
-        subjectName: 'اللغة الإنجليزية',
-        courseName: 'الكتابة الإبداعية',
+        title: 'Creative Writing',
+        description: 'Develop creative writing skills in English',
+        subject: 'English',
+        courseName: 'Creative Writing',
         courseId: 6,
         duration: 55,
         difficulty: 'Hard',
@@ -417,10 +447,12 @@ export class LessonsService {
         isLocked: true,
         thumbnailUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
         videoUrl: 'https://example.com/video6.mp4',
+        rating: 4.8,
+        totalRatings: 4,
         resources: [
           {
             id: 10,
-            name: 'دليل الكتابة الإبداعية',
+            name: 'Creative Writing Guide',
             type: 'pdf',
             url: '/assets/resources/creative-writing.pdf',
             downloadable: true
@@ -428,8 +460,8 @@ export class LessonsService {
         ],
         prerequisites: [2],
         learningObjectives: [
-          'كتابة نصوص إبداعية',
-          'تطوير الأسلوب الشخصي في الكتابة'
+          'Write creative texts',
+          'Develop personal writing style'
         ]
       }
     ];
