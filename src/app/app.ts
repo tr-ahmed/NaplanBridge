@@ -45,6 +45,10 @@ export class AppComponent implements OnInit, OnDestroy {
       '/admin/users',
       '/teacher/dashboard',
             '/admin/content',
+<<<<<<< HEAD
+=======
+            '/admin/subscriptions',
+>>>>>>> 4b2b1cdf8ce48ff47003c121e28436244c6cbf5d
 
     ];
     

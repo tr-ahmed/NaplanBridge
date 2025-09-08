@@ -29,16 +29,45 @@ export interface Subject {
 }
 export interface Term { id: number; number: number; yearSubjectId: number; }
 export interface Week { id: number; number: number; termId: number; }
+<<<<<<< HEAD
 export interface Lesson {
   id: number;
   title: string;
   videoUrl: string;
+=======
+
+export interface Lesson {
+  id?: number;
+  title: string;
+>>>>>>> 4b2b1cdf8ce48ff47003c121e28436244c6cbf5d
   description: string;
   weekId: number;
   duration?: number;
   objectives?: string;
   posterUrl?: string;
+<<<<<<< HEAD
 }
+=======
+  videoUrl?: string;
+}
+
+export interface CreateLessonDto {
+  title: string;
+  description: string;
+  weekId: number;
+  posterFile: File;
+  videoFile: File;
+}
+
+export interface UpdateLessonDto {
+  title: string;
+  description: string;
+  weekId: number;
+  posterFile?: File;
+  videoFile?: File;
+}
+
+>>>>>>> 4b2b1cdf8ce48ff47003c121e28436244c6cbf5d
 export interface Category {
   id: number;
   name: string;
@@ -63,6 +92,17 @@ export interface Resource {
   isDownloadable?: boolean;
 }
 
+<<<<<<< HEAD
+=======
+export interface CreateLessonDto {
+  title: string;
+  description: string;
+  posterUrl: string;
+  videoUrl: string;
+  weekId: number;
+}
+
+>>>>>>> 4b2b1cdf8ce48ff47003c121e28436244c6cbf5d
 @Injectable({
   providedIn: 'root'
 })
@@ -74,11 +114,24 @@ export class ContentService {
     private authService: AuthService
   ) { }
 
+<<<<<<< HEAD
   private getHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
+=======
+  // If jsonContentType is false, do not set Content-Type (for FormData); otherwise, set to application/json
+  private getHeaders(jsonContentType: boolean = true): HttpHeaders {
+    const token = this.authService.getToken();
+    const headersConfig: { [header: string]: string } = {
+      'Authorization': `Bearer ${token}`
+    };
+    if (jsonContentType) {
+      headersConfig['Content-Type'] = 'application/json';
+    }
+    return new HttpHeaders(headersConfig);
+>>>>>>> 4b2b1cdf8ce48ff47003c121e28436244c6cbf5d
   }
 
   // Years
@@ -141,6 +194,7 @@ export class ContentService {
       { headers: this.getHeaders() }
     );
   }
+<<<<<<< HEAD
 
   // Lessons
   getLessons(): Observable<Lesson[]> {
@@ -158,6 +212,53 @@ export class ContentService {
   deleteLesson(id: number): Observable<any> {
     return this.http.delete(`${this.apiBaseUrl}/Lessons/${id}`, { headers: this.getHeaders() });
   }
+=======
+// Lessons Service
+
+getLessons(): Observable<Lesson[]> {
+  return this.http.get<Lesson[]>(`${this.apiBaseUrl}/Lessons`, { headers: this.getHeaders() });
+}
+
+addLesson(title: string, description: string, weekId: number, posterFile: File, videoFile: File): Observable<Lesson> {
+  const formData = new FormData();
+  formData.append('Title', title);
+  formData.append('Description', description);
+  formData.append('WeekId', weekId.toString());
+  formData.append('PosterFile', posterFile, posterFile.name);
+  formData.append('VideoFile', videoFile, videoFile.name);
+
+  return this.http.post<Lesson>(
+    `${this.apiBaseUrl}/Lessons`,
+    formData,
+    { headers: this.getHeaders(false) } 
+  );
+}
+
+updateLesson(id: number, title: string, description: string, weekId: number, posterFile?: File, videoFile?: File): Observable<any> {
+  const formData = new FormData();
+  formData.append('Title', title);
+  formData.append('Description', description);
+  formData.append('WeekId', weekId.toString());
+
+  if (posterFile) {
+    formData.append('PosterFile', posterFile, posterFile.name);
+  }
+  if (videoFile) {
+    formData.append('VideoFile', videoFile, videoFile.name);
+  }
+
+  return this.http.put(
+    `${this.apiBaseUrl}/Lessons/${id}`,
+    formData,
+    { headers: this.getHeaders(false) }
+  );
+}
+
+deleteLesson(id: number): Observable<any> {
+  return this.http.delete(`${this.apiBaseUrl}/Lessons/${id}`, { headers: this.getHeaders() });
+}
+
+>>>>>>> 4b2b1cdf8ce48ff47003c121e28436244c6cbf5d
 
   // Categories
   getCategories(): Observable<Category[]> {
