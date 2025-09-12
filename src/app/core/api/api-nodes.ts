@@ -8,7 +8,7 @@ import { Notification, NotificationStats, NotificationSettings } from '../../mod
 export const ApiNodes = {
   // Get all courses
   getAllCourses: {
-    url: '\/subjects',
+    url: '/subjects',
     method: 'GET' as const,
     mockData: [
       {
@@ -112,7 +112,7 @@ export const ApiNodes = {
 
   // Get course by ID
   getCourseById: {
-    url: '\/subjects/:id',
+    url: '/subjects/:id',
     method: 'GET' as const,
     mockData: {
       id: 1,
@@ -200,18 +200,18 @@ export const ApiNodes = {
 
   // Add to cart
   addToCart: {
-    url: '\/cart/add',
+    url: '/Cart/add',
     method: 'POST' as const,
     mockData: {
       success: true,
-      message: 'Course added to cart successfully',
-      cartItemCount: 1
+      message: 'Subject added to cart successfully',
+      errors: []
     }
   },
 
   // Get cart items
   getCartItems: {
-    url: '\/cart',
+    url: '/Cart',
     method: 'GET' as const,
     mockData: {
       items: [],
@@ -222,7 +222,7 @@ export const ApiNodes = {
 
   // Remove from cart
   removeFromCart: {
-    url: '\/cart/remove/:id',
+    url: '/Cart/remove/:id',
     method: 'DELETE' as const,
     mockData: {
       success: true,

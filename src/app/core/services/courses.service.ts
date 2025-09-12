@@ -1,17 +1,19 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Course, CourseFilter, Cart, CartItem, CourseCategory } from '../../models/course.models';
 import { ApiNodes } from '../api/api-nodes';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../auth/auth.service';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CoursesService {
-  private readonly baseUrl = environment.apiBaseUrl || 'http://localhost:5000';
-  private useMock =  environment.useMock || false; // Set to true for development with mock data
+  private readonly baseUrl = environment.apiBaseUrl || 'https://naplanbridge.runasp.net';
+  private useMock = environment.useMock || false; // Set to true for development with mock data
 
   // Cart management
   private cartSubject = new BehaviorSubject<Cart>({
@@ -26,7 +28,11 @@ export class CoursesService {
   public loading = signal(false);
   public error = signal<string | null>(null);
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private toastService: ToastService
+  ) {
     this.loadCartFromStorage();
   }
 
@@ -135,17 +141,41 @@ export class CoursesService {
     this.cartSubject.next(currentCart);
     this.saveCartToStorage();
 
-    // Simulate API call
+    // Check if user is authenticated before making API call
+    if (!this.authService.isAuthenticated()) {
+      this.toastService.showWarning('Please log in to sync your cart with the server');
+      return of(true);
+    }
+
+    // Make API call only if user is authenticated
     const endpoint = ApiNodes.addToCart;
     const url = `${this.baseUrl}${endpoint.url}`;
 
     if (this.useMock) {
+      this.toastService.showSuccess('Course added to cart!');
       return of(true);
     }
 
-    return this.http.post<any>(url, { courseId: course.id }).pipe(
-      map(() => true),
-      catchError(() => of(true)) // Even if API fails, we've already updated local cart
+    return this.http.post<any>(url, {
+      subjectId: course.id,
+      quantity: 1
+    }).pipe(
+      map(() => {
+        this.toastService.showSuccess('Course added to cart!');
+        return true;
+      }),
+      catchError((error) => {
+        console.error('Failed to add to cart via API:', error);
+
+        // If it's an authentication error (401), show a message to the user
+        if (error.status === 401) {
+          this.toastService.showWarning('Please log in to sync your cart with the server');
+        } else {
+          this.toastService.showError('Failed to sync with server, but course added to local cart');
+        }
+
+        return of(true); // Even if API fails, we've already updated local cart
+      })
     );
   }
 
@@ -160,16 +190,34 @@ export class CoursesService {
     this.cartSubject.next(currentCart);
     this.saveCartToStorage();
 
+    // Check if user is authenticated before making API call
+    if (!this.authService.isAuthenticated()) {
+      this.toastService.showWarning('Please log in to sync your cart with the server');
+      return of(true);
+    }
+
     const endpoint = ApiNodes.removeFromCart;
     const url = `${this.baseUrl}${endpoint.url.replace(':id', courseId.toString())}`;
 
     if (this.useMock) {
+      this.toastService.showSuccess('Course removed from cart!');
       return of(true);
     }
 
     return this.http.delete<any>(url).pipe(
-      map(() => true),
-      catchError(() => of(true))
+      map(() => {
+        this.toastService.showSuccess('Course removed from cart!');
+        return true;
+      }),
+      catchError((error) => {
+        console.error('Failed to remove from cart via API:', error);
+        if (error.status === 401) {
+          this.toastService.showWarning('Please log in to sync your cart with the server');
+        } else {
+          this.toastService.showError('Failed to sync with server, but course removed from local cart');
+        }
+        return of(true);
+      })
     );
   }
 

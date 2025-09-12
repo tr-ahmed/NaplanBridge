@@ -103,8 +103,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     );
 
     // Load initial data
-    this.notificationService.getNotifications().subscribe();
-    this.notificationService.getNotificationStats().subscribe();
+    // this.notificationService.getNotifications().subscribe();
+    // this.notificationService.getNotificationStats().subscribe();
   }
 
   ngOnDestroy(): void {
