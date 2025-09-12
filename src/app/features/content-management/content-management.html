@@ -998,14 +998,12 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Subject *</label>
-<select class="form-select" 
-        [(ngModel)]="form.teacherUserName" 
-        required>
-  <option [ngValue]="null">Select Teacher</option>
-  <option *ngFor="let t of teachers" [ngValue]="t.userName">
-    {{ t.userName }} {{ t.email ? '(' + t.email + ')' : '' }}
-  </option>
-</select>
+              <select class="form-select" 
+                  [(ngModel)]="form.subjectId" 
+                  required>
+                  <option [ngValue]="null">Select Subject</option>
+                  <option *ngFor="let s of subjects; trackBy: trackById" [ngValue]="s.id">{{ s.subjectName }}</option>
+                </select>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Term Number *</label>
