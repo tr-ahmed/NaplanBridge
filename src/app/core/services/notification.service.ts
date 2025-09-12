@@ -258,7 +258,7 @@ export class NotificationService {
   private startRealTimeUpdates(): void {
     this.pollingSubscription = interval(this.pollingInterval)
       .pipe(
-        switchMap(() => this.getNotificationStats())
+        // switchMap(() => this.getNotificationStats())
       )
       .subscribe();
   }
