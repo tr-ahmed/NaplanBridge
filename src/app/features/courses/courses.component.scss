@@ -1,0 +1,139 @@
+/* Course component styles - Using Tailwind CSS with custom enhancements */
+
+/* Header spacing fix */
+.hero-section {
+  padding-top: 5rem; /* 80px to account for fixed header */
+}
+
+/* Mobile responsive header spacing */
+@media (max-width: 768px) {
+  .hero-section {
+    padding-top: 4.5rem; /* 72px for mobile */
+  }
+}
+
+/* Line clamp utilities for text truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Custom hover effects */
+.course-card {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+}
+
+/* Image hover effects */
+.course-image {
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+/* Loading animation */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Star rating animations */
+.star-rating {
+  .star {
+    transition: color 0.2s ease;
+
+    &.filled {
+      color: #fbbf24;
+    }
+
+    &.empty {
+      color: #d1d5db;
+    }
+  }
+}
+
+/* Floating cart button animation */
+.floating-cart {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Search input focus effects */
+.search-input {
+  transition: all 0.3s ease;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+/* Filter dropdown styles */
+.filter-select {
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #9ca3af;
+  }
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+/* Responsive text adjustments */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .course-card {
+    margin-bottom: 1rem;
+  }
+
+  .filter-section {
+    padding: 1rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .floating-cart,
+  .pagination-button,
+  .filter-section {
+    display: none !important;
+  }
+}

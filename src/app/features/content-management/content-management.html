@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NAPLANBridge - Content Management</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .is-invalid {
+      border-color: #dc3545 !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .is-valid {
+      border-color: #198754 !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .invalid-feedback, .valid-feedback {
+      display: block;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .form-control.is-invalid:focus, .form-select.is-invalid:focus {
+      box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .form-control.is-valid:focus, .form-select.is-valid:focus {
+      box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+    
+    .btn-gradient {
+      background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
+      color: white;
+      border: none;
+    }
+    
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1e293b 100%);
+      color: white;
+    }
+    
+    .bg-gray-50 {
+      background-color: #f9fafb;
+    }
+    
+    .bg-gray-100 {
+      background-color: #f3f4f6;
+    }
+    
+    .bg-gray-200 {
+      background-color: #e5e7eb;
+    }
+    
+    .text-blue-700 {
+      color: #1d4ed8;
+    }
+    
+    .hover\:bg-white\/10:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar {
+      width: 280px;
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar.collapsed {
+      width: 80px;
+    }
+    
+    .main-content {
+      margin-left: 280px;
+      transition: all 0.3s ease;
+    }
+    
+    .main-content.expanded {
+      margin-left: 80px;
+    }
+    
+    .resource-item {
+      padding: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .resource-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50">
+
+  <!-- Toggle Sidebar -->
+  <button
+    class="fixed z-50 rounded-full shadow-lg p-3 transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400 border-0"
+    (click)="toggleSidebar()" aria-label="Toggle sidebar" [ngStyle]="{
+    top: '2rem',
+    left: sidebarCollapsed ? '1rem' : '270px',
+    width: '48px',
+    height: '48px',
+    background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 100%)',
+    color: '#fff'
+  }">
+    <i class="fas" [class.fa-chevron-right]="sidebarCollapsed" [class.fa-chevron-left]="!sidebarCollapsed"></i>
+  </button>
+
+  <!-- Sidebar -->
+  <aside class="sidebar position-fixed top-0 bottom-0 start-0 z-40" [class.collapsed]="sidebarCollapsed" id="sidebar"
+    style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);box-shadow:0 8px 32px rgba(31,38,135,.37);border-top-right-radius:2rem;border-bottom-right-radius:2rem;min-height:100vh;">
+    <div class="sidebar-logo d-flex align-items-center py-4 px-3">
+      <div class="me-3" style="background:rgba(255,255,255,0.2);width:48px;height:48px;"
+        class="rounded-circle d-flex align-items-center justify-content-center shadow">
+        <span class="fw-bold fs-4 text-blue-700">N</span>
+      </div>
+      <div class="fw-bold fs-5 text-white" *ngIf="!sidebarCollapsed">NAPLAN<span class="text-warning">Bridge</span></div>
+    </div>
+    <nav class="sidebar-nav mt-4">
+      <a [routerLink]="'/admin/users'"
+        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+        <i class="fas fa-users"></i>
+        <span *ngIf="!sidebarCollapsed">User Management</span>
+      </a>
+
+      <a [routerLink]="'/admin/content'"
+        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all text-white active">
+        <i class="fas fa-book"></i>
+        <span *ngIf="!sidebarCollapsed">Content Management</span>
+      </a>
+
+      <a [routerLink]="'/admin/subscriptions'"
+        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all  hover:bg-white/10  text-white ">
+        <i class="fas fa-credit-card"></i>
+        <span *ngIf="!sidebarCollapsed">Subscription & Billing</span>
+      </a>
+    </nav>
+    <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
+      <div class="d-flex align-items-center gap-3">
+        <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
+        <div *ngIf="!sidebarCollapsed">
+          <div class="fw-medium text-white">{{ userName }}</div>
+          <small class="text-white-50">Super Admin</small>
+        </div>
+      </div>
+      <a (click)="handleLogout()" class="d-block mt-3 text-white-50 small" *ngIf="!sidebarCollapsed"><i
+          class="fas fa-sign-out-alt me-2"></i>Logout</a>
+    </div>
+  </aside>
+  
+  <!-- Main -->
+  <main class="main-content" [class.expanded]="sidebarCollapsed" id="mainContent">
+    <div class="container-fluid py-4">
+      <div class="flex items-center justify-between mb-6">
+        <div class="relative w-[520px] max-w-full">
+          <input type="text" class="form-control ps-10" placeholder="Search content..." [(ngModel)]="searchTerm"
+            (input)="onFilterChange()">
+          <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button
+          [routerLink]="'/home'"
+            class="btn btn-gradient inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition w-full sm:w-auto"
+            type="button">
+            <span class="whitespace-nowrap"> home</span>
+          </button>
+          <div class="flex items-center gap-4">
+            <!-- Notification Bell -->
+            <div class="relative">
+              <button
+                class="w-10 h-10 rounded-full bg-[#0F376B] flex items-center justify-center hover:bg-blue-300 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="currentColor"
+                  viewBox="0 0 20 20">
+                  <path
+                    d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
+                </svg>
+              </button>
+              <!-- Notification Dot -->
+              <span class="absolute top-1 right-1 block w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+
+            <!-- User Avatar -->
+            <div class="relative inline-block text-left">
+              <!-- Avatar -->
+              <div class="w-12 h-12 rounded-full border-2 border-gray-300 overflow-hidden shadow-md cursor-pointer"
+                (click)="toggleMenu()">
+                <img src="https://i.pravatar.cc/48?img=11" alt="User" class="w-full h-full object-cover" />
+              </div>
+
+              <!-- Dropdown -->
+              <div *ngIf="isOpen"
+                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                <ul class="py-1 text-gray-700">
+                  <li>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">Profile</button>
+                  </li>
+                  <li>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">Settings</button>
+                  </li>
+                  <li>
+                    <button (click)="handleLogout()"
+                      class="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100">Logout</button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Header -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h1 class="h3 fw-bold">Content Management</h1>
+          <p class="text-muted">Manage Years, Subjects, Terms, Weeks, Lessons, and Categories</p>
+        </div>
+      </div>
+
+      <!-- Stats Modern Responsive -->
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-8">
+        <!-- Years -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-calendar-alt fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Years</div>
+          <h4 class="text-3xl font-bold">{{ stats.years }}</h4>
+        </div>
+
+        <!-- Subjects -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-pink-500 to-rose-600 text-white 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-book-open fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Subjects</div>
+          <h4 class="text-3xl font-bold">{{ stats.subjects }}</h4>
+        </div>
+
+        <!-- Terms -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-layer-group fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Terms</div>
+          <h4 class="text-3xl font-bold">{{ stats.terms }}</h4>
+        </div>
+
+        <!-- Weeks -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-yellow-400 to-orange-500 text-white 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-calendar-week fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Weeks</div>
+          <h4 class="text-3xl font-bold">{{ stats.weeks }}</h4>
+        </div>
+
+        <!-- Lessons -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-cyan-400 to-sky-500 text-gray-900 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-video fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Lessons</div>
+          <h4 class="text-3xl font-bold">{{ stats.lessons }}</h4>
+        </div>
+
+        <!-- Categories -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-purple-500 to-violet-700 text-white 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-chalkboard fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Categories</div>
+          <h4 class="text-3xl font-bold">{{ stats.categories }}</h4>
+        </div>
+      </div>
+      
+      <!-- Modern Responsive Tabs -->
+      <div class="flex flex-wrap justify-center gap-3 mb-6">
+        <!-- Years -->
+        <button
+          (click)="setActiveTab('years')"
+          [class]="activeTab==='years' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-calendar-alt"></i> Years
+        </button>
+
+        <!-- Categories -->
+        <button
+          (click)="setActiveTab('categories')"
+          [class]="activeTab==='categories' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-violet-700 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-chalkboard"></i> Categories
+        </button>
+
+        <!-- Subject Names -->
+        <button
+          (click)="setActiveTab('subjectNames')"
+          [class]="activeTab==='subjectNames' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-book"></i> Subject Names
+        </button>
+
+        <!-- Subjects -->
+        <button
+          (click)="setActiveTab('subjects')"
+          [class]="activeTab==='subjects' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-book-open"></i> Subjects
+        </button>
+
+        <!-- Terms -->
+        <button
+          (click)="setActiveTab('terms')"
+          [class]="activeTab==='terms' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-layer-group"></i> Terms
+        </button>
+
+        <!-- Weeks -->
+        <button
+          (click)="setActiveTab('weeks')"
+          [class]="activeTab==='weeks' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-500 text-gray-900 shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-calendar-week"></i> Weeks
+        </button>
+
+        <!-- Lessons -->
+        <button
+          (click)="setActiveTab('lessons')"
+          [class]="activeTab==='lessons' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-400 to-teal-600 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-video"></i> Lessons
+        </button>
+      </div>
+
+      <div class="tab-content">
+
+        <!-- Years Tab -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='years'">
+          <div class="row g-3 mb-4 align-items-end filters-container">
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="openAdd('year')">
+                <i class="fas fa-plus me-1"></i> Add Year
+              </button>
+            </div>
+            <div class="col-12 col-md">
+              <input type="text" class="form-control" placeholder="Search years..." [(ngModel)]="searchTerm"
+                (input)="onFilterChange()" />
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>#</th>
+                    <th>Number</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let y of pagedYears; let i = index; trackBy: trackById">
+                    <td>{{ (yearPage - 1) * pageSize + i + 1 }}</td>
+                    <td class="fw-semibold">Year {{ y.yearNumber }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('year', y)"><i
+                          class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('year', y)"><i
+                          class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="pagedYears.length === 0">
+                    <td colspan="3" class="text-center py-4 text-muted">No years found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination -->
+            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+              <div>Showing {{ yStart }}–{{ yEnd }} of {{ filteredYears.length }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" (click)="goYearPage(yearPage-1)"
+                  [disabled]="yearPage===1">Previous</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goYearPage(yearPage+1)"
+                  [disabled]="yearPage===yearTotalPages">Next</button>
+              </div>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-center">
+              <small class="text-muted">Page {{ yearPage }} of {{ yearTotalPages }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Categories Tab -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='categories'">
+          <div class="row g-3 mb-4 align-items-end filters-container">
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="openAdd('category')">
+                <i class="fas fa-plus me-1"></i> Add Category
+              </button>
+            </div>
+            <div class="col-12 col-md">
+              <input type="text" class="form-control" placeholder="Search categories..." [(ngModel)]="searchTerm"
+                (input)="onFilterChange()" />
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Subject Count</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let c of pagedCategories; let i = index; trackBy: trackById">
+                    <td>{{ (categoryPage - 1) * pageSize + i + 1 }}</td>
+                    <td class="fw-semibold">{{ c.name }}</td>
+                    <td>{{ c.description | slice:0:50 }}{{ c.description.length > 50 ? '...' : '' }}</td>
+                    <td>{{ getSubjectNameCountForCategory(c.id) }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-primary me-1" (click)="openCategoryView(c)"><i
+                          class="fas fa-eye"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('category', c)"><i
+                          class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('category', c)"><i
+                          class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="pagedCategories.length === 0">
+                    <td colspan="5" class="text-center py-4 text-muted">No categories found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+              <div>Showing {{ cStart }}–{{ cEnd }} of {{ filteredCategories.length }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" (click)="goCategoryPage(categoryPage-1)"
+                  [disabled]="categoryPage===1">Previous</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goCategoryPage(categoryPage+1)"
+                  [disabled]="categoryPage===categoryTotalPages">Next</button>
+              </div>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-center">
+              <small class="text-muted">Page {{ categoryPage }} of {{ categoryTotalPages }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Names Tab -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='subjectNames'">
+          <div class="row g-3 mb-4 align-items-end filters-container">
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="openAdd('subjectName')">
+                <i class="fas fa-plus me-1"></i> Add Subject Name
+              </button>
+            </div>
+            <div class="col-12 col-md">
+              <input type="text" class="form-control" placeholder="Search subject names..." [(ngModel)]="searchTerm"
+                (input)="onFilterChange()" />
+            </div>
+            <div class="col-12 col-md-auto">
+              <select class="form-select" [(ngModel)]="filters.categoryId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Categories</option>
+                <option *ngFor="let c of categories; trackBy: trackById" [ngValue]="c.id">{{ c.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let sn of pagedSubjectNames; let i = index; trackBy: trackById">
+                    <td>{{ (subjectPage - 1) * pageSize + i + 1 }}</td>
+                    <td class="fw-semibold">{{ sn.name }}</td>
+                    <td>{{ nameCategory(sn.categoryId) }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('subjectName', sn)"><i
+                          class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('subjectName', sn)"><i
+                          class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="pagedSubjectNames.length === 0">
+                    <td colspan="4" class="text-center py-4 text-muted">No subject names found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+              <div>Showing {{ sStart }}–{{ sEnd }} of {{ filteredSubjectNames.length }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage-1)"
+                  [disabled]="subjectPage===1">Previous</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage+1)"
+                  [disabled]="subjectPage===subjectTotalPages">Next</button>
+              </div>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-center">
+              <small class="text-muted">Page {{ subjectPage }} of {{ subjectTotalPages }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subjects Tab -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='subjects'">
+          <div class="row g-3 mb-4 align-items-end filters-container">
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="openAdd('subject')">
+                <i class="fas fa-plus me-1"></i> Add Subject
+              </button>
+            </div>
+            <div class="col-12 col-md">
+              <input type="text" class="form-control" placeholder="Search subjects..." [(ngModel)]="searchTerm"
+                (input)="onFilterChange()" />
+            </div>
+            <div class="col-12 col-md-auto">
+              <select class="form-select" [(ngModel)]="filters.yearId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Years</option>
+                <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.yearNumber }}</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-auto">
+              <select class="form-select" [(ngModel)]="filters.categoryId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Categories</option>
+                <option *ngFor="let c of categories; trackBy: trackById" [ngValue]="c.id">{{ c.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Year</th>
+                    <th>Category</th>
+                    <th>Level</th>
+                    <th>Teacher</th>
+                    <th>Price</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let s of pagedSubjects; let i = index; trackBy: trackById">
+                    <td>{{ (subjectPage - 1) * pageSize + i + 1 }}</td>
+                    <td class="fw-semibold">{{ s.subjectName }}</td>
+                    <td>Year {{ numberYear(s.yearId) }}</td>
+                    <td>{{ s.categoryName }}</td>
+                    <td>{{ s.level }}</td>
+                    <td>{{ nameTeacher(s.teacherId) }}</td>
+                    <td>${{ s.price | number:'1.2-2' }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('subject', s)"><i
+                          class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('subject', s)"><i
+                          class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="pagedSubjects.length === 0">
+                    <td colspan="8" class="text-center py-4 text-muted">No subjects found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+              <div>Showing {{ sStart }}–{{ sEnd }} of {{ filteredSubjects.length }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage-1)"
+                  [disabled]="subjectPage===1">Previous</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage+1)"
+                  [disabled]="subjectPage===subjectTotalPages">Next</button>
+              </div>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-center">
+              <small class="text-muted">Page {{ subjectPage }} of {{ subjectTotalPages }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms Tab -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='terms'">
+          <div class="row g-3 mb-4 align-items-end filters-container">
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="openAdd('term')">
+                <i class="fas fa-plus me-1"></i> Add Term
+              </button>
+            </div>
+            <div class="col-12 col-md">
+              <input type="text" class="form-control" placeholder="Search terms..." [(ngModel)]="searchTerm"
+                (input)="onFilterChange()" />
+            </div>
+            <div class="col-12 col-md-auto">
+              <select class="form-select" [(ngModel)]="filters.subjectId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Subjects</option>
+                <option *ngFor="let s of subjects; trackBy: trackById" [ngValue]="s.id">{{ s.subjectName }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>#</th>
+                    <th>Number</th>
+                    <th>Subject</th>
+                    <th>Start Date</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let t of pagedTerms; let i = index; trackBy: trackById">
+                    <td>{{ (termPage - 1) * pageSize + i + 1 }}</td>
+                    <td class="fw-semibold">Term {{ t.termNumber }}</td>
+                    <td>{{ nameSubject(t.subjectId) }}</td>
+                    <td>{{ t.startDate | date }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('term', t)"><i
+                          class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('term', t)"><i
+                          class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="pagedTerms.length === 0">
+                    <td colspan="5" class="text-center py-4 text-muted">No terms found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+              <div>Showing {{ tStart }}–{{ tEnd }} of {{ filteredTerms.length }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" (click)="goTermPage(termPage-1)"
+                  [disabled]="termPage===1">Previous</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goTermPage(termPage+1)"
+                  [disabled]="termPage===termTotalPages">Next</button>
+              </div>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-center">
+              <small class="text-muted">Page {{ termPage }} of {{ termTotalPages }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weeks Tab -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='weeks'">
+          <div class="row g-3 mb-4 align-items-end filters-container">
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="openAdd('week')">
+                <i class="fas fa-plus me-1"></i> Add Week
+              </button>
+            </div>
+            <div class="col-12 col-md">
+              <input type="text" class="form-control" placeholder="Search weeks..." [(ngModel)]="searchTerm"
+                (input)="onFilterChange()" />
+            </div>
+            <div class="col-12 col-md-auto">
+              <select class="form-select" [(ngModel)]="filters.termId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Terms</option>
+                <option *ngFor="let t of terms; trackBy: trackById" [ngValue]="t.id">Term {{ t.termNumber }} - {{ nameSubject(t.subjectId) }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>#</th>
+                    <th>Number</th>
+                    <th>Term</th>
+                    <th>Subject</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let w of pagedWeeks; let i = index; trackBy: trackById">
+                    <td>{{ (weekPage - 1) * pageSize + i + 1 }}</td>
+                    <td class="fw-semibold">Week {{ w.weekNumber }}</td>
+                    <td>Term {{ numberTerm(w.termId) }}</td>
+                    <td>{{ nameSubject(getSubjectIdFromTermId(w.termId)) }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('week', w)"><i
+                          class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('week', w)"><i
+                          class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="pagedWeeks.length === 0">
+                    <td colspan="5" class="text-center py-4 text-muted">No weeks found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+              <div>Showing {{ wStart }}–{{ wEnd }} of {{ filteredWeeks.length }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" (click)="goWeekPage(weekPage-1)"
+                  [disabled]="weekPage===1">Previous</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goWeekPage(weekPage+1)"
+                  [disabled]="weekPage===weekTotalPages">Next</button>
+              </div>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-center">
+              <small class="text-muted">Page {{ weekPage }} of {{ weekTotalPages }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lessons Tab -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='lessons'">
+          <div class="row g-3 mb-4 align-items-end filters-container">
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="openAdd('lesson')">
+                <i class="fas fa-plus me-1"></i> Add Lesson
+              </button>
+            </div>
+            <div class="col-12 col-md">
+              <input type="text" class="form-control" placeholder="Search lessons..." [(ngModel)]="searchTerm"
+                (input)="onFilterChange()" />
+            </div>
+            <div class="col-12 col-md-auto">
+              <select class="form-select" [(ngModel)]="filters.weekId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Weeks</option>
+                <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">Week {{ w.weekNumber }} (Term {{ numberTerm(w.termId) }})</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-auto">
+              <select class="form-select" [(ngModel)]="filters.subjectId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Subjects</option>
+                <option *ngFor="let s of subjects; trackBy: trackById" [ngValue]="s.id">{{ s.subjectName }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Week</th>
+                    <th>Subject</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let l of pagedLessons; let i = index; trackBy: trackById">
+                    <td>{{ (lessonPage - 1) * pageSize + i + 1 }}</td>
+                    <td class="fw-semibold">{{ l.title }}</td>
+                    <td>Week {{ numberWeek(l.weekId) }}</td>
+                    <td>{{ nameSubject(l.subjectId) }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-primary me-1" (click)="openLessonPreview(l)"><i
+                          class="fas fa-eye"></i></button>
+                      <button class="btn btn-sm btn-outline-info me-1" (click)="manageResources(l)"><i
+                          class="fas fa-paperclip"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('lesson', l)"><i
+                          class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('lesson', l)"><i
+                          class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="pagedLessons.length === 0">
+                    <td colspan="5" class="text-center py-4 text-muted">No lessons found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+              <div>Showing {{ lStart }}–{{ lEnd }} of {{ filteredLessons.length }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" (click)="goLessonPage(lessonPage-1)"
+                  [disabled]="lessonPage===1">Previous</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goLessonPage(lessonPage+1)"
+                  [disabled]="lessonPage===lessonTotalPages">Next</button>
+              </div>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-center">
+              <small class="text-muted">Page {{ lessonPage }} of {{ lessonTotalPages }}</small>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tab-content -->
+
+    </div>
+  </main>
+
+  <!-- Dynamic Add/Edit Modal -->
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="isFormOpen">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ formMode==='add' ? 'Add' : 'Edit' }} {{ entityTitle }}</h5>
+          <button type="button" class="btn-close" (click)="closeForm()"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Year -->
+          <ng-container *ngIf="entityType==='year'">
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">Year Number *</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.yearNumber" 
+                  placeholder="7, 8, 9..." 
+                  min="1" 
+                  max="12" 
+                  required>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Category -->
+          <ng-container *ngIf="entityType==='category'">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Name *</label>
+                <input class="form-control" 
+                  [(ngModel)]="form.name" 
+                  placeholder="Mathematics / Science ..." 
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Color Tag</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.color">
+                  <option value="">Select Color</option>
+                  <option value="primary">Blue</option>
+                  <option value="success">Green</option>
+                  <option value="warning">Orange</option>
+                  <option value="danger">Red</option>
+                  <option value="info">Cyan</option>
+                  <option value="purple">Purple</option>
+                </select>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Description *</label>
+                <textarea class="form-control" 
+                  rows="4" 
+                  [(ngModel)]="form.description" 
+                  required></textarea>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Subject Name -->
+          <ng-container *ngIf="entityType==='subjectName'">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Name *</label>
+                <input class="form-control" 
+                  [(ngModel)]="form.name" 
+                  placeholder="Mathematics, Science, English..." 
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Category *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.categoryId" 
+                  required>
+                  <option [ngValue]="null">Select Category</option>
+                  <option *ngFor="let c of categories; trackBy: trackById" [ngValue]="c.id">{{ c.name }}</option>
+                </select>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Subject -->
+          <ng-container *ngIf="entityType==='subject'">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Year *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.yearId" 
+                  required>
+                  <option [ngValue]="null">Select Year</option>
+                  <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.yearNumber }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Subject Name *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.subjectNameId" 
+                  required>
+                  <option [ngValue]="null">Select Subject Name</option>
+                  <option *ngFor="let sn of subjectNames; trackBy: trackById" [ngValue]="sn.id">{{ sn.name }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Original Price ($) *</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.originalPrice" 
+                  min="0" 
+                  step="0.01" 
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Discount Percentage (%)</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.discountPercentage" 
+                  min="0" 
+                  max="100">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Level *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.level" 
+                  required>
+                  <option value="">Select Level</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Duration (hours) *</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.duration" 
+                  min="0" 
+                  step="0.5" 
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Teacher *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.teacherId" 
+                  required>
+                  <option [ngValue]="null">Select Teacher</option>
+                  <option *ngFor="let t of teachers; trackBy: trackById" [ngValue]="t.id">    {{ t.userName }} {{ t.email ? '(' + t.email + ')' : '' }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Start Date *</label>
+                <input type="date" class="form-control" 
+                  [(ngModel)]="form.startDate" 
+                  required>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Poster Image *</label>
+                <input type="file" class="form-control" 
+                  (change)="onFileChange($event, 'posterFile')"
+                  accept="image/*">
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Term -->
+          <ng-container *ngIf="entityType==='term'">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Subject *</label>
+<select class="form-select" 
+        [(ngModel)]="form.teacherUserName" 
+        required>
+  <option [ngValue]="null">Select Teacher</option>
+  <option *ngFor="let t of teachers" [ngValue]="t.userName">
+    {{ t.userName }} {{ t.email ? '(' + t.email + ')' : '' }}
+  </option>
+</select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Term Number *</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.termNumber" 
+                  min="1" 
+                  max="4" 
+                  placeholder="1, 2, 3, 4" 
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Start Date *</label>
+                <input type="date" class="form-control" 
+                  [(ngModel)]="form.startDate" 
+                  required>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Week -->
+          <ng-container *ngIf="entityType==='week'">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Term *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.termId" 
+                  required>
+                  <option [ngValue]="null">Select Term</option>
+                  <option *ngFor="let t of terms; trackBy: trackById" [ngValue]="t.id">Term {{ t.termNumber }} - {{ nameSubject(t.subjectId) }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Week Number *</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.weekNumber" 
+                  min="1" 
+                  max="52" 
+                  placeholder="1, 2, 3..." 
+                  required>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Lesson -->
+          <ng-container *ngIf="entityType==='lesson'">
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">Title *</label>
+                <input class="form-control" 
+                  [(ngModel)]="form.title" 
+                  name="title" 
+                  placeholder="Fractions Basics" 
+                  required>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Description *</label>
+                <textarea class="form-control" 
+                  rows="4" 
+                  [(ngModel)]="form.description" 
+                  name="description" 
+                  required></textarea>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Week *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.weekId" 
+                  name="weekId" 
+                  required>
+                  <option [ngValue]="null">Select Week</option>
+                  <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">
+                    Week {{ w.weekNumber }} (Term {{ numberTerm(w.termId) }})
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Poster Image *</label>
+                <input type="file" class="form-control" 
+                  (change)="onFileChange($event, 'posterFile')"
+                  accept="image/*">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Video File *</label>
+                <input type="file" class="form-control" 
+                  (change)="onFileChange($event, 'videoFile')"
+                  accept="video/*">
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-light" (click)="closeForm()">Cancel</button>
+          <button class="btn btn-primary" (click)="submitForm()">
+            <i class="fas fa-save me-1"></i> {{ formMode === 'add' ? 'Add' : 'Update' }} {{ entityTitle }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resource Management Modal -->
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="resourceModalOpen">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Manage Resources for {{ selectedLesson?.title }}</h5>
+          <button type="button" class="btn-close" (click)="closeResourceModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0">Resources ({{ lessonResources.length }})</h6>
+            <button class="btn btn-sm btn-primary" (click)="openAddResource()">
+              <i class="fas fa-plus me-1"></i> Add Resource
+            </button>
+          </div>
+          
+          <div *ngIf="lessonResources.length === 0" class="text-center py-4 text-muted">
+            No resources added yet.
+          </div>
+          
+          <div *ngFor="let resource of lessonResources" class="resource-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">{{ resource.title }}</h6>
+                <p class="mb-1 text-muted small">{{ resource.fileUrl }}</p>
+                <!-- <div class="d-flex gap-2">
+                  <span class="badge badge-light">{{ resource.type || 'Resource' }}</span>
+                </div> -->
+              </div>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteResource(resource)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-light" (click)="closeResourceModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Resource Modal -->
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="resourceFormOpen">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ editingResource ? 'Edit' : 'Add' }} Resource</h5>
+          <button type="button" class="btn-close" (click)="closeResourceForm()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-12">
+              <label class="form-label">Title *</label>
+              <input type="text" class="form-control" [(ngModel)]="resourceForm.title" required>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">File *</label>
+              <input type="file" class="form-control" (change)="onResourceFileChange($event)" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-light" (click)="closeResourceForm()">Cancel</button>
+          <button class="btn btn-primary" (click)="saveResource()">
+            <i class="fas fa-save me-1"></i> Save Resource
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="previewOpen">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ preview.title || preview.name }}</h5>
+          <button type="button" class="btn-close" (click)="closePreview()"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Lesson -->
+          <div *ngIf="preview.type==='lesson'">
+            <div class="ratio ratio-16x9 mb-3" *ngIf="preview.videoUrl">
+              <iframe [src]="preview.safeVideoUrl" allowfullscreen></iframe>
+            </div>
+            <h6>Description</h6>
+            <p class="text-muted">{{ preview.description }}</p>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="small text-secondary">Week: {{ numberWeek(preview.weekId) }}</div>
+              </div>
+              <div class="col-md-6">
+                <div class="small text-secondary">Subject: {{ nameSubject(preview.subjectId) }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category -->
+          <div *ngIf="preview.type==='category'">
+            <div class="d-flex align-items-center mb-3">
+              <span class="badge me-2" [ngClass]="{
+                'bg-primary': preview.color === 'primary',
+                'bg-success': preview.color === 'success',
+                'bg-warning': preview.color === 'warning',
+                'bg-danger': preview.color === 'danger',
+                'bg-info': preview.color === 'info',
+                'bg-purple': preview.color === 'purple',
+                'bg-secondary': !preview.color
+              }">{{ preview.name }}</span>
+              <span class="text-muted">{{ getSubjectNameCountForCategory(preview.id) }} subject names</span>
+            </div>
+            <h6>Description</h6>
+            <p class="text-muted">{{ preview.description }}</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-light" (click)="closePreview()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
