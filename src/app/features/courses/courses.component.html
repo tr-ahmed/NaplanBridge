@@ -158,7 +158,7 @@
 
   <!-- Subjects Grid -->
   @if (!loading() && paginatedCourses().length > 0) {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-8">
       @for (course of paginatedCourses(); track course.id) {
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group">
           <!-- Subject Image -->
@@ -305,7 +305,7 @@
       <button
         (click)="previousPage()"
         [disabled]="currentPage() === 1"
-        [class.opacity-50]="currentPage() === 1"
+        [class.opacity-100]="currentPage() === 1"
         [class.cursor-not-allowed]="currentPage() === 1"
         class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 disabled:hover:bg-white">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -320,13 +320,15 @@
         } @else {
           <button
             (click)="goToPage(page)"
+            class="px-3 py-2 rounded-lg transition-colors duration-200 font-medium border"
             [class.bg-blue-600]="currentPage() === page"
             [class.text-white]="currentPage() === page"
-            [class.hover:bg-blue-700]="currentPage() === page"
+            [class.border-blue-600]="currentPage() === page"
+            [class.hover:bg-blue-700]="currentPage() !== page"
             [class.bg-white]="currentPage() !== page"
-            [class.text-gray-700]="currentPage() !== page"
-            [class.hover:bg-gray-50]="currentPage() !== page"
-            class="px-3 py-2 rounded-lg border border-gray-300 transition-colors duration-200 font-medium">
+            [class.text-blue-600]="currentPage() !== page"
+            [class.border-gray-200]="currentPage() !== page"
+            [class.shadow]="currentPage() === page">
             {{ page }}
           </button>
         }
@@ -336,9 +338,12 @@
       <button
         (click)="nextPage()"
         [disabled]="currentPage() === totalPages()"
+        class="px-3 py-2 rounded-lg transition-colors duration-200 border"
+        [class.border-gray-200]="currentPage() !== totalPages()"
+        [class.text-blue-600]="currentPage() !== totalPages()"
+        [class.hover:bg-gray-50]="currentPage() !== totalPages()"
         [class.opacity-50]="currentPage() === totalPages()"
-        [class.cursor-not-allowed]="currentPage() === totalPages()"
-        class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 disabled:hover:bg-white">
+        [class.cursor-not-allowed]="currentPage() === totalPages()">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>
