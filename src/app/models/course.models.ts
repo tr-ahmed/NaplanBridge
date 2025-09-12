@@ -3,19 +3,33 @@
  */
 export interface Course {
   id: number;
-  name: string;
-  description: string;
+  yearId: number;
+  subjectNameId: number;
+  subjectName: string;
+  categoryId: number;
+  categoryName: string;
+  categoryDescription: string;
   price: number;
-  originalPrice?: number;
-  imageUrl: string;
-  category: string;
+  originalPrice: number;
+  discountPercentage: number;
+  posterUrl: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced';
-  duration: string;
-  instructor: string;
-  rating: number;
-  studentsCount: number;
+  duration: number;
+  weekNumber: number;
+  termNumber: number;
+  studentCount: number;
+  termIds: number[];
+  weekIds: number[];
+  // Legacy fields for backwards compatibility
+  name?: string;
+  description?: string;
+  imageUrl?: string;
+  category?: string;
+  instructor?: string;
+  rating?: number;
+  studentsCount?: number;
   isEnrolled?: boolean;
-  tags: string[];
+  tags?: string[];
   week?: number;
   term?: number;
   subject?: string;
@@ -34,6 +48,12 @@ export interface CourseFilter {
     max: number;
   };
   rating?: number;
+  // New fields for API compatibility
+  yearId?: number;
+  subjectNameId?: number;
+  categoryId?: number;
+  termIds?: number[];
+  weekIds?: number[];
 }
 
 /**

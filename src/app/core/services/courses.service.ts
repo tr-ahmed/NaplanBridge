@@ -11,7 +11,7 @@ import { environment } from '../../../environments/environment';
 })
 export class CoursesService {
   private readonly baseUrl = environment.apiBaseUrl || 'http://localhost:5000';
-  private useMock = true; // Set to true for development with mock data
+  private useMock =  environment.useMock || false; // Set to true for development with mock data
 
   // Cart management
   private cartSubject = new BehaviorSubject<Cart>({
@@ -334,11 +334,20 @@ export class CoursesService {
     if (!filter) return courses;
 
     return courses.filter(course => {
-      if (filter.term && course.term !== filter.term) return false;
-      if (filter.subject && course.subject !== filter.subject) return false;
-      if (filter.category && course.category !== filter.category) return false;
+      // Use new fields first, fallback to legacy fields
+      if (filter.term && course.termIds && !course.termIds.includes(filter.term)) return false;
+      if (filter.term && !course.termIds && course.term !== filter.term) return false;
+
+      if (filter.subject && course.subjectName !== filter.subject) return false;
+      if (filter.subject && !course.subjectName && course.subject !== filter.subject) return false;
+
+      if (filter.category && course.categoryName !== filter.category) return false;
+      if (filter.category && !course.categoryName && course.category !== filter.category) return false;
+
       if (filter.level && course.level !== filter.level) return false;
-      if (filter.rating && course.rating < filter.rating) return false;
+
+      if (filter.rating && course.rating && course.rating < filter.rating) return false;
+
       if (filter.priceRange) {
         if (course.price < filter.priceRange.min || course.price > filter.priceRange.max) {
           return false;

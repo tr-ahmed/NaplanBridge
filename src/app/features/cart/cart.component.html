@@ -50,13 +50,15 @@
               </div>
 
               <!-- Tags -->
-              <div class="flex flex-wrap gap-1 mb-4">
-                @for (tag of item.course.tags.slice(0, 3); track tag) {
-                  <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                    {{ tag }}
-                  </span>
-                }
-              </div>
+              @if (item.course.tags && item.course.tags.length > 0) {
+                <div class="flex flex-wrap gap-1 mb-4">
+                  @for (tag of item.course.tags!.slice(0, 3); track tag) {
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                      {{ tag }}
+                    </span>
+                  }
+                </div>
+              }
             </div>
 
             <!-- Price and Actions -->

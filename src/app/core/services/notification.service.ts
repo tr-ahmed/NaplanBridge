@@ -17,7 +17,7 @@ import { environment } from '../../../environments/environment';
 })
 export class NotificationService {
   private readonly baseUrl = environment.apiBaseUrl || 'http://localhost:5000';
-  private useMock = true; // Set to true for development with mock data
+  private useMock =  environment.useMock || false; // Set to true for development with mock data
 
   // Notifications state
   private notificationsSubject = new BehaviorSubject<Notification[]>([]);

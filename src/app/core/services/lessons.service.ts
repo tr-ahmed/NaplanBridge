@@ -11,7 +11,7 @@ import { environment } from '../../../environments/environment';
 })
 export class LessonsService {
   private readonly baseUrl = environment.apiBaseUrl || 'http://localhost:5000';
-  private useMock = true; // Set to true for development with mock data
+  private useMock =  environment.useMock || false; // Set to true for development with mock data
 
   // Loading states
   public loading = signal(false);

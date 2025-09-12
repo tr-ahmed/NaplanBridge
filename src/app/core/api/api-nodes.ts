@@ -8,186 +8,156 @@ import { Notification, NotificationStats, NotificationSettings } from '../../mod
 export const ApiNodes = {
   // Get all courses
   getAllCourses: {
-    url: '/api/courses',
+    url: '\/subjects',
     method: 'GET' as const,
     mockData: [
       {
         id: 1,
-        name: 'English Language Skills',
-        description: 'Master English reading, writing, and comprehension skills for NAPLAN success.',
-        price: 55,
-        originalPrice: 75,
-        imageUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        category: 'Language',
-        level: 'Beginner' as const,
-        duration: '8 weeks',
-        instructor: 'Sarah Johnson',
-        rating: 4.5,
-        studentsCount: 156,
-        tags: ['English', 'Reading', 'Writing'],
+        yearId: 1,
+        subjectNameId: 1,
+        subjectName: "Mathematics",
+        categoryId: 1,
+        categoryName: "STEM",
+        categoryDescription: "Science, Technology, Engineering, Mathematics",
+        price: 0,
+        originalPrice: 0,
+        discountPercentage: 0,
+        posterUrl: "https://res.cloudinary.com/drm73zopa/image/upload/v1757595681/360_F_60467600_edVkJvDs6Zl0HMo6x6IdZoO5Qv3WZQ64_iqcumo.jpg",
+        level: "Beginner" as const,
+        duration: 4,
+        weekNumber: 8,
+        termNumber: 4,
+        studentCount: 0,
+        termIds: [1, 2, 3, 4],
+        weekIds: [1, 2, 3, 4, 5, 6, 7, 8],
+        // Legacy fields for backwards compatibility
+        name: "Mathematics",
+        description: "Master mathematical foundations with comprehensive problem-solving techniques.",
+        imageUrl: "https://res.cloudinary.com/drm73zopa/image/upload/v1757595681/360_F_60467600_edVkJvDs6Zl0HMo6x6IdZoO5Qv3WZQ64_iqcumo.jpg",
+        category: "STEM",
+        instructor: "Michael Chen",
+        rating: 4.7,
+        studentsCount: 0,
+        tags: ["Math", "Problem Solving", "Algebra"],
         week: 1,
         term: 1,
-        subject: 'English'
+        subject: "Math"
       },
       {
         id: 2,
-        name: 'Mathematics Fundamentals',
-        description: 'Build strong mathematical foundations with comprehensive problem-solving techniques.',
-        price: 55,
-        originalPrice: 70,
-        imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        category: 'Mathematics',
-        level: 'Intermediate' as const,
-        duration: '10 weeks',
-        instructor: 'Michael Chen',
-        rating: 4.7,
-        studentsCount: 203,
-        tags: ['Math', 'Problem Solving', 'Algebra'],
-        week: 1,
-        term: 1,
-        subject: 'Math'
+        yearId: 1,
+        subjectNameId: 3,
+        subjectName: "Physics",
+        categoryId: 1,
+        categoryName: "STEM",
+        categoryDescription: "Science, Technology, Engineering, Mathematics",
+        price: 0,
+        originalPrice: 0,
+        discountPercentage: 0,
+        posterUrl: "https://res.cloudinary.com/drm73zopa/image/upload/v1757595701/15d113bc1c28ef9fa418d2c4812a16e8_mmbfrd.jpg",
+        level: "Beginner" as const,
+        duration: 4,
+        weekNumber: 8,
+        termNumber: 4,
+        studentCount: 0,
+        termIds: [5, 6, 7, 8],
+        weekIds: [9, 10, 11, 12, 13, 14, 15, 16],
+        // Legacy fields for backwards compatibility
+        name: "Physics",
+        description: "Explore the fascinating world of physics through hands-on learning and experiments.",
+        imageUrl: "https://res.cloudinary.com/drm73zopa/image/upload/v1757595701/15d113bc1c28ef9fa418d2c4812a16e8_mmbfrd.jpg",
+        category: "STEM",
+        instructor: "Dr. Lisa Park",
+        rating: 4.5,
+        studentsCount: 0,
+        tags: ["Physics", "Lab Work", "Science"],
+        week: 2,
+        term: 2,
+        subject: "Science"
       },
       {
         id: 3,
-        name: 'Science Exploration',
-        description: 'Discover the wonders of science through interactive experiments and demonstrations.',
-        price: 55,
-        originalPrice: 80,
-        imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        category: 'Science',
-        level: 'Beginner' as const,
-        duration: '6 weeks',
-        instructor: 'Dr. Emily Watson',
-        rating: 4.6,
-        studentsCount: 128,
-        tags: ['Science', 'Experiments', 'Biology'],
-        week: 1,
-        term: 1,
-        subject: 'Science'
-      },
-      {
-        id: 4,
-        name: 'History & Society',
-        description: 'Explore historical events and social studies to understand our world better.',
-        price: 55,
-        originalPrice: 65,
-        imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        category: 'Social Studies',
-        level: 'Intermediate' as const,
-        duration: '8 weeks',
-        instructor: 'Prof. David Miller',
-        rating: 4.4,
-        studentsCount: 95,
-        tags: ['History', 'Society', 'Culture'],
-        week: 1,
-        term: 1,
-        subject: 'HASS'
-      },
-      {
-        id: 5,
-        name: 'Advanced English Literature',
-        description: 'Dive deep into classic and contemporary literature with critical analysis.',
-        price: 55,
-        imageUrl: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        category: 'Language',
-        level: 'Advanced' as const,
-        duration: '12 weeks',
-        instructor: 'Dr. Amanda Clarke',
-        rating: 4.8,
-        studentsCount: 67,
-        tags: ['Literature', 'Analysis', 'Writing'],
-        week: 2,
-        term: 2,
-        subject: 'English'
-      },
-      {
-        id: 6,
-        name: 'Calculus & Advanced Math',
-        description: 'Master advanced mathematical concepts including calculus and statistics.',
-        price: 55,
-        imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        category: 'Mathematics',
-        level: 'Advanced' as const,
-        duration: '14 weeks',
-        instructor: 'Prof. Robert Kim',
-        rating: 4.9,
-        studentsCount: 89,
-        tags: ['Calculus', 'Statistics', 'Advanced Math'],
-        week: 2,
-        term: 2,
-        subject: 'Math'
-      },
-      {
-        id: 7,
-        name: 'Chemistry & Physics',
-        description: 'Explore the fascinating world of chemistry and physics through hands-on learning.',
-        price: 55,
-        imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        category: 'Science',
-        level: 'Intermediate' as const,
-        duration: '10 weeks',
-        instructor: 'Dr. Lisa Park',
+        yearId: 1,
+        subjectNameId: 5,
+        subjectName: "English",
+        categoryId: 2,
+        categoryName: "Social Studies",
+        categoryDescription: "Arts, Business, Social Science, Psychology",
+        price: 0,
+        originalPrice: 0,
+        discountPercentage: 0,
+        posterUrl: "https://res.cloudinary.com/drm73zopa/image/upload/v1757595786/english_he2iy4.jpg",
+        level: "Beginner" as const,
+        duration: 4,
+        weekNumber: 8,
+        termNumber: 4,
+        studentCount: 0,
+        termIds: [9, 10, 11, 12],
+        weekIds: [17, 18, 19, 20, 21, 22, 23, 24],
+        // Legacy fields for backwards compatibility
+        name: "English",
+        description: "Master English reading, writing, and comprehension skills for academic success.",
+        imageUrl: "https://res.cloudinary.com/drm73zopa/image/upload/v1757595786/english_he2iy4.jpg",
+        category: "Social Studies",
+        instructor: "Sarah Johnson",
         rating: 4.5,
-        studentsCount: 112,
-        tags: ['Chemistry', 'Physics', 'Lab Work'],
-        week: 2,
-        term: 2,
-        subject: 'Science'
-      },
-      {
-        id: 8,
-        name: 'Geography & Environmental Studies',
-        description: 'Understand our planet and environmental challenges facing the modern world.',
-        price: 55,
-        imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        category: 'Social Studies',
-        level: 'Beginner' as const,
-        duration: '8 weeks',
-        instructor: 'Dr. James Wilson',
-        rating: 4.3,
-        studentsCount: 134,
-        tags: ['Geography', 'Environment', 'Climate'],
-        week: 2,
-        term: 2,
-        subject: 'HASS'
+        studentsCount: 0,
+        tags: ["English", "Reading", "Writing"],
+        week: 1,
+        term: 1,
+        subject: "English"
       }
     ] as Course[]
   },
 
   // Get course by ID
   getCourseById: {
-    url: '/api/courses/:id',
+    url: '\/subjects/:id',
     method: 'GET' as const,
     mockData: {
       id: 1,
-      name: 'English Language Skills',
-      description: 'Master English reading, writing, and comprehension skills for NAPLAN success. This comprehensive course covers all aspects of English language learning including grammar, vocabulary, reading comprehension, and essay writing.',
-      price: 55,
-      originalPrice: 75,
-      imageUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      category: 'Language',
-      level: 'Beginner' as const,
-      duration: '8 weeks',
-      instructor: 'Sarah Johnson',
-      rating: 4.5,
-      studentsCount: 156,
-      tags: ['English', 'Reading', 'Writing'],
+      yearId: 1,
+      subjectNameId: 1,
+      subjectName: "Mathematics",
+      categoryId: 1,
+      categoryName: "STEM",
+      categoryDescription: "Science, Technology, Engineering, Mathematics",
+      price: 0,
+      originalPrice: 0,
+      discountPercentage: 0,
+      posterUrl: "https://res.cloudinary.com/drm73zopa/image/upload/v1757595681/360_F_60467600_edVkJvDs6Zl0HMo6x6IdZoO5Qv3WZQ64_iqcumo.jpg",
+      level: "Beginner" as const,
+      duration: 4,
+      weekNumber: 8,
+      termNumber: 4,
+      studentCount: 0,
+      termIds: [1, 2, 3, 4],
+      weekIds: [1, 2, 3, 4, 5, 6, 7, 8],
+      // Legacy fields for backwards compatibility
+      name: "Mathematics",
+      description: "Master mathematical foundations with comprehensive problem-solving techniques. This comprehensive course covers all aspects of mathematical learning including algebra, geometry, problem-solving techniques, and mathematical reasoning.",
+      imageUrl: "https://res.cloudinary.com/drm73zopa/image/upload/v1757595681/360_F_60467600_edVkJvDs6Zl0HMo6x6IdZoO5Qv3WZQ64_iqcumo.jpg",
+      category: "STEM",
+      instructor: "Michael Chen",
+      rating: 4.7,
+      studentsCount: 0,
+      tags: ["Math", "Problem Solving", "Algebra"],
       week: 1,
       term: 1,
-      subject: 'English'
+      subject: "Math"
     } as Course
   },
 
   // Get courses by category
   getCoursesByCategory: {
-    url: '/api/courses/category/:category',
+    url: '\/subjects/category/:category',
     method: 'GET' as const,
     mockData: [] as Course[]
   },
 
   // Get course categories
   getCategories: {
-    url: '/api/courses/categories',
+    url: '\/subjects/categories',
     method: 'GET' as const,
     mockData: [
       {
@@ -219,7 +189,7 @@ export const ApiNodes = {
 
   // Enroll in course
   enrollInCourse: {
-    url: '/api/courses/:id/enroll',
+    url: '\/subjects/:id/enroll',
     method: 'POST' as const,
     mockData: {
       success: true,
@@ -230,7 +200,7 @@ export const ApiNodes = {
 
   // Add to cart
   addToCart: {
-    url: '/api/cart/add',
+    url: '\/cart/add',
     method: 'POST' as const,
     mockData: {
       success: true,
@@ -241,7 +211,7 @@ export const ApiNodes = {
 
   // Get cart items
   getCartItems: {
-    url: '/api/cart',
+    url: '\/cart',
     method: 'GET' as const,
     mockData: {
       items: [],
@@ -252,7 +222,7 @@ export const ApiNodes = {
 
   // Remove from cart
   removeFromCart: {
-    url: '/api/cart/remove/:id',
+    url: '\/cart/remove/:id',
     method: 'DELETE' as const,
     mockData: {
       success: true,
@@ -264,7 +234,7 @@ export const ApiNodes = {
 
   // Get all notifications for user
   getNotifications: {
-    url: '/api/notifications',
+    url: '\/notifications',
     method: 'GET' as const,
     mockData: [
       {
@@ -275,7 +245,7 @@ export const ApiNodes = {
         isRead: false,
         createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
         priority: 'medium' as const,
-        actionUrl: '/courses/123',
+        actionUrl: '/subjects/123',
         actionText: 'View Course',
         imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
         metadata: { courseId: 123 }
@@ -327,7 +297,7 @@ export const ApiNodes = {
 
   // Get notification statistics
   getNotificationStats: {
-    url: '/api/notifications/stats',
+    url: '\/notifications/stats',
     method: 'GET' as const,
     mockData: {
       totalCount: 25,
@@ -347,7 +317,7 @@ export const ApiNodes = {
 
   // Mark notification as read
   markNotificationAsRead: {
-    url: '/api/notifications/:id/read',
+    url: '\/notifications/:id/read',
     method: 'PUT' as const,
     mockData: {
       success: true,
@@ -357,7 +327,7 @@ export const ApiNodes = {
 
   // Mark all notifications as read
   markAllNotificationsAsRead: {
-    url: '/api/notifications/read-all',
+    url: '\/notifications/read-all',
     method: 'PUT' as const,
     mockData: {
       success: true,
@@ -367,7 +337,7 @@ export const ApiNodes = {
 
   // Delete notification
   deleteNotification: {
-    url: '/api/notifications/:id',
+    url: '\/notifications/:id',
     method: 'DELETE' as const,
     mockData: {
       success: true,
@@ -377,7 +347,7 @@ export const ApiNodes = {
 
   // Get notification settings
   getNotificationSettings: {
-    url: '/api/notifications/settings',
+    url: '\/notifications/settings',
     method: 'GET' as const,
     mockData: {
       userId: 'user-123',
@@ -397,7 +367,7 @@ export const ApiNodes = {
 
   // Update notification settings
   updateNotificationSettings: {
-    url: '/api/notifications/settings',
+    url: '\/notifications/settings',
     method: 'PUT' as const,
     mockData: {
       success: true,
@@ -407,7 +377,7 @@ export const ApiNodes = {
 
   // Create new notification (admin only)
   createNotification: {
-    url: '/api/notifications',
+    url: '\/notifications',
     method: 'POST' as const,
     mockData: {
       success: true,
@@ -420,35 +390,35 @@ export const ApiNodes = {
 
   // Get all lessons
   getAllLessons: {
-    url: '/api/lessons',
+    url: '\/lessons',
     method: 'GET' as const,
     mockData: [] as any[] // Will be populated by the service
   },
 
   // Get lesson by ID
   getLessonById: {
-    url: '/api/lessons/:id',
+    url: '\/lessons/:id',
     method: 'GET' as const,
     mockData: {} as any // Will be populated by the service
   },
 
   // Get lessons by course ID
   getLessonsByCourse: {
-    url: '/api/courses/:courseId/lessons',
+    url: '\/subjects/:courseId/lessons',
     method: 'GET' as const,
     mockData: [] as any[]
   },
 
   // Get student lessons with progress
   getStudentLessons: {
-    url: '/api/students/:studentId/lessons',
+    url: '\/students/:studentId/lessons',
     method: 'GET' as const,
     mockData: [] as any[]
   },
 
   // Update lesson progress
   updateLessonProgress: {
-    url: '/api/lessons/:id/progress',
+    url: '\/lessons/:id/progress',
     method: 'PUT' as const,
     mockData: {
       success: true,
@@ -458,7 +428,7 @@ export const ApiNodes = {
 
   // Rate a lesson
   ratLesson: {
-    url: '/api/lessons/:id/rate',
+    url: '\/lessons/:id/rate',
     method: 'POST' as const,
     mockData: {
       success: true,
@@ -468,7 +438,7 @@ export const ApiNodes = {
 
   // Get lesson statistics for student
   getStudentLessonStats: {
-    url: '/api/students/:studentId/lessons/stats',
+    url: '\/students/:studentId/lessons/stats',
     method: 'GET' as const,
     mockData: {
       completedLessons: 0,
@@ -482,7 +452,7 @@ export const ApiNodes = {
 
   // Check course enrollment status
   checkEnrollment: {
-    url: '/api/courses/:id/enrollment',
+    url: '\/subjects/:id/enrollment',
     method: 'GET' as const,
     mockData: {
       enrolled: false
@@ -491,7 +461,7 @@ export const ApiNodes = {
 
   // Get user's enrolled courses
   getEnrolledCourses: {
-    url: '/api/user/enrolled-courses',
+    url: '\/user/enrolled-courses',
     method: 'GET' as const,
     mockData: []
   }

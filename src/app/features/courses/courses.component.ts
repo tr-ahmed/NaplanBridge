@@ -141,10 +141,12 @@ export class CoursesComponent implements OnInit, OnDestroy {
     if (this.searchQuery().trim()) {
       const query = this.searchQuery().toLowerCase().trim();
       filtered = filtered.filter(course =>
-        course.name.toLowerCase().includes(query) ||
-        course.description.toLowerCase().includes(query) ||
-        course.instructor.toLowerCase().includes(query) ||
-        course.tags.some(tag => tag.toLowerCase().includes(query))
+        (course.name || course.subjectName)?.toLowerCase().includes(query) ||
+        (course.description || '')?.toLowerCase().includes(query) ||
+        (course.instructor || '')?.toLowerCase().includes(query) ||
+        (course.tags || []).some(tag => tag.toLowerCase().includes(query)) ||
+        course.subjectName?.toLowerCase().includes(query) ||
+        course.categoryName?.toLowerCase().includes(query)
       );
     }
 
