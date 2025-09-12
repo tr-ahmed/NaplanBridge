@@ -14,7 +14,7 @@ import { filter } from 'rxjs/operators';
 })
 export class AppComponent implements OnInit, OnDestroy {
   protected readonly title = signal('NAPLAN-Bridge Learning Platform');
-  
+
   showHeader = true;
   showFooter = true;
   private routerEventsSubscription: any;
@@ -27,7 +27,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.checkCurrentRoute();
       });
-    
+
     this.checkCurrentRoute();
   }
 
@@ -39,21 +39,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private checkCurrentRoute() {
     const currentUrl = this.router.url;
-    
+
     const hideHeaderFooterPages = [
       '/select-role',
       '/admin/users',
       '/teacher/dashboard',
-            '/admin/content',
-<<<<<<< HEAD
-=======
-            '/admin/subscriptions',
->>>>>>> 4b2b1cdf8ce48ff47003c121e28436244c6cbf5d
+      '/admin/content',
+      '/admin/subscriptions',
 
     ];
-    
+
     const shouldHide = hideHeaderFooterPages.some(page => currentUrl.includes(page));
-    
+
     if (shouldHide) {
       this.showHeader = false;
       this.showFooter = false;
