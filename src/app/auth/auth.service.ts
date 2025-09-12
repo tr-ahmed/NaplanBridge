@@ -30,7 +30,7 @@ export class AuthService {
   ) {}
 
   private hasToken(): boolean {
-    return !!localStorage.getItem('token');
+    return !!localStorage.getItem('authToken');
   }
 
   // ✅ Login method using API
@@ -46,7 +46,7 @@ export class AuthService {
     return this.http.post<LoginResponse>(loginUrl, loginData).pipe(
       map((response: LoginResponse) => {
         // Store authentication data
-        localStorage.setItem('token', response.token);
+        localStorage.setItem('authToken', response.token);
         localStorage.setItem('userName', response.userName);
         localStorage.setItem('roles', JSON.stringify(response.roles));
         localStorage.setItem('currentUser', JSON.stringify({
@@ -142,7 +142,7 @@ export class AuthService {
 
   // ✅ Get authentication token
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return localStorage.getItem('authToken');
   }
 
   // ✅ Get remembered email

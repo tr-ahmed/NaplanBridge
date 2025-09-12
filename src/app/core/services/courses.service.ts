@@ -12,7 +12,7 @@ import { ToastService } from './toast.service';
   providedIn: 'root'
 })
 export class CoursesService {
-  private readonly baseUrl = environment.apiBaseUrl || 'https://naplanbridge.runasp.net';
+  private readonly baseUrl = environment.apiBaseUrl || 'https://naplanbridge.runasp.net/api';
   private useMock = environment.useMock || false; // Set to true for development with mock data
 
   // Cart management
@@ -123,6 +123,8 @@ export class CoursesService {
    * Add course to cart
    */
   addToCart(course: Course): Observable<boolean> {
+    console.log('🛒 Starting addToCart for course:', course.id, course.name || course.subjectName);
+
     const currentCart = this.cartSubject.value;
     const existingItem = currentCart.items.find(item => item.course.id === course.id);
 
@@ -141,31 +143,74 @@ export class CoursesService {
     this.cartSubject.next(currentCart);
     this.saveCartToStorage();
 
+    console.log('🛒 Local cart updated. Checking authentication...');
+
+    // Debug auth service injection
+    console.log('🔐 AuthService instance:', !!this.authService);
+
+    // Check localStorage directly
+    const localStorageToken = localStorage.getItem('token');
+    const localStorageUserName = localStorage.getItem('userName');
+    const localStorageRoles = localStorage.getItem('roles');
+
+    console.log('🔐 LocalStorage token:', localStorageToken ? localStorageToken.substring(0, 20) + '...' : 'null');
+    console.log('🔐 LocalStorage userName:', localStorageUserName);
+    console.log('🔐 LocalStorage roles:', localStorageRoles);
+
     // Check if user is authenticated before making API call
-    if (!this.authService.isAuthenticated()) {
-      this.toastService.showWarning('Please log in to sync your cart with the server');
+    const isAuthenticated = this.authService.isAuthenticated();
+    const token = this.authService.getToken();
+    const userName = this.authService.getUserName();
+
+    console.log('🔐 Authentication status:', isAuthenticated);
+    console.log('🔐 Token exists:', !!token);
+    console.log('🔐 Token value:', token ? token.substring(0, 20) + '...' : 'null');
+    console.log('🔐 User name:', userName);
+
+    // Force authentication check if user data exists but token is missing
+    if (!isAuthenticated && userName) {
+      console.log('🔍 User has userName but no token. This might be a token expiry issue.');
+      this.toastService.showWarning('Your session has expired. Please log in again to sync your cart with the server');
       return of(true);
     }
 
-    // Make API call only if user is authenticated
+    if (!isAuthenticated) {
+      console.log('⚠️ User not authenticated, showing warning');
+      this.toastService.showWarning('Please log in to sync your cart with the server');
+      return of(true);
+    }    // Make API call only if user is authenticated
     const endpoint = ApiNodes.addToCart;
     const url = `${this.baseUrl}${endpoint.url}`;
 
+    console.log('🛒 Cart API Debug Info:');
+    console.log('Base URL:', this.baseUrl);
+    console.log('Endpoint URL:', endpoint.url);
+    console.log('Full URL:', url);
+    console.log('Use Mock:', this.useMock);
+    console.log('Environment useMock:', environment.useMock);
+    console.log('User authenticated:', this.authService.isAuthenticated());
+
     if (this.useMock) {
+      console.log('Using mock data for cart');
       this.toastService.showSuccess('Course added to cart!');
       return of(true);
     }
 
+    console.log('Making API call to add to cart...');
     return this.http.post<any>(url, {
       subjectId: course.id,
       quantity: 1
     }).pipe(
-      map(() => {
+      map((response) => {
+        console.log('✅ Cart API Success:', response);
         this.toastService.showSuccess('Course added to cart!');
         return true;
       }),
       catchError((error) => {
-        console.error('Failed to add to cart via API:', error);
+        console.error('❌ Failed to add to cart via API:', error);
+        console.log('Error status:', error.status);
+        console.log('Error message:', error.message);
+        console.log('Error body:', error.error);
 
         // If it's an authentication error (401), show a message to the user
         if (error.status === 401) {
