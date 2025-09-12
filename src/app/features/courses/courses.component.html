@@ -16,7 +16,7 @@
     </div>
   </div>
 </section><!-- Main Content -->
-<div class="container mx-auto px-6 py-12 !pt-8">
+<div class="container mx-auto px-6 py-12 !pt-8 ">
   <!-- Filters Section -->
   <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
     <div class="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
@@ -300,14 +300,20 @@
 
   <!-- Pagination -->
   @if (!loading() && filteredCourses().length > itemsPerPage) {
-    <div class="flex items-center justify-center gap-2 mt-8">
+    <div class="flex items-center justify-center gap-2 mt-8 mb-4">
       <!-- Previous Button -->
       <button
         (click)="previousPage()"
         [disabled]="currentPage() === 1"
-        [class.opacity-100]="currentPage() === 1"
+        [class.opacity-50]="currentPage() === 1"
         [class.cursor-not-allowed]="currentPage() === 1"
-        class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 disabled:hover:bg-white">
+        [class.bg-white]="currentPage() !== 1"
+        [class.text-gray-600]="currentPage() !== 1"
+        [class.hover:bg-blue-50]="currentPage() !== 1"
+        [class.hover:text-blue-600]="currentPage() !== 1"
+        [class.bg-gray-100]="currentPage() === 1"
+        [class.text-gray-400]="currentPage() === 1"
+        class="px-4 py-2 rounded-lg border border-gray-300 transition-all duration-200 font-medium shadow-sm">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
@@ -316,19 +322,22 @@
       <!-- Page Numbers -->
       @for (page of getPageNumbers(); track page) {
         @if (page === -1) {
-          <span class="px-3 py-2 text-gray-500">...</span>
+          <span class="px-4 py-2 text-gray-400 font-medium">...</span>
         } @else {
           <button
             (click)="goToPage(page)"
-            class="px-3 py-2 rounded-lg transition-colors duration-200 font-medium border"
             [class.bg-blue-600]="currentPage() === page"
             [class.text-white]="currentPage() === page"
-            [class.border-blue-600]="currentPage() === page"
-            [class.hover:bg-blue-700]="currentPage() !== page"
+            [class.border-white]="currentPage() === page"
+            [class.shadow-lg]="currentPage() === page"
             [class.bg-white]="currentPage() !== page"
-            [class.text-blue-600]="currentPage() !== page"
-            [class.border-gray-200]="currentPage() !== page"
-            [class.shadow]="currentPage() === page">
+            [class.text-gray-700]="currentPage() !== page"
+            [class.border-gray-300]="currentPage() !== page"
+            [class.hover:bg-blue-50]="currentPage() !== page"
+            [class.hover:text-blue-600]="currentPage() !== page"
+            [class.hover:border-blue-300]="currentPage() !== page"
+            [class.hover:shadow-md]="currentPage() !== page"
+            class="px-4 py-2 rounded-lg border transition-all duration-200 font-medium min-w-[40px] shadow-sm">
             {{ page }}
           </button>
         }
@@ -338,12 +347,15 @@
       <button
         (click)="nextPage()"
         [disabled]="currentPage() === totalPages()"
-        class="px-3 py-2 rounded-lg transition-colors duration-200 border"
-        [class.border-gray-200]="currentPage() !== totalPages()"
-        [class.text-blue-600]="currentPage() !== totalPages()"
-        [class.hover:bg-gray-50]="currentPage() !== totalPages()"
         [class.opacity-50]="currentPage() === totalPages()"
-        [class.cursor-not-allowed]="currentPage() === totalPages()">
+        [class.cursor-not-allowed]="currentPage() === totalPages()"
+        [class.bg-white]="currentPage() !== totalPages()"
+        [class.text-gray-600]="currentPage() !== totalPages()"
+        [class.hover:bg-blue-50]="currentPage() !== totalPages()"
+        [class.hover:text-blue-600]="currentPage() !== totalPages()"
+        [class.bg-gray-100]="currentPage() === totalPages()"
+        [class.text-gray-400]="currentPage() === totalPages()"
+        class="px-4 py-2 rounded-lg border border-gray-300 transition-all duration-200 font-medium shadow-sm">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
         </svg>

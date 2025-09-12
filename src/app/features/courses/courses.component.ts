@@ -33,7 +33,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   selectedCategory = signal<string>('');
   searchQuery = signal<string>('');
   currentPage = signal<number>(1);
-  itemsPerPage = 8;
+  itemsPerPage = 9;
 
   // Filter and pagination options
   terms = [0, 1, 2, 3, 4]; // 0 = All Terms
