@@ -240,19 +240,19 @@ export class ContentManagementComponent implements OnInit {
     if (error.originalError && error.originalError.error && typeof error.originalError.error === 'string') {
       return error.originalError.error;
     }
-
+    
     if (error.error && typeof error.error === 'string') {
       return error.error;
     }
-
+    
     if (error.message && typeof error.message === 'string') {
       return error.message;
     }
-
+    
     if (typeof error === 'string') {
       return error;
     }
-
+    
     if (error.originalError && error.originalError.error && typeof error.originalError.error === 'object') {
       const possibleProperties = ['message', 'error', 'detail', 'title', 'reason'];
       for (const prop of possibleProperties) {
@@ -261,11 +261,11 @@ export class ContentManagementComponent implements OnInit {
         }
       }
     }
-
+    
     if (error.details && typeof error.details === 'string') {
       return error.details;
     }
-
+    
     return 'An unknown error occurred. Please try again.';
   }
 
@@ -321,7 +321,7 @@ export class ContentManagementComponent implements OnInit {
 async loadTeachers(): Promise<void> {
   try {
     const users = (await this.contentService.getTeachers().toPromise()) || [];
-
+    
     // Filter users with Teacher role
     this.teachers = users
       .filter(user => user.roles && user.roles.includes('Teacher'))
@@ -332,7 +332,7 @@ async loadTeachers(): Promise<void> {
         name: user.userName, // Use userName as name
         roles: user.roles
       }));
-
+      
   } catch (error) {
     console.error('Error loading teachers:', error);
     throw error;
@@ -384,27 +384,27 @@ async loadTeachers(): Promise<void> {
   numberYear(id: Id | undefined | null) {
     return this.years.find((y) => y.id === id)?.yearNumber || 0;
   }
-
+  
   nameSubject(id: Id | undefined | null) {
     return this.subjects.find((s) => s.id === id)?.subjectName || '';
   }
-
+  
   nameSubjectName(id: Id | undefined | null) {
     return this.subjectNames.find((s) => s.id === id)?.name || '';
   }
-
+  
   numberTerm(id: Id | undefined | null) {
     return this.terms.find((t) => t.id === id)?.termNumber || 0;
   }
-
+  
   numberWeek(id: Id | undefined | null) {
     return this.weeks.find((w) => w.id === id)?.weekNumber || 0;
   }
-
+  
   nameCategory(id: Id | undefined | null) {
     return this.categories.find((c) => c.id === id)?.name || '';
   }
-
+  
 nameTeacher(id: Id | undefined | null) {
   const teacher = this.teachers.find((t) => t.id === id);
   return teacher ? teacher.name || teacher.userName : '';
@@ -737,7 +737,7 @@ nameTeacher(id: Id | undefined | null) {
           startDate,
           posterFile
         ).toPromise();
-
+        
         if (newSubject) this.subjects.push(newSubject);
         break;
       }
@@ -787,17 +787,17 @@ nameTeacher(id: Id | undefined | null) {
         this.years = this.years.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'category':
-        await this.contentService.updateCategory(this.form.id, {
-          name: this.form.name,
-          description: this.form.description,
-          color: this.form.color
+        await this.contentService.updateCategory(this.form.id, { 
+          name: this.form.name, 
+          description: this.form.description, 
+          color: this.form.color 
         }).toPromise();
         this.categories = this.categories.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'subjectName':
-        await this.contentService.updateSubjectName(this.form.id, {
-          name: this.form.name,
-          categoryId: this.form.categoryId
+        await this.contentService.updateSubjectName(this.form.id, { 
+          name: this.form.name, 
+          categoryId: this.form.categoryId 
         }).toPromise();
         this.subjectNames = this.subjectNames.map(x => x.id === this.form.id ? this.form : x);
         break;
@@ -817,17 +817,17 @@ nameTeacher(id: Id | undefined | null) {
         this.subjects = this.subjects.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'term':
-        await this.contentService.updateTerm(this.form.id, {
-          subjectId: this.form.subjectId,
-          termNumber: this.form.termNumber,
-          startDate: this.form.startDate
+        await this.contentService.updateTerm(this.form.id, { 
+          subjectId: this.form.subjectId, 
+          termNumber: this.form.termNumber, 
+          startDate: this.form.startDate 
         }).toPromise();
         this.terms = this.terms.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'week':
-        await this.contentService.updateWeek(this.form.id, {
-          termId: this.form.termId,
-          weekNumber: this.form.weekNumber
+        await this.contentService.updateWeek(this.form.id, { 
+          termId: this.form.termId, 
+          weekNumber: this.form.weekNumber 
         }).toPromise();
         this.weeks = this.weeks.map(x => x.id === this.form.id ? this.form : x);
         break;
@@ -939,9 +939,9 @@ nameTeacher(id: Id | undefined | null) {
           startDate: new Date().toISOString().split('T')[0],
         };
       case 'week':
-        return {
-          termId: this.terms.length > 0 ? this.terms[0].id : null,
-          weekNumber: 1
+        return { 
+          termId: this.terms.length > 0 ? this.terms[0].id : null, 
+          weekNumber: 1 
         };
       case 'lesson':
         return {
@@ -1007,7 +1007,7 @@ nameTeacher(id: Id | undefined | null) {
         this.resourceForm.lessonId,
         this.resourceForm.file
       ).toPromise();
-
+      
       if (newResource) this.lessonResources.push(newResource);
 
       this.closeResourceForm();
@@ -1096,4 +1096,34 @@ getTeacherNameById(id: number): string {
   const teacher = this.teachers.find(t => t.id === id);
   return teacher ? teacher.userName : 'Unknown Teacher';
 }
+
+getSubjectDisplayName(subject: Subject): string {
+  return `${subject.subjectName} - Year ${this.numberYear(subject.yearId)} (${subject.level})`;
+}
+
+
+
+getYearIdFromTermId(termId: Id): Id | null {
+  const term = this.terms.find(t => t.id === termId);
+  if (!term) return null;
+  
+  const subject = this.subjects.find(s => s.id === term.subjectId);
+  return subject ? subject.yearId : null;
+}
+
+
+getWeekDisplayName(week: Week): string {
+  const termNumber = this.numberTerm(week.termId);
+  const subjectName = this.nameSubject(this.getSubjectIdFromTermId(week.termId));
+  const yearNumber = this.numberYear(this.getYearIdFromTermId(week.termId));
+  return `Week ${week.weekNumber} (Term ${termNumber} - ${subjectName} - Year ${yearNumber})`;
+}
+
+getTermDisplayName(term: Term): string {
+  const subjectName = this.nameSubject(term.subjectId);
+  const yearNumber = this.numberYear(this.getYearIdFromSubjectId(term.subjectId));
+  return `Term ${term.termNumber} - ${subjectName} - Year ${yearNumber}`;
+}
+
+
 }

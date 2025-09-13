@@ -47,6 +47,15 @@ export interface Subject {
 
 export interface Term {
   id: number;
+  termNumber: number;
+  startDate: string;
+  subjectId: number;
+}
+
+export interface Week {
+  id: number;
+  weekNumber: number;
+  termId: number;
 }
 
 export interface Lesson {
@@ -66,6 +75,13 @@ export interface Resource {
   lessonId: number;
 }
 
+export interface Teacher {
+  userName: string;
+  email: string;
+  id?: number;        // Make optional
+  name?: string;      // Make optional
+  roles?: string[];   // Make optional
+}
 
 
 export interface User {
