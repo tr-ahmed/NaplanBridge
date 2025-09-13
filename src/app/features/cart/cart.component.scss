@@ -12,6 +12,52 @@
   }
 }
 
+/* Student Selection Section */
+.student-selection {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px dashed #93c5fd;
+
+  .student-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+
+    &.selected {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .radio-button {
+      transition: all 0.2s ease;
+
+      &.selected {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+      }
+    }
+
+    .student-avatar {
+      background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+      border: 2px solid #bfdbfe;
+    }
+  }
+}
+
+/* Warning message styling */
+.warning-message {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-left: 4px solid #f59e0b;
+
+  svg {
+    color: #d97706;
+  }
+}
+
 /* Line clamp utilities for text truncation */
 .line-clamp-2 {
   display: -webkit-box;
@@ -78,6 +124,14 @@
       text-align: center;
     }
   }
+
+  /* Mobile responsive for student selection */
+  .student-selection {
+    .student-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
 }
 
 /* Empty state styling */
@@ -128,4 +182,15 @@
       }
     }
   }
+}
+
+/* Accessibility improvements */
+.student-card:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }

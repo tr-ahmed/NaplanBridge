@@ -266,7 +266,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
   viewLessons(course: Course): void {
     this.router.navigate(['/lessons'], {
       queryParams: {
-        subject: course.subject,
+        subjectId: course.subjectNameId,
+        subject: course.subject || course.subjectName,
         courseId: course.id
       }
     });

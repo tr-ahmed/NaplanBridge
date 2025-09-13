@@ -1,26 +1,31 @@
 /**
- * Interface for Lesson data
+ * Interface for Lesson data - Updated to match API response
  */
 export interface Lesson {
   id: number;
   title: string;
   description: string;
-  courseId: number;
-  courseName: string;
-  videoUrl?: string;
-  posterUrl?: string; // Video poster/thumbnail for video player
-  duration: number; // in minutes
-  order: number;
-  isCompleted: boolean;
-  rating: number;
-  totalRatings: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  subject: string;
-  term: number;
-  week: number;
-  thumbnailUrl?: string; // General lesson thumbnail for cards/lists
-  resources: LessonResource[];
-  isLocked: boolean;
+  posterUrl: string; // Main poster URL from API
+  videoUrl: string; // Video URL from API
+  weekId: number; // Updated to match API response
+  subjectId: number; // Updated to match API response
+  termId: number; // Updated to match API response
+
+  // Computed/derived fields (not from API)
+  courseId?: number;
+  courseName?: string;
+  duration?: number; // in minutes
+  order?: number;
+  isCompleted?: boolean;
+  rating?: number;
+  totalRatings?: number;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
+  subject?: string; // Derived from subjectId
+  term?: number; // Derived from termId
+  week?: number; // Derived from weekId
+  thumbnailUrl?: string; // Can use posterUrl as fallback
+  resources?: LessonResource[];
+  isLocked?: boolean;
   completedAt?: Date;
   lastAccessedAt?: Date;
   prerequisites?: number[]; // lesson IDs that must be completed first
@@ -76,13 +81,16 @@ export interface StudentLesson {
 }
 
 /**
- * Interface for Lesson Filter options
+ * Interface for Lesson Filter options - Updated to use IDs
  */
 export interface LessonFilter {
   courseId?: number;
-  subject?: string;
-  term?: number;
-  week?: number;
+  subjectId?: number; // Updated to use subjectId instead of subject string
+  subject?: string; // Keep for backward compatibility
+  termId?: number; // Updated to use termId
+  term?: number; // Keep for backward compatibility
+  weekId?: number; // Updated to use weekId
+  week?: number; // Keep for backward compatibility
   difficulty?: string;
   isCompleted?: boolean;
   rating?: number;

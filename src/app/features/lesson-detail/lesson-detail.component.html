@@ -139,7 +139,7 @@
               (change)="setActiveTab($any($event.target).value)"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
               <option value="video">📹 Video</option>
-              <option value="resources">📎 Resources ({{ lesson()!.resources.length }})</option>
+              <option value="resources">📎 Resources ({{ lesson()?.resources?.length || 0 }})</option>
               @if (hasQuizzes()) {
                 <option value="quiz">❓ Quiz ({{ quizzes().length }})</option>
               }
@@ -177,8 +177,8 @@
                 <i class="fas fa-paperclip mr-1 md:mr-2"></i>
                 <span class="hidden md:inline">Resources</span>
                 <span class="md:hidden">Res</span>
-                @if (lesson()!.resources.length > 0) {
-                  <span class="ml-1 md:ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">{{ lesson()!.resources.length }}</span>
+                @if ((lesson()?.resources?.length || 0) > 0) {
+                  <span class="ml-1 md:ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">{{ lesson()?.resources?.length || 0 }}</span>
                 }
               </button>
               @if (hasQuizzes()) {
@@ -440,9 +440,9 @@
             <div class="space-y-6">
               <h3 class="text-xl font-semibold text-gray-900">Lesson Resources</h3>
 
-              @if (lesson()!.resources.length > 0) {
+              @if ((lesson()?.resources?.length || 0) > 0) {
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  @for (resource of lesson()!.resources; track resource.id) {
+                  @for (resource of lesson()?.resources || []; track resource.id) {
                     <div class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200">
                       <div class="flex items-start justify-between">
                         <div class="flex-1">

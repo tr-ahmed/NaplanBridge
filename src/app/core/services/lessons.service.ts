@@ -20,7 +20,35 @@ export class LessonsService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Get all lessons
+   * Get lessons by subject ID
+   */
+  getLessonsBySubjectId(subjectId: number): Observable<Lesson[]> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const endpoint = ApiNodes.getLessonsBySubjectId;
+    const url = `${this.baseUrl}${endpoint.url.replace(':subjectId', subjectId.toString())}`;
+
+    if (this.useMock) {
+      return of(this.getMockLessons()).pipe(
+        map(lessons => lessons.filter(lesson => lesson.subjectId === subjectId)),
+        tap(() => this.loading.set(false))
+      );
+    }
+
+    return this.http.get<Lesson[]>(url).pipe(
+      tap(() => this.loading.set(false)),
+      catchError((error: HttpErrorResponse) => {
+        console.warn('API call failed, using mock data:', error);
+        this.error.set('Failed to load lessons, showing offline data');
+        this.loading.set(false);
+        return of(this.getMockLessons().filter(lesson => lesson.subjectId === subjectId));
+      })
+    );
+  }
+
+  /**
+   * Get all lessons (legacy method for backward compatibility)
    */
   getLessons(filter?: LessonFilter): Observable<Lesson[]> {
     this.loading.set(true);
@@ -191,7 +219,7 @@ export class LessonsService {
         totalLessons: mockLessons.length,
         completionRate: 0,
         totalTimeSpent: mockLessons.reduce((total, sl) => total + sl.progress.timeSpent, 0),
-        averageRating: mockLessons.reduce((total, sl) => total + sl.lesson.rating, 0) / mockLessons.length,
+        averageRating: mockLessons.reduce((total, sl) => total + (sl.lesson.rating || 0), 0) / mockLessons.length,
         currentStreak: 5
       };
       stats.completionRate = (stats.completedLessons / stats.totalLessons) * 100;
@@ -220,11 +248,24 @@ export class LessonsService {
     if (!filter) return lessons;
 
     return lessons.filter(lesson => {
+      // Handle both old and new subject filtering
       if (filter.subject && lesson.subject !== filter.subject) return false;
+      if (filter.subjectId && lesson.subjectId !== filter.subjectId) return false;
+
+      // Handle both old and new difficulty filtering
       if (filter.difficulty && lesson.difficulty !== filter.difficulty) return false;
+
+      // Handle completion status
       if (filter.isCompleted !== undefined && lesson.isCompleted !== filter.isCompleted) return false;
+
+      // Handle both old and new term filtering
       if (filter.term && lesson.term !== filter.term) return false;
+      if (filter.termId && lesson.termId !== filter.termId) return false;
+
+      // Handle both old and new week filtering
       if (filter.week && lesson.week !== filter.week) return false;
+      if (filter.weekId && lesson.weekId !== filter.weekId) return false;
+
       return true;
     });
   }
@@ -235,6 +276,12 @@ export class LessonsService {
         id: 1,
         title: 'Introduction to Mathematics',
         description: 'Learn the fundamentals of mathematics and basic arithmetic operations',
+        posterUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        videoUrl: 'https://example.com/video1.mp4',
+        weekId: 1,
+        subjectId: 1,
+        termId: 1,
+        // Optional fields
         subject: 'Mathematics',
         courseName: 'Basic Mathematics',
         courseId: 1,
@@ -246,8 +293,6 @@ export class LessonsService {
         isCompleted: true,
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        posterUrl: 'https://images.unsplash.com/photo-1596495577886-d920f1fb7238?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        videoUrl: 'https://example.com/video1.mp4',
         rating: 4.5,
         totalRatings: 12,
         resources: [
@@ -277,6 +322,12 @@ export class LessonsService {
         id: 2,
         title: 'English Grammar Basics',
         description: 'Learn fundamental English grammar rules and sentence structure',
+        posterUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        videoUrl: 'https://example.com/video2.mp4',
+        weekId: 2,
+        subjectId: 2,
+        termId: 1,
+        // Optional fields
         subject: 'English',
         courseName: 'Basic English Language',
         courseId: 2,
@@ -288,8 +339,6 @@ export class LessonsService {
         isCompleted: false,
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        posterUrl: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        videoUrl: 'https://example.com/video2.mp4',
         rating: 4.2,
         totalRatings: 8,
         resources: [
@@ -319,6 +368,12 @@ export class LessonsService {
         id: 3,
         title: 'Natural Sciences',
         description: 'Explore the world of science and natural phenomena',
+        posterUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        videoUrl: 'https://example.com/video3.mp4',
+        weekId: 3,
+        subjectId: 3,
+        termId: 1,
+        // Optional fields
         subject: 'Science',
         courseName: 'Natural Sciences',
         courseId: 3,
@@ -330,8 +385,6 @@ export class LessonsService {
         isCompleted: false,
         isLocked: false,
         thumbnailUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        posterUrl: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        videoUrl: 'https://example.com/video3.mp4',
         rating: 4.7,
         totalRatings: 15,
         resources: [
@@ -361,6 +414,12 @@ export class LessonsService {
         id: 4,
         title: 'History and Geography',
         description: 'Learn about Australian and world history and geography',
+        posterUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        videoUrl: 'https://example.com/video4.mp4',
+        weekId: 4,
+        subjectId: 4,
+        termId: 1,
+        // Optional fields
         subject: 'HASS',
         courseName: 'Social Studies',
         courseId: 4,
@@ -371,8 +430,6 @@ export class LessonsService {
         week: 4,
         isCompleted: true,
         isLocked: false,
-        thumbnailUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        videoUrl: 'https://example.com/video4.mp4',
         rating: 4.3,
         totalRatings: 10,
         resources: [
@@ -395,6 +452,12 @@ export class LessonsService {
         id: 5,
         title: 'Advanced Mathematics',
         description: 'Advanced mathematical concepts and basic algebra',
+        posterUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        videoUrl: 'https://example.com/video5.mp4',
+        weekId: 1,
+        subjectId: 1,
+        termId: 2,
+        // Optional fields
         subject: 'Mathematics',
         courseName: 'Advanced Mathematics',
         courseId: 5,
@@ -405,8 +468,6 @@ export class LessonsService {
         week: 1,
         isCompleted: false,
         isLocked: false,
-        thumbnailUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        videoUrl: 'https://example.com/video5.mp4',
         rating: 4.6,
         totalRatings: 6,
         resources: [
@@ -435,6 +496,12 @@ export class LessonsService {
         id: 6,
         title: 'Creative Writing',
         description: 'Develop creative writing skills in English',
+        posterUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        videoUrl: 'https://example.com/video6.mp4',
+        weekId: 2,
+        subjectId: 2,
+        termId: 2,
+        // Optional fields
         subject: 'English',
         courseName: 'Creative Writing',
         courseId: 6,
@@ -445,8 +512,6 @@ export class LessonsService {
         week: 2,
         isCompleted: false,
         isLocked: true,
-        thumbnailUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        videoUrl: 'https://example.com/video6.mp4',
         rating: 4.8,
         totalRatings: 4,
         resources: [
@@ -477,10 +542,10 @@ export class LessonsService {
         studentId: 1,
         progress: lesson.isCompleted ? 100 : Math.floor(Math.random() * 80),
         timeSpent: Math.floor(Math.random() * 30),
-        isCompleted: lesson.isCompleted,
+        isCompleted: lesson.isCompleted || false,
         attempts: Math.floor(Math.random() * 3) + 1,
         completedAt: lesson.isCompleted ? new Date() : undefined,
-        currentPosition: Math.floor(Math.random() * lesson.duration * 60)
+        currentPosition: Math.floor(Math.random() * (lesson.duration || 60) * 60)
       },
       canAccess: !lesson.isLocked,
       nextLesson: undefined,

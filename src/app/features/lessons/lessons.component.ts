@@ -27,6 +27,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   // Current subject and course info
   currentSubject = signal<string>('');
+  currentSubjectId = signal<number | null>(null);
   currentCourseId = signal<number | null>(null);
   isEnrolledInSubject = signal<boolean>(false);
 
@@ -44,17 +45,24 @@ export class LessonsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         const subject = params['subject'];
+        const subjectId = params['subjectId'];
         const courseId = params['courseId'];
 
         if (subject) {
           this.currentSubject.set(subject);
-          this.currentCourseId.set(courseId ? parseInt(courseId) : null);
-          this.loadLessonsForSubject(subject);
+        }
 
-          // Check enrollment status if courseId is provided
-          if (courseId) {
-            this.checkEnrollmentStatus(parseInt(courseId));
-          }
+        if (subjectId) {
+          this.currentSubjectId.set(parseInt(subjectId));
+          this.loadLessonsForSubjectId(parseInt(subjectId));
+        } else if (subject) {
+          // Fallback: try to load by subject name (for backward compatibility)
+          this.loadLessonsForSubject(subject);
+        }
+
+        if (courseId) {
+          this.currentCourseId.set(parseInt(courseId));
+          this.checkEnrollmentStatus(parseInt(courseId));
         }
       });
   }
@@ -65,7 +73,34 @@ export class LessonsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load lessons for the specified subject
+   * Load lessons for the specified subject ID (preferred method)
+   */
+  private loadLessonsForSubjectId(subjectId: number): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.lessonsService.getLessonsBySubjectId(subjectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (lessons) => {
+          this.lessons.set(lessons);
+          this.loading.set(false);
+
+          // If user is logged in, get their progress
+          if (this.authService.isAuthenticated()) {
+            this.loadStudentProgress();
+          }
+        },
+        error: (error) => {
+          this.error.set('Failed to load lessons');
+          this.loading.set(false);
+          console.error('Error loading lessons:', error);
+        }
+      });
+  }
+
+  /**
+   * Load lessons for the specified subject (legacy method for backward compatibility)
    */
   private loadLessonsForSubject(subject: string): void {
     this.loading.set(true);
@@ -151,9 +186,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
     // Check if user is enrolled in the course
     if (!this.isEnrolledInSubject()) {
       alert(`You need to enroll in ${this.currentSubject()} to access this lesson`);
-      this.router.navigate(['/courses'], {
-        queryParams: { subject: this.currentSubject() }
-      });
+      this.goBackToCourses();
       return;
     }
 
@@ -171,9 +204,17 @@ export class LessonsComponent implements OnInit, OnDestroy {
    * Navigate back to courses
    */
   goBackToCourses(): void {
-    this.router.navigate(['/courses'], {
-      queryParams: { subject: this.currentSubject() }
-    });
+    const queryParams: any = {};
+
+    // Use subjectId if available, otherwise fall back to subject name
+    if (this.currentSubjectId()) {
+      queryParams.subjectId = this.currentSubjectId();
+    }
+    if (this.currentSubject()) {
+      queryParams.subject = this.currentSubject();
+    }
+
+    this.router.navigate(['/courses'], { queryParams });
   }
 
   /**
@@ -232,7 +273,9 @@ export class LessonsComponent implements OnInit, OnDestroy {
   /**
    * Get difficulty color class
    */
-  getDifficultyColorClass(difficulty: string): string {
+  getDifficultyColorClass(difficulty: string | undefined): string {
+    if (!difficulty) return 'bg-gray-100 text-gray-800';
+
     switch (difficulty) {
       case 'Easy': return 'bg-green-100 text-green-800';
       case 'Medium': return 'bg-yellow-100 text-yellow-800';
@@ -244,7 +287,10 @@ export class LessonsComponent implements OnInit, OnDestroy {
   /**
    * Format duration
    */
-  formatDuration(minutes: number): string {
+  formatDuration(minutes: number | undefined): string {
+    if (!minutes || minutes === 0) {
+      return '';
+    }
     if (minutes < 60) {
       return `${minutes} min`;
     }

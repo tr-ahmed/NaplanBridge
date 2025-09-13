@@ -363,7 +363,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
           const sameCourse = lessons.filter(l =>
             l.subject === currentLesson.subject &&
             l.courseId === currentLesson.courseId
-          ).sort((a, b) => a.order - b.order);
+          ).sort((a, b) => (a.order || 0) - (b.order || 0));
 
           const currentIndex = sameCourse.findIndex(l => l.id === currentLessonId);
 
@@ -499,7 +499,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     this.updateCurrentChapter();
 
     // Update lesson progress
-    this.updateLessonProgress(currentTime, duration);
+    // this.updateLessonProgress(currentTime, duration);
   }
 
   onVideoPlay(): void {
@@ -546,7 +546,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     const currentLesson = this.lesson();
     if (currentLesson) {
       // In a real app, this would update the lesson in the backend
-      currentLesson.posterUrl = newUrl.trim() || undefined;
+      currentLesson.posterUrl = newUrl.trim() || currentLesson.posterUrl || 'https://via.placeholder.com/800x450/3B82F6/FFFFFF?text=No+Poster';
       console.log('Poster URL updated:', newUrl);
     }
   }
@@ -562,7 +562,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   clearPoster(): void {
     const currentLesson = this.lesson();
     if (currentLesson) {
-      currentLesson.posterUrl = undefined;
+      currentLesson.posterUrl = 'https://via.placeholder.com/800x450/3B82F6/FFFFFF?text=No+Poster';
       console.log('Poster cleared');
     }
   }
@@ -572,7 +572,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     if (currentLesson) {
       // In a real app, this would save to the backend
       console.log('Saving lesson settings:', currentLesson);
-      
+
       // Show success message (you can replace with a proper toast service)
       alert('Lesson settings saved successfully!');
     }
@@ -584,7 +584,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   getVideoPosterUrl(): string | undefined {
     const lesson = this.lesson();
     if (!lesson) return undefined;
-    
+
     // Prefer dedicated poster URL, fallback to thumbnail, then to a default
     return lesson.posterUrl || lesson.thumbnailUrl || '/assets/img/default-video-poster.jpg';
   }

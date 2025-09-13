@@ -203,12 +203,12 @@
 
             <!-- Subject Meta -->
             <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-              <span>{{ course.instructor || 'TBA' }}</span>
-              <span>{{ course.duration || course.termNumber + ' terms' }}</span>
+              <span>{{ course.instructor || 'Instructor Name' }}</span>
+              <span>{{ course.duration + ' hours' || course.termNumber + ' terms' }}</span>
             </div>
 
             <!-- Rating -->
-            @if (course.rating) {
+            <!-- @if (course.rating) {
               <div class="flex items-center mb-3">
                 <div class="flex items-center mr-2">
                   @for (star of getStarsArray(course.rating); track star) {
@@ -221,10 +221,10 @@
                 </div>
                 <span class="text-sm text-gray-600">{{ course.rating }} ({{ course.studentsCount || course.studentCount }} students)</span>
               </div>
-            }
+            } -->
 
             <!-- Tags -->
-            @if (course.tags && course.tags.length > 0) {
+            <!-- @if (course.tags && course.tags.length > 0) {
               <div class="flex flex-wrap gap-1 mb-4">
                 @for (tag of course.tags.slice(0, 3); track tag) {
                   <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
@@ -232,7 +232,7 @@
                   </span>
                 }
               </div>
-            }
+            } -->
 
             <!-- Price and Actions -->
             <div class="flex items-center justify-between">

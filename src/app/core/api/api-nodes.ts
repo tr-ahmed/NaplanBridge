@@ -388,6 +388,13 @@ export const ApiNodes = {
 
   // ===== LESSONS API =====
 
+  // Get lessons by subject ID
+  getLessonsBySubjectId: {
+    url: '\/Lessons/subject/:subjectId',
+    method: 'GET' as const,
+    mockData: [] as any[]
+  },
+
   // Get all lessons
   getAllLessons: {
     url: '\/lessons',

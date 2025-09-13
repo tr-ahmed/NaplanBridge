@@ -71,7 +71,7 @@
             <!-- Lesson Thumbnail -->
             <div class="relative h-48 overflow-hidden">
               <img
-                [src]="lesson.thumbnailUrl || 'https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Lesson'"
+                [src]="lesson.posterUrl || lesson.thumbnailUrl || 'https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Lesson'"
                 [alt]="lesson.title"
                 class="w-full h-full object-cover">
 
@@ -96,10 +96,12 @@
               }
 
               <!-- Difficulty Badge -->
-              <div class="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium"
-                   [class]="getDifficultyColorClass(lesson.difficulty)">
-                {{ lesson.difficulty }}
-              </div>
+              @if (lesson.difficulty) {
+                <div class="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium"
+                     [class]="getDifficultyColorClass(lesson.difficulty)">
+                  {{ lesson.difficulty }}
+                </div>
+              }
 
               <!-- Progress Bar (for enrolled students) -->
               @if (isEnrolledInSubject() && getLessonProgress(lesson.id) > 0) {
@@ -126,8 +128,20 @@
 
               <!-- Lesson Meta -->
               <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                <span>Term {{ lesson.term }} - Week {{ lesson.week }}</span>
-                <span>{{ formatDuration(lesson.duration) }}</span>
+                <span>
+                  @if (lesson.term && lesson.week) {
+                    Term {{ lesson.term }} - Week {{ lesson.week }}
+                  } @else if (lesson.termId && lesson.weekId) {
+                    Term {{ lesson.termId }} - Week {{ lesson.weekId }}
+                  } @else {
+                    Lesson {{ lesson.id }}
+                  }
+                </span>
+                <span>
+                  @if (lesson.duration) {
+                    {{ formatDuration(lesson.duration) }}
+                  }
+                </span>
               </div>
 
               <!-- Progress Info (for enrolled students) -->
