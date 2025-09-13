@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+<<<<<<< HEAD
     :root {
       --primary-gradient: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
       --secondary-gradient: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%);
@@ -25,6 +26,69 @@
     body {
       font-family: 'Inter', sans-serif;
       background-color: #f8fafc;
+=======
+    .is-invalid {
+      border-color: #dc3545 !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .is-valid {
+      border-color: #198754 !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .invalid-feedback, .valid-feedback {
+      display: block;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .form-control.is-invalid:focus, .form-select.is-invalid:focus {
+      box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .form-control.is-valid:focus, .form-select.is-valid:focus {
+      box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+    
+    .btn-gradient {
+      background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
+      color: white;
+      border: none;
+    }
+    
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1e293b 100%);
+      color: white;
+    }
+    
+    .bg-gray-50 {
+      background-color: #f9fafb;
+    }
+    
+    .bg-gray-100 {
+      background-color: #f3f4f6;
+    }
+    
+    .bg-gray-200 {
+      background-color: #e5e7eb;
+    }
+    
+    .text-blue-700 {
+      color: #1d4ed8;
+    }
+    
+    .hover\:bg-white\/10:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
     }
     
     .sidebar {
@@ -33,7 +97,11 @@
     }
     
     .sidebar.collapsed {
+<<<<<<< HEAD
       transform: translateX(-280px);
+=======
+      width: 80px;
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
     }
     
     .main-content {
@@ -42,6 +110,7 @@
     }
     
     .main-content.expanded {
+<<<<<<< HEAD
       margin-left: 0;
     }
     
@@ -106,6 +175,18 @@
       font-weight: 500;
       padding: 0.35rem 0.65rem;
       border-radius: 8px;
+=======
+      margin-left: 80px;
+    }
+    
+    .resource-item {
+      padding: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .resource-item:last-child {
+      border-bottom: none;
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
     }
   </style>
 </head>
@@ -134,12 +215,17 @@
         class="rounded-circle d-flex align-items-center justify-content-center shadow">
         <span class="fw-bold fs-4 text-blue-700">N</span>
       </div>
+<<<<<<< HEAD
       <div class="fw-bold fs-5 text-white">NAPLAN<span class="text-warning">Bridge</span></div>
+=======
+      <div class="fw-bold fs-5 text-white" *ngIf="!sidebarCollapsed">NAPLAN<span class="text-warning">Bridge</span></div>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
     </div>
     <nav class="sidebar-nav mt-4">
       <a [routerLink]="'/admin/users'"
         class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
         <i class="fas fa-users"></i>
+<<<<<<< HEAD
         <span>User Management</span>
       </a>
       <a [routerLink]="'/admin/content'"
@@ -147,15 +233,36 @@
         <i class="fas fa-book"></i>
         <span>Content Management</span>
       </a>
+=======
+        <span *ngIf="!sidebarCollapsed">User Management</span>
+      </a>
+
+      <a [routerLink]="'/admin/content'"
+        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all text-white active">
+        <i class="fas fa-book"></i>
+        <span *ngIf="!sidebarCollapsed">Content Management</span>
+      </a>
+
+      <!-- <a [routerLink]="'/admin/subscriptions'"
+        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all  hover:bg-white/10  text-white ">
+        <i class="fas fa-credit-card"></i>
+        <span *ngIf="!sidebarCollapsed">Subscription & Billing</span>
+      </a> -->
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
     </nav>
     <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
       <div class="d-flex align-items-center gap-3">
         <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
+<<<<<<< HEAD
         <div>
+=======
+        <div *ngIf="!sidebarCollapsed">
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
           <div class="fw-medium text-white">{{ userName }}</div>
           <small class="text-white-50">Super Admin</small>
         </div>
       </div>
+<<<<<<< HEAD
       <a (click)="handleLogout()" class="d-block mt-3 text-white-50 small"><i
           class="fas fa-sign-out-alt me-2"></i>Logout</a>
     </div>
@@ -164,6 +271,15 @@
   <main class="main-content" [class.expanded]="sidebarCollapsed" id="mainContent">
 
 
+=======
+      <a (click)="handleLogout()" class="d-block mt-3 text-white-50 small" *ngIf="!sidebarCollapsed"><i
+          class="fas fa-sign-out-alt me-2"></i>Logout</a>
+    </div>
+  </aside>
+  
+  <!-- Main -->
+  <main class="main-content" [class.expanded]="sidebarCollapsed" id="mainContent">
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
     <div class="container-fluid py-4">
       <div class="flex items-center justify-between mb-6">
         <div class="relative w-[520px] max-w-full">
@@ -178,9 +294,16 @@
 
         <div class="flex items-center gap-3">
           <button
+<<<<<<< HEAD
             class="btn btn-gradient inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition w-full sm:w-auto"
             type="button">
             <span class="whitespace-nowrap"> <i class="fa-solid fa-download me-1"></i> Export report</span>
+=======
+          [routerLink]="'/home'"
+            class="btn btn-gradient inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition w-full sm:w-auto"
+            type="button">
+            <span class="whitespace-nowrap"> home</span>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
           </button>
           <div class="flex items-center gap-4">
             <!-- Notification Bell -->
@@ -222,10 +345,17 @@
                 </ul>
               </div>
             </div>
+<<<<<<< HEAD
 
           </div>
         </div>
       </div>
+=======
+          </div>
+        </div>
+      </div>
+      
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
       <!-- Header -->
       <div class="row mb-4">
         <div class="col-12">
@@ -234,6 +364,7 @@
         </div>
       </div>
 
+<<<<<<< HEAD
       <!-- Stats -->
       <div class="row mb-4 g-3">
         <div class="col-12 col-sm-6 col-lg-2">
@@ -326,6 +457,137 @@
           </button>
         </li>
       </ul>
+=======
+      <!-- Stats Modern Responsive -->
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-8">
+        <!-- Years -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-calendar-alt fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Years</div>
+          <h4 class="text-3xl font-bold">{{ stats.years }}</h4>
+        </div>
+
+        <!-- Subjects -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-pink-500 to-rose-600 text-white 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-book-open fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Subjects</div>
+          <h4 class="text-3xl font-bold">{{ stats.subjects }}</h4>
+        </div>
+
+        <!-- Terms -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-layer-group fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Terms</div>
+          <h4 class="text-3xl font-bold">{{ stats.terms }}</h4>
+        </div>
+
+        <!-- Weeks -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-yellow-400 to-orange-500 text-white 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-calendar-week fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Weeks</div>
+          <h4 class="text-3xl font-bold">{{ stats.weeks }}</h4>
+        </div>
+
+        <!-- Lessons -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-cyan-400 to-sky-500 text-gray-900 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-video fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Lessons</div>
+          <h4 class="text-3xl font-bold">{{ stats.lessons }}</h4>
+        </div>
+
+        <!-- Categories -->
+        <div
+          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-purple-500 to-violet-700 text-white 
+                transition-transform transform hover:scale-105 hover:shadow-2xl">
+          <i class="fas fa-chalkboard fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
+          <div class="text-sm font-medium opacity-90">Categories</div>
+          <h4 class="text-3xl font-bold">{{ stats.categories }}</h4>
+        </div>
+      </div>
+      
+      <!-- Modern Responsive Tabs -->
+      <div class="flex flex-wrap justify-center gap-3 mb-6">
+        <!-- Years -->
+        <button
+          (click)="setActiveTab('years')"
+          [class]="activeTab==='years' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-calendar-alt"></i> Years
+        </button>
+
+        <!-- Categories -->
+        <button
+          (click)="setActiveTab('categories')"
+          [class]="activeTab==='categories' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-violet-700 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-chalkboard"></i> Categories
+        </button>
+
+        <!-- Subject Names -->
+        <button
+          (click)="setActiveTab('subjectNames')"
+          [class]="activeTab==='subjectNames' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-book"></i> Subject Names
+        </button>
+
+        <!-- Subjects -->
+        <button
+          (click)="setActiveTab('subjects')"
+          [class]="activeTab==='subjects' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-book-open"></i> Subjects
+        </button>
+
+        <!-- Terms -->
+        <button
+          (click)="setActiveTab('terms')"
+          [class]="activeTab==='terms' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-layer-group"></i> Terms
+        </button>
+
+        <!-- Weeks -->
+        <button
+          (click)="setActiveTab('weeks')"
+          [class]="activeTab==='weeks' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-500 text-gray-900 shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-calendar-week"></i> Weeks
+        </button>
+
+        <!-- Lessons -->
+        <button
+          (click)="setActiveTab('lessons')"
+          [class]="activeTab==='lessons' 
+            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-400 to-teal-600 text-white shadow-md scale-105' 
+            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
+        >
+          <i class="fas fa-video"></i> Lessons
+        </button>
+      </div>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
 
       <div class="tab-content">
 
@@ -341,12 +603,15 @@
               <input type="text" class="form-control" placeholder="Search years..." [(ngModel)]="searchTerm"
                 (input)="onFilterChange()" />
             </div>
+<<<<<<< HEAD
             <div class="col-12 col-md-auto">
               <select class="form-select" [(ngModel)]="filters.yearId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Years</option>
                 <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">{{ y.number }}</option>
               </select>
             </div>
+=======
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
           </div>
           <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
             <div class="table-responsive">
@@ -361,10 +626,15 @@
                 <tbody>
                   <tr *ngFor="let y of pagedYears; let i = index; trackBy: trackById">
                     <td>{{ (yearPage - 1) * pageSize + i + 1 }}</td>
+<<<<<<< HEAD
                     <td class="fw-semibold">Year {{ y.number }}</td>
                     <td class="text-end">
                       <button class="btn btn-sm btn-outline-primary me-1" (click)="viewChildren('year', y)"><i
                           class="fas fa-eye"></i></button>
+=======
+                    <td class="fw-semibold">Year {{ y.yearNumber }}</td>
+                    <td class="text-end">
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                       <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('year', y)"><i
                           class="fas fa-edit"></i></button>
                       <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('year', y)"><i
@@ -393,6 +663,133 @@
           </div>
         </div>
 
+<<<<<<< HEAD
+=======
+        <!-- Categories Tab -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='categories'">
+          <div class="row g-3 mb-4 align-items-end filters-container">
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="openAdd('category')">
+                <i class="fas fa-plus me-1"></i> Add Category
+              </button>
+            </div>
+            <div class="col-12 col-md">
+              <input type="text" class="form-control" placeholder="Search categories..." [(ngModel)]="searchTerm"
+                (input)="onFilterChange()" />
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Subject Count</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let c of pagedCategories; let i = index; trackBy: trackById">
+                    <td>{{ (categoryPage - 1) * pageSize + i + 1 }}</td>
+                    <td class="fw-semibold">{{ c.name }}</td>
+                    <td>{{ c.description | slice:0:50 }}{{ c.description.length > 50 ? '...' : '' }}</td>
+                    <td>{{ getSubjectNameCountForCategory(c.id) }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-primary me-1" (click)="openCategoryView(c)"><i
+                          class="fas fa-eye"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('category', c)"><i
+                          class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('category', c)"><i
+                          class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="pagedCategories.length === 0">
+                    <td colspan="5" class="text-center py-4 text-muted">No categories found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+              <div>Showing {{ cStart }}–{{ cEnd }} of {{ filteredCategories.length }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" (click)="goCategoryPage(categoryPage-1)"
+                  [disabled]="categoryPage===1">Previous</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goCategoryPage(categoryPage+1)"
+                  [disabled]="categoryPage===categoryTotalPages">Next</button>
+              </div>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-center">
+              <small class="text-muted">Page {{ categoryPage }} of {{ categoryTotalPages }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Names Tab -->
+        <div class="tab-pane fade show active" *ngIf="activeTab==='subjectNames'">
+          <div class="row g-3 mb-4 align-items-end filters-container">
+            <div class="col-12 col-md-auto">
+              <button class="btn btn-gradient w-100" (click)="openAdd('subjectName')">
+                <i class="fas fa-plus me-1"></i> Add Subject Name
+              </button>
+            </div>
+            <div class="col-12 col-md">
+              <input type="text" class="form-control" placeholder="Search subject names..." [(ngModel)]="searchTerm"
+                (input)="onFilterChange()" />
+            </div>
+            <div class="col-12 col-md-auto">
+              <select class="form-select" [(ngModel)]="filters.categoryId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Categories</option>
+                <option *ngFor="let c of categories; trackBy: trackById" [ngValue]="c.id">{{ c.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let sn of pagedSubjectNames; let i = index; trackBy: trackById">
+                    <td>{{ (subjectPage - 1) * pageSize + i + 1 }}</td>
+                    <td class="fw-semibold">{{ sn.name }}</td>
+                    <td>{{ nameCategory(sn.categoryId) }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('subjectName', sn)"><i
+                          class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('subjectName', sn)"><i
+                          class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="pagedSubjectNames.length === 0">
+                    <td colspan="4" class="text-center py-4 text-muted">No subject names found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
+              <div>Showing {{ sStart }}–{{ sEnd }} of {{ filteredSubjectNames.length }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage-1)"
+                  [disabled]="subjectPage===1">Previous</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage+1)"
+                  [disabled]="subjectPage===subjectTotalPages">Next</button>
+              </div>
+            </div>
+            <div class="border-top px-4 py-3 d-flex justify-content-center">
+              <small class="text-muted">Page {{ subjectPage }} of {{ subjectTotalPages }}</small>
+            </div>
+          </div>
+        </div>
+
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
         <!-- Subjects Tab -->
         <div class="tab-pane fade show active" *ngIf="activeTab==='subjects'">
           <div class="row g-3 mb-4 align-items-end filters-container">
@@ -408,7 +805,11 @@
             <div class="col-12 col-md-auto">
               <select class="form-select" [(ngModel)]="filters.yearId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Years</option>
+<<<<<<< HEAD
                 <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.number }}</option>
+=======
+                <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.yearNumber }}</option>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
               </select>
             </div>
             <div class="col-12 col-md-auto">
@@ -425,9 +826,16 @@
                   <tr>
                     <th>#</th>
                     <th>Name</th>
+<<<<<<< HEAD
                     <th>Level</th>
                     <th>Teacher</th>
                     <th>Category</th>
+=======
+                    <th>Year</th>
+                    <th>Category</th>
+                    <th>Level</th>
+                    <th>Teacher</th>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                     <th>Price</th>
                     <th class="text-end">Actions</th>
                   </tr>
@@ -435,6 +843,7 @@
                 <tbody>
                   <tr *ngFor="let s of pagedSubjects; let i = index; trackBy: trackById">
                     <td>{{ (subjectPage - 1) * pageSize + i + 1 }}</td>
+<<<<<<< HEAD
                     <td class="fw-semibold">{{ s.name }}</td>
                     <td><span class="badge badge-light">{{ s.level }}</span></td>
                     <td>{{ nameTeacher(s.teacherId) }}</td>
@@ -445,6 +854,15 @@
                           class="fas fa-eye"></i></button>
                       <button class="btn btn-sm btn-outline-info me-1" (click)="manageResources(s)"><i
                           class="fas fa-paperclip"></i></button>
+=======
+                    <td class="fw-semibold">{{ s.subjectName }}</td>
+                    <td>Year {{ numberYear(s.yearId) }}</td>
+                    <td>{{ s.categoryName }}</td>
+                    <td>{{ s.level }}</td>
+                    <td>{{ nameTeacher(s.teacherId) }}</td>
+                    <td>${{ s.price | number:'1.2-2' }}</td>
+                    <td class="text-end">
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                       <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('subject', s)"><i
                           class="fas fa-edit"></i></button>
                       <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('subject', s)"><i
@@ -452,7 +870,11 @@
                     </td>
                   </tr>
                   <tr *ngIf="pagedSubjects.length === 0">
+<<<<<<< HEAD
                     <td colspan="7" class="text-center py-4 text-muted">No subjects found.</td>
+=======
+                    <td colspan="8" class="text-center py-4 text-muted">No subjects found.</td>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                   </tr>
                 </tbody>
               </table>
@@ -485,6 +907,7 @@
                 (input)="onFilterChange()" />
             </div>
             <div class="col-12 col-md-auto">
+<<<<<<< HEAD
               <select class="form-select" [(ngModel)]="filters.yearId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Years</option>
                 <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.number }}</option>
@@ -494,6 +917,11 @@
               <select class="form-select" [(ngModel)]="filters.subjectId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Subjects</option>
                 <option *ngFor="let s of subjects; trackBy: trackById" [ngValue]="s.id">{{ s.name }}</option>
+=======
+              <select class="form-select" [(ngModel)]="filters.subjectId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Subjects</option>
+                <option *ngFor="let s of subjects; trackBy: trackById" [ngValue]="s.id">{{ s.subjectName }}</option>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
               </select>
             </div>
           </div>
@@ -504,14 +932,20 @@
                   <tr>
                     <th>#</th>
                     <th>Number</th>
+<<<<<<< HEAD
                     <th>Year</th>
                     <th>Subject</th>
+=======
+                    <th>Subject</th>
+                    <th>Start Date</th>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                     <th class="text-end">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let t of pagedTerms; let i = index; trackBy: trackById">
                     <td>{{ (termPage - 1) * pageSize + i + 1 }}</td>
+<<<<<<< HEAD
                     <td class="fw-semibold">Term {{ t.number }}</td>
                     <td>
                       {{ getYearSubjectById(t.yearSubjectId)?.yearNumber }}
@@ -529,6 +963,16 @@
                       <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('term', t)">
                         <i class="fas fa-trash-alt"></i>
                       </button>
+=======
+                    <td class="fw-semibold">Term {{ t.termNumber }}</td>
+                    <td>{{ nameSubject(t.subjectId) }}</td>
+                    <td>{{ t.startDate | date }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('term', t)"><i
+                          class="fas fa-edit"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('term', t)"><i
+                          class="fas fa-trash-alt"></i></button>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                     </td>
                   </tr>
                   <tr *ngIf="pagedTerms.length === 0">
@@ -567,6 +1011,7 @@
             <div class="col-12 col-md-auto">
               <select class="form-select" [(ngModel)]="filters.termId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Terms</option>
+<<<<<<< HEAD
                 <option *ngFor="let t of terms; trackBy: trackById" [ngValue]="t.id">Term {{ t.number }}</option>
               </select>
             </div>
@@ -574,6 +1019,9 @@
               <select class="form-select" [(ngModel)]="filters.yearId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Years</option>
                 <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.number }}</option>
+=======
+                <option *ngFor="let t of terms; trackBy: trackById" [ngValue]="t.id">Term {{ t.termNumber }} - {{ nameSubject(t.subjectId) }}</option>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
               </select>
             </div>
           </div>
@@ -585,17 +1033,28 @@
                     <th>#</th>
                     <th>Number</th>
                     <th>Term</th>
+<<<<<<< HEAD
+=======
+                    <th>Subject</th>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                     <th class="text-end">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let w of pagedWeeks; let i = index; trackBy: trackById">
                     <td>{{ (weekPage - 1) * pageSize + i + 1 }}</td>
+<<<<<<< HEAD
                     <td class="fw-semibold">Week {{ w.number }}</td>
                     <td>Term {{ numberTerm(w.termId) }}</td>
                     <td class="text-end">
                       <button class="btn btn-sm btn-outline-primary me-1" (click)="viewChildren('week', w)"><i
                           class="fas fa-eye"></i></button>
+=======
+                    <td class="fw-semibold">Week {{ w.weekNumber }}</td>
+                    <td>Term {{ numberTerm(w.termId) }}</td>
+                    <td>{{ nameSubject(getSubjectIdFromTermId(w.termId)) }}</td>
+                    <td class="text-end">
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                       <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('week', w)"><i
                           class="fas fa-edit"></i></button>
                       <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('week', w)"><i
@@ -603,7 +1062,11 @@
                     </td>
                   </tr>
                   <tr *ngIf="pagedWeeks.length === 0">
+<<<<<<< HEAD
                     <td colspan="4" class="text-center py-4 text-muted">No weeks found.</td>
+=======
+                    <td colspan="5" class="text-center py-4 text-muted">No weeks found.</td>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                   </tr>
                 </tbody>
               </table>
@@ -636,6 +1099,7 @@
                 (input)="onFilterChange()" />
             </div>
             <div class="col-12 col-md-auto">
+<<<<<<< HEAD
               <select class="form-select" [(ngModel)]="filters.yearId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Years</option>
                 <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.number }}</option>
@@ -645,6 +1109,17 @@
               <select class="form-select" [(ngModel)]="filters.weekId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Weeks</option>
                 <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">Week {{ w.number }}</option>
+=======
+              <select class="form-select" [(ngModel)]="filters.weekId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Weeks</option>
+                <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">Week {{ w.weekNumber }} (Term {{ numberTerm(w.termId) }})</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-auto">
+              <select class="form-select" [(ngModel)]="filters.subjectId" (change)="onFilterChange()">
+                <option [ngValue]="null">All Subjects</option>
+                <option *ngFor="let s of subjects; trackBy: trackById" [ngValue]="s.id">{{ s.subjectName }}</option>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
               </select>
             </div>
           </div>
@@ -656,7 +1131,10 @@
                     <th>#</th>
                     <th>Title</th>
                     <th>Week</th>
+<<<<<<< HEAD
                     <th>Term</th>
+=======
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                     <th>Subject</th>
                     <th class="text-end">Actions</th>
                   </tr>
@@ -666,11 +1144,20 @@
                     <td>{{ (lessonPage - 1) * pageSize + i + 1 }}</td>
                     <td class="fw-semibold">{{ l.title }}</td>
                     <td>Week {{ numberWeek(l.weekId) }}</td>
+<<<<<<< HEAD
                     <td>Term {{ numberTerm(getTermIdFromWeekId(l.weekId)) }}</td>
                     <td>{{ nameSubject(getSubjectIdFromWeekId(l.weekId)) }}</td>
                     <td class="text-end">
                       <button class="btn btn-sm btn-outline-primary me-1" (click)="openLessonPreview(l)"><i
                           class="fas fa-eye"></i></button>
+=======
+                    <td>{{ nameSubject(l.subjectId) }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-primary me-1" (click)="openLessonPreview(l)"><i
+                          class="fas fa-eye"></i></button>
+                      <button class="btn btn-sm btn-outline-info me-1" (click)="manageResources(l)"><i
+                          class="fas fa-paperclip"></i></button>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                       <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('lesson', l)"><i
                           class="fas fa-edit"></i></button>
                       <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('lesson', l)"><i
@@ -678,7 +1165,11 @@
                     </td>
                   </tr>
                   <tr *ngIf="pagedLessons.length === 0">
+<<<<<<< HEAD
                     <td colspan="6" class="text-center py-4 text-muted">No lessons found.</td>
+=======
+                    <td colspan="5" class="text-center py-4 text-muted">No lessons found.</td>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                   </tr>
                 </tbody>
               </table>
@@ -698,6 +1189,7 @@
           </div>
         </div>
 
+<<<<<<< HEAD
         <!-- Categories Tab -->
         <div class="tab-pane fade show active" *ngIf="activeTab==='categories'">
           <div class="row g-3 mb-4 align-items-end filters-container">
@@ -759,6 +1251,8 @@
           </div>
         </div>
 
+=======
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
       </div><!-- /tab-content -->
 
     </div>
@@ -778,6 +1272,7 @@
             <div class="row g-3">
               <div class="col-md-12">
                 <label class="form-label">Year Number *</label>
+<<<<<<< HEAD
                 <input type="number" class="form-control" [(ngModel)]="form.number" placeholder="7, 8, 9..." min="1" max="12" required>
                 <div class="form-text">Enter the year number (e.g., 7 for Year 7)</div>
               </div>
@@ -926,6 +1421,14 @@
               <div class="col-md-12">
                 <label class="form-label">Learning Objectives</label>
                 <textarea class="form-control" rows="3" [(ngModel)]="form.objectives" placeholder="What students will learn..."></textarea>
+=======
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.yearNumber" 
+                  placeholder="7, 8, 9..." 
+                  min="1" 
+                  max="12" 
+                  required>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
               </div>
             </div>
           </ng-container>
@@ -935,11 +1438,23 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Name *</label>
+<<<<<<< HEAD
                 <input class="form-control" [(ngModel)]="form.name" placeholder="Mathematics / Science ..." required>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Color Tag</label>
                 <select class="form-select" [(ngModel)]="form.color">
+=======
+                <input class="form-control" 
+                  [(ngModel)]="form.name" 
+                  placeholder="Mathematics / Science ..." 
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Color Tag</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.color">
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
                   <option value="">Select Color</option>
                   <option value="primary">Blue</option>
                   <option value="success">Green</option>
@@ -951,7 +1466,215 @@
               </div>
               <div class="col-md-12">
                 <label class="form-label">Description *</label>
+<<<<<<< HEAD
                 <textarea class="form-control" rows="4" [(ngModel)]="form.description" required></textarea>
+=======
+                <textarea class="form-control" 
+                  rows="4" 
+                  [(ngModel)]="form.description" 
+                  required></textarea>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Subject Name -->
+          <ng-container *ngIf="entityType==='subjectName'">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Name *</label>
+                <input class="form-control" 
+                  [(ngModel)]="form.name" 
+                  placeholder="Mathematics, Science, English..." 
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Category *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.categoryId" 
+                  required>
+                  <option [ngValue]="null">Select Category</option>
+                  <option *ngFor="let c of categories; trackBy: trackById" [ngValue]="c.id">{{ c.name }}</option>
+                </select>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Subject -->
+          <ng-container *ngIf="entityType==='subject'">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Year *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.yearId" 
+                  required>
+                  <option [ngValue]="null">Select Year</option>
+                  <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.yearNumber }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Subject Name *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.subjectNameId" 
+                  required>
+                  <option [ngValue]="null">Select Subject Name</option>
+                  <option *ngFor="let sn of subjectNames; trackBy: trackById" [ngValue]="sn.id">{{ sn.name }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Original Price ($) *</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.originalPrice" 
+                  min="0" 
+                  step="0.01" 
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Discount Percentage (%)</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.discountPercentage" 
+                  min="0" 
+                  max="100">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Level *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.level" 
+                  required>
+                  <option value="">Select Level</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Duration (hours) *</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.duration" 
+                  min="0" 
+                  step="0.5" 
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Teacher *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.teacherId" 
+                  required>
+                  <option [ngValue]="null">Select Teacher</option>
+                  <option *ngFor="let t of teachers; trackBy: trackById" [ngValue]="t.id">    {{ t.userName }} {{ t.email ? '(' + t.email + ')' : '' }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Start Date *</label>
+                <input type="date" class="form-control" 
+                  [(ngModel)]="form.startDate" 
+                  required>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Poster Image *</label>
+                <input type="file" class="form-control" 
+                  (change)="onFileChange($event, 'posterFile')"
+                  accept="image/*">
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Term -->
+          <ng-container *ngIf="entityType==='term'">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Subject *</label>
+              <select class="form-select" 
+                  [(ngModel)]="form.subjectId" 
+                  required>
+                  <option [ngValue]="null">Select Subject</option>
+                  <option *ngFor="let s of subjects; trackBy: trackById" [ngValue]="s.id">{{ s.subjectName }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Term Number *</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.termNumber" 
+                  min="1" 
+                  max="4" 
+                  placeholder="1, 2, 3, 4" 
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Start Date *</label>
+                <input type="date" class="form-control" 
+                  [(ngModel)]="form.startDate" 
+                  required>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Week -->
+          <ng-container *ngIf="entityType==='week'">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Term *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.termId" 
+                  required>
+                  <option [ngValue]="null">Select Term</option>
+                  <option *ngFor="let t of terms; trackBy: trackById" [ngValue]="t.id">Term {{ t.termNumber }} - {{ nameSubject(t.subjectId) }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Week Number *</label>
+                <input type="number" class="form-control" 
+                  [(ngModel)]="form.weekNumber" 
+                  min="1" 
+                  max="52" 
+                  placeholder="1, 2, 3..." 
+                  required>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Lesson -->
+          <ng-container *ngIf="entityType==='lesson'">
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">Title *</label>
+                <input class="form-control" 
+                  [(ngModel)]="form.title" 
+                  name="title" 
+                  placeholder="Fractions Basics" 
+                  required>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Description *</label>
+                <textarea class="form-control" 
+                  rows="4" 
+                  [(ngModel)]="form.description" 
+                  name="description" 
+                  required></textarea>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Week *</label>
+                <select class="form-select" 
+                  [(ngModel)]="form.weekId" 
+                  name="weekId" 
+                  required>
+                  <option [ngValue]="null">Select Week</option>
+                  <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">
+                    Week {{ w.weekNumber }} (Term {{ numberTerm(w.termId) }})
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Poster Image *</label>
+                <input type="file" class="form-control" 
+                  (change)="onFileChange($event, 'posterFile')"
+                  accept="image/*">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Video File *</label>
+                <input type="file" class="form-control" 
+                  (change)="onFileChange($event, 'videoFile')"
+                  accept="video/*">
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
               </div>
             </div>
           </ng-container>
@@ -972,17 +1695,26 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
+<<<<<<< HEAD
           <h5 class="modal-title">Manage Resources for {{ selectedSubject?.name }}</h5>
+=======
+          <h5 class="modal-title">Manage Resources for {{ selectedLesson?.title }}</h5>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
           <button type="button" class="btn-close" (click)="closeResourceModal()"></button>
         </div>
         <div class="modal-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
+<<<<<<< HEAD
             <h6 class="mb-0">Resources ({{ subjectResources.length }})</h6>
+=======
+            <h6 class="mb-0">Resources ({{ lessonResources.length }})</h6>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
             <button class="btn btn-sm btn-primary" (click)="openAddResource()">
               <i class="fas fa-plus me-1"></i> Add Resource
             </button>
           </div>
           
+<<<<<<< HEAD
           <div *ngIf="subjectResources.length === 0" class="text-center py-4 text-muted">
             No resources added yet.
           </div>
@@ -1008,6 +1740,28 @@
     </div>
   </div>
 </div>
+=======
+          <div *ngIf="lessonResources.length === 0" class="text-center py-4 text-muted">
+            No resources added yet.
+          </div>
+          
+          <div *ngFor="let resource of lessonResources" class="resource-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">{{ resource.title }}</h6>
+                <p class="mb-1 text-muted small">{{ resource.fileUrl }}</p>
+                <!-- <div class="d-flex gap-2">
+                  <span class="badge badge-light">{{ resource.type || 'Resource' }}</span>
+                </div> -->
+              </div>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteResource(resource)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
         </div>
         <div class="modal-footer">
           <button class="btn btn-light" (click)="closeResourceModal()">Close</button>
@@ -1016,6 +1770,7 @@
     </div>
   </div>
 
+<<<<<<< HEAD
 <!-- Add/Edit Resource Modal -->
 <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="resourceFormOpen">
   <div class="modal-dialog modal-dialog-centered">
@@ -1057,6 +1812,39 @@
 </div>
 
   <!-- Preview Modal (Lesson / Category) -->
+=======
+  <!-- Add/Edit Resource Modal -->
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="resourceFormOpen">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ editingResource ? 'Edit' : 'Add' }} Resource</h5>
+          <button type="button" class="btn-close" (click)="closeResourceForm()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-12">
+              <label class="form-label">Title *</label>
+              <input type="text" class="form-control" [(ngModel)]="resourceForm.title" required>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">File *</label>
+              <input type="file" class="form-control" (change)="onResourceFileChange($event)" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-light" (click)="closeResourceForm()">Cancel</button>
+          <button class="btn btn-primary" (click)="saveResource()">
+            <i class="fas fa-save me-1"></i> Save Resource
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
   <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="previewOpen">
     <div class="modal-dialog modal-xl modal-dialog-centered">
       <div class="modal-content">
@@ -1077,6 +1865,7 @@
                 <div class="small text-secondary">Week: {{ numberWeek(preview.weekId) }}</div>
               </div>
               <div class="col-md-6">
+<<<<<<< HEAD
                 <div class="small text-secondary">Duration: {{ preview.duration }} minutes</div>
               </div>
             </div>
@@ -1084,6 +1873,11 @@
               <h6 class="mt-3">Learning Objectives</h6>
               <p class="text-muted">{{ preview.objectives }}</p>
             </div>
+=======
+                <div class="small text-secondary">Subject: {{ nameSubject(preview.subjectId) }}</div>
+              </div>
+            </div>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
           </div>
 
           <!-- Category -->
@@ -1098,7 +1892,11 @@
                 'bg-purple': preview.color === 'purple',
                 'bg-secondary': !preview.color
               }">{{ preview.name }}</span>
+<<<<<<< HEAD
               <span class="text-muted">{{ getSubjectCountForCategory(preview.id) }} subjects</span>
+=======
+              <span class="text-muted">{{ getSubjectNameCountForCategory(preview.id) }} subject names</span>
+>>>>>>> 1a7027bcf5d7fc7167661cbaa6c714e563219bab
             </div>
             <h6>Description</h6>
             <p class="text-muted">{{ preview.description }}</p>
