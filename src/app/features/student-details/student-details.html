@@ -1,0 +1,111 @@
+<div class="student-details-container">
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading">
+    <p>Loading student details...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error && !loading" class="error">
+    <p>{{ error }}</p>
+    <button (click)="getStudentDetails()">Retry</button>
+  </div>
+
+  <!-- Student details -->
+  <div *ngIf="user && !loading" class="student-content">
+    <!-- User information section -->
+    <div class="user-info-section">
+      <h2>User Information</h2>
+      <div class="user-details">
+        <div class="detail-item">
+          <label>Username:</label>
+          <span>{{ user?.userName }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Email:</label>
+          <span>{{ user?.email }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Phone:</label>
+          <span>{{ user?.phoneNumber || 'Not provided' }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Age:</label>
+          <span>{{ user?.age }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Member since:</label>
+
+
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Student information section -->
+    <div *ngIf="user.student" class="student-info-section">
+      <h2>Student Details</h2>
+      <div class="student-details">
+        <div class="detail-item">
+          <label>Year:</label>
+          <span>{{ user?.student?.year?.yearNumber || 'Not assigned' }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Overall Progress:</label>
+          <span>{{ calculateOverallProgress() }}%</span>
+        </div>
+      </div>
+
+      <!-- Progress section -->
+      <div class="progress-section">
+        <h3>Course Progress</h3>
+        <div *ngIf="user.student.studentProgressions && user.student.studentProgressions.length > 0; else noProgress">
+          <div *ngFor="let progression of user.student.studentProgressions" class="progression-item">
+            <div class="lesson-info">
+              <h4>{{ progression.lesson?.title || 'Unknown Lesson' }}</h4>
+              <p>Score: {{ progression.score }}%</p>
+            </div>
+            <div class="completion-status">
+              <span class="status-badge" [class.completed]="progression.hasWatched && progression.hasCompletedQuestions">
+                {{ progression.hasWatched && progression.hasCompletedQuestions ? 'Completed' : 'In Progress' }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <ng-template #noProgress>
+          <p>No progress data available.</p>
+        </ng-template>
+      </div>
+
+      <!-- Reports section -->
+      <div class="reports-section">
+        <h3>Recent Reports</h3>
+        <div *ngIf="user.student.reports && user.student.reports.length > 0; else noReports">
+          <div *ngFor="let report of user.student.reports.slice(0, 3)" class="report-item">
+            <h4>Report #{{ report.id }}</h4>
+            <p>Period: {{ formatDate(report.startDate) }} - {{ formatDate(report.endDate) }}</p>
+            <p>Progress Score: {{ report.progressScore }}%</p>
+            <p>Lessons Completed: {{ report.lessonsCompleted }}</p>
+          </div>
+        </div>
+        <ng-template #noReports>
+          <p>No reports available.</p>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Notifications section -->
+    <div class="notifications-section">
+      <h3>Recent Notifications</h3>
+      <div *ngIf="user.notifications && user.notifications.length > 0; else noNotifications">
+        <div *ngFor="let notification of getRecentNotifications(3)" class="notification-item">
+          <h4>{{ notification.title }}</h4>
+          <p>{{ notification.message }}</p>
+          <small>{{ formatDate(notification.sentAt) }}</small>
+        </div>
+      </div>
+      <ng-template #noNotifications>
+        <p>No notifications.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

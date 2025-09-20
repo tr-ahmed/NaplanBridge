@@ -285,7 +285,7 @@
                   </div>
                 </td>
                 <td class="px-4 py-3 text-right">
-                  <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-eye"></i></button>
+                  <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/user', user.id]" ><i class="fas fa-eye"></i></button>
                   <button (click)="editUserRoles(user)" class="btn btn-sm btn-outline-secondary me-1"><i
                       class="fas fa-edit"></i></button>
                   <button (click)="deleteUser(user)" class="btn btn-sm btn-outline-danger"><i
