@@ -63,6 +63,17 @@ export const routes: Routes = [
     loadComponent: () => import('./features/Add-Student/add-student').then(m => m.AddStudentComponent)
   },
 
+  // Subscription routes
+  {
+    path: 'subscription/plans',
+    loadComponent: () => import('./features/subscription-plans/subscription-plans.component').then(m => m.SubscriptionPlansComponent)
+  },
+  {
+    path: 'subscription/checkout/:planId',
+    loadComponent: () => import('./features/subscription-checkout/subscription-checkout.component').then(m => m.SubscriptionCheckoutComponent),
+    canActivate: [authGuard]
+  },
+
   // Parent Dashboard
   {
     path: 'parent/dashboard',

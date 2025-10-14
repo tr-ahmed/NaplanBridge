@@ -19,10 +19,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   navigationItems = [
     { id: 1, label: 'Home', route: '/', icon: 'home' },
     { id: 2, label: 'About Us', route: '/', icon: 'info', fragment: 'about', isAboutSection: true },
-    { id: 3, label: 'Plans', route: '/plans', icon: 'star' },
-    { id: 4, label: 'Subjects', route: '/courses', icon: 'book' },
-    { id: 5, label: 'Blog', route: '/blog', icon: 'article' },
-    { id: 6, label: 'Contact', route: '/contact', icon: 'mail' }
+    { id: 3, label: 'Subscriptions', route: '/subscription/plans', icon: 'star' },
+    { id: 4, label: 'Plans', route: '/plans', icon: 'star' },
+    { id: 5, label: 'Subjects', route: '/courses', icon: 'book' },
+    { id: 6, label: 'Blog', route: '/blog', icon: 'article' },
+    { id: 7, label: 'Contact', route: '/contact', icon: 'mail' }
   ];
 
   isMobileMenuOpen = false;
