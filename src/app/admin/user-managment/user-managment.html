@@ -48,11 +48,11 @@
         <i class="fas fa-book"></i>
         <span>Content Management</span>
       </a>
-            <!-- <a [routerLink]="'/admin/subscriptions'"
+            <a [routerLink]="'/admin/subscriptions'"
         class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all  hover:bg-white/10  text-white ">
         <i class="fas fa-credit-card"></i>
         <span>Subscription & Billing</span>
-      </a> -->
+      </a>
     </nav>
     <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
       <div class="d-flex align-items-center gap-3">
@@ -285,7 +285,7 @@
                   </div>
                 </td>
                 <td class="px-4 py-3 text-right">
-                  <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-eye"></i></button>
+                  <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/user', user.id]" ><i class="fas fa-eye"></i></button>
                   <button (click)="editUserRoles(user)" class="btn btn-sm btn-outline-secondary me-1"><i
                       class="fas fa-edit"></i></button>
                   <button (click)="deleteUser(user)" class="btn btn-sm btn-outline-danger"><i

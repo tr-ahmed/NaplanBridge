@@ -3,6 +3,9 @@ import { inject } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
 import { authGuard } from './auth/auth.guard';
 import { RoleSelectionGuard } from './auth/role-selection/role-selection.guard';
+import { StudentDetailsComponent } from './features/student-details/student-details';
+import { UserProfileComponent } from './features/user-profile/user-profile';
+import { UserEditComponent } from './features/user-edit/user-edit';
 
 export const routes: Routes = [
   {
@@ -118,7 +121,9 @@ export const routes: Routes = [
           ,  data: { hideHeader: true, hideFooter: true }
 
   },
+{ path: 'user/:id', component: UserProfileComponent },
 
+  { path: 'user/edit/:id', component: UserEditComponent },
   // Fallback route
   { path: '**', redirectTo: '' }
 ];

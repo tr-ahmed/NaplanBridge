@@ -1,0 +1,95 @@
+<section class="py-10 my-auto bg-white">
+  <div class="lg:w-[80%] md:w-[90%] w-[96%] mx-auto flex gap-4">
+    <div class="lg:w-[88%] sm:w-[88%] w-full mx-auto shadow-2xl p-4 rounded-xl h-fit self-center bg-white">
+      <div>
+        <h1 class="lg:text-3xl md:text-2xl text-xl font-serif font-extrabold mb-2 text-gray-800">
+          Edit User Profile
+        </h1>
+        <h2 class="text-gray-600 text-sm mb-4">Update user information</h2>
+
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+          <div class="flex flex-col gap-4">
+            <!-- Username -->
+            <div>
+              <label for="userName" class="block mb-2 font-medium text-gray-700">Username</label>
+              <input
+                type="text"
+                id="userName"
+                formControlName="userName"
+                class="mt-1 p-4 w-full border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Enter username" />
+              <div *ngIf="f['userName'].invalid && (f['userName'].dirty || f['userName'].touched)"
+                   class="text-red-500 text-sm mt-1">
+                <div *ngIf="f['userName'].errors?.['required']">Username is required</div>
+                <div *ngIf="f['userName'].errors?.['minlength']">Username must be at least 2 characters long</div>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="email" class="block mb-2 font-medium text-gray-700">Email</label>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                class="mt-1 p-4 w-full border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Enter email" />
+              <div *ngIf="f['email'].invalid && (f['email'].dirty || f['email'].touched)"
+                   class="text-red-500 text-sm mt-1">
+                <div *ngIf="f['email'].errors?.['required']">Email is required</div>
+                <div *ngIf="f['email'].errors?.['email']">Please enter a valid email address</div>
+              </div>
+            </div>
+
+            <!-- Age -->
+            <div>
+              <label for="age" class="block mb-2 font-medium text-gray-700">Age</label>
+              <input
+                type="number"
+                id="age"
+                formControlName="age"
+                class="mt-1 p-4 w-full border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Enter age" />
+              <div *ngIf="f['age'].invalid && (f['age'].dirty || f['age'].touched)"
+                   class="text-red-500 text-sm mt-1">
+                <div *ngIf="f['age'].errors?.['required']">Age is required</div>
+                <div *ngIf="f['age'].errors?.['min']">Age must be a positive number</div>
+                <div *ngIf="f['age'].errors?.['max']">Age must be 120 or less</div>
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div>
+              <label for="phoneNumber" class="block mb-2 font-medium text-gray-700">Phone Number</label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                formControlName="phoneNumber"
+                class="mt-1 p-4 w-full border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Enter phone number" />
+              <div *ngIf="f['phoneNumber'].invalid && (f['phoneNumber'].dirty || f['phoneNumber'].touched)"
+                   class="text-red-500 text-sm mt-1">
+                <div *ngIf="f['phoneNumber'].errors?.['required']">Phone number is required</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-4 mt-6">
+            <button
+              type="button"
+              class="p-4 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold flex-1 hover:bg-gray-50 transition-colors"
+              (click)="navigateToUsers()">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="p-4 rounded-lg bg-blue-500 text-white font-semibold flex-1 hover:bg-blue-600 transition-colors"
+              [disabled]="isSubmitting">
+              {{ isSubmitting ? 'Updating...' : 'Update User' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
