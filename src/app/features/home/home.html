@@ -3,42 +3,47 @@
   <!-- Floating Images -->
   <div class="absolute inset-0">
     <!-- Top Left Image -->
-    <div class="hero-image absolute top-16 left-16 w-48 h-36 rounded-2xl overflow-hidden shadow-xl transform rotate-[-15deg] hover:rotate-[-10deg] hover:scale-110 transition-all duration-500"
+    <div class="hero-image absolute top-16 left-16 w-48 h-36 rounded-2xl overflow-hidden shadow-xl transform rotate-[-15deg] hover:rotate-[-10deg] hover:scale-110 transition-all duration-500 bg-gray-200"
          [style.transform]="getImageTransform(0)">
       <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
            alt="Students collaborating"
+           onerror="this.src='https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Students'"
            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
     </div>
 
     <!-- Top Center Image -->
-    <div class="hero-image absolute top-8 left-1/2 transform -translate-x-1/2 w-44 h-32 rounded-2xl overflow-hidden shadow-xl rotate-[8deg] hover:rotate-[12deg] hover:scale-110 transition-all duration-500"
+    <div class="hero-image absolute top-8 left-1/2 transform -translate-x-1/2 w-44 h-32 rounded-2xl overflow-hidden shadow-xl rotate-[8deg] hover:rotate-[12deg] hover:scale-110 transition-all duration-500 bg-gray-200"
          [style.transform]="getImageTransform(1)">
       <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
            alt="Learning workspace"
+           onerror="this.src='https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Learning'"
            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
     </div>
 
     <!-- Top Right Image -->
-    <div class="hero-image absolute top-20 right-16 w-40 h-28 rounded-2xl overflow-hidden shadow-xl transform rotate-[15deg] hover:rotate-[18deg] hover:scale-110 transition-all duration-500"
+    <div class="hero-image absolute top-20 right-16 w-40 h-28 rounded-2xl overflow-hidden shadow-xl transform rotate-[15deg] hover:rotate-[18deg] hover:scale-110 transition-all duration-500 bg-gray-200"
          [style.transform]="getImageTransform(2)">
       <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
            alt="Online learning"
+           onerror="this.src='https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Online'"
            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
     </div>
 
     <!-- Bottom Left Image -->
-    <div class="hero-image absolute bottom-20 left-8 w-52 h-38 rounded-2xl overflow-hidden shadow-xl transform rotate-[12deg] hover:rotate-[15deg] hover:scale-110 transition-all duration-500"
+    <div class="hero-image absolute bottom-20 left-8 w-52 h-38 rounded-2xl overflow-hidden shadow-xl transform rotate-[12deg] hover:rotate-[15deg] hover:scale-110 transition-all duration-500 bg-gray-200"
          [style.transform]="getImageTransform(3)">
       <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
            alt="Group study session"
+           onerror="this.src='https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Study'"
            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
     </div>
 
     <!-- Bottom Center Image -->
-    <div class="hero-image absolute bottom-12 left-1/2 transform -translate-x-1/2 w-52 h-32 rounded-2xl overflow-hidden shadow-xl rotate-[-12deg] hover:rotate-[-8deg] hover:scale-110 transition-all duration-500"
+    <div class="hero-image absolute bottom-12 left-1/2 transform -translate-x-1/2 w-52 h-32 rounded-2xl overflow-hidden shadow-xl rotate-[-12deg] hover:rotate-[-8deg] hover:scale-110 transition-all duration-500 bg-gray-200"
          [style.transform]="getImageTransform(4)">
       <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
            alt="Technology learning"
+           onerror="this.src='https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Tech'"
            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
     </div>
 
@@ -51,10 +56,11 @@
     </div> -->
 
     <!-- Right Side Image -->
-    <div class="hero-image absolute top-1/2 right-4 transform -translate-y-1/2 w-44 h-32 rounded-2xl overflow-hidden shadow-xl rotate-[25deg] hover:rotate-[28deg] hover:scale-110 transition-all duration-500"
+    <div class="hero-image absolute top-1/2 right-4 transform -translate-y-1/2 w-44 h-32 rounded-2xl overflow-hidden shadow-xl rotate-[25deg] hover:rotate-[28deg] hover:scale-110 transition-all duration-500 bg-gray-200"
          [style.transform]="getImageTransform(6)">
       <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
            alt="Collaborative workspace"
+           onerror="this.src='https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Workspace'"
            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
     </div>
 
@@ -159,10 +165,11 @@
 
       <!-- Right Image/Video -->
       <div class="relative">
-        <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+        <div class="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-200">
           <img
             src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
             alt="Student learning with digital tools"
+            onerror="this.src='https://via.placeholder.com/800x400/3B82F6/FFFFFF?text=Learning'"
             class="w-full h-96 object-cover">
 
           <!-- Video Play Button Overlay -->
@@ -472,17 +479,19 @@
             @for (image of galleryImages; track image.id; let i = $index) {
               <div class="min-w-full flex gap-4">
                 <!-- Main Image -->
-                <div class="flex-1">
+                <div class="flex-1 bg-gray-200 rounded-lg">
                   <img
                     [src]="image.main.src"
                     [alt]="image.main.alt"
+                    (error)="$event.target.src='https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=Image'"
                     class="w-full h-64 object-cover rounded-lg shadow-lg">
                 </div>
                 <!-- Secondary Image -->
-                <div class="flex-1">
+                <div class="flex-1 bg-gray-200 rounded-lg">
                   <img
                     [src]="image.secondary.src"
                     [alt]="image.secondary.alt"
+                    (error)="$event.target.src='https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=Image'"
                     class="w-full h-64 object-cover rounded-lg shadow-lg">
                 </div>
               </div>

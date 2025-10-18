@@ -69,10 +69,11 @@
             (click)="onLessonClick(lesson)">
 
             <!-- Lesson Thumbnail -->
-            <div class="relative h-48 overflow-hidden">
+            <div class="relative h-48 overflow-hidden bg-gray-200">
               <img
-                [src]="lesson.posterUrl || lesson.thumbnailUrl || 'https://via.placeholder.com/400x300/3B82F6/FFFFFF?text=Lesson'"
+                [src]="lesson.posterUrl || lesson.thumbnailUrl || 'https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80'"
                 [alt]="lesson.title"
+                (error)="$event.target.src='https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80'"
                 class="w-full h-full object-cover">
 
               <!-- Completion Badge -->

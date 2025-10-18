@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute} from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';   // ✅ استدعاء Router
 
@@ -34,7 +34,7 @@ interface User {
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule],
+  imports: [ CommonModule, FormsModule],
   templateUrl: './user-profile.html',
   styleUrls: ['./user-profile.scss']
 })
