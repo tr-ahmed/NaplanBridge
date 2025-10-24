@@ -1,3 +1,4 @@
 {
-    "angular.log": "verbose"
+    "angular.log": "verbose",
+    "chat.agent.maxRequests": 100
 }

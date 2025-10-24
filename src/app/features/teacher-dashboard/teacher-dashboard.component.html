@@ -1,0 +1,318 @@
+<div class="teacher-dashboard-container min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Teacher Dashboard</h1>
+        <p class="text-gray-600 mt-1">Manage your classes, students, and exams</p>
+      </div>
+      <button
+        (click)="refresh()"
+        [disabled]="loading()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2">
+        <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+          <p class="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Main Content -->
+    @if (!loading()) {
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Students -->
+        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().totalStudents }}</p>
+          <p class="text-sm text-gray-600">Total Students</p>
+        </div>
+
+        <!-- Active Classes -->
+        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().activeClasses }}</p>
+          <p class="text-sm text-gray-600">Active Classes</p>
+        </div>
+
+        <!-- Pending Grading -->
+        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer" (click)="goToExamManagement()">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+              </svg>
+            </div>
+            @if (hasPendingGrading()) {
+              <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded-full">
+                {{ stats().pendingGrading }}
+              </span>
+            }
+          </div>
+          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().pendingGrading }}</p>
+          <p class="text-sm text-gray-600">Pending Grading</p>
+        </div>
+
+        <!-- Average Score -->
+        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().averageClassScore }}%</p>
+          <p class="text-sm text-gray-600">Average Class Score</p>
+        </div>
+      </div>
+
+      <!-- Pending Grading Alert -->
+      @if (hasPendingGrading()) {
+        <div class="bg-orange-50 border-l-4 border-orange-400 p-6 mb-8 rounded-lg">
+          <div class="flex items-start">
+            <svg class="w-6 h-6 text-orange-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            <div class="ml-4 flex-1">
+              <h3 class="text-lg font-semibold text-orange-800 mb-2">Pending Grading Tasks</h3>
+              <p class="text-orange-700 mb-4">You have {{ stats().pendingGrading }} exams waiting to be graded.</p>
+              <button
+                (click)="goToExamManagement()"
+                class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium">
+                Grade Now
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content Area -->
+        <div class="lg:col-span-2 space-y-8">
+          <!-- My Classes -->
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">My Classes</h2>
+              <button class="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                View All →
+              </button>
+            </div>
+
+            @if (classes().length === 0) {
+              <div class="text-center py-8 text-gray-500">
+                <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                <p>No classes assigned yet</p>
+              </div>
+            }
+
+            @if (classes().length > 0) {
+              <div class="space-y-4">
+                @for (cls of classes(); track cls.id) {
+                  <div
+                    (click)="viewClass(cls.id)"
+                    class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:shadow-md transition-all cursor-pointer">
+                    <div class="flex items-start justify-between mb-3">
+                      <div class="flex-1">
+                        <h3 class="font-semibold text-gray-900 mb-1">{{ cls.name }}</h3>
+                        <p class="text-sm text-gray-600">{{ cls.subjectName }}</p>
+                      </div>
+                      <span
+                        class="text-xs font-semibold px-3 py-1 rounded-full"
+                        [ngClass]="getScoreBadgeClass(cls.averageScore)">
+                        Avg: {{ cls.averageScore }}%
+                      </span>
+                    </div>
+
+                    <div class="flex items-center justify-between text-sm">
+                      <div class="flex items-center gap-4 text-gray-600">
+                        <span class="flex items-center gap-1">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                          </svg>
+                          {{ cls.studentCount }} students
+                        </span>
+                      </div>
+
+                      @if (cls.nextExam) {
+                        <div class="text-blue-600 font-medium">
+                          Next: {{ cls.nextExam.title }} - {{ formatDate(cls.nextExam.date) }}
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Pending Grading Tasks -->
+          @if (hasPendingGrading()) {
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-900">Pending Grading</h2>
+                <span class="text-sm text-gray-600">{{ pendingGrading().length }} tasks</span>
+              </div>
+
+              <div class="space-y-3">
+                @for (task of pendingGrading().slice(0, 5); track task.studentExamId) {
+                  <div
+                    (click)="goToGrading(task.studentExamId)"
+                    class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 cursor-pointer transition-all">
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 mb-1">
+                        <p class="font-medium text-gray-900">{{ task.studentName }}</p>
+                        <span class="text-xs bg-orange-100 text-orange-800 px-2 py-0.5 rounded">Needs Review</span>
+                      </div>
+                      <p class="text-sm text-gray-600 mb-1">{{ task.examTitle }}</p>
+                      <p class="text-xs text-gray-500">Submitted {{ timeAgo(task.submittedAt) }}</p>
+                    </div>
+                    <div class="text-right ml-4">
+                      <p class="text-sm text-gray-600 mb-1">{{ task.totalQuestions }} questions</p>
+                      @if (task.autoGradedScore > 0) {
+                        <p class="text-xs text-blue-600">Auto: {{ task.autoGradedScore }}%</p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+
+              @if (pendingGrading().length > 5) {
+                <div class="mt-4 text-center">
+                  <button
+                    (click)="goToExamManagement()"
+                    class="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                    View All Pending ({{ pendingGrading().length - 5 }} more) →
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Recent Activity -->
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
+
+            @if (recentActivities().length === 0) {
+              <div class="text-center py-8 text-gray-500">
+                <p>No recent activity</p>
+              </div>
+            }
+
+            @if (recentActivities().length > 0) {
+              <div class="space-y-4">
+                @for (activity of recentActivities(); track activity.id) {
+                  <div class="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                    <div class="text-2xl flex-shrink-0">{{ activity.icon }}</div>
+                    <div class="flex-1">
+                      <p class="text-sm text-gray-900">{{ activity.description }}</p>
+                      <p class="text-xs text-gray-500 mt-1">{{ timeAgo(activity.timestamp) }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+          <!-- Upcoming Exams -->
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Upcoming Exams</h2>
+
+            @if (!hasUpcomingExams()) {
+              <p class="text-center py-4 text-gray-500 text-sm">No upcoming exams</p>
+            }
+
+            @if (hasUpcomingExams()) {
+              <div class="space-y-3">
+                @for (exam of upcomingExams(); track exam.id) {
+                  <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <p class="font-medium text-gray-900 text-sm mb-1">{{ exam.title }}</p>
+                    <p class="text-xs text-gray-600 mb-2">{{ exam.className }}</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                      <span>{{ formatDate(exam.date) }}</span>
+                      <span>{{ exam.duration }} min</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <button
+              (click)="createExam()"
+              class="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm">
+              + Create New Exam
+            </button>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-sm p-6 text-white">
+            <h2 class="text-lg font-semibold mb-4">This Month</h2>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm opacity-90">Exams Created</span>
+                <span class="text-2xl font-bold">12</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm opacity-90">Exams Graded</span>
+                <span class="text-2xl font-bold">{{ stats().completedExams }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm opacity-90">Average Score</span>
+                <span class="text-2xl font-bold">{{ stats().averageClassScore }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+            <div class="space-y-2">
+              <button
+                (click)="createExam()"
+                class="w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 text-left transition-colors font-medium">
+                ➕ Create Exam
+              </button>
+              <button
+                (click)="goToExamManagement()"
+                class="w-full px-4 py-2 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 text-left transition-colors font-medium">
+                ✅ Grade Exams
+              </button>
+              <button
+                (click)="viewStudents()"
+                class="w-full px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 text-left transition-colors font-medium">
+                👥 View Students
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

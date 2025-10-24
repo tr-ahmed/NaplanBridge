@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map, tap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { map, tap, catchError, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { MockDataService } from '../core/services/mock-data.service';
 
 interface LoginResponse {
   userName: string;
@@ -26,58 +26,94 @@ export class AuthService {
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private mockDataService: MockDataService
   ) {}
 
   private hasToken(): boolean {
     return !!localStorage.getItem('authToken');
   }
 
-  // ✅ Login method using API
+  // ✅ Login method using API with mock fallback
   login(email: string, password: string, rememberMe = false): Observable<boolean> {
+    // Determine role from email for mock data
+    let mockRole = 'Student';
+    if (email.includes('admin')) mockRole = 'Admin';
+    else if (email.includes('teacher')) mockRole = 'Teacher';
+    else if (email.includes('parent')) mockRole = 'Parent';
+
+    // Create mock response
+    const mockResponse: LoginResponse = this.mockDataService.getMockUser(mockRole);
+
+    // If using mock mode only
+    if (environment.useMock) {
+      console.log('🎭 Using Mock Login (Mock Mode Enabled)');
+      return this.mockDataService.mockSuccess(mockResponse, 1000).pipe(
+        map((response: LoginResponse) => {
+          this.storeAuthData(response, email, rememberMe);
+          return true;
+        })
+      );
+    }
+
+    // Try API call with fallback to mock
     const loginData: LoginRequest = { email, password };
     const loginUrl = `${environment.apiBaseUrl}/Account/login`;
 
-    console.log('🔍 API Debug Info:');
-    console.log('Base URL v1:', environment.apiBaseUrl);
-    console.log('Full URL:', loginUrl);
-    console.log('Login Data:', loginData);
+    console.log('🔍 Attempting API Login...');
+    console.log('API URL:', loginUrl);
 
-    return this.http.post<LoginResponse>(loginUrl, loginData).pipe(
+    const apiCall = this.http.post<LoginResponse>(loginUrl, loginData).pipe(
+      timeout(environment.apiTimeout || 10000),
       map((response: LoginResponse) => {
-        // Store authentication data
-        localStorage.setItem('authToken', response.token);
-        localStorage.setItem('userName', response.userName);
-        localStorage.setItem('roles', JSON.stringify(response.roles));
-        localStorage.setItem('currentUser', JSON.stringify({
-          userName: response.userName,
-          email: email,
-          roles: response.roles
-        }));
-
-        if (rememberMe) {
-          localStorage.setItem('rememberedEmail', email);
-        } else {
-          localStorage.removeItem('rememberedEmail');
-        }
-
-        // Update auth status
-        this.authStatusSubject.next(true);
-
-        // Navigate based on user role
-        this.navigateBasedOnRole(response.roles);
-
-        return true; // Return success
+        console.log('✅ API Login Successful');
+        this.storeAuthData(response, email, rememberMe);
+        return true;
       }),
       catchError((error) => {
-        console.error('❌ Login Error:', error);
-        console.log(' Error Status:', error.status);
-        console.log(' Error Message:', error.status === 0 ? 'Network error or CORS issue. Please check your connection or contact support.' : error.message);
-        console.log(' Error Body:', error.error);
+        console.error('❌ API Login Failed:', error.message);
+
+        // Check if fallback is enabled
+        if (environment.enableMockFallback) {
+          console.warn('⚠️ Falling back to Mock Data');
+          return of(mockResponse).pipe(
+            map((response: LoginResponse) => {
+              this.storeAuthData(response, email, rememberMe);
+              return true;
+            })
+          );
+        }
+
+        // No fallback, return error
         this.authStatusSubject.next(false);
         return of(false);
       })
     );
+
+    return apiCall;
+  }
+
+  /**
+   * Store authentication data
+   */
+  private storeAuthData(response: LoginResponse, email: string, rememberMe: boolean): void {
+    localStorage.setItem('authToken', response.token);
+    localStorage.setItem('userName', response.userName);
+    localStorage.setItem('roles', JSON.stringify(response.roles));
+    localStorage.setItem('currentUser', JSON.stringify({
+      userName: response.userName,
+      email: email,
+      roles: response.roles
+    }));
+
+    if (rememberMe) {
+      localStorage.setItem('rememberedEmail', email);
+    } else {
+      localStorage.removeItem('rememberedEmail');
+    }
+
+    this.authStatusSubject.next(true);
+    this.navigateBasedOnRole(response.roles);
   }
 
   // ✅ Navigate based on user role

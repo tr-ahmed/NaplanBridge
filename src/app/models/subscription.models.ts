@@ -1,125 +1,190 @@
 /**
- * نماذج بيانات نظام الاشتراكات التعليمية
- * Educational Subscription System Models
+ * Subscription and Payment Models
+ * Based on Backend API Documentation - PAYMENT_SUBSCRIPTION_GUIDE.md
  */
 
-/**
- * نوع الباقة التعليمية
- * Educational Package Type
- */
-export type SubscriptionType = 'terms_1_2' | 'terms_3_4' | 'full_year' | 'single_term' | 'single_subject';
+// ============================================
+// Plan Types (from Backend)
+// ============================================
 
-/**
- * نوع الدفع
- * Payment Type
- */
-export type PaymentType = 'one_time' | 'monthly' | 'quarterly' | 'yearly';
+export type PlanType = 'SingleTerm' | 'MultiTerm' | 'FullYear' | 'SubjectAnnual';
 
-/**
- * حالة الاشتراك
- * Subscription Status
- */
-export type SubscriptionStatus = 'active' | 'expired' | 'pending' | 'suspended' | 'cancelled';
+export const PlanTypes = {
+  SINGLE_TERM: 'SingleTerm' as PlanType,      // Single term subscription
+  MULTI_TERM: 'MultiTerm' as PlanType,        // Multiple terms (e.g., Term 1 & 2)
+  FULL_YEAR: 'FullYear' as PlanType,          // All subjects for one year
+  SUBJECT_ANNUAL: 'SubjectAnnual' as PlanType // One subject for full year
+};
 
-/**
- * طرق الدفع المتاحة
- * Available Payment Methods
- */
-export type PaymentMethod = 'credit_card' | 'bank_transfer' | 'paypal' | 'apple_pay' | 'google_pay' | 'cash';
+// ============================================
+// Subscription Status
+// ============================================
 
-/**
- * هيكل التسعير حسب السنة الدراسية
- * Year-based pricing structure
- */
-export interface YearPricing {
-  yearId: number;
-  yearName: string; // "Year 3", "Year 4", etc.
-  yearNameAr: string; // "السنة الثالثة", "السنة الرابعة", etc.
-  price: number;
-  originalPrice: number;
-  discountPercentage: number;
-}
+export type SubscriptionStatus = 'Active' | 'Expired' | 'Pending' | 'Suspended' | 'Cancelled';
 
-/**
- * باقة الاشتراك التعليمية
- * Educational Subscription Plan
- */
+export const SubscriptionStatuses = {
+  ACTIVE: 'Active' as SubscriptionStatus,
+  EXPIRED: 'Expired' as SubscriptionStatus,
+  PENDING: 'Pending' as SubscriptionStatus,
+  SUSPENDED: 'Suspended' as SubscriptionStatus,
+  CANCELLED: 'Cancelled' as SubscriptionStatus
+};
+
+// ============================================
+// Subscription Plan Models
+// ============================================
+
 export interface SubscriptionPlan {
   id: number;
   name: string;
-  nameAr: string;
   description: string;
-  descriptionAr: string;
-  type: SubscriptionType;
+  price: number;
+  planType: PlanType;
 
-  // معلومات السعر - متغيرة حسب السنة
-  // Price information - varies by year
-  yearPricing: YearPricing[];
-  currency: string;
-  paymentType: PaymentType;
-
-  // معلومات التواريخ
-  validityPeriod: number; // بالأشهر
-  startDate?: Date;
-  endDate?: Date;
-
-  // النطاق التعليمي
+  // Relations
+  subjectId?: number;
+  subjectName?: string;
   yearId?: number;
-  termIds: number[]; // الفصول المشمولة
-  subjectIds: number[]; // المواد المشمولة
-  weekIds: number[]; // الأسابيع المشمولة
 
-  // الميزات المتاحة
-  features: string[];
-  featuresAr: string[];
+  // Duration
+  durationInDays: number;
 
-  // إعدادات إضافية
-  maxStudents: number; // عدد الطلاب المسموح
+  // For MultiTerm plans
+  includedTermIds?: string; // e.g., "1,2" or "3,4"
+
+  // Status
   isActive: boolean;
-  isPopular: boolean; // الباقة الأكثر شعبية
-  sortOrder: number;  // معلومات تقنية
-  createdAt: Date;
-  updatedAt: Date;
+
+  // Features (optional)
+  features?: string[];
+
+  // Metadata
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-/**
- * اشتراك الطالب
- * Student Subscription
- */
+// ============================================
+// Available Plans for Student
+// ============================================
+
+export interface AvailablePlan {
+  planId: number;
+  name: string;
+  description: string;
+  price: number;
+  planType: PlanType;
+  coverageDescription: string; // e.g., "Algebra - Term 1" or "All Subjects - Grade 7"
+  isActive: boolean;
+  isPopular?: boolean;
+  discount?: number;
+}
+
+// ============================================
+// Student Subscription Models
+// ============================================
+
 export interface StudentSubscription {
   id: number;
-  subscriptionId: string; // معرف فريد للاشتراك
   studentId: number;
-  parentId?: number;
   planId: number;
 
-  // معلومات الاشتراك
-  status: SubscriptionStatus;
+  // Plan Details
+  planName: string;
+  planType: PlanType;
+
+  // Subject/Year Info
+  subjectId?: number;
+  subjectName?: string;
+  yearId?: number;
+
+  // Dates
   startDate: Date;
   endDate: Date;
-  autoRenew: boolean;
 
-  // معلومات الدفع
-  totalAmount: number;
-  paidAmount: number;
-  remainingAmount: number;
-  paymentMethod: PaymentMethod;
-  paymentStatus: 'paid' | 'partial' | 'pending' | 'failed';
+  // Status
+  status: SubscriptionStatus;
+  isActive: boolean;
 
-  // التقدم والإحصائيات
-  progressPercentage: number;
-  completedLessons: number;
-  totalLessons: number;
-  lastAccessDate?: Date;
+  // Payment
+  amountPaid: number;
+  paymentMethod?: string;
 
-  // معلومات إضافية
-  notes?: string;
-  metadata?: Record<string, any>;
-
-  // معلومات تقنية
+  // Metadata
   createdAt: Date;
-  updatedAt: Date;
+  autoRenew?: boolean;
 }
+
+export interface StudentSubscriptionDetails extends StudentSubscription {
+  accessibleSubjects?: AccessibleSubject[];
+  accessibleTerms?: AccessibleTerm[];
+  accessibleLessons?: AccessibleLesson[];
+}
+
+// ============================================
+// Accessible Content Models
+// ============================================
+
+export interface AccessibleSubject {
+  subjectId: number;
+  subjectName: string;
+  termIds: number[];
+}
+
+export interface AccessibleTerm {
+  termId: number;
+  termNumber: number;
+  subjectId: number;
+  subjectName: string;
+}
+
+export interface AccessibleLesson {
+  lessonId: number;
+  lessonTitle: string;
+  weekId: number;
+  termId: number;
+  subjectId: number;
+}
+
+// ============================================
+// Access Check Models
+// ============================================
+
+export interface AccessCheckResponse {
+  hasAccess: boolean;
+  reason?: string;
+  requiresPlan?: AvailablePlan;
+}
+
+// ============================================
+// Create/Update Subscription Plan DTOs
+// ============================================
+
+export interface CreateSubscriptionPlanDto {
+  name: string;
+  description: string;
+  price: number;
+  planType: PlanType;
+  subjectId?: number;
+  yearId?: number;
+  durationInDays: number;
+  includedTermIds?: string;
+  features?: string[];
+}
+
+export interface UpdateSubscriptionPlanDto {
+  name?: string;
+  description?: string;
+  price?: number;
+  durationInDays?: number;
+  includedTermIds?: string;
+  isActive?: boolean;
+  features?: string[];
+}
+
+// Legacy types for backward compatibility
+export type SubscriptionType = 'terms_1_2' | 'terms_3_4' | 'full_year' | 'single_term' | 'single_subject';
+export type PaymentType = 'one_time' | 'monthly' | 'quarterly' | 'yearly';
+export type PaymentMethod = 'credit_card' | 'bank_transfer' | 'paypal' | 'stripe' | 'cash' | 'apple_pay' | 'google_pay';
 
 /**
  * معلومات الدفع
@@ -295,6 +360,14 @@ export interface SubscriptionPlanDisplay extends SubscriptionPlan {
   includedTerms: string[];
   benefits: string[];
   benefitsAr: string[];
+  features?: string[];
+
+  // Additional properties
+  nameAr?: string;
+  type?: string;
+  paymentType?: string;
+  sortOrder?: number;
+  validityPeriod?: number;
 
   // مقارنة مع الباقات الأخرى
   savings?: number;

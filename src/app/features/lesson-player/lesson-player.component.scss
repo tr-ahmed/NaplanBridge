@@ -1,0 +1,13 @@
+/* Lesson Player Component Styles */
+
+.lesson-player-container {
+  min-height: 100vh;
+}
+
+/* Video player enhancements */
+video {
+  max-width: 100%;
+  display: block;
+}
+
+/* Plyr video player will inject its own styles */

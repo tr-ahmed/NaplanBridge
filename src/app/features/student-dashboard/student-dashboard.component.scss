@@ -1,0 +1,37 @@
+/* Student Dashboard Styles */
+
+.dashboard-container {
+  min-height: 100vh;
+}
+
+/* Stats card hover animation */
+.stats-card {
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Progress bar animation */
+.progress-bar {
+  transition: width 0.8s ease-out;
+}
+
+/* Subject card hover */
+.subject-card {
+  transition: all 0.2s ease;
+}
+
+.subject-card:hover {
+  transform: translateX(4px);
+}
+
+/* Exam result card hover */
+.exam-card {
+  transition: all 0.2s ease;
+}
+
+.exam-card:hover {
+  border-color: #3b82f6;
+}

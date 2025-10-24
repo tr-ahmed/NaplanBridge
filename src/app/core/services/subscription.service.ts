@@ -1,7 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, tap, timeout } from 'rxjs/operators';
+import { MockDataService } from './mock-data.service';
+
+// Type definitions
+type YearPricing = any;
 
 import {
   SubscriptionPlan,
@@ -16,8 +20,7 @@ import {
   SubscriptionProgress,
   SubscriptionType,
   PaymentMethod,
-  PaymentType,
-  YearPricing
+  PaymentType
 } from '../../models/subscription.models';
 
 import { environment } from '../../../environments/environment';
@@ -26,8 +29,9 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class SubscriptionService {
-  private readonly baseUrl = environment.apiBaseUrl || 'http://localhost:5000';
-  private useMock = environment.useMock || true; // Use mock data for development
+  private http = inject(HttpClient);
+  private mockData = inject(MockDataService);
+  private readonly baseUrl = environment.apiBaseUrl || 'https://naplanbridge.runasp.net/api';
 
   // State signals
   public loading = signal(false);
@@ -41,21 +45,22 @@ export class SubscriptionService {
   public plans$ = this.plansSubject.asObservable();
   public userSubscriptions$ = this.userSubscriptionsSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor() {
     this.loadPlans();
   }
 
   /**
-   * Get all available subscription plans
    * Get all available subscription plans
    */
   getPlans(filter?: SubscriptionFilter): Observable<SubscriptionPlan[]> {
     this.loading.set(true);
     this.error.set(null);
 
-    if (this.useMock) {
-      return of(this.getMockPlans()).pipe(
-        map(plans => this.filterPlans(plans, filter)),
+    const mockPlans: any[] = this.mockData.getMockSubscriptionPlans();
+
+    if (environment.useMock) {
+      return of(mockPlans).pipe(
+        map(plans => this.filterPlans(plans as SubscriptionPlan[], filter)),
         tap(plans => {
           this.plansSubject.next(plans);
           this.loading.set(false);
@@ -88,7 +93,7 @@ export class SubscriptionService {
   getPlanById(planId: number): Observable<SubscriptionPlan | null> {
     this.loading.set(true);
 
-    if (this.useMock) {
+    if (environment.useMock) {
       const plan = this.getMockPlans().find(p => p.id === planId) || null;
       this.loading.set(false);
       return of(plan);
@@ -123,7 +128,7 @@ export class SubscriptionService {
     this.loading.set(true);
     this.error.set(null);
 
-    if (this.useMock) {
+    if (environment.useMock) {
       return this.simulatePurchase(purchase).pipe(
         tap(() => this.loading.set(false))
       );
@@ -146,7 +151,7 @@ export class SubscriptionService {
   getStudentSubscriptions(studentId: number): Observable<StudentSubscription[]> {
     this.loading.set(true);
 
-    if (this.useMock) {
+    if (environment.useMock) {
       const subscriptions = this.getMockStudentSubscriptions(studentId);
       this.userSubscriptionsSubject.next(subscriptions);
       this.loading.set(false);
@@ -173,7 +178,7 @@ export class SubscriptionService {
    * Validate discount code
    */
   validateDiscountCode(code: string, planId: number): Observable<SubscriptionDiscount | null> {
-    if (this.useMock) {
+    if (environment.useMock) {
       const discount = this.getMockDiscounts().find(d =>
         d.code === code &&
         d.isActive &&
@@ -195,7 +200,7 @@ export class SubscriptionService {
    * Get student progress in subscription
    */
   getSubscriptionProgress(subscriptionId: number): Observable<SubscriptionProgress> {
-    if (this.useMock) {
+    if (environment.useMock) {
       return of(this.getMockProgress(subscriptionId));
     }
 
@@ -210,7 +215,7 @@ export class SubscriptionService {
    * Get subscription statistics
    */
   getSubscriptionStats(): Observable<SubscriptionStats> {
-    if (this.useMock) {
+    if (environment.useMock) {
       return of(this.getMockStats());
     }
 
@@ -225,7 +230,7 @@ export class SubscriptionService {
    * Cancel subscription
    */
   cancelSubscription(subscriptionId: number, reason?: string): Observable<boolean> {
-    if (this.useMock) {
+    if (environment.useMock) {
       console.log('Mock: Cancelling subscription', subscriptionId, reason);
       return of(true);
     }
@@ -243,68 +248,70 @@ export class SubscriptionService {
     this.getPlans().subscribe();
   }
 
-  private filterPlans(plans: SubscriptionPlan[], filter?: SubscriptionFilter): SubscriptionPlan[] {
+  private filterPlans(plans: any[], filter?: SubscriptionFilter): any[] {
     if (!filter) return plans;
 
-    return plans.filter(plan => {
-      if (filter.type && plan.type !== filter.type) return false;
-      if (filter.paymentType && plan.paymentType !== filter.paymentType) return false;
+    return plans.filter((plan: any) => {
+      if (filter.type && (plan as any).type !== filter.type) return false;
+      if (filter.paymentType && (plan as any).paymentType !== filter.paymentType) return false;
       if (filter.minPrice) {
         // Check if any year pricing meets the min price
-        const hasAffordableYear = plan.yearPricing.some(yp => yp.price >= filter.minPrice!);
+        const hasAffordableYear = (plan as any).yearPricing?.some((yp: any) => yp.price >= filter.minPrice!);
         if (!hasAffordableYear) return false;
       }
       if (filter.maxPrice) {
         // Check if any year pricing is within the max price
-        const hasAffordableYear = plan.yearPricing.some(yp => yp.price <= filter.maxPrice!);
+        const hasAffordableYear = (plan as any).yearPricing?.some((yp: any) => yp.price <= filter.maxPrice!);
         if (!hasAffordableYear) return false;
       }
-      if (filter.yearId && plan.yearId !== filter.yearId) return false;
-      if (filter.termIds && !filter.termIds.some(id => plan.termIds.includes(id))) return false;
-      if (filter.subjectIds && !filter.subjectIds.some(id => plan.subjectIds.includes(id))) return false;
+      if (filter.yearId && (plan as any).yearId !== filter.yearId) return false;
+      if (filter.termIds && !filter.termIds.some((id: any) => (plan as any).termIds?.includes(id))) return false;
+      if (filter.subjectIds && !filter.subjectIds.some((id: any) => (plan as any).subjectIds?.includes(id))) return false;
       if (filter.isActive !== undefined && plan.isActive !== filter.isActive) return false;
       return true;
     });
   }
 
-  private convertToDisplayPlan(plan: SubscriptionPlan, selectedYearId: number = 4): SubscriptionPlanDisplay {
-    const yearPricing = plan.yearPricing.find(yp => yp.yearId === selectedYearId) || plan.yearPricing[0];
+  private convertToDisplayPlan(plan: any, selectedYearId: number = 4): SubscriptionPlanDisplay {
+    const yearPricing = (plan as any).yearPricing?.find((yp: any) => yp.yearId === selectedYearId) || (plan as any).yearPricing?.[0] || {};
 
     return {
       ...plan,
       selectedYearId,
-      currentPrice: yearPricing.price,
-      currentOriginalPrice: yearPricing.originalPrice,
-      currentDiscountPercentage: yearPricing.discountPercentage,
-      monthlyPrice: this.calculateMonthlyPrice(yearPricing, plan.paymentType),
-      totalSubjects: plan.subjectIds.length,
+      currentPrice: yearPricing.price || plan.price || 0,
+      currentOriginalPrice: yearPricing.originalPrice || plan.originalPrice || 0,
+      currentDiscountPercentage: yearPricing.discountPercentage || 0,
+      monthlyPrice: this.calculateMonthlyPrice(yearPricing, (plan as any).paymentType || 'monthly'),
+      totalSubjects: (plan as any).subjectIds?.length || 1,
       totalLessons: this.estimateTotalLessons(plan),
       estimatedHours: this.estimateHours(plan),
-      includedSubjects: this.getSubjectNames(plan.subjectIds),
-      includedTerms: this.getTermNames(plan.termIds),
+      includedSubjects: this.getSubjectNames((plan as any).subjectIds || []),
+      includedTerms: this.getTermNames((plan as any).termIds || []),
       benefits: this.generateBenefits(plan),
       benefitsAr: this.generateBenefitsAr(plan),
       savings: this.calculateSavingsFromYearPricing(yearPricing),
-      mostPopular: plan.isPopular,
+      mostPopular: (plan as any).isPopular || false,
       recommended: this.isRecommended(plan)
     };
   }
 
-  private calculateMonthlyPrice(yearPricing: YearPricing, paymentType: PaymentType): number {
+  private calculateMonthlyPrice(yearPricing: any, paymentType: any): number {
     switch (paymentType) {
-      case 'monthly': return yearPricing.price;
+      case 'monthly': return yearPricing.price || 0;
       case 'quarterly': return yearPricing.price / 3;
       case 'yearly': return yearPricing.price / 12;
       default: return yearPricing.price / 6; // default to 6 months for terms
     }
   }
 
-  private estimateTotalLessons(plan: SubscriptionPlan): number {
+  private estimateTotalLessons(plan: any): number {
     // Estimate number of lessons based on subjects and weeks
-    return plan.subjectIds.length * plan.weekIds.length * 3; // Average 3 lessons per subject per week
+    const subjectsCount = (plan as any).subjectIds?.length || 1;
+    const weeksCount = (plan as any).weekIds?.length || 10;
+    return subjectsCount * weeksCount * 3; // Average 3 lessons per subject per week
   }
 
-  private estimateHours(plan: SubscriptionPlan): number {
+  private estimateHours(plan: any): number {
     // Estimate hours based on number of lessons
     const totalLessons = this.estimateTotalLessons(plan);
     return Math.round(totalLessons * 0.75); // Average 45 minutes per lesson
@@ -331,48 +338,50 @@ export class SubscriptionService {
     return termIds.map(id => termMap[id] || `Term ${id}`);
   }
 
-  private generateBenefits(plan: SubscriptionPlan): string[] {
-    const benefits = [...plan.features];
+  private generateBenefits(plan: any): string[] {
+    const benefits = [...(plan.features || [])];
 
-    if (plan.type === 'full_year') {
+    if ((plan as any).type === 'full_year') {
       benefits.push('Complete academic year coverage');
       benefits.push('Maximum savings');
     }
 
-    if (plan.maxStudents > 1) {
-      benefits.push(`Support for up to ${plan.maxStudents} students`);
+    if ((plan as any).maxStudents > 1) {
+      benefits.push(`Support for up to ${(plan as any).maxStudents} students`);
     }
 
     return benefits;
   }
 
-  private generateBenefitsAr(plan: SubscriptionPlan): string[] {
-    const benefits = [...plan.featuresAr];
+  private generateBenefitsAr(plan: any): string[] {
+    const benefits = [...((plan as any).featuresAr || plan.features || [])];
 
-    if (plan.type === 'full_year') {
+    if ((plan as any).type === 'full_year') {
       benefits.push('Complete academic year coverage');
       benefits.push('Maximum savings');
     }
 
-    if (plan.maxStudents > 1) {
-      benefits.push(`Support for up to ${plan.maxStudents} students`);
+    if ((plan as any).maxStudents > 1) {
+      benefits.push(`Support for up to ${(plan as any).maxStudents} students`);
     }
 
     return benefits;
   }
 
-  private calculateSavingsFromYearPricing(yearPricing: YearPricing): number {
-    return Math.round(((yearPricing.originalPrice - yearPricing.price) / yearPricing.originalPrice) * 100);
+  private calculateSavingsFromYearPricing(yearPricing: any): number {
+    const original = yearPricing?.originalPrice || yearPricing?.price || 100;
+    const current = yearPricing?.price || original;
+    return Math.round(((original - current) / original) * 100);
   }
 
-  private calculateSavings(plan: SubscriptionPlan): number {
+  private calculateSavings(plan: any): number {
     // For backward compatibility - use first year pricing
-    const firstYearPricing = plan.yearPricing[0];
+    const firstYearPricing = (plan as any).yearPricing?.[0] || {};
     return this.calculateSavingsFromYearPricing(firstYearPricing);
   }
 
-  private isRecommended(plan: SubscriptionPlan): boolean {
-    return plan.type === 'full_year' || plan.isPopular;
+  private isRecommended(plan: any): boolean {
+    return (plan as any).type === 'full_year' || (plan as any).isPopular;
   }
 
   private simulatePurchase(purchase: SubscriptionPurchase): Observable<SubscriptionPurchaseResponse> {
@@ -398,7 +407,7 @@ export class SubscriptionService {
 
   // Mock data methods
 
-  private getMockPlans(): SubscriptionPlan[] {
+  private getMockPlans(): any[] {
     return [
       {
         id: 1,
@@ -587,14 +596,14 @@ export class SubscriptionService {
     ];
   }
 
-  private getMockStudentSubscriptions(studentId: number): StudentSubscription[] {
+  private getMockStudentSubscriptions(studentId: number): any[] {
     return [
       {
         id: 1,
         subscriptionId: 'SUB-2024-001',
         studentId,
         planId: 3,
-        status: 'active',
+        status: 'Active',
         startDate: new Date('2024-09-01'),
         endDate: new Date('2025-06-30'),
         autoRenew: false,
@@ -703,5 +712,70 @@ export class SubscriptionService {
       conversionRate: 8.7,
       churnRate: 3.2
     };
+  }
+
+  // ============================================
+  // Access Control Methods (NEW - for Guards)
+  // ============================================
+
+  /**
+   * Check if student has access to subject
+   */
+  hasAccessToSubject(studentId: number, subjectId: number): Observable<{ hasAccess: boolean; reason?: string }> {
+    const url = `${this.baseUrl}/api/studentsubjects/student/${studentId}/has-access/subject/${subjectId}`;
+
+    if (environment.useMock) {
+      // Mock: Allow access for demo
+      return of({ hasAccess: true });
+    }
+
+    return this.http.get<{ hasAccess: boolean; reason?: string }>(url).pipe(
+      catchError(() => of({ hasAccess: false, reason: 'Unable to verify access' }))
+    );
+  }
+
+  /**
+   * Check if student has access to term
+   */
+  hasAccessToTerm(studentId: number, termId: number): Observable<{ hasAccess: boolean; reason?: string }> {
+    const url = `${this.baseUrl}/api/studentsubjects/student/${studentId}/has-access/term/${termId}`;
+
+    if (environment.useMock) {
+      return of({ hasAccess: true });
+    }
+
+    return this.http.get<{ hasAccess: boolean; reason?: string }>(url).pipe(
+      catchError(() => of({ hasAccess: false, reason: 'Unable to verify access' }))
+    );
+  }
+
+  /**
+   * Check if student has access to lesson
+   */
+  hasAccessToLesson(studentId: number, lessonId: number): Observable<{ hasAccess: boolean; reason?: string }> {
+    const url = `${this.baseUrl}/api/studentsubjects/student/${studentId}/has-access/lesson/${lessonId}`;
+
+    if (environment.useMock) {
+      return of({ hasAccess: true });
+    }
+
+    return this.http.get<{ hasAccess: boolean; reason?: string }>(url).pipe(
+      catchError(() => of({ hasAccess: false, reason: 'Unable to verify access' }))
+    );
+  }
+
+  /**
+   * Check if student has access to exam
+   */
+  hasAccessToExam(studentId: number, examId: number): Observable<{ hasAccess: boolean; reason?: string }> {
+    const url = `${this.baseUrl}/api/studentsubjects/student/${studentId}/has-access/exam/${examId}`;
+
+    if (environment.useMock) {
+      return of({ hasAccess: true });
+    }
+
+    return this.http.get<{ hasAccess: boolean; reason?: string }>(url).pipe(
+      catchError(() => of({ hasAccess: false, reason: 'Unable to verify access' }))
+    );
   }
 }

@@ -1,0 +1,602 @@
+<div class="create-edit-exam-container min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4 max-w-6xl">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">
+          {{ isEditMode() ? 'Edit Exam' : 'Create New Exam' }}
+        </h1>
+        <p class="text-gray-600 mt-1">
+          {{ isEditMode() ? 'Update exam details and questions' : 'Fill in the details below to create a new exam' }}
+        </p>
+      </div>
+      <button
+        (click)="cancel()"
+        class="px-4 py-2 text-gray-700 hover:text-gray-900">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+      <div class="flex items-center justify-between">
+        <!-- Step 1: Basic -->
+        <div
+          class="flex-1 flex items-center cursor-pointer"
+          (click)="goToStep('basic')">
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all"
+            [class.bg-blue-600]="currentStep() === 'basic'"
+            [class.text-white]="currentStep() === 'basic'"
+            [class.bg-blue-100]="currentStep() !== 'basic'"
+            [class.text-blue-600]="currentStep() !== 'basic'">
+            1
+          </div>
+          <div class="ml-3 flex-1">
+            <p
+              class="font-semibold"
+              [class.text-blue-600]="currentStep() === 'basic'"
+              [class.text-gray-900]="currentStep() !== 'basic'">
+              Basic Info
+            </p>
+            <p class="text-sm text-gray-600">Title, type & timing</p>
+          </div>
+          <div class="h-1 flex-1 mx-4 bg-gray-200 rounded"></div>
+        </div>
+
+        <!-- Step 2: Questions -->
+        <div
+          class="flex-1 flex items-center cursor-pointer"
+          (click)="goToStep('questions')">
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all"
+            [class.bg-blue-600]="currentStep() === 'questions'"
+            [class.text-white]="currentStep() === 'questions'"
+            [class.bg-blue-100]="currentStep() !== 'questions'"
+            [class.text-blue-600]="currentStep() !== 'questions'">
+            2
+          </div>
+          <div class="ml-3 flex-1">
+            <p
+              class="font-semibold"
+              [class.text-blue-600]="currentStep() === 'questions'"
+              [class.text-gray-900]="currentStep() !== 'questions'">
+              Questions
+            </p>
+            <p class="text-sm text-gray-600">Add & configure</p>
+          </div>
+          <div class="h-1 flex-1 mx-4 bg-gray-200 rounded"></div>
+        </div>
+
+        <!-- Step 3: Settings -->
+        <div
+          class="flex-1 flex items-center cursor-pointer"
+          (click)="goToStep('settings')">
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all"
+            [class.bg-blue-600]="currentStep() === 'settings'"
+            [class.text-white]="currentStep() === 'settings'"
+            [class.bg-blue-100]="currentStep() !== 'settings'"
+            [class.text-blue-600]="currentStep() !== 'settings'">
+            3
+          </div>
+          <div class="ml-3 flex-1">
+            <p
+              class="font-semibold"
+              [class.text-blue-600]="currentStep() === 'settings'"
+              [class.text-gray-900]="currentStep() !== 'settings'">
+              Settings
+            </p>
+            <p class="text-sm text-gray-600">Configure options</p>
+          </div>
+          <div class="h-1 flex-1 mx-4 bg-gray-200 rounded"></div>
+        </div>
+
+        <!-- Step 4: Preview -->
+        <div
+          class="flex items-center cursor-pointer"
+          (click)="goToStep('preview')">
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all"
+            [class.bg-blue-600]="currentStep() === 'preview'"
+            [class.text-white]="currentStep() === 'preview'"
+            [class.bg-blue-100]="currentStep() !== 'preview'"
+            [class.text-blue-600]="currentStep() !== 'preview'">
+            4
+          </div>
+          <div class="ml-3">
+            <p
+              class="font-semibold"
+              [class.text-blue-600]="currentStep() === 'preview'"
+              [class.text-gray-900]="currentStep() !== 'preview'">
+              Preview
+            </p>
+            <p class="text-sm text-gray-600">Review & save</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="examForm">
+      <!-- Step 1: Basic Info -->
+      @if (currentStep() === 'basic') {
+        <div class="bg-white rounded-lg shadow-sm p-8 mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-6">Basic Information</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Title -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Exam Title <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                formControlName="title"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                [class.border-red-500]="hasError('title')"
+                placeholder="e.g., Math Week 3 - Algebra Quiz">
+              @if (hasError('title')) {
+                <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('title') }}</p>
+              }
+            </div>
+
+            <!-- Description -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Description (Optional)
+              </label>
+              <textarea
+                formControlName="description"
+                rows="3"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Brief description of the exam"></textarea>
+            </div>
+
+            <!-- Exam Type -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Exam Type <span class="text-red-500">*</span>
+              </label>
+              <select
+                formControlName="examType"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                [class.border-red-500]="hasError('examType')">
+                @for (type of examTypes; track type) {
+                  <option [value]="type">{{ type }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Subject -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Subject <span class="text-red-500">*</span>
+              </label>
+              <select
+                formControlName="subjectId"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                [class.border-red-500]="hasError('subjectId')">
+                <option [value]="null">Select Subject</option>
+                @for (subject of subjects(); track subject.id) {
+                  <option [value]="subject.id">{{ subject.subjectName || 'Subject' }}</option>
+                }
+              </select>
+              @if (hasError('subjectId')) {
+                <p class="mt-1 text-sm text-red-500">Subject is required</p>
+              }
+            </div>
+
+            <!-- Duration -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Duration (minutes) <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                formControlName="durationInMinutes"
+                min="5"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                [class.border-red-500]="hasError('durationInMinutes')">
+              @if (hasError('durationInMinutes')) {
+                <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('durationInMinutes') }}</p>
+              }
+            </div>
+
+            <!-- Start Time -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Start Time (Optional)
+              </label>
+              <input
+                type="datetime-local"
+                formControlName="startTime"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <!-- End Time -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                End Time (Optional)
+              </label>
+              <input
+                type="datetime-local"
+                formControlName="endTime"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="flex items-center justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              (click)="goToStep('questions')"
+              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+              Next: Add Questions →
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Step 2: Questions -->
+      @if (currentStep() === 'questions') {
+        <div class="bg-white rounded-lg shadow-sm p-8 mb-8">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-semibold text-gray-900">Exam Questions</h2>
+            <button
+              type="button"
+              (click)="addQuestion()"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              <span>Add Question</span>
+            </button>
+          </div>
+
+          <!-- Questions List -->
+          <div class="space-y-6" formArrayName="questions">
+            @for (question of questions.controls; track $index; let i = $index) {
+              <div
+                [formGroupName]="i"
+                class="border border-gray-300 rounded-lg p-6 hover:border-blue-300 transition-colors">
+
+                <!-- Question Header -->
+                <div class="flex items-start justify-between mb-4">
+                  <h3 class="text-lg font-semibold text-gray-900">Question {{ i + 1 }}</h3>
+                  <button
+                    type="button"
+                    (click)="removeQuestion(i)"
+                    class="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Question Text -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Question Text <span class="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    formControlName="questionText"
+                    rows="3"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter your question here..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                  <!-- Question Type -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Type <span class="text-red-500">*</span>
+                    </label>
+                    <select
+                      formControlName="questionType"
+                      (change)="onQuestionTypeChange(i, $any($event.target).value)"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      @for (type of questionTypes; track type) {
+                        <option [value]="type">{{ type }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <!-- Marks -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Marks <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      formControlName="marks"
+                      min="1"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+                </div>
+
+                <!-- Options (for MCQ, MultiSelect, TrueFalse) -->
+                @if (question.get('questionType')?.value !== 'Text') {
+                  <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center justify-between mb-3">
+                      <label class="block text-sm font-medium text-gray-700">
+                        Answer Options
+                      </label>
+                      @if (question.get('questionType')?.value !== 'TrueFalse') {
+                        <button
+                          type="button"
+                          (click)="addOption(i)"
+                          class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                          + Add Option
+                        </button>
+                      }
+                    </div>
+
+                    <div class="space-y-2" formArrayName="options">
+                      @for (option of getOptions(i).controls; track $index; let j = $index) {
+                        <div
+                          [formGroupName]="j"
+                          class="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            formControlName="isCorrect"
+                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                          <input
+                            type="text"
+                            formControlName="optionText"
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Option text">
+                          @if (question.get('questionType')?.value !== 'TrueFalse') {
+                            <button
+                              type="button"
+                              (click)="removeOption(i, j)"
+                              class="text-red-600 hover:text-red-700 p-2">
+                              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                              </svg>
+                            </button>
+                          }
+                        </div>
+                      }
+                    </div>
+                    <p class="text-xs text-gray-600 mt-2">Check the box to mark correct answer(s)</p>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          @if (questions.length === 0) {
+            <div class="text-center py-12 text-gray-500">
+              <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <p class="mb-4">No questions added yet</p>
+              <button
+                type="button"
+                (click)="addQuestion()"
+                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                Add First Question
+              </button>
+            </div>
+          }
+
+          <!-- Navigation -->
+          <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              (click)="goToStep('basic')"
+              class="px-6 py-3 text-gray-700 hover:text-gray-900 font-medium">
+              ← Back
+            </button>
+            <button
+              type="button"
+              (click)="goToStep('settings')"
+              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+              Next: Settings →
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Step 3: Settings -->
+      @if (currentStep() === 'settings') {
+        <div class="bg-white rounded-lg shadow-sm p-8 mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-6">Exam Settings</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Total Marks -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Total Marks <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                formControlName="totalMarks"
+                min="1"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                [class.border-red-500]="hasError('totalMarks')">
+              <p class="mt-1 text-sm text-gray-600">
+                Calculated from questions: {{ calculateTotalMarks() }} marks
+              </p>
+            </div>
+
+            <!-- Passing Marks -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Passing Marks <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                formControlName="passingMarks"
+                min="0"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <!-- Max Attempts -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Maximum Attempts <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                formControlName="maxAttempts"
+                min="1"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <!-- Boolean Settings -->
+            <div class="md:col-span-2 space-y-4">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  formControlName="allowLateSubmission"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div>
+                  <span class="text-sm font-medium text-gray-700">Allow Late Submission</span>
+                  <p class="text-xs text-gray-600">Students can submit after end time</p>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  formControlName="shuffleQuestions"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div>
+                  <span class="text-sm font-medium text-gray-700">Shuffle Questions</span>
+                  <p class="text-xs text-gray-600">Randomize question order for each student</p>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  formControlName="showResults"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div>
+                  <span class="text-sm font-medium text-gray-700">Show Results</span>
+                  <p class="text-xs text-gray-600">Display results immediately after submission</p>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  formControlName="allowReview"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <div>
+                  <span class="text-sm font-medium text-gray-700">Allow Review</span>
+                  <p class="text-xs text-gray-600">Students can review answers before submitting</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              (click)="goToStep('questions')"
+              class="px-6 py-3 text-gray-700 hover:text-gray-900 font-medium">
+              ← Back
+            </button>
+            <button
+              type="button"
+              (click)="goToStep('preview')"
+              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+              Preview & Save →
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Step 4: Preview -->
+      @if (currentStep() === 'preview') {
+        <div class="bg-white rounded-lg shadow-sm p-8 mb-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-6">Preview & Save</h2>
+
+          <!-- Exam Summary -->
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-semibold text-blue-900 mb-4">{{ examForm.get('title')?.value }}</h3>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div>
+                <p class="text-blue-700 font-medium">Type</p>
+                <p class="text-blue-900">{{ examForm.get('examType')?.value }}</p>
+              </div>
+              <div>
+                <p class="text-blue-700 font-medium">Duration</p>
+                <p class="text-blue-900">{{ examForm.get('durationInMinutes')?.value }} min</p>
+              </div>
+              <div>
+                <p class="text-blue-700 font-medium">Total Marks</p>
+                <p class="text-blue-900">{{ calculateTotalMarks() }}</p>
+              </div>
+              <div>
+                <p class="text-blue-700 font-medium">Questions</p>
+                <p class="text-blue-900">{{ questions.length }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Questions Preview -->
+          <div class="space-y-4 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Questions Preview</h3>
+            @for (question of questions.controls; track $index; let i = $index) {
+              <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-start gap-3">
+                  <span class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold text-sm">
+                    {{ i + 1 }}
+                  </span>
+                  <div class="flex-1">
+                    <p class="text-gray-900 mb-2">{{ question.get('questionText')?.value }}</p>
+                    <div class="flex items-center gap-4 text-sm text-gray-600">
+                      <span class="bg-gray-100 px-2 py-1 rounded">{{ question.get('questionType')?.value }}</span>
+                      <span>{{ question.get('marks')?.value }} marks</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Save Actions -->
+          <div class="bg-gray-50 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Ready to save?</h3>
+            <div class="flex items-center gap-4">
+              <button
+                type="button"
+                (click)="saveExam(false)"
+                [disabled]="saving()"
+                class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium disabled:bg-gray-400">
+                {{ saving() ? 'Saving...' : 'Save as Draft' }}
+              </button>
+              <button
+                type="button"
+                (click)="saveExam(true)"
+                [disabled]="saving()"
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-blue-400">
+                {{ saving() ? 'Publishing...' : 'Publish Exam' }}
+              </button>
+            </div>
+            <p class="text-sm text-gray-600 mt-3">
+              Draft: Save for later editing | Publish: Make available to students
+            </p>
+          </div>
+
+          <!-- Navigation -->
+          <div class="flex items-center justify-start mt-8 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              (click)="goToStep('settings')"
+              class="px-6 py-3 text-gray-700 hover:text-gray-900 font-medium">
+              ← Back to Settings
+            </button>
+          </div>
+        </div>
+      }
+    </form>
+  </div>
+</div>

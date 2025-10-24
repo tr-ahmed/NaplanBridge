@@ -1,0 +1,47 @@
+/* Create/Edit Exam Component Styles */
+
+.create-edit-exam-container {
+  min-height: 100vh;
+}
+
+/* Step indicator animations */
+.step-indicator {
+  transition: all 0.3s ease;
+}
+
+/* Question card hover */
+.question-card {
+  transition: all 0.2s ease;
+}
+
+.question-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+/* Form input focus styles */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Button animations */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Preview card styles */
+.preview-card {
+  transition: all 0.3s ease;
+}

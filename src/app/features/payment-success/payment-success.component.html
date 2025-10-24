@@ -1,0 +1,138 @@
+<div class="payment-success-container min-h-screen bg-gray-50 flex items-center justify-center py-12">
+  <div class="container mx-auto px-4">
+    @if (loading()) {
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+        <p class="mt-4 text-gray-600">Verifying payment...</p>
+      </div>
+    }
+
+    @if (!loading()) {
+      <div class="max-w-2xl mx-auto">
+        <!-- Success Card -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <!-- Success Banner -->
+          <div class="bg-gradient-to-r from-green-500 to-green-600 p-8 text-center text-white">
+            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h1 class="text-3xl font-bold mb-2">Payment Successful!</h1>
+            <p class="text-lg opacity-90">Thank you for your purchase</p>
+          </div>
+
+          <!-- Order Details -->
+          <div class="p-8">
+            @if (orderId()) {
+              <div class="text-center mb-8">
+                <p class="text-gray-600 mb-2">Order Number</p>
+                <p class="text-2xl font-bold text-gray-900">#{{ orderId() }}</p>
+              </div>
+            }
+
+            <!-- Success Message -->
+            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-green-800">Order Confirmed</h3>
+                  <div class="mt-2 text-sm text-green-700">
+                    <ul class="list-disc list-inside space-y-1">
+                      <li>Your subscription is now active</li>
+                      <li>A confirmation email has been sent</li>
+                      <li>You can start accessing your content immediately</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            @if (orderDetails()) {
+              <!-- Order Items -->
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
+                <div class="space-y-3">
+                  @for (item of orderDetails().items; track item.id) {
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p class="font-medium text-gray-900">{{ item.planName }}</p>
+                        <p class="text-sm text-gray-600">{{ item.studentName }}</p>
+                      </div>
+                      <p class="font-semibold text-gray-900">
+                        ${{ item.price }}
+                      </p>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="border-t border-gray-200 pt-4 mb-6">
+                <div class="flex justify-between items-center">
+                  <span class="text-lg font-semibold text-gray-900">Total Paid</span>
+                  <span class="text-2xl font-bold text-green-600">
+                    ${{ orderDetails().totalAmount }}
+                  </span>
+                </div>
+              </div>
+            }
+
+            <!-- What's Next -->
+            <div class="bg-blue-50 rounded-lg p-6 mb-6">
+              <h3 class="font-semibold text-blue-900 mb-3">What's Next?</h3>
+              <ul class="space-y-2 text-sm text-blue-800">
+                <li class="flex items-start gap-2">
+                  <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span>Access your dashboard to view all active subscriptions</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span>Start watching lessons and taking exams immediately</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span>Check your email for receipt and subscription details</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4">
+              <button
+                (click)="goToDashboard()"
+                class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                Go to Dashboard
+              </button>
+              <button
+                (click)="viewOrders()"
+                class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold">
+                View Orders
+              </button>
+            </div>
+
+            <!-- Support Info -->
+            <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+              <p class="text-sm text-gray-600">
+                Need help? Contact our support team at
+                <a href="mailto:support@naplanbridge.com" class="text-blue-600 hover:text-blue-700 font-medium">
+                  support@naplanbridge.com
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

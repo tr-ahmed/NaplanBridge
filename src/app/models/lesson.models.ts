@@ -1,47 +1,139 @@
 /**
+ * Video Provider Types - Based on Backend API
+ */
+export type VideoProvider = 'Cloudinary' | 'BunnyStorage' | 'BunnyStream';
+
+export const VideoProviders = {
+  CLOUDINARY: 'Cloudinary' as VideoProvider,
+  BUNNY_STORAGE: 'BunnyStorage' as VideoProvider,
+  BUNNY_STREAM: 'BunnyStream' as VideoProvider
+};
+
+/**
+ * Question Types - Based on Backend API
+ */
+export type QuestionType = 'Text' | 'MultipleChoice' | 'MultipleSelect' | 'TrueFalse';
+
+export const QuestionTypes = {
+  TEXT: 'Text' as QuestionType,
+  MULTIPLE_CHOICE: 'MultipleChoice' as QuestionType,
+  MULTIPLE_SELECT: 'MultipleSelect' as QuestionType,
+  TRUE_FALSE: 'TrueFalse' as QuestionType
+};
+
+/**
+ * Resource Types
+ */
+export type ResourceType = 'PDF' | 'Image' | 'Document' | 'Link' | 'Other';
+
+/**
  * Interface for Lesson data - Updated to match API response
  */
 export interface Lesson {
   id: number;
+  weekId: number;
   title: string;
-  description: string;
-  posterUrl: string; // Main poster URL from API
-  videoUrl: string; // Video URL from API
-  weekId: number; // Updated to match API response
-  subjectId: number; // Updated to match API response
-  termId: number; // Updated to match API response
+  description?: string;
+
+  // Video Info (from Bunny.net Integration)
+  videoUrl?: string;
+  videoProvider?: VideoProvider;
+  videoDuration?: number; // in seconds
+  duration?: number; // alias for videoDuration
+  posterUrl?: string;
+  thumbnailUrl?: string; // alias for posterUrl
+
+  // Structure
+  order: number;
+  subject?: string; // subject name
+  term?: number;
+  termId?: number;
+  week?: number;
+
+  // Resources
+  resources: Resource[];
+
+  // Questions
+  questionCount?: number;
+
+  // Stats
+  viewCount?: number;
+  completionRate?: number;
 
   // Computed/derived fields (not from API)
   courseId?: number;
   courseName?: string;
-  duration?: number; // in minutes
-  order?: number;
   isCompleted?: boolean;
   rating?: number;
   totalRatings?: number;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
-  subject?: string; // Derived from subjectId
-  term?: number; // Derived from termId
-  week?: number; // Derived from weekId
-  thumbnailUrl?: string; // Can use posterUrl as fallback
-  resources?: LessonResource[];
   isLocked?: boolean;
   completedAt?: Date;
   lastAccessedAt?: Date;
-  prerequisites?: number[]; // lesson IDs that must be completed first
-  learningObjectives?: string[]; // learning goals for this lesson
+  prerequisites?: number[];
+  learningObjectives?: string[];
+}
+
+/**
+ * Lesson Details - Extended version
+ */
+export interface LessonDetails extends Lesson {
+  weekNumber?: number;
+  termId?: number;
+  termNumber?: number;
+  subjectId?: number;
+  subjectName?: string;
+  questions?: LessonQuestion[];
+}
+
+/**
+ * Lesson Question Models
+ */
+export interface LessonQuestion {
+  id: number;
+  lessonId: number;
+  questionText: string;
+  questionType: QuestionType;
+  order: number;
+  options?: QuestionOption[];
+  videoMinute?: number;
+  isMultipleChoice?: boolean;
+}
+
+export interface QuestionOption {
+  id: number;
+  questionId: number;
+  optionText: string;
+  isCorrect: boolean;
+}
+
+export interface LessonQuestionAnswer {
+  questionId: number;
+  selectedOptionId?: number;
+  selectedOptionIds?: number[];
+  textAnswer?: string;
 }
 
 /**
  * Interface for Lesson Resource (PDFs, exercises, etc.)
  */
-export interface LessonResource {
+export interface Resource {
   id: number;
-  name: string;
-  type: 'pdf' | 'exercise' | 'quiz' | 'worksheet';
-  url: string;
-  downloadable: boolean;
+  lessonId: number;
+  title: string;
+  name?: string; // alias for title
+  description?: string;
+  resourceType: ResourceType;
+  type?: ResourceType; // alias for resourceType
+  resourceUrl: string;
+  url?: string; // alias for resourceUrl
+  fileSize?: number;
+  uploadedAt?: string | Date;
+  downloadable?: boolean;
 }
+
+// Legacy type alias for backward compatibility
+export type LessonResource = Resource;
 
 /**
  * Interface for Lesson Rating
@@ -49,10 +141,112 @@ export interface LessonResource {
 export interface LessonRating {
   id: number;
   lessonId: number;
-  studentId: number;
-  rating: number; // 1-5 stars
+  userId: number;
+  rating: number;
   comment?: string;
   createdAt: Date;
+}
+
+/**
+ * Create/Update Lesson DTOs
+ */
+export interface CreateLessonDto {
+  weekId: number;
+  title: string;
+  description?: string;
+  order: number;
+  videoFile?: File;
+  videoProvider?: VideoProvider;
+}
+
+export interface UpdateLessonDto {
+  title?: string;
+  description?: string;
+  order?: number;
+  videoFile?: File;
+}
+
+/**
+ * Create/Update Lesson Question DTOs
+ */
+export interface CreateLessonQuestionDto {
+  lessonId: number;
+  questionText: string;
+  questionType: QuestionType;
+  order: number;
+  videoMinute?: number;
+  options?: CreateQuestionOptionDto[];
+}
+
+export interface CreateQuestionOptionDto {
+  optionText: string;
+  isCorrect: boolean;
+}
+
+export interface UpdateLessonQuestionDto {
+  questionText?: string;
+  questionType?: QuestionType;
+  order?: number;
+  videoMinute?: number;
+  options?: CreateQuestionOptionDto[];
+}
+
+/**
+ * Create/Update Resource DTOs
+ */
+export interface CreateResourceDto {
+  lessonId: number;
+  title: string;
+  description?: string;
+  resourceType: ResourceType;
+  resourceFile?: File;
+  resourceUrl?: string;
+}
+
+export interface UpdateResourceDto {
+  title?: string;
+  description?: string;
+  resourceType?: ResourceType;
+  resourceFile?: File;
+}
+
+/**
+ * Video Upload Response
+ */
+export interface VideoUploadResponse {
+  videoUrl: string;
+  videoId: string;
+  videoProvider: VideoProvider;
+  posterUrl?: string;
+  duration?: number;
+  status: 'processing' | 'ready' | 'error';
+}
+
+/**
+ * Video Player Configuration
+ */
+export interface VideoPlayerConfig {
+  videoUrl: string;
+  posterUrl?: string;
+  provider: VideoProvider;
+  controls?: string[];
+  settings?: string[];
+  autoplay?: boolean;
+  muted?: boolean;
+  startTime?: number;
+}
+
+/**
+ * Lesson Progress
+ */
+export interface LessonProgress {
+  lessonId: number;
+  userId: number;
+  completed: boolean;
+  progress: number;
+  lastWatchedPosition?: number;
+  completedAt?: Date;
+  updatedAt: Date;
 }
 
 /**

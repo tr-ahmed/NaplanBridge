@@ -41,7 +41,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
       if (filter !== 'all' && plan.type !== filter) return false;
       if (paymentType !== 'all' && plan.paymentType !== paymentType) return false;
       return true;
-    }).sort((a, b) => a.sortOrder - b.sortOrder);
+    }).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   });
 
   // Filter options
@@ -164,29 +164,30 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
    * Get plan type display text
    * Get plan type display text
    */
-  getPlanTypeDisplay(type: SubscriptionType): string {
-    const typeMap: { [key in SubscriptionType]: string } = {
+  getPlanTypeDisplay(type: SubscriptionType | string | undefined): string {
+    const typeMap: any = {
       'terms_1_2': 'Terms 1 & 2',
       'terms_3_4': 'Terms 3 & 4',
       'full_year': 'Full Academic Year',
       'single_term': 'Single Term',
-      'single_subject': 'Single Subject'
+      'single_subject': 'Single Subject',
+      'subject': 'Subject Plan'
     };
-    return typeMap[type] || type;
+    return typeMap[type as string] || type || 'Plan';
   }
 
   /**
    * Get payment type display text
    * Get payment type display text
    */
-  getPaymentTypeDisplay(paymentType: PaymentType): string {
-    const typeMap: { [key in PaymentType]: string } = {
+  getPaymentTypeDisplay(paymentType: PaymentType | string | undefined): string {
+    const typeMap: any = {
       'one_time': 'One-time Payment',
       'monthly': 'Monthly Billing',
       'quarterly': 'Quarterly Billing',
       'yearly': 'Annual Billing'
     };
-    return typeMap[paymentType] || paymentType;
+    return typeMap[paymentType as string] || paymentType || 'Monthly';
   }
 
   /**

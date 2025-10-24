@@ -447,8 +447,8 @@
                       <div class="flex items-start justify-between">
                         <div class="flex-1">
                           <div class="flex items-center mb-2">
-                            <i [class]="getResourceIcon(resource.type) + ' ' + getResourceColor(resource.type) + ' mr-2'"></i>
-                            <span class="text-sm font-medium text-gray-700 uppercase">{{ resource.type }}</span>
+                            <i [class]="getResourceIcon(resource.type || 'PDF') + ' ' + getResourceColor(resource.type || 'PDF') + ' mr-2'"></i>
+                            <span class="text-sm font-medium text-gray-700 uppercase">{{ resource.type || 'PDF' }}</span>
                           </div>
                           <h4 class="font-semibold text-gray-900 mb-2">{{ resource.name }}</h4>
                           <button
