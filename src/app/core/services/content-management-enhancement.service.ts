@@ -59,10 +59,10 @@ export class ContentManagementEnhancementService {
       let currentProgress = 0;
       const interval = setInterval(() => {
         currentProgress += 10;
-        
+
         // Update progress
-        const updatedProgress = this.uploadProgress().map(p => 
-          p.fileName === file.name 
+        const updatedProgress = this.uploadProgress().map(p =>
+          p.fileName === file.name
             ? { ...p, progress: currentProgress }
             : p
         );
@@ -70,10 +70,10 @@ export class ContentManagementEnhancementService {
 
         if (currentProgress >= 100) {
           clearInterval(interval);
-          
+
           // Mark as processing
-          const processingProgress = this.uploadProgress().map(p => 
-            p.fileName === file.name 
+          const processingProgress = this.uploadProgress().map(p =>
+            p.fileName === file.name
               ? { ...p, status: 'processing' as const }
               : p
           );
@@ -81,8 +81,8 @@ export class ContentManagementEnhancementService {
 
           // Complete after processing
           setTimeout(() => {
-            const completedProgress = this.uploadProgress().map(p => 
-              p.fileName === file.name 
+            const completedProgress = this.uploadProgress().map(p =>
+              p.fileName === file.name
                 ? { ...p, status: 'completed' as const, progress: 100 }
                 : p
             );

@@ -24,7 +24,7 @@ export interface StudentDetails {
   avatar?: string;
   enrollmentDate: Date;
   status: 'active' | 'inactive';
-  
+
   // Performance metrics
   performance: {
     overallProgress: number;
@@ -64,10 +64,10 @@ export class StudentListEnhancementService {
    */
   getFilteredStudents(filter: StudentFilter): Observable<StudentDetails[]> {
     this.filterApplied.set(filter);
-    
+
     // Mock data - replace with real API
     const mockStudents: StudentDetails[] = this.getMockStudents();
-    
+
     let filtered = mockStudents;
 
     // Apply filters
@@ -79,7 +79,7 @@ export class StudentListEnhancementService {
     }
     if (filter.searchTerm) {
       const term = filter.searchTerm.toLowerCase();
-      filtered = filtered.filter(s => 
+      filtered = filtered.filter(s =>
         s.userName.toLowerCase().includes(term) ||
         s.email.toLowerCase().includes(term)
       );
@@ -102,10 +102,10 @@ export class StudentListEnhancementService {
    */
   exportToCSV(students: StudentDetails[]): void {
     const headers = [
-      'ID', 'Username', 'Email', 'Age', 'Year', 'Status', 
+      'ID', 'Username', 'Email', 'Age', 'Year', 'Status',
       'Enrollment Date', 'Progress %', 'Avg Score', 'Study Time (hrs)'
     ];
-    
+
     const rows = students.map(student => [
       student.id,
       student.userName,
@@ -139,7 +139,7 @@ export class StudentListEnhancementService {
    */
   performBulkOperation(operation: BulkOperation): Observable<{ success: boolean; affected: number }> {
     console.log('Bulk operation:', operation);
-    
+
     // Mock operation
     return of({
       success: true,
@@ -153,7 +153,7 @@ export class StudentListEnhancementService {
   toggleStudentSelection(studentId: number): void {
     const current = this.selectedStudents();
     const index = current.indexOf(studentId);
-    
+
     if (index > -1) {
       // Remove
       this.selectedStudents.set(current.filter(id => id !== studentId));

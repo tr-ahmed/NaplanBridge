@@ -16,7 +16,7 @@ import { StudentListEnhancementService, StudentDetails } from '../../core/servic
     @if (isOpen) {
       <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" (click)="close()">
         <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
-          
+
           <!-- Header -->
           <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
             <div class="flex items-center justify-between">
@@ -41,7 +41,7 @@ import { StudentListEnhancementService, StudentDetails } from '../../core/servic
 
           <!-- Content -->
           <div class="p-6">
-            
+
             <!-- Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div class="bg-blue-50 rounded-lg p-4">
@@ -64,7 +64,7 @@ import { StudentListEnhancementService, StudentDetails } from '../../core/servic
 
             <!-- Details Sections -->
             <div class="space-y-6">
-              
+
               <!-- Personal Info -->
               <div class="border rounded-lg p-4">
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">Personal Information</h3>
@@ -123,7 +123,7 @@ import { StudentListEnhancementService, StudentDetails } from '../../core/servic
                       <span class="text-sm font-medium">{{ student?.performance.overallProgress }}%</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         class="bg-blue-600 h-2 rounded-full transition-all"
                         [style.width.%]="student?.performance.overallProgress">
                       </div>
