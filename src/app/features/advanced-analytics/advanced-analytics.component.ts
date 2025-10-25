@@ -3,7 +3,7 @@
  * Comprehensive analytics dashboard with charts and reports
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdvancedAnalyticsService, AnalyticsData, ChartData } from '../../core/services/advanced-analytics.service';
@@ -16,8 +16,7 @@ import { AdvancedAnalyticsService, AnalyticsData, ChartData } from '../../core/s
   styleUrl: './advanced-analytics.component.scss'
 })
 export class AdvancedAnalyticsComponent implements OnInit {
-  private analyticsService = inject(AdvancedAnalyticsService);
-
+  
   // State
   loading = signal(true);
   selectedPeriod = signal<'week' | 'month' | 'year'>('month');
@@ -26,6 +25,8 @@ export class AdvancedAnalyticsComponent implements OnInit {
   // Data
   analyticsData = signal<AnalyticsData | null>(null);
   chartData = signal<ChartData | null>(null);
+
+  constructor(private analyticsService: AdvancedAnalyticsService) {}
 
   ngOnInit(): void {
     this.loadAnalytics();
@@ -39,11 +40,11 @@ export class AdvancedAnalyticsComponent implements OnInit {
 
     this.analyticsService.getAnalytics(this.selectedPeriod(), this.selectedReport())
       .subscribe({
-        next: (data) => {
+        next: (data: AnalyticsData) => {
           this.analyticsData.set(data);
           this.loadChartData();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Error loading analytics:', err);
           this.loading.set(false);
         }
@@ -56,11 +57,11 @@ export class AdvancedAnalyticsComponent implements OnInit {
   private loadChartData(): void {
     this.analyticsService.getChartData(this.selectedPeriod(), this.selectedReport())
       .subscribe({
-        next: (data) => {
+        next: (data: ChartData) => {
           this.chartData.set(data);
           this.loading.set(false);
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Error loading chart data:', err);
           this.loading.set(false);
         }
@@ -92,7 +93,7 @@ export class AdvancedAnalyticsComponent implements OnInit {
         next: () => {
           alert('PDF exported successfully!');
         },
-        error: (err) => {
+        error: (err: any) => {
           alert('Failed to export PDF');
         }
       });
@@ -107,7 +108,7 @@ export class AdvancedAnalyticsComponent implements OnInit {
         next: () => {
           alert('Excel exported successfully!');
         },
-        error: (err) => {
+        error: (err: any) => {
           alert('Failed to export Excel');
         }
       });
