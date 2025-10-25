@@ -91,7 +91,7 @@ export class MySubscriptionsComponent implements OnInit {
     const stats = {
       total: subscriptions.length,
       active: subscriptions.filter(s => s.status === 'Active').length,
-      expiringSoon: subscriptions.filter(s => 
+      expiringSoon: subscriptions.filter(s =>
         (s.daysUntilExpiry || 0) <= 30 && (s.daysUntilExpiry || 0) > 0
       ).length,
       totalSpent: subscriptions.reduce((sum, s) => sum + s.totalAmount, 0)
@@ -104,7 +104,7 @@ export class MySubscriptionsComponent implements OnInit {
    */
   private getMockSubscriptions(): SubscriptionWithDetails[] {
     const now = new Date();
-    
+
     return [
       {
         id: 1,
@@ -253,7 +253,7 @@ export class MySubscriptionsComponent implements OnInit {
         next: () => {
           // Update local state
           const subs = this.subscriptions();
-          const updated = subs.map(s => 
+          const updated = subs.map(s =>
             s.id === sub.id ? { ...s, status: 'Cancelled' as any, autoRenew: false } : s
           );
           this.subscriptions.set(updated);
@@ -274,13 +274,13 @@ export class MySubscriptionsComponent implements OnInit {
    */
   toggleAutoRenew(subscription: SubscriptionWithDetails): void {
     const subs = this.subscriptions();
-    const updated = subs.map(s => 
+    const updated = subs.map(s =>
       s.id === subscription.id ? { ...s, autoRenew: !s.autoRenew } : s
     );
     this.subscriptions.set(updated);
-    
-    const message = subscription.autoRenew 
-      ? 'Auto-renewal disabled' 
+
+    const message = subscription.autoRenew
+      ? 'Auto-renewal disabled'
       : 'Auto-renewal enabled';
     alert(message);
   }

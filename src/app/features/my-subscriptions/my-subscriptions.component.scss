@@ -71,7 +71,7 @@
 // Subscription cards
 .space-y-6 > div {
   animation: slideIn 0.4s ease-out;
-  
+
   &:nth-child(2) {
     animation-delay: 0.1s;
   }
@@ -83,7 +83,7 @@
 // Modal animation
 .fixed.inset-0 {
   animation: modalFadeIn 0.2s ease-out;
-  
+
   > div {
     animation: fadeIn 0.3s ease-out;
   }
