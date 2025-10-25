@@ -203,8 +203,8 @@ export class ParentDashboardComponent implements OnInit {
    * Navigate to child's dashboard
    */
   viewChildDashboard(childId: number): void {
-    this.router.navigate(['/student/dashboard'], { 
-      queryParams: { studentId: childId } 
+    this.router.navigate(['/student/dashboard'], {
+      queryParams: { studentId: childId }
     });
   }
 
@@ -272,7 +272,7 @@ export class ParentDashboardComponent implements OnInit {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
+
     if (days === 0) return 'Today';
     if (days === 1) return 'Yesterday';
     if (days < 7) return `${days} days ago`;

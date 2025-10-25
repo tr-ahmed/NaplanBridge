@@ -1,6 +1,6 @@
 /**
- * Parent Dashboard Styles
- * Custom styles for parent dashboard component
+ * My Subscriptions Styles
+ * Custom styles for subscriptions management component
  */
 
 // Animations
@@ -26,6 +26,15 @@
   }
 }
 
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 // Component styles
 :host {
   display: block;
@@ -43,29 +52,7 @@
   }
 }
 
-// Activity items
-.space-y-2 > div {
-  animation: slideIn 0.3s ease-out;
-
-  &:nth-child(2) {
-    animation-delay: 0.1s;
-  }
-}
-
-// Hover effects
-.hover\:shadow-lg {
-  transition: box-shadow 0.3s ease;
-}
-
-// Alert animations
-[class*="bg-blue-50"],
-[class*="bg-yellow-50"],
-[class*="bg-green-50"],
-[class*="bg-red-50"] {
-  animation: slideIn 0.4s ease-out;
-}
-
-// Stats cards
+// Stats cards stagger animation
 .grid > .bg-white {
   &:nth-child(1) {
     animation-delay: 0.1s;
@@ -76,6 +63,40 @@
   &:nth-child(3) {
     animation-delay: 0.3s;
   }
+  &:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+}
+
+// Subscription cards
+.space-y-6 > div {
+  animation: slideIn 0.4s ease-out;
+  
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+}
+
+// Modal animation
+.fixed.inset-0 {
+  animation: modalFadeIn 0.2s ease-out;
+  
+  > div {
+    animation: fadeIn 0.3s ease-out;
+  }
+}
+
+// Hover effects
+.hover\:shadow-lg {
+  transition: box-shadow 0.3s ease;
+}
+
+// Button transitions
+button {
+  transition: all 0.2s ease;
 }
 
 // Responsive adjustments

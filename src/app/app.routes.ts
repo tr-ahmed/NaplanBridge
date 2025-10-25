@@ -83,6 +83,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/parent-dashboard/parent-dashboard.component').then(m => m.ParentDashboardComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
   },
+  {
+    path: 'parent/subscriptions',
+    loadComponent: () => import('./features/my-subscriptions/my-subscriptions.component').then(m => m.MySubscriptionsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+  },
 
   // Student Dashboard and Routes (commented out until student routes are created)
   // {
