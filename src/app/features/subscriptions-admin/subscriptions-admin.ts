@@ -5,6 +5,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { RouterLink } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 type Interval = 'month' | 'year';
 type PlanStatus = 'Active' | 'Archived';
@@ -94,13 +95,13 @@ export class SubscriptionManagementComponent implements OnInit {
   userName: string = 'Admin';
   sidebarCollapsed = false;
   currentYear = new Date().getFullYear();
-  
+
   // API base URL
-  private apiBaseUrl = 'https://naplanbridge.runasp.net/api';
+  private apiBaseUrl = environment.apiBaseUrl;
 
   // Tabs
   activeTab: 'plans'|'subs'|'payments'|'coupons' = 'plans';
-  
+
   // Data arrays
   plans: Plan[] = [];
   users: UserMini[] = [];
@@ -126,29 +127,29 @@ export class SubscriptionManagementComponent implements OnInit {
     method: '' as '' | 'Card' | 'Bank Transfer' | 'Cash',
     couponStatus: '' as '' | CouponStatus,
   };
-  
+
   search = { plans: '', subs: '', payments: '', coupons: '' };
 
   // Paging
   pageSize = 10;
-  planPage = 1; 
-  subPage = 1; 
-  paymentPage = 1; 
+  planPage = 1;
+  subPage = 1;
+  paymentPage = 1;
   couponPage = 1;
 
   // Derived (filtered + paged)
-  filtered = { 
-    plans: [] as Plan[], 
-    orders: [] as Order[], 
-    payments: [] as Payment[], 
-    coupons: [] as Coupon[] 
+  filtered = {
+    plans: [] as Plan[],
+    orders: [] as Order[],
+    payments: [] as Payment[],
+    coupons: [] as Coupon[]
   };
-  
-  paged = { 
-    plans: [] as Plan[], 
-    orders: [] as Order[], 
-    payments: [] as Payment[], 
-    coupons: [] as Coupon[] 
+
+  paged = {
+    plans: [] as Plan[],
+    orders: [] as Order[],
+    payments: [] as Payment[],
+    coupons: [] as Coupon[]
   };
 
   constructor(
@@ -227,31 +228,31 @@ export class SubscriptionManagementComponent implements OnInit {
   // Mock data fallbacks (remove when real endpoints are available)
   private loadMockPlans() {
     this.plans = [
-      { 
-        id: 1, 
-        name: 'Basic', 
+      {
+        id: 1,
+        name: 'Basic',
         description: 'Basic subscription plan',
-        price: 9.99, 
+        price: 9.99,
         planType: 1,
         isActive: true,
         subjectId: 1,
         termId: 1,
         yearId: 2025,
-        interval: 'month', 
-        trialDays: 7, 
+        interval: 'month',
+        trialDays: 7,
         status: 'Active'
       },
-      { 
-        id: 2, 
-        name: 'Pro', 
+      {
+        id: 2,
+        name: 'Pro',
         description: 'Professional subscription plan',
-        price: 99, 
+        price: 99,
         planType: 2,
         isActive: true,
         subjectId: 1,
         termId: 1,
         yearId: 2025,
-        interval: 'year', 
+        interval: 'year',
         status: 'Active'
       }
     ];
@@ -261,28 +262,28 @@ export class SubscriptionManagementComponent implements OnInit {
 
   private loadMockOrders() {
     this.orders = [
-      { 
-        id: 11, 
-        userId: 1, 
-        userName: 'Sara Ali', 
-        planId: 2, 
+      {
+        id: 11,
+        userId: 1,
+        userName: 'Sara Ali',
+        planId: 2,
         planName: 'Pro',
-        amount: 99, 
+        amount: 99,
         status: 'Active',
         stripeSessionId: 'cs_test_123',
-        createdAt: new Date('2024-08-01'), 
+        createdAt: new Date('2024-08-01'),
         updatedAt: new Date('2024-08-01')
       },
-      { 
-        id: 12, 
-        userId: 2, 
-        userName: 'Omar Khan', 
-        planId: 1, 
+      {
+        id: 12,
+        userId: 2,
+        userName: 'Omar Khan',
+        planId: 1,
         planName: 'Basic',
-        amount: 9.99, 
+        amount: 9.99,
         status: 'Past Due',
         stripeSessionId: 'cs_test_456',
-        createdAt: new Date('2025-05-10'), 
+        createdAt: new Date('2025-05-10'),
         updatedAt: new Date('2025-05-10')
       }
     ];
@@ -292,29 +293,29 @@ export class SubscriptionManagementComponent implements OnInit {
 
   private loadMockPayments() {
     this.payments = [
-      { 
-        id: 101, 
+      {
+        id: 101,
         orderId: 11,
-        invoiceNo: 'INV-1001', 
-        userId: 1, 
-        userName: 'Sara Ali', 
-        amount: 99, 
-        method: 'Card', 
-        date: new Date(), 
-        status: 'Paid', 
-        txnId: 'ch_abc123' 
+        invoiceNo: 'INV-1001',
+        userId: 1,
+        userName: 'Sara Ali',
+        amount: 99,
+        method: 'Card',
+        date: new Date(),
+        status: 'Paid',
+        txnId: 'ch_abc123'
       },
-      { 
-        id: 102, 
+      {
+        id: 102,
         orderId: 12,
-        invoiceNo: 'INV-1002', 
-        userId: 2, 
-        userName: 'Omar Khan', 
-        amount: 9.99, 
-        method: 'Card', 
-        date: new Date(), 
-        status: 'Failed', 
-        txnId: 'ch_def456' 
+        invoiceNo: 'INV-1002',
+        userId: 2,
+        userName: 'Omar Khan',
+        amount: 9.99,
+        method: 'Card',
+        date: new Date(),
+        status: 'Failed',
+        txnId: 'ch_def456'
       }
     ];
     this.updateStats();
@@ -323,24 +324,24 @@ export class SubscriptionManagementComponent implements OnInit {
 
   private loadMockCoupons() {
     this.coupons = [
-      { 
-        id: 201, 
-        code: 'SPRING25', 
-        type: 'Percent', 
-        value: 25, 
-        validFrom: new Date('2025-03-01'), 
-        validTo: new Date('2025-03-31'), 
-        status: 'Expired' 
+      {
+        id: 201,
+        code: 'SPRING25',
+        type: 'Percent',
+        value: 25,
+        validFrom: new Date('2025-03-01'),
+        validTo: new Date('2025-03-31'),
+        status: 'Expired'
       },
-      { 
-        id: 202, 
-        code: 'ANNUAL50', 
-        type: 'Fixed', 
-        value: 50, 
-        validFrom: new Date('2025-01-01'), 
-        validTo: new Date('2025-12-31'), 
-        status: 'Active', 
-        maxUses: 200 
+      {
+        id: 202,
+        code: 'ANNUAL50',
+        type: 'Fixed',
+        value: 50,
+        validFrom: new Date('2025-01-01'),
+        validTo: new Date('2025-12-31'),
+        status: 'Active',
+        maxUses: 200
       }
     ];
     this.updateStats();
@@ -374,9 +375,9 @@ export class SubscriptionManagementComponent implements OnInit {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
-  setActiveTab(t: 'plans' | 'subs' | 'payments' | 'coupons') { 
-    this.activeTab = t; 
-    this.onFilterChange(); 
+  setActiveTab(t: 'plans' | 'subs' | 'payments' | 'coupons') {
+    this.activeTab = t;
+    this.onFilterChange();
   }
 
   // Filter + pagination recompute
@@ -404,9 +405,9 @@ export class SubscriptionManagementComponent implements OnInit {
     // Payments
     this.filtered.payments = this.payments.filter(p => {
       const q = this.search.payments.toLowerCase();
-      const okText = !q || 
-        p.invoiceNo.toLowerCase().includes(q) || 
-        (p.userName || '').toLowerCase().includes(q) || 
+      const okText = !q ||
+        p.invoiceNo.toLowerCase().includes(q) ||
+        (p.userName || '').toLowerCase().includes(q) ||
         (p.txnId || '').toLowerCase().includes(q);
       const okStatus = !this.filters.paymentStatus || p.status === this.filters.paymentStatus;
       const okMethod = !this.filters.method || p.method === this.filters.method;
@@ -516,12 +517,12 @@ export class SubscriptionManagementComponent implements OnInit {
   }
 
   // Helper methods
-  getPlanName(id: number) { 
-    return this.plans.find(x => x.id === id)?.name || '-'; 
+  getPlanName(id: number) {
+    return this.plans.find(x => x.id === id)?.name || '-';
   }
 
-  getUserName(id: number) { 
-    return this.users.find(x => x.id === id)?.name || '-'; 
+  getUserName(id: number) {
+    return this.users.find(x => x.id === id)?.name || '-';
   }
 
   // Pagination getters
@@ -559,9 +560,9 @@ export class SubscriptionManagementComponent implements OnInit {
     this.entityType = type;
     this.entityTitle = this.entityTypeTitle(type);
     this.form = {};
-    
-    if (type === 'plan') { 
-      this.form = { 
+
+    if (type === 'plan') {
+      this.form = {
         name: '',
         description: '',
         planType: 1,
@@ -570,31 +571,31 @@ export class SubscriptionManagementComponent implements OnInit {
         subjectId: 1,
         termId: 1,
         yearId: this.currentYear
-      }; 
+      };
     }
-    if (type === 'subscription') { 
-      this.form = { 
-        status: 'Active', 
-        startDate: this.today(), 
-        renewalDate: this.today() 
-      }; 
+    if (type === 'subscription') {
+      this.form = {
+        status: 'Active',
+        startDate: this.today(),
+        renewalDate: this.today()
+      };
     }
-    if (type === 'payment') { 
-      this.form = { 
-        status: 'Paid', 
-        amount: 0, 
-        date: this.nowLocal(), 
-        method: 'Card' 
-      }; 
+    if (type === 'payment') {
+      this.form = {
+        status: 'Paid',
+        amount: 0,
+        date: this.nowLocal(),
+        method: 'Card'
+      };
     }
-    if (type === 'coupon') { 
-      this.form = { 
-        type: 'Percent', 
-        value: 10, 
-        status: 'Active', 
-        validFrom: this.today(), 
-        validTo: this.today() 
-      }; 
+    if (type === 'coupon') {
+      this.form = {
+        type: 'Percent',
+        value: 10,
+        status: 'Active',
+        validFrom: this.today(),
+        validTo: this.today()
+      };
     }
     this.isFormOpen = true;
   }
@@ -604,15 +605,15 @@ export class SubscriptionManagementComponent implements OnInit {
     this.entityType = type;
     this.entityTitle = this.entityTypeTitle(type);
     this.form = { ...row };
-    
-    if (type === 'plan' && Array.isArray(row.features)) { 
-      this.form.features = row.features.join(', '); 
+
+    if (type === 'plan' && Array.isArray(row.features)) {
+      this.form.features = row.features.join(', ');
     }
     this.isFormOpen = true;
   }
 
-  closeForm() { 
-    this.isFormOpen = false; 
+  closeForm() {
+    this.isFormOpen = false;
   }
 
   entityTypeTitle(type: any) {
@@ -718,28 +719,28 @@ export class SubscriptionManagementComponent implements OnInit {
 
   openPlanPreview(p: Plan) {
     this.previewOpen = true;
-    this.preview = { 
-      type: 'plan', 
-      title: p.name, 
+    this.preview = {
+      type: 'plan',
+      title: p.name,
       description: p.description,
       planType: p.planType,
-      price: p.price, 
+      price: p.price,
       isActive: p.isActive,
       subjectId: p.subjectId,
       termId: p.termId,
       yearId: p.yearId,
-      interval: p.interval, 
-      trialDays: p.trialDays, 
+      interval: p.interval,
+      trialDays: p.trialDays,
       features: p.features || []
     };
   }
 
   openPaymentPreview(p: Payment) {
     this.previewOpen = true;
-    this.preview = { 
-      type: 'payment', 
-      title: `Invoice ${p.invoiceNo}`, 
-      ...p 
+    this.preview = {
+      type: 'payment',
+      title: `Invoice ${p.invoiceNo}`,
+      ...p
     };
   }
 
@@ -757,23 +758,23 @@ export class SubscriptionManagementComponent implements OnInit {
     };
   }
 
-  closePreview() { 
-    this.previewOpen = false; 
+  closePreview() {
+    this.previewOpen = false;
   }
 
   // Utility methods
-  newId<T extends { id: number }>(arr: T[]) { 
-    return (arr.reduce((m, x) => Math.max(m, x.id), 0) || 0) + 1; 
+  newId<T extends { id: number }>(arr: T[]) {
+    return (arr.reduce((m, x) => Math.max(m, x.id), 0) || 0) + 1;
   }
 
   upsert<T extends { id: number }>(arr: T[], item: T) {
     const i = arr.findIndex(x => x.id === item.id);
-    if (i > -1) arr[i] = item; 
+    if (i > -1) arr[i] = item;
     else arr.unshift(item);
   }
 
-  today() { 
-    return new Date().toISOString().substring(0, 10); 
+  today() {
+    return new Date().toISOString().substring(0, 10);
   }
 
   nowLocal() {

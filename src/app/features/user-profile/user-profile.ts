@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute} from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';   // ✅ استدعاء Router
+import { environment } from '../../../environments/environment.prod';
 
 interface User {
   id: number;
@@ -68,7 +69,7 @@ export class UserProfileComponent implements OnInit {
     this.loading = true;
     this.error = false;
 
-    this.http.get<User>(`https://naplanbridge.runasp.net/api/User/${this.userId}`)
+    this.http.get<User>(environment.apiBaseUrl + `/User/${this.userId}`)
       .subscribe({
         next: (data) => {
           this.user = data;
@@ -86,7 +87,7 @@ saveUserProfile() {
   if (!this.user) return;
 
   this.http.put<User>(
-    `https://naplanbridge.runasp.net/api/User/${this.user.id}`,
+    `${environment.apiBaseUrl}/User/${this.user.id}`,
     this.editData
   ).subscribe({
     next: (updated) => {

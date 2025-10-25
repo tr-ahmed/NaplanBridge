@@ -62,7 +62,7 @@ export class SwaggerTestService {
    * Test direct external API call (bypassing proxy)
    */
   testDirectApiCall(): Observable<any> {
-    const directUrl = 'https://naplanbridge.runasp.net/api/Account/login';
+    const directUrl = environment.apiBaseUrl + '/Account/login';
 
     const testData = {
       email: "user@example.com",
@@ -124,7 +124,7 @@ export class SwaggerTestService {
       },
       currentUrl: window.location.href,
       expectedProxyPath: '/api/Account/login',
-      expectedTargetUrl: 'https://naplanbridge.runasp.net/api/Account/login',
+      expectedTargetUrl: environment.apiBaseUrl + '/Account/login',
       swaggerWorkingData: {
         email: "user@example.com",
         password: "Aa123456"

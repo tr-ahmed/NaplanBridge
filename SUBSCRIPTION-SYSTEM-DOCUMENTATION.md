@@ -279,7 +279,7 @@ const testPurchase = {
 ### متغيرات البيئة | Environment Variables
 ```typescript
 export const environment = {
-  apiBaseUrl: 'https://api.naplanbridge.com',
+  apiBaseUrl: 'https://naplan2.runasp.net/api',
   useMock: false, // تغيير إلى true للتطوير
   paymentGateway: 'stripe'
 };
