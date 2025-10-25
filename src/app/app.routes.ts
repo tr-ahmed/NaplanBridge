@@ -80,7 +80,7 @@ export const routes: Routes = [
   // Parent Dashboard
   {
     path: 'parent/dashboard',
-    loadComponent: () => import('./features/students-list/students-list').then(m => m.StudentsListComponent),
+    loadComponent: () => import('./features/parent-dashboard/parent-dashboard.component').then(m => m.ParentDashboardComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
   },
 
