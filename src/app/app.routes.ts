@@ -88,6 +88,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/my-subscriptions/my-subscriptions.component').then(m => m.MySubscriptionsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
   },
+  {
+    path: 'profile',
+    loadComponent: () => import('./features/profile-management/profile-management.component').then(m => m.ProfileManagementComponent),
+    canActivate: [authGuard]
+  },
 
   // Student Dashboard and Routes (commented out until student routes are created)
   // {

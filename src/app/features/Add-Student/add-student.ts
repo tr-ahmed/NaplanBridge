@@ -45,12 +45,12 @@ export class AddStudentComponent implements OnInit {
 
   // Form
   addStudentForm!: FormGroup;
-  
+
   // State
   loading = signal(false);
   error = signal<string | null>(null);
   success = signal(false);
-  
+
   // Academic years data
   academicYears: AcademicYear[] = [
     { id: 1, name: 'Year 1', nameAr: 'الصف الأول' },
@@ -207,10 +207,10 @@ export class AddStudentComponent implements OnInit {
    * Handle registration error
    */
   private handleError(err: any): void {
-    const errorMessage = err?.error?.message 
+    const errorMessage = err?.error?.message
       || err?.error?.title
       || 'Failed to add student. Please try again.';
-    
+
     this.error.set(errorMessage);
     this.loading.set(false);
 
@@ -254,8 +254,8 @@ export class AddStudentComponent implements OnInit {
       Swal.fire({
         icon: 'warning',
         title: 'Please fix the following errors:',
-        html: '<ul style="text-align: left;">' + 
-              errors.map(e => `<li>${e}</li>`).join('') + 
+        html: '<ul style="text-align: left;">' +
+              errors.map(e => `<li>${e}</li>`).join('') +
               '</ul>',
         confirmButtonText: 'OK'
       });
@@ -275,7 +275,7 @@ export class AddStudentComponent implements OnInit {
    */
   getErrorMessage(fieldName: string): string {
     const field = this.addStudentForm.get(fieldName);
-    
+
     if (!field || !field.errors || !field.touched) {
       return '';
     }
