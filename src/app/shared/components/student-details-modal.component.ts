@@ -46,19 +46,19 @@ import { StudentListEnhancementService, StudentDetails } from '../../core/servic
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div class="bg-blue-50 rounded-lg p-4">
                 <p class="text-sm text-blue-600 font-medium">Progress</p>
-                <p class="text-2xl font-bold text-blue-900">{{ student?.performance.overallProgress }}%</p>
+                <p class="text-2xl font-bold text-blue-900">{{ student?.performance?.overallProgress || 0 }}%</p>
               </div>
               <div class="bg-green-50 rounded-lg p-4">
                 <p class="text-sm text-green-600 font-medium">Avg Score</p>
-                <p class="text-2xl font-bold text-green-900">{{ student?.performance.averageExamScore }}%</p>
+                <p class="text-2xl font-bold text-green-900">{{ student?.performance?.averageExamScore || 0 }}%</p>
               </div>
               <div class="bg-purple-50 rounded-lg p-4">
                 <p class="text-sm text-purple-600 font-medium">Lessons</p>
-                <p class="text-2xl font-bold text-purple-900">{{ student?.performance.completedLessons }}/{{ student?.performance.totalLessons }}</p>
+                <p class="text-2xl font-bold text-purple-900">{{ student?.performance?.completedLessons || 0 }}/{{ student?.performance?.totalLessons || 0 }}</p>
               </div>
               <div class="bg-orange-50 rounded-lg p-4">
                 <p class="text-sm text-orange-600 font-medium">Study Time</p>
-                <p class="text-2xl font-bold text-orange-900">{{ (student?.performance.studyTime || 0) / 60 | number:'1.0-0' }}h</p>
+                <p class="text-2xl font-bold text-orange-900">{{ ((student?.performance?.studyTime || 0) / 60) | number:'1.0-0' }}h</p>
               </div>
             </div>
 
@@ -85,7 +85,7 @@ import { StudentListEnhancementService, StudentDetails } from '../../core/servic
                   </div>
                   <div>
                     <p class="text-sm text-gray-600">Last Active</p>
-                    <p class="font-medium">{{ student?.performance.lastActive | date:'MMM d, yyyy' }}</p>
+                    <p class="font-medium">{{ student?.performance?.lastActive | date:'MMM d, yyyy' }}</p>
                   </div>
                 </div>
               </div>
@@ -97,17 +97,17 @@ import { StudentListEnhancementService, StudentDetails } from '../../core/servic
                   <div class="grid grid-cols-3 gap-4">
                     <div>
                       <p class="text-sm text-gray-600">Plan</p>
-                      <p class="font-medium">{{ student?.subscription.planName }}</p>
+                      <p class="font-medium">{{ student?.subscription?.planName }}</p>
                     </div>
                     <div>
                       <p class="text-sm text-gray-600">Status</p>
                       <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-sm font-medium">
-                        {{ student?.subscription.status }}
+                        {{ student?.subscription?.status }}
                       </span>
                     </div>
                     <div>
                       <p class="text-sm text-gray-600">Expires</p>
-                      <p class="font-medium">{{ student?.subscription.expiryDate | date:'MMM d, yyyy' }}</p>
+                      <p class="font-medium">{{ student?.subscription?.expiryDate | date:'MMM d, yyyy' }}</p>
                     </div>
                   </div>
                 </div>
@@ -120,23 +120,23 @@ import { StudentListEnhancementService, StudentDetails } from '../../core/servic
                   <div>
                     <div class="flex justify-between mb-1">
                       <span class="text-sm text-gray-600">Course Progress</span>
-                      <span class="text-sm font-medium">{{ student?.performance.overallProgress }}%</span>
+                      <span class="text-sm font-medium">{{ student?.performance?.overallProgress || 0 }}%</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2">
                       <div
                         class="bg-blue-600 h-2 rounded-full transition-all"
-                        [style.width.%]="student?.performance.overallProgress">
+                        [style.width.%]="student?.performance?.overallProgress || 0">
                       </div>
                     </div>
                   </div>
                   <div class="grid grid-cols-2 gap-4 pt-2">
                     <div>
                       <p class="text-sm text-gray-600">Exams Completed</p>
-                      <p class="font-medium">{{ student?.performance.examsCompleted }}/{{ student?.performance.totalExams }}</p>
+                      <p class="font-medium">{{ student?.performance?.examsCompleted || 0 }}/{{ student?.performance?.totalExams || 0 }}</p>
                     </div>
                     <div>
                       <p class="text-sm text-gray-600">Average Score</p>
-                      <p class="font-medium text-green-600">{{ student?.performance.averageExamScore }}%</p>
+                      <p class="font-medium text-green-600">{{ student?.performance?.averageExamScore || 0 }}%</p>
                     </div>
                   </div>
                 </div>

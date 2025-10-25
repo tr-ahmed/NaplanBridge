@@ -41,7 +41,7 @@ interface SubscriptionWithDetails {
 @Component({
   selector: 'app-my-subscriptions',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './my-subscriptions.component.html',
   styleUrl: './my-subscriptions.component.scss'
 })
