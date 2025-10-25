@@ -16,7 +16,7 @@ import { AdvancedAnalyticsService, AnalyticsData, ChartData } from '../../core/s
   styleUrl: './advanced-analytics.component.scss'
 })
 export class AdvancedAnalyticsComponent implements OnInit {
-  
+
   // State
   loading = signal(true);
   selectedPeriod = signal<'week' | 'month' | 'year'>('month');
