@@ -41,7 +41,7 @@ button {
 form {
   > div {
     animation: slideIn 0.3s ease-out;
-    
+
     &:nth-child(2) {
       animation-delay: 0.05s;
     }
@@ -57,7 +57,7 @@ form {
 // Profile picture hover effect
 .relative img {
   transition: transform 0.3s ease;
-  
+
   &:hover {
     transform: scale(1.05);
   }

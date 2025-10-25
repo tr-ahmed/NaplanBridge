@@ -126,7 +126,7 @@ export class ProfileManagementComponent implements OnInit {
           createdAt: new Date('2024-01-15'),
           role: 'Parent'
         };
-        
+
         this.profile.set(mockProfile);
         this.populateForm(mockProfile);
         this.loading.set(false);
@@ -230,7 +230,7 @@ export class ProfileManagementComponent implements OnInit {
     formData.append('userName', this.profileForm.value.userName);
     formData.append('email', this.profileForm.value.email);
     formData.append('age', this.profileForm.value.age);
-    
+
     if (this.profileForm.value.phoneNumber) {
       formData.append('phoneNumber', this.profileForm.value.phoneNumber);
     }
@@ -248,7 +248,7 @@ export class ProfileManagementComponent implements OnInit {
         text: 'Profile updated successfully',
         timer: 2000
       });
-      
+
       // Update local profile
       const currentProfile = this.profile();
       if (currentProfile) {
@@ -279,7 +279,7 @@ export class ProfileManagementComponent implements OnInit {
     setTimeout(() => {
       this.loading.set(false);
       this.passwordForm.reset();
-      
+
       Swal.fire({
         icon: 'success',
         title: 'Password Changed!',
@@ -294,11 +294,11 @@ export class ProfileManagementComponent implements OnInit {
    */
   toggle2FA(): void {
     const enabled = this.securityForm.value.twoFactorEnabled;
-    
+
     Swal.fire({
       icon: 'info',
       title: enabled ? 'Enable 2FA' : 'Disable 2FA',
-      text: enabled 
+      text: enabled
         ? 'Two-factor authentication adds an extra layer of security'
         : 'Are you sure you want to disable two-factor authentication?',
       showCancelButton: true,
@@ -422,7 +422,7 @@ export class ProfileManagementComponent implements OnInit {
    */
   getErrorMessage(form: FormGroup, fieldName: string): string {
     const field = form.get(fieldName);
-    
+
     if (!field || !field.errors || !field.touched) {
       return '';
     }

@@ -1,7 +1,7 @@
 <!-- Profile Management - Enhanced -->
 <div class="min-h-screen bg-gray-50 py-8">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-    
+
     <!-- Header -->
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-gray-900">Profile Settings</h1>
@@ -18,7 +18,7 @@
     <!-- Content -->
     @if (!loading() && profile()) {
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        
+
         <!-- Sidebar Tabs -->
         <div class="lg:col-span-1">
           <div class="bg-white rounded-lg shadow p-4 space-y-2">
@@ -31,7 +31,7 @@
               <span class="text-xl">👤</span>
               <span>Profile</span>
             </button>
-            
+
             <button
               (click)="switchTab('password')"
               [class.bg-indigo-50]="activeTab() === 'password'"
@@ -41,7 +41,7 @@
               <span class="text-xl">🔒</span>
               <span>Password</span>
             </button>
-            
+
             <button
               (click)="switchTab('security')"
               [class.bg-indigo-50]="activeTab() === 'security'"
@@ -51,7 +51,7 @@
               <span class="text-xl">🛡️</span>
               <span>Security</span>
             </button>
-            
+
             <button
               (click)="switchTab('privacy')"
               [class.bg-indigo-50]="activeTab() === 'privacy'"
@@ -66,12 +66,12 @@
 
         <!-- Main Content -->
         <div class="lg:col-span-3">
-          
+
           <!-- Profile Tab -->
           @if (activeTab() === 'profile') {
             <div class="bg-white rounded-lg shadow p-6">
               <h2 class="text-xl font-bold text-gray-900 mb-6">Profile Information</h2>
-              
+
               <!-- Profile Picture -->
               <div class="mb-8 flex flex-col sm:flex-row items-center gap-6">
                 <div class="relative">
@@ -91,7 +91,7 @@
                     />
                   </label>
                 </div>
-                
+
                 <div class="text-center sm:text-left">
                   <h3 class="text-lg font-semibold text-gray-900">{{ profile()!.userName }}</h3>
                   <p class="text-sm text-gray-600">{{ profile()!.role }}</p>
@@ -101,7 +101,7 @@
 
               <!-- Profile Form -->
               <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="space-y-6">
-                
+
                 <!-- Username -->
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -217,9 +217,9 @@
           @if (activeTab() === 'password') {
             <div class="bg-white rounded-lg shadow p-6">
               <h2 class="text-xl font-bold text-gray-900 mb-6">Change Password</h2>
-              
+
               <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-6">
-                
+
                 <!-- Current Password -->
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -295,9 +295,9 @@
           @if (activeTab() === 'security') {
             <div class="bg-white rounded-lg shadow p-6">
               <h2 class="text-xl font-bold text-gray-900 mb-6">Security Settings</h2>
-              
+
               <form [formGroup]="securityForm" class="space-y-6">
-                
+
                 <!-- Two-Factor Authentication -->
                 <div class="border rounded-lg p-4">
                   <div class="flex items-start justify-between">
@@ -360,9 +360,9 @@
           @if (activeTab() === 'privacy') {
             <div class="bg-white rounded-lg shadow p-6">
               <h2 class="text-xl font-bold text-gray-900 mb-6">Privacy & Data</h2>
-              
+
               <div class="space-y-6">
-                
+
                 <!-- Download Data -->
                 <div class="border rounded-lg p-4">
                   <h3 class="text-lg font-semibold text-gray-900 mb-2">Download Your Data</h3>
