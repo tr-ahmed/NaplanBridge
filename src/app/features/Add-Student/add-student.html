@@ -1,52 +1,52 @@
-<!-- Add Student - Enhanced Version --><!-- Add Student - Enhanced Version --><div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-100 px-4 pt-20">
+<!-- Add Student - Enhanced Version --><!-- Add Student - Enhanced Version --><!-- Add Student - Enhanced Version --><div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-100 px-4 pt-20">
 
 <div class="min-h-screen bg-gray-50 py-8">
 
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8"><div class="min-h-screen bg-gray-50 py-8">  <div class="bg-white p-8 rounded-[10px] shadow-2xl w-full max-w-3xl border border-dashed border-blue-500">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8"><div class="min-h-screen bg-gray-50 py-8">
 
     
 
-    <!-- Header -->  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8"><div class="min-h-screen bg-gray-50 py-8">  <div class="bg-white p-8 rounded-[10px] shadow-2xl w-full max-w-3xl border border-dashed border-blue-500">
 
     <div class="mb-8 text-center">
 
-      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>        <!-- Logo -->
+      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>
 
       <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>
 
-    </div>    <!-- Header -->    <div class="flex justify-center">
+    </div>    <!-- Header -->  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
 
 
-    <!-- Form Card -->    <div class="mb-8 text-center">      <img src="assets/img/logo.png"
+    <!-- Form Card -->    <div class="mb-8 text-center">
 
     <div class="bg-white rounded-lg shadow-md p-8">
 
-      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>           alt="Logo"
+      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>        <!-- Logo -->
 
         
 
-        <!-- Student Name -->      <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>           onerror="this.style.display='none'"
+        <!-- Student Name -->      <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>
 
         <div>
 
-          <label class="block text-sm font-medium text-gray-700 mb-2">    </div>           class="w-24 h-24 rounded-full" />
+          <label class="block text-sm font-medium text-gray-700 mb-2">    </div>    <!-- Header -->    <div class="flex justify-center">
 
             Student Username <span class="text-red-500">*</span>
 
-          </label>    </div>
+          </label>
 
           <input
 
-            type="text"    <!-- Form Card -->
+            type="text"    <!-- Form Card -->    <div class="mb-8 text-center">      <img src="assets/img/logo.png"
 
             formControlName="userName"
 
-            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"    <div class="bg-white rounded-lg shadow-md p-8">    <!-- Title -->
+            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"    <div class="bg-white rounded-lg shadow-md p-8">
 
             [class.border-red-500]="hasError('userName', 'required')"
 
-            [class.border-gray-300]="!hasError('userName', 'required')"      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>    <h2 class="text-xl font-bold text-blue-900 text-center mb-6">Add New Student</h2>
+            [class.border-gray-300]="!hasError('userName', 'required')"      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>           alt="Logo"
 
             placeholder="e.g., ahmed_hassan"
 
@@ -54,197 +54,444 @@
 
           @if (hasError('userName', 'required')) {
 
-            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('userName') }}</p>        <!-- Student Name -->    <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
+            <p class="mt-1 text-sm text-red-500">Username is required</p>        <!-- Student Name -->      <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>           onerror="this.style.display='none'"
 
           }
 
-          @if (hasError('userName', 'minlength')) {        <div>      <!-- userName -->
+          @if (hasError('userName', 'minlength')) {        <div>
 
-            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('userName') }}</p>
+            <p class="mt-1 text-sm text-red-500">Username must be at least 3 characters</p>
 
-          }          <label class="block text-sm font-medium text-gray-700 mb-2">      <div>
+          }          <label class="block text-sm font-medium text-gray-700 mb-2">    </div>           class="w-24 h-24 rounded-full" />
 
         </div>
 
-            Student Username <span class="text-red-500">*</span>        <label class="block text-sm font-medium text-blue-900 mb-1">Username</label>
+            Student Username <span class="text-red-500">*</span>
 
         <!-- Email (Optional) -->
 
-        <div>          </label>        <input
+        <div>          </label>    </div>
 
           <label class="block text-sm font-medium text-gray-700 mb-2">
 
-            Email Address <span class="text-gray-400 text-xs">(Optional)</span>          <input          type="text"
+            Email Address <span class="text-gray-400 text-xs">(Optional)</span>          <input
 
           </label>
 
-          <input            type="text"          formControlName="userName"
+          <input            type="text"    <!-- Form Card -->
 
             type="email"
 
-            formControlName="email"            formControlName="userName"          [class]="addStudentForm.get('userName')?.invalid && addStudentForm.get('userName')?.touched ?
+            formControlName="email"            formControlName="userName"
 
             class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
 
-            [class.border-red-500]="hasError('email', 'email')"            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+            [class.border-red-500]="hasError('email', 'email')"            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"    <div class="bg-white rounded-lg shadow-md p-8">    <!-- Title -->
 
             [class.border-gray-300]="!hasError('email', 'email')"
 
-            placeholder="student@example.com"            [class.border-red-500]="hasError('userName', 'required')"            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+            placeholder="student@example.com"            [class.border-red-500]="hasError('userName', 'required')"
 
           />
 
-          @if (hasError('email', 'email')) {            [class.border-gray-300]="!hasError('userName', 'required')"          placeholder="Enter username"
+          @if (hasError('email', 'email')) {            [class.border-gray-300]="!hasError('userName', 'required')"      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>    <h2 class="text-xl font-bold text-blue-900 text-center mb-6">Add New Student</h2>
 
-            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('email') }}</p>
+            <p class="mt-1 text-sm text-red-500">Invalid email format</p>
 
-          }            placeholder="e.g., ahmed_hassan"        />
+          }            placeholder="e.g., ahmed_hassan"
 
         </div>
 
-          />        @if (addStudentForm.get('userName')?.invalid && addStudentForm.get('userName')?.touched) {
+          />
 
         <!-- Password & Confirm Password Grid -->
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">          @if (hasError('userName', 'required')) {          <small class="text-red-500 text-xs mt-1">Username is required.</small>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">          @if (hasError('userName', 'required')) {
 
           <!-- Password -->
 
-          <div>            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('userName') }}</p>        }
+          <div>            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('userName') }}</p>        <!-- Student Name -->    <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
 
             <label class="block text-sm font-medium text-gray-700 mb-2">
 
-              Password <span class="text-red-500">*</span>          }      </div>
+              Password <span class="text-red-500">*</span>          }
 
             </label>
 
-            <input          @if (hasError('userName', 'minlength')) {
+            <input          @if (hasError('userName', 'minlength')) {        <div>      <!-- userName -->
 
               type="password"
 
-              formControlName="password"            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('userName') }}</p>      <!-- password -->
+              formControlName="password"            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('userName') }}</p>
 
               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
 
-              [class.border-red-500]="hasError('password', 'required') || hasError('password', 'minlength')"          }      <div>
+              [class.border-red-500]="hasError('password', 'required') || hasError('password', 'minlength')"          }          <label class="block text-sm font-medium text-gray-700 mb-2">      <div>
 
               [class.border-gray-300]="!hasError('password', 'required') && !hasError('password', 'minlength')"
 
-              placeholder="Min 6 characters"        </div>        <label class="block text-sm font-medium text-blue-900 mb-1">Password</label>
+              placeholder="Min 6 characters"        </div>
 
             />
 
-            @if (hasError('password', 'required') || hasError('password', 'minlength')) {        <input
+            @if (hasError('password', 'required')) {            Student Username <span class="text-red-500">*</span>        <label class="block text-sm font-medium text-blue-900 mb-1">Username</label>
 
-              <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('password') }}</p>
+              <p class="mt-1 text-sm text-red-500">Password is required</p>
 
-            }        <!-- Email (Optional) -->          type="password"
+            }        <!-- Email (Optional) -->
 
-          </div>
+            @if (hasError('password', 'minlength')) {
 
-        <div>          formControlName="password"
-
-          <!-- Confirm Password -->
-
-          <div>          <label class="block text-sm font-medium text-gray-700 mb-2">          [class]="addStudentForm.get('password')?.invalid && addStudentForm.get('password')?.touched ?
-
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-
-              Confirm Password <span class="text-red-500">*</span>            Email Address <span class="text-gray-400 text-xs">(Optional)</span>            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
-
-            </label>
-
-            <input          </label>            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
-
-              type="password"
-
-              formControlName="confirmPassword"          <input          placeholder="Enter password"
-
-              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-
-              [class.border-red-500]="addStudentForm.hasError('passwordMismatch') && addStudentForm.get('confirmPassword')?.touched"            type="email"        />
-
-              [class.border-gray-300]="!addStudentForm.hasError('passwordMismatch') || !addStudentForm.get('confirmPassword')?.touched"
-
-              placeholder="Repeat password"            formControlName="email"        @if (addStudentForm.get('password')?.invalid && addStudentForm.get('password')?.touched) {
-
-            />
-
-            @if (addStudentForm.hasError('passwordMismatch') && addStudentForm.get('confirmPassword')?.touched) {            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"          <small class="text-red-500 text-xs mt-1">Password is required (min 6 chars).</small>
-
-              <p class="mt-1 text-sm text-red-500">Passwords do not match</p>
-
-            }            [class.border-red-500]="hasError('email', 'email')"        }
-
-          </div>
-
-        </div>            [class.border-gray-300]="!hasError('email', 'email')"      </div>
-
-
-
-        <!-- Age & Academic Year Grid -->            placeholder="student@example.com"
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          <!-- Age -->          />      <!-- year -->
-
-          <div>
-
-            <label class="block text-sm font-medium text-gray-700 mb-2">          @if (hasError('email', 'email')) {      <div>
-
-              Age <span class="text-red-500">*</span>
-
-            </label>            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('email') }}</p>        <label class="block text-sm font-medium text-blue-900 mb-1">Year</label>
-
-            <input
-
-              type="number"          }        <input
-
-              formControlName="age"
-
-              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"        </div>          type="number"
-
-              [class.border-red-500]="hasError('age', 'required')"
-
-              [class.border-gray-300]="!hasError('age', 'required')"          formControlName="year"
-
-              placeholder="e.g., 12"
-
-              min="5"        <!-- Password & Confirm Password Grid -->          [class]="addStudentForm.get('year')?.invalid && addStudentForm.get('year')?.touched ?
-
-              max="18"
-
-            />        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
-
-            @if (hasError('age', 'required') || hasError('age', 'min') || hasError('age', 'max')) {
-
-              <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('age') }}</p>          <!-- Password -->            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+              <p class="mt-1 text-sm text-red-500">Password must be at least 6 characters</p>        <div>          </label>        <input
 
             }
 
-          </div>          <div>          placeholder="Enter year"
+          </div>          <label class="block text-sm font-medium text-gray-700 mb-2">
 
 
 
-          <!-- Academic Year -->            <label class="block text-sm font-medium text-gray-700 mb-2">        />
+          <!-- Confirm Password -->            Email Address <span class="text-gray-400 text-xs">(Optional)</span>          <input          type="text"
 
           <div>
 
-            <label class="block text-sm font-medium text-gray-700 mb-2">              Password <span class="text-red-500">*</span>        @if (addStudentForm.get('year')?.invalid && addStudentForm.get('year')?.touched) {
+            <label class="block text-sm font-medium text-gray-700 mb-2">          </label>
+
+              Confirm Password <span class="text-red-500">*</span>
+
+            </label>          <input            type="text"          formControlName="userName"
+
+            <input
+
+              type="password"            type="email"
+
+              formControlName="confirmPassword"
+
+              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"            formControlName="email"            formControlName="userName"          [class]="addStudentForm.get('userName')?.invalid && addStudentForm.get('userName')?.touched ?
+
+              [class.border-red-500]="addStudentForm.hasError('passwordMismatch') && addStudentForm.get('confirmPassword')?.touched"
+
+              [class.border-gray-300]="!addStudentForm.hasError('passwordMismatch') || !addStudentForm.get('confirmPassword')?.touched"            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+
+              placeholder="Repeat password"
+
+            />            [class.border-red-500]="hasError('email', 'email')"            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+
+            @if (addStudentForm.hasError('passwordMismatch') && addStudentForm.get('confirmPassword')?.touched) {
+
+              <p class="mt-1 text-sm text-red-500">Passwords do not match</p>            [class.border-gray-300]="!hasError('email', 'email')"
+
+            }
+
+          </div>            placeholder="student@example.com"            [class.border-red-500]="hasError('userName', 'required')"            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+
+        </div>
+
+          />
+
+        <!-- Age & Academic Year Grid -->
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">          @if (hasError('email', 'email')) {            [class.border-gray-300]="!hasError('userName', 'required')"          placeholder="Enter username"
+
+          <!-- Age -->
+
+          <div>            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('email') }}</p>
+
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+
+              Age <span class="text-red-500">*</span>          }            placeholder="e.g., ahmed_hassan"        />
+
+            </label>
+
+            <input        </div>
+
+              type="number"
+
+              formControlName="age"          />        @if (addStudentForm.get('userName')?.invalid && addStudentForm.get('userName')?.touched) {
+
+              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+
+              [class.border-red-500]="hasError('age', 'required')"        <!-- Password & Confirm Password Grid -->
+
+              [class.border-gray-300]="!hasError('age', 'required')"
+
+              placeholder="e.g., 12"        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">          @if (hasError('userName', 'required')) {          <small class="text-red-500 text-xs mt-1">Username is required.</small>
+
+              min="5"
+
+              max="18"          <!-- Password -->
+
+            />
+
+            @if (hasError('age', 'required')) {          <div>            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('userName') }}</p>        }
+
+              <p class="mt-1 text-sm text-red-500">Age is required</p>
+
+            }            <label class="block text-sm font-medium text-gray-700 mb-2">
+
+            @if (hasError('age', 'min') || hasError('age', 'max')) {
+
+              <p class="mt-1 text-sm text-red-500">Age must be between 5 and 18</p>              Password <span class="text-red-500">*</span>          }      </div>
+
+            }
+
+          </div>            </label>
+
+
+
+          <!-- Academic Year -->            <input          @if (hasError('userName', 'minlength')) {
+
+          <div>
+
+            <label class="block text-sm font-medium text-gray-700 mb-2">              type="password"
 
               Academic Year <span class="text-red-500">*</span>
 
-            </label>            </label>          <small class="text-red-500 text-xs mt-1">Year is required.</small>
+            </label>              formControlName="password"            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('userName') }}</p>      <!-- password -->
 
             <select
 
-              formControlName="yearId"            <input        }
+              formControlName="yearId"              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
 
               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none bg-white"
 
-              [class.border-red-500]="hasError('yearId', 'required')"              type="password"      </div>
+              [class.border-red-500]="hasError('yearId', 'required')"              [class.border-red-500]="hasError('password', 'required') || hasError('password', 'minlength')"          }      <div>
 
               [class.border-gray-300]="!hasError('yearId', 'required')"
+
+            >              [class.border-gray-300]="!hasError('password', 'required') && !hasError('password', 'minlength')"
+
+              <option value="" disabled selected>Select year</option>
+
+              @for (year of academicYears; track year.id) {              placeholder="Min 6 characters"        </div>        <label class="block text-sm font-medium text-blue-900 mb-1">Password</label>
+
+                <option [value]="year.id">{{ year.name }} - {{ year.nameAr }}</option>
+
+              }            />
+
+            </select>
+
+            @if (hasError('yearId', 'required')) {            @if (hasError('password', 'required') || hasError('password', 'minlength')) {        <input
+
+              <p class="mt-1 text-sm text-red-500">Academic year is required</p>
+
+            }              <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('password') }}</p>
+
+          </div>
+
+        </div>            }        <!-- Email (Optional) -->          type="password"
+
+
+
+        <!-- Phone Number (Optional) -->          </div>
+
+        <div>
+
+          <label class="block text-sm font-medium text-gray-700 mb-2">        <div>          formControlName="password"
+
+            Phone Number <span class="text-gray-400 text-xs">(Optional)</span>
+
+          </label>          <!-- Confirm Password -->
+
+          <input
+
+            type="tel"          <div>          <label class="block text-sm font-medium text-gray-700 mb-2">          [class]="addStudentForm.get('password')?.invalid && addStudentForm.get('password')?.touched ?
+
+            formControlName="phoneNumber"
+
+            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"            <label class="block text-sm font-medium text-gray-700 mb-2">
+
+            [class.border-red-500]="hasError('phoneNumber', 'pattern')"
+
+            [class.border-gray-300]="!hasError('phoneNumber', 'pattern')"              Confirm Password <span class="text-red-500">*</span>            Email Address <span class="text-gray-400 text-xs">(Optional)</span>            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+
+            placeholder="+1234567890"
+
+          />            </label>
+
+          @if (hasError('phoneNumber', 'pattern')) {
+
+            <p class="mt-1 text-sm text-red-500">Invalid phone number format</p>            <input          </label>            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+
+          }
+
+        </div>              type="password"
+
+
+
+        <!-- Info Box -->              formControlName="confirmPassword"          <input          placeholder="Enter password"
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+
+          <div class="flex items-start gap-3">              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+
+            <span class="text-2xl">ℹ️</span>
+
+            <div class="flex-1">              [class.border-red-500]="addStudentForm.hasError('passwordMismatch') && addStudentForm.get('confirmPassword')?.touched"            type="email"        />
+
+              <h4 class="text-sm font-semibold text-blue-900 mb-1">Parent Linking</h4>
+
+              <p class="text-sm text-blue-800">              [class.border-gray-300]="!addStudentForm.hasError('passwordMismatch') || !addStudentForm.get('confirmPassword')?.touched"
+
+                This student will be automatically linked to your parent account. 
+
+                You'll be able to monitor their progress from your dashboard.              placeholder="Repeat password"            formControlName="email"        @if (addStudentForm.get('password')?.invalid && addStudentForm.get('password')?.touched) {
+
+              </p>
+
+            </div>            />
+
+          </div>
+
+        </div>            @if (addStudentForm.hasError('passwordMismatch') && addStudentForm.get('confirmPassword')?.touched) {            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"          <small class="text-red-500 text-xs mt-1">Password is required (min 6 chars).</small>
+
+
+
+        <!-- Error Message -->              <p class="mt-1 text-sm text-red-500">Passwords do not match</p>
+
+        @if (error()) {
+
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4">            }            [class.border-red-500]="hasError('email', 'email')"        }
+
+            <div class="flex items-center gap-3">
+
+              <span class="text-2xl">❌</span>          </div>
+
+              <p class="text-sm text-red-800">{{ error() }}</p>
+
+            </div>        </div>            [class.border-gray-300]="!hasError('email', 'email')"      </div>
+
+          </div>
+
+        }
+
+
+
+        <!-- Success Message -->        <!-- Age & Academic Year Grid -->            placeholder="student@example.com"
+
+        @if (success()) {
+
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4">        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div class="flex items-center gap-3">
+
+              <span class="text-2xl">✅</span>          <!-- Age -->          />      <!-- year -->
+
+              <p class="text-sm text-green-800">Student registered successfully!</p>
+
+            </div>          <div>
+
+          </div>
+
+        }            <label class="block text-sm font-medium text-gray-700 mb-2">          @if (hasError('email', 'email')) {      <div>
+
+
+
+        <!-- Action Buttons -->              Age <span class="text-red-500">*</span>
+
+        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+
+          <button            </label>            <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('email') }}</p>        <label class="block text-sm font-medium text-blue-900 mb-1">Year</label>
+
+            type="button"
+
+            (click)="cancel()"            <input
+
+            class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+
+            Cancel              type="number"          }        <input
+
+          </button>
+
+          <button              formControlName="age"
+
+            type="submit"
+
+            [disabled]="loading() || addStudentForm.invalid"              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"        </div>          type="number"
+
+            class="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+
+            @if (loading()) {              [class.border-red-500]="hasError('age', 'required')"
+
+              <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+
+              <span>Adding Student...</span>              [class.border-gray-300]="!hasError('age', 'required')"          formControlName="year"
+
+            } @else {
+
+              <span>➕</span>              placeholder="e.g., 12"
+
+              <span>Add Student</span>
+
+            }              min="5"        <!-- Password & Confirm Password Grid -->          [class]="addStudentForm.get('year')?.invalid && addStudentForm.get('year')?.touched ?
+
+          </button>
+
+        </div>              max="18"
+
+
+
+        <!-- Form Helper Text -->            />        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">            'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+
+        <p class="text-xs text-gray-500 text-center">
+
+          Fields marked with <span class="text-red-500">*</span> are required            @if (hasError('age', 'required') || hasError('age', 'min') || hasError('age', 'max')) {
+
+        </p>
+
+      </form>              <p class="mt-1 text-sm text-red-500">{{ getErrorMessage('age') }}</p>          <!-- Password -->            'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+
+    </div>
+
+            }
+
+    <!-- Additional Info -->
+
+    <div class="mt-6 bg-gray-100 rounded-lg p-6">          </div>          <div>          placeholder="Enter year"
+
+      <h3 class="text-lg font-semibold text-gray-900 mb-3">What happens next?</h3>
+
+      <ul class="space-y-2 text-sm text-gray-700">
+
+        <li class="flex items-start gap-2">
+
+          <span class="text-green-600 mt-0.5">✓</span>          <!-- Academic Year -->            <label class="block text-sm font-medium text-gray-700 mb-2">        />
+
+          <span>Student account will be created and linked to your parent account</span>
+
+        </li>          <div>
+
+        <li class="flex items-start gap-2">
+
+          <span class="text-green-600 mt-0.5">✓</span>            <label class="block text-sm font-medium text-gray-700 mb-2">              Password <span class="text-red-500">*</span>        @if (addStudentForm.get('year')?.invalid && addStudentForm.get('year')?.touched) {
+
+          <span>You can view their progress from your parent dashboard</span>
+
+        </li>              Academic Year <span class="text-red-500">*</span>
+
+        <li class="flex items-start gap-2">
+
+          <span class="text-green-600 mt-0.5">✓</span>            </label>            </label>          <small class="text-red-500 text-xs mt-1">Year is required.</small>
+
+          <span>Student can login with their username and password</span>
+
+        </li>            <select
+
+        <li class="flex items-start gap-2">
+
+          <span class="text-green-600 mt-0.5">✓</span>              formControlName="yearId"            <input        }
+
+          <span>You'll need to purchase a subscription for them to access content</span>
+
+        </li>              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none bg-white"
+
+      </ul>
+
+    </div>              [class.border-red-500]="hasError('yearId', 'required')"              type="password"      </div>
+
+  </div>
+
+</div>              [class.border-gray-300]="!hasError('yearId', 'required')"
+
 
             >              formControlName="password"
 
@@ -320,7 +567,7 @@
 
               <p class="text-sm text-blue-800">              formControlName="confirmPassword"      @if (error) {
 
-                This student will be automatically linked to your parent account. 
+                This student will be automatically linked to your parent account.
 
                 You'll be able to monitor their progress from your dashboard.              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"        <div class="mb-4 text-red-600 text-center">{{ error }}</div>
 
