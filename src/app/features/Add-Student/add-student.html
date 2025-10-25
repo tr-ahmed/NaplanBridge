@@ -1,144 +1,286 @@
-<div class="min-h-screen bg-gray-50 py-8"><!-- Add Student - Enhanced Version --><!-- Add Student - Enhanced Version --><!-- Add Student - Enhanced Version --><div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-100 px-4 pt-20">
+<div class="min-h-screen bg-gray-50 py-8"><div class="min-h-screen bg-gray-50 py-8"><!-- Add Student - Enhanced Version --><!-- Add Student - Enhanced Version --><!-- Add Student - Enhanced Version --><div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-100 px-4 pt-20">
 
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="max-w-3xl mx-auto px-4">
 
-    <div class="min-h-screen bg-gray-50 py-8">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <div class="mb-8 text-center">
 
-      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8"><div class="min-h-screen bg-gray-50 py-8">
+      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>    <div class="min-h-screen bg-gray-50 py-8">
 
-      <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>
+      <p class="mt-2 text-sm text-gray-600">Register your child to your account</p>
 
-    </div>
+    </div>    <div class="mb-8 text-center">
 
 
 
-    <div class="bg-white rounded-lg shadow-md p-8">    <!-- Header -->  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8"><div class="min-h-screen bg-gray-50 py-8">  <div class="bg-white p-8 rounded-[10px] shadow-2xl w-full max-w-3xl border border-dashed border-blue-500">
+    <div class="bg-white rounded-lg shadow-md p-8">      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8"><div class="min-h-screen bg-gray-50 py-8">
 
-      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>
+      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" novalidate>
 
-            <div class="mb-8 text-center">
+              <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>
 
-        <div>
+        <div class="mb-6">
 
-          <label class="block text-sm font-medium text-gray-700 mb-2">      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>
+          <label class="block text-sm font-medium text-gray-700 mb-2">    </div>
 
             Student Username <span class="text-red-500">*</span>
 
-          </label>      <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>
+          </label>
 
           <input
 
-            type="text"    </div>    <!-- Header -->  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            type="text"    <div class="bg-white rounded-lg shadow-md p-8">    <!-- Header -->  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8"><div class="min-h-screen bg-gray-50 py-8">  <div class="bg-white p-8 rounded-[10px] shadow-2xl w-full max-w-3xl border border-dashed border-blue-500">
 
             formControlName="userName"
 
-            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+            class="w-full px-4 py-3 border rounded-lg"      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>
 
-            [class.border-red-500]="hasError('userName', 'required')"
+            placeholder="e.g., ahmed_hassan" />
 
-            [class.border-gray-300]="!hasError('userName', 'required')"    <!-- Form Card -->    <div class="mb-8 text-center">
+          @if (hasError('userName', 'required')) {            <div class="mb-8 text-center">
 
-            placeholder="e.g., ahmed_hassan"
+            <p class="mt-1 text-sm text-red-500">Username is required</p>
 
-          />    <div class="bg-white rounded-lg shadow-md p-8">
-
-          @if (hasError('userName', 'required')) {
-
-            <p class="mt-1 text-sm text-red-500">Username is required</p>      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>        <!-- Logo -->
-
-          }
-
-          @if (hasError('userName', 'minlength')) {
-
-            <p class="mt-1 text-sm text-red-500">Username must be at least 3 characters</p>
-
-          }        <!-- Student Name -->      <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>
+          }        <div>
 
         </div>
 
-        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>
 
-        <div>
+        <div class="mb-6">
 
-          <label class="block text-sm font-medium text-gray-700 mb-2">          <label class="block text-sm font-medium text-gray-700 mb-2">    </div>    <!-- Header -->    <div class="flex justify-center">
+          <label class="block text-sm font-medium text-gray-700 mb-2">            Student Username <span class="text-red-500">*</span>
 
-            Email Address <span class="text-gray-400 text-xs">(Optional)</span>
+            Email <span class="text-gray-400">(Optional)</span>
 
-          </label>            Student Username <span class="text-red-500">*</span>
+          </label>          </label>      <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>
 
           <input
 
-            type="email"          </label>
+            type="email"          <input
 
             formControlName="email"
 
-            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"          <input
+            class="w-full px-4 py-3 border rounded-lg"            type="text"    </div>    <!-- Header -->  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            [class.border-red-500]="hasError('email', 'email')"
+            placeholder="student@example.com" />
 
-            [class.border-gray-300]="!hasError('email', 'email')"            type="text"    <!-- Form Card -->    <div class="mb-8 text-center">      <img src="assets/img/logo.png"
-
-            placeholder="student@example.com"
-
-          />            formControlName="userName"
-
-          @if (hasError('email', 'email')) {
-
-            <p class="mt-1 text-sm text-red-500">Invalid email format</p>            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"    <div class="bg-white rounded-lg shadow-md p-8">
-
-          }
-
-        </div>            [class.border-red-500]="hasError('userName', 'required')"
+        </div>            formControlName="userName"
 
 
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">            [class.border-gray-300]="!hasError('userName', 'required')"      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>           alt="Logo"
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
 
           <div>
 
-            <label class="block text-sm font-medium text-gray-700 mb-2">            placeholder="e.g., ahmed_hassan"
+            <label class="block text-sm font-medium text-gray-700 mb-2">            [class.border-red-500]="hasError('userName', 'required')"
 
               Password <span class="text-red-500">*</span>
 
-            </label>          />
+            </label>            [class.border-gray-300]="!hasError('userName', 'required')"    <!-- Form Card -->    <div class="mb-8 text-center">
 
             <input
 
-              type="password"          @if (hasError('userName', 'required')) {
+              type="password"            placeholder="e.g., ahmed_hassan"
 
               formControlName="password"
 
-              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"            <p class="mt-1 text-sm text-red-500">Username is required</p>        <!-- Student Name -->      <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>           onerror="this.style.display='none'"
+              class="w-full px-4 py-3 border rounded-lg"          />    <div class="bg-white rounded-lg shadow-md p-8">
 
-              [class.border-red-500]="hasError('password', 'required') || hasError('password', 'minlength')"
+              placeholder="Min 6 characters" />
 
-              [class.border-gray-300]="!hasError('password', 'required') && !hasError('password', 'minlength')"          }
+            @if (hasError('password', 'required')) {          @if (hasError('userName', 'required')) {
 
-              placeholder="Min 6 characters"
+              <p class="mt-1 text-sm text-red-500">Password is required</p>
 
-            />          @if (hasError('userName', 'minlength')) {        <div>
-
-            @if (hasError('password', 'required')) {
-
-              <p class="mt-1 text-sm text-red-500">Password is required</p>            <p class="mt-1 text-sm text-red-500">Username must be at least 3 characters</p>
-
-            }
-
-            @if (hasError('password', 'minlength')) {          }          <label class="block text-sm font-medium text-gray-700 mb-2">    </div>           class="w-24 h-24 rounded-full" />
-
-              <p class="mt-1 text-sm text-red-500">Password must be at least 6 characters</p>
-
-            }        </div>
+            }            <p class="mt-1 text-sm text-red-500">Username is required</p>      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>        <!-- Logo -->
 
           </div>
 
-            Student Username <span class="text-red-500">*</span>
+          }
 
           <div>
 
-            <label class="block text-sm font-medium text-gray-700 mb-2">        <!-- Email (Optional) -->
+            <label class="block text-sm font-medium text-gray-700 mb-2">          @if (hasError('userName', 'minlength')) {
+
+              Confirm Password <span class="text-red-500">*</span>
+
+            </label>            <p class="mt-1 text-sm text-red-500">Username must be at least 3 characters</p>
+
+            <input
+
+              type="password"          }        <!-- Student Name -->      <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>
+
+              formControlName="confirmPassword"
+
+              class="w-full px-4 py-3 border rounded-lg"        </div>
+
+              placeholder="Repeat password" />
+
+            @if (addStudentForm.hasError('passwordMismatch')) {        <div>
+
+              <p class="mt-1 text-sm text-red-500">Passwords do not match</p>
+
+            }        <div>
+
+          </div>
+
+        </div>          <label class="block text-sm font-medium text-gray-700 mb-2">          <label class="block text-sm font-medium text-gray-700 mb-2">    </div>    <!-- Header -->    <div class="flex justify-center">
+
+
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">            Email Address <span class="text-gray-400 text-xs">(Optional)</span>
+
+          <div>
+
+            <label class="block text-sm font-medium text-gray-700 mb-2">          </label>            Student Username <span class="text-red-500">*</span>
+
+              Age <span class="text-red-500">*</span>
+
+            </label>          <input
+
+            <input
+
+              type="number"            type="email"          </label>
+
+              formControlName="age"
+
+              class="w-full px-4 py-3 border rounded-lg"            formControlName="email"
+
+              placeholder="e.g., 12"
+
+              min="5"            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"          <input
+
+              max="18" />
+
+          </div>            [class.border-red-500]="hasError('email', 'email')"
+
+
+
+          <div>            [class.border-gray-300]="!hasError('email', 'email')"            type="text"    <!-- Form Card -->    <div class="mb-8 text-center">      <img src="assets/img/logo.png"
+
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+
+              Academic Year <span class="text-red-500">*</span>            placeholder="student@example.com"
+
+            </label>
+
+            <select          />            formControlName="userName"
+
+              formControlName="yearId"
+
+              class="w-full px-4 py-3 border rounded-lg bg-white">          @if (hasError('email', 'email')) {
+
+              <option value="">Select year</option>
+
+              @for (year of academicYears; track year.id) {            <p class="mt-1 text-sm text-red-500">Invalid email format</p>            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"    <div class="bg-white rounded-lg shadow-md p-8">
+
+                <option [value]="year.id">{{ year.name }}</option>
+
+              }          }
+
+            </select>
+
+          </div>        </div>            [class.border-red-500]="hasError('userName', 'required')"
+
+        </div>
+
+
+
+        <div class="mb-6">
+
+          <label class="block text-sm font-medium text-gray-700 mb-2">        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">            [class.border-gray-300]="!hasError('userName', 'required')"      <form [formGroup]="addStudentForm" (ngSubmit)="onSubmit()" class="space-y-6" novalidate>      <h1 class="text-3xl font-bold text-gray-900">Add New Student</h1>           alt="Logo"
+
+            Phone Number <span class="text-gray-400">(Optional)</span>
+
+          </label>          <div>
+
+          <input
+
+            type="tel"            <label class="block text-sm font-medium text-gray-700 mb-2">            placeholder="e.g., ahmed_hassan"
+
+            formControlName="phoneNumber"
+
+            class="w-full px-4 py-3 border rounded-lg"              Password <span class="text-red-500">*</span>
+
+            placeholder="+1234567890" />
+
+        </div>            </label>          />
+
+
+
+        @if (error()) {            <input
+
+          <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+
+            <p class="text-sm text-red-800">{{ error() }}</p>              type="password"          @if (hasError('userName', 'required')) {
+
+          </div>
+
+        }              formControlName="password"
+
+
+
+        @if (success()) {              class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"            <p class="mt-1 text-sm text-red-500">Username is required</p>        <!-- Student Name -->      <p class="mt-2 text-sm text-gray-600">Register your child and link them to your account</p>           onerror="this.style.display='none'"
+
+          <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+
+            <p class="text-sm text-green-800">Student registered successfully!</p>              [class.border-red-500]="hasError('password', 'required') || hasError('password', 'minlength')"
+
+          </div>
+
+        }              [class.border-gray-300]="!hasError('password', 'required') && !hasError('password', 'minlength')"          }
+
+
+
+        <div class="flex gap-4">              placeholder="Min 6 characters"
+
+          <button
+
+            type="button"            />          @if (hasError('userName', 'minlength')) {        <div>
+
+            (click)="cancel()"
+
+            class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">            @if (hasError('password', 'required')) {
+
+            Cancel
+
+          </button>              <p class="mt-1 text-sm text-red-500">Password is required</p>            <p class="mt-1 text-sm text-red-500">Username must be at least 3 characters</p>
+
+          <button
+
+            type="submit"            }
+
+            [disabled]="loading() || addStudentForm.invalid"
+
+            class="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">            @if (hasError('password', 'minlength')) {          }          <label class="block text-sm font-medium text-gray-700 mb-2">    </div>           class="w-24 h-24 rounded-full" />
+
+            @if (loading()) {
+
+              <span>Adding...</span>              <p class="mt-1 text-sm text-red-500">Password must be at least 6 characters</p>
+
+            } @else {
+
+              <span>Add Student</span>            }        </div>
+
+            }
+
+          </button>          </div>
+
+        </div>
+
+            Student Username <span class="text-red-500">*</span>
+
+      </form>
+
+    </div>          <div>
+
+
+
+  </div>            <label class="block text-sm font-medium text-gray-700 mb-2">        <!-- Email (Optional) -->
+
+</div>
 
               Confirm Password <span class="text-red-500">*</span>
 
