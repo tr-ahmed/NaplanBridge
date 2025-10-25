@@ -93,6 +93,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/profile-management/profile-management.component').then(m => m.ProfileManagementComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'analytics',
+    loadComponent: () => import('./features/advanced-analytics/advanced-analytics.component').then(m => m.AdvancedAnalyticsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+  },
 
   // Student Dashboard and Routes (commented out until student routes are created)
   // {
