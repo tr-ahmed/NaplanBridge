@@ -214,16 +214,37 @@ export class AuthService {
       const decoded = atob(payload);
       const parsed = JSON.parse(decoded);
 
+      console.log('🔓 Decoding JWT Token...');
+      console.log('📦 Raw token payload:', parsed);
+      console.log('🔑 Token claims:', {
+        nameid: parsed.nameid,
+        unique_name: parsed.unique_name,
+        email: parsed.email,
+        role: parsed.role,
+        yearId: parsed.yearId,
+        yearIdExists: 'yearId' in parsed,
+        yearIdValue: parsed.yearId
+      });
+
       // Map JWT claims to user object
-      return {
+      const user = {
         id: parsed.nameid || parsed.sub,
         userName: parsed.unique_name || parsed.username,
         email: parsed.email,
         role: Array.isArray(parsed.role) ? parsed.role : [parsed.role],
         yearId: parsed.yearId ? parseInt(parsed.yearId) : null
       };
+
+      console.log('✅ Mapped user object:', user);
+      
+      if (!parsed.yearId) {
+        console.warn('⚠️ yearId NOT found in JWT token!');
+        console.warn('🔧 Backend needs to add yearId claim to token');
+      }
+
+      return user;
     } catch (error) {
-      console.error('Failed to decode token:', error);
+      console.error('❌ Failed to decode token:', error);
       return null;
     }
   }

@@ -104,6 +104,9 @@ export class CoursesComponent implements OnInit, OnDestroy {
   private loadUserInfo(): void {
     const user = this.authService.getCurrentUser();
 
+    console.log('🔍 Loading user info...');
+    console.log('📦 Raw user object:', user);
+
     if (user) {
       this.currentUser.set(user);
 
@@ -112,19 +115,31 @@ export class CoursesComponent implements OnInit, OnDestroy {
       const isStudentRole = roles.some((r: string) => r.toLowerCase() === 'student');
       this.isStudent.set(isStudentRole);
 
+      console.log('👤 User Details:', {
+        id: user.id,
+        userName: user.userName,
+        email: user.email,
+        role: roles,
+        isStudent: isStudentRole,
+        yearId: user.yearId,
+        yearIdType: typeof user.yearId,
+        hasYearId: !!user.yearId
+      });
+
       // If student and has yearId, auto-filter by their year
       if (isStudentRole && user.yearId) {
         this.userYear.set(user.yearId);
         this.selectedYearId.set(user.yearId);
-        console.log('🎓 Student detected - Auto-filtering for Year:', user.yearId);
+        console.log('✅ Student detected - Auto-filtering for Year ID:', user.yearId);
+        console.log('� Will show only subjects with yearId =', user.yearId);
+      } else if (isStudentRole && !user.yearId) {
+        console.warn('⚠️ Student detected but NO yearId found in token!');
+        console.warn('📋 Backend may not have added yearId claim to JWT');
+      } else {
+        console.log('👔 Non-student user - showing all years');
       }
-
-      console.log('👤 User Info:', {
-        role: roles,
-        isStudent: isStudentRole,
-        yearId: user.yearId,
-        autoFilter: isStudentRole && user.yearId
-      });
+    } else {
+      console.log('⚠️ No user found - user not logged in');
     }
   }
 
@@ -419,7 +434,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   isStarHalf(star: number, rating: number): boolean {
     return star === Math.floor(rating) + 1 && rating % 1 >= 0.5;
   }
-  
+
   /**
    * Get minimum price from subscription plans
    */
@@ -427,18 +442,18 @@ export class CoursesComponent implements OnInit, OnDestroy {
     if (!course.subscriptionPlans || course.subscriptionPlans.length === 0) {
       return course.price || 0;
     }
-    
+
     const prices = course.subscriptionPlans.map(plan => plan.price);
     return Math.min(...prices);
   }
-  
+
   /**
    * Check if course has multiple plans
    */
   hasMultiplePlans(course: Course): boolean {
     return !!(course.subscriptionPlans && course.subscriptionPlans.length > 1);
   }
-  
+
   /**
    * Get year name by ID
    */
