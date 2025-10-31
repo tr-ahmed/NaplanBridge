@@ -102,22 +102,43 @@ export class AuthService {
     localStorage.setItem('roles', JSON.stringify(response.roles));
 
     // Extract user ID from token
-    let userId: number | null = null;
+    // 🔓 Decode token to extract user data
     try {
       const payload = JSON.parse(atob(response.token.split('.')[1]));
-      userId = payload.nameid ? Number(payload.nameid) : null;
-      console.log('🔑 Extracted User ID from token:', userId);
+      
+      console.log('🔓 Decoding JWT Token...');
+      console.log('📦 Raw token payload:', payload);
+      
+      const userData = {
+        id: payload.nameid || payload.sub,  // User.Id (AspNetUsers.Id) for authentication
+        studentId: payload.studentId ? parseInt(payload.studentId) : undefined,  // Student.Id for cart/orders
+        userName: response.userName,
+        email: email,
+        roles: response.roles,
+        role: response.roles, // Also store as 'role' for compatibility
+        yearId: payload.yearId ? parseInt(payload.yearId) : undefined
+      };
+      
+      console.log('✅ Mapped user object:', userData);
+      console.log('🆔 User.Id (nameid):', userData.id, '- Use for authentication');
+      console.log('🎓 Student.Id (studentId):', userData.studentId, '- Use for cart/orders');
+      
+      if (!userData.studentId && response.roles.includes('Student')) {
+        console.warn('⚠️ Student role but no studentId in token! Cart may not work.');
+      }
+      
+      localStorage.setItem('currentUser', JSON.stringify(userData));
     } catch (e) {
-      console.error('Failed to parse token:', e);
+      console.error('❌ Failed to parse token:', e);
+      // Fallback: store basic user data
+      localStorage.setItem('currentUser', JSON.stringify({
+        id: null,
+        userName: response.userName,
+        email: email,
+        roles: response.roles,
+        role: response.roles
+      }));
     }
-
-    localStorage.setItem('currentUser', JSON.stringify({
-      id: userId,
-      userName: response.userName,
-      email: email,
-      roles: response.roles,
-      role: response.roles // Also store as 'role' for compatibility
-    }));
 
     if (rememberMe) {
       localStorage.setItem('rememberedEmail', email);
@@ -217,38 +238,42 @@ export class AuthService {
       console.log('🔓 Decoding JWT Token...');
       console.log('📦 Raw token payload:', parsed);
       console.log('🔑 Token claims:', {
-        nameid: parsed.nameid,
-        studentId: parsed.studentId,
-        unique_name: parsed.unique_name,
-        email: parsed.email,
-        role: parsed.role,
-        yearId: parsed.yearId,
-        hasStudentId: 'studentId' in parsed,
-        hasYearId: 'yearId' in parsed
+        'nameid (User.Id)': parsed.nameid,
+        'studentId (Student.Id)': parsed.studentId,
+        'unique_name': parsed.unique_name,
+        'email': parsed.email,
+        'role': parsed.role,
+        'yearId': parsed.yearId,
+        'hasStudentId': 'studentId' in parsed,
+        'hasYearId': 'yearId' in parsed
       });
 
-      // Map JWT claims to user object
-      // Priority: studentId > nameid > sub
-      const userId = parsed.studentId || parsed.nameid || parsed.sub;
+      // 🎯 CRITICAL: Map JWT claims to user object
+      // ⚠️ DO NOT confuse these IDs:
+      // - id (nameid): User.Id from AspNetUsers → Use for authentication
+      // - studentId: Student.Id from Students → Use for cart/orders
       
       const user = {
-        id: userId,
-        studentId: parsed.studentId ? parseInt(parsed.studentId) : null,
+        id: parsed.nameid || parsed.sub,  // User.Id (authentication)
+        studentId: parsed.studentId ? parseInt(parsed.studentId) : undefined,  // Student.Id (cart/orders)
         userName: parsed.unique_name || parsed.username,
         email: parsed.email,
         role: Array.isArray(parsed.role) ? parsed.role : [parsed.role],
-        yearId: parsed.yearId ? parseInt(parsed.yearId) : null
+        yearId: parsed.yearId ? parseInt(parsed.yearId) : undefined
       };
 
       console.log('✅ Mapped user object:', user);
-      console.log('🆔 Using ID:', userId, '(Type:', typeof userId, ')');
-      
+      console.log('🆔 User.Id (nameid):', user.id, '→ Use for authentication');
+      console.log('🎓 Student.Id (studentId):', user.studentId, '→ Use for cart/orders');
+
       if (parsed.studentId) {
         console.log('✅ studentId claim found:', parsed.studentId);
+      } else {
+        console.warn('⚠️ studentId NOT found in token! Cart will not work for students.');
       }
 
       if (!parsed.yearId) {
-        console.warn('⚠️ yearId NOT found in JWT token!');
+        console.warn('⚠️ yearId NOT found in token! Year filtering disabled.');
       }
 
       return user;

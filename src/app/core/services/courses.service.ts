@@ -165,31 +165,40 @@ export class CoursesService {
 
     // Get current user for studentId
     const currentUser = this.authService.getCurrentUser();
-    if (!currentUser?.id) {
+    if (!currentUser) {
       this.toastService.showWarning('Please log in to add items to your cart');
       return of(false);
     }
 
-    // ✅ Use studentId if available, otherwise fallback to id
-    let studentId: number;
+    // 🎯 CRITICAL: Use Student.Id for cart, NOT User.Id
+    // ⚠️ Common Mistake: Using currentUser.id (User.Id) instead of currentUser.studentId (Student.Id)
     
+    let studentId: number;
+
     if (currentUser.studentId) {
-      // Backend provides studentId claim
+      // ✅ CORRECT: Use studentId from token (Student.Id from Students table)
       studentId = currentUser.studentId;
-      console.log('✅ Using studentId from token:', studentId);
+      console.log('✅ Using Student.Id from token:', studentId);
+      console.log('📊 This is the correct ID for cart/orders');
     } else {
-      // Fallback to id (nameid)
-      studentId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id;
-      console.log('⚠️ Using id (nameid) as studentId:', studentId);
+      // ⚠️ FALLBACK: This should not happen for students
+      // Token should always have studentId for student role
+      console.error('❌ studentId NOT found in token!');
+      console.error('❌ Cannot add to cart without Student.Id');
+      console.error('🔧 User needs to re-login to get new token with studentId');
+      
+      this.toastService.showError('Student ID not found. Please logout and login again.');
+      return of(false);
     }
 
     console.log('🛒 Adding to cart:', {
       url,
       subscriptionPlanId: planId,
-      studentId: studentId,
+      studentId: studentId,  // ✅ Student.Id (e.g., 1)
+      userId: currentUser.id,  // ℹ️ User.Id (e.g., "8") - for reference only
       studentIdType: typeof studentId,
       quantity: 1,
-      source: currentUser.studentId ? 'studentId claim' : 'nameid fallback'
+      note: 'Using Student.Id from Students table, NOT User.Id from AspNetUsers'
     });
 
     // ✅ Use correct API format with subscriptionPlanId
