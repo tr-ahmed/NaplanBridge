@@ -20,15 +20,16 @@
     <!-- Cart Items -->
     @if (cart().items.length > 0) {
       <div class="space-y-6">
-        <!-- Student Selection Section -->
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-blue-900 flex items-center">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-              </svg>
-              Select Student for Enrollment
-            </h3>
+        <!-- Student Selection Section (Only for Parents) -->
+        @if (!isStudent()) {
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-blue-900 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                Select Student for Enrollment
+              </h3>
             @if (selectedStudentId() !== null) {
               <div class="text-sm text-blue-700 bg-blue-100 px-3 py-1 rounded-full flex items-center gap-2">
                 Selected ID: {{ selectedStudentId() }}
@@ -140,7 +141,8 @@
               </div>
             } -->
           }
-        </div>
+          </div>
+        }
 
         <!-- Cart Items List -->
         @for (item of cart().items; track item.course.id) {

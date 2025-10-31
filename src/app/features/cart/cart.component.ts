@@ -6,6 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Cart, CartItem } from '../../models/course.models';
 import { CoursesService } from '../../core/services/courses.service';
+import { AuthService } from '../../auth/auth.service';
 import { environment } from '../../../environments/environment';
 
 // Student interface for the cart component
@@ -34,8 +35,13 @@ export class CartComponent implements OnInit, OnDestroy {
   loadingStudents = signal(false);
   selectedStudentId = signal<number | null>(null);
 
+  // User role detection
+  isStudent = signal<boolean>(false);
+  currentUserRole = signal<string>('');
+
   constructor(
     private coursesService: CoursesService,
+    private authService: AuthService,
     private http: HttpClient
   ) {}
 
@@ -44,8 +50,29 @@ export class CartComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(cart => this.cart.set(cart));
 
-    // Load students when component initializes
-    this.loadStudents();
+    // Check user role
+    this.checkUserRole();
+
+    // Load students only if user is Parent
+    if (!this.isStudent()) {
+      this.loadStudents();
+    }
+  }
+
+  /**
+   * Check if current user is a Student
+   */
+  private checkUserRole(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser && currentUser.role) {
+      this.currentUserRole.set(currentUser.role);
+      this.isStudent.set(currentUser.role.toLowerCase() === 'student');
+
+      // If student, auto-select their own ID
+      if (this.isStudent() && currentUser.id) {
+        this.selectedStudentId.set(currentUser.id);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -75,7 +102,10 @@ export class CartComponent implements OnInit, OnDestroy {
   clearCart(): void {
     if (confirm('Are you sure you want to clear your cart?')) {
       this.coursesService.clearCart();
-      this.selectedStudentId.set(null);
+      // Don't reset student selection if user is a student (they can't change it)
+      if (!this.isStudent()) {
+        this.selectedStudentId.set(null);
+      }
     }
   }
 
@@ -224,10 +254,13 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Clear student selection
+   * Clear student selection (only for parents)
    */
   clearStudentSelection(): void {
-    this.selectedStudentId.set(null);
+    // Don't allow students to clear selection (they can't change it)
+    if (!this.isStudent()) {
+      this.selectedStudentId.set(null);
+    }
   }
 
   /**
