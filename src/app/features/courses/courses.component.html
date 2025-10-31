@@ -370,6 +370,15 @@
   <!-- Newsletter Section -->
   <app-newsletter></app-newsletter>
 
+<!-- Plan Selection Modal -->
+<app-plan-selection-modal
+  [isOpen]="showPlanModal()"
+  [plans]="selectedCoursePlans()"
+  [courseName]="selectedCourseName()"
+  (close)="onClosePlanModal()"
+  (selectPlanConfirmed)="onPlanSelected($event)">
+</app-plan-selection-modal>
+
 <!-- Shopping Cart Floating Button (if items in cart) -->
 @if (cartItemCount() > 0) {
   <div class="fixed bottom-6 right-6 z-50">

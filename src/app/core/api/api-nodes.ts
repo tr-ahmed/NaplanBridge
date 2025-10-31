@@ -199,13 +199,18 @@ export const ApiNodes = {
   },
 
   // Add to cart
+  // ⚠️ NOTE: This endpoint requires subscriptionPlanId + studentId, NOT subjectId
+  // Request body: { subscriptionPlanId: number, studentId: number, quantity: number }
   addToCart: {
     url: '/Cart/add',
     method: 'POST' as const,
     mockData: {
       success: true,
-      message: 'Subject added to cart successfully',
-      errors: []
+      message: 'Subscription plan added to cart successfully',
+      cartId: 1,
+      itemId: 1,
+      totalItems: 1,
+      totalAmount: 29.99
     }
   },
 

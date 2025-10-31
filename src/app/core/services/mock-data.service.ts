@@ -95,20 +95,30 @@ export class MockDataService {
   }
 
   /**
-   * Get mock lessons
+   * Get mock lessons with Bunny.net URLs
    */
   getMockLessons(subjectId: number) {
     return Array.from({ length: 10 }, (_, i) => ({
       id: i + 1,
       title: `Lesson ${i + 1}`,
       description: `Description for lesson ${i + 1}`,
-      videoUrl: 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4',
-      videoId: `video-${i + 1}`,
+
+      // Bunny.net video URLs (HLS streaming)
+      videoProvider: 'BunnyStream',
+      videoUrl: `https://vz-9161a4ae-e6d.b-cdn.net/mock-video-${i + 1}/playlist.m3u8`,
+      posterUrl: `https://vz-9161a4ae-e6d.b-cdn.net/mock-video-${i + 1}/thumbnail.jpg`,
+      bunnyVideoId: `mock-video-${i + 1}`,
+      videoDuration: 1800 + (i * 300),
+
+      // Legacy fields for compatibility
+      videoId: `mock-video-${i + 1}`,
       duration: 1800 + (i * 300),
+
       order: i + 1,
       weekId: Math.floor(i / 4) + 1,
       subjectId: subjectId,
       isPublished: true,
+      resources: [],
       resourcesUrl: `https://example.com/resources/lesson-${i + 1}.pdf`
     }));
   }

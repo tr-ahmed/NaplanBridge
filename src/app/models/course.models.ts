@@ -1,4 +1,10 @@
 /**
+ * Course Models
+ * Import SubscriptionPlanSummary from subject.models.ts
+ */
+import { SubscriptionPlanSummary } from './subject.models';
+
+/**
  * Interface for Course data
  */
 export interface Course {
@@ -20,6 +26,10 @@ export interface Course {
   studentCount: number;
   termIds: number[];
   weekIds: number[];
+
+  // Subscription Plans (required for cart functionality)
+  subscriptionPlans?: SubscriptionPlanSummary[];
+
   // Legacy fields for backwards compatibility
   name?: string;
   description?: string;

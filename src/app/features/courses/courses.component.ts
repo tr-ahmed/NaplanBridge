@@ -8,11 +8,13 @@ import { takeUntil } from 'rxjs/operators';
 import { Course, CourseFilter, Cart } from '../../models/course.models';
 import { CoursesService } from '../../core/services/courses.service';
 import { NewsletterComponent } from '../../shared/newsletter/newsletter.component';
+import { PlanSelectionModalComponent } from '../../components/plan-selection-modal/plan-selection-modal.component';
+import { SubscriptionPlanSummary } from '../../models/subject.models';
 
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [CommonModule, FormsModule, NewsletterComponent],
+  imports: [CommonModule, FormsModule, NewsletterComponent, PlanSelectionModalComponent],
   templateUrl: './courses.component.html',
   styleUrls: ['./courses.component.scss']
 })
@@ -25,6 +27,12 @@ export class CoursesComponent implements OnInit, OnDestroy {
   loading = signal(false);
   error = signal<string | null>(null);
   cart = signal<Cart>({ items: [], totalAmount: 0, totalItems: 0 });
+
+  // Plan selection modal state
+  showPlanModal = signal<boolean>(false);
+  selectedCourse = signal<Course | null>(null);
+  selectedCoursePlans = computed(() => this.selectedCourse()?.subscriptionPlans || []);
+  selectedCourseName = computed(() => this.selectedCourse()?.name || this.selectedCourse()?.subjectName || '');
 
   // Filter options
   selectedTerm = signal<number>(0); // 0 means no term filter
@@ -63,7 +71,20 @@ export class CoursesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadCourses();
     this.subscribeToCart();
+    this.subscribeToPlanModal();
     this.handleQueryParameters();
+  }
+
+  /**
+   * Subscribe to plan modal state
+   */
+  private subscribeToPlanModal(): void {
+    this.coursesService.showPlanModal$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(state => {
+        this.showPlanModal.set(state.show);
+        this.selectedCourse.set(state.course);
+      });
   }
 
   /**
@@ -241,6 +262,29 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   isInCart(courseId: number): boolean {
     return this.coursesService.isInCart(courseId);
+  }
+
+  /**
+   * Handle plan selection modal close
+   */
+  onClosePlanModal(): void {
+    this.coursesService.closePlanSelectionModal();
+  }
+
+  /**
+   * Handle plan selection from modal
+   */
+  onPlanSelected(planId: number): void {
+    const course = this.selectedCourse();
+    if (course) {
+      this.coursesService.onPlanSelected(planId, course)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(success => {
+          if (success) {
+            console.log('Plan added to cart successfully');
+          }
+        });
+    }
   }
 
   /**

@@ -28,6 +28,13 @@ export class CoursesService {
   public loading = signal(false);
   public error = signal<string | null>(null);
 
+  // Plan selection modal state
+  private showPlanModalSubject = new BehaviorSubject<{show: boolean, course: Course | null}>({
+    show: false,
+    course: null
+  });
+  public showPlanModal$ = this.showPlanModalSubject.asObservable();
+
   constructor(
     private http: HttpClient,
     private authService: AuthService,
@@ -197,31 +204,119 @@ export class CoursesService {
     }
 
     console.log('Making API call to add to cart...');
+
+    // ✅ Check if course has subscription plans
+    if (!course.subscriptionPlans || course.subscriptionPlans.length === 0) {
+      console.warn('⚠️ No subscription plans available for this course');
+      this.toastService.showError('لا توجد خطط اشتراك متاحة لهذه المادة');
+      return of(false);
+    }
+
+    // ✅ NEW: If multiple plans, show modal for selection
+    if (course.subscriptionPlans.length > 1) {
+      console.log('� Multiple plans available, showing selection modal');
+      this.showPlanModalSubject.next({ show: true, course });
+      return of(true); // Modal will handle the actual add
+    }
+
+    // Single plan - add directly
+    const defaultPlan = course.subscriptionPlans[0];
+
+    // Check if plan is active
+    if (!defaultPlan.isActive) {
+      this.toastService.showError('هذه الخطة غير متاحة حالياً');
+      return of(false);
+    }
+
+    console.log('📦 Using plan:', defaultPlan);
+
+    return this.addPlanToCartInternal(defaultPlan.id, course);
+  }
+
+  /**
+   * Add specific plan to cart (internal method)
+   * Called when user selects a plan from modal or when there's only one plan
+   */
+  addPlanToCartInternal(planId: number, course: Course): Observable<boolean> {
+    const url = `${this.baseUrl}/Cart/add`;
+
+    // Get current user for studentId
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.id) {
+      this.toastService.showWarning('الرجاء تسجيل الدخول لإضافة عناصر إلى السلة');
+      return of(false);
+    }
+
+    // ✅ Use correct API format with subscriptionPlanId
     return this.http.post<any>(url, {
-      subjectId: course.id,
+      subscriptionPlanId: planId,
+      studentId: currentUser.id,
       quantity: 1
     }).pipe(
+      tap(() => {
+        // ✅ Update cart badge immediately
+        this.refreshCartCount();
+      }),
       map((response) => {
         console.log('✅ Cart API Success:', response);
-        this.toastService.showSuccess('Course added to cart!');
+        const courseName = course.name || course.subjectName;
+        this.toastService.showSuccess(`تم إضافة ${courseName} إلى السلة بنجاح!`);
         return true;
       }),
       catchError((error) => {
         console.error('❌ Failed to add to cart via API:', error);
-        console.log('Error status:', error.status);
-        console.log('Error message:', error.message);
-        console.log('Error body:', error.error);
 
-        // If it's an authentication error (401), show a message to the user
+        // ✅ Better error messages
         if (error.status === 401) {
-          this.toastService.showWarning('Please log in to sync your cart with the server');
+          this.toastService.showWarning('الرجاء تسجيل الدخول لمزامنة السلة مع الخادم');
+        } else if (error.status === 400) {
+          this.toastService.showError(error.error?.message || 'بيانات غير صحيحة');
+        } else if (error.status === 404) {
+          this.toastService.showError('الخطة المحددة غير موجودة');
+        } else if (error.status === 409) {
+          this.toastService.showError('هذه الخطة موجودة بالفعل في السلة');
+        } else if (error.status === 500) {
+          this.toastService.showError('خطأ في الخادم، يرجى المحاولة لاحقاً');
         } else {
-          this.toastService.showError('Failed to sync with server, but course added to local cart');
+          this.toastService.showError('فشلت المزامنة مع الخادم، لكن تمت الإضافة للسلة المحلية');
         }
 
         return of(true); // Even if API fails, we've already updated local cart
       })
     );
+  }
+
+  /**
+   * Show plan selection modal
+   */
+  openPlanSelectionModal(course: Course): void {
+    this.showPlanModalSubject.next({ show: true, course });
+  }
+
+  /**
+   * Close plan selection modal
+   */
+  closePlanSelectionModal(): void {
+    this.showPlanModalSubject.next({ show: false, course: null });
+  }
+
+  /**
+   * Handle plan selection from modal
+   */
+  onPlanSelected(planId: number, course: Course): Observable<boolean> {
+    this.closePlanSelectionModal();
+    return this.addPlanToCartInternal(planId, course);
+  }
+
+  /**
+   * Refresh cart item count
+   */
+  private refreshCartCount(): void {
+    // This will be updated when we integrate with CartService
+    // For now, it updates the local cart
+    const currentCart = this.cartSubject.value;
+    currentCart.totalItems = currentCart.items.length;
+    this.cartSubject.next(currentCart);
   }
 
   /**
