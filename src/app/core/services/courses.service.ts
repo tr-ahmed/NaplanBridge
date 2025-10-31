@@ -188,34 +188,50 @@ export class CoursesService {
       quantity: 1
     }).pipe(
       tap(() => {
-        // ✅ Update cart badge immediately
-        this.refreshCartCount();
+        console.log('📦 Cart API call initiated...');
       }),
       map((response) => {
-        console.log('✅ Cart API Success:', response);
+        console.log('✅ Cart API Success Response:', response);
+        console.log('✅ Status: Item added to cart successfully');
+        
+        // Update cart badge
+        this.refreshCartCount();
+        
         const courseName = course.name || course.subjectName;
         this.toastService.showSuccess(`${courseName} has been added to your cart successfully!`);
+        
         return true;
       }),
       catchError((error) => {
-        console.error('❌ Failed to add to cart via API:', error);
+        console.error('❌ Cart API Error:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.error?.message,
+          details: error.error?.details,
+          traceId: error.error?.traceId
+        });
 
-        // ✅ Better error messages
+        // ✅ Better error messages with backend feedback
         if (error.status === 401) {
           this.toastService.showWarning('Please log in to sync your cart with the server');
         } else if (error.status === 400) {
-          this.toastService.showError(error.error?.message || 'Invalid data');
+          const msg = error.error?.message || 'Invalid data';
+          this.toastService.showError(msg);
         } else if (error.status === 404) {
-          this.toastService.showError('Selected plan not found');
+          const msg = error.error?.message || 'Selected plan not found';
+          this.toastService.showError(msg);
         } else if (error.status === 409) {
-          this.toastService.showError('This plan is already in your cart');
+          const msg = error.error?.message || 'This plan is already in your cart';
+          this.toastService.showWarning(msg);
         } else if (error.status === 500) {
-          this.toastService.showError('Server error, please try again later');
+          const msg = error.error?.message || 'Server error, please try again later';
+          this.toastService.showError(msg);
+          console.error('🔧 Backend needs investigation. TraceId:', error.error?.traceId);
         } else {
-          this.toastService.showError('Failed to sync with server, but added to local cart');
+          this.toastService.showError('Failed to sync with server');
         }
 
-        return of(true); // Even if API fails, we've already updated local cart
+        return of(false); // Return false on error
       })
     );
   }
