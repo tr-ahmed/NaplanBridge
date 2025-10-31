@@ -161,7 +161,7 @@ export class CoursesService {
    * Called when user selects a plan from modal or when there's only one plan
    */
   addPlanToCartInternal(planId: number, course: Course): Observable<boolean> {
-    const url = `${this.baseUrl}/Cart/add`;
+    const url = `${this.baseUrl}/Cart/items`; // ✅ Correct endpoint
 
     // Get current user for studentId
     const currentUser = this.authService.getCurrentUser();
@@ -169,6 +169,13 @@ export class CoursesService {
       this.toastService.showWarning('Please log in to add items to your cart');
       return of(false);
     }
+
+    console.log('🛒 Adding to cart:', {
+      url,
+      subscriptionPlanId: planId,
+      studentId: currentUser.id,
+      quantity: 1
+    });
 
     // ✅ Use correct API format with subscriptionPlanId
     return this.http.post<any>(url, {

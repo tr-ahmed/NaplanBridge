@@ -236,7 +236,7 @@ export class AuthService {
       };
 
       console.log('✅ Mapped user object:', user);
-      
+
       if (!parsed.yearId) {
         console.warn('⚠️ yearId NOT found in JWT token!');
         console.warn('🔧 Backend needs to add yearId claim to token');
