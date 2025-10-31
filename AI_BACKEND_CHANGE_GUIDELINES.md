@@ -24,7 +24,7 @@ When a change **is required**, the AI must:
 
 ---
 
-## 📝 Backend Change Report Template
+## 🖟️ Backend Change Report Template
 
 # 🔧 Backend Change Report
 
@@ -83,12 +83,35 @@ avatar: (binary file)
 
 ---
 
+## 🔁 Backend-to-Frontend Update Coordination
+
+Whenever a backend modification has been **implemented**, the AI must:
+
+1. **Request a backend update report** from the backend team or service, including:
+
+   * List of modified or new endpoints.
+   * Any parameter changes.
+   * Any new or changed response formats.
+   * Updated models or DTOs.
+   * Version or migration notes.
+
+2. **Validate alignment** between the backend and the Angular frontend:
+
+   * Ensure `api.service.ts` reflects the latest endpoints.
+   * Update frontend request/response handling based on the backend’s new structure.
+   * Log any discrepancies or missing implementations in `/reports/frontend_updates/`.
+
+3. **Generate a short summary report** describing what was changed on the backend that affects the frontend.
+
+---
+
 ## ⚠️ Important Notes for the AI
 
-* ✅ Only generate this report **if backend modification is required.**
-* 🚫 Do not generate or modify backend code automatically.
-* 🧩 The AI must verify endpoint existence by referencing `.NET API` routes, Swagger documentation, or `api.service.ts` calls.
-* ✍️ Reports must be written in **clear, professional English**.
+* ✅ Only generate backend change reports **if backend modification is required.**
+* 🔁 Always request backend change confirmation before frontend updates.
+* ⛔ Do not modify backend code automatically.
+* 🧩 Verify endpoint existence via `.NET API` routes, Swagger docs, or `api.service.ts` references.
+* ✍️ Write all reports in **clear, professional English**.
 
 ---
 

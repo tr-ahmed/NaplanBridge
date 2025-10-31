@@ -170,15 +170,26 @@ export class CoursesService {
       return of(false);
     }
 
-    // ✅ Ensure studentId is a number
-    const studentId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id;
+    // ✅ Use studentId if available, otherwise fallback to id
+    let studentId: number;
+    
+    if (currentUser.studentId) {
+      // Backend provides studentId claim
+      studentId = currentUser.studentId;
+      console.log('✅ Using studentId from token:', studentId);
+    } else {
+      // Fallback to id (nameid)
+      studentId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id;
+      console.log('⚠️ Using id (nameid) as studentId:', studentId);
+    }
 
     console.log('🛒 Adding to cart:', {
       url,
       subscriptionPlanId: planId,
       studentId: studentId,
       studentIdType: typeof studentId,
-      quantity: 1
+      quantity: 1,
+      source: currentUser.studentId ? 'studentId claim' : 'nameid fallback'
     });
 
     // ✅ Use correct API format with subscriptionPlanId

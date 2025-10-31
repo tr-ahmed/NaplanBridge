@@ -218,17 +218,22 @@ export class AuthService {
       console.log('📦 Raw token payload:', parsed);
       console.log('🔑 Token claims:', {
         nameid: parsed.nameid,
+        studentId: parsed.studentId,
         unique_name: parsed.unique_name,
         email: parsed.email,
         role: parsed.role,
         yearId: parsed.yearId,
-        yearIdExists: 'yearId' in parsed,
-        yearIdValue: parsed.yearId
+        hasStudentId: 'studentId' in parsed,
+        hasYearId: 'yearId' in parsed
       });
 
       // Map JWT claims to user object
+      // Priority: studentId > nameid > sub
+      const userId = parsed.studentId || parsed.nameid || parsed.sub;
+      
       const user = {
-        id: parsed.nameid || parsed.sub,
+        id: userId,
+        studentId: parsed.studentId ? parseInt(parsed.studentId) : null,
         userName: parsed.unique_name || parsed.username,
         email: parsed.email,
         role: Array.isArray(parsed.role) ? parsed.role : [parsed.role],
@@ -236,10 +241,14 @@ export class AuthService {
       };
 
       console.log('✅ Mapped user object:', user);
+      console.log('🆔 Using ID:', userId, '(Type:', typeof userId, ')');
+      
+      if (parsed.studentId) {
+        console.log('✅ studentId claim found:', parsed.studentId);
+      }
 
       if (!parsed.yearId) {
         console.warn('⚠️ yearId NOT found in JWT token!');
-        console.warn('🔧 Backend needs to add yearId claim to token');
       }
 
       return user;
