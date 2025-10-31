@@ -100,10 +100,23 @@ export class AuthService {
     localStorage.setItem('authToken', response.token);
     localStorage.setItem('userName', response.userName);
     localStorage.setItem('roles', JSON.stringify(response.roles));
+
+    // Extract user ID from token
+    let userId: number | null = null;
+    try {
+      const payload = JSON.parse(atob(response.token.split('.')[1]));
+      userId = payload.nameid ? Number(payload.nameid) : null;
+      console.log('🔑 Extracted User ID from token:', userId);
+    } catch (e) {
+      console.error('Failed to parse token:', e);
+    }
+
     localStorage.setItem('currentUser', JSON.stringify({
+      id: userId,
       userName: response.userName,
       email: email,
-      roles: response.roles
+      roles: response.roles,
+      role: response.roles // Also store as 'role' for compatibility
     }));
 
     if (rememberMe) {

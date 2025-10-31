@@ -64,14 +64,35 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   private checkUserRole(): void {
     const currentUser = this.authService.getCurrentUser();
-    if (currentUser && currentUser.role) {
-      this.currentUserRole.set(currentUser.role);
-      this.isStudent.set(currentUser.role.toLowerCase() === 'student');
+
+    if (currentUser) {
+      // Handle role as array or string
+      let userRole = currentUser.role;
+
+      // If role is an array, get the first role or check if 'Student' exists
+      if (Array.isArray(userRole)) {
+        // Check if 'Student' role exists in array
+        const hasStudentRole = userRole.some(r =>
+          typeof r === 'string' && r.toLowerCase() === 'student'
+        );
+        this.isStudent.set(hasStudentRole);
+        this.currentUserRole.set(userRole.join(', '));
+      } else if (typeof userRole === 'string') {
+        // Handle single role as string
+        this.currentUserRole.set(userRole);
+        this.isStudent.set(userRole.toLowerCase() === 'student');
+      }
 
       // If student, auto-select their own ID
       if (this.isStudent() && currentUser.id) {
         this.selectedStudentId.set(currentUser.id);
       }
+
+      console.log('🔍 Cart - User Role Check:', {
+        roles: currentUser.role,
+        isStudent: this.isStudent(),
+        userId: currentUser.id
+      });
     }
   }
 
