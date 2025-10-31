@@ -170,17 +170,21 @@ export class CoursesService {
       return of(false);
     }
 
+    // ✅ Ensure studentId is a number
+    const studentId = typeof currentUser.id === 'string' ? parseInt(currentUser.id, 10) : currentUser.id;
+
     console.log('🛒 Adding to cart:', {
       url,
       subscriptionPlanId: planId,
-      studentId: currentUser.id,
+      studentId: studentId,
+      studentIdType: typeof studentId,
       quantity: 1
     });
 
     // ✅ Use correct API format with subscriptionPlanId
     return this.http.post<any>(url, {
       subscriptionPlanId: planId,
-      studentId: currentUser.id,
+      studentId: studentId,
       quantity: 1
     }).pipe(
       tap(() => {
