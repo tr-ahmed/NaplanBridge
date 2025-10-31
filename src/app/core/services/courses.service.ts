@@ -193,13 +193,13 @@ export class CoursesService {
       map((response) => {
         console.log('✅ Cart API Success Response:', response);
         console.log('✅ Status: Item added to cart successfully');
-        
+
         // Update cart badge
         this.refreshCartCount();
-        
+
         const courseName = course.name || course.subjectName;
         this.toastService.showSuccess(`${courseName} has been added to your cart successfully!`);
-        
+
         return true;
       }),
       catchError((error) => {
