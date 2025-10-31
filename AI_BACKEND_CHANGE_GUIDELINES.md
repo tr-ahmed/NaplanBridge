@@ -1,22 +1,26 @@
-# 🧠 AI Backend Change Guidelines
+# 🧠 AI Backend Change Guidelines (.NET API Version)
 
 ## 🎯 Purpose
-When developing or modifying any **Frontend (Angular)** feature, if the implementation requires a **new or modified backend endpoint**, the AI must automatically generate a **clear and detailed report** describing the required backend changes.
+
+When developing or modifying any **Frontend (Angular)** feature, the AI must only generate a backend change report **if** a change or addition to the **.NET API** is required.
 
 ---
 
 ## 📋 AI Responsibilities
-Whenever an AI assistant detects that a frontend feature depends on an API that doesn’t exist or needs modification, it should:
 
-1. **Analyze the context**  
-   Understand the purpose of the new or modified code (e.g., user registration, profile editing, file upload, report viewing).
+The AI should **not** generate a report unless the frontend feature depends on a backend modification.
+When a change **is required**, the AI must:
 
-2. **Identify backend impact**  
-   - Is a new endpoint required?  
-   - Is an existing endpoint missing parameters or returning an incorrect response?  
-   - Are there model, validation, or database changes required?
+1. **Analyze the context**
+   Understand the purpose of the feature (e.g., authentication, file upload, data filtering, reporting).
 
-3. **Generate a complete backend change report** including the following sections:
+2. **Identify backend impact**
+
+   * Is a new endpoint required?
+   * Does an existing endpoint need modification?
+   * Are there necessary model or database changes?
+
+3. **Generate a backend change report** including the following details:
 
 ---
 
@@ -25,58 +29,79 @@ Whenever an AI assistant detects that a frontend feature depends on an API that 
 # 🔧 Backend Change Report
 
 ## 1. Reason for Change
-Briefly explain why a backend change is required.  
-Example: "The frontend now supports user avatar uploads, but no existing endpoint handles file uploads."
+
+Explain why this backend change is required.
+Example: “The frontend now allows uploading user avatars, but no existing API endpoint handles file uploads.”
 
 ## 2. Required or Modified Endpoint
-- **URL:** /api/users/upload-avatar  
-- **Method:** POST  
-- **Description:** Upload user profile picture
+
+* **URL:** `/api/users/upload-avatar`
+* **Method:** `POST`
+* **Controller:** `UsersController`
+* **Action:** `UploadAvatar`
+* **Description:** Handles uploading and saving of user profile pictures.
 
 ## 3. Suggested Backend Implementation
-- Add new function `uploadAvatar()` inside `UserController`
-- Accept `avatar` file input and store it under `storage/app/public/avatars`
-- Update `avatar_url` column in `users` table
-- Validate file type and size before saving
+
+* Create or modify the relevant controller action.
+* Use `IFormFile` parameter to accept uploaded files.
+* Save file to `/wwwroot/uploads/avatars/`.
+* Update user record with the new avatar URL in the database.
+* Validate allowed file types (`.jpg`, `.png`) and size limit (e.g., 2 MB).
 
 ## 4. Database Impact (if any)
-- Add column `avatar_url` to `users` table (VARCHAR(255))
 
+* Add column `AvatarUrl` (type: `nvarchar(255)`) to the `Users` table.
+
+## 5. Files to Modify or Create
+
+* `Controllers/UsersController.cs`
+* `Models/User.cs`
+* `DTOs/UserDto.cs` (if applicable)
+* `Migrations/2025xxxx_AddAvatarUrlToUsers.cs`
+* `Startup.cs` or `Program.cs` (if new service registration is needed)
 
 ## 6. Request and Response Examples (Optional)
 
-**Request Example:**  
-```
+**Request Example:**
+
+```http
 POST /api/users/upload-avatar
-{
-  "avatar": "base64encodedimage..."
-}
+Content-Type: multipart/form-data
+
+avatar: (binary file)
 ```
 
-**Response Example:**  
-```
+**Response Example:**
+
+```json
 {
   "success": true,
-  "avatar_url": "https://example.com/storage/avatars/user123.jpg"
+  "avatarUrl": "https://example.com/uploads/avatars/user123.jpg"
 }
 ```
 
 ---
 
 ## ⚠️ Important Notes for the AI
-- **Do not implement the backend changes directly** — only generate a detailed report.  
-- Do **not assume** the existence of endpoints without checking the current API documentation (swagger.json or api.ts).  
-- If the modification is minor (e.g., a renamed response field), still generate a short report explaining the change.  
-- The report must be written in **clear, professional English**.  
+
+* ✅ Only generate this report **if backend modification is required.**
+* 🚫 Do not generate or modify backend code automatically.
+* 🧩 The AI must verify endpoint existence by referencing `.NET API` routes, Swagger documentation, or `api.service.ts` calls.
+* ✍️ Reports must be written in **clear, professional English**.
 
 ---
 
 ## 📁 Report Location
-All generated reports must be saved under:
+
+All generated reports must be stored in:
+
 ```
 /reports/backend_changes/
 ```
-with filenames following this pattern:
+
+with filenames using this pattern:
+
 ```
-backend_change_<feature_name>_2025-10-31.md
+backend_change_<feature_name>_<YYYY-MM-DD>.md
 ```
