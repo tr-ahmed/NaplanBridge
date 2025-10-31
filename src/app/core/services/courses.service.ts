@@ -143,79 +143,6 @@ export class CoursesService {
   addToCart(course: Course): Observable<boolean> {
     console.log('🛒 Starting addToCart for course:', course.id, course.name || course.subjectName);
 
-    const currentCart = this.cartSubject.value;
-    const existingItem = currentCart.items.find(item => item.course.id === course.id);
-
-    if (existingItem) {
-      existingItem.quantity += 1;
-    } else {
-      const newItem: CartItem = {
-        course,
-        quantity: 1,
-        addedDate: new Date()
-      };
-      currentCart.items.push(newItem);
-    }
-
-    this.updateCartTotals(currentCart);
-    this.cartSubject.next(currentCart);
-    this.saveCartToStorage();
-
-    console.log('🛒 Local cart updated. Checking authentication...');
-
-    // Debug auth service injection
-    console.log('🔐 AuthService instance:', !!this.authService);
-
-    // Check localStorage directly
-    const localStorageToken = localStorage.getItem('token');
-    const localStorageUserName = localStorage.getItem('userName');
-    const localStorageRoles = localStorage.getItem('roles');
-
-    console.log('🔐 LocalStorage token:', localStorageToken ? localStorageToken.substring(0, 20) + '...' : 'null');
-    console.log('🔐 LocalStorage userName:', localStorageUserName);
-    console.log('🔐 LocalStorage roles:', localStorageRoles);
-
-    // Check if user is authenticated before making API call
-    const isAuthenticated = this.authService.isAuthenticated();
-    const token = this.authService.getToken();
-    const userName = this.authService.getUserName();
-
-    console.log('🔐 Authentication status:', isAuthenticated);
-    console.log('🔐 Token exists:', !!token);
-    console.log('🔐 Token value:', token ? token.substring(0, 20) + '...' : 'null');
-    console.log('🔐 User name:', userName);
-
-    // Force authentication check if user data exists but token is missing
-    if (!isAuthenticated && userName) {
-      console.log('🔍 User has userName but no token. This might be a token expiry issue.');
-      this.toastService.showWarning('Your session has expired. Please log in again to sync your cart with the server');
-      return of(true);
-    }
-
-    if (!isAuthenticated) {
-      console.log('⚠️ User not authenticated, showing warning');
-      this.toastService.showWarning('Please log in to sync your cart with the server');
-      return of(true);
-    }    // Make API call only if user is authenticated
-    const endpoint = ApiNodes.addToCart;
-    const url = `${this.baseUrl}${endpoint.url}`;
-
-    console.log('🛒 Cart API Debug Info:');
-    console.log('Base URL:', this.baseUrl);
-    console.log('Endpoint URL:', endpoint.url);
-    console.log('Full URL:', url);
-    console.log('Use Mock:', this.useMock);
-    console.log('Environment useMock:', environment.useMock);
-    console.log('User authenticated:', this.authService.isAuthenticated());
-
-    if (this.useMock) {
-      console.log('Using mock data for cart');
-      this.toastService.showSuccess('Course added to cart!');
-      return of(true);
-    }
-
-    console.log('Making API call to add to cart...');
-
     // ✅ Check if course has subscription plans
     if (!course.subscriptionPlans || course.subscriptionPlans.length === 0) {
       console.warn('⚠️ No subscription plans available for this course');
@@ -223,25 +150,10 @@ export class CoursesService {
       return of(false);
     }
 
-    // ✅ NEW: If multiple plans, show modal for selection
-    if (course.subscriptionPlans.length > 1) {
-      console.log('� Multiple plans available, showing selection modal');
-      this.showPlanModalSubject.next({ show: true, course });
-      return of(true); // Modal will handle the actual add
-    }
-
-    // Single plan - add directly
-    const defaultPlan = course.subscriptionPlans[0];
-
-    // Check if plan is active
-    if (!defaultPlan.isActive) {
-      this.toastService.showError('This plan is currently unavailable');
-      return of(false);
-    }
-
-    console.log('📦 Using plan:', defaultPlan);
-
-    return this.addPlanToCartInternal(defaultPlan.id, course);
+    // ✅ Always show modal for plan selection (even if single plan)
+    console.log('📋 Opening plan selection modal with', course.subscriptionPlans.length, 'plans');
+    this.showPlanModalSubject.next({ show: true, course });
+    return of(true); // Modal will handle the actual add
   }
 
   /**

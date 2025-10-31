@@ -419,6 +419,33 @@ export class CoursesComponent implements OnInit, OnDestroy {
   isStarHalf(star: number, rating: number): boolean {
     return star === Math.floor(rating) + 1 && rating % 1 >= 0.5;
   }
+  
+  /**
+   * Get minimum price from subscription plans
+   */
+  getMinPrice(course: Course): number {
+    if (!course.subscriptionPlans || course.subscriptionPlans.length === 0) {
+      return course.price || 0;
+    }
+    
+    const prices = course.subscriptionPlans.map(plan => plan.price);
+    return Math.min(...prices);
+  }
+  
+  /**
+   * Check if course has multiple plans
+   */
+  hasMultiplePlans(course: Course): boolean {
+    return !!(course.subscriptionPlans && course.subscriptionPlans.length > 1);
+  }
+  
+  /**
+   * Get year name by ID
+   */
+  getYearName(yearId: number): string {
+    const year = this.availableYears().find(y => y.id === yearId);
+    return year?.name || `Year ${yearId}`;
+  }
 
   getPageNumbers(): number[] {
     const total = this.totalPages();

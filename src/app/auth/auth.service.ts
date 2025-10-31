@@ -186,12 +186,46 @@ export class AuthService {
   // ✅ Get current user data
   getCurrentUser(): any {
     const userData = localStorage.getItem('currentUser');
-    return userData ? JSON.parse(userData) : null;
+    if (userData) {
+      return JSON.parse(userData);
+    }
+
+    // Fallback: decode token to get user data
+    const token = this.getToken();
+    if (token) {
+      const decoded = this.decodeToken(token);
+      return decoded;
+    }
+
+    return null;
   }
 
   // ✅ Get authentication token
   getToken(): string | null {
     return localStorage.getItem('authToken');
+  }
+
+  /**
+   * Decode JWT token
+   */
+  private decodeToken(token: string): any {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = atob(payload);
+      const parsed = JSON.parse(decoded);
+
+      // Map JWT claims to user object
+      return {
+        id: parsed.nameid || parsed.sub,
+        userName: parsed.unique_name || parsed.username,
+        email: parsed.email,
+        role: Array.isArray(parsed.role) ? parsed.role : [parsed.role],
+        yearId: parsed.yearId ? parseInt(parsed.yearId) : null
+      };
+    } catch (error) {
+      console.error('Failed to decode token:', error);
+      return null;
+    }
   }
 
   // ✅ Get remembered email
