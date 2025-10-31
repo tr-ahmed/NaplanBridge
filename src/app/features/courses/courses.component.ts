@@ -10,6 +10,7 @@ import { CoursesService } from '../../core/services/courses.service';
 import { NewsletterComponent } from '../../shared/newsletter/newsletter.component';
 import { PlanSelectionModalComponent } from '../../components/plan-selection-modal/plan-selection-modal.component';
 import { SubscriptionPlanSummary } from '../../models/subject.models';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-courses',
@@ -48,6 +49,19 @@ export class CoursesComponent implements OnInit, OnDestroy {
   subjects = ['Math', 'English', 'Science', 'HASS'];
   levels = ['Beginner', 'Intermediate', 'Advanced'];
   categories = ['Language', 'Mathematics', 'Science', 'Social Studies'];
+  
+  // User info
+  currentUser = signal<any>(null);
+  userYear = signal<number | null>(null);
+  isStudent = signal<boolean>(false);
+  
+  // Available years for filtering
+  availableYears = signal<Array<{id: number, name: string}>>([
+    { id: 1, name: 'Year 7' },
+    { id: 2, name: 'Year 8' },
+    { id: 3, name: 'Year 9' }
+  ]);
+  selectedYearId = signal<number | null>(null);
 
   // Computed values
   totalPages = computed(() =>
@@ -61,18 +75,57 @@ export class CoursesComponent implements OnInit, OnDestroy {
   });
 
   cartItemCount = computed(() => this.cart().totalItems);
+  
+  // Display year name
+  displayYearName = computed(() => {
+    if (!this.selectedYearId()) return 'All Years';
+    const year = this.availableYears().find(y => y.id === this.selectedYearId());
+    return year?.name || 'All Years';
+  });
 
   constructor(
     private coursesService: CoursesService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.loadCourses();
+    this.loadUserInfo();
     this.subscribeToCart();
     this.subscribeToPlanModal();
     this.handleQueryParameters();
+    this.loadCourses();
+  }
+  
+  /**
+   * Load current user information and auto-filter for students
+   */
+  private loadUserInfo(): void {
+    const user = this.authService.getCurrentUser();
+    
+    if (user) {
+      this.currentUser.set(user);
+      
+      // Check if user is a student
+      const roles = Array.isArray(user.role) ? user.role : [user.role];
+      const isStudentRole = roles.some((r: string) => r.toLowerCase() === 'student');
+      this.isStudent.set(isStudentRole);
+      
+      // If student and has yearId, auto-filter by their year
+      if (isStudentRole && user.yearId) {
+        this.userYear.set(user.yearId);
+        this.selectedYearId.set(user.yearId);
+        console.log('🎓 Student detected - Auto-filtering for Year:', user.yearId);
+      }
+      
+      console.log('👤 User Info:', {
+        role: roles,
+        isStudent: isStudentRole,
+        yearId: user.yearId,
+        autoFilter: isStudentRole && user.yearId
+      });
+    }
   }
 
   /**
@@ -167,8 +220,15 @@ export class CoursesComponent implements OnInit, OnDestroy {
       subject: this.selectedSubject(),
       level: this.selectedLevel(),
       category: this.selectedCategory(),
-      search: this.searchQuery()
+      search: this.searchQuery(),
+      yearId: this.selectedYearId()
     });
+
+    // Apply year filter (important for students)
+    if (this.selectedYearId()) {
+      filtered = filtered.filter(course => course.yearId === this.selectedYearId());
+      console.log('📅 After year filter:', filtered.length, 'courses for Year ID:', this.selectedYearId());
+    }
 
     // Apply search filter
     if (this.searchQuery().trim()) {
@@ -189,6 +249,14 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     this.filteredCourses.set(filtered);
     this.currentPage.set(1); // Reset to first page when filters change
+  }
+  
+  /**
+   * Handle year filter change
+   */
+  onYearChange(yearId: number | null): void {
+    this.selectedYearId.set(yearId);
+    this.applyFilters();
   }
 
   /**
