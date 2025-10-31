@@ -219,7 +219,7 @@ export class CoursesService {
     // ✅ Check if course has subscription plans
     if (!course.subscriptionPlans || course.subscriptionPlans.length === 0) {
       console.warn('⚠️ No subscription plans available for this course');
-      this.toastService.showError('لا توجد خطط اشتراك متاحة لهذه المادة');
+      this.toastService.showError('No subscription plans available for this subject');
       return of(false);
     }
 
@@ -235,7 +235,7 @@ export class CoursesService {
 
     // Check if plan is active
     if (!defaultPlan.isActive) {
-      this.toastService.showError('هذه الخطة غير متاحة حالياً');
+      this.toastService.showError('This plan is currently unavailable');
       return of(false);
     }
 
@@ -254,7 +254,7 @@ export class CoursesService {
     // Get current user for studentId
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser?.id) {
-      this.toastService.showWarning('الرجاء تسجيل الدخول لإضافة عناصر إلى السلة');
+      this.toastService.showWarning('Please log in to add items to your cart');
       return of(false);
     }
 
@@ -271,7 +271,7 @@ export class CoursesService {
       map((response) => {
         console.log('✅ Cart API Success:', response);
         const courseName = course.name || course.subjectName;
-        this.toastService.showSuccess(`تم إضافة ${courseName} إلى السلة بنجاح!`);
+        this.toastService.showSuccess(`${courseName} has been added to your cart successfully!`);
         return true;
       }),
       catchError((error) => {
@@ -279,17 +279,17 @@ export class CoursesService {
 
         // ✅ Better error messages
         if (error.status === 401) {
-          this.toastService.showWarning('الرجاء تسجيل الدخول لمزامنة السلة مع الخادم');
+          this.toastService.showWarning('Please log in to sync your cart with the server');
         } else if (error.status === 400) {
-          this.toastService.showError(error.error?.message || 'بيانات غير صحيحة');
+          this.toastService.showError(error.error?.message || 'Invalid data');
         } else if (error.status === 404) {
-          this.toastService.showError('الخطة المحددة غير موجودة');
+          this.toastService.showError('Selected plan not found');
         } else if (error.status === 409) {
-          this.toastService.showError('هذه الخطة موجودة بالفعل في السلة');
+          this.toastService.showError('This plan is already in your cart');
         } else if (error.status === 500) {
-          this.toastService.showError('خطأ في الخادم، يرجى المحاولة لاحقاً');
+          this.toastService.showError('Server error, please try again later');
         } else {
-          this.toastService.showError('فشلت المزامنة مع الخادم، لكن تمت الإضافة للسلة المحلية');
+          this.toastService.showError('Failed to sync with server, but added to local cart');
         }
 
         return of(true); // Even if API fails, we've already updated local cart
