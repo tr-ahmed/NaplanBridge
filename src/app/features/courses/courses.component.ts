@@ -135,9 +135,12 @@ export class CoursesComponent implements OnInit, OnDestroy {
       category: this.selectedCategory() || undefined
     };
 
+    console.log('🔍 Loading courses with filter:', filter);
+
     this.coursesService.getCourses(filter)
       .pipe(takeUntil(this.destroy$))
       .subscribe(courses => {
+        console.log('📚 Received courses from API:', courses.length, courses);
         this.courses.set(courses);
         this.applyFilters();
       });
@@ -158,6 +161,15 @@ export class CoursesComponent implements OnInit, OnDestroy {
   applyFilters(): void {
     let filtered = [...this.courses()];
 
+    console.log('🔎 Applying filters to', filtered.length, 'courses');
+    console.log('📊 Current filters:', {
+      term: this.selectedTerm(),
+      subject: this.selectedSubject(),
+      level: this.selectedLevel(),
+      category: this.selectedCategory(),
+      search: this.searchQuery()
+    });
+
     // Apply search filter
     if (this.searchQuery().trim()) {
       const query = this.searchQuery().toLowerCase().trim();
@@ -169,7 +181,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
         course.subjectName?.toLowerCase().includes(query) ||
         course.categoryName?.toLowerCase().includes(query)
       );
+      console.log('🔍 After search filter:', filtered.length);
     }
+
+    console.log('✅ Final filtered courses:', filtered.length);
+    console.log('📄 Current page:', this.currentPage(), '| Items per page:', this.itemsPerPage);
 
     this.filteredCourses.set(filtered);
     this.currentPage.set(1); // Reset to first page when filters change

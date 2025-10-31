@@ -59,8 +59,19 @@ export class CoursesService {
       );
     }
 
-    return this.http.get<Course[]>(url).pipe(
-      map(courses => this.filterCourses(courses, filter)),
+    return this.http.get<any>(url).pipe(
+      map(response => {
+        // Handle both paginated response and direct array
+        const courses = response.items || response;
+        console.log('📦 API Response:', {
+          type: response.items ? 'Paginated' : 'Direct Array',
+          totalCount: response.totalCount || courses.length,
+          receivedCount: courses.length,
+          page: response.page,
+          pageSize: response.pageSize
+        });
+        return this.filterCourses(courses, filter);
+      }),
       tap(() => this.loading.set(false)),
       catchError((error: HttpErrorResponse) => {
         console.warn('API call failed, using mock data:', error);
