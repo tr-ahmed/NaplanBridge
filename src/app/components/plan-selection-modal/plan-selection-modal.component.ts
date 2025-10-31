@@ -26,7 +26,7 @@ import { SubscriptionPlanSummary } from '../../models/subject.models';
           <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
             <div>
               <h2 class="text-2xl font-bold text-gray-900">
-                اختر الخطة المناسبة
+                Choose Your Plan
               </h2>
               <p class="text-sm text-gray-600 mt-1">
                 {{ courseName() }}
@@ -49,7 +49,7 @@ import { SubscriptionPlanSummary } from '../../models/subject.models';
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <p class="mt-2 text-gray-600">لا توجد خطط متاحة لهذه المادة</p>
+                <p class="mt-2 text-gray-600">No subscription plans available for this subject</p>
               </div>
             } @else {
               @for (plan of plans(); track plan.id) {
@@ -83,39 +83,39 @@ import { SubscriptionPlanSummary } from '../../models/subject.models';
                         <!-- Popular Badge -->
                         @if (isPopular(plan)) {
                           <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                            الأكثر شيوعاً
+                            Most Popular
                           </span>
                         }
                       </div>
 
                       <!-- Plan Description -->
                       @if (plan.description) {
-                        <p class="text-sm text-gray-600 mt-2 mr-7">
+                        <p class="text-sm text-gray-600 mt-2 ml-7">
                           {{ plan.description }}
                         </p>
                       }
 
                       <!-- Plan Type Badge -->
-                      <div class="flex items-center gap-2 mt-2 mr-7">
+                      <div class="flex items-center gap-2 mt-2 ml-7">
                         <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded">
                           {{ getPlanTypeLabel(plan.planType) }}
                         </span>
                         @if (!plan.isActive) {
                           <span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded">
-                            غير متاح حالياً
+                            Currently Unavailable
                           </span>
                         }
                       </div>
                     </div>
 
                     <!-- Price -->
-                    <div class="text-right mr-4">
+                    <div class="text-right ml-4">
                       <div class="text-2xl font-bold text-blue-600">
-                        {{ plan.price.toFixed(2) }} ر.س
+                        AUD {{ plan.price.toFixed(2) }}
                       </div>
                       @if (showSavings(plan)) {
                         <div class="text-sm text-green-600 font-medium">
-                          وفر {{ calculateSavings(plan).toFixed(2) }} ر.س
+                          Save {{ calculateSavings(plan).toFixed(2) }} AUD
                         </div>
                       }
                     </div>
@@ -130,16 +130,16 @@ import { SubscriptionPlanSummary } from '../../models/subject.models';
             <button
               (click)="onClose()"
               class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              إلغاء
+              Cancel
             </button>
             <button
               (click)="onConfirm()"
               [disabled]="!selectedPlanId() || !isSelectedPlanActive()"
               class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
               @if (selectedPlanId()) {
-                إضافة إلى السلة - {{ getSelectedPlanPrice() }} ر.س
+                Add to Cart - AUD {{ getSelectedPlanPrice() }}
               } @else {
-                اختر خطة
+                Select a Plan
               }
             </button>
           </div>
@@ -217,14 +217,14 @@ export class PlanSelectionModalComponent {
   }
 
   /**
-   * Get plan type label in Arabic
+   * Get plan type label in English
    */
   getPlanTypeLabel(planType: string): string {
     const labels: Record<string, string> = {
-      'SingleTerm': 'فصل دراسي واحد',
-      'MultiTerm': 'عدة فصول',
-      'FullYear': 'السنة الكاملة',
-      'SubjectAnnual': 'المادة السنوية'
+      'SingleTerm': 'Single Term',
+      'MultiTerm': 'Multiple Terms',
+      'FullYear': 'Full Year',
+      'SubjectAnnual': 'Annual Subscription'
     };
     return labels[planType] || planType;
   }

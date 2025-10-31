@@ -49,12 +49,12 @@ export class CoursesComponent implements OnInit, OnDestroy {
   subjects = ['Math', 'English', 'Science', 'HASS'];
   levels = ['Beginner', 'Intermediate', 'Advanced'];
   categories = ['Language', 'Mathematics', 'Science', 'Social Studies'];
-  
+
   // User info
   currentUser = signal<any>(null);
   userYear = signal<number | null>(null);
   isStudent = signal<boolean>(false);
-  
+
   // Available years for filtering
   availableYears = signal<Array<{id: number, name: string}>>([
     { id: 1, name: 'Year 7' },
@@ -75,7 +75,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   });
 
   cartItemCount = computed(() => this.cart().totalItems);
-  
+
   // Display year name
   displayYearName = computed(() => {
     if (!this.selectedYearId()) return 'All Years';
@@ -97,28 +97,28 @@ export class CoursesComponent implements OnInit, OnDestroy {
     this.handleQueryParameters();
     this.loadCourses();
   }
-  
+
   /**
    * Load current user information and auto-filter for students
    */
   private loadUserInfo(): void {
     const user = this.authService.getCurrentUser();
-    
+
     if (user) {
       this.currentUser.set(user);
-      
+
       // Check if user is a student
       const roles = Array.isArray(user.role) ? user.role : [user.role];
       const isStudentRole = roles.some((r: string) => r.toLowerCase() === 'student');
       this.isStudent.set(isStudentRole);
-      
+
       // If student and has yearId, auto-filter by their year
       if (isStudentRole && user.yearId) {
         this.userYear.set(user.yearId);
         this.selectedYearId.set(user.yearId);
         console.log('🎓 Student detected - Auto-filtering for Year:', user.yearId);
       }
-      
+
       console.log('👤 User Info:', {
         role: roles,
         isStudent: isStudentRole,
@@ -250,7 +250,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
     this.filteredCourses.set(filtered);
     this.currentPage.set(1); // Reset to first page when filters change
   }
-  
+
   /**
    * Handle year filter change
    */
