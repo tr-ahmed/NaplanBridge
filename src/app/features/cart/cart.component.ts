@@ -50,13 +50,8 @@ export class CartComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(cart => this.cart.set(cart));
 
-    // Check user role
+    // Check user role (this will call loadStudents if needed)
     this.checkUserRole();
-
-    // Load students only if user is Parent
-    if (!this.isStudent()) {
-      this.loadStudents();
-    }
   }
 
   /**
@@ -64,15 +59,15 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   private checkUserRole(): void {
     const currentUser = this.authService.getCurrentUser();
-
+    
     if (currentUser) {
       // Handle role as array or string
       let userRole = currentUser.role;
-
+      
       // If role is an array, get the first role or check if 'Student' exists
       if (Array.isArray(userRole)) {
         // Check if 'Student' role exists in array
-        const hasStudentRole = userRole.some(r =>
+        const hasStudentRole = userRole.some(r => 
           typeof r === 'string' && r.toLowerCase() === 'student'
         );
         this.isStudent.set(hasStudentRole);
@@ -86,17 +81,25 @@ export class CartComponent implements OnInit, OnDestroy {
       // If student, auto-select their own ID
       if (this.isStudent() && currentUser.id) {
         this.selectedStudentId.set(currentUser.id);
+        console.log('✅ Student detected - Auto-selected ID:', currentUser.id);
       }
-
+      
       console.log('🔍 Cart - User Role Check:', {
         roles: currentUser.role,
         isStudent: this.isStudent(),
-        userId: currentUser.id
+        userId: currentUser.id,
+        willLoadStudents: !this.isStudent()
       });
+      
+      // ✅ Load students after role check (only for parents)
+      if (!this.isStudent()) {
+        console.log('👨‍👩‍👧 Parent detected - Loading children...');
+        this.loadStudents();
+      } else {
+        console.log('🎓 Student detected - Skipping student list load');
+      }
     }
-  }
-
-  ngOnDestroy(): void {
+  }  ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }

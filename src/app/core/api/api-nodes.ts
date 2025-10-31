@@ -226,12 +226,13 @@ export const ApiNodes = {
   },
 
   // Remove from cart
+  // ⚠️ NOTE: Backend endpoint is /Cart/items/{cartItemId}, not /Cart/remove/{id}
   removeFromCart: {
-    url: '/Cart/remove/:id',
+    url: '/Cart/items/:id',
     method: 'DELETE' as const,
     mockData: {
       success: true,
-      message: 'Course removed from cart'
+      message: 'Item removed from cart'
     }
   },
 
