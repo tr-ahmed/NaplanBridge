@@ -191,6 +191,27 @@ export class CoursesService {
       return of(false);
     }
 
+    // ✅ Check if subject already exists in cart (same subject, same year)
+    const currentCart = this.cartSubject.value;
+    const subjectAlreadyInCart = currentCart.items.some((item: any) => {
+      const itemSubjectId = item.course?.subjectId || item.course?.id;
+      const itemYearId = item.course?.yearId || course.yearId;
+      
+      // Check if same subject and same year
+      const isSameSubject = itemSubjectId === course.id || 
+                           item.course?.subjectName === course.subjectName ||
+                           item.course?.name === course.name;
+      const isSameYear = itemYearId === course.yearId;
+      
+      return isSameSubject && isSameYear;
+    });
+
+    if (subjectAlreadyInCart) {
+      console.warn('⚠️ Subject already in cart for this year');
+      this.toastService.showWarning('This subject is already in your cart for this year. Please remove the existing plan first if you want to change it.');
+      return of(false);
+    }
+
     console.log('🛒 Adding to cart:', {
       url,
       subscriptionPlanId: planId,
@@ -412,7 +433,7 @@ export class CoursesService {
         item.subscriptionPlanId ||
         item.courseId ||
         item.id;
-      
+
       console.log('🔍 Checking item:', itemCourseId, 'against courseId:', courseId);
       return itemCourseId === courseId;
     });
