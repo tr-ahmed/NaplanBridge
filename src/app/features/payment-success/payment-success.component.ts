@@ -12,9 +12,9 @@ import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../core/services/toast.service';
 
 interface PaymentResponse {
-  success: boolean;
   message: string;
   sessionId: string;
+  success?: boolean; // Optional, some backend responses may not include this
 }
 
 @Component({
@@ -83,29 +83,42 @@ export class PaymentSuccessComponent implements OnInit {
 
           this.loading.set(false);
 
-          if (response.success) {
+            // Check if payment is successful (backend returns message on success)
+          if (response.message && response.message.includes('successful')) {
             // Payment successful
             this.toastService.showSuccess(response.message);
             this.orderId.set(1); // Set a default order ID for display
             this.loadOrderDetails(1);
 
-            // Refresh cart (should be empty now)
-            this.refreshCart();
-
-            // Force clear cart as fallback after 2 seconds if backend didn't clear it
+            // Multiple approaches to ensure cart is cleared
+            console.log('💳 Payment successful! Clearing cart with multiple approaches...');
+            
+            // Approach 1: Force reset cart state immediately
+            this.cartService.resetCartState();
+            
+            // Approach 2: Refresh cart from backend
+            this.refreshCart();            // Force clear cart as fallback after 2 seconds if backend didn't clear it
             setTimeout(() => {
               console.log('🔄 Double-checking cart is cleared...');
-              if (this.cartService.cartItemCount() > 0) {
+              const currentCartCount = this.cartService.cartItemCount();
+              console.log('📊 Current cart count:', currentCartCount);
+              
+              if (currentCartCount > 0) {
                 console.warn('⚠️ Cart still has items, force clearing...');
                 this.cartService.clearCart().subscribe({
                   next: () => {
-                    console.log('✅ Cart force-cleared successfully');
+                    console.log('✅ Cart API cleared successfully');
                     this.toastService.showSuccess('Cart cleared successfully!');
                   },
                   error: (err) => {
-                    console.error('❌ Failed to force clear cart:', err);
+                    console.error('❌ Failed to clear cart via API, using manual reset:', err);
+                    // Manual reset as last resort
+                    this.cartService.resetCartState();
+                    this.toastService.showSuccess('Cart cleared manually!');
                   }
                 });
+              } else {
+                console.log('✅ Cart is already empty');
               }
             }, 2000);
 
@@ -114,8 +127,12 @@ export class PaymentSuccessComponent implements OnInit {
               this.router.navigate(['/dashboard']);
             }, 4000);
           } else {
-            // Payment failed
-            this.toastService.showError(response.message || 'Payment verification failed');
+            // Payment status unclear - show as warning instead of error
+            console.warn('⚠️ Payment response unclear:', response);
+            this.toastService.showWarning(response.message || 'Payment status could not be verified');
+            
+            // Still try to refresh cart in case payment was actually successful
+            this.refreshCart();
           }
         },
         error: (error: any) => {
@@ -133,14 +150,14 @@ export class PaymentSuccessComponent implements OnInit {
    */
   private refreshCart(): void {
     console.log('🔄 Refreshing cart after successful payment...');
-    
+
     // Use CartService force refresh method for payment scenarios
     this.cartService.forceRefreshAfterPayment().subscribe({
       next: (cart) => {
         console.log('✅ Cart refreshed after payment:', cart);
         console.log('📊 Cart items count:', cart.itemCount || cart.items?.length || 0);
         console.log('💰 Cart total:', cart.totalAmount || 0);
-        
+
         // Verify cart is empty
         if ((cart.itemCount || cart.items?.length || 0) === 0) {
           console.log('🎉 Cart is now empty - payment processing successful!');

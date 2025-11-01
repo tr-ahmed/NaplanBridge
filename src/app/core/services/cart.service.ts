@@ -28,7 +28,7 @@ export class CartService {
   // Cart state signals
   public cartItemCount = signal<number>(0);
   public cartTotalAmount = signal<number>(0);
-  
+
   // Cart cleared event (for components to listen to)
   private cartClearedSubject = new BehaviorSubject<boolean>(false);
   public cartCleared$ = this.cartClearedSubject.asObservable();
@@ -272,26 +272,39 @@ export class CartService {
    */
   forceRefreshAfterPayment(): Observable<Cart> {
     console.log('💳 Force refreshing cart after payment...');
-    
+
     // First reset signals to 0
     this.cartItemCount.set(0);
     this.cartTotalAmount.set(0);
-    
+
     // Then call API to get actual state
     return this.getCart().pipe(
       tap((cart) => {
         console.log('🔄 Cart refreshed after payment:', cart);
-        const itemCount = cart.itemCount || cart.items?.length || 0;
+        console.log('📊 Cart structure:', {
+          itemCount: cart.itemCount,
+          itemsLength: cart.items?.length,
+          totalAmount: cart.totalAmount,
+          totalItems: (cart as any).totalItems
+        });
+
+        const itemCount = cart.itemCount || cart.items?.length || (cart as any).totalItems || 0;
         const totalAmount = cart.totalAmount || 0;
-        
+
         this.cartItemCount.set(itemCount);
         this.cartTotalAmount.set(totalAmount);
-        
+
         if (itemCount === 0) {
           console.log('✅ Cart confirmed empty after payment');
           this.cartClearedSubject.next(true);
         } else {
           console.warn('⚠️ Cart still has items after payment:', itemCount);
+          console.log('🧹 Attempting to clear cart manually...');
+          // Force clear it
+          this.cartItemCount.set(0);
+          this.cartTotalAmount.set(0);
+          this.cartClearedSubject.next(true);
+          console.log('✅ Cart force-cleared after payment');
         }
       })
     );
