@@ -224,52 +224,35 @@ export class CartComponent implements OnInit, OnDestroy {
   private redirectToStripeCheckout(): void {
     console.log('💳 Creating order and Stripe Checkout Session...');
 
-    // Step 1: Create order
+    // Single endpoint that creates order + Stripe session
     this.paymentService.createOrderFromCart().subscribe({
-      next: (orderResponse: any) => {
-        if (!orderResponse || !orderResponse.orderId) {
-          throw new Error('Failed to create order');
-        }
-
-        console.log('✅ Order created:', orderResponse.orderId);
-
-        // Step 2: Create Stripe Checkout Session
-        const checkoutDto = {
-          orderId: orderResponse.orderId,
-          successUrl: `${window.location.origin}/payment/success`,
-          cancelUrl: `${window.location.origin}/cart`
-        };
-
-        this.paymentService.createCheckoutSession(checkoutDto).subscribe({
-          next: (response) => {
-            console.log('✅ Checkout session created:', response);
-            console.log('📊 Session details:', {
-              hasSessionUrl: !!response.sessionUrl,
-              sessionUrl: response.sessionUrl,
-              orderId: response.orderId
-            });
-
-            // Redirect to Stripe hosted checkout page
-            if (response.sessionUrl) {
-              console.log('🔄 Redirecting to Stripe:', response.sessionUrl);
-              window.location.href = response.sessionUrl;
-            } else {
-              console.error('❌ No sessionUrl in response');
-              this.loading.set(false);
-              this.toastService.showError('Failed to create checkout session');
-            }
-          },
-          error: (err) => {
-            this.loading.set(false);
-            this.toastService.showError('Failed to create checkout session');
-            console.error('❌ Checkout session error:', err);
-          }
+      next: (response: any) => {
+        console.log('✅ Checkout response:', response);
+        console.log('📊 Response structure:', {
+          hasSessionUrl: !!response.sessionUrl,
+          hasSessionId: !!response.sessionId,
+          hasOrderId: !!response.orderId,
+          sessionUrl: response.sessionUrl,
+          sessionId: response.sessionId,
+          orderId: response.orderId,
+          fullResponse: response
         });
+
+        // Backend should return: { sessionUrl, sessionId, orderId, totalAmount, currency }
+        if (response.sessionUrl) {
+          console.log('🔄 Redirecting to Stripe:', response.sessionUrl);
+          window.location.href = response.sessionUrl;
+        } else {
+          console.error('❌ No sessionUrl in response!');
+          console.error('❌ Response received:', response);
+          this.loading.set(false);
+          this.toastService.showError('Checkout session URL not received from backend');
+        }
       },
       error: (err) => {
         this.loading.set(false);
-        this.toastService.showError('Failed to create order');
-        console.error('❌ Order creation error:', err);
+        this.toastService.showError('Failed to create checkout session');
+        console.error('❌ Checkout error:', err);
       }
     });
   }

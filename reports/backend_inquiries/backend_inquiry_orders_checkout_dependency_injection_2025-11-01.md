@@ -356,3 +356,112 @@ public class StripeService : IStripeService
 
 ### Frontend Status:
 **✅ Frontend is ready** - No changes needed. Waiting for backend configuration only.
+
+---
+
+## 🟡 UPDATE - Backend Responding but Missing sessionUrl
+
+### Date: November 1, 2025 - 10:15 AM
+
+### Current Situation:
+✅ Backend endpoint `/api/Orders/checkout` is now responding (no more 500 error)  
+❌ Response is missing `sessionUrl` field
+
+### Error in Frontend:
+```
+Error: Failed to create order
+Response: { orderId: ???, ... } // But NO sessionUrl!
+```
+
+### Expected Response Format:
+According to the backend update, the endpoint should return:
+
+```json
+{
+  "sessionId": "cs_test_a1b2c3d4e5f6...",
+  "sessionUrl": "https://checkout.stripe.com/c/pay/cs_test_...",
+  "orderId": 123,
+  "totalAmount": 35.99,
+  "currency": "usd"
+}
+```
+
+### What We're Actually Getting:
+```json
+{
+  "orderId": 123
+  // ❌ Missing: sessionUrl, sessionId, totalAmount, currency
+}
+```
+
+### Required Backend Fix:
+
+The `POST /api/Orders/checkout` endpoint must return the complete Stripe checkout session response:
+
+```csharp
+[HttpPost("checkout")]
+public async Task<IActionResult> Checkout()
+{
+    var parentId = GetCurrentUserId();
+    
+    // Create Stripe checkout session
+    var checkoutResponse = await orderService.CheckoutCartAsync(parentId);
+    
+    // MUST return this structure:
+    return Ok(new {
+        sessionId = checkoutResponse.SessionId,      // ← REQUIRED
+        sessionUrl = checkoutResponse.SessionUrl,    // ← REQUIRED (for redirect)
+        orderId = checkoutResponse.OrderId,
+        totalAmount = checkoutResponse.TotalAmount,
+        currency = checkoutResponse.Currency
+    });
+}
+```
+
+### Why sessionUrl is Critical:
+The frontend needs `sessionUrl` to redirect the user to Stripe's hosted checkout page:
+```typescript
+window.location.href = response.sessionUrl;
+// Must redirect to: https://checkout.stripe.com/c/pay/...
+```
+
+### Stripe CheckoutSession Creation:
+Make sure the backend is creating the Stripe session correctly:
+
+```csharp
+var options = new SessionCreateOptions
+{
+    PaymentMethodTypes = new List<string> { "card" },
+    LineItems = lineItems,
+    Mode = "payment",
+    SuccessUrl = $"{frontendUrl}/payment/success?session_id={{CHECKOUT_SESSION_ID}}",
+    CancelUrl = $"{frontendUrl}/cart",
+};
+
+var service = new SessionService();
+var session = await service.CreateAsync(options);
+
+// Return session.Url to frontend!
+return new CheckoutSessionResponse
+{
+    SessionId = session.Id,
+    SessionUrl = session.Url,  // ← This is what frontend needs!
+    OrderId = orderId,
+    TotalAmount = totalAmount,
+    Currency = "usd"
+};
+```
+
+### Frontend Code Updated:
+✅ Frontend now expects single endpoint response with `sessionUrl`  
+✅ Improved logging to show exact response structure  
+✅ Better error messages
+
+### Status:
+- ✅ DI Fixed
+- ✅ Backend responds (no 500 error)
+- ❌ **Response missing sessionUrl field**
+- ⏳ Waiting for backend to include sessionUrl in response
+
+### Priority:
+**🟡 HIGH** - Backend is responding but not returning complete data needed for redirect.
