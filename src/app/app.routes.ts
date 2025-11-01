@@ -144,6 +144,17 @@ export const routes: Routes = [
 { path: 'user/:id', component: UserProfileComponent },
 
   { path: 'user/edit/:id', component: UserEditComponent },
+  
+  // Payment Routes
+  {
+    path: 'payment/success',
+    loadComponent: () => import('./features/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent)
+  },
+  {
+    path: 'payment/cancel',
+    loadComponent: () => import('./features/payment-cancel/payment-cancel.component').then(m => m.PaymentCancelComponent)
+  },
+
   // Fallback route
   { path: '**', redirectTo: '' }
 ];

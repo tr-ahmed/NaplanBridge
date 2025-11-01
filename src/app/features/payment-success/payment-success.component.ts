@@ -12,7 +12,7 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'app-payment-success',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './payment-success.component.html',
   styleUrl: './payment-success.component.scss'
 })
