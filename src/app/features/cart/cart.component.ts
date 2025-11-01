@@ -417,4 +417,31 @@ export class CartComponent implements OnInit, OnDestroy {
     const match = fullName.match(/Year\s+\d+[\s\S]*/i);
     return match ? match[0] : '';
   }
+
+  /**
+   * Handle duplicate subject error when adding to cart
+   */
+  handleDuplicateSubjectError(error: any): void {
+    if (error.status === 400 && 
+        error.error?.message?.includes('already has a subscription plan')) {
+      
+      this.toastService.showWarning(
+        '⚠️ Plan Already in Cart: You already have a plan for this subject. Remove the existing plan first or proceed to checkout.'
+      );
+      
+      // Auto-scroll to show the cart
+      setTimeout(() => {
+        const cartSection = document.querySelector('.cart-container');
+        if (cartSection) {
+          cartSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 1000);
+      
+    } else {
+      // Generic error
+      this.toastService.showError(
+        `❌ Add to Cart Failed: ${error.error?.message || 'Could not add item to cart. Please try again.'}`
+      );
+    }
+  }
 }

@@ -93,7 +93,16 @@ export class CartService {
         this.cartItemCount.set(response.totalItems);
         this.cartTotalAmount.set(response.totalAmount);
       }),
-      catchError(() => {
+      catchError((error) => {
+        // Handle duplicate subject error (400 Bad Request)
+        if (error.status === 400 && 
+            error.error?.message?.includes('already has a subscription plan')) {
+          console.warn('🚫 Duplicate subject in cart:', error.error.message);
+          // Re-throw the error to be handled by the calling component
+          throw error;
+        }
+        
+        // For other errors, fall back to mock
         console.warn('⚠️ API failed, using mock response');
         this.cartItemCount.set(mockResponse.totalItems);
         this.cartTotalAmount.set(mockResponse.totalAmount);

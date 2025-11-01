@@ -169,6 +169,15 @@ export interface OrderItem {
 // ============================================
 
 export interface CreateOrderFromCartResponse {
+  orderId: number;
+  sessionUrl: string;     // Stripe checkout URL
+  sessionId: string;      // Stripe session ID
+  totalAmount: number;
+  currency: string;       // e.g., "aud"
+}
+
+// Legacy interface for backward compatibility
+export interface CreateOrderFromCartResponseLegacy {
   id: number;
   userId: number;
   totalAmount: number;

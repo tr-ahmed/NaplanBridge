@@ -6,8 +6,15 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { PaymentService } from '../../core/services/payment.service';
 import { ToastService } from '../../core/services/toast.service';
+
+interface PaymentResponse {
+  success: boolean;
+  message: string;
+  sessionId: string;
+}
 
 @Component({
   selector: 'app-payment-success',
@@ -21,6 +28,7 @@ export class PaymentSuccessComponent implements OnInit {
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private http = inject(HttpClient);
 
   orderId = signal<number | null>(null);
   loading = signal<boolean>(true);
@@ -60,20 +68,67 @@ export class PaymentSuccessComponent implements OnInit {
   }
 
   /**
-   * Verify Stripe payment
+   * Verify Stripe payment with new backend API
    */
   private verifyStripePayment(sessionId: string): void {
-    this.paymentService.verifyPayment(sessionId).subscribe({
-      next: (result: any) => {
-        this.orderId.set(result.orderId || 1);
-        this.loadOrderDetails(result.orderId || 1);
+    console.log('🔍 Verifying payment with session ID:', sessionId);
+
+    // Call new backend endpoint: GET /api/Payment/success?session_id={sessionId}
+    this.http.get<PaymentResponse>(`${this.apiBaseUrl}/Payment/success?session_id=${sessionId}`)
+      .subscribe({
+        next: (response: PaymentResponse) => {
+          console.log('✅ Payment verification response:', response);
+          
+          this.loading.set(false);
+          
+          if (response.success) {
+            // Payment successful
+            this.toastService.showSuccess(response.message);
+            this.orderId.set(1); // Set a default order ID for display
+            this.loadOrderDetails(1);
+            
+            // Refresh cart (should be empty now)
+            this.refreshCart();
+            
+            // Redirect to dashboard after 3 seconds
+            setTimeout(() => {
+              this.router.navigate(['/dashboard']);
+            }, 3000);
+          } else {
+            // Payment failed
+            this.toastService.showError(response.message || 'Payment verification failed');
+          }
+        },
+        error: (error: any) => {
+          console.error('❌ Payment verification error:', error);
+          this.loading.set(false);
+          this.toastService.showError(
+            error.error?.message || 'Payment verification failed. Please contact support.'
+          );
+        }
+      });
+  }
+
+  /**
+   * Refresh cart after successful payment
+   */
+  private refreshCart(): void {
+    // Call cart API to refresh (should be empty now)
+    this.http.get(`${this.apiBaseUrl}/Cart`).subscribe({
+      next: () => {
+        console.log('✅ Cart refreshed after payment');
       },
       error: (err: any) => {
-        this.loading.set(false);
-        this.toastService.showError('Payment verification failed');
-        console.error('Verification error:', err);
+        console.warn('⚠️ Could not refresh cart:', err);
       }
     });
+  }
+
+  /**
+   * Get API base URL from environment or fallback
+   */
+  private get apiBaseUrl(): string {
+    return 'https://naplan2.runasp.net/api'; // Using production API
   }
 
   /**

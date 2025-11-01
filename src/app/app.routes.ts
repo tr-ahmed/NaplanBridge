@@ -144,7 +144,7 @@ export const routes: Routes = [
 { path: 'user/:id', component: UserProfileComponent },
 
   { path: 'user/edit/:id', component: UserEditComponent },
-  
+
   // Payment Routes
   {
     path: 'payment/success',
