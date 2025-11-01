@@ -1,38 +1,38 @@
 <!-- Backdrop -->
-<div 
+<div
   *ngIf="isOpen"
   class="fixed inset-0 z-50 overflow-y-auto"
   (click)="onCancel()">
-  
+
   <!-- Background Overlay -->
   <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
 
   <!-- Dialog Container -->
   <div class="flex min-h-full items-center justify-center p-4">
-    
+
     <!-- Dialog Panel -->
-    <div 
+    <div
       class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-2xl transition-all"
       (click)="$event.stopPropagation()">
-      
+
       <!-- Icon -->
-      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full" 
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
            [ngClass]="{
              'bg-red-100': type === 'danger',
              'bg-yellow-100': type === 'warning',
              'bg-blue-100': type === 'info',
              'bg-green-100': type === 'success'
            }">
-        <svg 
-          class="h-6 w-6" 
+        <svg
+          class="h-6 w-6"
           [ngClass]="getIconClass()"
-          fill="none" 
-          stroke="currentColor" 
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24">
-          <path 
-            stroke-linecap="round" 
-            stroke-linejoin="round" 
-            stroke-width="2" 
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
             [attr.d]="icon || getDefaultIcon()">
           </path>
         </svg>

@@ -40,7 +40,7 @@ export class ConfirmationDialogService {
    */
   confirm(config: ConfirmationDialogConfig = {}): Observable<boolean> {
     const id = this.generateId();
-    
+
     this.dialogState.set({
       isOpen: true,
       id,

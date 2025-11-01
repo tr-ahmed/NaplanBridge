@@ -27,6 +27,7 @@ import {
 export class TeacherAvailabilityComponent implements OnInit {
   private sessionService = inject(SessionService);
   private toastService = inject(ToastService);
+  private confirmDialog = inject(ConfirmationDialogService);
   private fb = inject(FormBuilder);
 
   // Signals
@@ -299,24 +300,29 @@ export class TeacherAvailabilityComponent implements OnInit {
    * Delete availability
    */
   deleteAvailability(availability: TeacherAvailabilityDto): void {
-    if (!confirm(`Do you want to delete the ${availability.dayOfWeek} time slot?`)) {
-      return;
-    }
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayIndex = typeof availability.dayOfWeek === 'number' ? availability.dayOfWeek : parseInt(availability.dayOfWeek as any);
+    const dayName = dayNames[dayIndex] || `Day ${availability.dayOfWeek}`;
+    const timeSlot = `${this.formatTime(availability.startTime)} - ${this.formatTime(availability.endTime)}`;
 
-    this.sessionService.deleteTeacherAvailability(availability.id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Remove from list
-          this.availabilities.update(list =>
-            list.filter(a => a.id !== availability.id)
-          );
-          this.toastService.showSuccess('Time slot deleted successfully');
+    this.confirmDialog.confirmDelete(`${dayName} time slot (${timeSlot})`).subscribe(confirmed => {
+      if (!confirmed) return;
+
+      this.sessionService.deleteTeacherAvailability(availability.id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Remove from list
+            this.availabilities.update(list =>
+              list.filter(a => a.id !== availability.id)
+            );
+            this.toastService.showSuccess('Time slot deleted successfully');
+          }
+        },
+        error: (error) => {
+          console.error('Error deleting availability:', error);
+          this.toastService.showError('Failed to delete time slot');
         }
-      },
-      error: (error) => {
-        console.error('Error deleting availability:', error);
-        this.toastService.showError('Failed to delete time slot');
-      }
+      });
     });
   }
 
