@@ -193,11 +193,11 @@ export class CoursesService {
 
     // ✅ CRITICAL: Load cart from backend first to get latest data
     console.log('📥 Loading cart from backend before validation...');
-    
+
     return this.loadCartFromBackend(studentId).pipe(
       switchMap((loadedCart) => {
         console.log('✅ Cart loaded for validation:', loadedCart);
-        
+
         // Now check if subject already exists in cart
         console.log('🔍 Checking for duplicate subject in cart...');
         console.log('📚 New course:', {
@@ -248,7 +248,7 @@ export class CoursesService {
         }
 
         console.log('✅ No duplicate found, proceeding to add...');
-        
+
         return this.addPlanToCartBackend(planId, studentId, course);
       })
     );
