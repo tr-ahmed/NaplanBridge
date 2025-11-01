@@ -541,6 +541,21 @@ export class CoursesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Check if student is already enrolled in this subject
+   */
+  isEnrolled(course: Course): boolean {
+    // TODO: Check against user's active subscriptions
+    // For now, return false (will be implemented when subscription check is added)
+    
+    // Expected logic:
+    // 1. Get current student ID
+    // 2. Check if student has active subscription for this subject
+    // 3. Return true if enrolled, false otherwise
+    
+    return false; // Placeholder - needs backend integration
+  }
+
+  /**
    * Get year name by ID
    */
   getYearName(yearId: number): string {

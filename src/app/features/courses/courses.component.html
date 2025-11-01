@@ -370,13 +370,23 @@
                 View Lessons
               </button>
 
-              @if (isInCart(course.id)) {
+              <!-- Cart/Enrollment Actions -->
+              @if (isEnrolled(course)) {
+                <!-- Already Enrolled -->
+                <button
+                  disabled
+                  class="flex-1 bg-green-100 text-green-700 px-4 py-2 rounded-lg font-medium cursor-not-allowed text-sm">
+                  ✓ Enrolled
+                </button>
+              } @else if (isInCart(course.id)) {
+                <!-- In Cart -->
                 <button
                   (click)="removeFromCart(course.id)"
                   class="flex-1 bg-red-100 text-red-700 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition-colors duration-200 text-sm">
                   Remove from Cart
                 </button>
               } @else {
+                <!-- Not Enrolled & Not in Cart -->
                 <button
                   (click)="addToCart(course)"
                   class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 text-sm">

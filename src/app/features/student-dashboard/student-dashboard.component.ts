@@ -135,10 +135,25 @@ export class StudentDashboardComponent implements OnInit {
     ];
 
     Promise.allSettled(loadPromises).then((results) => {
-      console.log('Dashboard load results:', results);
+      console.log('📊 Dashboard load results:', results);
+
+      // Check how many succeeded
+      const succeeded = results.filter(r => r.status === 'fulfilled').length;
+      const failed = results.filter(r => r.status === 'rejected').length;
+
+      console.log(`✅ Loaded: ${succeeded}/${results.length} sections`);
+      if (failed > 0) {
+        console.warn(`⚠️ Failed: ${failed} sections (backend not deployed yet)`);
+      }
+
       this.calculateStatsFromAvailableData();
       this.loading.set(false);
-      this.toastService.showSuccess('Dashboard loaded successfully');
+
+      if (failed > 0) {
+        this.toastService.showWarning(`Dashboard loaded (${succeeded}/${results.length} sections available)`);
+      } else {
+        this.toastService.showSuccess('Dashboard loaded successfully');
+      }
     });
   }
 
@@ -190,6 +205,7 @@ export class StudentDashboardComponent implements OnInit {
         next: (response) => {
           if (response && response.data) {
             this.examHistory.set(response.data);
+            console.log('✅ Exam history loaded:', response.data.length, 'exams');
             resolve(response.data);
           } else {
             this.examHistory.set([]);
@@ -197,7 +213,12 @@ export class StudentDashboardComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.warn('Exam history endpoint failed:', err);
+          if (err.status === 500) {
+            console.error('❌ Backend 500 Error: Exam history endpoint not fixed yet');
+            console.error('📋 Check: /reports/backend_changes/backend_change_dashboard_500_errors_fixed_2025-11-01.md');
+          } else {
+            console.warn('⚠️ Exam history endpoint failed:', err);
+          }
           this.examHistory.set([]);
           resolve([]);
         }
@@ -214,6 +235,7 @@ export class StudentDashboardComponent implements OnInit {
         next: (response) => {
           if (response && response.data) {
             this.recentActivities.set(response.data);
+            console.log('✅ Recent activities loaded:', response.data.length, 'activities');
             resolve(response.data);
           } else {
             this.recentActivities.set([]);
@@ -221,7 +243,12 @@ export class StudentDashboardComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.warn('Recent activities endpoint failed:', err);
+          if (err.status === 500) {
+            console.error('❌ Backend 500 Error: Recent activities endpoint not fixed yet');
+            console.error('📋 Check: /reports/backend_changes/backend_change_dashboard_500_errors_fixed_2025-11-01.md');
+          } else {
+            console.warn('⚠️ Recent activities endpoint failed:', err);
+          }
           this.recentActivities.set([]);
           resolve([]);
         }
