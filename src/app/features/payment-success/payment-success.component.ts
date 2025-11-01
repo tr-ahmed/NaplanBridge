@@ -78,23 +78,28 @@ export class PaymentSuccessComponent implements OnInit {
     // Check if user is authenticated
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     console.log('🔑 Auth token present:', !!token);
-    console.log('🌐 API URL:', `${this.apiBaseUrl}/Payment/success?session_id=${sessionId}`);
 
-    // Call new backend endpoint: GET /api/Payment/success?session_id={sessionId}
-    // Auth interceptor will automatically add Authorization header
-    this.http.get<PaymentResponse>(`${this.apiBaseUrl}/Payment/success?session_id=${sessionId}`)
+    // ✅ Use PaymentService instead of HttpClient directly
+    this.paymentService.verifyAndProcessPayment(sessionId)
       .subscribe({
-        next: (response: PaymentResponse) => {
+        next: (response) => {
           console.log('✅ Payment verification response:', response);
 
           this.loading.set(false);
 
-            // Check if payment is successful (backend returns message on success)
-          if (response.message && response.message.includes('successful')) {
+          // ✅ Check success property directly
+          if (response.success || (response.message && response.message.includes('successful'))) {
             // Payment successful
-            this.toastService.showSuccess(response.message);
-            this.orderId.set(1); // Set a default order ID for display
-            this.loadOrderDetails(1);
+            this.toastService.showSuccess(response.message || 'Payment processed successfully!');
+
+            // Set order ID if available
+            if (response.orderId) {
+              this.orderId.set(response.orderId);
+              this.loadOrderDetails(response.orderId);
+            } else {
+              this.orderId.set(1); // Set a default order ID for display
+              this.loadOrderDetails(1);
+            }
 
             // Multiple approaches to ensure cart is cleared
             console.log('💳 Payment successful! Clearing cart with multiple approaches...');

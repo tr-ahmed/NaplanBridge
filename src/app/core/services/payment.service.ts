@@ -91,11 +91,20 @@ export class PaymentService {
   }
 
   /**
-   * Verify payment status
+   * Verify payment status (Old endpoint - kept for backward compatibility)
    * Endpoint: GET /api/payment/verify/{sessionId}
    */
   verifyPayment(sessionId: string): Observable<{ status: string; orderId: number }> {
     return this.api.get<{ status: string; orderId: number }>(`payment/verify/${sessionId}`);
+  }
+
+  /**
+   * Verify and process payment after Stripe redirect (New endpoint)
+   * This endpoint verifies payment and creates subscriptions automatically
+   * Endpoint: GET /api/Payment/success?session_id={sessionId}
+   */
+  verifyAndProcessPayment(sessionId: string): Observable<{ success: boolean; message: string; orderId?: number }> {
+    return this.api.get<{ success: boolean; message: string; orderId?: number }>(`Payment/success?session_id=${sessionId}`);
   }
 
   /**

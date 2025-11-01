@@ -4,11 +4,12 @@ import { HeaderComponent } from './shared/header/header';
 import { FooterComponent } from './shared/footer/footer';
 import { ToastContainerComponent } from './components/toast-container.component';
 import { ScrollToTopComponent } from "./shared/scroll-to-top/scroll-to-top.component";
+import { GlobalConfirmationDialogComponent } from './shared/components/confirmation-dialog/global-confirmation-dialog.component';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent, ScrollToTopComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastContainerComponent, ScrollToTopComponent, GlobalConfirmationDialogComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

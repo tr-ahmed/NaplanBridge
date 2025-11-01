@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SessionService } from '../../../core/services/session.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmationDialogService } from '../../../shared/components/confirmation-dialog/confirmation-dialog.service';
 import {
   TeacherSessionSettingsDto,
   TeacherAvailabilityDto,
@@ -198,8 +199,6 @@ export class TeacherAvailabilityComponent implements OnInit {
       return;
     }
 
-    this.addingAvailability.set(true);
-
     const formValue = this.availabilityForm.value;
 
     const dto: CreateAvailabilityDto = {
@@ -207,6 +206,20 @@ export class TeacherAvailabilityComponent implements OnInit {
       startTime: formValue.startTime, // HH:mm format from input type="time"
       endTime: formValue.endTime // HH:mm format from input type="time"
     };
+
+    // Validate start time is before end time
+    if (dto.startTime >= dto.endTime) {
+      this.toastService.showError('Start time must be before end time');
+      return;
+    }
+
+    // Check for conflicts with existing time slots
+    const conflict = this.checkTimeSlotConflict(dto);
+    if (conflict) {
+      return; // Error message already shown in checkTimeSlotConflict
+    }
+
+    this.addingAvailability.set(true);
 
     console.log('📤 Sending availability:', dto);
 
@@ -229,6 +242,57 @@ export class TeacherAvailabilityComponent implements OnInit {
         this.addingAvailability.set(false);
       }
     });
+  }
+
+  /**
+   * Check for time slot conflicts
+   * Returns true if conflict exists
+   */
+  private checkTimeSlotConflict(newSlot: CreateAvailabilityDto): boolean {
+    const existingSlots = this.availabilities().filter(slot => {
+      // Compare day of week (handle both string and number types)
+      const existingDay = typeof slot.dayOfWeek === 'number' ? slot.dayOfWeek : parseInt(slot.dayOfWeek);
+      return existingDay === newSlot.dayOfWeek;
+    });
+
+    for (const existing of existingSlots) {
+      // Check for exact duplicate
+      if (existing.startTime === newSlot.startTime && existing.endTime === newSlot.endTime) {
+        this.toastService.showError('This time slot already exists for this day');
+        return true;
+      }
+
+      // Check for overlapping times
+      // Convert times to minutes for easier comparison
+      const newStart = this.timeToMinutes(newSlot.startTime);
+      const newEnd = this.timeToMinutes(newSlot.endTime);
+      const existingStart = this.timeToMinutes(existing.startTime);
+      const existingEnd = this.timeToMinutes(existing.endTime);
+
+      // Check if times overlap
+      const isOverlapping =
+        (newStart >= existingStart && newStart < existingEnd) || // New start is within existing slot
+        (newEnd > existingStart && newEnd <= existingEnd) || // New end is within existing slot
+        (newStart <= existingStart && newEnd >= existingEnd); // New slot completely contains existing slot
+
+      if (isOverlapping) {
+        const timeRange = `${this.formatTime(existing.startTime)} - ${this.formatTime(existing.endTime)}`;
+        this.toastService.showError(
+          `Time slot overlaps with existing slot (${timeRange})`
+        );
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Convert time string (HH:mm) to minutes
+   */
+  private timeToMinutes(time: string): number {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
   }
 
   /**
