@@ -344,4 +344,28 @@ export class CartComponent implements OnInit, OnDestroy {
     // Use a combination of index and id to ensure uniqueness
     return `${index}-${student.id || 'unknown'}-${student.userName || 'unnamed'}`;
   }
+
+  /**
+   * Extract subject name only (without year and term)
+   * Example: "Reading Comprehension Year 7 - Term 3" -> "Reading Comprehension"
+   */
+  getSubjectNameOnly(fullName: string): string {
+    if (!fullName) return '';
+    
+    // Split by " Year " and take the first part
+    const parts = fullName.split(/\s+Year\s+/i);
+    return parts[0].trim();
+  }
+
+  /**
+   * Extract year and term info
+   * Example: "Reading Comprehension Year 7 - Term 3" -> "Year 7 - Term 3"
+   */
+  getYearAndTerm(fullName: string): string {
+    if (!fullName) return '';
+    
+    // Find "Year X" and everything after it
+    const match = fullName.match(/Year\s+\d+[\s\S]*/i);
+    return match ? match[0] : '';
+  }
 }
