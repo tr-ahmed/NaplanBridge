@@ -228,10 +228,10 @@ export class CartComponent implements OnInit, OnDestroy {
     this.paymentService.createOrderFromCart().subscribe({
       next: (response: any) => {
         console.log('✅ Checkout response:', response);
-        
+
         // Support both sessionUrl and checkoutUrl (backend may use either)
         const redirectUrl = response.sessionUrl || response.checkoutUrl;
-        
+
         console.log('📊 Response structure:', {
           hasSessionUrl: !!response.sessionUrl,
           hasCheckoutUrl: !!response.checkoutUrl,
