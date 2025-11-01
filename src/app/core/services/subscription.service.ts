@@ -778,4 +778,139 @@ export class SubscriptionService {
       catchError(() => of({ hasAccess: false, reason: 'Unable to verify access' }))
     );
   }
+
+  // ============================================
+  // Enrollment Check Methods (New)
+  // ============================================
+
+  /**
+   * Cache for student subscriptions summary
+   */
+  private subscriptionsSummaryCache$ = new BehaviorSubject<SubscriptionsSummary | null>(null);
+  public subscriptionsSummary$ = this.subscriptionsSummaryCache$.asObservable();
+
+  /**
+   * Load student's active subscriptions summary
+   * Use this to check enrollment status on courses page
+   */
+  loadSubscriptionsSummary(studentId: number): Observable<SubscriptionsSummary> {
+    const url = `${this.baseUrl}/StudentSubjects/student/${studentId}/subscriptions-summary`;
+    
+    console.log('📦 Loading subscriptions summary for student:', studentId);
+
+    if (environment.useMock) {
+      const mockSummary: SubscriptionsSummary = {
+        totalActiveSubscriptions: 2,
+        subscriptions: [
+          {
+            id: 1,
+            planName: 'Mathematics - Term 1',
+            planType: 'SingleTerm',
+            subjectName: 'Mathematics',
+            termName: 'Term 1',
+            yearName: null,
+            startDate: new Date().toISOString(),
+            endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+            daysRemaining: 90
+          },
+          {
+            id: 2,
+            planName: 'Year 7 - Full Year',
+            planType: 'FullYear',
+            subjectName: null,
+            termName: null,
+            yearName: 'Year 7',
+            startDate: new Date().toISOString(),
+            endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+            daysRemaining: 365
+          }
+        ]
+      };
+      
+      this.subscriptionsSummaryCache$.next(mockSummary);
+      return of(mockSummary);
+    }
+
+    return this.http.get<SubscriptionsSummary>(url).pipe(
+      tap(data => {
+        console.log('✅ Subscriptions summary loaded:', data);
+        this.subscriptionsSummaryCache$.next(data);
+      }),
+      catchError((error) => {
+        console.error('❌ Failed to load subscriptions summary:', error);
+        this.subscriptionsSummaryCache$.next({ totalActiveSubscriptions: 0, subscriptions: [] });
+        return of({ totalActiveSubscriptions: 0, subscriptions: [] });
+      })
+    );
+  }
+
+  /**
+   * Check if student has active subscription to specific subject (direct API call)
+   */
+  hasSubjectAccess(studentId: number, subjectId: number): Observable<boolean> {
+    const url = `${this.baseUrl}/StudentSubjects/student/${studentId}/has-access/subject/${subjectId}`;
+
+    if (environment.useMock) {
+      return of(true);
+    }
+
+    return this.http.get<boolean>(url).pipe(
+      catchError(() => of(false))
+    );
+  }
+
+  /**
+   * Get cached subscriptions summary (synchronous)
+   */
+  getSubscriptionsSummary(): SubscriptionsSummary | null {
+    return this.subscriptionsSummaryCache$.value;
+  }
+
+  /**
+   * Check if student has Full Year access (covers all subjects)
+   */
+  hasFullYearAccess(): boolean {
+    const data = this.subscriptionsSummaryCache$.value;
+    if (!data) return false;
+    
+    return data.subscriptions.some(sub => sub.planType === 'FullYear');
+  }
+
+  /**
+   * Get list of enrolled subject names
+   */
+  getEnrolledSubjectNames(): string[] {
+    const data = this.subscriptionsSummaryCache$.value;
+    if (!data) return [];
+    
+    return data.subscriptions
+      .filter(sub => sub.subjectName)
+      .map(sub => sub.subjectName as string);
+  }
+
+  /**
+   * Clear subscriptions cache (call on logout)
+   */
+  clearSubscriptionsCache(): void {
+    console.log('🧹 Clearing subscriptions summary cache');
+    this.subscriptionsSummaryCache$.next(null);
+  }
+}
+
+// Interface for subscriptions summary
+export interface SubscriptionsSummary {
+  totalActiveSubscriptions: number;
+  subscriptions: SubscriptionDetail[];
+}
+
+export interface SubscriptionDetail {
+  id: number;
+  planName: string;
+  planType: string;
+  subjectName: string | null;
+  termName: string | null;
+  yearName: string | null;
+  startDate: string;
+  endDate: string;
+  daysRemaining: number;
 }

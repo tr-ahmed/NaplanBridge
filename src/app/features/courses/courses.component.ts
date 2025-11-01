@@ -11,6 +11,7 @@ import { NewsletterComponent } from '../../shared/newsletter/newsletter.componen
 import { PlanSelectionModalComponent } from '../../components/plan-selection-modal/plan-selection-modal.component';
 import { SubscriptionPlanSummary } from '../../models/subject.models';
 import { AuthService } from '../../auth/auth.service';
+import { SubscriptionService } from '../../core/services/subscription.service';
 
 @Component({
   selector: 'app-courses',
@@ -83,15 +84,21 @@ export class CoursesComponent implements OnInit, OnDestroy {
     return year?.name || 'All Years';
   });
 
+  // Enrollment tracking
+  private enrolledSubjectNames = new Set<string>();
+  private hasFullYearSubscription = false;
+
   constructor(
     private coursesService: CoursesService,
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private subscriptionService: SubscriptionService
   ) {}
 
   ngOnInit(): void {
     this.loadUserInfo();
+    this.loadStudentSubscriptions(); // Load enrollment status
     this.subscribeToCart();
     this.subscribeToPlanModal();
     this.handleQueryParameters();
@@ -541,21 +548,61 @@ export class CoursesComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Check if student is already enrolled in this subject
+   * Load student's active subscriptions
    */
-  isEnrolled(course: Course): boolean {
-    // TODO: Check against user's active subscriptions
-    // For now, return false (will be implemented when subscription check is added)
+  private loadStudentSubscriptions(): void {
+    const currentUser = this.authService.getCurrentUser();
     
-    // Expected logic:
-    // 1. Get current student ID
-    // 2. Check if student has active subscription for this subject
-    // 3. Return true if enrolled, false otherwise
-    
-    return false; // Placeholder - needs backend integration
+    if (!currentUser?.studentId) {
+      console.warn('⚠️ No student ID found, skipping subscription load');
+      return;
+    }
+
+    console.log('📦 Loading subscriptions for student ID:', currentUser.studentId);
+
+    this.subscriptionService.loadSubscriptionsSummary(currentUser.studentId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (summary) => {
+          console.log('✅ Subscriptions loaded:', summary);
+          
+          // Check for Full Year subscription
+          this.hasFullYearSubscription = summary.subscriptions.some(
+            sub => sub.planType === 'FullYear'
+          );
+
+          // Store enrolled subject names
+          this.enrolledSubjectNames = new Set(
+            summary.subscriptions
+              .filter(sub => sub.subjectName)
+              .map(sub => sub.subjectName as string)
+          );
+
+          console.log('📊 Enrollment status:', {
+            hasFullYear: this.hasFullYearSubscription,
+            enrolledSubjects: Array.from(this.enrolledSubjectNames)
+          });
+        },
+        error: (error) => {
+          console.error('❌ Failed to load subscriptions:', error);
+          // Continue with empty enrollment (show all as Add to Cart)
+        }
+      });
   }
 
   /**
+   * Check if student is already enrolled in this subject
+   */
+  isEnrolled(course: Course): boolean {
+    // If student has Full Year subscription, they're enrolled in everything
+    if (this.hasFullYearSubscription) {
+      return true;
+    }
+
+    // Check if enrolled in specific subject by name
+    const courseName = course.name || course.subjectName;
+    return this.enrolledSubjectNames.has(courseName);
+  }  /**
    * Get year name by ID
    */
   getYearName(yearId: number): string {
