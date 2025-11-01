@@ -228,25 +228,30 @@ export class CartComponent implements OnInit, OnDestroy {
     this.paymentService.createOrderFromCart().subscribe({
       next: (response: any) => {
         console.log('✅ Checkout response:', response);
+        
+        // Support both sessionUrl and checkoutUrl (backend may use either)
+        const redirectUrl = response.sessionUrl || response.checkoutUrl;
+        
         console.log('📊 Response structure:', {
           hasSessionUrl: !!response.sessionUrl,
+          hasCheckoutUrl: !!response.checkoutUrl,
           hasSessionId: !!response.sessionId,
           hasOrderId: !!response.orderId,
-          sessionUrl: response.sessionUrl,
+          redirectUrl: redirectUrl,
           sessionId: response.sessionId,
           orderId: response.orderId,
           fullResponse: response
         });
 
-        // Backend should return: { sessionUrl, sessionId, orderId, totalAmount, currency }
-        if (response.sessionUrl) {
-          console.log('🔄 Redirecting to Stripe:', response.sessionUrl);
-          window.location.href = response.sessionUrl;
+        // Redirect to Stripe checkout page
+        if (redirectUrl) {
+          console.log('🔄 Redirecting to Stripe:', redirectUrl);
+          window.location.href = redirectUrl;
         } else {
-          console.error('❌ No sessionUrl in response!');
+          console.error('❌ No checkout URL in response!');
           console.error('❌ Response received:', response);
           this.loading.set(false);
-          this.toastService.showError('Checkout session URL not received from backend');
+          this.toastService.showError('Checkout URL not received from backend');
         }
       },
       error: (err) => {
