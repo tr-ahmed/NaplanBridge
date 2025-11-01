@@ -18,12 +18,24 @@ export interface LoginRequest {
 }
 
 /**
+ * Interface for user profile information
+ */
+export interface UserProfile {
+  id: number;
+  email: string;
+  phoneNumber?: string;
+}
+
+/**
  * Interface for authentication response
  */
 export interface AuthResponse {
   userName: string;
   token: string;
   roles: string[];
+  userId: number;
+  userProfile: UserProfile;
+  yearId?: number; // Only for students
 }
 
 /**

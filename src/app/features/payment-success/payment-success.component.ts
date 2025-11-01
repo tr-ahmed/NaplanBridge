@@ -74,7 +74,7 @@ export class PaymentSuccessComponent implements OnInit {
    */
   private verifyStripePayment(sessionId: string): void {
     console.log('🔍 Verifying payment with session ID:', sessionId);
-    
+
     // Check if user is authenticated
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     console.log('🔑 Auth token present:', !!token);
@@ -160,9 +160,9 @@ export class PaymentSuccessComponent implements OnInit {
             message: error.error?.message,
             url: error.url
           });
-          
+
           this.loading.set(false);
-          
+
           if (error.status === 401) {
             console.error('🚫 Unauthorized - Missing or invalid token');
             this.toastService.showError('Session expired. Please login again.');

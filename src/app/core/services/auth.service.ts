@@ -33,12 +33,18 @@ export class AuthService {
     const userName = localStorage.getItem('userName');
     const roles = localStorage.getItem('userRoles');
     const selectedRole = localStorage.getItem('selectedRole');
+    const userId = localStorage.getItem('userId');
+    const userProfile = localStorage.getItem('userProfile');
+    const yearId = localStorage.getItem('yearId');
 
-    if (token && userName && roles) {
+    if (token && userName && roles && userId && userProfile) {
       const user: AuthResponse = {
         userName,
         token,
-        roles: JSON.parse(roles)
+        roles: JSON.parse(roles),
+        userId: parseInt(userId),
+        userProfile: JSON.parse(userProfile),
+        yearId: yearId ? parseInt(yearId) : undefined
       };
 
       this.setCurrentUser(user);
@@ -87,6 +93,15 @@ export class AuthService {
     localStorage.setItem('authToken', user.token);
     localStorage.setItem('userName', user.userName);
     localStorage.setItem('userRoles', JSON.stringify(user.roles));
+
+    // Store new authentication data from backend
+    localStorage.setItem('userId', user.userId.toString());
+    localStorage.setItem('userProfile', JSON.stringify(user.userProfile));
+
+    // Store yearId for students
+    if (user.yearId) {
+      localStorage.setItem('yearId', user.yearId.toString());
+    }
   }
 
   logout(): void {
@@ -102,12 +117,54 @@ export class AuthService {
     localStorage.removeItem('userName');
     localStorage.removeItem('userRoles');
     localStorage.removeItem('selectedRole');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userProfile');
+    localStorage.removeItem('yearId');
 
     this.router.navigate(['/auth/login']);
   }
 
   getToken(): string | null {
     return localStorage.getItem('authToken');
+  }
+
+  /**
+   * Get current user ID from localStorage or current user
+   */
+  getUserId(): number | null {
+    const currentUser = this.currentUser();
+    if (currentUser && currentUser.userId) {
+      return currentUser.userId;
+    }
+
+    const userId = localStorage.getItem('userId');
+    return userId ? parseInt(userId) : null;
+  }
+
+  /**
+   * Get current user profile
+   */
+  getUserProfile(): any | null {
+    const currentUser = this.currentUser();
+    if (currentUser && currentUser.userProfile) {
+      return currentUser.userProfile;
+    }
+
+    const userProfile = localStorage.getItem('userProfile');
+    return userProfile ? JSON.parse(userProfile) : null;
+  }
+
+  /**
+   * Get student's year ID (for students only)
+   */
+  getYearId(): number | null {
+    const currentUser = this.currentUser();
+    if (currentUser && currentUser.yearId) {
+      return currentUser.yearId;
+    }
+
+    const yearId = localStorage.getItem('yearId');
+    return yearId ? parseInt(yearId) : null;
   }
 
   hasRole(role: string): boolean {

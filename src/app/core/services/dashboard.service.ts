@@ -7,6 +7,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, map } from 'rxjs';
 import { ApiService } from './base-api.service';
+import { ExamHistory, RecentActivity, ApiResponse } from '../../models/dashboard.models';
 
 export interface StudentDashboardData {
   totalLessonsCompleted: number;
@@ -155,5 +156,47 @@ export class DashboardService {
    */
   hasExamAccess(studentId: number, examId: number): Observable<boolean> {
     return this.api.get<boolean>(`StudentSubjects/student/${studentId}/has-access/exam/${examId}`);
+  }
+
+  /**
+   * Get Student Exam History - NEW BACKEND ENDPOINT
+   * Endpoint: GET /api/Exam/student/{studentId}/history
+   */
+  getStudentExamHistory(studentId: number): Observable<ApiResponse<ExamHistory[]>> {
+    return this.api.get<ApiResponse<ExamHistory[]>>(`Exam/student/${studentId}/history`);
+  }
+
+  /**
+   * Get Student Recent Activities - NEW BACKEND ENDPOINT
+   * Endpoint: GET /api/Student/{studentId}/recent-activities
+   */
+  getStudentRecentActivities(studentId: number): Observable<ApiResponse<RecentActivity[]>> {
+    return this.api.get<ApiResponse<RecentActivity[]>>(`Student/${studentId}/recent-activities`);
+  }
+
+  /**
+   * Get Enhanced Student Dashboard with Real API Calls
+   * Uses the new backend endpoints implemented
+   */
+  getEnhancedStudentDashboard(studentId: number): Observable<any> {
+    return forkJoin({
+      dashboard: this.getStudentDashboard(),
+      progress: this.getStudentProgress(studentId),
+      subscriptions: this.getStudentSubscriptionsSummary(studentId),
+      certificates: this.getStudentCertificates(studentId),
+      achievements: this.getStudentAchievements(studentId),
+      examHistory: this.getStudentExamHistory(studentId),
+      recentActivities: this.getStudentRecentActivities(studentId)
+    }).pipe(
+      map(data => ({
+        ...data.dashboard,
+        detailedProgress: data.progress,
+        subscriptionDetails: data.subscriptions,
+        certificates: data.certificates,
+        achievements: data.achievements,
+        examHistory: data.examHistory.data,
+        recentActivities: data.recentActivities.data
+      }))
+    );
   }
 }

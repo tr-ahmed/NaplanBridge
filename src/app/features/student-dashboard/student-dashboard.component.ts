@@ -16,11 +16,10 @@ import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import {
   StudentProgress,
-  SubjectProgress,
-  RecentActivity
+  SubjectProgress
 } from '../../models/progress.models';
 import { StudentSubscription } from '../../models/subscription.models';
-import { ExamResult, StudentExamHistory } from '../../models/exam.models';
+import { ExamHistory, RecentActivity } from '../../models/dashboard.models';
 
 interface DashboardStats {
   totalLessonsCompleted: number;
@@ -58,7 +57,7 @@ export class StudentDashboardComponent implements OnInit {
   studentId: number = 0;
   progress = signal<StudentProgress | null>(null);
   subscriptions = signal<StudentSubscription[]>([]);
-  recentExams = signal<ExamResult[]>([]);
+  examHistory = signal<ExamHistory[]>([]);
   recentActivities = signal<RecentActivity[]>([]);
   upcomingExams = signal<any[]>([]);
 
@@ -88,9 +87,15 @@ export class StudentDashboardComponent implements OnInit {
   ngOnInit(): void {
     const currentUser = this.authService.currentUser();
     if (currentUser && this.authService.hasRole('Student')) {
-      // For now, we'll use a default studentId or get it from another service
-      this.studentId = 1; // This should be retrieved from user profile or token
-      this.loadDashboardData();
+      // Use the userId from the enhanced authentication response
+      const userId = this.authService.getUserId();
+      if (userId) {
+        this.studentId = userId;
+        this.loadDashboardData();
+      } else {
+        this.error.set('Unable to get user ID');
+        this.router.navigate(['/auth/login']);
+      }
     } else {
       this.router.navigate(['/auth/login']);
     }
@@ -103,26 +108,74 @@ export class StudentDashboardComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    // Use mock data for now until backend is ready
-    this.loadMockDashboardData();
-
-    // Uncomment below when backend endpoints are ready:
-    /*
-    this.dashboardService.getComprehensiveStudentDashboard(this.studentId).subscribe({
+    // Use real backend endpoints now that they are implemented
+    this.dashboardService.getEnhancedStudentDashboard(this.studentId).subscribe({
       next: (dashboardData) => {
-        this.processDashboardData(dashboardData);
+        this.processRealDashboardData(dashboardData);
         this.loading.set(false);
+        this.toastService.showSuccess('Dashboard loaded successfully');
       },
       error: (err) => {
         console.error('Dashboard error:', err);
-        // Fallback to mock data
+        // Fallback to mock data if backend is not ready
         this.loadMockDashboardData();
       }
     });
-    */
   }
 
   /**
+   * Process real dashboard data from backend
+   */
+  private processRealDashboardData(data: any): void {
+    // Set progress data
+    if (data.detailedProgress) {
+      this.progress.set(data.detailedProgress);
+    }
+
+    // Set subscriptions
+    if (data.subscriptionDetails) {
+      this.subscriptions.set(data.subscriptionDetails);
+    }
+
+    // Set exam history
+    if (data.examHistory) {
+      this.examHistory.set(data.examHistory);
+    }
+
+    // Set recent activities
+    if (data.recentActivities) {
+      this.recentActivities.set(data.recentActivities);
+    }
+
+    // Calculate stats from real data
+    this.calculateStatsFromRealData(data);
+  }
+
+  /**
+   * Calculate stats from real backend data
+   */
+  private calculateStatsFromRealData(data: any): void {
+    const prog = this.progress();
+    const subs = this.subscriptions();
+    const examHist = this.examHistory();
+
+    // Calculate total exams taken
+    const totalExams = examHist?.length || 0;
+
+    // Calculate average score from exam history
+    const avgScore = examHist && examHist.length > 0
+      ? examHist.reduce((sum: number, exam: ExamHistory) => sum + exam.score, 0) / examHist.length
+      : 0;
+
+    this.stats.set({
+      totalLessonsCompleted: prog?.completedLessons || data.totalLessonsCompleted || 0,
+      totalExamsTaken: totalExams || data.totalExamsCompleted || 0,
+      averageScore: Math.round(avgScore) || data.averageScore || 0,
+      currentStreak: 0, // Calculate from activities if needed
+      activeSubscriptions: subs?.filter((s: any) => s.status === 'Active').length || 0,
+      upcomingExams: data.upcomingExams?.length || 0
+    });
+  }  /**
    * Load mock dashboard data for development
    */
   private loadMockDashboardData(): void {
@@ -305,8 +358,8 @@ export class StudentDashboardComponent implements OnInit {
    */
   private loadRecentExams(): Promise<void> {
     return new Promise((resolve) => {
-      // Mock recent exams for now
-      this.recentExams.set([]);
+      // Use exam history instead of separate recent exams
+      this.examHistory.set([]);
       resolve();
     });
   }
@@ -382,18 +435,18 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   /**
-   * Calculate dashboard stats
+   * Calculate dashboard stats (fallback method for mock data)
    */
   private calculateStats(): void {
     const prog = this.progress();
     const subs = this.subscriptions();
-    const exams = this.recentExams();
+    const exams = this.examHistory();
     const upcoming = this.upcomingExams();
 
-    const totalLessons = prog?.subjectProgress?.reduce((sum, sp) => sum + (sp.completedLessons || 0), 0) || 0;
+    const totalLessons = prog?.subjectProgress?.reduce((sum: number, sp: any) => sum + (sp.completedLessons || 0), 0) || 0;
     const totalExams = exams.length;
     const avgScore = exams.length > 0
-      ? exams.reduce((sum, e) => sum + (e.percentage || 0), 0) / exams.length
+      ? exams.reduce((sum: number, e: ExamHistory) => sum + (e.score || 0), 0) / exams.length
       : 0;
 
     this.stats.set({
@@ -401,7 +454,7 @@ export class StudentDashboardComponent implements OnInit {
       totalExamsTaken: totalExams,
       averageScore: Math.round(avgScore),
       currentStreak: 0, // Will be calculated from activities
-      activeSubscriptions: subs.filter(s => s.status === 'Active').length,
+      activeSubscriptions: subs.filter((s: any) => s.status === 'Active').length,
       upcomingExams: upcoming.length
     });
   }
@@ -501,14 +554,18 @@ export class StudentDashboardComponent implements OnInit {
    */
   getActivityIcon(type: string): string {
     switch (type) {
-      case 'LessonCompleted':
-        return '📚';
-      case 'ExamCompleted':
+      case 'ExamTaken':
         return '📝';
-      case 'SubscriptionActivated':
-        return '🎯';
-      case 'ProgressMilestone':
+      case 'LessonProgress':
+        return '📚';
+      case 'CertificateEarned':
         return '🏆';
+      case 'AchievementUnlocked':
+        return '�️';
+      case 'LessonCompleted':
+        return '✅';
+      case 'SubscriptionActivated':
+        return '�';
       default:
         return '📌';
     }
