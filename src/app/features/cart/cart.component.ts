@@ -52,7 +52,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
     // Check user role (this will call loadStudents if needed)
     this.checkUserRole();
-    
+
     // Load cart from backend
     this.loadCartFromBackend();
   }
@@ -62,7 +62,7 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   private loadCartFromBackend(): void {
     const currentUser = this.authService.getCurrentUser();
-    
+
     if (!currentUser) {
       console.warn('⚠️ No user logged in, skipping cart load');
       return;

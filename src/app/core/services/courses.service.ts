@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, tap, switchMap } from 'rxjs/operators';
 import { Course, CourseFilter, Cart, CartItem, CourseCategory } from '../../models/course.models';
 import { ApiNodes } from '../api/api-nodes';
 import { environment } from '../../../environments/environment';
@@ -210,17 +210,18 @@ export class CoursesService {
       tap(() => {
         console.log('📦 Cart API call initiated...');
       }),
-      map((response) => {
+      switchMap((response) => {
         console.log('✅ Cart API Success Response:', response);
         console.log('✅ Status: Item added to cart successfully');
-
-        // Update cart badge
-        this.refreshCartCount();
 
         const courseName = course.name || course.subjectName;
         this.toastService.showSuccess(`${courseName} has been added to your cart successfully!`);
 
-        return true;
+        // ✅ CRITICAL: Reload cart from backend to update UI
+        console.log('🔄 Reloading cart from backend to update UI...');
+        return this.loadCartFromBackend(studentId).pipe(
+          map(() => true)
+        );
       }),
       catchError((error) => {
         console.error('❌ Cart API Error:', {
@@ -261,36 +262,57 @@ export class CoursesService {
    */
   loadCartFromBackend(studentId?: number): Observable<Cart> {
     const url = `${this.baseUrl}/Cart`;
-    
+
     console.log('📥 Loading cart from backend for studentId:', studentId);
-    
+
     return this.http.get<any>(url).pipe(
       map((response) => {
-        console.log('✅ Cart loaded from backend:', response);
-        
+        console.log('✅ Cart loaded from backend (RAW):', response);
+        console.log('📊 Response structure:', {
+          hasItems: 'items' in response,
+          hasCartItems: 'cartItems' in response,
+          hasData: 'data' in response,
+          itemsLength: response.items?.length || response.cartItems?.length || 0
+        });
+
         // Transform backend response to Cart model
+        // Handle different possible response structures
+        let items = [];
+        if (response.data?.items) {
+          items = response.data.items;
+        } else if (response.items) {
+          items = response.items;
+        } else if (response.cartItems) {
+          items = response.cartItems;
+        }
+
+        console.log('📦 Extracted items:', items);
+        console.log('🔢 Items count:', items.length);
+
         const cart: Cart = {
-          items: response.items || response.cartItems || [],
-          totalAmount: response.totalAmount || response.total || 0,
-          totalItems: response.totalItems || response.items?.length || 0
+          items: items,
+          totalAmount: response.totalAmount || response.total || response.data?.totalAmount || 0,
+          totalItems: items.length
         };
-        
+
+        console.log('✅ Transformed cart:', cart);
+
         // Update local cart
         this.cartSubject.next(cart);
         this.saveCartToStorage();
-        
+
         return cart;
       }),
       catchError((error) => {
         console.error('❌ Failed to load cart from backend:', error);
-        
+
         // Return empty cart on error
         const emptyCart: Cart = {
           items: [],
           totalAmount: 0,
           totalItems: 0
         };
-        
+
         return of(emptyCart);
       })
     );
