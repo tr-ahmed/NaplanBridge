@@ -7,7 +7,7 @@
 
   <!-- Search Bar -->
   <div class="mb-6">
-    <input 
+    <input
       type="text"
       (input)="onSearchChange($event)"
       placeholder="Search for teacher or subject..."
@@ -37,7 +37,7 @@
       <div class="mb-4">
         <p class="text-sm font-medium text-gray-700 mb-2">Teaching Subjects:</p>
         <div class="flex flex-wrap gap-2">
-          <span *ngFor="let subject of teacher.subjects" 
+          <span *ngFor="let subject of teacher.subjects"
                 class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
             {{ subject }}
           </span>

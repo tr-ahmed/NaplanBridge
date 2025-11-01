@@ -4709,6 +4709,54 @@
         }
       }
     },
+    "/api/StudentSubjects/student/{studentId}/current-term-week": {
+      "get": {
+        "tags": [
+          "StudentSubjects"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "subjectId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentTermWeekDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentTermWeekDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentTermWeekDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/SubjectNames": {
       "get": {
         "tags": [
@@ -7945,6 +7993,95 @@
           "yearNumber": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CurrentTermWeekDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currentTermId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentTermNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentTermName": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentWeekId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentWeekNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "termStartDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "termEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "weekStartDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "weekEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "totalWeeksInTerm": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "weeksRemaining": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "progressPercentage": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "subscriptionType": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasAccess": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "subjectName": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

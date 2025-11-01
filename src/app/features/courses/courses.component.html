@@ -372,11 +372,11 @@
 
               <!-- Cart/Enrollment Actions -->
               @if (isEnrolled(course)) {
-                <!-- Already Enrolled -->
+                <!-- Already Enrolled - Navigate to current lessons -->
                 <button
-                  disabled
-                  class="flex-1 bg-green-100 text-green-700 px-4 py-2 rounded-lg font-medium cursor-not-allowed text-sm">
-                  ✓ Enrolled
+                  (click)="viewLessons(course)"
+                  class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 text-sm">
+                  ✓ Continue Learning
                 </button>
               } @else if (isInCart(course.id)) {
                 <!-- In Cart -->

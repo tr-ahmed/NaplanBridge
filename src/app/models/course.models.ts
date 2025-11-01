@@ -133,3 +133,28 @@ export interface Cart {
   totalAmount: number;
   totalItems: number;
 }
+
+/**
+ * Interface for Current Term/Week Detection
+ * Response from: GET /api/StudentSubjects/student/{studentId}/current-term-week
+ */
+export interface CurrentTermWeekDto {
+  studentId: number;
+  currentTermId: number | null;
+  currentTermNumber: number | null;
+  currentTermName: string | null;
+  currentWeekId: number | null;
+  currentWeekNumber: number | null;
+  termStartDate: string | null;
+  termEndDate: string | null;
+  weekStartDate: string | null;
+  weekEndDate: string | null;
+  totalWeeksInTerm: number | null;
+  weeksRemaining: number | null;
+  progressPercentage: number | null;
+  subscriptionType: string | null;
+  hasAccess: boolean;
+  message: string | null;
+  subjectId: number | null;
+  subjectName: string | null;
+}

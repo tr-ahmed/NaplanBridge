@@ -2,7 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { catchError, map, tap, switchMap } from 'rxjs/operators';
-import { Course, CourseFilter, Cart, CartItem, CourseCategory } from '../../models/course.models';
+import { Course, CourseFilter, Cart, CartItem, CourseCategory, CurrentTermWeekDto } from '../../models/course.models';
 import { ApiNodes } from '../api/api-nodes';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
@@ -865,5 +865,65 @@ export class CoursesService {
     } catch (error) {
       console.warn('Failed to load cart from localStorage:', error);
     }
+  }
+
+  /**
+   * Get current term and week for a student
+   * Determines which term/week student should be viewing based on subscription dates
+   * @param studentId - The ID of the student
+   * @param subjectId - Optional: Filter by specific subject
+   * @returns Observable of CurrentTermWeekDto
+   */
+  getCurrentTermWeek(studentId: number, subjectId?: number): Observable<CurrentTermWeekDto> {
+    let url = `${this.baseUrl}/StudentSubjects/student/${studentId}/current-term-week`;
+    
+    if (subjectId) {
+      url += `?subjectId=${subjectId}`;
+    }
+
+    console.log('📅 Fetching current term/week:', { studentId, subjectId, url });
+
+    return this.http.get<CurrentTermWeekDto>(url).pipe(
+      tap(result => {
+        console.log('✅ Current term/week response:', {
+          hasAccess: result.hasAccess,
+          currentTerm: result.currentTermName,
+          currentWeek: result.currentWeekNumber,
+          progress: result.progressPercentage,
+          subject: result.subjectName
+        });
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Error fetching current term/week:', error);
+        
+        // Return a default "no access" response on error
+        const defaultResponse: CurrentTermWeekDto = {
+          studentId,
+          currentTermId: null,
+          currentTermNumber: null,
+          currentTermName: null,
+          currentWeekId: null,
+          currentWeekNumber: null,
+          termStartDate: null,
+          termEndDate: null,
+          weekStartDate: null,
+          weekEndDate: null,
+          totalWeeksInTerm: null,
+          weeksRemaining: null,
+          progressPercentage: null,
+          subscriptionType: null,
+          hasAccess: false,
+          message: error.status === 404 
+            ? 'Student not found' 
+            : error.status === 401
+            ? 'Please log in to continue'
+            : 'Unable to load subscription information',
+          subjectId: subjectId || null,
+          subjectName: null
+        };
+
+        return of(defaultResponse);
+      })
+    );
   }
 }

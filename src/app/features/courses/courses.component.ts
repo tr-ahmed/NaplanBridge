@@ -524,43 +524,55 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Navigate to lessons for a specific course/subject
    */
   viewLessons(course: Course): void {
-    // Get first subscription plan to extract term info
-    const firstPlan = course.subscriptionPlans && course.subscriptionPlans.length > 0
-      ? course.subscriptionPlans[0]
-      : null;
-
-    // Try to extract term ID from plan name
-    let termId: number | undefined;
-    if (firstPlan?.name) {
-      const termMatch = firstPlan.name.match(/Term\s*(\d+)/i);
-      if (termMatch) {
-        termId = parseInt(termMatch[1]);
-      }
+    const studentId = this.coursesService['authService'].getCurrentUser()?.studentId;
+    
+    if (!studentId) {
+      console.warn('⚠️ No studentId found, redirecting to login');
+      this.router.navigate(['/login']);
+      return;
     }
 
-    // If no term found in plan name, default to Term 1
-    if (!termId) {
-      termId = 1;
-    }
+    console.log('📚 Fetching current term/week for student:', studentId, 'subject:', course.id);
 
-    console.log('📚 Navigating to lessons:', {
-      courseId: course.id,
-      courseName: course.name || course.subjectName,
-      subjectId: course.subjectNameId,
-      yearId: course.yearId,
-      termId: termId,
-      planName: firstPlan?.name
-    });
+    // ✅ Use backend endpoint to get current term/week
+    this.coursesService.getCurrentTermWeek(studentId, course.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (termWeek) => {
+          if (!termWeek.hasAccess) {
+            console.warn('⚠️ No access:', termWeek.message);
+            this.coursesService['toastService'].showWarning(
+              termWeek.message || 'No active subscription found for this subject'
+            );
+            return;
+          }
 
-    this.router.navigate(['/lessons'], {
-      queryParams: {
-        subjectId: course.subjectNameId,
-        subject: course.subject || course.subjectName,
-        courseId: course.id,
-        yearId: course.yearId,
-        termId: termId
-      }
-    });
+          console.log('✅ Navigating to current term:', {
+            courseId: course.id,
+            courseName: course.name || course.subjectName,
+            currentTerm: termWeek.currentTermName,
+            currentWeek: termWeek.currentWeekNumber,
+            termId: termWeek.currentTermId,
+            weekId: termWeek.currentWeekId,
+            progress: `${termWeek.progressPercentage}%`
+          });
+
+          this.router.navigate(['/lessons'], {
+            queryParams: {
+              subjectId: course.subjectNameId,
+              subject: course.subject || course.subjectName,
+              courseId: course.id,
+              yearId: course.yearId,
+              termId: termWeek.currentTermId,
+              weekId: termWeek.currentWeekId
+            }
+          });
+        },
+        error: (error) => {
+          console.error('❌ Error fetching current term/week:', error);
+          this.coursesService['toastService'].showError('Failed to load course content');
+        }
+      });
   }
 
   /**

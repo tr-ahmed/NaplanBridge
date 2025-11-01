@@ -1,15 +1,15 @@
-<div class="teacher-sessions-container p-6" dir="rtl">
+<div class="teacher-sessions-container p-6">
   <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">حصصي الخاصة</h1>
-    <p class="text-gray-600 mt-1">إدارة الحصص الخاصة مع الطلاب</p>
+    <h1 class="text-3xl font-bold text-gray-800">My Private Sessions</h1>
+    <p class="text-gray-600 mt-1">Manage private sessions with students</p>
   </div>
 
   <div class="bg-white rounded-lg shadow-md p-2 mb-6 flex gap-2">
     <button (click)="setTab('upcoming')" [class]="activeTab() === 'upcoming' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'" class="flex-1 px-4 py-2 rounded-lg transition-colors font-medium">
-      القادمة ({{ upcomingSessions().length }})
+      Upcoming ({{ upcomingSessions().length }})
     </button>
     <button (click)="setTab('history')" [class]="activeTab() === 'history' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'" class="flex-1 px-4 py-2 rounded-lg transition-colors font-medium">
-      السابقة ({{ pastSessions().length }})
+      Past ({{ pastSessions().length }})
     </button>
   </div>
 
@@ -22,7 +22,7 @@
       <div class="flex justify-between items-start mb-3">
         <div>
           <h3 class="text-lg font-bold text-gray-800">{{ session.studentName }}</h3>
-          <p class="text-sm text-gray-600">ولي الأمر: {{ session.parentName }}</p>
+          <p class="text-sm text-gray-600">Parent: {{ session.parentName }}</p>
         </div>
         <span class="px-3 py-1 rounded-full text-sm font-medium" [class]="getStatusClass(session.status)">
           {{ getStatusText(session.status) }}
@@ -35,15 +35,15 @@
         <p *ngIf="session.notes" class="bg-gray-50 p-2 rounded">📝 {{ session.notes }}</p>
       </div>
       <a *ngIf="session.googleMeetLink && session.status === 'Confirmed'" [href]="session.googleMeetLink" target="_blank" class="inline-block mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-        الانضمام للحصة
+        Join Session
       </a>
     </div>
   </div>
 
   <div *ngIf="!loading() && (activeTab() === 'upcoming' ? upcomingSessions() : pastSessions()).length === 0" class="text-center py-12">
-    <p class="text-gray-500">لا توجد حصص</p>
+    <p class="text-gray-500">No sessions found</p>
     <a routerLink="/sessions/availability" class="mt-4 inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-      إدارة المواعيد المتاحة
+      Manage Availability
     </a>
   </div>
 </div>

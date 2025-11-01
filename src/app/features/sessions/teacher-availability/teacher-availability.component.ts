@@ -90,7 +90,7 @@ export class TeacherAvailabilityComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading settings:', error);
-        this.toastService.showError('فشل في تحميل الإعدادات');
+        this.toastService.showError('Failed to load settings');
         this.loading.set(false);
       }
     });
@@ -109,7 +109,7 @@ export class TeacherAvailabilityComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading availabilities:', error);
-        this.toastService.showError('فشل في تحميل المواعيد المتاحة');
+        this.toastService.showError('Failed to load available time slots');
         this.loading.set(false);
       }
     });
