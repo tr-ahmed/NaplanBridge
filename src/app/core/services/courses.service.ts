@@ -172,7 +172,7 @@ export class CoursesService {
 
     // 🎯 CRITICAL: Use Student.Id for cart, NOT User.Id
     // ⚠️ Common Mistake: Using currentUser.id (User.Id) instead of currentUser.studentId (Student.Id)
-    
+
     let studentId: number;
 
     if (currentUser.studentId) {
@@ -186,7 +186,7 @@ export class CoursesService {
       console.error('❌ studentId NOT found in token!');
       console.error('❌ Cannot add to cart without Student.Id');
       console.error('🔧 User needs to re-login to get new token with studentId');
-      
+
       this.toastService.showError('Student ID not found. Please logout and login again.');
       return of(false);
     }
@@ -252,6 +252,46 @@ export class CoursesService {
         }
 
         return of(false); // Return false on error
+      })
+    );
+  }
+
+  /**
+   * Load cart from backend API
+   */
+  loadCartFromBackend(studentId?: number): Observable<Cart> {
+    const url = `${this.baseUrl}/Cart`;
+    
+    console.log('📥 Loading cart from backend for studentId:', studentId);
+    
+    return this.http.get<any>(url).pipe(
+      map((response) => {
+        console.log('✅ Cart loaded from backend:', response);
+        
+        // Transform backend response to Cart model
+        const cart: Cart = {
+          items: response.items || response.cartItems || [],
+          totalAmount: response.totalAmount || response.total || 0,
+          totalItems: response.totalItems || response.items?.length || 0
+        };
+        
+        // Update local cart
+        this.cartSubject.next(cart);
+        this.saveCartToStorage();
+        
+        return cart;
+      }),
+      catchError((error) => {
+        console.error('❌ Failed to load cart from backend:', error);
+        
+        // Return empty cart on error
+        const emptyCart: Cart = {
+          items: [],
+          totalAmount: 0,
+          totalItems: 0
+        };
+        
+        return of(emptyCart);
       })
     );
   }

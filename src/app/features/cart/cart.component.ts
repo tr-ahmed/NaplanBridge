@@ -52,6 +52,37 @@ export class CartComponent implements OnInit, OnDestroy {
 
     // Check user role (this will call loadStudents if needed)
     this.checkUserRole();
+    
+    // Load cart from backend
+    this.loadCartFromBackend();
+  }
+
+  /**
+   * Load cart from backend API
+   */
+  private loadCartFromBackend(): void {
+    const currentUser = this.authService.getCurrentUser();
+    
+    if (!currentUser) {
+      console.warn('⚠️ No user logged in, skipping cart load');
+      return;
+    }
+
+    console.log('📥 Loading cart from backend...');
+    this.loading.set(true);
+
+    this.coursesService.loadCartFromBackend(currentUser.studentId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (cart) => {
+          console.log('✅ Cart loaded successfully:', cart);
+          this.loading.set(false);
+        },
+        error: (error) => {
+          console.error('❌ Failed to load cart:', error);
+          this.loading.set(false);
+        }
+      });
   }
 
   /**
@@ -78,16 +109,21 @@ export class CartComponent implements OnInit, OnDestroy {
         this.isStudent.set(userRole.toLowerCase() === 'student');
       }
 
-      // If student, auto-select their own ID
-      if (this.isStudent() && currentUser.id) {
-        this.selectedStudentId.set(currentUser.id);
-        console.log('✅ Student detected - Auto-selected ID:', currentUser.id);
+      // If student, auto-select their Student.Id (NOT User.Id)
+      if (this.isStudent() && currentUser.studentId) {
+        this.selectedStudentId.set(currentUser.studentId);
+        console.log('✅ Student detected - Auto-selected Student.Id:', currentUser.studentId);
+        console.log('🎓 Using Student.Id for cart (NOT User.Id)');
+      } else if (this.isStudent() && !currentUser.studentId) {
+        console.error('❌ Student role but no studentId! Please re-login.');
       }
 
       console.log('🔍 Cart - User Role Check:', {
         roles: currentUser.role,
         isStudent: this.isStudent(),
-        userId: currentUser.id,
+        userId: currentUser.id,  // User.Id (authentication)
+        studentId: currentUser.studentId,  // Student.Id (cart)
+        selectedStudentId: this.selectedStudentId(),
         willLoadStudents: !this.isStudent()
       });
 

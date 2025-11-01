@@ -10417,6 +10417,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "studentCount": {
+            "type": "integer",
+            "format": "int32"
+          },
           "yearId": {
             "type": "integer",
             "format": "int32"

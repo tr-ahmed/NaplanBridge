@@ -105,10 +105,10 @@ export class AuthService {
     // 🔓 Decode token to extract user data
     try {
       const payload = JSON.parse(atob(response.token.split('.')[1]));
-      
+
       console.log('🔓 Decoding JWT Token...');
       console.log('📦 Raw token payload:', payload);
-      
+
       const userData = {
         id: payload.nameid || payload.sub,  // User.Id (AspNetUsers.Id) for authentication
         studentId: payload.studentId ? parseInt(payload.studentId) : undefined,  // Student.Id for cart/orders
@@ -118,15 +118,15 @@ export class AuthService {
         role: response.roles, // Also store as 'role' for compatibility
         yearId: payload.yearId ? parseInt(payload.yearId) : undefined
       };
-      
+
       console.log('✅ Mapped user object:', userData);
       console.log('🆔 User.Id (nameid):', userData.id, '- Use for authentication');
       console.log('🎓 Student.Id (studentId):', userData.studentId, '- Use for cart/orders');
-      
+
       if (!userData.studentId && response.roles.includes('Student')) {
         console.warn('⚠️ Student role but no studentId in token! Cart may not work.');
       }
-      
+
       localStorage.setItem('currentUser', JSON.stringify(userData));
     } catch (e) {
       console.error('❌ Failed to parse token:', e);
@@ -252,7 +252,7 @@ export class AuthService {
       // ⚠️ DO NOT confuse these IDs:
       // - id (nameid): User.Id from AspNetUsers → Use for authentication
       // - studentId: Student.Id from Students → Use for cart/orders
-      
+
       const user = {
         id: parsed.nameid || parsed.sub,  // User.Id (authentication)
         studentId: parsed.studentId ? parseInt(parsed.studentId) : undefined,  // Student.Id (cart/orders)
