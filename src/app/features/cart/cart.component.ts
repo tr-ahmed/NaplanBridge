@@ -351,30 +351,18 @@ export class CartComponent implements OnInit, OnDestroy {
   getSubjectNameOnly(fullName: string): string {
     if (!fullName) return '';
 
-    console.log('🔍 getSubjectNameOnly input:', fullName);
-
     // Split by " Year " and take the first part
     const parts = fullName.split(/\s+Year\s+/i);
-    const result = parts[0].trim();
-
-    console.log('✅ getSubjectNameOnly output:', result);
-    return result;
-  }
-
-  /**
+    return parts[0].trim();
+  }  /**
    * Extract year and term info
    * Example: "Reading Comprehension Year 7 - Term 3" -> "Year 7 - Term 3"
    */
   getYearAndTerm(fullName: string): string {
     if (!fullName) return '';
 
-    console.log('🔍 getYearAndTerm input:', fullName);
-
     // Find "Year X" and everything after it
     const match = fullName.match(/Year\s+\d+[\s\S]*/i);
-    const result = match ? match[0] : '';
-
-    console.log('✅ getYearAndTerm output:', result);
-    return result;
+    return match ? match[0] : '';
   }
 }
