@@ -171,8 +171,8 @@
               formControlName="dayOfWeek"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
               <option value="">Select Day</option>
-              <option *ngFor="let day of daysOfWeek" [value]="day">
-                {{ day }}
+              <option *ngFor="let day of daysOfWeek" [value]="day.value">
+                {{ day.label }}
               </option>
             </select>
           </div>

@@ -44,7 +44,16 @@ export class TeacherAvailabilityComponent implements OnInit {
   showAvailabilityForm = signal<boolean>(false);
 
   // Days of week for display
-  daysOfWeek = Object.values(DayOfWeek);
+  // Days of week for dropdown - display names with numeric values
+  daysOfWeek = [
+    { value: 0, label: 'Sunday' },
+    { value: 1, label: 'Monday' },
+    { value: 2, label: 'Tuesday' },
+    { value: 3, label: 'Wednesday' },
+    { value: 4, label: 'Thursday' },
+    { value: 5, label: 'Friday' },
+    { value: 6, label: 'Saturday' }
+  ];
 
   ngOnInit(): void {
     this.initForms();
@@ -192,11 +201,14 @@ export class TeacherAvailabilityComponent implements OnInit {
     this.addingAvailability.set(true);
 
     const formValue = this.availabilityForm.value;
+    
     const dto: CreateAvailabilityDto = {
-      dayOfWeek: formValue.dayOfWeek,
-      startTime: `${formValue.startTime}:00`,
-      endTime: `${formValue.endTime}:00`
+      dayOfWeek: parseInt(formValue.dayOfWeek), // Already numeric from select
+      startTime: formValue.startTime, // HH:mm format from input type="time"
+      endTime: formValue.endTime // HH:mm format from input type="time"
     };
+
+    console.log('📤 Sending availability:', dto);
 
     this.sessionService.addTeacherAvailability(dto).subscribe({
       next: (response) => {

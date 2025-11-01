@@ -200,6 +200,19 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    // Log cart items before payment
+    const cartData = this.cart();
+    console.log('🛒 Cart items before payment:', {
+      totalItems: cartData?.items.length,
+      items: cartData?.items.map(item => ({
+        subscriptionPlanId: item.subscriptionPlanId,
+        subscriptionPlanName: item.subscriptionPlanName,
+        subjectName: item.subjectName,
+        price: item.price,
+        quantity: item.quantity
+      }))
+    });
+
     this.processing.set(true);
 
     try {

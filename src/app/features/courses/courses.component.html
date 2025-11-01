@@ -362,46 +362,57 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="mt-4 flex gap-2">
-              <!-- View Lessons Button (Always visible) -->
-              <button
-                (click)="viewLessons(course)"
-                class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 text-sm">
-                View Lessons
-              </button>
-
-              <!-- Cart/Enrollment Actions -->
+            <div class="mt-4">
               @if (isEnrolled(course)) {
-                <!-- Already Enrolled - Navigate to current lessons -->
-                <button
-                  (click)="viewLessons(course)"
-                  class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 text-sm">
-                  ✓ Continue Learning
-                </button>
-              } @else if (isInCart(course.id)) {
-                <!-- In Cart -->
-                <button
-                  (click)="removeFromCart(course.id)"
-                  class="flex-1 bg-red-100 text-red-700 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition-colors duration-200 text-sm">
-                  Remove from Cart
-                </button>
+                <!-- Already Enrolled - Show only Continue Learning -->
+                <div class="flex gap-2">
+                  <button
+                    (click)="viewLessons(course)"
+                    class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 text-sm">
+                    ✓ Continue Learning
+                  </button>
+                  <button
+                    (click)="viewLessons(course)"
+                    class="flex-1 bg-green-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-800 transition-colors duration-200 text-sm">
+                    View Lessons
+                  </button>
+                </div>
               } @else {
-                <!-- Not Enrolled & Not in Cart -->
-                <button
-                  (click)="addToCart(course)"
-                  class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 text-sm">
-                  Add to Cart
-                </button>
-              }
-            </div>
+                <!-- Not Enrolled - Show Cart/Enrollment Options -->
+                <div class="flex flex-col gap-2">
+                  <!-- Primary Actions Row -->
+                  <div class="flex gap-2">
+                    <button
+                      (click)="viewLessons(course)"
+                      class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200 text-sm">
+                      View Lessons
+                    </button>
 
-            <!-- Secondary Action -->
-            <div class="mt-2">
-              <button
-                (click)="enrollNow(course)"
-                class="w-full border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors duration-200 text-sm py-2">
-                Enroll Now
-              </button>
+                    @if (isInCart(course.id)) {
+                      <!-- In Cart -->
+                      <button
+                        (click)="removeFromCart(course.id)"
+                        class="flex-1 bg-red-100 text-red-700 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition-colors duration-200 text-sm">
+                        Remove from Cart
+                      </button>
+                    } @else {
+                      <!-- Not in Cart -->
+                      <button
+                        (click)="addToCart(course)"
+                        class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 text-sm">
+                        Add to Cart
+                      </button>
+                    }
+                  </div>
+
+                  <!-- Secondary Action - Enroll Now -->
+                  <button
+                    (click)="enrollNow(course)"
+                    class="w-full border-2 border-green-600 text-green-600 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-all duration-200 text-sm py-2">
+                    🎓 Enroll Now
+                  </button>
+                </div>
+              }
             </div>
           </div>
         </div>

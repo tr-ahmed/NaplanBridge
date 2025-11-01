@@ -80,22 +80,22 @@ export interface TeacherAvailability {
  * Days of Week
  */
 export enum DayOfWeek {
-  Sunday = 'Sunday',
-  Monday = 'Monday',
-  Tuesday = 'Tuesday',
-  Wednesday = 'Wednesday',
-  Thursday = 'Thursday',
-  Friday = 'Friday',
-  Saturday = 'Saturday'
+  Sunday = 0,
+  Monday = 1,
+  Tuesday = 2,
+  Wednesday = 3,
+  Thursday = 4,
+  Friday = 5,
+  Saturday = 6
 }
 
 /**
  * Create Availability DTO
  */
 export interface CreateAvailabilityDto {
-  dayOfWeek: DayOfWeek | string;
-  startTime: string; // Format: "HH:mm:ss"
-  endTime: string;   // Format: "HH:mm:ss"
+  dayOfWeek: DayOfWeek | number; // 0 = Sunday, 1 = Monday, etc.
+  startTime: string; // Format: "HH:mm" or "HH:mm:ss"
+  endTime: string;   // Format: "HH:mm" or "HH:mm:ss"
 }
 
 /**
