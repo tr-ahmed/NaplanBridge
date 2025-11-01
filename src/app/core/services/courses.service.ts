@@ -191,64 +191,79 @@ export class CoursesService {
       return of(false);
     }
 
-    // ✅ Check if subject already exists in cart (same subject, same year)
-    const currentCart = this.cartSubject.value;
+    // ✅ CRITICAL: Load cart from backend first to get latest data
+    console.log('📥 Loading cart from backend before validation...');
+    
+    return this.loadCartFromBackend(studentId).pipe(
+      switchMap((loadedCart) => {
+        console.log('✅ Cart loaded for validation:', loadedCart);
+        
+        // Now check if subject already exists in cart
+        console.log('🔍 Checking for duplicate subject in cart...');
+        console.log('📚 New course:', {
+          id: course.id,
+          name: course.subjectName || course.name,
+          yearId: course.yearId
+        });
+        console.log('🛒 Current cart items:', loadedCart.items.map((item: any) => ({
+          id: item.course?.id,
+          name: item.course?.subjectName || item.course?.name,
+          yearId: item.course?.yearId
+        })));
 
-    console.log('🔍 Checking for duplicate subject in cart...');
-    console.log('📚 New course:', {
-      id: course.id,
-      name: course.subjectName || course.name,
-      yearId: course.yearId
-    });
-    console.log('🛒 Current cart items:', currentCart.items.map((item: any) => ({
-      id: item.course?.id,
-      name: item.course?.subjectName || item.course?.name,
-      yearId: item.course?.yearId
-    })));
+        const subjectAlreadyInCart = loadedCart.items.some((item: any) => {
+          // Extract subject name from cart item (remove term info)
+          const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim();
+          const newSubjectName = (course.subjectName || course.name || '').split(' - ')[0].trim();
 
-    const subjectAlreadyInCart = currentCart.items.some((item: any) => {
-      // Extract subject name from cart item (remove term info)
-      const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim();
-      const newSubjectName = (course.subjectName || course.name || '').split(' - ')[0].trim();
+          // Extract year from name if not in yearId
+          const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
+          const newYearMatch = (course.subjectName || course.name || '').match(/Year\s+(\d+)/i);
 
-      // Extract year from name if not in yearId
-      const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
-      const newYearMatch = (course.subjectName || course.name || '').match(/Year\s+(\d+)/i);
+          const itemYear = item.course?.yearId || (itemYearMatch ? parseInt(itemYearMatch[1]) : null);
+          const newYear = course.yearId || (newYearMatch ? parseInt(newYearMatch[1]) : null);
 
-      const itemYear = item.course?.yearId || (itemYearMatch ? parseInt(itemYearMatch[1]) : null);
-      const newYear = course.yearId || (newYearMatch ? parseInt(newYearMatch[1]) : null);
+          // Check if same subject and same year
+          const isSameSubject = itemSubjectName.toLowerCase().includes(newSubjectName.toLowerCase()) ||
+                               newSubjectName.toLowerCase().includes(itemSubjectName.toLowerCase());
+          const isSameYear = itemYear === newYear;
 
-      // Check if same subject and same year
-      const isSameSubject = itemSubjectName.toLowerCase().includes(newSubjectName.toLowerCase()) ||
-                           newSubjectName.toLowerCase().includes(itemSubjectName.toLowerCase());
-      const isSameYear = itemYear === newYear;
+          console.log('🔄 Comparing:', {
+            itemSubjectName,
+            newSubjectName,
+            isSameSubject,
+            itemYear,
+            newYear,
+            isSameYear,
+            match: isSameSubject && isSameYear
+          });
 
-      console.log('🔄 Comparing:', {
-        itemSubjectName,
-        newSubjectName,
-        isSameSubject,
-        itemYear,
-        newYear,
-        isSameYear,
-        match: isSameSubject && isSameYear
-      });
+          return isSameSubject && isSameYear;
+        });
 
-      return isSameSubject && isSameYear;
-    });
+        if (subjectAlreadyInCart) {
+          console.warn('⚠️ Subject already in cart for this year');
+          this.toastService.showWarning('This subject is already in your cart for this year. Please remove the existing plan first if you want to change it.');
+          return of(false);
+        }
 
-    if (subjectAlreadyInCart) {
-      console.warn('⚠️ Subject already in cart for this year');
-      this.toastService.showWarning('This subject is already in your cart for this year. Please remove the existing plan first if you want to change it.');
-      return of(false);
-    }
+        console.log('✅ No duplicate found, proceeding to add...');
+        
+        return this.addPlanToCartBackend(planId, studentId, course);
+      })
+    );
+  }
 
-    console.log('✅ No duplicate found, proceeding to add...');
+  /**
+   * Actually add plan to backend (extracted method)
+   */
+  private addPlanToCartBackend(planId: number, studentId: number, course: Course): Observable<boolean> {
+    const url = `${this.baseUrl}/Cart/items`;
 
     console.log('🛒 Adding to cart:', {
       url,
       subscriptionPlanId: planId,
       studentId: studentId,  // ✅ Student.Id (e.g., 1)
-      userId: currentUser.id,  // ℹ️ User.Id (e.g., "8") - for reference only
       studentIdType: typeof studentId,
       quantity: 1,
       note: 'Using Student.Id from Students table, NOT User.Id from AspNetUsers'
