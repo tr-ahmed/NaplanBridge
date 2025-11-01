@@ -295,12 +295,19 @@ export class CoursesService {
         const items: CartItem[] = rawItems.map((backendItem: any) => ({
           course: {
             id: backendItem.subscriptionPlanId || backendItem.courseId,
-            subjectName: backendItem.planName || backendItem.courseName || 'Unknown',
-            name: backendItem.planName || backendItem.courseName || 'Unknown',
+            subjectName: backendItem.planName || backendItem.courseName || 'Unknown Course',
+            name: backendItem.planName || backendItem.courseName || 'Unknown Course',
             posterUrl: backendItem.imageUrl || backendItem.posterUrl || '',
-            description: backendItem.description || '',
+            description: backendItem.description || backendItem.planName || '',
             categoryName: backendItem.categoryName || '',
-            teacherName: backendItem.teacherName || ''
+            teacherName: backendItem.teacherName || '',
+            // Add fields used in cart template
+            instructor: backendItem.teacherName || backendItem.instructor,
+            duration: backendItem.duration,
+            price: backendItem.price,
+            originalPrice: backendItem.originalPrice,
+            level: backendItem.level,
+            tags: backendItem.tags || []
           },
           quantity: backendItem.quantity || 1,
           selectedPlan: {
@@ -411,10 +418,11 @@ export class CoursesService {
       return of(true);
     }
 
-    // Find the cartItemId from the backend structure
+    // Find the cartItemId from the transformed structure
     const cartItem = this.cartSubject.value.items.find((item: any) => {
       const itemCourseId =
-        item.course?.id ||
+        item.course?.id ||                        // Transformed structure (primary)
+        item._backendData?.subscriptionPlanId ||  // Backend data reference
         item.subscriptionPlanId ||
         item.courseId ||
         item.id;
@@ -423,11 +431,15 @@ export class CoursesService {
 
     if (!cartItem) {
       console.warn('⚠️ Cart item not found for courseId:', courseId);
+      console.warn('📦 Available cart items:', this.cartSubject.value.items);
       this.toastService.showError('Item not found in cart');
       return of(false);
     }
 
-    const cartItemId = (cartItem as any).cartItemId || (cartItem as any).id;
+    // Get cartItemId from _backendData or fallback
+    const cartItemId = (cartItem as any)._backendData?.cartItemId || 
+                       (cartItem as any).cartItemId || 
+                       (cartItem as any).id;
 
     if (!cartItemId) {
       console.error('❌ No cartItemId found!');
@@ -514,14 +526,14 @@ export class CoursesService {
       return false;
     }
 
-    // Handle different backend response structures
-    // Backend uses: { subscriptionPlanId, cartItemId, ... }
+    // After transformation, items have course.id structure
     return cart.items.some((item: any) => {
       const itemCourseId =
-        item.subscriptionPlanId ||   // Backend structure (primary)
-        item.course?.id ||           // Frontend structure (fallback)
-        item.courseId ||             // Alternative
-        item.id;                     // Last resort
+        item.course?.id ||                        // Transformed frontend structure (primary)
+        item._backendData?.subscriptionPlanId ||  // Backend data reference
+        item.subscriptionPlanId ||                // Direct backend structure
+        item.courseId ||                          // Alternative
+        item.id;                                  // Last resort
 
       return itemCourseId === courseId;
     });

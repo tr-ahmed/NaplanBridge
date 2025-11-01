@@ -169,14 +169,20 @@
 
               <!-- Course Meta -->
               <div class="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
-                <span>{{ item.course.instructor || 'Unknown Instructor' }}</span>
-                <span>{{ item.course.duration }} Hours</span>
-                <span class="px-2 py-1 rounded-full text-xs font-medium"
-                      [class]="item.course.level === 'Beginner' ? 'bg-green-100 text-green-800' :
-                               item.course.level === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
-                               'bg-red-100 text-red-800'">
-                  {{ item.course.level }}
-                </span>
+                @if (item.course.instructor) {
+                  <span>{{ item.course.instructor }}</span>
+                }
+                @if (item.course.duration) {
+                  <span>{{ item.course.duration }} Hours</span>
+                }
+                @if (item.course.level) {
+                  <span class="px-2 py-1 rounded-full text-xs font-medium"
+                        [class]="item.course.level === 'Beginner' ? 'bg-green-100 text-green-800' :
+                                 item.course.level === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                                 'bg-red-100 text-red-800'">
+                    {{ item.course.level }}
+                  </span>
+                }
               </div>
 
               <!-- Tags -->
@@ -196,8 +202,8 @@
               <!-- Price -->
               <div class="text-right mb-4">
                 <div class="flex items-center gap-2 mb-2">
-                  <span class="text-2xl font-bold text-blue-600">${{ item.course.price }}</span>
-                  @if (item.course.originalPrice && item.course.originalPrice > item.course.price) {
+                  <span class="text-2xl font-bold text-blue-600">${{ item.selectedPlan?.price || item.course.price || 0 }}</span>
+                  @if (item.course.originalPrice && item.course.originalPrice > (item.selectedPlan?.price || item.course.price)) {
                     <span class="text-sm text-gray-500 line-through">${{ item.course.originalPrice }}</span>
                   }
                 </div>
