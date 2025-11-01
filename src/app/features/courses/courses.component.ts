@@ -350,7 +350,58 @@ export class CoursesComponent implements OnInit, OnDestroy {
   }
 
   removeFromCart(courseId: number): void {
-    this.coursesService.removeFromCart(courseId)
+    // Find the course to get subject name and year
+    const course = this.courses().find(c => c.id === courseId);
+    if (!course) {
+      console.error('Course not found:', courseId);
+      return;
+    }
+
+    const subjectName = course.subjectName || course.name || '';
+
+    // Extract year from first plan name
+    const firstPlan = course.subscriptionPlans && course.subscriptionPlans.length > 0
+      ? course.subscriptionPlans[0]
+      : null;
+
+    let yearToCheck = course.yearId;
+    if (firstPlan && firstPlan.name) {
+      const yearMatch = firstPlan.name.match(/Year\s+(\d+)/i);
+      if (yearMatch) {
+        yearToCheck = parseInt(yearMatch[1]);
+      }
+    }
+
+    // Find cart item by subject name and year
+    const cart = this.coursesService.getCartValue();
+    const cartItem = cart.items.find((item: any) => {
+      const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim().toLowerCase();
+      const baseSubjectName = subjectName.split(' - ')[0].trim().toLowerCase();
+      const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
+      const itemYear = itemYearMatch ? parseInt(itemYearMatch[1]) : item.course?.yearId;
+
+      const isSameSubject = itemSubjectName.includes(baseSubjectName) || baseSubjectName.includes(itemSubjectName);
+      const isSameYear = itemYear === yearToCheck;
+
+      return isSameSubject && isSameYear;
+    });
+
+    if (!cartItem) {
+      console.error('Cart item not found for course:', subjectName, 'year:', yearToCheck);
+      return;
+    }
+
+    // Get the subscriptionPlanId from the cart item
+    const planIdToRemove = (cartItem as any).course?.id || (cartItem as any)._backendData?.subscriptionPlanId;
+
+    console.log('🗑️ Removing cart item:', {
+      courseId,
+      courseName: subjectName,
+      year: yearToCheck,
+      planIdToRemove
+    });
+
+    this.coursesService.removeFromCart(planIdToRemove)
       .pipe(takeUntil(this.destroy$))
       .subscribe(success => {
         if (success) {

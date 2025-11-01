@@ -24,6 +24,13 @@ export class CoursesService {
 
   public cart$ = this.cartSubject.asObservable();
 
+  /**
+   * Get current cart value synchronously
+   */
+  getCartValue(): Cart {
+    return this.cartSubject.value;
+  }
+
   // Loading states
   public loading = signal(false);
   public error = signal<string | null>(null);
