@@ -232,12 +232,12 @@ This blocks the entire payment flow. Users cannot enroll in courses until this i
 
 ---
 
-## ✅ RESOLUTION
+## ✅ PARTIAL RESOLUTION + NEW ISSUE
 
 ### Date Fixed: November 1, 2025
 ### Commit Hash: `6821149`
 
-### Services Registered in Program.cs:
+### ✅ FIXED: Services Registered in Program.cs:
 ```csharp
 builder.Services.AddScoped<IOrderService, OrderService>(); // ✅ ADDED
 builder.Services.AddScoped<IStripeService, StripeService>(); // ✅ ADDED
@@ -289,3 +289,70 @@ public class OrdersController(
 
 ### Frontend Action:
 **NO CODE CHANGES NEEDED** - Your Angular code was correct all along!
+
+---
+
+## 🔴 NEW ISSUE - Stripe API Key Missing
+
+### Date: November 1, 2025 - 10:10 AM
+
+### Error Message:
+```
+{
+  "statusCode": 500,
+  "message": "An error occurred during checkout",
+  "error": "No API key provided. Set your API key using `var client = new StripeClient(\"sk_test_...\")`"
+}
+```
+
+### Root Cause:
+**Stripe Secret Key is not configured in appsettings.json**
+
+The backend is missing the Stripe API configuration. The `IStripeService` is registered but cannot initialize without the API key.
+
+### Required Fix in Backend:
+
+#### 1. Add to `appsettings.json`:
+```json
+{
+  "Stripe": {
+    "SecretKey": "sk_test_YOUR_STRIPE_SECRET_KEY_HERE",
+    "PublishableKey": "pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE",
+    "WebhookSecret": "whsec_YOUR_WEBHOOK_SECRET_HERE"
+  }
+}
+```
+
+#### 2. Ensure StripeService reads configuration:
+```csharp
+public class StripeService : IStripeService
+{
+    private readonly string _secretKey;
+    
+    public StripeService(IConfiguration configuration)
+    {
+        _secretKey = configuration["Stripe:SecretKey"];
+        StripeConfiguration.ApiKey = _secretKey;
+        
+        if (string.IsNullOrEmpty(_secretKey))
+            throw new InvalidOperationException("Stripe:SecretKey is not configured");
+    }
+}
+```
+
+#### 3. Get Stripe API Keys:
+- Login to https://dashboard.stripe.com/test/apikeys
+- Copy **Secret key** (starts with `sk_test_`)
+- Copy **Publishable key** (starts with `pk_test_`)
+- For webhooks: https://dashboard.stripe.com/test/webhooks
+
+### Priority:
+**🔴 CRITICAL** - Payment system is completely blocked until Stripe keys are added.
+
+### Status:
+- ✅ DI Fixed (IOrderService & IStripeService registered)
+- ❌ **Stripe API Key Missing in Configuration**
+- ⏳ Waiting for Backend Team to add Stripe keys
+
+### Frontend Status:
+**✅ Frontend is ready** - No changes needed. Waiting for backend configuration only.
