@@ -22,6 +22,9 @@ When a change **is required**, the AI must:
 
 3. **Generate a backend change report** including the following details:
 
+4. **If clarification is needed**
+   When the AI cannot confirm endpoint behavior, data structure, or backend logic, it must generate a **Backend Inquiry Report** to request clarification from the backend team.
+
 ---
 
 ## 🖟️ Backend Change Report Template
@@ -83,6 +86,31 @@ avatar: (binary file)
 
 ---
 
+## 🕵️ Backend Inquiry Report Template
+
+If the AI encounters uncertainty about backend logic, unclear endpoint responses, or undocumented APIs, it must create a **Backend Inquiry Report**.
+
+**Example:**
+
+# ❓ Backend Inquiry Report
+
+## 1. Inquiry Topic
+
+Clarify the response structure for `/api/courses/enroll/{id}`.
+
+## 2. Reason for Inquiry
+
+Swagger documentation does not specify whether the endpoint returns the updated enrollment object or a success flag.
+
+## 3. Requested Details from Backend Team
+
+* Full endpoint response schema
+* Possible error responses
+* Authentication requirements
+* Example of successful and failed requests
+
+---
+
 ## 🔁 Backend-to-Frontend Update Coordination
 
 Whenever a backend modification has been **implemented**, the AI must:
@@ -108,6 +136,7 @@ Whenever a backend modification has been **implemented**, the AI must:
 ## ⚠️ Important Notes for the AI
 
 * ✅ Only generate backend change reports **if backend modification is required.**
+* ❓ Generate a **Backend Inquiry Report** when backend clarification is needed.
 * 🔁 Always request backend change confirmation before frontend updates.
 * ⛔ Do not modify backend code automatically.
 * 🧩 Verify endpoint existence via `.NET API` routes, Swagger docs, or `api.service.ts` references.
@@ -127,4 +156,16 @@ with filenames using this pattern:
 
 ```
 backend_change_<feature_name>_<YYYY-MM-DD>.md
+```
+
+And all backend inquiries must be stored in:
+
+```
+/reports/backend_inquiries/
+```
+
+with filenames using this pattern:
+
+```
+backend_inquiry_<topic>_<YYYY-MM-DD>.md
 ```

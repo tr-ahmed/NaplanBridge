@@ -33,12 +33,12 @@ export class PaymentService {
   // ============================================
 
   /**
-   * Create order from cart
-   * Endpoint: POST /api/order/create-from-cart
-   * Roles: Parent, Admin
+   * Create order from cart (Stripe Checkout)
+   * Endpoint: POST /api/Orders/checkout
+   * Roles: Parent, Student, Admin
    */
   createOrderFromCart(): Observable<CreateOrderFromCartResponse> {
-    return this.api.post<CreateOrderFromCartResponse>('order/create-from-cart', {});
+    return this.api.post<CreateOrderFromCartResponse>('Orders/checkout', {});
   }
 
   /**
