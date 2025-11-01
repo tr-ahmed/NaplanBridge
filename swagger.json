@@ -10565,14 +10565,6 @@
             },
             "nullable": true
           },
-          "weekIds": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "nullable": true
-          },
           "subscriptionPlans": {
             "type": "array",
             "items": {

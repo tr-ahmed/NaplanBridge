@@ -438,7 +438,31 @@ export class CoursesService {
    * Check if course is in cart
    */
   isInCart(courseId: number): boolean {
-    return this.cartSubject.value.items.some(item => item.course.id === courseId);
+    const cart = this.cartSubject.value;
+    
+    if (!cart.items || cart.items.length === 0) {
+      return false;
+    }
+
+    // Log first item structure for debugging
+    if (cart.items.length > 0) {
+      console.log('🔍 Checking if courseId', courseId, 'is in cart');
+      console.log('📦 First cart item structure:', cart.items[0]);
+      console.log('🔑 Available keys:', Object.keys(cart.items[0]));
+    }
+
+    // Handle different backend response structures
+    return cart.items.some((item: any) => {
+      // Try different possible structures
+      const itemCourseId = 
+        item.course?.id ||           // Frontend structure
+        item.courseId ||             // Backend might use courseId directly
+        item.subscriptionPlan?.id || // Backend might use subscriptionPlan
+        item.subscriptionPlanId ||   // Or subscriptionPlanId
+        item.id;                     // Or just id
+      
+      return itemCourseId === courseId;
+    });
   }
 
   /**
