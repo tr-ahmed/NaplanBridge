@@ -195,18 +195,19 @@ export class CheckoutComponent implements OnInit {
     this.processing.set(true);
 
     try {
-      // Create order first
-      const orderResponse = await this.createOrder();
-
-      if (!orderResponse) {
-        throw new Error('Failed to create order');
-      }
-
       // Process based on payment method
       if (this.paymentMethod() === 'stripe') {
-        await this.processStripePayment(orderResponse.orderId);
+        // Redirect to Stripe Checkout
+        await this.redirectToStripeCheckout();
       } else {
-        // Cash payment - just navigate to success
+        // Create order for cash payment
+        const orderResponse = await this.createOrder();
+        
+        if (!orderResponse) {
+          throw new Error('Failed to create order');
+        }
+
+        // Cash payment - navigate to success
         this.router.navigate(['/payment/success'], {
           queryParams: { orderId: orderResponse.orderId }
         });
@@ -217,6 +218,47 @@ export class CheckoutComponent implements OnInit {
       this.toastService.showError(error.message || 'Payment failed');
       console.error('Payment error:', error);
     }
+  }
+
+  /**
+   * Redirect to Stripe Checkout
+   */
+  private async redirectToStripeCheckout(): Promise<void> {
+    console.log('💳 Creating order and Stripe Checkout Session...');
+
+    // Step 1: Create order
+    const orderResponse = await this.createOrder();
+    
+    if (!orderResponse || !orderResponse.orderId) {
+      throw new Error('Failed to create order');
+    }
+
+    console.log('✅ Order created:', orderResponse.orderId);
+
+    // Step 2: Create Stripe Checkout Session
+    const checkoutDto = {
+      orderId: orderResponse.orderId,
+      successUrl: `${window.location.origin}/payment/success`,
+      cancelUrl: `${window.location.origin}/payment/cancel`
+    };
+
+    this.paymentService.createCheckoutSession(checkoutDto).subscribe({
+      next: (response) => {
+        console.log('✅ Checkout session created:', response);
+        
+        // Redirect to Stripe hosted checkout page
+        if (response.sessionUrl) {
+          window.location.href = response.sessionUrl;
+        } else {
+          throw new Error('No session URL returned');
+        }
+      },
+      error: (err) => {
+        this.processing.set(false);
+        this.toastService.showError('Failed to create checkout session');
+        console.error('Checkout session error:', err);
+      }
+    });
   }
 
   /**
