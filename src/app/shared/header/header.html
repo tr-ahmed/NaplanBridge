@@ -192,7 +192,7 @@
             }
             @if (userRole === 'Teacher') {
               <button
-                routerLink="/teacher/dashboard"
+                (click)="navigateToTeacherDashboard()"
                 class="hidden xl:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold transition-all duration-200 text-sm xl:text-base whitespace-nowrap">
                 Teacher Panel
               </button>
@@ -315,12 +315,11 @@
                   </a>
                 }
                 @if (userRole === 'Teacher') {
-                  <a
-                    routerLink="/teacher/dashboard"
-                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap"
-                    (click)="toggleMobileMenu()">
+                  <button
+                    (click)="navigateToTeacherDashboard(); toggleMobileMenu()"
+                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap">
                     Teacher Panel
-                  </a>
+                  </button>
                 }
                 @if (userRole === 'Parent') {
                   <a

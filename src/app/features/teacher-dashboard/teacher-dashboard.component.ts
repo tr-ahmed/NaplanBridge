@@ -141,7 +141,7 @@ export class TeacherDashboardComponent implements OnInit {
               completedExams: response.sessionStats?.totalCompleted || 0,
               averageClassScore: response.studentProgress?.averageProgress || 0
             });
-            
+
             // Store the raw data for other uses
             if (response.upcomingSessions) {
               this.upcomingExams.set(response.upcomingSessions.map((session: any) => ({
@@ -249,7 +249,7 @@ export class TeacherDashboardComponent implements OnInit {
       this.dashboardService.getTeacherDashboard().subscribe({
         next: (response) => {
           const activities: RecentActivity[] = [];
-          
+
           // Add recent reviews as activities
           if (response && response.recentReviews) {
             response.recentReviews.forEach((review: any, index: number) => {
@@ -262,7 +262,7 @@ export class TeacherDashboardComponent implements OnInit {
               });
             });
           }
-          
+
           // Add pending questions as activities
           if (response && response.pendingQuestions?.recentQuestions) {
             response.pendingQuestions.recentQuestions.forEach((q: any, index: number) => {
@@ -275,7 +275,7 @@ export class TeacherDashboardComponent implements OnInit {
               });
             });
           }
-          
+
           // Sort by timestamp descending and take top 10
           this.recentActivities.set(
             activities
