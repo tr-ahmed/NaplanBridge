@@ -393,24 +393,7 @@ export class CoursesService {
    * Remove course from cart
    */
   removeFromCart(courseId: number): Observable<boolean> {
-    const currentCart = this.cartSubject.value;
-
     console.log('🗑️ Removing courseId:', courseId, 'from cart');
-    console.log('📦 Current cart items:', currentCart.items);
-
-    // Filter using the correct backend structure
-    currentCart.items = currentCart.items.filter((item: any) => {
-      const itemCourseId =
-        item.course?.id ||           // Frontend structure
-        item.subscriptionPlanId ||   // Backend structure ✅
-        item.courseId ||
-        item.id;
-
-      console.log('🔍 Comparing:', itemCourseId, '!==', courseId, '=', itemCourseId !== courseId);
-      return itemCourseId !== courseId;
-    });
-
-    console.log('✅ Filtered cart items:', currentCart.items);
 
     // Check if user is authenticated before making API call
     if (!this.authService.isAuthenticated()) {
@@ -418,20 +401,25 @@ export class CoursesService {
       return of(true);
     }
 
-    // Find the cartItemId from the transformed structure
-    const cartItem = this.cartSubject.value.items.find((item: any) => {
+    // ⚠️ CRITICAL: Find cartItemId BEFORE removing from local cart
+    const currentCart = this.cartSubject.value;
+    console.log('📦 Current cart items:', currentCart.items);
+
+    const cartItem = currentCart.items.find((item: any) => {
       const itemCourseId =
         item.course?.id ||                        // Transformed structure (primary)
         item._backendData?.subscriptionPlanId ||  // Backend data reference
         item.subscriptionPlanId ||
         item.courseId ||
         item.id;
+      
+      console.log('🔍 Checking item:', itemCourseId, 'against courseId:', courseId);
       return itemCourseId === courseId;
     });
 
     if (!cartItem) {
       console.warn('⚠️ Cart item not found for courseId:', courseId);
-      console.warn('📦 Available cart items:', this.cartSubject.value.items);
+      console.warn('📦 Available cart items:', currentCart.items);
       this.toastService.showError('Item not found in cart');
       return of(false);
     }
