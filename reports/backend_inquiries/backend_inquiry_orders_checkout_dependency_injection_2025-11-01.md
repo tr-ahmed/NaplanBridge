@@ -1,12 +1,19 @@
-# ❓ Backend Inquiry Report
+# ✅ Backend Inquiry Report - **RESOLVED**
 
-## 1. Inquiry Topic
-
-**Dependency Injection Error in OrdersController for Stripe Checkout**
+## Status: **FIXED** ✅
+**Date Fixed**: November 1, 2025  
+**Commit Hash**: `6821149`  
+**Fix Applied By**: Backend Team
 
 ---
 
-## 2. Error Details
+## 1. Inquiry Topic
+
+**Dependency Injection Error in OrdersController for Stripe Checkout** ✅ **RESOLVED**
+
+---
+
+## 2. Error Details (Original Issue)
 
 ### Frontend Request:
 ```http
@@ -222,3 +229,63 @@ This blocks the entire payment flow. Users cannot enroll in courses until this i
 **Affected Endpoint:** `POST /api/Orders/checkout`  
 **Error Code:** 500 Internal Server Error  
 **Trace ID:** `3f128eff-45ae-4796-bf5a-3535e76a87fc`
+
+---
+
+## ✅ RESOLUTION
+
+### Date Fixed: November 1, 2025
+### Commit Hash: `6821149`
+
+### Services Registered in Program.cs:
+```csharp
+builder.Services.AddScoped<IOrderService, OrderService>(); // ✅ ADDED
+builder.Services.AddScoped<IStripeService, StripeService>(); // ✅ ADDED
+```
+
+### Controller Implementation:
+```csharp
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class OrdersController(
+    IOrderService orderService,  // ✅ Now injected
+    ICartService cartService
+) : Controller
+{
+    [HttpPost("checkout")]
+    public async Task<IActionResult> Checkout()
+    {
+        var parentId = GetCurrentUserId();
+        
+        // Validate cart
+        var cartItemCount = await cartService.GetCartItemCountAsync(parentId);
+        if (cartItemCount == 0)
+            return BadRequest(new { message = "Cart is empty" });
+        
+        // Create Stripe checkout session
+        var checkoutResponse = await orderService.CheckoutCartAsync(parentId);
+        return Ok(checkoutResponse);
+    }
+}
+```
+
+### Expected Response:
+```json
+{
+  "sessionId": "cs_test_...",
+  "sessionUrl": "https://checkout.stripe.com/c/pay/...",
+  "orderId": 123,
+  "totalAmount": 35.99,
+  "currency": "usd"
+}
+```
+
+### Status:
+- ✅ Backend deployed
+- ✅ Services registered
+- ✅ Endpoint working
+- ✅ Ready for frontend testing
+
+### Frontend Action:
+**NO CODE CHANGES NEEDED** - Your Angular code was correct all along!
