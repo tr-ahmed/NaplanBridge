@@ -160,7 +160,7 @@ export class CoursesService {
    * Add specific plan to cart (internal method)
    * Called when user selects a plan from modal or when there's only one plan
    */
-  addPlanToCartInternal(planId: number, course: Course): Observable<boolean> {
+  addPlanToCartInternal(planId: number, course: Course, planName?: string): Observable<boolean> {
     const url = `${this.baseUrl}/Cart/items`; // ✅ Correct endpoint
 
     // Get current user for studentId
@@ -198,15 +198,18 @@ export class CoursesService {
       switchMap((loadedCart) => {
         console.log('✅ Cart loaded for validation:', loadedCart);
 
-        // Extract year from course name since yearId might not be accurate
+        // Extract year from plan name (most accurate) or course name or yearId
+        const planYearMatch = planName ? planName.match(/Year\s+(\d+)/i) : null;
         const courseYearMatch = (course.subjectName || course.name || '').match(/Year\s+(\d+)/i);
-        const courseYear = courseYearMatch ? parseInt(courseYearMatch[1]) : course.yearId;
+        const courseYear = planYearMatch ? parseInt(planYearMatch[1]) : 
+                          (courseYearMatch ? parseInt(courseYearMatch[1]) : course.yearId);
 
         // Now check if subject already exists in cart
         console.log('🔍 Checking for duplicate subject in cart...');
         console.log('📚 New course:', {
           id: course.id,
           name: course.subjectName || course.name,
+          planName: planName,
           yearId: course.yearId,
           extractedYear: courseYear
         });
@@ -448,7 +451,9 @@ export class CoursesService {
    */
   onPlanSelected(planId: number, course: Course): Observable<boolean> {
     this.closePlanSelectionModal();
-    return this.addPlanToCartInternal(planId, course);
+    // Get plan name from window (set by modal component)
+    const planName = (window as any).__selectedPlanName;
+    return this.addPlanToCartInternal(planId, course, planName);
   }
 
   /**

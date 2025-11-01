@@ -182,7 +182,13 @@ export class PlanSelectionModalComponent {
   onConfirm(): void {
     const planId = this.selectedPlanId();
     if (planId) {
+      const plan = this.plans().find(p => p.id === planId);
+      // Emit both planId and plan name for validation
       this.selectPlanConfirmed.emit(planId);
+      // Store plan name for the service to use
+      if (plan) {
+        (window as any).__selectedPlanName = plan.name;
+      }
       this.reset();
     }
   }
