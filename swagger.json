@@ -3282,6 +3282,54 @@
         }
       }
     },
+    "/api/PaymentTest/simulate-payment": {
+      "post": {
+        "tags": [
+          "PaymentTest"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PaymentTest/test-cart-clear": {
+      "post": {
+        "tags": [
+          "PaymentTest"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PaymentTest/check-triggers": {
+      "get": {
+        "tags": [
+          "PaymentTest"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PaymentTest/database-state": {
+      "get": {
+        "tags": [
+          "PaymentTest"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Progress/by-student/{id}": {
       "get": {
         "tags": [

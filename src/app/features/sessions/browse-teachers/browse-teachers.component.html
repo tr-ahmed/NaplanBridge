@@ -1,0 +1,96 @@
+<div class="browse-teachers-container p-6" dir="rtl">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">المعلمون المتاحون للحجز</h1>
+    <p class="text-gray-600 mt-1">احجز حصة خاصة مع أفضل المعلمين</p>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="mb-6">
+    <input 
+      type="text"
+      (input)="onSearchChange($event)"
+      placeholder="ابحث عن معلم أو مادة..."
+      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="flex items-center justify-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <!-- Teachers Grid -->
+  <div *ngIf="!loading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let teacher of filteredTeachers" 
+         class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
+      
+      <!-- Teacher Avatar -->
+      <div class="flex items-center mb-4">
+        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl font-bold">
+          {{ teacher.teacherName.charAt(0).toUpperCase() }}
+        </div>
+        <div class="mr-4">
+          <h3 class="text-lg font-bold text-gray-800">{{ teacher.teacherName }}</h3>
+          <p class="text-sm text-gray-600">{{ teacher.email }}</p>
+        </div>
+      </div>
+
+      <!-- Subjects -->
+      <div class="mb-4">
+        <p class="text-sm font-medium text-gray-700 mb-2">المواد التدريسية:</p>
+        <div class="flex flex-wrap gap-2">
+          <span *ngFor="let subject of teacher.subjects" 
+                class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
+            {{ subject }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <p *ngIf="teacher.description" class="text-gray-600 text-sm mb-4 line-clamp-2">
+        {{ teacher.description }}
+      </p>
+
+      <!-- Session Info -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="text-xs text-gray-600">السعر</p>
+          <p class="text-lg font-bold text-indigo-600">{{ teacher.pricePerSession }} ريال</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="text-xs text-gray-600">مدة الحصة</p>
+          <p class="text-lg font-bold text-gray-800">{{ teacher.sessionDurationMinutes }} دقيقة</p>
+        </div>
+      </div>
+
+      <!-- Booking Status -->
+      <div class="mb-4">
+        <span 
+          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+          [class]="teacher.isAcceptingBookings ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+          <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="8"/>
+          </svg>
+          {{ teacher.isAcceptingBookings ? 'متاح للحجز' : 'غير متاح حاليًا' }}
+        </span>
+      </div>
+
+      <!-- Book Button -->
+      <button 
+        (click)="bookWithTeacher(teacher)"
+        [disabled]="!teacher.isAcceptingBookings"
+        class="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium">
+        احجز حصة الآن
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && filteredTeachers.length === 0" class="text-center py-12">
+    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+    </svg>
+    <h3 class="mt-4 text-lg font-medium text-gray-900">لا توجد نتائج</h3>
+    <p class="mt-2 text-sm text-gray-500">لم نجد معلمين يطابقون بحثك</p>
+  </div>
+</div>

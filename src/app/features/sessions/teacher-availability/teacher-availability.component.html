@@ -1,0 +1,261 @@
+<div class="teacher-availability-container p-6" dir="rtl">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">إدارة المواعيد المتاحة</h1>
+      <p class="text-gray-600 mt-1">قم بإعداد مواعيدك المتاحة للحصص الخاصة</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="flex items-center justify-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading()" class="space-y-6">
+
+    <!-- Settings Card -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-800">إعدادات الحصص</h2>
+        <button
+          (click)="toggleSettingsForm()"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+          {{ showSettingsForm() ? 'إلغاء' : 'تعديل الإعدادات' }}
+        </button>
+      </div>
+
+      <!-- Current Settings Display -->
+      <div *ngIf="!showSettingsForm() && settings()" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600">مدة الحصة</p>
+          <p class="text-lg font-semibold text-gray-800">{{ settings()!.sessionDurationMinutes }} دقيقة</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600">وقت الاستراحة</p>
+          <p class="text-lg font-semibold text-gray-800">{{ settings()!.bufferTimeMinutes }} دقيقة</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600">سعر الحصة</p>
+          <p class="text-lg font-semibold text-gray-800">{{ settings()!.pricePerSession }} ريال</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600">الحد الأقصى يوميًا</p>
+          <p class="text-lg font-semibold text-gray-800">{{ settings()!.maxSessionsPerDay || '-' }} حصة</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600">حالة الحجز</p>
+          <p class="text-lg font-semibold" [class]="settings()!.isAcceptingBookings ? 'text-green-600' : 'text-red-600'">
+            {{ settings()!.isAcceptingBookings ? 'مفتوح' : 'مغلق' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Settings Form -->
+      <form *ngIf="showSettingsForm()" [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Session Duration -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              مدة الحصة (دقيقة)
+            </label>
+            <input
+              type="number"
+              formControlName="sessionDurationMinutes"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              min="15"
+              max="180">
+          </div>
+
+          <!-- Buffer Time -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              وقت الاستراحة بين الحصص (دقيقة)
+            </label>
+            <input
+              type="number"
+              formControlName="bufferTimeMinutes"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              min="0"
+              max="60">
+          </div>
+
+          <!-- Price -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              سعر الحصة (ريال)
+            </label>
+            <input
+              type="number"
+              formControlName="pricePerSession"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              min="1">
+          </div>
+
+          <!-- Max Sessions Per Day -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              الحد الأقصى للحصص يوميًا
+            </label>
+            <input
+              type="number"
+              formControlName="maxSessionsPerDay"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              min="1"
+              max="20">
+          </div>
+        </div>
+
+        <!-- Accepting Bookings -->
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="isAcceptingBookings"
+            formControlName="isAcceptingBookings"
+            class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+          <label for="isAcceptingBookings" class="mr-2 text-sm text-gray-700">
+            قبول الحجوزات الجديدة
+          </label>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            وصف (اختياري)
+          </label>
+          <textarea
+            formControlName="description"
+            rows="3"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            placeholder="معلومات إضافية عن أسلوب التدريس أو التخصصات..."></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-3">
+          <button
+            type="submit"
+            [disabled]="savingSettings() || settingsForm.invalid"
+            class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+            {{ savingSettings() ? 'جاري الحفظ...' : 'حفظ التغييرات' }}
+          </button>
+          <button
+            type="button"
+            (click)="toggleSettingsForm()"
+            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Availability Management Card -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-800">المواعيد المتاحة</h2>
+        <button
+          (click)="toggleAvailabilityForm()"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+          {{ showAvailabilityForm() ? 'إلغاء' : '+ إضافة موعد' }}
+        </button>
+      </div>
+
+      <!-- Add Availability Form -->
+      <form *ngIf="showAvailabilityForm()" [formGroup]="availabilityForm" (ngSubmit)="addAvailability()"
+            class="bg-gray-50 p-4 rounded-lg mb-4 space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Day of Week -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              اليوم
+            </label>
+            <select
+              formControlName="dayOfWeek"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+              <option value="">اختر اليوم</option>
+              <option *ngFor="let day of daysOfWeek" [value]="day">
+                {{ getDayArabic(day) }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Start Time -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              من الساعة
+            </label>
+            <input
+              type="time"
+              formControlName="startTime"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+          </div>
+
+          <!-- End Time -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              إلى الساعة
+            </label>
+            <input
+              type="time"
+              formControlName="endTime"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            type="submit"
+            [disabled]="addingAvailability() || availabilityForm.invalid"
+            class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+            {{ addingAvailability() ? 'جاري الإضافة...' : 'إضافة الموعد' }}
+          </button>
+          <button
+            type="button"
+            (click)="toggleAvailabilityForm()"
+            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+            إلغاء
+          </button>
+        </div>
+      </form>
+
+      <!-- Availabilities List -->
+      <div *ngIf="availabilities().length > 0" class="space-y-4">
+        <div *ngFor="let day of getSortedDays()" class="border border-gray-200 rounded-lg p-4">
+          <h3 class="font-semibold text-gray-800 mb-3">{{ getDayArabic(day) }}</h3>
+          <div class="space-y-2">
+            <div *ngFor="let availability of getAvailabilitiesByDay()[day]"
+                 class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+              <div class="flex items-center gap-4">
+                <span class="text-gray-700">
+                  من {{ formatTime(availability.startTime) }} إلى {{ formatTime(availability.endTime) }}
+                </span>
+                <span
+                  class="px-3 py-1 rounded-full text-sm font-medium"
+                  [class]="availability.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+                  {{ availability.isActive ? 'نشط' : 'غير نشط' }}
+                </span>
+              </div>
+              <button
+                (click)="deleteAvailability(availability)"
+                class="text-red-600 hover:text-red-800 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="availabilities().length === 0" class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">لا توجد مواعيد متاحة</h3>
+        <p class="mt-1 text-sm text-gray-500">ابدأ بإضافة مواعيدك المتاحة للحصص الخاصة</p>
+      </div>
+    </div>
+
+  </div>
+</div>

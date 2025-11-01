@@ -1,0 +1,59 @@
+<div class="student-sessions-container p-6" dir="rtl">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">حصصي الخاصة</h1>
+    <p class="text-gray-600 mt-1">الحصص القادمة مع المعلمين</p>
+  </div>
+
+  <div *ngIf="loading()" class="flex items-center justify-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <div *ngIf="!loading()" class="space-y-4">
+    <div *ngFor="let session of sessions()" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h3 class="text-xl font-bold text-gray-800">{{ session.teacherName }}</h3>
+          <p class="text-gray-600">{{ formatDateTime(session.scheduledDateTime) }}</p>
+        </div>
+        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+          {{ session.durationMinutes }} دقيقة
+        </span>
+      </div>
+
+      <p *ngIf="session.notes" class="text-gray-600 bg-gray-50 p-3 rounded-lg mb-4">
+        📝 {{ session.notes }}
+      </p>
+
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-gray-600">
+          <span *ngIf="getMinutesUntil(session.scheduledDateTime) > 0">
+            يبدأ بعد {{ getMinutesUntil(session.scheduledDateTime) }} دقيقة
+          </span>
+          <span *ngIf="getMinutesUntil(session.scheduledDateTime) <= 0 && getMinutesUntil(session.scheduledDateTime) > -60">
+            🔴 الحصة جارية الآن
+          </span>
+        </div>
+
+        <a *ngIf="canJoinSession(session.scheduledDateTime) && session.googleMeetLink" 
+           [href]="session.googleMeetLink"
+           target="_blank"
+           class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold">
+          🎥 الانضمام للحصة
+        </a>
+        <button *ngIf="!canJoinSession(session.scheduledDateTime)"
+                disabled
+                class="px-6 py-3 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed">
+          سيتم التفعيل قبل الموعد بـ 15 دقيقة
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading() && sessions().length === 0" class="text-center py-12">
+    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+    <h3 class="mt-4 text-lg font-medium text-gray-900">لا توجد حصص قادمة</h3>
+    <p class="mt-2 text-sm text-gray-500">ليس لديك أي حصص خاصة مجدولة حاليًا</p>
+  </div>
+</div>
