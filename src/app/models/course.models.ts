@@ -91,7 +91,8 @@ export interface CourseCategory {
  * Interface for Shopping Cart Item
  */
 export interface CartItem {
-  course: Course;
+  // Legacy support for old structure
+  course?: Course;
   quantity: number;
   addedDate?: Date;
   selectedPlan?: {
@@ -106,6 +107,22 @@ export interface CartItem {
     subscriptionPlanId: number;
     studentId: number;
   };
+
+  // ✅ NEW FIELDS from backend (preferred structure)
+  cartItemId?: number;
+  subscriptionPlanId?: number;
+  planName?: string;
+  studentId?: number;
+  price?: number;
+
+  // Subject/Year/Term identifiers
+  subjectId?: number;
+  subjectName?: string;
+  yearId?: number;
+  yearNumber?: number;
+  termId?: number;
+  termNumber?: number;
+  planType?: string;
 }
 
 /**

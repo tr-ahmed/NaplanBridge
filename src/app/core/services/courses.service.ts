@@ -558,7 +558,9 @@ export class CoursesService {
     }
 
     const currentCart = this.cartSubject.value;
-    const item = currentCart.items.find(item => item.course.id === courseId);
+    const item = currentCart.items.find((item: any) =>
+      item.course?.id === courseId || item.subscriptionPlanId === courseId
+    );
 
     if (item) {
       item.quantity = quantity;
@@ -630,48 +632,42 @@ export class CoursesService {
       return false;
     }
 
-    // Extract base subject name (without term info)
-    const baseSubjectName = subjectName.split(' - ')[0].trim().toLowerCase();
-    const yearFromName = subjectName.match(/Year\s+(\d+)/i);
-    const targetYear = yearFromName ? parseInt(yearFromName[1]) : yearId;
-
-    console.log('🔍 isSubjectInCart checking:', {
+    console.log('🔍 isSubjectInCart checking (legacy method):', {
       subjectName,
-      baseSubjectName,
-      targetYear,
+      yearId,
       cartItemsCount: cart.items.length
     });
 
+    // Note: This is the legacy method. Prefer using exact ID matching from cart items.
+    // This method is kept for backward compatibility.
+
     return cart.items.some((item: any) => {
-      // Get full item name
+      // New structure with IDs (preferred)
+      if (item.subjectName && item.yearId !== undefined) {
+        const match = item.subjectName.toLowerCase() === subjectName.toLowerCase() &&
+                     (!yearId || item.yearId === yearId);
+
+        console.log('� Checking cart item (new structure):', {
+          itemSubjectName: item.subjectName,
+          targetSubjectName: subjectName,
+          itemYearId: item.yearId,
+          targetYearId: yearId,
+          match
+        });
+
+        return match;
+      }
+
+      // Legacy structure (old way)
       const itemFullName = (item.course?.subjectName || item.course?.name || '').trim();
       const itemSubjectName = itemFullName.split(' - ')[0].trim().toLowerCase();
-      const itemYearMatch = itemFullName.match(/Year\s+(\d+)/i);
-      const itemYear = itemYearMatch ? parseInt(itemYearMatch[1]) : item.course?.yearId;
-
-      // ✅ EXACT match - Remove "year X" from both names for accurate comparison
+      const baseSubjectName = subjectName.split(' - ')[0].trim().toLowerCase();
       const itemNameNoYear = itemSubjectName.replace(/year\s*\d+/gi, '').trim();
       const courseNameNoYear = baseSubjectName.replace(/year\s*\d+/gi, '').trim();
 
-      const isSameSubject = itemNameNoYear === courseNameNoYear;
-      const isSameYear = !targetYear || !itemYear || itemYear === targetYear;
-
-      console.log('🔄 Checking cart item:', {
-        itemFullName: itemFullName,
-        itemNameClean: itemNameNoYear,
-        courseNameClean: courseNameNoYear,
-        isSameSubject,
-        itemYear,
-        targetYear,
-        isSameYear,
-        match: isSameSubject && isSameYear
-      });
-
-      return isSameSubject && isSameYear;
+      return itemNameNoYear === courseNameNoYear;
     });
-  }
-
-  /**
+  }  /**
    * Enroll in a course (simulate purchase)
    */
   enrollInCourse(courseId: number): Observable<boolean> {
@@ -809,7 +805,14 @@ export class CoursesService {
 
   private updateCartTotals(cart: Cart): void {
     cart.totalItems = cart.items.reduce((total, item) => total + item.quantity, 0);
-    cart.totalAmount = cart.items.reduce((total, item) => total + (item.course.price * item.quantity), 0);
+    cart.totalAmount = cart.items.reduce((total, item: any) => {
+      // New structure with price field
+      if (item.price !== undefined) {
+        return total + (item.price * item.quantity);
+      }
+      // Legacy structure with course.price
+      return total + ((item.course?.price || 0) * item.quantity);
+    }, 0);
   }
 
   private saveCartToStorage(): void {

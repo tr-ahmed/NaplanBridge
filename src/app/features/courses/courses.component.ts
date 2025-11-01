@@ -357,130 +357,108 @@ export class CoursesComponent implements OnInit, OnDestroy {
   }
 
   removeFromCart(courseId: number): void {
-    // Find the course to get subject name and year
+    // ✅ NEW: Use exact ID matching from enhanced cart response
     const course = this.courses().find(c => c.id === courseId);
     if (!course) {
-      console.error('Course not found:', courseId);
+      console.error('❌ Course not found:', courseId);
       return;
     }
 
-    const subjectName = course.subjectName || course.name || '';
-
-    // Extract year from first plan name
-    const firstPlan = course.subscriptionPlans && course.subscriptionPlans.length > 0
-      ? course.subscriptionPlans[0]
-      : null;
-
-    let yearToCheck = course.yearId;
-    if (firstPlan && firstPlan.name) {
-      const yearMatch = firstPlan.name.match(/Year\s+(\d+)/i);
-      if (yearMatch) {
-        yearToCheck = parseInt(yearMatch[1]);
-      }
-    }
-
-    // Find cart item by subject name and year
     const cart = this.coursesService.getCartValue();
+
+    // Find cart item using exact subjectId and yearId
     const cartItem = cart.items.find((item: any) => {
-      // Get full item name and clean it
+      // New backend structure with IDs (preferred)
+      if (item.subjectId !== undefined && item.yearId !== undefined) {
+        const match = item.subjectId === course.id && item.yearId === course.yearId;
+
+        console.log('🔍 Finding cart item by ID:', {
+          courseId: course.id,
+          courseName: course.name || course.subjectName,
+          courseYearId: course.yearId,
+          itemSubjectId: item.subjectId,
+          itemYearId: item.yearId,
+          itemCartItemId: item.cartItemId,
+          match
+        });
+
+        return match;
+      }
+
+      // Fallback: Legacy structure (old way)
       const itemFullName = (item.course?.subjectName || item.course?.name || '').trim();
       const itemSubjectName = itemFullName.split(' - ')[0].trim().toLowerCase();
-
-      // Get course base name (without year and term info)
-      const baseSubjectName = subjectName.split(' - ')[0].trim().toLowerCase();
-
-      // Extract year from item
-      const itemYearMatch = itemFullName.match(/Year\s+(\d+)/i);
-      const itemYear = itemYearMatch ? parseInt(itemYearMatch[1]) : item.course?.yearId;
-
-      // ✅ EXACT match - not using includes() to avoid false positives
-      // Remove "year X" from both names for comparison
+      const baseSubjectName = (course.subjectName || course.name || '').split(' - ')[0].trim().toLowerCase();
       const itemNameNoYear = itemSubjectName.replace(/year\s*\d+/gi, '').trim();
       const courseNameNoYear = baseSubjectName.replace(/year\s*\d+/gi, '').trim();
 
-      const isSameSubject = itemNameNoYear === courseNameNoYear;
-      const isSameYear = itemYear === yearToCheck;
-
-      console.log('🔍 Comparing cart item:', {
-        itemName: itemSubjectName,
-        courseName: baseSubjectName,
-        itemNameClean: itemNameNoYear,
-        courseNameClean: courseNameNoYear,
-        isSameSubject,
-        itemYear,
-        yearToCheck,
-        isSameYear,
-        matches: isSameSubject && isSameYear
-      });
-
-      return isSameSubject && isSameYear;
+      return itemNameNoYear === courseNameNoYear;
     });
 
     if (!cartItem) {
-      console.error('❌ Cart item not found for course:', subjectName, 'year:', yearToCheck);
+      console.error('❌ Cart item not found for course:', course.name || course.subjectName);
       console.log('📦 Available cart items:', cart.items.map((item: any) => ({
-        name: item.course?.subjectName || item.course?.name,
-        id: item.course?.id
+        subjectId: item.subjectId,
+        subjectName: item.subjectName,
+        yearId: item.yearId,
+        cartItemId: item.cartItemId
       })));
       return;
     }
 
-    // Get the subscriptionPlanId from the cart item
-    const planIdToRemove = (cartItem as any).course?.id || (cartItem as any)._backendData?.subscriptionPlanId;
+    // Get the cartItemId or subscriptionPlanId to remove
+    const itemId = (cartItem as any).cartItemId ||
+                   (cartItem as any).subscriptionPlanId ||
+                   (cartItem as any)._backendData?.subscriptionPlanId;
 
     console.log('🗑️ Removing cart item:', {
-      courseId,
-      courseName: subjectName,
-      year: yearToCheck,
-      planIdToRemove
+      courseId: course.id,
+      courseName: course.name || course.subjectName,
+      itemId,
+      cartItem: {
+        subjectId: (cartItem as any).subjectId,
+        yearId: (cartItem as any).yearId,
+        cartItemId: (cartItem as any).cartItemId
+      }
     });
 
-    this.coursesService.removeFromCart(planIdToRemove)
+    this.coursesService.removeFromCart(itemId)
       .pipe(takeUntil(this.destroy$))
       .subscribe(success => {
         if (success) {
-          console.log('Removed course from cart');
+          console.log('✅ Removed course from cart');
         }
       });
-  }
-
-  isInCart(courseId: number): boolean {
-    // First check by ID
-    if (this.coursesService.isInCart(courseId)) {
-      return true;
-    }
-
-    // If not found by ID, check by subject name and year
+  }  isInCart(courseId: number): boolean {
+    // ✅ NEW: Use exact ID matching from enhanced cart response
     const course = this.courses().find(c => c.id === courseId);
-    if (course) {
-      const subjectName = course.subjectName || course.name || '';
+    if (!course) return false;
 
-      // Extract year from first plan name (most reliable)
-      const firstPlan = course.subscriptionPlans && course.subscriptionPlans.length > 0
-        ? course.subscriptionPlans[0]
-        : null;
+    const cart = this.coursesService.getCartValue();
 
-      let yearToCheck = course.yearId;
+    // Check using exact subjectId and yearId from enhanced cart items
+    const inCart = cart.items.some((item: any) => {
+      // New backend structure with IDs
+      if (item.subjectId !== undefined && item.yearId !== undefined) {
+        const match = item.subjectId === course.id && item.yearId === course.yearId;
 
-      if (firstPlan && firstPlan.name) {
-        const yearMatch = firstPlan.name.match(/Year\s+(\d+)/i);
-        if (yearMatch) {
-          yearToCheck = parseInt(yearMatch[1]);
-        }
+        console.log('🔍 Exact ID matching:', {
+          courseId: course.id,
+          courseName: course.name || course.subjectName,
+          courseYearId: course.yearId,
+          itemSubjectId: item.subjectId,
+          itemYearId: item.yearId,
+          match
+        });
+
+        return match;
       }
 
-      console.log('🔍 isInCart check:', {
-        courseId,
-        subjectName,
-        courseYearId: course.yearId,
-        extractedYear: yearToCheck,
-        firstPlanName: firstPlan?.name
-      });
+      // Fallback to legacy structure (for backward compatibility)
+      return this.coursesService.isInCart(courseId);
+    });
 
-      return this.coursesService.isSubjectInCart(subjectName, yearToCheck);
-    }
-
-    return false;
+    return inCart;
   }
 
   /**
