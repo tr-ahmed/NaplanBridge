@@ -524,11 +524,41 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Navigate to lessons for a specific course/subject
    */
   viewLessons(course: Course): void {
+    // Get first subscription plan to extract term info
+    const firstPlan = course.subscriptionPlans && course.subscriptionPlans.length > 0
+      ? course.subscriptionPlans[0]
+      : null;
+
+    // Try to extract term ID from plan name
+    let termId: number | undefined;
+    if (firstPlan?.name) {
+      const termMatch = firstPlan.name.match(/Term\s*(\d+)/i);
+      if (termMatch) {
+        termId = parseInt(termMatch[1]);
+      }
+    }
+
+    // If no term found in plan name, default to Term 1
+    if (!termId) {
+      termId = 1;
+    }
+
+    console.log('📚 Navigating to lessons:', {
+      courseId: course.id,
+      courseName: course.name || course.subjectName,
+      subjectId: course.subjectNameId,
+      yearId: course.yearId,
+      termId: termId,
+      planName: firstPlan?.name
+    });
+
     this.router.navigate(['/lessons'], {
       queryParams: {
         subjectId: course.subjectNameId,
         subject: course.subject || course.subjectName,
-        courseId: course.id
+        courseId: course.id,
+        yearId: course.yearId,
+        termId: termId
       }
     });
   }

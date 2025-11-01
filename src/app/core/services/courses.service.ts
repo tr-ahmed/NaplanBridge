@@ -528,7 +528,7 @@ export class CoursesService {
 
     const cartItem = currentCart.items.find((item: any) => {
       // Try to get cartItemId from multiple possible locations
-      const itemCartId = 
+      const itemCartId =
         item.cartItemId ||                       // Direct field (new structure)
         item._backendData?.cartItemId ||         // Backend data reference
         item.id;                                 // Fallback
