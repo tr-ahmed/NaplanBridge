@@ -136,11 +136,37 @@ export const routes: Routes = [
   // Teacher Dashboard
   {
     path: 'teacher/dashboard',
-    loadComponent: () => import('./teacher/dashboard/dashboard.component').then(m => m.ContentManagementComponent),
+    loadComponent: () => import('./features/teacher-dashboard/teacher-dashboard.component').then(m => m.TeacherDashboardComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')]
-          ,  data: { hideHeader: true, hideFooter: true }
-
   },
+  
+  // Teacher Management Routes (Placeholder - To be implemented)
+  {
+    path: 'teacher/grade/:studentExamId',
+    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
+    pathMatch: 'full'
+  },
+  {
+    path: 'teacher/exams',
+    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
+    pathMatch: 'full'
+  },
+  {
+    path: 'teacher/class/:classId',
+    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
+    pathMatch: 'full'
+  },
+  {
+    path: 'teacher/exam/create',
+    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
+    pathMatch: 'full'
+  },
+  {
+    path: 'teacher/students',
+    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
+    pathMatch: 'full'
+  },
+
 { path: 'user/:id', component: UserProfileComponent },
 
   { path: 'user/edit/:id', component: UserEditComponent },

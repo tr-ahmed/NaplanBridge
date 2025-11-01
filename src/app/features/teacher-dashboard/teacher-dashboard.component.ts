@@ -10,6 +10,7 @@ import { AuthService } from '../../auth/auth.service';
 import { ExamService } from '../../core/services/exam.service';
 import { SubjectService } from '../../core/services/subject.service';
 import { ToastService } from '../../core/services/toast.service';
+import { DashboardService, TeacherDashboardData } from '../../core/services/dashboard.service';
 
 interface TeacherStats {
   totalStudents: number;
@@ -52,7 +53,7 @@ interface RecentActivity {
 @Component({
   selector: 'app-teacher-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './teacher-dashboard.component.html',
   styleUrl: './teacher-dashboard.component.scss'
 })
@@ -63,6 +64,7 @@ export class TeacherDashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  private dashboardService = inject(DashboardService);
 
   // State
   loading = signal<boolean>(true);
@@ -123,20 +125,38 @@ export class TeacherDashboardComponent implements OnInit {
   }
 
   /**
-   * Load teacher statistics
+   * Load teacher statistics from API
    */
   private loadTeacherStats(): Promise<void> {
-    return new Promise((resolve) => {
-      // Mock data for now
-      this.stats.set({
-        totalStudents: 125,
-        activeClasses: 8,
-        pendingGrading: 12,
-        upcomingExams: 5,
-        completedExams: 34,
-        averageClassScore: 78
+    return new Promise((resolve, reject) => {
+      this.dashboardService.getTeacherDashboard().subscribe({
+        next: (response) => {
+          if (response && response.totalStudents !== undefined) {
+            this.stats.set({
+              totalStudents: response.totalStudents || 0,
+              activeClasses: response.totalLessons || 0,
+              pendingGrading: 0, // Will be calculated from pending grading tasks
+              upcomingExams: response.upcomingSessions?.length || 0,
+              completedExams: 0, // Not available in current API
+              averageClassScore: 0 // Not available in current API
+            });
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error loading teacher stats:', error);
+          // Use mock data as fallback
+          this.stats.set({
+            totalStudents: 0,
+            activeClasses: 0,
+            pendingGrading: 0,
+            upcomingExams: 0,
+            completedExams: 0,
+            averageClassScore: 0
+          });
+          resolve(); // Don't reject to allow other data to load
+        }
       });
-      resolve();
     });
   }
 
@@ -288,35 +308,42 @@ export class TeacherDashboardComponent implements OnInit {
    * Navigate to grading page
    */
   goToGrading(studentExamId: number): void {
-    this.router.navigate(['/teacher/grade', studentExamId]);
+    // TODO: Implement grading page
+    this.toastService.showWarning('Grading page coming soon');
+    console.log('Navigate to grade exam:', studentExamId);
   }
 
   /**
    * Navigate to exam management
    */
   goToExamManagement(): void {
-    this.router.navigate(['/teacher/exams']);
+    // TODO: Implement exam management page
+    this.toastService.showWarning('Exam management page coming soon');
   }
 
   /**
    * Navigate to class details
    */
   viewClass(classId: number): void {
-    this.router.navigate(['/teacher/class', classId]);
+    // TODO: Implement class details page
+    this.toastService.showWarning('Class details page coming soon');
+    console.log('Navigate to class:', classId);
   }
 
   /**
    * Navigate to create exam
    */
   createExam(): void {
-    this.router.navigate(['/teacher/exam/create']);
+    // TODO: Implement exam creation page
+    this.toastService.showWarning('Exam creation page coming soon');
   }
 
   /**
    * Navigate to students
    */
   viewStudents(): void {
-    this.router.navigate(['/teacher/students']);
+    // TODO: Implement students list page
+    this.toastService.showWarning('Students page coming soon');
   }
 
   /**
