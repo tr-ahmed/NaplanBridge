@@ -76,6 +76,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/subscription-checkout/subscription-checkout.component').then(m => m.SubscriptionCheckoutComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'checkout',
+    loadComponent: () => import('./features/checkout/checkout.component').then(m => m.CheckoutComponent),
+    canActivate: [authGuard]
+  },
 
   // Parent Dashboard
   {
