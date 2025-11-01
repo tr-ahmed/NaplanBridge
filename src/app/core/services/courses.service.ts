@@ -198,12 +198,17 @@ export class CoursesService {
       switchMap((loadedCart) => {
         console.log('✅ Cart loaded for validation:', loadedCart);
 
+        // Extract year from course name since yearId might not be accurate
+        const courseYearMatch = (course.subjectName || course.name || '').match(/Year\s+(\d+)/i);
+        const courseYear = courseYearMatch ? parseInt(courseYearMatch[1]) : course.yearId;
+
         // Now check if subject already exists in cart
         console.log('🔍 Checking for duplicate subject in cart...');
         console.log('📚 New course:', {
           id: course.id,
           name: course.subjectName || course.name,
-          yearId: course.yearId
+          yearId: course.yearId,
+          extractedYear: courseYear
         });
         console.log('🛒 Current cart items:', loadedCart.items.map((item: any) => ({
           id: item.course?.id,
@@ -216,12 +221,12 @@ export class CoursesService {
           const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim();
           const newSubjectName = (course.subjectName || course.name || '').split(' - ')[0].trim();
 
-          // Extract year from name if not in yearId
+          // Extract year from name (most reliable source)
           const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
-          const newYearMatch = (course.subjectName || course.name || '').match(/Year\s+(\d+)/i);
+          const itemYear = itemYearMatch ? parseInt(itemYearMatch[1]) : item.course?.yearId;
 
-          const itemYear = item.course?.yearId || (itemYearMatch ? parseInt(itemYearMatch[1]) : null);
-          const newYear = course.yearId || (newYearMatch ? parseInt(newYearMatch[1]) : null);
+          // Use the extracted year from course name (not yearId which might be wrong)
+          const newYear = courseYear;
 
           // Check if same subject and same year
           const isSameSubject = itemSubjectName.toLowerCase().includes(newSubjectName.toLowerCase()) ||
