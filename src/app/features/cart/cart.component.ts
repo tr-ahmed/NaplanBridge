@@ -184,28 +184,39 @@ export class CartComponent implements OnInit, OnDestroy {
     }
 
     // Check if student is selected
-    if (this.selectedStudentId() === null) {
+    const studentId = this.selectedStudentId();
+    if (studentId === null) {
       this.toastService.showWarning('Please select the student you want to enroll in the courses');
       return;
     }
 
-    const selectedStudent = this.students().find(s => s.id === this.selectedStudentId());
-    if (!selectedStudent) {
-      this.toastService.showError('The selected student is invalid');
-      return;
+    // For students, get name from current user
+    let studentName = 'Student';
+    if (this.isStudent()) {
+      const currentUser = this.authService.getCurrentUser();
+      studentName = currentUser?.userName || 'Student';
+    } else {
+      // For parents, find student in list
+      const selectedStudent = this.students().find(s => s.id === studentId);
+      if (!selectedStudent) {
+        this.toastService.showError('The selected student is invalid');
+        return;
+      }
+      studentName = selectedStudent.userName;
     }
 
     // Navigate to checkout page
     console.log('📦 Proceeding to checkout:', {
-      studentId: this.selectedStudentId(),
-      studentName: selectedStudent.userName,
+      studentId: studentId,
+      studentName: studentName,
       totalAmount: this.cart().totalAmount,
-      itemsCount: this.cart().items.length
+      itemsCount: this.cart().items.length,
+      isStudent: this.isStudent()
     });
 
     this.router.navigate(['/checkout'], {
       queryParams: {
-        studentId: this.selectedStudentId()
+        studentId: studentId
       }
     });
   }
