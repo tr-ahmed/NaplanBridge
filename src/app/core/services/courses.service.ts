@@ -371,7 +371,7 @@ export class CoursesService {
 
         console.log('📦 Extracted raw items:', rawItems);
         console.log('🔢 Items count:', rawItems.length);
-        
+
         // Log first item structure to see what backend returns
         if (rawItems.length > 0) {
           console.log('🔍 First item structure:', JSON.stringify(rawItems[0], null, 2));
@@ -405,14 +405,14 @@ export class CoursesService {
             duration: backendItem.duration || 30,
             features: []
           },
-          
+
           // ✅ NEW FIELDS from enhanced backend response
           cartItemId: backendItem.cartItemId,
           subscriptionPlanId: backendItem.subscriptionPlanId,
           planName: backendItem.planName,
           studentId: backendItem.studentId,
           price: backendItem.price,
-          
+
           // Subject/Year/Term identifiers
           subjectId: backendItem.subjectId,
           subjectName: backendItem.subjectName,
@@ -421,7 +421,7 @@ export class CoursesService {
           termId: backendItem.termId,
           termNumber: backendItem.termNumber,
           planType: backendItem.planType,
-          
+
           // Keep backend fields for reference
           _backendData: {
             cartItemId: backendItem.cartItemId,
@@ -431,7 +431,7 @@ export class CoursesService {
         } as any));
 
         console.log('✅ Transformed items:', items);
-        
+
         // Log first transformed item with new fields
         if (items.length > 0) {
           console.log('🔍 First transformed item:', {
@@ -513,8 +513,8 @@ export class CoursesService {
   /**
    * Remove course from cart
    */
-  removeFromCart(courseId: number): Observable<boolean> {
-    console.log('🗑️ Removing courseId:', courseId, 'from cart');
+  removeFromCart(itemIdToRemove: number): Observable<boolean> {
+    console.log('🗑️ Removing itemId:', itemIdToRemove, 'from cart');
 
     // Check if user is authenticated before making API call
     if (!this.authService.isAuthenticated()) {
@@ -522,39 +522,34 @@ export class CoursesService {
       return of(true);
     }
 
-    // ⚠️ CRITICAL: Find cartItemId BEFORE removing from local cart
+    // ⚠️ CRITICAL: Find cart item by cartItemId directly
     const currentCart = this.cartSubject.value;
     console.log('📦 Current cart items:', currentCart.items);
 
     const cartItem = currentCart.items.find((item: any) => {
-      const itemCourseId =
-        item.course?.id ||                        // Transformed structure (primary)
-        item._backendData?.subscriptionPlanId ||  // Backend data reference
-        item.subscriptionPlanId ||
-        item.courseId ||
-        item.id;
+      // Try to get cartItemId from multiple possible locations
+      const itemCartId = 
+        item.cartItemId ||                       // Direct field (new structure)
+        item._backendData?.cartItemId ||         // Backend data reference
+        item.id;                                 // Fallback
 
-      console.log('🔍 Checking item:', itemCourseId, 'against courseId:', courseId);
-      return itemCourseId === courseId;
+      console.log('🔍 Checking item cartItemId:', itemCartId, 'against target:', itemIdToRemove);
+      return itemCartId === itemIdToRemove;
     });
 
     if (!cartItem) {
-      console.warn('⚠️ Cart item not found for courseId:', courseId);
-      console.warn('📦 Available cart items:', currentCart.items);
+      console.warn('⚠️ Cart item not found for cartItemId:', itemIdToRemove);
+      console.warn('📦 Available cart items:', currentCart.items.map((i: any) => ({
+        cartItemId: i.cartItemId || i._backendData?.cartItemId,
+        subjectId: i.subjectId,
+        subjectName: i.subjectName
+      })));
       this.toastService.showError('Item not found in cart');
       return of(false);
     }
 
-    // Get cartItemId from _backendData or fallback
-    const cartItemId = (cartItem as any)._backendData?.cartItemId ||
-                       (cartItem as any).cartItemId ||
-                       (cartItem as any).id;
-
-    if (!cartItemId) {
-      console.error('❌ No cartItemId found!');
-      this.toastService.showError('Unable to remove item');
-      return of(false);
-    }
+    // Use the itemIdToRemove directly as cartItemId
+    const cartItemId = itemIdToRemove;
 
     console.log('🗑️ Removing cartItemId:', cartItemId, 'from backend');
 
