@@ -351,10 +351,15 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   getSubjectNameOnly(fullName: string): string {
     if (!fullName) return '';
-    
+
+    console.log('🔍 getSubjectNameOnly input:', fullName);
+
     // Split by " Year " and take the first part
     const parts = fullName.split(/\s+Year\s+/i);
-    return parts[0].trim();
+    const result = parts[0].trim();
+
+    console.log('✅ getSubjectNameOnly output:', result);
+    return result;
   }
 
   /**
@@ -363,9 +368,14 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   getYearAndTerm(fullName: string): string {
     if (!fullName) return '';
-    
+
+    console.log('🔍 getYearAndTerm input:', fullName);
+
     // Find "Year X" and everything after it
     const match = fullName.match(/Year\s+\d+[\s\S]*/i);
-    return match ? match[0] : '';
+    const result = match ? match[0] : '';
+
+    console.log('✅ getYearAndTerm output:', result);
+    return result;
   }
 }
