@@ -235,18 +235,10 @@ export class AuthService {
       const decoded = atob(payload);
       const parsed = JSON.parse(decoded);
 
-      console.log('🔓 Decoding JWT Token...');
-      console.log('📦 Raw token payload:', parsed);
-      console.log('🔑 Token claims:', {
-        'nameid (User.Id)': parsed.nameid,
-        'studentId (Student.Id)': parsed.studentId,
-        'unique_name': parsed.unique_name,
-        'email': parsed.email,
-        'role': parsed.role,
-        'yearId': parsed.yearId,
-        'hasStudentId': 'studentId' in parsed,
-        'hasYearId': 'yearId' in parsed
-      });
+      // Reduced logging for cleaner console
+      if (!environment.production) {
+        console.log('🔓 User authenticated:', parsed.unique_name, '| Role:', parsed.role);
+      }
 
       // 🎯 CRITICAL: Map JWT claims to user object
       // ⚠️ DO NOT confuse these IDs:
@@ -262,18 +254,22 @@ export class AuthService {
         yearId: parsed.yearId ? parseInt(parsed.yearId) : undefined
       };
 
-      console.log('✅ Mapped user object:', user);
-      console.log('🆔 User.Id (nameid):', user.id, '→ Use for authentication');
-      console.log('🎓 Student.Id (studentId):', user.studentId, '→ Use for cart/orders');
+      // Only show warnings for Student role
+      const isStudent = user.role.includes('Student');
 
-      if (parsed.studentId) {
-        console.log('✅ studentId claim found:', parsed.studentId);
-      } else {
-        console.warn('⚠️ studentId NOT found in token! Cart will not work for students.');
-      }
-
-      if (!parsed.yearId) {
-        console.warn('⚠️ yearId NOT found in token! Year filtering disabled.');
+      if (!environment.production) {
+        // Detailed logging in development only
+        if (isStudent) {
+          console.log('🎓 Student logged in:', user.userName);
+          if (!parsed.studentId) {
+            console.warn('⚠️ studentId NOT found in token! Cart will not work.');
+          }
+          if (!parsed.yearId) {
+            console.warn('⚠️ yearId NOT found in token! Year filtering disabled.');
+          }
+        } else {
+          console.log('👤 User logged in:', user.userName, '| Role:', user.role.join(', '));
+        }
       }
 
       return user;
