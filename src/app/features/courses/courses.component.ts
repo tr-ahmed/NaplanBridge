@@ -369,21 +369,21 @@ export class CoursesComponent implements OnInit, OnDestroy {
     const course = this.courses().find(c => c.id === courseId);
     if (course) {
       const subjectName = course.subjectName || course.name || '';
-      
+
       // Extract year from first plan name (most reliable)
-      const firstPlan = course.subscriptionPlans && course.subscriptionPlans.length > 0 
-        ? course.subscriptionPlans[0] 
+      const firstPlan = course.subscriptionPlans && course.subscriptionPlans.length > 0
+        ? course.subscriptionPlans[0]
         : null;
-      
+
       let yearToCheck = course.yearId;
-      
+
       if (firstPlan && firstPlan.name) {
         const yearMatch = firstPlan.name.match(/Year\s+(\d+)/i);
         if (yearMatch) {
           yearToCheck = parseInt(yearMatch[1]);
         }
       }
-      
+
       console.log('🔍 isInCart check:', {
         courseId,
         subjectName,
@@ -391,7 +391,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         extractedYear: yearToCheck,
         firstPlanName: firstPlan?.name
       });
-      
+
       return this.coursesService.isSubjectInCart(subjectName, yearToCheck);
     }
 
