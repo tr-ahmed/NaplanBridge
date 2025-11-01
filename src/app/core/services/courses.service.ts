@@ -643,17 +643,23 @@ export class CoursesService {
     });
 
     return cart.items.some((item: any) => {
-      const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim().toLowerCase();
-      const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
+      // Get full item name
+      const itemFullName = (item.course?.subjectName || item.course?.name || '').trim();
+      const itemSubjectName = itemFullName.split(' - ')[0].trim().toLowerCase();
+      const itemYearMatch = itemFullName.match(/Year\s+(\d+)/i);
       const itemYear = itemYearMatch ? parseInt(itemYearMatch[1]) : item.course?.yearId;
 
-      const isSameSubject = itemSubjectName.includes(baseSubjectName) ||
-                           baseSubjectName.includes(itemSubjectName);
+      // ✅ EXACT match - Remove "year X" from both names for accurate comparison
+      const itemNameNoYear = itemSubjectName.replace(/year\s*\d+/gi, '').trim();
+      const courseNameNoYear = baseSubjectName.replace(/year\s*\d+/gi, '').trim();
+      
+      const isSameSubject = itemNameNoYear === courseNameNoYear;
       const isSameYear = !targetYear || !itemYear || itemYear === targetYear;
 
       console.log('🔄 Checking cart item:', {
-        itemSubjectName,
-        baseSubjectName,
+        itemFullName: itemFullName,
+        itemNameClean: itemNameNoYear,
+        courseNameClean: courseNameNoYear,
         isSameSubject,
         itemYear,
         targetYear,

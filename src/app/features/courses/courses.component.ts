@@ -382,19 +382,46 @@ export class CoursesComponent implements OnInit, OnDestroy {
     // Find cart item by subject name and year
     const cart = this.coursesService.getCartValue();
     const cartItem = cart.items.find((item: any) => {
-      const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim().toLowerCase();
+      // Get full item name and clean it
+      const itemFullName = (item.course?.subjectName || item.course?.name || '').trim();
+      const itemSubjectName = itemFullName.split(' - ')[0].trim().toLowerCase();
+      
+      // Get course base name (without year and term info)
       const baseSubjectName = subjectName.split(' - ')[0].trim().toLowerCase();
-      const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
+      
+      // Extract year from item
+      const itemYearMatch = itemFullName.match(/Year\s+(\d+)/i);
       const itemYear = itemYearMatch ? parseInt(itemYearMatch[1]) : item.course?.yearId;
 
-      const isSameSubject = itemSubjectName.includes(baseSubjectName) || baseSubjectName.includes(itemSubjectName);
+      // ✅ EXACT match - not using includes() to avoid false positives
+      // Remove "year X" from both names for comparison
+      const itemNameNoYear = itemSubjectName.replace(/year\s*\d+/gi, '').trim();
+      const courseNameNoYear = baseSubjectName.replace(/year\s*\d+/gi, '').trim();
+      
+      const isSameSubject = itemNameNoYear === courseNameNoYear;
       const isSameYear = itemYear === yearToCheck;
+
+      console.log('🔍 Comparing cart item:', {
+        itemName: itemSubjectName,
+        courseName: baseSubjectName,
+        itemNameClean: itemNameNoYear,
+        courseNameClean: courseNameNoYear,
+        isSameSubject,
+        itemYear,
+        yearToCheck,
+        isSameYear,
+        matches: isSameSubject && isSameYear
+      });
 
       return isSameSubject && isSameYear;
     });
 
     if (!cartItem) {
-      console.error('Cart item not found for course:', subjectName, 'year:', yearToCheck);
+      console.error('❌ Cart item not found for course:', subjectName, 'year:', yearToCheck);
+      console.log('📦 Available cart items:', cart.items.map((item: any) => ({
+        name: item.course?.subjectName || item.course?.name,
+        id: item.course?.id
+      })));
       return;
     }
 
@@ -552,7 +579,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
    */
   private loadStudentSubscriptions(): void {
     const currentUser = this.authService.getCurrentUser();
-    
+
     if (!currentUser?.studentId) {
       console.warn('⚠️ No student ID found, skipping subscription load');
       return;
@@ -565,7 +592,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (summary) => {
           console.log('✅ Subscriptions loaded:', summary);
-          
+
           // Check for Full Year subscription
           this.hasFullYearSubscription = summary.subscriptions.some(
             sub => sub.planType === 'FullYear'

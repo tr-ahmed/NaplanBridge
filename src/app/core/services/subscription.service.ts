@@ -795,7 +795,7 @@ export class SubscriptionService {
    */
   loadSubscriptionsSummary(studentId: number): Observable<SubscriptionsSummary> {
     const url = `${this.baseUrl}/StudentSubjects/student/${studentId}/subscriptions-summary`;
-    
+
     console.log('📦 Loading subscriptions summary for student:', studentId);
 
     if (environment.useMock) {
@@ -826,7 +826,7 @@ export class SubscriptionService {
           }
         ]
       };
-      
+
       this.subscriptionsSummaryCache$.next(mockSummary);
       return of(mockSummary);
     }
@@ -872,7 +872,7 @@ export class SubscriptionService {
   hasFullYearAccess(): boolean {
     const data = this.subscriptionsSummaryCache$.value;
     if (!data) return false;
-    
+
     return data.subscriptions.some(sub => sub.planType === 'FullYear');
   }
 
@@ -882,7 +882,7 @@ export class SubscriptionService {
   getEnrolledSubjectNames(): string[] {
     const data = this.subscriptionsSummaryCache$.value;
     if (!data) return [];
-    
+
     return data.subscriptions
       .filter(sub => sub.subjectName)
       .map(sub => sub.subjectName as string);
