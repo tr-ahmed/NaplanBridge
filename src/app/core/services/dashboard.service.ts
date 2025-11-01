@@ -28,10 +28,29 @@ export interface ParentDashboardData {
 }
 
 export interface TeacherDashboardData {
-  totalStudents: number;
-  totalLessons: number;
+  teacherInfo: {
+    id: number;
+    name: string;
+    subjects: string[];
+    rating: number;
+    totalSessions: number;
+  };
   upcomingSessions: any[];
-  recentActivities: any[];
+  sessionStats: {
+    thisWeek: number;
+    thisMonth: number;
+    totalCompleted: number;
+    totalEarnings: number;
+  };
+  pendingQuestions: {
+    unansweredCount: number;
+    recentQuestions: any[];
+  };
+  studentProgress: {
+    totalStudents: number;
+    averageProgress: number;
+  };
+  recentReviews: any[];
 }
 
 @Injectable({
