@@ -371,11 +371,17 @@ export class CoursesService {
 
         console.log('📦 Extracted raw items:', rawItems);
         console.log('🔢 Items count:', rawItems.length);
+        
+        // Log first item structure to see what backend returns
+        if (rawItems.length > 0) {
+          console.log('🔍 First item structure:', JSON.stringify(rawItems[0], null, 2));
+        }
 
         // Transform backend items to frontend CartItem structure
-        // Backend: { cartItemId, subscriptionPlanId, planName, price, quantity, studentId }
-        // Frontend: { course: { id, name, ... }, quantity, selectedPlan }
+        // Backend: { cartItemId, subscriptionPlanId, planName, price, quantity, studentId, subjectId, yearId, termId }
+        // Frontend: CartItem with both legacy (course) and new (subjectId, yearId) fields
         const items: CartItem[] = rawItems.map((backendItem: any) => ({
+          // Legacy course structure (for backward compatibility)
           course: {
             id: backendItem.subscriptionPlanId || backendItem.courseId,
             subjectName: backendItem.planName || backendItem.courseName || 'Unknown Course',
@@ -384,7 +390,6 @@ export class CoursesService {
             description: backendItem.description || backendItem.planName || '',
             categoryName: backendItem.categoryName || '',
             teacherName: backendItem.teacherName || '',
-            // Add fields used in cart template
             instructor: backendItem.teacherName || backendItem.instructor,
             duration: backendItem.duration,
             price: backendItem.price,
@@ -400,6 +405,23 @@ export class CoursesService {
             duration: backendItem.duration || 30,
             features: []
           },
+          
+          // ✅ NEW FIELDS from enhanced backend response
+          cartItemId: backendItem.cartItemId,
+          subscriptionPlanId: backendItem.subscriptionPlanId,
+          planName: backendItem.planName,
+          studentId: backendItem.studentId,
+          price: backendItem.price,
+          
+          // Subject/Year/Term identifiers
+          subjectId: backendItem.subjectId,
+          subjectName: backendItem.subjectName,
+          yearId: backendItem.yearId,
+          yearNumber: backendItem.yearNumber,
+          termId: backendItem.termId,
+          termNumber: backendItem.termNumber,
+          planType: backendItem.planType,
+          
           // Keep backend fields for reference
           _backendData: {
             cartItemId: backendItem.cartItemId,
@@ -409,6 +431,20 @@ export class CoursesService {
         } as any));
 
         console.log('✅ Transformed items:', items);
+        
+        // Log first transformed item with new fields
+        if (items.length > 0) {
+          console.log('🔍 First transformed item:', {
+            subjectId: items[0].subjectId,
+            subjectName: items[0].subjectName,
+            yearId: items[0].yearId,
+            yearNumber: items[0].yearNumber,
+            termId: items[0].termId,
+            termNumber: items[0].termNumber,
+            planType: items[0].planType,
+            cartItemId: items[0].cartItemId
+          });
+        }
 
         const cart: Cart = {
           items: items,

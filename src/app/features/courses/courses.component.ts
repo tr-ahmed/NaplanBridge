@@ -435,14 +435,31 @@ export class CoursesComponent implements OnInit, OnDestroy {
     if (!course) return false;
 
     const cart = this.coursesService.getCartValue();
+    
+    console.log('🔍 isInCart called:', {
+      courseId: course.id,
+      courseName: course.name || course.subjectName,
+      courseYearId: course.yearId,
+      cartItemsCount: cart.items.length
+    });
 
     // Check using exact subjectId and yearId from enhanced cart items
     const inCart = cart.items.some((item: any) => {
+      console.log('🔄 Checking cart item:', {
+        hasSubjectId: item.subjectId !== undefined,
+        hasYearId: item.yearId !== undefined,
+        subjectId: item.subjectId,
+        yearId: item.yearId,
+        subjectName: item.subjectName,
+        planName: item.planName,
+        legacyCourseName: item.course?.name || item.course?.subjectName
+      });
+      
       // New backend structure with IDs
       if (item.subjectId !== undefined && item.yearId !== undefined) {
         const match = item.subjectId === course.id && item.yearId === course.yearId;
 
-        console.log('🔍 Exact ID matching:', {
+        console.log('✅ Using exact ID matching:', {
           courseId: course.id,
           courseName: course.name || course.subjectName,
           courseYearId: course.yearId,
@@ -455,9 +472,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
       }
 
       // Fallback to legacy structure (for backward compatibility)
+      console.log('⚠️ Using legacy matching (subjectId/yearId not available)');
       return this.coursesService.isInCart(courseId);
     });
 
+    console.log('🎯 Final isInCart result:', inCart);
     return inCart;
   }
 
