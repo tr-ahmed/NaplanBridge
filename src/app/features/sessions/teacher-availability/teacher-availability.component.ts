@@ -201,7 +201,7 @@ export class TeacherAvailabilityComponent implements OnInit {
     this.addingAvailability.set(true);
 
     const formValue = this.availabilityForm.value;
-    
+
     const dto: CreateAvailabilityDto = {
       dayOfWeek: parseInt(formValue.dayOfWeek), // Already numeric from select
       startTime: formValue.startTime, // HH:mm format from input type="time"
@@ -212,9 +212,11 @@ export class TeacherAvailabilityComponent implements OnInit {
 
     this.sessionService.addTeacherAvailability(dto).subscribe({
       next: (response) => {
+        console.log('✅ Availability added:', response);
         if (response.success && response.data) {
           // Add to list
           this.availabilities.update(list => [...list, response.data]);
+          console.log('📋 Updated availabilities:', this.availabilities());
           this.toastService.showSuccess('Time slot added successfully');
           this.showAvailabilityForm.set(false);
           this.availabilityForm.reset();
@@ -266,13 +268,16 @@ export class TeacherAvailabilityComponent implements OnInit {
    */
   getAvailabilitiesByDay(): { [key: string]: TeacherAvailabilityDto[] } {
     const grouped: { [key: string]: TeacherAvailabilityDto[] } = {};
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     this.availabilities().forEach(availability => {
-      const day = availability.dayOfWeek;
-      if (!grouped[day]) {
-        grouped[day] = [];
+      // Convert numeric day (0-6) to day name
+      const dayIndex = typeof availability.dayOfWeek === 'number' ? availability.dayOfWeek : parseInt(availability.dayOfWeek as any);
+      const dayName = dayNames[dayIndex] || `Day ${availability.dayOfWeek}`;
+      if (!grouped[dayName]) {
+        grouped[dayName] = [];
       }
-      grouped[day].push(availability);
+      grouped[dayName].push(availability);
     });
 
     return grouped;
@@ -284,6 +289,6 @@ export class TeacherAvailabilityComponent implements OnInit {
   getSortedDays(): string[] {
     const daysOrder = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const grouped = this.getAvailabilitiesByDay();
-    return daysOrder.filter(day => grouped[day]);
+    return daysOrder.filter(day => grouped[day] && grouped[day].length > 0);
   }
 }
