@@ -364,14 +364,14 @@ export class CoursesComponent implements OnInit, OnDestroy {
     if (this.coursesService.isInCart(courseId)) {
       return true;
     }
-    
+
     // If not found by ID, check by subject name
     const course = this.courses().find(c => c.id === courseId);
     if (course) {
       const subjectName = course.subjectName || course.name || '';
       return this.coursesService.isSubjectInCart(subjectName, course.yearId);
     }
-    
+
     return false;
   }
 

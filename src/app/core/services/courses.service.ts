@@ -193,7 +193,7 @@ export class CoursesService {
 
     // ✅ Check if subject already exists in cart (same subject, same year)
     const currentCart = this.cartSubject.value;
-    
+
     console.log('🔍 Checking for duplicate subject in cart...');
     console.log('📚 New course:', {
       id: course.id,
@@ -205,16 +205,16 @@ export class CoursesService {
       name: item.course?.subjectName || item.course?.name,
       yearId: item.course?.yearId
     })));
-    
+
     const subjectAlreadyInCart = currentCart.items.some((item: any) => {
       // Extract subject name from cart item (remove term info)
       const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim();
       const newSubjectName = (course.subjectName || course.name || '').split(' - ')[0].trim();
-      
+
       // Extract year from name if not in yearId
       const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
       const newYearMatch = (course.subjectName || course.name || '').match(/Year\s+(\d+)/i);
-      
+
       const itemYear = item.course?.yearId || (itemYearMatch ? parseInt(itemYearMatch[1]) : null);
       const newYear = course.yearId || (newYearMatch ? parseInt(newYearMatch[1]) : null);
 
@@ -222,7 +222,7 @@ export class CoursesService {
       const isSameSubject = itemSubjectName.toLowerCase().includes(newSubjectName.toLowerCase()) ||
                            newSubjectName.toLowerCase().includes(itemSubjectName.toLowerCase());
       const isSameYear = itemYear === newYear;
-      
+
       console.log('🔄 Comparing:', {
         itemSubjectName,
         newSubjectName,
@@ -241,7 +241,7 @@ export class CoursesService {
       this.toastService.showWarning('This subject is already in your cart for this year. Please remove the existing plan first if you want to change it.');
       return of(false);
     }
-    
+
     console.log('✅ No duplicate found, proceeding to add...');
 
     console.log('🛒 Adding to cart:', {
@@ -608,7 +608,7 @@ export class CoursesService {
       const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
       const itemYear = item.course?.yearId || (itemYearMatch ? parseInt(itemYearMatch[1]) : null);
 
-      const isSameSubject = itemSubjectName.includes(baseSubjectName) || 
+      const isSameSubject = itemSubjectName.includes(baseSubjectName) ||
                            baseSubjectName.includes(itemSubjectName);
       const isSameYear = !targetYear || !itemYear || itemYear === targetYear;
 
