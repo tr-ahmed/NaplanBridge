@@ -83,17 +83,17 @@ export class CheckoutComponent implements OnInit {
    */
   private loadUserData(): void {
     const currentUser = this.authService.getCurrentUser();
-    
+
     if (currentUser) {
       console.log('👤 Loading user data for checkout:', currentUser);
-      
+
       // Fill form with user data
       this.billingForm.patchValue({
         fullName: currentUser.userName || '',
         email: currentUser.email || '',
         phone: currentUser.phoneNumber || ''
       });
-      
+
       console.log('✅ Form filled with user data');
     }
   }
@@ -202,7 +202,7 @@ export class CheckoutComponent implements OnInit {
       } else {
         // Create order for cash payment
         const orderResponse = await this.createOrder();
-        
+
         if (!orderResponse) {
           throw new Error('Failed to create order');
         }
@@ -228,7 +228,7 @@ export class CheckoutComponent implements OnInit {
 
     // Step 1: Create order
     const orderResponse = await this.createOrder();
-    
+
     if (!orderResponse || !orderResponse.orderId) {
       throw new Error('Failed to create order');
     }
@@ -244,19 +244,38 @@ export class CheckoutComponent implements OnInit {
 
     this.paymentService.createCheckoutSession(checkoutDto).subscribe({
       next: (response) => {
-        console.log('✅ Checkout session created:', response);
-        
+        console.log('✅ Checkout session response:', response);
+        console.log('📊 Response details:', {
+          hasSessionUrl: !!response.sessionUrl,
+          sessionUrl: response.sessionUrl,
+          sessionId: response.sessionId,
+          orderId: response.orderId
+        });
+
         // Redirect to Stripe hosted checkout page
         if (response.sessionUrl) {
+          console.log('🔄 Redirecting to Stripe:', response.sessionUrl);
+          
+          // Force redirect
           window.location.href = response.sessionUrl;
+          
+          // Alternative if above doesn't work
+          // window.open(response.sessionUrl, '_self');
         } else {
-          throw new Error('No session URL returned');
+          console.error('❌ No sessionUrl in response:', response);
+          this.processing.set(false);
+          this.toastService.showError('No session URL returned from server');
         }
       },
       error: (err) => {
         this.processing.set(false);
         this.toastService.showError('Failed to create checkout session');
-        console.error('Checkout session error:', err);
+        console.error('❌ Checkout session error:', err);
+        console.error('Error details:', {
+          status: err.status,
+          message: err.message,
+          error: err.error
+        });
       }
     });
   }
