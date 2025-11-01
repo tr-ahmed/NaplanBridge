@@ -174,7 +174,8 @@
                 {{ getYearAndTerm(item.course.subjectName || item.course.name || '') }}
               </p>
 
-              @if (item.course.description) {
+              <!-- Show description only if it's different from the course name -->
+              @if (item.course.description && item.course.description !== (item.course.subjectName || item.course.name)) {
                 <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ item.course.description }}</p>
               }
 
