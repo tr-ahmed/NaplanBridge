@@ -108,18 +108,134 @@ export class StudentDashboardComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    // Use real backend endpoints now that they are implemented
-    this.dashboardService.getEnhancedStudentDashboard(this.studentId).subscribe({
-      next: (dashboardData) => {
-        this.processRealDashboardData(dashboardData);
-        this.loading.set(false);
-        this.toastService.showSuccess('Dashboard loaded successfully');
-      },
-      error: (err) => {
-        console.error('Dashboard error:', err);
-        // Fallback to mock data if backend is not ready
-        this.loadMockDashboardData();
-      }
+    // Load data using individual working endpoints with error handling
+    this.loadAvailableEndpoints();
+  }
+
+  /**
+   * Load data from available endpoints individually with fallbacks
+   */
+  private loadAvailableEndpoints(): void {
+    const loadPromises = [
+      this.safeLoadSubscriptions(),
+      this.safeLoadAchievements(),
+      this.safeLoadExamHistory(),
+      this.safeLoadRecentActivities()
+    ];
+
+    Promise.allSettled(loadPromises).then((results) => {
+      console.log('Dashboard load results:', results);
+      this.calculateStatsFromAvailableData();
+      this.loading.set(false);
+      this.toastService.showSuccess('Dashboard loaded successfully');
+    });
+  }
+
+  /**
+   * Safely load subscriptions with fallback
+   */
+  private safeLoadSubscriptions(): Promise<any> {
+    return new Promise((resolve) => {
+      this.dashboardService.getStudentSubscriptionsSummary(this.studentId).subscribe({
+        next: (subs) => {
+          this.subscriptions.set(subs || []);
+          resolve(subs);
+        },
+        error: (err) => {
+          console.warn('Subscriptions endpoint failed:', err);
+          this.subscriptions.set([]);
+          resolve([]);
+        }
+      });
+    });
+  }
+
+  /**
+   * Safely load achievements with fallback
+   */
+  private safeLoadAchievements(): Promise<any> {
+    return new Promise((resolve) => {
+      this.dashboardService.getStudentAchievements(this.studentId).subscribe({
+        next: (achievements) => {
+          // Process achievements
+          resolve(achievements);
+        },
+        error: (err) => {
+          console.warn('Achievements endpoint failed:', err);
+          resolve([]);
+        }
+      });
+    });
+  }
+
+  /**
+   * Safely load exam history with fallback
+   */
+  private safeLoadExamHistory(): Promise<any> {
+    return new Promise((resolve) => {
+      this.dashboardService.getStudentExamHistory(this.studentId).subscribe({
+        next: (response) => {
+          if (response && response.data) {
+            this.examHistory.set(response.data);
+            resolve(response.data);
+          } else {
+            this.examHistory.set([]);
+            resolve([]);
+          }
+        },
+        error: (err) => {
+          console.warn('Exam history endpoint failed:', err);
+          this.examHistory.set([]);
+          resolve([]);
+        }
+      });
+    });
+  }
+
+  /**
+   * Safely load recent activities with fallback
+   */
+  private safeLoadRecentActivities(): Promise<any> {
+    return new Promise((resolve) => {
+      this.dashboardService.getStudentRecentActivities(this.studentId).subscribe({
+        next: (response) => {
+          if (response && response.data) {
+            this.recentActivities.set(response.data);
+            resolve(response.data);
+          } else {
+            this.recentActivities.set([]);
+            resolve([]);
+          }
+        },
+        error: (err) => {
+          console.warn('Recent activities endpoint failed:', err);
+          this.recentActivities.set([]);
+          resolve([]);
+        }
+      });
+    });
+  }
+
+  /**
+   * Calculate stats from available data only
+   */
+  private calculateStatsFromAvailableData(): void {
+    const subs = this.subscriptions();
+    const examHist = this.examHistory();
+
+    // Calculate stats from available data
+    const totalExams = examHist?.length || 0;
+    const avgScore = examHist && examHist.length > 0
+      ? Math.round(examHist.reduce((sum: number, exam: any) => sum + (exam.score || 0), 0) / examHist.length)
+      : 0;
+
+    this.stats.set({
+      totalLessonsCompleted: 0, // Will be updated when progress API is available
+      totalExamsTaken: totalExams,
+      averageScore: avgScore,
+      currentStreak: 0,
+      activeSubscriptions: subs?.filter((s: any) => s.status === 'Active').length || 0,
+      upcomingExams: 0 // Will be updated when upcoming exams API is available
     });
   }
 

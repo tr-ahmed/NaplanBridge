@@ -1965,6 +1965,29 @@
         }
       }
     },
+    "/api/Exam/student/{studentId}/history": {
+      "get": {
+        "tags": [
+          "Exam"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/LessonQuestions": {
       "get": {
         "tags": [
@@ -3238,6 +3261,27 @@
         }
       }
     },
+    "/api/Payment/verify": {
+      "get": {
+        "tags": [
+          "Payment"
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Progress/by-student/{id}": {
       "get": {
         "tags": [
@@ -4367,6 +4411,29 @@
       "post": {
         "tags": [
           "StripeWebhook"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Student/{studentId}/recent-activities": {
+      "get": {
+        "tags": [
+          "Student"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -12275,6 +12342,34 @@
             "items": {
               "type": "string"
             },
+            "nullable": true
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userProfile": {
+            "$ref": "#/components/schemas/UserProfileDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserProfileDto": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
             "nullable": true
           }
         },

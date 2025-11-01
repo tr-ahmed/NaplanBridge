@@ -5,7 +5,7 @@
  */
 
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { ApiService } from './base-api.service';
 import { ExamHistory, RecentActivity, ApiResponse } from '../../models/dashboard.models';
 
@@ -99,7 +99,13 @@ export class DashboardService {
    * Endpoint: GET /api/StudentSubjects/student/{studentId}/subscriptions-summary
    */
   getStudentSubscriptionsSummary(studentId: number): Observable<any> {
-    return this.api.get(`StudentSubjects/student/${studentId}/subscriptions-summary`);
+    return this.api.get(`StudentSubjects/student/${studentId}/subscriptions-summary`).pipe(
+      map(response => response || []),
+      catchError(error => {
+        console.warn('Subscriptions endpoint error:', error);
+        return of([]);
+      })
+    );
   }
 
   /**
@@ -115,7 +121,13 @@ export class DashboardService {
    * Endpoint: GET /api/Achievements/student/{studentId}
    */
   getStudentAchievements(studentId: number): Observable<any> {
-    return this.api.get(`Achievements/student/${studentId}`);
+    return this.api.get(`Achievements/student/${studentId}`).pipe(
+      map(response => response || []),
+      catchError((error: any) => {
+        console.warn('Achievements endpoint error:', error);
+        return of([]);
+      })
+    );
   }
 
   /**
@@ -163,7 +175,12 @@ export class DashboardService {
    * Endpoint: GET /api/Exam/student/{studentId}/history
    */
   getStudentExamHistory(studentId: number): Observable<ApiResponse<ExamHistory[]>> {
-    return this.api.get<ApiResponse<ExamHistory[]>>(`Exam/student/${studentId}/history`);
+    return this.api.get<ApiResponse<ExamHistory[]>>(`Exam/student/${studentId}/history`).pipe(
+      catchError((error: any) => {
+        console.warn('Exam history endpoint error:', error);
+        return of({ success: false, data: [] as ExamHistory[] } as ApiResponse<ExamHistory[]>);
+      })
+    );
   }
 
   /**
@@ -171,7 +188,12 @@ export class DashboardService {
    * Endpoint: GET /api/Student/{studentId}/recent-activities
    */
   getStudentRecentActivities(studentId: number): Observable<ApiResponse<RecentActivity[]>> {
-    return this.api.get<ApiResponse<RecentActivity[]>>(`Student/${studentId}/recent-activities`);
+    return this.api.get<ApiResponse<RecentActivity[]>>(`Student/${studentId}/recent-activities`).pipe(
+      catchError((error: any) => {
+        console.warn('Recent activities endpoint error:', error);
+        return of({ success: false, data: [] as RecentActivity[] } as ApiResponse<RecentActivity[]>);
+      })
+    );
   }
 
   /**
@@ -197,6 +219,38 @@ export class DashboardService {
         examHistory: data.examHistory.data,
         recentActivities: data.recentActivities.data
       }))
+    );
+  }
+
+  /**
+   * Get Safe Student Dashboard - Only uses confirmed working endpoints
+   * Fallback method for when some endpoints are not available
+   */
+  getSafeStudentDashboard(studentId: number): Observable<any> {
+    // Only use endpoints that are confirmed to exist and work
+    return forkJoin({
+      // Use only the endpoints that are available according to swagger
+      subscriptions: this.getStudentSubscriptionsSummary(studentId),
+      achievements: this.getStudentAchievements(studentId),
+      achievementPoints: this.getStudentAchievementPoints(studentId)
+    }).pipe(
+      map(data => ({
+        subscriptionDetails: data.subscriptions,
+        achievements: data.achievements,
+        achievementPoints: data.achievementPoints,
+        examHistory: [], // Will be populated when endpoint is fixed
+        recentActivities: [] // Will be populated when endpoint is fixed
+      })),
+      catchError((error: any) => {
+        console.warn('Safe dashboard load failed:', error);
+        return of({
+          subscriptionDetails: [],
+          achievements: [],
+          achievementPoints: 0,
+          examHistory: [],
+          recentActivities: []
+        });
+      })
     );
   }
 }
