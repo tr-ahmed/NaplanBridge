@@ -92,11 +92,12 @@ export class TeacherDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
-    if (currentUser && currentUser.role === 'Teacher') {
-      this.teacherId = currentUser.id;
+    if (currentUser && Array.isArray(currentUser.role) && currentUser.role.includes('Teacher')) {
+      this.teacherId = parseInt(currentUser.id);
       this.loadDashboardData();
     } else {
-      this.router.navigate(['/login']);
+      console.warn('⚠️ Not authorized to access Teacher Dashboard');
+      this.router.navigate(['/']);
     }
   }
 

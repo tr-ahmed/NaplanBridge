@@ -119,12 +119,16 @@ export class AuthService {
         yearId: payload.yearId ? parseInt(payload.yearId) : undefined
       };
 
-      console.log('✅ Mapped user object:', userData);
-      console.log('🆔 User.Id (nameid):', userData.id, '- Use for authentication');
-      console.log('🎓 Student.Id (studentId):', userData.studentId, '- Use for cart/orders');
-
-      if (!userData.studentId && response.roles.includes('Student')) {
-        console.warn('⚠️ Student role but no studentId in token! Cart may not work.');
+      if (!environment.production) {
+        const isStudent = response.roles.includes('Student');
+        if (isStudent) {
+          console.log('🎓 Student logged in:', userData.userName);
+          if (!userData.studentId) {
+            console.warn('⚠️ Student role but no studentId in token! Cart may not work.');
+          }
+        } else {
+          console.log('👤 User logged in:', userData.userName, '| Role:', response.roles.join(', '));
+        }
       }
 
       localStorage.setItem('currentUser', JSON.stringify(userData));
