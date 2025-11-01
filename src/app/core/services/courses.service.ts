@@ -356,11 +356,23 @@ export class CoursesService {
    */
   removeFromCart(courseId: number): Observable<boolean> {
     const currentCart = this.cartSubject.value;
-    currentCart.items = currentCart.items.filter(item => item.course.id !== courseId);
+    
+    console.log('🗑️ Removing courseId:', courseId, 'from cart');
+    console.log('📦 Current cart items:', currentCart.items);
+    
+    // Filter using the correct backend structure
+    currentCart.items = currentCart.items.filter((item: any) => {
+      const itemCourseId = 
+        item.course?.id ||           // Frontend structure
+        item.subscriptionPlanId ||   // Backend structure ✅
+        item.courseId ||
+        item.id;
+      
+      console.log('🔍 Comparing:', itemCourseId, '!==', courseId, '=', itemCourseId !== courseId);
+      return itemCourseId !== courseId;
+    });
 
-    this.updateCartTotals(currentCart);
-    this.cartSubject.next(currentCart);
-    this.saveCartToStorage();
+    console.log('✅ Filtered cart items:', currentCart.items);
 
     // Check if user is authenticated before making API call
     if (!this.authService.isAuthenticated()) {
@@ -368,18 +380,45 @@ export class CoursesService {
       return of(true);
     }
 
-    const endpoint = ApiNodes.removeFromCart;
-    const url = `${this.baseUrl}${endpoint.url.replace(':id', courseId.toString())}`;
+    // Find the cartItemId from the backend structure
+    const cartItem = this.cartSubject.value.items.find((item: any) => {
+      const itemCourseId = 
+        item.course?.id ||
+        item.subscriptionPlanId ||
+        item.courseId ||
+        item.id;
+      return itemCourseId === courseId;
+    });
 
-    if (this.useMock) {
-      this.toastService.showSuccess('Course removed from cart!');
-      return of(true);
+    if (!cartItem) {
+      console.warn('⚠️ Cart item not found for courseId:', courseId);
+      this.toastService.showError('Item not found in cart');
+      return of(false);
     }
 
+    const cartItemId = (cartItem as any).cartItemId || (cartItem as any).id;
+    
+    if (!cartItemId) {
+      console.error('❌ No cartItemId found!');
+      this.toastService.showError('Unable to remove item');
+      return of(false);
+    }
+
+    console.log('🗑️ Removing cartItemId:', cartItemId, 'from backend');
+
+    // Use correct backend endpoint: DELETE /api/Cart/items/{cartItemId}
+    const url = `${this.baseUrl}/Cart/items/${cartItemId}`;
+
     return this.http.delete<any>(url).pipe(
-      map(() => {
+      switchMap(() => {
+        console.log('✅ Item removed from backend successfully');
         this.toastService.showSuccess('Course removed from cart!');
-        return true;
+        
+        // Reload cart from backend to sync
+        const currentUser = this.authService.getCurrentUser();
+        return this.loadCartFromBackend(currentUser?.studentId).pipe(
+          map(() => true)
+        );
       }),
       catchError((error) => {
         console.error('Failed to remove from cart via API:', error);
@@ -439,28 +478,20 @@ export class CoursesService {
    */
   isInCart(courseId: number): boolean {
     const cart = this.cartSubject.value;
-    
+
     if (!cart.items || cart.items.length === 0) {
       return false;
     }
 
-    // Log first item structure for debugging
-    if (cart.items.length > 0) {
-      console.log('🔍 Checking if courseId', courseId, 'is in cart');
-      console.log('📦 First cart item structure:', cart.items[0]);
-      console.log('🔑 Available keys:', Object.keys(cart.items[0]));
-    }
-
     // Handle different backend response structures
+    // Backend uses: { subscriptionPlanId, cartItemId, ... }
     return cart.items.some((item: any) => {
-      // Try different possible structures
-      const itemCourseId = 
-        item.course?.id ||           // Frontend structure
-        item.courseId ||             // Backend might use courseId directly
-        item.subscriptionPlan?.id || // Backend might use subscriptionPlan
-        item.subscriptionPlanId ||   // Or subscriptionPlanId
-        item.id;                     // Or just id
-      
+      const itemCourseId =
+        item.subscriptionPlanId ||   // Backend structure (primary)
+        item.course?.id ||           // Frontend structure (fallback)
+        item.courseId ||             // Alternative
+        item.id;                     // Last resort
+
       return itemCourseId === courseId;
     });
   }
