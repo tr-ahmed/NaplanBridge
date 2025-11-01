@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'https://localhost:44349/api',
+  // apiBaseUrl: 'https://localhost:44349/api',
+  apiBaseUrl: 'https://naplan2.runasp.net/api',
   useMock: false, // Set to true to use mock data only
   enableMockFallback: true, // Enable fallback to mock data on API failure
   apiTimeout: 10000, // API request timeout in milliseconds
