@@ -340,7 +340,15 @@ async loadTeachers(): Promise<void> {
 }
   async loadSubjects(): Promise<void> {
     try {
-      this.subjects = (await this.contentService.getSubjects().toPromise()) || [];
+      const resp: any = await this.contentService.getSubjects().toPromise();
+      // Accept both array and paged result shapes (array or { items: [] })
+      if (Array.isArray(resp)) {
+        this.subjects = resp;
+      } else if (resp && Array.isArray(resp.items)) {
+        this.subjects = resp.items;
+      } else {
+        this.subjects = [];
+      }
     } catch (error) {
       console.error('Error loading subjects:', error);
       throw error;
@@ -464,6 +472,27 @@ nameTeacher(id: Id | undefined | null) {
     }
   }
 
+  // Helpers used by template
+  countSubjectsByYear(yearId: Id): number {
+    return Array.isArray(this.subjects)
+      ? this.subjects.filter(s => s.yearId === yearId).length
+      : 0;
+  }
+
+  clearFilters(): void {
+    this.filters = {
+      yearId: null,
+      subjectId: null,
+      termId: null,
+      weekId: null,
+      type: '',
+      status: '',
+      categoryId: null,
+    };
+    this.searchTerm = '';
+    this.resetPaging();
+  }
+
   applyFilters() {
     const q = (this.searchTerm || '').toLowerCase();
 
@@ -473,50 +502,39 @@ nameTeacher(id: Id | undefined | null) {
     );
 
     // SUBJECTS
-    this.filteredSubjects = this.subjects.filter((s) => {
-      const byYear = this.filters.yearId
-        ? s.yearId === this.filters.yearId
-        : true;
-      const byCategory = this.filters.categoryId
-        ? s.categoryId === this.filters.categoryId
-        : true;
+    const subjectsArr = Array.isArray(this.subjects) ? this.subjects : [];
+    this.filteredSubjects = subjectsArr.filter((s: any) => {
+      const byYear = this.filters.yearId ? s.yearId === this.filters.yearId : true;
+      const byCategory = this.filters.categoryId ? s.categoryId === this.filters.categoryId : true;
       const bySearch =
         !q ||
-        s.subjectName.toLowerCase().includes(q) ||
-        s.categoryName.toLowerCase().includes(q);
+        (s.subjectName && s.subjectName.toLowerCase().includes(q)) ||
+        (s.categoryName && s.categoryName.toLowerCase().includes(q));
       return byYear && byCategory && bySearch;
     });
 
     // TERMS
     this.filteredTerms = this.terms.filter((t) => {
-      const bySubject = this.filters.subjectId
-        ? t.subjectId === this.filters.subjectId
-        : true;
+      const bySubject = this.filters.subjectId ? t.subjectId === this.filters.subjectId : true;
       const bySearch = !q || t.termNumber.toString().includes(q);
       return bySubject && bySearch;
     });
 
     // WEEKS
     this.filteredWeeks = this.weeks.filter((w) => {
-      const byTerm = this.filters.termId
-        ? w.termId === this.filters.termId
-        : true;
+      const byTerm = this.filters.termId ? w.termId === this.filters.termId : true;
       const bySearch = !q || w.weekNumber.toString().includes(q);
       return byTerm && bySearch;
     });
 
     // LESSONS
     this.filteredLessons = this.lessons.filter((l) => {
-      const byWeek = this.filters.weekId
-        ? l.weekId === this.filters.weekId
-        : true;
-      const bySubject = this.filters.subjectId
-        ? l.subjectId === this.filters.subjectId
-        : true;
+      const byWeek = this.filters.weekId ? l.weekId === this.filters.weekId : true;
+      const bySubject = this.filters.subjectId ? l.subjectId === this.filters.subjectId : true;
       const bySearch =
         !q ||
-        l.title.toLowerCase().includes(q) ||
-        l.description.toLowerCase().includes(q);
+        (l.title && l.title.toLowerCase().includes(q)) ||
+        (l.description && l.description.toLowerCase().includes(q));
       return byWeek && bySubject && bySearch;
     });
 
@@ -524,19 +542,15 @@ nameTeacher(id: Id | undefined | null) {
     this.filteredCategories = this.categories.filter((c) => {
       const bySearch =
         !q ||
-        c.name.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q);
+        (c.name && c.name.toLowerCase().includes(q)) ||
+        (c.description && c.description.toLowerCase().includes(q));
       return bySearch;
     });
 
     // SUBJECT NAMES
     this.filteredSubjectNames = this.subjectNames.filter((sn) => {
-      const byCategory = this.filters.categoryId
-        ? sn.categoryId === this.filters.categoryId
-        : true;
-      const bySearch =
-        !q ||
-        sn.name.toLowerCase().includes(q);
+      const byCategory = this.filters.categoryId ? sn.categoryId === this.filters.categoryId : true;
+      const bySearch = !q || (sn.name && sn.name.toLowerCase().includes(q));
       return byCategory && bySearch;
     });
   }
