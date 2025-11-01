@@ -1,6 +1,6 @@
 /**
  * Student Sessions Component
- * للطلاب لعرض حصصهم القادمة والانضمام إليها
+ * For students to view their upcoming sessions and join them
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
@@ -39,7 +39,7 @@ export class StudentSessionsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading sessions:', error);
-        this.toastService.showError('فشل في تحميل الحصص');
+        this.toastService.showError('Failed to load sessions');
         this.loading.set(false);
       }
     });

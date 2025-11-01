@@ -1,6 +1,6 @@
 /**
- * Teacher Sessions Component
- * للمعلمين لعرض حصصهم القادمة والسابقة
+ * Teacher Sessions Dashboard Component
+ * For teachers to view their upcoming and past sessions
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
@@ -74,9 +74,9 @@ export class TeacherSessionsComponent implements OnInit {
 
   getStatusText(status: string): string {
     const texts: { [key: string]: string } = {
-      'Confirmed': 'مؤكد',
-      'Completed': 'مكتمل',
-      'Cancelled': 'ملغي'
+      'Confirmed': 'Confirmed',
+      'Completed': 'Completed',
+      'Cancelled': 'Cancelled'
     };
     return texts[status] || status;
   }

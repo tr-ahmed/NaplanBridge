@@ -50,12 +50,12 @@
       <!-- Session Info -->
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-xs text-gray-600">السعر</p>
-          <p class="text-lg font-bold text-indigo-600">{{ teacher.pricePerSession }} ريال</p>
+          <p class="text-xs text-gray-600">Price</p>
+          <p class="text-lg font-bold text-indigo-600">${{ teacher.pricePerSession }}</p>
         </div>
         <div class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-xs text-gray-600">مدة الحصة</p>
-          <p class="text-lg font-bold text-gray-800">{{ teacher.sessionDurationMinutes }} دقيقة</p>
+          <p class="text-xs text-gray-600">Session Duration</p>
+          <p class="text-lg font-bold text-gray-800">{{ teacher.sessionDurationMinutes }} min</p>
         </div>
       </div>
 
@@ -64,10 +64,10 @@
         <span
           class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
           [class]="teacher.isAcceptingBookings ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-          <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
             <circle cx="10" cy="10" r="8"/>
           </svg>
-          {{ teacher.isAcceptingBookings ? 'متاح للحجز' : 'غير متاح حاليًا' }}
+          {{ teacher.isAcceptingBookings ? 'Available for Booking' : 'Currently Unavailable' }}
         </span>
       </div>
 
@@ -76,7 +76,7 @@
         (click)="bookWithTeacher(teacher)"
         [disabled]="!teacher.isAcceptingBookings"
         class="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium">
-        احجز حصة الآن
+        Book Session Now
       </button>
     </div>
   </div>

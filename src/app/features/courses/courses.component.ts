@@ -525,7 +525,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
    */
   viewLessons(course: Course): void {
     const studentId = this.coursesService['authService'].getCurrentUser()?.studentId;
-    
+
     if (!studentId) {
       console.warn('⚠️ No studentId found, redirecting to login');
       this.router.navigate(['/login']);

@@ -30,8 +30,8 @@
       </div>
       <div class="text-sm text-gray-600 space-y-2">
         <p>📅 {{ formatDateTime(session.scheduledDateTime) }}</p>
-        <p>⏱ {{ session.durationMinutes }} دقيقة</p>
-        <p>💰 {{ session.price }} ريال</p>
+        <p>⏱ {{ session.durationMinutes }} minutes</p>
+        <p>💰 ${{ session.price }}</p>
         <p *ngIf="session.notes" class="bg-gray-50 p-2 rounded">📝 {{ session.notes }}</p>
       </div>
       <a *ngIf="session.googleMeetLink && session.status === 'Confirmed'" [href]="session.googleMeetLink" target="_blank" class="inline-block mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">

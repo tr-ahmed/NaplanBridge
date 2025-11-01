@@ -1,6 +1,6 @@
 /**
  * Book Session Component
- * لحجز حصة خاصة مع معلم
+ * For booking a private session with a teacher
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
@@ -74,7 +74,7 @@ export class BookSessionComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading slots:', error);
-        this.toastService.showError('فشل في تحميل المواعيد المتاحة');
+        this.toastService.showError('Failed to load available time slots');
         this.loading.set(false);
       }
     });
@@ -154,7 +154,7 @@ export class BookSessionComponent implements OnInit {
    */
   bookSession(): void {
     if (!this.selectedStudentId() || !this.selectedSlot() || !this.teacherId()) {
-      this.toastService.showWarning('يرجى اختيار الطالب والموعد');
+      this.toastService.showWarning('Please select student and time slot');
       return;
     }
 
@@ -170,7 +170,7 @@ export class BookSessionComponent implements OnInit {
     this.sessionService.bookSession(dto).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          this.toastService.showSuccess('تم إنشاء الحجز، سيتم تحويلك للدفع...');
+          this.toastService.showSuccess('Booking created, redirecting to payment...');
 
           // Redirect to Stripe checkout
           window.location.href = response.data.stripeCheckoutUrl;
@@ -179,7 +179,7 @@ export class BookSessionComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error booking session:', error);
-        this.toastService.showError('فشل في حجز الحصة');
+        this.toastService.showError('Failed to book session');
         this.booking.set(false);
       }
     });

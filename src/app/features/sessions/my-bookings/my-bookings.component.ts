@@ -43,7 +43,7 @@ export class MyBookingsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading bookings:', error);
-        this.toastService.showError('فشل في تحميل الحجوزات');
+        this.toastService.showError('Failed to load bookings');
         this.loading.set(false);
       }
     });
@@ -76,7 +76,7 @@ export class MyBookingsComponent implements OnInit {
    * Cancel booking
    */
   cancelBooking(booking: PrivateSessionDto): void {
-    if (!confirm(`هل تريد إلغاء الحجز مع ${booking.teacherName}؟`)) {
+    if (!confirm(`Do you want to cancel the booking with ${booking.teacherName}?`)) {
       return;
     }
 
@@ -85,13 +85,13 @@ export class MyBookingsComponent implements OnInit {
     this.sessionService.cancelSession(booking.id, reason || 'لم يتم تحديد سبب').subscribe({
       next: (response) => {
         if (response.success) {
-          this.toastService.showSuccess('تم إلغاء الحجز بنجاح');
+          this.toastService.showSuccess('Booking cancelled successfully');
           this.loadBookings();
         }
       },
       error: (error) => {
         console.error('Error cancelling booking:', error);
-        this.toastService.showError('فشل في إلغاء الحجز');
+        this.toastService.showError('Failed to cancel booking');
       }
     });
   }
@@ -122,9 +122,9 @@ export class MyBookingsComponent implements OnInit {
    */
   getStatusText(status: string): string {
     const texts: { [key: string]: string } = {
-      'Confirmed': 'مؤكد',
-      'Completed': 'مكتمل',
-      'Cancelled': 'ملغي',
+      'Confirmed': 'Confirmed',
+      'Completed': 'Completed',
+      'Cancelled': 'Cancelled',
       'Pending': 'قيد الانتظار'
     };
     return texts[status] || status;

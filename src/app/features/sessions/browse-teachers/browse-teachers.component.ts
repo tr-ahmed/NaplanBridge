@@ -1,6 +1,6 @@
 /**
  * Browse Available Teachers Component
- * للأولياء لعرض المعلمين المتاحين للحجز
+ * For parents to view available teachers for booking
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
@@ -45,7 +45,7 @@ export class BrowseTeachersComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading teachers:', error);
-        this.toastService.showError('فشل في تحميل المعلمين');
+        this.toastService.showError('Failed to load teachers');
         this.loading.set(false);
       }
     });

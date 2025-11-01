@@ -876,7 +876,7 @@ export class CoursesService {
    */
   getCurrentTermWeek(studentId: number, subjectId?: number): Observable<CurrentTermWeekDto> {
     let url = `${this.baseUrl}/StudentSubjects/student/${studentId}/current-term-week`;
-    
+
     if (subjectId) {
       url += `?subjectId=${subjectId}`;
     }
@@ -895,7 +895,7 @@ export class CoursesService {
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('❌ Error fetching current term/week:', error);
-        
+
         // Return a default "no access" response on error
         const defaultResponse: CurrentTermWeekDto = {
           studentId,
@@ -913,8 +913,8 @@ export class CoursesService {
           progressPercentage: null,
           subscriptionType: null,
           hasAccess: false,
-          message: error.status === 404 
-            ? 'Student not found' 
+          message: error.status === 404
+            ? 'Student not found'
             : error.status === 401
             ? 'Please log in to continue'
             : 'Unable to load subscription information',

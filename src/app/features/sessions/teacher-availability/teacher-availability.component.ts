@@ -155,7 +155,7 @@ export class TeacherAvailabilityComponent implements OnInit {
    */
   saveSettings(): void {
     if (this.settingsForm.invalid) {
-      this.toastService.showWarning('يرجى ملء جميع الحقول المطلوبة');
+      this.toastService.showWarning('Please fill all required fields');
       return;
     }
 
@@ -167,14 +167,14 @@ export class TeacherAvailabilityComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           this.settings.set(response.data);
-          this.toastService.showSuccess('تم حفظ الإعدادات بنجاح');
+          this.toastService.showSuccess('Settings saved successfully');
           this.showSettingsForm.set(false);
         }
         this.savingSettings.set(false);
       },
       error: (error) => {
         console.error('Error saving settings:', error);
-        this.toastService.showError('فشل في حفظ الإعدادات');
+        this.toastService.showError('Failed to save settings');
         this.savingSettings.set(false);
       }
     });
@@ -185,7 +185,7 @@ export class TeacherAvailabilityComponent implements OnInit {
    */
   addAvailability(): void {
     if (this.availabilityForm.invalid) {
-      this.toastService.showWarning('يرجى ملء جميع الحقول المطلوبة');
+      this.toastService.showWarning('Please fill all required fields');
       return;
     }
 
@@ -203,7 +203,7 @@ export class TeacherAvailabilityComponent implements OnInit {
         if (response.success && response.data) {
           // Add to list
           this.availabilities.update(list => [...list, response.data]);
-          this.toastService.showSuccess('تم إضافة الموعد بنجاح');
+          this.toastService.showSuccess('Time slot added successfully');
           this.showAvailabilityForm.set(false);
           this.availabilityForm.reset();
         }
@@ -211,7 +211,7 @@ export class TeacherAvailabilityComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error adding availability:', error);
-        this.toastService.showError('فشل في إضافة الموعد');
+        this.toastService.showError('Failed to add time slot');
         this.addingAvailability.set(false);
       }
     });
