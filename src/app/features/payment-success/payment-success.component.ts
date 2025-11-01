@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { PaymentService } from '../../core/services/payment.service';
+import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../core/services/toast.service';
 
 interface PaymentResponse {
@@ -25,6 +26,7 @@ interface PaymentResponse {
 })
 export class PaymentSuccessComponent implements OnInit {
   private paymentService = inject(PaymentService);
+  private cartService = inject(CartService);
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -78,22 +80,39 @@ export class PaymentSuccessComponent implements OnInit {
       .subscribe({
         next: (response: PaymentResponse) => {
           console.log('✅ Payment verification response:', response);
-          
+
           this.loading.set(false);
-          
+
           if (response.success) {
             // Payment successful
             this.toastService.showSuccess(response.message);
             this.orderId.set(1); // Set a default order ID for display
             this.loadOrderDetails(1);
-            
+
             // Refresh cart (should be empty now)
             this.refreshCart();
-            
-            // Redirect to dashboard after 3 seconds
+
+            // Force clear cart as fallback after 2 seconds if backend didn't clear it
+            setTimeout(() => {
+              console.log('🔄 Double-checking cart is cleared...');
+              if (this.cartService.cartItemCount() > 0) {
+                console.warn('⚠️ Cart still has items, force clearing...');
+                this.cartService.clearCart().subscribe({
+                  next: () => {
+                    console.log('✅ Cart force-cleared successfully');
+                    this.toastService.showSuccess('Cart cleared successfully!');
+                  },
+                  error: (err) => {
+                    console.error('❌ Failed to force clear cart:', err);
+                  }
+                });
+              }
+            }, 2000);
+
+            // Redirect to dashboard after 4 seconds (give time for cart clearing)
             setTimeout(() => {
               this.router.navigate(['/dashboard']);
-            }, 3000);
+            }, 4000);
           } else {
             // Payment failed
             this.toastService.showError(response.message || 'Payment verification failed');
@@ -113,13 +132,44 @@ export class PaymentSuccessComponent implements OnInit {
    * Refresh cart after successful payment
    */
   private refreshCart(): void {
-    // Call cart API to refresh (should be empty now)
-    this.http.get(`${this.apiBaseUrl}/Cart`).subscribe({
-      next: () => {
-        console.log('✅ Cart refreshed after payment');
+    console.log('🔄 Refreshing cart after successful payment...');
+    
+    // Use CartService force refresh method for payment scenarios
+    this.cartService.forceRefreshAfterPayment().subscribe({
+      next: (cart) => {
+        console.log('✅ Cart refreshed after payment:', cart);
+        console.log('📊 Cart items count:', cart.itemCount || cart.items?.length || 0);
+        console.log('💰 Cart total:', cart.totalAmount || 0);
+        
+        // Verify cart is empty
+        if ((cart.itemCount || cart.items?.length || 0) === 0) {
+          console.log('🎉 Cart is now empty - payment processing successful!');
+          this.toastService.showSuccess('Payment completed! Your cart has been cleared and subscriptions activated.');
+        } else {
+          console.warn('⚠️ Cart still has items after payment - this may indicate an issue');
+          // Try to clear it manually
+          this.cartService.clearCart().subscribe({
+            next: () => {
+              console.log('🧹 Cart cleared manually after payment');
+              this.toastService.showSuccess('Cart cleared successfully!');
+            },
+            error: (clearErr) => {
+              console.error('❌ Failed to clear cart manually:', clearErr);
+            }
+          });
+        }
       },
       error: (err: any) => {
         console.warn('⚠️ Could not refresh cart:', err);
+        // Try to force clear cart anyway
+        this.cartService.clearCart().subscribe({
+          next: () => {
+            console.log('🧹 Cart force-cleared due to refresh error');
+          },
+          error: (clearErr) => {
+            console.error('❌ Failed to force clear cart:', clearErr);
+          }
+        });
       }
     });
   }

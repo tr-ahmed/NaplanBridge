@@ -5,7 +5,7 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap, of } from 'rxjs';
+import { Observable, tap, of, BehaviorSubject } from 'rxjs';
 import { timeout, catchError } from 'rxjs/operators';
 import { ApiService } from './base-api.service';
 import { MockDataService } from './mock-data.service';
@@ -28,6 +28,10 @@ export class CartService {
   // Cart state signals
   public cartItemCount = signal<number>(0);
   public cartTotalAmount = signal<number>(0);
+  
+  // Cart cleared event (for components to listen to)
+  private cartClearedSubject = new BehaviorSubject<boolean>(false);
+  public cartCleared$ = this.cartClearedSubject.asObservable();
 
   // ============================================
   // Cart Methods
@@ -95,13 +99,13 @@ export class CartService {
       }),
       catchError((error) => {
         // Handle duplicate subject error (400 Bad Request)
-        if (error.status === 400 && 
+        if (error.status === 400 &&
             error.error?.message?.includes('already has a subscription plan')) {
           console.warn('🚫 Duplicate subject in cart:', error.error.message);
           // Re-throw the error to be handled by the calling component
           throw error;
         }
-        
+
         // For other errors, fall back to mock
         console.warn('⚠️ API failed, using mock response');
         this.cartItemCount.set(mockResponse.totalItems);
@@ -186,6 +190,8 @@ export class CartService {
         tap(() => {
           this.cartItemCount.set(0);
           this.cartTotalAmount.set(0);
+          this.cartClearedSubject.next(true);
+          console.log('🧹 Mock cart cleared and event broadcasted');
         })
       );
     }
@@ -195,11 +201,15 @@ export class CartService {
       tap(() => {
         this.cartItemCount.set(0);
         this.cartTotalAmount.set(0);
+        this.cartClearedSubject.next(true);
+        console.log('🧹 Cart cleared and event broadcasted');
       }),
       catchError(() => {
         console.warn('⚠️ API failed, clearing cart locally');
         this.cartItemCount.set(0);
         this.cartTotalAmount.set(0);
+        this.cartClearedSubject.next(true);
+        console.log('🧹 Cart cleared locally and event broadcasted');
         return of(undefined);
       })
     );
@@ -255,5 +265,45 @@ export class CartService {
    */
   refreshCart(): Observable<Cart> {
     return this.getCart();
+  }
+
+  /**
+   * Force refresh cart and reset signals (call after payment)
+   */
+  forceRefreshAfterPayment(): Observable<Cart> {
+    console.log('💳 Force refreshing cart after payment...');
+    
+    // First reset signals to 0
+    this.cartItemCount.set(0);
+    this.cartTotalAmount.set(0);
+    
+    // Then call API to get actual state
+    return this.getCart().pipe(
+      tap((cart) => {
+        console.log('🔄 Cart refreshed after payment:', cart);
+        const itemCount = cart.itemCount || cart.items?.length || 0;
+        const totalAmount = cart.totalAmount || 0;
+        
+        this.cartItemCount.set(itemCount);
+        this.cartTotalAmount.set(totalAmount);
+        
+        if (itemCount === 0) {
+          console.log('✅ Cart confirmed empty after payment');
+          this.cartClearedSubject.next(true);
+        } else {
+          console.warn('⚠️ Cart still has items after payment:', itemCount);
+        }
+      })
+    );
+  }
+
+  /**
+   * Manually reset cart state (use when backend has already cleared it)
+   */
+  resetCartState(): void {
+    console.log('🔄 Manually resetting cart state...');
+    this.cartItemCount.set(0);
+    this.cartTotalAmount.set(0);
+    this.cartClearedSubject.next(true);
   }
 }

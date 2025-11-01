@@ -7,6 +7,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Cart, CartItem } from '../../models/course.models';
 import { CoursesService } from '../../core/services/courses.service';
+import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../auth/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { PaymentService } from '../../core/services/payment.service';
@@ -44,6 +45,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   constructor(
     private coursesService: CoursesService,
+    private cartService: CartService,
     private authService: AuthService,
     private http: HttpClient,
     private router: Router,
@@ -55,6 +57,16 @@ export class CartComponent implements OnInit, OnDestroy {
     this.coursesService.cart$
       .pipe(takeUntil(this.destroy$))
       .subscribe(cart => this.cart.set(cart));
+
+    // Listen for cart cleared events (from payment success)
+    this.cartService.cartCleared$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(cleared => {
+        if (cleared) {
+          console.log('🔔 Cart cleared event received, reloading cart...');
+          this.reloadCart();
+        }
+      });
 
     // Check user role (this will call loadStudents if needed)
     this.checkUserRole();
@@ -89,6 +101,14 @@ export class CartComponent implements OnInit, OnDestroy {
           this.loading.set(false);
         }
       });
+  }
+
+  /**
+   * Public method to reload cart (called from other components)
+   */
+  public reloadCart(): void {
+    console.log('🔄 Reloading cart...');
+    this.loadCartFromBackend();
   }
 
   /**
@@ -422,13 +442,13 @@ export class CartComponent implements OnInit, OnDestroy {
    * Handle duplicate subject error when adding to cart
    */
   handleDuplicateSubjectError(error: any): void {
-    if (error.status === 400 && 
+    if (error.status === 400 &&
         error.error?.message?.includes('already has a subscription plan')) {
-      
+
       this.toastService.showWarning(
         '⚠️ Plan Already in Cart: You already have a plan for this subject. Remove the existing plan first or proceed to checkout.'
       );
-      
+
       // Auto-scroll to show the cart
       setTimeout(() => {
         const cartSection = document.querySelector('.cart-container');
@@ -436,7 +456,7 @@ export class CartComponent implements OnInit, OnDestroy {
           cartSection.scrollIntoView({ behavior: 'smooth' });
         }
       }, 1000);
-      
+
     } else {
       // Generic error
       this.toastService.showError(
