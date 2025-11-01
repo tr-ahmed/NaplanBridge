@@ -277,17 +277,48 @@ export class CoursesService {
 
         // Transform backend response to Cart model
         // Handle different possible response structures
-        let items = [];
+        let rawItems = [];
         if (response.data?.items) {
-          items = response.data.items;
+          rawItems = response.data.items;
         } else if (response.items) {
-          items = response.items;
+          rawItems = response.items;
         } else if (response.cartItems) {
-          items = response.cartItems;
+          rawItems = response.cartItems;
         }
 
-        console.log('📦 Extracted items:', items);
-        console.log('🔢 Items count:', items.length);
+        console.log('📦 Extracted raw items:', rawItems);
+        console.log('🔢 Items count:', rawItems.length);
+
+        // Transform backend items to frontend CartItem structure
+        // Backend: { cartItemId, subscriptionPlanId, planName, price, quantity, studentId }
+        // Frontend: { course: { id, name, ... }, quantity, selectedPlan }
+        const items: CartItem[] = rawItems.map((backendItem: any) => ({
+          course: {
+            id: backendItem.subscriptionPlanId || backendItem.courseId,
+            subjectName: backendItem.planName || backendItem.courseName || 'Unknown',
+            name: backendItem.planName || backendItem.courseName || 'Unknown',
+            posterUrl: backendItem.imageUrl || backendItem.posterUrl || '',
+            description: backendItem.description || '',
+            categoryName: backendItem.categoryName || '',
+            teacherName: backendItem.teacherName || ''
+          },
+          quantity: backendItem.quantity || 1,
+          selectedPlan: {
+            id: backendItem.subscriptionPlanId,
+            name: backendItem.planName || 'Standard Plan',
+            price: backendItem.price,
+            duration: backendItem.duration || 30,
+            features: []
+          },
+          // Keep backend fields for reference
+          _backendData: {
+            cartItemId: backendItem.cartItemId,
+            subscriptionPlanId: backendItem.subscriptionPlanId,
+            studentId: backendItem.studentId
+          }
+        } as any));
+
+        console.log('✅ Transformed items:', items);
 
         const cart: Cart = {
           items: items,
@@ -356,18 +387,18 @@ export class CoursesService {
    */
   removeFromCart(courseId: number): Observable<boolean> {
     const currentCart = this.cartSubject.value;
-    
+
     console.log('🗑️ Removing courseId:', courseId, 'from cart');
     console.log('📦 Current cart items:', currentCart.items);
-    
+
     // Filter using the correct backend structure
     currentCart.items = currentCart.items.filter((item: any) => {
-      const itemCourseId = 
+      const itemCourseId =
         item.course?.id ||           // Frontend structure
         item.subscriptionPlanId ||   // Backend structure ✅
         item.courseId ||
         item.id;
-      
+
       console.log('🔍 Comparing:', itemCourseId, '!==', courseId, '=', itemCourseId !== courseId);
       return itemCourseId !== courseId;
     });
@@ -382,7 +413,7 @@ export class CoursesService {
 
     // Find the cartItemId from the backend structure
     const cartItem = this.cartSubject.value.items.find((item: any) => {
-      const itemCourseId = 
+      const itemCourseId =
         item.course?.id ||
         item.subscriptionPlanId ||
         item.courseId ||
@@ -397,7 +428,7 @@ export class CoursesService {
     }
 
     const cartItemId = (cartItem as any).cartItemId || (cartItem as any).id;
-    
+
     if (!cartItemId) {
       console.error('❌ No cartItemId found!');
       this.toastService.showError('Unable to remove item');
@@ -413,7 +444,7 @@ export class CoursesService {
       switchMap(() => {
         console.log('✅ Item removed from backend successfully');
         this.toastService.showSuccess('Course removed from cart!');
-        
+
         // Reload cart from backend to sync
         const currentUser = this.authService.getCurrentUser();
         return this.loadCartFromBackend(currentUser?.studentId).pipe(
