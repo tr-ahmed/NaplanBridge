@@ -465,3 +465,94 @@ return new CheckoutSessionResponse
 
 ### Priority:
 **🟡 HIGH** - Backend is responding but not returning complete data needed for redirect.
+
+---
+
+## ✅ PAYMENT FLOW WORKING - New Issue: Wrong Redirect URL
+
+### Date: November 1, 2025 - 10:30 AM
+
+### 🎉 SUCCESS: Payment Working!
+✅ Stripe checkout page loads correctly  
+✅ User can complete payment  
+✅ Stripe processes payment successfully  
+✅ Backend receives webhook callback  
+
+### ❌ Issue: Wrong Success URL
+
+After successful payment, user is redirected to:
+```
+❌ https://naplan2.runasp.net/api/Payment/success?session_id=cs_test_...
+```
+
+Should redirect to:
+```
+✅ http://localhost:4200/payment/success?session_id=cs_test_...
+```
+
+### Root Cause:
+Backend is using **backend URL** instead of **frontend URL** when creating Stripe checkout session.
+
+### Required Backend Fix:
+
+When creating the Stripe checkout session, use the **frontend URL** for success/cancel URLs:
+
+```csharp
+var options = new SessionCreateOptions
+{
+    PaymentMethodTypes = new List<string> { "card" },
+    LineItems = lineItems,
+    Mode = "payment",
+    
+    // ❌ WRONG: Using backend URL
+    SuccessUrl = $"https://naplan2.runasp.net/api/Payment/success?session_id={{CHECKOUT_SESSION_ID}}",
+    CancelUrl = $"https://naplan2.runasp.net/api/Payment/cancel",
+    
+    // ✅ CORRECT: Use frontend URL
+    SuccessUrl = $"http://localhost:4200/payment/success?session_id={{CHECKOUT_SESSION_ID}}",
+    CancelUrl = $"http://localhost:4200/cart",
+};
+```
+
+### Recommended Backend Implementation:
+
+```csharp
+// In appsettings.json
+{
+  "FrontendUrls": {
+    "Development": "http://localhost:4200",
+    "Production": "https://naplan2.runasp.net"
+  }
+}
+
+// In StripeService
+var frontendUrl = _configuration["FrontendUrls:Development"]; // or Production
+var options = new SessionCreateOptions
+{
+    SuccessUrl = $"{frontendUrl}/payment/success?session_id={{CHECKOUT_SESSION_ID}}",
+    CancelUrl = $"{frontendUrl}/cart",
+};
+```
+
+### Frontend Routes Already Configured:
+✅ `/payment/success` - Handles successful payment  
+✅ `/payment/cancel` - Handles cancelled payment  
+✅ Both routes are ready to receive session_id parameter
+
+### Environment Configuration Added:
+```typescript
+// environment.ts (Development)
+frontendUrl: 'http://localhost:4200'
+
+// environment.prod.ts (Production)
+frontendUrl: 'https://naplan2.runasp.net'
+```
+
+### Status:
+- ✅ Payment flow working end-to-end
+- ✅ Stripe integration successful
+- ❌ **Wrong redirect URL (backend URL instead of frontend)**
+- ⏳ Waiting for backend to use correct frontend URLs
+
+### Priority:
+**🟡 MEDIUM** - Payment works but user experience is broken due to wrong redirect.
