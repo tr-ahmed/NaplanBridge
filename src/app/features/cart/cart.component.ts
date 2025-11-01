@@ -9,6 +9,7 @@ import { Cart, CartItem } from '../../models/course.models';
 import { CoursesService } from '../../core/services/courses.service';
 import { AuthService } from '../../auth/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { PaymentService } from '../../core/services/payment.service';
 import { environment } from '../../../environments/environment';
 
 // Student interface for the cart component
@@ -46,7 +47,8 @@ export class CartComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private http: HttpClient,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private paymentService: PaymentService
   ) {}
 
   ngOnInit(): void {
@@ -174,7 +176,7 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Proceed to checkout
+   * Proceed to Stripe Checkout directly
    */
   enrollInAll(): void {
     // Check if cart is empty
@@ -205,18 +207,69 @@ export class CartComponent implements OnInit, OnDestroy {
       studentName = selectedStudent.userName;
     }
 
-    // Navigate to checkout page
-    console.log('📦 Proceeding to checkout:', {
+    console.log('� Redirecting directly to Stripe:', {
       studentId: studentId,
       studentName: studentName,
       totalAmount: this.cart().totalAmount,
-      itemsCount: this.cart().items.length,
-      isStudent: this.isStudent()
+      itemsCount: this.cart().items.length
     });
 
-    this.router.navigate(['/checkout'], {
-      queryParams: {
-        studentId: studentId
+    this.loading.set(true);
+    this.redirectToStripeCheckout();
+  }
+
+  /**
+   * Redirect to Stripe Checkout
+   */
+  private redirectToStripeCheckout(): void {
+    console.log('💳 Creating order and Stripe Checkout Session...');
+
+    // Step 1: Create order
+    this.paymentService.createOrderFromCart().subscribe({
+      next: (orderResponse: any) => {
+        if (!orderResponse || !orderResponse.orderId) {
+          throw new Error('Failed to create order');
+        }
+
+        console.log('✅ Order created:', orderResponse.orderId);
+
+        // Step 2: Create Stripe Checkout Session
+        const checkoutDto = {
+          orderId: orderResponse.orderId,
+          successUrl: `${window.location.origin}/payment/success`,
+          cancelUrl: `${window.location.origin}/cart`
+        };
+
+        this.paymentService.createCheckoutSession(checkoutDto).subscribe({
+          next: (response) => {
+            console.log('✅ Checkout session created:', response);
+            console.log('📊 Session details:', {
+              hasSessionUrl: !!response.sessionUrl,
+              sessionUrl: response.sessionUrl,
+              orderId: response.orderId
+            });
+
+            // Redirect to Stripe hosted checkout page
+            if (response.sessionUrl) {
+              console.log('🔄 Redirecting to Stripe:', response.sessionUrl);
+              window.location.href = response.sessionUrl;
+            } else {
+              console.error('❌ No sessionUrl in response');
+              this.loading.set(false);
+              this.toastService.showError('Failed to create checkout session');
+            }
+          },
+          error: (err) => {
+            this.loading.set(false);
+            this.toastService.showError('Failed to create checkout session');
+            console.error('❌ Checkout session error:', err);
+          }
+        });
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.toastService.showError('Failed to create order');
+        console.error('❌ Order creation error:', err);
       }
     });
   }

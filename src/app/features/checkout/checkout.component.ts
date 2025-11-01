@@ -76,7 +76,7 @@ export class CheckoutComponent implements OnInit {
     this.loadCart();
     this.initializeStripe();
     this.loadUserData();
-    
+
     // Auto-redirect to Stripe after 2 seconds
     setTimeout(() => {
       if (!this.isEmpty() && !this.processing()) {
