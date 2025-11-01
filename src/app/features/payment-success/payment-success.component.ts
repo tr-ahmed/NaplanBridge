@@ -74,8 +74,14 @@ export class PaymentSuccessComponent implements OnInit {
    */
   private verifyStripePayment(sessionId: string): void {
     console.log('🔍 Verifying payment with session ID:', sessionId);
+    
+    // Check if user is authenticated
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    console.log('🔑 Auth token present:', !!token);
+    console.log('🌐 API URL:', `${this.apiBaseUrl}/Payment/success?session_id=${sessionId}`);
 
     // Call new backend endpoint: GET /api/Payment/success?session_id={sessionId}
+    // Auth interceptor will automatically add Authorization header
     this.http.get<PaymentResponse>(`${this.apiBaseUrl}/Payment/success?session_id=${sessionId}`)
       .subscribe({
         next: (response: PaymentResponse) => {
@@ -148,10 +154,25 @@ export class PaymentSuccessComponent implements OnInit {
         },
         error: (error: any) => {
           console.error('❌ Payment verification error:', error);
+          console.error('📊 Error details:', {
+            status: error.status,
+            statusText: error.statusText,
+            message: error.error?.message,
+            url: error.url
+          });
+          
           this.loading.set(false);
-          this.toastService.showError(
-            error.error?.message || 'Payment verification failed. Please contact support.'
-          );
+          
+          if (error.status === 401) {
+            console.error('🚫 Unauthorized - Missing or invalid token');
+            this.toastService.showError('Session expired. Please login again.');
+            // Could redirect to login here
+            // this.router.navigate(['/auth/login']);
+          } else {
+            this.toastService.showError(
+              error.error?.message || 'Payment verification failed. Please contact support.'
+            );
+          }
         }
       });
   }

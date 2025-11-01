@@ -11,7 +11,8 @@ import { SubscriptionService } from '../../core/services/subscription.service';
 import { ExamService } from '../../core/services/exam.service';
 import { LessonService } from '../../core/services/lesson.service';
 import { DashboardService } from '../../core/services/dashboard.service';
-import { AuthService } from '../../auth/auth.service';
+import { MockDashboardService } from '../../core/services/mock-dashboard.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import {
   StudentProgress,
@@ -44,6 +45,7 @@ export class StudentDashboardComponent implements OnInit {
   private examService = inject(ExamService);
   private lessonService = inject(LessonService);
   private dashboardService = inject(DashboardService);
+  private mockDashboardService = inject(MockDashboardService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
@@ -84,12 +86,13 @@ export class StudentDashboardComponent implements OnInit {
   hasActiveSubscription = computed(() => this.activeSubsCount() > 0);
 
   ngOnInit(): void {
-    const currentUser = this.authService.getCurrentUser();
-    if (currentUser && currentUser.role === 'Student') {
-      this.studentId = currentUser.id;
+    const currentUser = this.authService.currentUser();
+    if (currentUser && this.authService.hasRole('Student')) {
+      // For now, we'll use a default studentId or get it from another service
+      this.studentId = 1; // This should be retrieved from user profile or token
       this.loadDashboardData();
     } else {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/auth/login']);
     }
   }
 
@@ -100,7 +103,11 @@ export class StudentDashboardComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    // Use comprehensive dashboard service
+    // Use mock data for now until backend is ready
+    this.loadMockDashboardData();
+
+    // Uncomment below when backend endpoints are ready:
+    /*
     this.dashboardService.getComprehensiveStudentDashboard(this.studentId).subscribe({
       next: (dashboardData) => {
         this.processDashboardData(dashboardData);
@@ -108,9 +115,108 @@ export class StudentDashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Dashboard error:', err);
-        // Fallback to individual API calls if comprehensive endpoint fails
-        this.loadDashboardDataFallback();
+        // Fallback to mock data
+        this.loadMockDashboardData();
       }
+    });
+    */
+  }
+
+  /**
+   * Load mock dashboard data for development
+   */
+  private loadMockDashboardData(): void {
+    Promise.all([
+      this.loadMockProgress(),
+      this.loadMockSubscriptions(),
+      this.loadMockCertificates(),
+      this.loadMockAchievements()
+    ]).then(() => {
+      this.calculateMockStats();
+      this.loading.set(false);
+      this.toastService.showSuccess('Dashboard loaded successfully (mock data)');
+    }).catch(err => {
+      this.error.set('Failed to load dashboard data');
+      this.loading.set(false);
+      this.toastService.showError('Failed to load dashboard');
+      console.error('Mock Dashboard error:', err);
+    });
+  }
+
+  /**
+   * Load mock progress data
+   */
+  private loadMockProgress(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.mockDashboardService.getMockStudentProgress().subscribe({
+        next: (progress) => {
+          this.progress.set(progress);
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  /**
+   * Load mock subscriptions
+   */
+  private loadMockSubscriptions(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.mockDashboardService.getMockSubscriptionsSummary().subscribe({
+        next: (subs) => {
+          this.subscriptions.set(subs);
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  /**
+   * Load mock certificates
+   */
+  private loadMockCertificates(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.mockDashboardService.getMockCertificates().subscribe({
+        next: (certs) => {
+          // Store certificates for display
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  /**
+   * Load mock achievements
+   */
+  private loadMockAchievements(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.mockDashboardService.getMockAchievements().subscribe({
+        next: (achievements) => {
+          // Store achievements for display
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  /**
+   * Calculate stats from mock data
+   */
+  private calculateMockStats(): void {
+    const prog = this.progress();
+    const subs = this.subscriptions();
+
+    this.stats.set({
+      totalLessonsCompleted: prog?.completedLessons || 45,
+      totalExamsTaken: prog?.examsCompleted || 12,
+      averageScore: prog?.averageExamScore || 87,
+      currentStreak: 7, // Mock streak
+      activeSubscriptions: subs?.filter((s: any) => s.status === 'Active').length || 2,
+      upcomingExams: 2 // Mock upcoming exams
     });
   }
 

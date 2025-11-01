@@ -104,12 +104,12 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
   },
 
-  // Student Dashboard and Routes (commented out until student routes are created)
-  // {
-  //   path: 'student',
-  //   loadChildren: () => import('./student/student.routes').then(m => m.STUDENT_ROUTES),
-  //   canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
-  // },
+  // Student Dashboard
+  {
+    path: 'student/dashboard',
+    loadComponent: () => import('./features/student-dashboard/student-dashboard.component').then(m => m.StudentDashboardComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
 
   // Admin Content Management
   {

@@ -305,7 +305,7 @@ export class CartService {
           this.cartItemCount.set(0);
           this.cartTotalAmount.set(0);
         }
-        
+
         // Always broadcast cleared event after payment
         this.cartClearedSubject.next(true);
       })
