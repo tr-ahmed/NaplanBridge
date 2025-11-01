@@ -166,15 +166,15 @@
             <div class="flex-1 min-w-0">
               <!-- Subject Name (without year and term) -->
               <h3 class="text-xl font-semibold text-gray-900 mb-1">
-                {{ getSubjectNameOnly(item.course?.subjectName || item.course?.name || '') }}
+                {{ getSubjectNameOnly(item.course.subjectName || item.course.name || '') }}
               </h3>
 
               <!-- Year and Term (styled separately) -->
               <p class="text-sm font-medium text-blue-600 mb-3">
-                {{ getYearAndTerm(item.course?.subjectName || item.course?.name || '') }}
+                {{ getYearAndTerm(item.course.subjectName || item.course.name || '') }}
               </p>
 
-              @if (item.course?.description) {
+              @if (item.course.description) {
                 <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ item.course.description }}</p>
               }
 
