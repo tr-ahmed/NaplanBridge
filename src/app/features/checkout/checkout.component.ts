@@ -75,6 +75,27 @@ export class CheckoutComponent implements OnInit {
   ngOnInit(): void {
     this.loadCart();
     this.initializeStripe();
+    this.loadUserData();
+  }
+
+  /**
+   * Load user data and fill form
+   */
+  private loadUserData(): void {
+    const currentUser = this.authService.getCurrentUser();
+    
+    if (currentUser) {
+      console.log('👤 Loading user data for checkout:', currentUser);
+      
+      // Fill form with user data
+      this.billingForm.patchValue({
+        fullName: currentUser.userName || '',
+        email: currentUser.email || '',
+        phone: currentUser.phoneNumber || ''
+      });
+      
+      console.log('✅ Form filled with user data');
+    }
   }
 
   /**
