@@ -76,6 +76,14 @@ export class CheckoutComponent implements OnInit {
     this.loadCart();
     this.initializeStripe();
     this.loadUserData();
+    
+    // Auto-redirect to Stripe after 2 seconds
+    setTimeout(() => {
+      if (!this.isEmpty() && !this.processing()) {
+        console.log('🚀 Auto-redirecting to Stripe Checkout...');
+        this.processPayment();
+      }
+    }, 2000);
   }
 
   /**
@@ -255,10 +263,10 @@ export class CheckoutComponent implements OnInit {
         // Redirect to Stripe hosted checkout page
         if (response.sessionUrl) {
           console.log('🔄 Redirecting to Stripe:', response.sessionUrl);
-          
+
           // Force redirect
           window.location.href = response.sessionUrl;
-          
+
           // Alternative if above doesn't work
           // window.open(response.sessionUrl, '_self');
         } else {
