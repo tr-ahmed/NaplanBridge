@@ -68,7 +68,7 @@ export class SubscriptionService {
       );
     }
 
-    const url = `${this.baseUrl}/api/subscriptions/plans`;
+    const url = `${this.baseUrl}/SubscriptionPlans`;
     return this.http.get<SubscriptionPlan[]>(url).pipe(
       map(plans => this.filterPlans(plans, filter)),
       tap(plans => {
@@ -99,7 +99,7 @@ export class SubscriptionService {
       return of(plan);
     }
 
-    const url = `${this.baseUrl}/api/subscriptions/plans/${planId}`;
+    const url = `${this.baseUrl}/SubscriptionPlans/${planId}`;
     return this.http.get<SubscriptionPlan>(url).pipe(
       tap(() => this.loading.set(false)),
       catchError(() => {

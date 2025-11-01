@@ -167,6 +167,36 @@ export class AuthService {
     return yearId ? parseInt(yearId) : null;
   }
 
+  /**
+   * Get student ID from JWT token
+   * IMPORTANT: This is Student.Id (from Students table), NOT User.Id
+   * Use this for API calls that require studentId parameter
+   */
+  getStudentId(): number | null {
+    const token = this.getToken();
+    if (!token) {
+      console.warn('No auth token found');
+      return null;
+    }
+
+    try {
+      // Decode JWT token
+      const payload = JSON.parse(atob(token.split('.')[1]));
+
+      if (payload.studentId) {
+        const studentId = parseInt(payload.studentId);
+        console.log('✅ Student.Id from token:', studentId);
+        return studentId;
+      }
+
+      console.warn('⚠️ studentId claim not found in token');
+      return null;
+    } catch (error) {
+      console.error('❌ Failed to decode token for studentId:', error);
+      return null;
+    }
+  }
+
   hasRole(role: string): boolean {
     const roles = this.userRoles();
     return roles.some(userRole =>

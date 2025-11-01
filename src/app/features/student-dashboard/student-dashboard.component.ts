@@ -87,14 +87,25 @@ export class StudentDashboardComponent implements OnInit {
   ngOnInit(): void {
     const currentUser = this.authService.currentUser();
     if (currentUser && this.authService.hasRole('Student')) {
-      // Use the userId from the enhanced authentication response
-      const userId = this.authService.getUserId();
-      if (userId) {
-        this.studentId = userId;
+      // ✅ CRITICAL: Use studentId (Student.Id) NOT userId (User.Id)
+      // studentId is from Students table and required for API calls
+      const studentId = this.authService.getStudentId();
+      if (studentId) {
+        this.studentId = studentId;
+        console.log('🎓 Loading dashboard for Student.Id:', studentId);
         this.loadDashboardData();
       } else {
-        this.error.set('Unable to get user ID');
-        this.router.navigate(['/auth/login']);
+        // Fallback: try using userId if studentId is not in token
+        const userId = this.authService.getUserId();
+        if (userId) {
+          console.warn('⚠️ studentId not found in token, using userId (may cause issues)');
+          this.studentId = userId;
+          this.loadDashboardData();
+        } else {
+          this.error.set('Unable to get student ID');
+          this.toastService.showError('Student ID not found. Please re-login.');
+          this.router.navigate(['/auth/login']);
+        }
       }
     } else {
       this.router.navigate(['/auth/login']);
@@ -138,8 +149,10 @@ export class StudentDashboardComponent implements OnInit {
     return new Promise((resolve) => {
       this.dashboardService.getStudentSubscriptionsSummary(this.studentId).subscribe({
         next: (subs) => {
-          this.subscriptions.set(subs || []);
-          resolve(subs);
+          // Ensure subs is always an array
+          const subsArray = Array.isArray(subs) ? subs : [];
+          this.subscriptions.set(subsArray);
+          resolve(subsArray);
         },
         error: (err) => {
           console.warn('Subscriptions endpoint failed:', err);
@@ -224,9 +237,14 @@ export class StudentDashboardComponent implements OnInit {
     const examHist = this.examHistory();
 
     // Calculate stats from available data
-    const totalExams = examHist?.length || 0;
-    const avgScore = examHist && examHist.length > 0
+    const totalExams = Array.isArray(examHist) ? examHist.length : 0;
+    const avgScore = Array.isArray(examHist) && examHist.length > 0
       ? Math.round(examHist.reduce((sum: number, exam: any) => sum + (exam.score || 0), 0) / examHist.length)
+      : 0;
+
+    // Safely count active subscriptions
+    const activeSubs = Array.isArray(subs)
+      ? subs.filter((s: any) => s.status === 'Active').length
       : 0;
 
     this.stats.set({
@@ -234,7 +252,7 @@ export class StudentDashboardComponent implements OnInit {
       totalExamsTaken: totalExams,
       averageScore: avgScore,
       currentStreak: 0,
-      activeSubscriptions: subs?.filter((s: any) => s.status === 'Active').length || 0,
+      activeSubscriptions: activeSubs,
       upcomingExams: 0 // Will be updated when upcoming exams API is available
     });
   }
@@ -276,11 +294,16 @@ export class StudentDashboardComponent implements OnInit {
     const examHist = this.examHistory();
 
     // Calculate total exams taken
-    const totalExams = examHist?.length || 0;
+    const totalExams = Array.isArray(examHist) ? examHist.length : 0;
 
     // Calculate average score from exam history
-    const avgScore = examHist && examHist.length > 0
+    const avgScore = Array.isArray(examHist) && examHist.length > 0
       ? examHist.reduce((sum: number, exam: ExamHistory) => sum + exam.score, 0) / examHist.length
+      : 0;
+
+    // Safely count active subscriptions
+    const activeSubs = Array.isArray(subs)
+      ? subs.filter((s: any) => s.status === 'Active').length
       : 0;
 
     this.stats.set({
@@ -288,8 +311,8 @@ export class StudentDashboardComponent implements OnInit {
       totalExamsTaken: totalExams || data.totalExamsCompleted || 0,
       averageScore: Math.round(avgScore) || data.averageScore || 0,
       currentStreak: 0, // Calculate from activities if needed
-      activeSubscriptions: subs?.filter((s: any) => s.status === 'Active').length || 0,
-      upcomingExams: data.upcomingExams?.length || 0
+      activeSubscriptions: activeSubs,
+      upcomingExams: Array.isArray(data.upcomingExams) ? data.upcomingExams.length : 0
     });
   }  /**
    * Load mock dashboard data for development
@@ -560,9 +583,14 @@ export class StudentDashboardComponent implements OnInit {
     const upcoming = this.upcomingExams();
 
     const totalLessons = prog?.subjectProgress?.reduce((sum: number, sp: any) => sum + (sp.completedLessons || 0), 0) || 0;
-    const totalExams = exams.length;
-    const avgScore = exams.length > 0
+    const totalExams = Array.isArray(exams) ? exams.length : 0;
+    const avgScore = Array.isArray(exams) && exams.length > 0
       ? exams.reduce((sum: number, e: ExamHistory) => sum + (e.score || 0), 0) / exams.length
+      : 0;
+
+    // Safely count active subscriptions
+    const activeSubs = Array.isArray(subs)
+      ? subs.filter((s: any) => s.status === 'Active').length
       : 0;
 
     this.stats.set({
@@ -570,8 +598,8 @@ export class StudentDashboardComponent implements OnInit {
       totalExamsTaken: totalExams,
       averageScore: Math.round(avgScore),
       currentStreak: 0, // Will be calculated from activities
-      activeSubscriptions: subs.filter((s: any) => s.status === 'Active').length,
-      upcomingExams: upcoming.length
+      activeSubscriptions: activeSubs,
+      upcomingExams: Array.isArray(upcoming) ? upcoming.length : 0
     });
   }
 
