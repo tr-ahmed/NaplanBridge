@@ -1,6 +1,6 @@
 /**
  * Teacher Availability Management Component
- * للمعلمين لإدارة مواعيدهم المتاحة للحجز
+ * For teachers to manage their available booking times
  */
 
 import { Component, OnInit, inject, signal } from '@angular/core';
@@ -43,19 +43,8 @@ export class TeacherAvailabilityComponent implements OnInit {
   showSettingsForm = signal<boolean>(false);
   showAvailabilityForm = signal<boolean>(false);
 
-  // Days of week للعرض
+  // Days of week for display
   daysOfWeek = Object.values(DayOfWeek);
-
-  // Days in Arabic
-  daysArabic: { [key: string]: string } = {
-    'Sunday': 'الأحد',
-    'Monday': 'الإثنين',
-    'Tuesday': 'الثلاثاء',
-    'Wednesday': 'الأربعاء',
-    'Thursday': 'الخميس',
-    'Friday': 'الجمعة',
-    'Saturday': 'السبت'
-  };
 
   ngOnInit(): void {
     this.initForms();
@@ -232,7 +221,7 @@ export class TeacherAvailabilityComponent implements OnInit {
    * Delete availability
    */
   deleteAvailability(availability: TeacherAvailabilityDto): void {
-    if (!confirm(`هل تريد حذف موعد ${this.daysArabic[availability.dayOfWeek]}؟`)) {
+    if (!confirm(`Do you want to delete the ${availability.dayOfWeek} time slot?`)) {
       return;
     }
 
@@ -243,12 +232,12 @@ export class TeacherAvailabilityComponent implements OnInit {
           this.availabilities.update(list =>
             list.filter(a => a.id !== availability.id)
           );
-          this.toastService.showSuccess('تم حذف الموعد بنجاح');
+          this.toastService.showSuccess('Time slot deleted successfully');
         }
       },
       error: (error) => {
         console.error('Error deleting availability:', error);
-        this.toastService.showError('فشل في حذف الموعد');
+        this.toastService.showError('Failed to delete time slot');
       }
     });
   }
@@ -258,13 +247,6 @@ export class TeacherAvailabilityComponent implements OnInit {
    */
   formatTime(time: string): string {
     return time.substring(0, 5); // HH:mm
-  }
-
-  /**
-   * Get day name in Arabic
-   */
-  getDayArabic(day: string): string {
-    return this.daysArabic[day] || day;
   }
 
   /**
