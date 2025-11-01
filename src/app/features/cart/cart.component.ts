@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -7,6 +8,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Cart, CartItem } from '../../models/course.models';
 import { CoursesService } from '../../core/services/courses.service';
 import { AuthService } from '../../auth/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { environment } from '../../../environments/environment';
 
 // Student interface for the cart component
@@ -42,7 +44,9 @@ export class CartComponent implements OnInit, OnDestroy {
   constructor(
     private coursesService: CoursesService,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -170,45 +174,40 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Enroll in all courses
+   * Proceed to checkout
    */
   enrollInAll(): void {
+    // Check if cart is empty
+    if (this.cart().items.length === 0) {
+      this.toastService.showWarning('Your cart is empty!');
+      return;
+    }
+
     // Check if student is selected
     if (this.selectedStudentId() === null) {
-      alert('Please select the student you want to enroll in the courses');
+      this.toastService.showWarning('Please select the student you want to enroll in the courses');
       return;
     }
 
     const selectedStudent = this.students().find(s => s.id === this.selectedStudentId());
     if (!selectedStudent) {
-      alert('The selected student is invalid');
+      this.toastService.showError('The selected student is invalid');
       return;
     }
 
-    const confirmMessage = `Are you sure you want to enroll student "${selectedStudent.userName}" in all courses for $${this.cart().totalAmount}?`;
+    // Navigate to checkout page
+    console.log('📦 Proceeding to checkout:', {
+      studentId: this.selectedStudentId(),
+      studentName: selectedStudent.userName,
+      totalAmount: this.cart().totalAmount,
+      itemsCount: this.cart().items.length
+    });
 
-    if (confirm(confirmMessage)) {
-      this.loading.set(true);
-
-      // Simulate enrollment process with student information
-      const enrollmentPromises = this.cart().items.map(item =>
-        this.coursesService.enrollInCourse(item.course.id).toPromise()
-      );
-
-      Promise.all(enrollmentPromises)
-        .then(() => {
-          alert(`Student "${selectedStudent.userName}" has been successfully enrolled in all courses!`);
-          this.coursesService.clearCart();
-          // Reset student selection
-          this.selectedStudentId.set(null);
-        })
-        .catch(() => {
-          alert('Failed to enroll in some courses. Please try again.');
-        })
-        .finally(() => {
-          this.loading.set(false);
-        });
-    }
+    this.router.navigate(['/checkout'], {
+      queryParams: {
+        studentId: this.selectedStudentId()
+      }
+    });
   }
 
   /**
