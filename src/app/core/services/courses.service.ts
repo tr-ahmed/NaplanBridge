@@ -437,8 +437,8 @@ export class CoursesService {
     }
 
     // Get cartItemId from _backendData or fallback
-    const cartItemId = (cartItem as any)._backendData?.cartItemId || 
-                       (cartItem as any).cartItemId || 
+    const cartItemId = (cartItem as any)._backendData?.cartItemId ||
+                       (cartItem as any).cartItemId ||
                        (cartItem as any).id;
 
     if (!cartItemId) {

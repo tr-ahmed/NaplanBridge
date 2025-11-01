@@ -93,7 +93,19 @@ export interface CourseCategory {
 export interface CartItem {
   course: Course;
   quantity: number;
-  addedDate: Date;
+  addedDate?: Date;
+  selectedPlan?: {
+    id: number;
+    name: string;
+    price: number;
+    duration: number;
+    features: string[];
+  };
+  _backendData?: {
+    cartItemId: number;
+    subscriptionPlanId: number;
+    studentId: number;
+  };
 }
 
 /**
