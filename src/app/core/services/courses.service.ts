@@ -201,7 +201,7 @@ export class CoursesService {
         // Extract year from plan name (most accurate) or course name or yearId
         const planYearMatch = planName ? planName.match(/Year\s+(\d+)/i) : null;
         const courseYearMatch = (course.subjectName || course.name || '').match(/Year\s+(\d+)/i);
-        const courseYear = planYearMatch ? parseInt(planYearMatch[1]) : 
+        const courseYear = planYearMatch ? parseInt(planYearMatch[1]) :
                           (courseYearMatch ? parseInt(courseYearMatch[1]) : course.yearId);
 
         // Now check if subject already exists in cart
@@ -626,16 +626,33 @@ export class CoursesService {
     // Extract base subject name (without term info)
     const baseSubjectName = subjectName.split(' - ')[0].trim().toLowerCase();
     const yearFromName = subjectName.match(/Year\s+(\d+)/i);
-    const targetYear = yearId || (yearFromName ? parseInt(yearFromName[1]) : null);
+    const targetYear = yearFromName ? parseInt(yearFromName[1]) : yearId;
+
+    console.log('🔍 isSubjectInCart checking:', {
+      subjectName,
+      baseSubjectName,
+      targetYear,
+      cartItemsCount: cart.items.length
+    });
 
     return cart.items.some((item: any) => {
       const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim().toLowerCase();
       const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
-      const itemYear = item.course?.yearId || (itemYearMatch ? parseInt(itemYearMatch[1]) : null);
+      const itemYear = itemYearMatch ? parseInt(itemYearMatch[1]) : item.course?.yearId;
 
       const isSameSubject = itemSubjectName.includes(baseSubjectName) ||
                            baseSubjectName.includes(itemSubjectName);
       const isSameYear = !targetYear || !itemYear || itemYear === targetYear;
+
+      console.log('🔄 Checking cart item:', {
+        itemSubjectName,
+        baseSubjectName,
+        isSameSubject,
+        itemYear,
+        targetYear,
+        isSameYear,
+        match: isSameSubject && isSameYear
+      });
 
       return isSameSubject && isSameYear;
     });
