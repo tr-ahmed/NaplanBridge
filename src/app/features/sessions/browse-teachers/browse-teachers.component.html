@@ -7,7 +7,7 @@
 
   <!-- Search Bar -->
   <div class="mb-6">
-    <input 
+    <input
       type="text"
       (input)="onSearchChange($event)"
       placeholder="ابحث عن معلم أو مادة..."
@@ -21,9 +21,9 @@
 
   <!-- Teachers Grid -->
   <div *ngIf="!loading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div *ngFor="let teacher of filteredTeachers" 
+    <div *ngFor="let teacher of filteredTeachers"
          class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
-      
+
       <!-- Teacher Avatar -->
       <div class="flex items-center mb-4">
         <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl font-bold">
@@ -39,7 +39,7 @@
       <div class="mb-4">
         <p class="text-sm font-medium text-gray-700 mb-2">المواد التدريسية:</p>
         <div class="flex flex-wrap gap-2">
-          <span *ngFor="let subject of teacher.subjects" 
+          <span *ngFor="let subject of teacher.subjects"
                 class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
             {{ subject }}
           </span>
@@ -65,7 +65,7 @@
 
       <!-- Booking Status -->
       <div class="mb-4">
-        <span 
+        <span
           class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
           [class]="teacher.isAcceptingBookings ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
           <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
@@ -76,7 +76,7 @@
       </div>
 
       <!-- Book Button -->
-      <button 
+      <button
         (click)="bookWithTeacher(teacher)"
         [disabled]="!teacher.isAcceptingBookings"
         class="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium">

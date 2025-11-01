@@ -434,10 +434,383 @@ getCurrentTermWeek(studentId: number, courseId?: number): Observable<CurrentTerm
 
 ---
 
+# 🚀 Quick Start: Current Term/Week Endpoint
+
+**For Frontend Developers**
+
+---
+
+## 📋 TL;DR
+
+**New endpoint to get which term and week a student should be viewing:**
+
+```
+GET /api/StudentSubjects/student/{studentId}/current-term-week?subjectId={subjectId}
+```
+
+---
+
+## ⚡ Quick Examples
+
+### 1. TypeScript Service Method
+
+```typescript
+// Add to your courses.service.ts or subscription.service.ts
+
+interface CurrentTermWeekDto {
+  studentId: number;
+  currentTermId: number | null;
+  currentTermNumber: number | null;
+  currentTermName: string | null;
+  currentWeekId: number | null;
+  currentWeekNumber: number | null;
+  termStartDate: string | null;
+  totalWeeksInTerm: number | null;
+  weeksRemaining: number | null;
+  progressPercentage: number | null;
+  subscriptionType: string | null;
+  hasAccess: boolean;
+  message: string | null;
+  subjectId: number | null;
+  subjectName: string | null;
+}
+
+getCurrentTermWeek(studentId: number, subjectId?: number): Observable<CurrentTermWeekDto> {
+  let url = `${this.apiUrl}/StudentSubjects/student/${studentId}/current-term-week`;
+  if (subjectId) {
+    url += `?subjectId=${subjectId}`;
+  }
+  return this.http.get<CurrentTermWeekDto>(url);
+}
+```
+
+---
+
+### 2. Component Usage (View Lessons Button)
+
+```typescript
+// In your courses.component.ts
+
+viewLessons(course: any): void {
+  const studentId = this.authService.getCurrentUser()?.studentId;
+  
+  if (!studentId) {
+    this.router.navigate(['/login']);
+    return;
+  }
+
+  this.coursesService.getCurrentTermWeek(studentId, course.id)
+    .subscribe({
+      next: (result) => {
+        if (!result.hasAccess) {
+          // No subscription - show message
+          this.toastService.showWarning(
+            result.message || 'No active subscription found for this subject'
+          );
+          return;
+        }
+
+        // Has subscription - navigate to current term/week
+        console.log('📚 Navigating to current term:', result);
+        
+        this.router.navigate(['/lessons'], {
+          queryParams: {
+            subjectId: course.subjectNameId,
+            yearId: course.yearId,
+            termId: result.currentTermId,
+            weekId: result.currentWeekId,
+            courseId: course.id
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error loading current term/week:', err);
+        this.toastService.showError('Failed to load course information');
+      }
+    });
+}
+```
+
+---
+
+### 3. Display Progress on Dashboard
+
+```typescript
+// In your dashboard.component.ts
+
+export class DashboardComponent implements OnInit {
+  currentProgress: any;
+  isLoading = false;
+
+  ngOnInit(): void {
+    this.loadCurrentProgress();
+  }
+
+  loadCurrentProgress(): void {
+    const studentId = this.authService.getCurrentUser()?.studentId;
+    
+    if (!studentId) return;
+
+    this.isLoading = true;
+    this.coursesService.getCurrentTermWeek(studentId)
+      .subscribe({
+        next: (result) => {
+          this.isLoading = false;
+          if (result.hasAccess) {
+            this.currentProgress = {
+              subject: result.subjectName,
+              term: result.currentTermName,
+              week: `Week ${result.currentWeekNumber}`,
+              progress: result.progressPercentage,
+              weeksLeft: result.weeksRemaining
+            };
+          }
+        },
+        error: () => {
+          this.isLoading = false;
+        }
+      });
+  }
+}
+```
+
+```html
+<!-- In your dashboard.component.html -->
+<div *ngIf="currentProgress" class="progress-card">
+  <h3>{{ currentProgress.subject }}</h3>
+  <p>{{ currentProgress.term }} - {{ currentProgress.week }}</p>
+  <div class="progress-bar">
+    <div class="progress-fill" [style.width.%]="currentProgress.progress"></div>
+  </div>
+  <span>{{ currentProgress.progress }}% Complete - {{ currentProgress.weeksLeft }} weeks remaining</span>
+</div>
+```
+
+---
+
+## 🎯 Response Examples
+
+### ✅ Has Access
+
+```json
+{
+  "studentId": 8,
+  "currentTermId": 2,
+  "currentTermNumber": 2,
+  "currentTermName": "Term 2",
+  "currentWeekId": 15,
+  "currentWeekNumber": 5,
+  "termStartDate": "2025-04-01T00:00:00Z",
+  "totalWeeksInTerm": 12,
+  "weeksRemaining": 7,
+  "progressPercentage": 42,
+  "subscriptionType": "FullYear",
+  "hasAccess": true,
+  "message": null,
+  "subjectId": 5,
+  "subjectName": "Mathematics"
+}
+```
+
+### ❌ No Access
+
+```json
+{
+  "studentId": 8,
+  "currentTermId": null,
+  "currentTermNumber": null,
+  "currentTermName": null,
+  "currentWeekId": null,
+  "currentWeekNumber": null,
+  "termStartDate": null,
+  "totalWeeksInTerm": null,
+  "weeksRemaining": null,
+  "progressPercentage": null,
+  "subscriptionType": null,
+  "hasAccess": false,
+  "message": "No active subscription found",
+  "subjectId": null,
+  "subjectName": null
+}
+```
+
+---
+
+## 🔑 Key Points
+
+1. **Always check `hasAccess` first**
+   ```typescript
+   if (!result.hasAccess) {
+     // Show enroll button or redirect to pricing
+     return;
+   }
+   ```
+
+2. **Use termId and weekId for navigation**
+   ```typescript
+   queryParams: {
+     termId: result.currentTermId,
+     weekId: result.currentWeekId
+   }
+   ```
+
+3. **Handle null values**
+   ```typescript
+   const termName = result.currentTermName || 'Unknown Term';
+   const weekNum = result.currentWeekNumber || 1;
+   ```
+
+4. **Add loading state**
+   ```typescript
+   isLoading = true;
+   this.coursesService.getCurrentTermWeek(studentId).subscribe({
+     next: (result) => { this.isLoading = false; },
+     error: () => { this.isLoading = false; }
+   });
+   ```
+
+---
+
+## 🐛 Error Handling
+
+```typescript
+this.coursesService.getCurrentTermWeek(studentId, subjectId)
+  .pipe(
+    catchError(err => {
+      console.error('Error:', err);
+      
+      if (err.status === 401) {
+        // Unauthorized - redirect to login
+        this.router.navigate(['/login']);
+      } else if (err.status === 404) {
+        // Student not found
+        this.toastService.showError('Student not found');
+      } else {
+        // General error
+        this.toastService.showError('Failed to load content');
+      }
+      
+      return of(null);
+    })
+  )
+  .subscribe(result => {
+    if (result && result.hasAccess) {
+      // Navigate to lessons
+    }
+  });
+```
+
+---
+
+## 📱 Mobile/Responsive Example
+
+```typescript
+// For mobile, show compact progress
+getProgressDisplay(result: CurrentTermWeekDto): string {
+  if (!result.hasAccess) return 'Not Enrolled';
+
+  return `${result.currentTermName}, Week ${result.currentWeekNumber} (${result.progressPercentage}%)`;
+}
+```
+
+---
+
+## 🎨 UI Suggestions
+
+### Loading State
+```html
+<button (click)="viewLessons(course)" [disabled]="isLoading" class="btn-primary">
+  @if (isLoading) {
+    <span class="spinner"></span>
+  }
+  <span>{{ isLoading ? 'Loading...' : 'View Lessons' }}</span>
+</button>
+```
+
+### Progress Display
+```html
+@if (termWeek?.hasAccess) {
+  <div class="course-progress">
+    <div class="term-badge">{{ termWeek.currentTermName }}</div>
+    <div class="week-info">Week {{ termWeek.currentWeekNumber }} of {{ termWeek.totalWeeksInTerm }}</div>
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="termWeek.progressPercentage"></div>
+    </div>
+  </div>
+}
+```
+
+### No Access State
+```html
+@if (termWeek && !termWeek.hasAccess) {
+  <div class="no-access">
+    <p>{{ termWeek.message }}</p>
+    <button (click)="enrollNow()" class="btn-primary">
+      Enroll Now
+    </button>
+  </div>
+}
+```
+
+---
+
+## ✅ Testing Checklist
+
+- [ ] Test with student who has Full Year subscription
+- [ ] Test with student who has Single Term subscription
+- [ ] Test with student who has no subscription
+- [ ] Test with multiple subjects
+- [ ] Test with expired subscription
+- [ ] Test error handling (401, 404, 500)
+- [ ] Test loading states
+- [ ] Test mobile view
+- [ ] Test with subjectId parameter
+- [ ] Test without subjectId parameter
+- [ ] Test navigation to lessons page
+- [ ] Test progress display on dashboard
+
+---
+
+## 🔗 Related Components
+
+### Components to Update:
+
+1. **CoursesComponent** (`/courses`)
+   - Update `viewLessons()` method
+   - Use endpoint to get current term
+
+2. **LessonsComponent** (`/lessons`)
+   - Receive termId and weekId from query params
+   - Filter lessons by these IDs
+
+3. **DashboardComponent** (`/dashboard`)
+   - Show current progress
+   - Display week countdown
+
+4. **EnrolledCoursesComponent**
+   - Show "Continue Learning" button
+   - Navigate to current term/week
+
+---
+
+## 💬 Questions?
+
+**Backend endpoint ready?** ⏳ In Progress  
+**Authorization required?** ✅ Yes (JWT token with studentId claim)  
+**Supports all subscription types?** ✅ Yes (FullYear, SingleTerm, MultiTerm)  
+**Returns null values if no access?** ✅ Yes (check `hasAccess` field)  
+**Can filter by subject?** ✅ Yes (optional `subjectId` query param)
+
+---
+
 **Report Generated**: November 1, 2025  
-**Frontend Status**: ⏳ **BLOCKED** - Waiting for current term/week endpoint  
+**Frontend Status**: ⏳ **READY TO IMPLEMENT** - Waiting for backend endpoint  
 **Backend Action Required**: ✅ **HIGH PRIORITY** - Create term/week detection endpoint
 
 ---
 
 **Recommendation**: Implement backend endpoint for accurate term/week calculation based on subscription dates and current date. This is essential for proper content navigation.
+
+---
+
+**Happy Coding! 🚀**

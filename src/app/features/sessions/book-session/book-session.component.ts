@@ -131,10 +131,10 @@ export class BookSessionComponent implements OnInit {
    * Format date display
    */
   formatDateDisplay(date: Date): string {
-    return date.toLocaleDateString('ar-EG', { 
-      weekday: 'short', 
-      day: 'numeric', 
-      month: 'short' 
+    return date.toLocaleDateString('ar-EG', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short'
     });
   }
 
@@ -143,9 +143,9 @@ export class BookSessionComponent implements OnInit {
    */
   formatTime(dateTime: string): string {
     const date = new Date(dateTime);
-    return date.toLocaleTimeString('ar-EG', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString('ar-EG', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
@@ -171,7 +171,7 @@ export class BookSessionComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           this.toastService.showSuccess('تم إنشاء الحجز، سيتم تحويلك للدفع...');
-          
+
           // Redirect to Stripe checkout
           window.location.href = response.data.stripeCheckoutUrl;
         }

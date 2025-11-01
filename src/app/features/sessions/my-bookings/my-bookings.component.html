@@ -40,9 +40,9 @@
 
   <!-- Bookings List -->
   <div *ngIf="!loading()" class="space-y-4">
-    <div *ngFor="let booking of filteredBookings" 
+    <div *ngFor="let booking of filteredBookings"
          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-      
+
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <!-- Booking Info -->
         <div class="flex-1">
@@ -51,7 +51,7 @@
               <h3 class="text-lg font-bold text-gray-800">{{ booking.teacherName }}</h3>
               <p class="text-sm text-gray-600">للطالب: {{ booking.studentName }}</p>
             </div>
-            <span 
+            <span
               class="px-3 py-1 rounded-full text-sm font-medium"
               [class]="getStatusClass(booking.status)">
               {{ getStatusText(booking.status) }}
@@ -86,7 +86,7 @@
           </p>
 
           <!-- Google Meet Link -->
-          <a *ngIf="booking.googleMeetLink && booking.status === 'Confirmed'" 
+          <a *ngIf="booking.googleMeetLink && booking.status === 'Confirmed'"
              [href]="booking.googleMeetLink"
              target="_blank"
              class="inline-flex items-center mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
@@ -117,7 +117,7 @@
     </svg>
     <h3 class="mt-4 text-lg font-medium text-gray-900">لا توجد حجوزات</h3>
     <p class="mt-2 text-sm text-gray-500">لم تقم بحجز أي حصص خاصة بعد</p>
-    <a routerLink="/sessions/browse" 
+    <a routerLink="/sessions/browse"
        class="mt-4 inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
       تصفح المعلمين المتاحين
     </a>

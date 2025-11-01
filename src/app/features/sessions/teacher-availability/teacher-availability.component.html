@@ -1,9 +1,9 @@
-<div class="teacher-availability-container p-6" dir="rtl">
+<div class="teacher-availability-container p-6">
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-3xl font-bold text-gray-800">إدارة المواعيد المتاحة</h1>
-      <p class="text-gray-600 mt-1">قم بإعداد مواعيدك المتاحة للحصص الخاصة</p>
+      <h1 class="text-3xl font-bold text-gray-800">Manage Availability</h1>
+      <p class="text-gray-600 mt-1">Set up your available times for private sessions</p>
     </div>
   </div>
 
@@ -18,41 +18,39 @@
     <!-- Settings Card -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold text-gray-800">إعدادات الحصص</h2>
-        <button
+        <h2 class="text-xl font-bold text-gray-800">Session Settings</h2>
+        <button 
           (click)="toggleSettingsForm()"
           class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-          {{ showSettingsForm() ? 'إلغاء' : 'تعديل الإعدادات' }}
+          {{ showSettingsForm() ? 'Cancel' : 'Edit Settings' }}
         </button>
       </div>
 
       <!-- Current Settings Display -->
       <div *ngIf="!showSettingsForm() && settings()" class="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div class="bg-gray-50 p-4 rounded-lg">
-          <p class="text-sm text-gray-600">مدة الحصة</p>
-          <p class="text-lg font-semibold text-gray-800">{{ settings()!.sessionDurationMinutes }} دقيقة</p>
+          <p class="text-sm text-gray-600">Session Duration</p>
+          <p class="text-lg font-semibold text-gray-800">{{ settings()!.sessionDurationMinutes }} minutes</p>
         </div>
         <div class="bg-gray-50 p-4 rounded-lg">
-          <p class="text-sm text-gray-600">وقت الاستراحة</p>
-          <p class="text-lg font-semibold text-gray-800">{{ settings()!.bufferTimeMinutes }} دقيقة</p>
+          <p class="text-sm text-gray-600">Buffer Time</p>
+          <p class="text-lg font-semibold text-gray-800">{{ settings()!.bufferTimeMinutes }} minutes</p>
         </div>
         <div class="bg-gray-50 p-4 rounded-lg">
-          <p class="text-sm text-gray-600">سعر الحصة</p>
-          <p class="text-lg font-semibold text-gray-800">{{ settings()!.pricePerSession }} ريال</p>
+          <p class="text-sm text-gray-600">Price per Session</p>
+          <p class="text-lg font-semibold text-gray-800">${{ settings()!.pricePerSession }}</p>
         </div>
         <div class="bg-gray-50 p-4 rounded-lg">
-          <p class="text-sm text-gray-600">الحد الأقصى يوميًا</p>
-          <p class="text-lg font-semibold text-gray-800">{{ settings()!.maxSessionsPerDay || '-' }} حصة</p>
+          <p class="text-sm text-gray-600">Max Daily Sessions</p>
+          <p class="text-lg font-semibold text-gray-800">{{ settings()!.maxSessionsPerDay || '-' }} sessions</p>
         </div>
         <div class="bg-gray-50 p-4 rounded-lg">
-          <p class="text-sm text-gray-600">حالة الحجز</p>
+          <p class="text-sm text-gray-600">Booking Status</p>
           <p class="text-lg font-semibold" [class]="settings()!.isAcceptingBookings ? 'text-green-600' : 'text-red-600'">
-            {{ settings()!.isAcceptingBookings ? 'مفتوح' : 'مغلق' }}
+            {{ settings()!.isAcceptingBookings ? 'Open' : 'Closed' }}
           </p>
         </div>
-      </div>
-
-      <!-- Settings Form -->
+      </div>      <!-- Settings Form -->
       <form *ngIf="showSettingsForm()" [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Session Duration -->

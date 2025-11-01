@@ -57,7 +57,7 @@ export class MyBookingsComponent implements OnInit {
     const filterValue = this.filter();
 
     if (filterValue === 'all') return all;
-    
+
     return all.filter(booking => {
       if (filterValue === 'upcoming') {
         return booking.status === 'Confirmed' && this.sessionService.isUpcoming(booking.scheduledDateTime);
@@ -134,7 +134,7 @@ export class MyBookingsComponent implements OnInit {
    * Check if can cancel booking
    */
   canCancel(booking: PrivateSessionDto): boolean {
-    return booking.status === 'Confirmed' && 
+    return booking.status === 'Confirmed' &&
            this.sessionService.getMinutesUntilSession(booking.scheduledDateTime) > 60;
   }
 
