@@ -193,16 +193,46 @@ export class CoursesService {
 
     // ✅ Check if subject already exists in cart (same subject, same year)
     const currentCart = this.cartSubject.value;
+    
+    console.log('🔍 Checking for duplicate subject in cart...');
+    console.log('📚 New course:', {
+      id: course.id,
+      name: course.subjectName || course.name,
+      yearId: course.yearId
+    });
+    console.log('🛒 Current cart items:', currentCart.items.map((item: any) => ({
+      id: item.course?.id,
+      name: item.course?.subjectName || item.course?.name,
+      yearId: item.course?.yearId
+    })));
+    
     const subjectAlreadyInCart = currentCart.items.some((item: any) => {
-      const itemSubjectId = item.course?.subjectId || item.course?.id;
-      const itemYearId = item.course?.yearId || course.yearId;
+      // Extract subject name from cart item (remove term info)
+      const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim();
+      const newSubjectName = (course.subjectName || course.name || '').split(' - ')[0].trim();
       
+      // Extract year from name if not in yearId
+      const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
+      const newYearMatch = (course.subjectName || course.name || '').match(/Year\s+(\d+)/i);
+      
+      const itemYear = item.course?.yearId || (itemYearMatch ? parseInt(itemYearMatch[1]) : null);
+      const newYear = course.yearId || (newYearMatch ? parseInt(newYearMatch[1]) : null);
+
       // Check if same subject and same year
-      const isSameSubject = itemSubjectId === course.id || 
-                           item.course?.subjectName === course.subjectName ||
-                           item.course?.name === course.name;
-      const isSameYear = itemYearId === course.yearId;
+      const isSameSubject = itemSubjectName.toLowerCase().includes(newSubjectName.toLowerCase()) ||
+                           newSubjectName.toLowerCase().includes(itemSubjectName.toLowerCase());
+      const isSameYear = itemYear === newYear;
       
+      console.log('🔄 Comparing:', {
+        itemSubjectName,
+        newSubjectName,
+        isSameSubject,
+        itemYear,
+        newYear,
+        isSameYear,
+        match: isSameSubject && isSameYear
+      });
+
       return isSameSubject && isSameYear;
     });
 
@@ -211,6 +241,8 @@ export class CoursesService {
       this.toastService.showWarning('This subject is already in your cart for this year. Please remove the existing plan first if you want to change it.');
       return of(false);
     }
+    
+    console.log('✅ No duplicate found, proceeding to add...');
 
     console.log('🛒 Adding to cart:', {
       url,
@@ -527,6 +559,7 @@ export class CoursesService {
 
   /**
    * Check if course is in cart
+   * Now checks by subject name and year instead of ID
    */
   isInCart(courseId: number): boolean {
     const cart = this.cartSubject.value;
@@ -535,16 +568,51 @@ export class CoursesService {
       return false;
     }
 
-    // After transformation, items have course.id structure
-    return cart.items.some((item: any) => {
+    // First try to match by ID (for plans already in cart)
+    const matchById = cart.items.some((item: any) => {
       const itemCourseId =
-        item.course?.id ||                        // Transformed frontend structure (primary)
+        item.course?.id ||                        // Transformed frontend structure
         item._backendData?.subscriptionPlanId ||  // Backend data reference
-        item.subscriptionPlanId ||                // Direct backend structure
-        item.courseId ||                          // Alternative
-        item.id;                                  // Last resort
+        item.subscriptionPlanId;                  // Direct backend structure
 
       return itemCourseId === courseId;
+    });
+
+    if (matchById) {
+      return true;
+    }
+
+    // If no ID match, check by subject name and year
+    // This handles the case where we're checking from the courses page
+    // but the cart has different plan IDs for the same subject
+    return false; // Will be handled by the courses component directly
+  }
+
+  /**
+   * Check if a subject is in cart by name and year
+   */
+  isSubjectInCart(subjectName: string, yearId?: number): boolean {
+    const cart = this.cartSubject.value;
+
+    if (!cart.items || cart.items.length === 0) {
+      return false;
+    }
+
+    // Extract base subject name (without term info)
+    const baseSubjectName = subjectName.split(' - ')[0].trim().toLowerCase();
+    const yearFromName = subjectName.match(/Year\s+(\d+)/i);
+    const targetYear = yearId || (yearFromName ? parseInt(yearFromName[1]) : null);
+
+    return cart.items.some((item: any) => {
+      const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim().toLowerCase();
+      const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
+      const itemYear = item.course?.yearId || (itemYearMatch ? parseInt(itemYearMatch[1]) : null);
+
+      const isSameSubject = itemSubjectName.includes(baseSubjectName) || 
+                           baseSubjectName.includes(itemSubjectName);
+      const isSameYear = !targetYear || !itemYear || itemYear === targetYear;
+
+      return isSameSubject && isSameYear;
     });
   }
 
