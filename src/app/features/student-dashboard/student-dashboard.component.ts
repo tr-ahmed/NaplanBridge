@@ -10,6 +10,7 @@ import { ProgressService } from '../../core/services/progress.service';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { ExamService } from '../../core/services/exam.service';
 import { LessonService } from '../../core/services/lesson.service';
+import { DashboardService } from '../../core/services/dashboard.service';
 import { AuthService } from '../../auth/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import {
@@ -42,6 +43,7 @@ export class StudentDashboardComponent implements OnInit {
   private subscriptionService = inject(SubscriptionService);
   private examService = inject(ExamService);
   private lessonService = inject(LessonService);
+  private dashboardService = inject(DashboardService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
@@ -98,13 +100,59 @@ export class StudentDashboardComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    // Load data in parallel
+    // Use comprehensive dashboard service
+    this.dashboardService.getComprehensiveStudentDashboard(this.studentId).subscribe({
+      next: (dashboardData) => {
+        this.processDashboardData(dashboardData);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Dashboard error:', err);
+        // Fallback to individual API calls if comprehensive endpoint fails
+        this.loadDashboardDataFallback();
+      }
+    });
+  }
+
+  /**
+   * Process dashboard data from comprehensive endpoint
+   */
+  private processDashboardData(data: any): void {
+    // Set progress data
+    if (data.detailedProgress) {
+      this.progress.set(data.detailedProgress);
+    }
+
+    // Set subscriptions
+    if (data.subscriptionDetails) {
+      this.subscriptions.set(data.subscriptionDetails);
+    }
+
+    // Set certificates and achievements
+    if (data.certificates) {
+      // Process certificates data
+    }
+
+    if (data.achievements) {
+      // Process achievements data
+    }
+
+    // Calculate stats from the data
+    this.calculateStatsFromData(data);
+  }
+
+  /**
+   * Fallback method using individual API calls
+   */
+  private loadDashboardDataFallback(): void {
     Promise.all([
       this.loadProgress(),
       this.loadSubscriptions(),
       this.loadRecentExams(),
       this.loadRecentActivities(),
-      this.loadUpcomingExams()
+      this.loadUpcomingExams(),
+      this.loadCertificates(),
+      this.loadAchievements()
     ]).then(() => {
       this.calculateStats();
       this.loading.set(false);
@@ -158,6 +206,36 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   /**
+   * Load student certificates
+   */
+  private loadCertificates(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.dashboardService.getStudentCertificates(this.studentId).subscribe({
+        next: (certificates) => {
+          // Process certificates
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  /**
+   * Load student achievements
+   */
+  private loadAchievements(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.dashboardService.getStudentAchievements(this.studentId).subscribe({
+        next: (achievements) => {
+          // Process achievements
+          resolve();
+        },
+        error: (err) => reject(err)
+      });
+    });
+  }
+
+  /**
    * Load recent activities
    */
   private loadRecentActivities(): Promise<void> {
@@ -180,6 +258,20 @@ export class StudentDashboardComponent implements OnInit {
         },
         error: (err) => reject(err)
       });
+    });
+  }
+
+  /**
+   * Calculate stats from comprehensive dashboard data
+   */
+  private calculateStatsFromData(data: any): void {
+    this.stats.set({
+      totalLessonsCompleted: data.totalLessonsCompleted || 0,
+      totalExamsTaken: data.totalExamsCompleted || 0,
+      averageScore: data.averageScore || 0,
+      currentStreak: 0, // Will be calculated from activities
+      activeSubscriptions: data.activeSubscriptions || 0,
+      upcomingExams: data.upcomingExams?.length || 0
     });
   }
 

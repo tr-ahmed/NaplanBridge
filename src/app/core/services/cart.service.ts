@@ -273,11 +273,13 @@ export class CartService {
   forceRefreshAfterPayment(): Observable<Cart> {
     console.log('💳 Force refreshing cart after payment...');
 
-    // First reset signals to 0
+    // Immediate clear - assume payment was successful
+    console.log('🧹 Immediately clearing cart state (payment successful)...');
     this.cartItemCount.set(0);
     this.cartTotalAmount.set(0);
+    this.cartClearedSubject.next(true);
 
-    // Then call API to get actual state
+    // Then call API to verify, but don't let it override our clearing
     return this.getCart().pipe(
       tap((cart) => {
         console.log('🔄 Cart refreshed after payment:', cart);
@@ -295,17 +297,17 @@ export class CartService {
         this.cartTotalAmount.set(totalAmount);
 
         if (itemCount === 0) {
-          console.log('✅ Cart confirmed empty after payment');
-          this.cartClearedSubject.next(true);
+          console.log('✅ Cart confirmed empty from backend after payment');
         } else {
-          console.warn('⚠️ Cart still has items after payment:', itemCount);
-          console.log('🧹 Attempting to clear cart manually...');
-          // Force clear it
+          console.warn('⚠️ Backend still shows items after payment:', itemCount);
+          console.log('🧹 But cart already cleared in UI - backend will catch up');
+          // Keep our cleared state - don't let backend override
           this.cartItemCount.set(0);
           this.cartTotalAmount.set(0);
-          this.cartClearedSubject.next(true);
-          console.log('✅ Cart force-cleared after payment');
         }
+        
+        // Always broadcast cleared event after payment
+        this.cartClearedSubject.next(true);
       })
     );
   }

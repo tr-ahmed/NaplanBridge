@@ -92,17 +92,28 @@ export class PaymentSuccessComponent implements OnInit {
 
             // Multiple approaches to ensure cart is cleared
             console.log('💳 Payment successful! Clearing cart with multiple approaches...');
-            
-            // Approach 1: Force reset cart state immediately
+
+            // Approach 1: Force clear cart via API immediately (don't wait)
+            this.cartService.clearCart().subscribe({
+              next: () => {
+                console.log('🧹 Cart cleared via API immediately');
+              },
+              error: () => {
+                console.log('🔄 API clear failed, using reset');
+                this.cartService.resetCartState();
+              }
+            });
+
+            // Approach 2: Force reset cart state immediately as backup
             this.cartService.resetCartState();
-            
-            // Approach 2: Refresh cart from backend
-            this.refreshCart();            // Force clear cart as fallback after 2 seconds if backend didn't clear it
+
+            // Approach 3: Refresh cart from backend (to verify)
+            setTimeout(() => this.refreshCart(), 500);            // Force clear cart as fallback after 2 seconds if backend didn't clear it
             setTimeout(() => {
               console.log('🔄 Double-checking cart is cleared...');
               const currentCartCount = this.cartService.cartItemCount();
               console.log('📊 Current cart count:', currentCartCount);
-              
+
               if (currentCartCount > 0) {
                 console.warn('⚠️ Cart still has items, force clearing...');
                 this.cartService.clearCart().subscribe({
@@ -130,7 +141,7 @@ export class PaymentSuccessComponent implements OnInit {
             // Payment status unclear - show as warning instead of error
             console.warn('⚠️ Payment response unclear:', response);
             this.toastService.showWarning(response.message || 'Payment status could not be verified');
-            
+
             // Still try to refresh cart in case payment was actually successful
             this.refreshCart();
           }
