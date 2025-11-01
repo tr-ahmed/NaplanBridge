@@ -79,7 +79,37 @@ export class StudentDashboardComponent implements OnInit {
   });
 
   activeSubsCount = computed(() => {
-    return this.subscriptions().filter(s => s.status === 'Active').length;
+    const subs = this.subscriptions();
+
+    if (!Array.isArray(subs) || subs.length === 0) {
+      return 0;
+    }
+
+    // Handle different subscription formats:
+    // Backend may return subscriptions with different property names
+    const activeCount = subs.filter(s => {
+      // Check for 'status' property
+      if (s.status) {
+        return s.status === 'Active';
+      }
+
+      // Check for 'isActive' property
+      if (s.hasOwnProperty('isActive')) {
+        return s.isActive === true;
+      }
+
+      // Check date-based active status
+      if (s.endDate) {
+        const endDate = new Date(s.endDate);
+        const now = new Date();
+        return endDate > now;
+      }
+
+      // Default: consider all subscriptions as active if no status indicator
+      return true;
+    }).length;
+
+    return activeCount;
   });
 
   hasActiveSubscription = computed(() => this.activeSubsCount() > 0);
@@ -163,14 +193,32 @@ export class StudentDashboardComponent implements OnInit {
   private safeLoadSubscriptions(): Promise<any> {
     return new Promise((resolve) => {
       this.dashboardService.getStudentSubscriptionsSummary(this.studentId).subscribe({
-        next: (subs) => {
-          // Ensure subs is always an array
-          const subsArray = Array.isArray(subs) ? subs : [];
+        next: (response) => {
+          // Handle different response formats:
+          // 1. If response is an object with 'subscriptions' array
+          // 2. If response is directly an array
+          // 3. If response is null/undefined
+          let subsArray: any[] = [];
+
+          if (response) {
+            if (Array.isArray(response)) {
+              // Response is directly an array
+              subsArray = response;
+            } else if (response.subscriptions && Array.isArray(response.subscriptions)) {
+              // Response is an object with subscriptions property
+              subsArray = response.subscriptions;
+            } else if (typeof response === 'object') {
+              // Response might be a single subscription object
+              subsArray = [response];
+            }
+          }
+
+          console.log(`✅ Loaded ${subsArray.length} subscription(s)`);
           this.subscriptions.set(subsArray);
           resolve(subsArray);
         },
         error: (err) => {
-          console.warn('Subscriptions endpoint failed:', err);
+          console.warn('⚠️ Subscriptions endpoint failed:', err);
           this.subscriptions.set([]);
           resolve([]);
         }
@@ -269,10 +317,9 @@ export class StudentDashboardComponent implements OnInit {
       ? Math.round(examHist.reduce((sum: number, exam: any) => sum + (exam.score || 0), 0) / examHist.length)
       : 0;
 
-    // Safely count active subscriptions
-    const activeSubs = Array.isArray(subs)
-      ? subs.filter((s: any) => s.status === 'Active').length
-      : 0;
+    // Use the activeSubsCount computed property for accurate count
+    const activeSubs = this.activeSubsCount();
+    console.log('📊 Calculating stats - Active Subscriptions:', activeSubs);
 
     this.stats.set({
       totalLessonsCompleted: 0, // Will be updated when progress API is available
@@ -282,6 +329,8 @@ export class StudentDashboardComponent implements OnInit {
       activeSubscriptions: activeSubs,
       upcomingExams: 0 // Will be updated when upcoming exams API is available
     });
+
+    console.log('✅ Stats updated:', this.stats());
   }
 
   /**
@@ -317,7 +366,6 @@ export class StudentDashboardComponent implements OnInit {
    */
   private calculateStatsFromRealData(data: any): void {
     const prog = this.progress();
-    const subs = this.subscriptions();
     const examHist = this.examHistory();
 
     // Calculate total exams taken
@@ -328,10 +376,8 @@ export class StudentDashboardComponent implements OnInit {
       ? examHist.reduce((sum: number, exam: ExamHistory) => sum + exam.score, 0) / examHist.length
       : 0;
 
-    // Safely count active subscriptions
-    const activeSubs = Array.isArray(subs)
-      ? subs.filter((s: any) => s.status === 'Active').length
-      : 0;
+    // Use the activeSubsCount computed property for accurate count
+    const activeSubs = this.activeSubsCount();
 
     this.stats.set({
       totalLessonsCompleted: prog?.completedLessons || data.totalLessonsCompleted || 0,
@@ -427,14 +473,13 @@ export class StudentDashboardComponent implements OnInit {
    */
   private calculateMockStats(): void {
     const prog = this.progress();
-    const subs = this.subscriptions();
 
     this.stats.set({
       totalLessonsCompleted: prog?.completedLessons || 45,
       totalExamsTaken: prog?.examsCompleted || 12,
       averageScore: prog?.averageExamScore || 87,
       currentStreak: 7, // Mock streak
-      activeSubscriptions: subs?.filter((s: any) => s.status === 'Active').length || 2,
+      activeSubscriptions: this.activeSubsCount() || 2,
       upcomingExams: 2 // Mock upcoming exams
     });
   }
@@ -595,7 +640,7 @@ export class StudentDashboardComponent implements OnInit {
       totalExamsTaken: data.totalExamsCompleted || 0,
       averageScore: data.averageScore || 0,
       currentStreak: 0, // Will be calculated from activities
-      activeSubscriptions: data.activeSubscriptions || 0,
+      activeSubscriptions: this.activeSubsCount() || data.activeSubscriptions || 0,
       upcomingExams: data.upcomingExams?.length || 0
     });
   }
@@ -615,10 +660,8 @@ export class StudentDashboardComponent implements OnInit {
       ? exams.reduce((sum: number, e: ExamHistory) => sum + (e.score || 0), 0) / exams.length
       : 0;
 
-    // Safely count active subscriptions
-    const activeSubs = Array.isArray(subs)
-      ? subs.filter((s: any) => s.status === 'Active').length
-      : 0;
+    // Use the activeSubsCount computed property for accurate count
+    const activeSubs = this.activeSubsCount();
 
     this.stats.set({
       totalLessonsCompleted: totalLessons,
