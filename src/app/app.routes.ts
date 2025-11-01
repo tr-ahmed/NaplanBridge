@@ -139,7 +139,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/teacher-dashboard/teacher-dashboard.component').then(m => m.TeacherDashboardComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')]
   },
-  
+
   // Teacher Management Routes (Placeholder - To be implemented)
   {
     path: 'teacher/grade/:studentExamId',

@@ -569,3 +569,354 @@ private loadLessons(): void {
 ---
 
 **Recommendation:** Implement `GET /api/Lessons/subject/{subjectId}/with-progress/{studentId}` endpoint to provide lessons with embedded student progress. This eliminates multiple API calls and simplifies frontend logic significantly.
+
+---
+
+# ✅ UPDATE: Endpoint Implementation Complete!
+
+## 📍 Implementation Status: ✅ DONE
+
+### Date Implemented: November 2, 2025
+
+---
+
+## 🎉 What Was Created
+
+### 1. New DTOs (2 files)
+
+**A) `API/DTOs/Lesson/StudentProgressDto.cs`**
+```csharp
+public class StudentProgressDto
+{
+    public int StudentId { get; set; }
+    public int LessonId { get; set; }
+    public bool IsCompleted { get; set; }
+    public int ProgressNumber { get; set; } // 0-100
+    public DateTime? LastAccessedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
+    public int TimeSpent { get; set; } // in minutes
+    public int CurrentPosition { get; set; } // video position in seconds
+}
+```
+
+**B) `API/DTOs/Lesson/LessonWithProgressDto.cs`**
+```csharp
+public class LessonWithProgressDto
+{
+    // Basic lesson info
+    public int Id { get; set; }
+    public required string Title { get; set; }
+    public string? Description { get; set; }
+    
+    // Subject info
+    public int SubjectId { get; set; }
+    public string? SubjectName { get; set; }
+    
+    // Term and week info
+    public int? TermId { get; set; }
+    public int? TermNumber { get; set; }
+    public int? WeekId { get; set; }
+    public int? WeekNumber { get; set; }
+    
+    // Lesson details
+    public int OrderIndex { get; set; }
+    public int Duration { get; set; }
+    public string? VideoUrl { get; set; }
+    public string? PosterUrl { get; set; }
+    
+    // Resources and questions
+    public int ResourcesCount { get; set; }
+    public int QuestionsCount { get; set; }
+    public bool HasQuiz { get; set; }
+    
+    // Prerequisites
+    public List<int> PrerequisiteIds { get; set; } = new();
+    public List<string> PrerequisiteTitles { get; set; } = new();
+    
+    // ✨ Student progress (null if not started)
+    public StudentProgressDto? StudentProgress { get; set; }
+    
+    // Computed fields
+    public bool IsLocked { get; set; }
+    public bool IsAvailable { get; set; }
+    public bool IsCompleted { get; set; }
+    public int ProgressPercentage { get; set; } // 0-100
+}
+```
+
+---
+
+### 2. New Endpoints (2 endpoints) ✅
+
+#### **Endpoint 1: Get Lessons by Subject with Progress**
+```
+GET /api/Lessons/subject/{subjectId}/with-progress/{studentId}
+```
+
+**Example Request:**
+```http
+GET /api/Lessons/subject/5/with-progress/1
+Authorization: Bearer {token}
+```
+
+**Response Structure:**
+```json
+[
+  {
+    "id": 101,
+    "title": "Introduction to Algebra",
+    "description": "Learn basic algebra concepts",
+    "subjectId": 5,
+    "subjectName": "Algebra",
+    "termId": 2,
+    "termNumber": 2,
+    "weekId": 15,
+    "weekNumber": 5,
+    "orderIndex": 101,
+    "duration": 45,
+    "videoUrl": "https://...",
+    "posterUrl": "https://...",
+    "resourcesCount": 3,
+    "questionsCount": 10,
+    "hasQuiz": true,
+    "prerequisiteIds": [],
+    "prerequisiteTitles": [],
+    "studentProgress": {
+      "studentId": 1,
+      "lessonId": 101,
+      "isCompleted": true,
+      "progressNumber": 100,
+      "completedAt": "2025-11-01T12:00:00Z",
+      "timeSpent": 45,
+      "currentPosition": 2700
+    },
+    "isLocked": false,
+    "isAvailable": true,
+    "isCompleted": true,
+    "progressPercentage": 100
+  }
+]
+```
+
+#### **Endpoint 2: Get Lessons by Term with Progress**
+```
+GET /api/Lessons/term/{termId}/with-progress/{studentId}
+```
+
+---
+
+## 🎯 Key Features
+
+### ✅ What the Endpoint Provides:
+
+1. **Data Combination**
+   - All lessons for a subject/term
+   - Student progress for each lesson
+   - Lock status
+   - Prerequisites with titles
+
+2. **Reduced API Calls**
+   - Before: 2 separate calls (Lessons + Progress)
+   - After: 1 single call
+
+3. **Auto-Calculated Fields**
+   - `isLocked`: Is lesson locked?
+   - `isAvailable`: Can access it?
+   - `isCompleted`: Is lesson completed?
+   - `progressPercentage`: Progress (0-100)
+
+4. **Logical Ordering**
+   - Sorted by: Term → Week → Lesson ID
+   - Easy navigation and display
+
+---
+
+## 💻 Frontend Usage
+
+### Quick Integration:
+
+```typescript
+// lessons.service.ts
+getLessonsWithProgress(subjectId: number, studentId: number): Observable<LessonWithProgress[]> {
+  const url = `${this.baseUrl}/Lessons/subject/${subjectId}/with-progress/${studentId}`;
+  return this.http.get<LessonWithProgress[]>(url);
+}
+
+// lessons.component.ts
+loadLessons(): void {
+  const subjectId = this.currentSubjectId();
+  const studentId = this.authService.getCurrentUser()?.studentId;
+  
+  if (!subjectId || !studentId) return;
+  
+  this.loading.set(true);
+  
+  this.lessonsService.getLessonsWithProgress(subjectId, studentId)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (lessons) => {
+        this.lessons.set(lessons);
+        this.loading.set(false);
+        
+        // All data ready - no mapping needed!
+        // Can directly filter, calculate stats, etc.
+      },
+      error: (error) => {
+        this.error.set('Failed to load lessons');
+        this.loading.set(false);
+      }
+    });
+}
+```
+
+### Template Example:
+
+```html
+@for (lesson of lessons(); track lesson.id) {
+  <div class="lesson-card" 
+       [class.completed]="lesson.isCompleted"
+       [class.locked]="lesson.isLocked">
+    
+    <h3>{{ lesson.title }}</h3>
+    <p>{{ lesson.description }}</p>
+    
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="lesson.progressPercentage"></div>
+    </div>
+    
+    <!-- Status badges -->
+    @if (lesson.isCompleted) {
+      <span class="badge badge-success">✓ Completed</span>
+    }
+    @if (lesson.isLocked) {
+      <span class="badge badge-locked">🔒 Locked</span>
+    }
+    
+    <!-- Watch button -->
+    <button 
+      [disabled]="lesson.isLocked"
+      (click)="watchLesson(lesson.id)">
+      {{ lesson.isCompleted ? 'Watch Again' : 'Start Lesson' }}
+    </button>
+    
+    <!-- Prerequisites -->
+    @if (lesson.prerequisiteIds.length > 0) {
+      <div class="prerequisites">
+        <p>Requires completion of:</p>
+        <ul>
+          @for (title of lesson.prerequisiteTitles; track title) {
+            <li>{{ title }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+}
+```
+
+---
+
+## 📊 Performance Comparison
+
+### ❌ Old Way (Without Endpoint):
+
+```typescript
+// Need 2 API calls + manual matching
+forkJoin({
+  lessons: this.lessonsService.getLessonsBySubjectId(subjectId),
+  progress: this.progressService.getProgressByStudent(studentId)
+}).pipe(
+  map(({ lessons, progress }) => {
+    // Manual matching and calculations...
+    const progressMap = new Map(progress.map(p => [p.lessonId, p]));
+    return lessons.map(lesson => ({
+      ...lesson,
+      studentProgress: progressMap.get(lesson.id) || null,
+      isLocked: this.calculateLockStatus(lesson, progressMap),
+      // More manual work...
+    }));
+  })
+)
+```
+
+**Problems:**
+- ❌ 2 separate API calls
+- ❌ Complex client logic
+- ❌ Increased latency
+- ❌ Hard to maintain
+- ❌ Inconsistent calculations
+
+### ✅ New Way (With Endpoint):
+
+```typescript
+// Single call - everything ready!
+this.lessonsService.getLessonsWithProgress(subjectId, studentId)
+  .subscribe(lessons => {
+    this.lessons.set(lessons);
+    // Done! All calculations done by backend
+  });
+```
+
+**Benefits:**
+- ✅ Single API call
+- ✅ All data ready to use
+- ✅ Server-side calculations (reliable)
+- ✅ Clean code
+- ✅ Better performance
+
+---
+
+## 🧪 Testing
+
+### Using Swagger:
+1. Navigate to `/swagger`
+2. Find: `GET /api/Lessons/subject/{subjectId}/with-progress/{studentId}`
+3. Enter: `subjectId: 5`, `studentId: 1`
+4. Click "Execute"
+
+### Using cURL:
+```bash
+curl -X GET "https://naplan2.runasp.net/api/Lessons/subject/5/with-progress/1" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### Using Postman:
+```
+GET https://naplan2.runasp.net/api/Lessons/subject/5/with-progress/1
+Authorization: Bearer {{token}}
+```
+
+---
+
+## ✅ Final Status
+
+### What's Done:
+- ✅ DTOs created (`StudentProgressDto`, `LessonWithProgressDto`)
+- ✅ Endpoint 1: Get by subject with progress
+- ✅ Endpoint 2: Get by term with progress
+- ✅ Auto lock status calculation
+- ✅ Logical ordering
+- ✅ Build successful
+- ✅ Ready for production
+
+### Benefits Delivered:
+- ⚡ Reduced API calls from 2 to 1
+- 🎯 Data ready to use immediately
+- 🔒 Reliable server-side lock calculation
+- 📊 All statistics computed
+- 🚀 Better performance
+- 💻 Cleaner frontend code
+
+---
+
+**Implementation Date:** November 2, 2025  
+**Build Status:** ✅ Success  
+**API Base URL:** `https://naplan2.runasp.net`  
+**Authorization:** ✅ Configured (Student, Parent, Teacher, Admin)  
+**Documentation:** ✅ Complete  
+**Frontend Status:** ✅ **READY TO INTEGRATE**
+
+---
+
+**🎉 The endpoint is live and ready for frontend integration!**
