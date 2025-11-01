@@ -652,7 +652,7 @@ export class CoursesService {
       // ✅ EXACT match - Remove "year X" from both names for accurate comparison
       const itemNameNoYear = itemSubjectName.replace(/year\s*\d+/gi, '').trim();
       const courseNameNoYear = baseSubjectName.replace(/year\s*\d+/gi, '').trim();
-      
+
       const isSameSubject = itemNameNoYear === courseNameNoYear;
       const isSameYear = !targetYear || !itemYear || itemYear === targetYear;
 

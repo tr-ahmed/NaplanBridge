@@ -385,10 +385,10 @@ export class CoursesComponent implements OnInit, OnDestroy {
       // Get full item name and clean it
       const itemFullName = (item.course?.subjectName || item.course?.name || '').trim();
       const itemSubjectName = itemFullName.split(' - ')[0].trim().toLowerCase();
-      
+
       // Get course base name (without year and term info)
       const baseSubjectName = subjectName.split(' - ')[0].trim().toLowerCase();
-      
+
       // Extract year from item
       const itemYearMatch = itemFullName.match(/Year\s+(\d+)/i);
       const itemYear = itemYearMatch ? parseInt(itemYearMatch[1]) : item.course?.yearId;
@@ -397,7 +397,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       // Remove "year X" from both names for comparison
       const itemNameNoYear = itemSubjectName.replace(/year\s*\d+/gi, '').trim();
       const courseNameNoYear = baseSubjectName.replace(/year\s*\d+/gi, '').trim();
-      
+
       const isSameSubject = itemNameNoYear === courseNameNoYear;
       const isSameYear = itemYear === yearToCheck;
 
