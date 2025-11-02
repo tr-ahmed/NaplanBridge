@@ -150,6 +150,23 @@ export class BookSessionComponent implements OnInit {
   }
 
   /**
+   * Get selected student name
+   */
+  getSelectedStudentName(): string {
+    if (!this.selectedStudentId()) return '-';
+    const student = this.students().find(s => s.id === this.selectedStudentId());
+    return student?.name || '-';
+  }
+
+  /**
+   * Get selected slot date
+   */
+  getSelectedSlotDate(): string {
+    if (!this.selectedSlot()) return '-';
+    return this.formatDateDisplay(new Date(this.selectedSlot()!.dateTime));
+  }
+
+  /**
    * Book session
    */
   bookSession(): void {

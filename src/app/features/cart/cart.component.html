@@ -151,7 +151,8 @@
         }
 
         <!-- Cart Items List -->
-        @for (item of cart().items; track item.course.id) {
+        @for (item of cart().items; track item.course?.id) {
+          @if (item.course) {
           <div class="flex flex-col md:flex-row gap-6 p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow duration-200">
             <!-- Course Image -->
             <div class="flex-shrink-0">
@@ -253,6 +254,7 @@
               </button>
             </div>
           </div>
+          }
         }
 
         <!-- Cart Summary -->

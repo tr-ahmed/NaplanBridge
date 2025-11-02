@@ -97,13 +97,13 @@
       <div class="flex justify-between">
         <span class="text-gray-600">Student:</span>
         <span class="font-semibold text-gray-800">
-          {{ selectedStudentId() ? students().find(s => s.id === selectedStudentId())?.name : '-' }}
+          {{ getSelectedStudentName() }}
         </span>
       </div>
       <div class="flex justify-between">
         <span class="text-gray-600">Date:</span>
         <span class="font-semibold text-gray-800">
-          {{ selectedSlot() ? formatDateDisplay(new Date(selectedSlot()!.dateTime)) : '-' }}
+          {{ getSelectedSlotDate() }}
         </span>
       </div>
       <div class="flex justify-between">
