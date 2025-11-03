@@ -199,13 +199,18 @@ export const ApiNodes = {
   },
 
   // Add to cart
+  // ⚠️ NOTE: This endpoint requires subscriptionPlanId + studentId, NOT subjectId
+  // Request body: { subscriptionPlanId: number, studentId: number, quantity: number }
   addToCart: {
     url: '/Cart/add',
     method: 'POST' as const,
     mockData: {
       success: true,
-      message: 'Subject added to cart successfully',
-      errors: []
+      message: 'Subscription plan added to cart successfully',
+      cartId: 1,
+      itemId: 1,
+      totalItems: 1,
+      totalAmount: 29.99
     }
   },
 
@@ -221,12 +226,13 @@ export const ApiNodes = {
   },
 
   // Remove from cart
+  // ⚠️ NOTE: Backend endpoint is /Cart/items/{cartItemId}, not /Cart/remove/{id}
   removeFromCart: {
-    url: '/Cart/remove/:id',
+    url: '/Cart/items/:id',
     method: 'DELETE' as const,
     mockData: {
       success: true,
-      message: 'Course removed from cart'
+      message: 'Item removed from cart'
     }
   },
 
@@ -418,7 +424,7 @@ export const ApiNodes = {
 
   // Get student lessons with progress
   getStudentLessons: {
-    url: '\/students/:studentId/lessons',
+    url: '/Lessons/student-lessons/:studentId',
     method: 'GET' as const,
     mockData: [] as any[]
   },

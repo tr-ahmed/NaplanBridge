@@ -17,49 +17,7 @@
       <!-- Navigation (center) -->
       <ul class="hidden lg:flex xl:space-x-6 lg:space-x-4 list-none order-2 items-center">
         @for (item of navigationItems; track item.id) {
-          @if (item.label === 'Subscriptions') {
-            <li class="relative group">
-              <button class="nav-button text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 whitespace-nowrap">
-                {{ item.label }}
-                <svg class="w-3 h-3 xl:w-4 xl:h-4 transform group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <ul class="absolute left-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <li><a routerLink="/subscription/plans" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 whitespace-nowrap text-sm flex items-center gap-2">
-                  <i class="fas fa-graduation-cap text-blue-600"></i>
-                  All Plans
-                </a></li>
-                <li><a routerLink="/subscription/plans" [queryParams]="{filter: 'terms_1_2'}" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 whitespace-nowrap text-sm flex items-center gap-2">
-                  <i class="fas fa-calendar-alt text-green-600"></i>
-                  Terms 1 & 2
-                </a></li>
-                <li><a routerLink="/subscription/plans" [queryParams]="{filter: 'terms_3_4'}" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 whitespace-nowrap text-sm flex items-center gap-2">
-                  <i class="fas fa-calendar-alt text-orange-600"></i>
-                  Terms 3 & 4
-                </a></li>
-                <li><a routerLink="/subscription/plans" [queryParams]="{filter: 'full_year'}" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 whitespace-nowrap text-sm flex items-center gap-2">
-                  <i class="fas fa-star text-purple-600"></i>
-                  Full Year
-                </a></li>
-              </ul>
-            </li>
-          } @else if (item.label === 'Plans') {
-            <li class="relative group">
-              <button class="nav-button text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 whitespace-nowrap">
-                {{ item.label }}
-                <svg class="w-3 h-3 xl:w-4 xl:h-4 transform group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <ul class="absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <li><a routerLink="/plans/basic" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 whitespace-nowrap text-sm">Basic Plan</a></li>
-                <li><a routerLink="/plans/premium" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 whitespace-nowrap text-sm">Premium Plan</a></li>
-                <li><a routerLink="/plans/enterprise" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 whitespace-nowrap text-sm">Enterprise Plan</a></li>
-                <li><a routerLink="/plans/compare" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 whitespace-nowrap text-sm">Compare Plans</a></li>
-              </ul>
-            </li>
-          } @else if (item.label === 'Subjects') {
+          @if (item.label === 'Subjects') {
             <li class="relative group">
               <button class="nav-button text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 whitespace-nowrap">
                 {{ item.label }}
@@ -234,7 +192,7 @@
             }
             @if (userRole === 'Teacher') {
               <button
-                routerLink="/teacher/dashboard"
+                (click)="navigateToTeacherDashboard()"
                 class="hidden xl:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold transition-all duration-200 text-sm xl:text-base whitespace-nowrap">
                 Teacher Panel
               </button>
@@ -357,12 +315,11 @@
                   </a>
                 }
                 @if (userRole === 'Teacher') {
-                  <a
-                    routerLink="/teacher/dashboard"
-                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap"
-                    (click)="toggleMobileMenu()">
+                  <button
+                    (click)="navigateToTeacherDashboard(); toggleMobileMenu()"
+                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap">
                     Teacher Panel
-                  </a>
+                  </button>
                 }
                 @if (userRole === 'Parent') {
                   <a

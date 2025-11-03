@@ -21,12 +21,83 @@
 </section><!-- Main Content -->
 <div class="container mx-auto px-6 py-12 !pt-8 ">
   <!-- Filters Section -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8">
+
+    <!-- Year Selection (Prominent) -->
+    @if (!isStudent()) {
+      <div class="mb-6 pb-6 border-b border-gray-200">
+        <div class="flex items-center gap-3 mb-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+          <h2 class="text-xl font-bold text-gray-800">Select Year Level</h2>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+          <button
+            (click)="onYearChange(null)"
+            [class.bg-gradient-to-r]="selectedYearId() === null"
+            [class.from-blue-600]="selectedYearId() === null"
+            [class.to-blue-700]="selectedYearId() === null"
+            [class.text-white]="selectedYearId() === null"
+            [class.shadow-lg]="selectedYearId() === null"
+            [class.scale-105]="selectedYearId() === null"
+            [class.bg-gray-50]="selectedYearId() !== null"
+            [class.text-gray-700]="selectedYearId() !== null"
+            [class.hover:bg-gray-100]="selectedYearId() !== null"
+            class="px-6 py-3 rounded-xl font-semibold transition-all duration-200 border-2 border-transparent hover:border-blue-600">
+            <span class="flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              </svg>
+              All Years
+            </span>
+          </button>
+          @for (year of availableYears(); track year.id) {
+            <button
+              (click)="onYearChange(year.id)"
+              [class.bg-gradient-to-r]="selectedYearId() === year.id"
+              [class.from-blue-600]="selectedYearId() === year.id"
+              [class.to-blue-700]="selectedYearId() === year.id"
+              [class.text-white]="selectedYearId() === year.id"
+              [class.shadow-lg]="selectedYearId() === year.id"
+              [class.scale-105]="selectedYearId() === year.id"
+              [class.bg-gray-50]="selectedYearId() !== year.id"
+              [class.text-gray-700]="selectedYearId() !== year.id"
+              [class.hover:bg-gray-100]="selectedYearId() !== year.id"
+              class="px-6 py-3 rounded-xl font-semibold transition-all duration-200 border-2 border-transparent hover:border-blue-600">
+              {{ year.name }}
+            </button>
+          }
+        </div>
+      </div>
+    } @else {
+      <!-- Student - Show only their year (read-only info) -->
+      <div class="mb-6 pb-6 border-b border-gray-200">
+        <div class="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
+          <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+          <div>
+            <p class="text-sm text-blue-600 font-medium">Your Year Level</p>
+            <p class="text-2xl font-bold text-blue-800">{{ displayYearName() }}</p>
+          </div>
+          <div class="ml-auto bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
+            Showing subjects for your year
+          </div>
+        </div>
+      </div>
+    }
+
     <div class="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
 
       <!-- Term Selection -->
       <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        <h2 class="text-lg font-semibold text-gray-800 whitespace-nowrap">Choose term</h2>
+        <h2 class="text-lg font-semibold text-gray-800 whitespace-nowrap flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          Term
+        </h2>
         <div class="flex gap-2">
           @for (term of terms; track term) {
             <button
@@ -48,7 +119,12 @@
 
       <!-- Subject Selection -->
       <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        <h2 class="text-lg font-semibold text-gray-800 whitespace-nowrap">Choose subject</h2>
+        <h2 class="text-lg font-semibold text-gray-800 whitespace-nowrap flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Subject
+        </h2>
         <div class="flex flex-wrap gap-2">
           @for (subject of subjects; track subject) {
             <button
@@ -121,22 +197,35 @@
     </div>
   </div>
 
-  <!-- Subjects Header -->
-  <div class="text-center mb-8">
-    <h2 class="text-3xl font-bold text-white mb-2">
-      @if (selectedTerm() > 0) {
-        Term {{ selectedTerm() }} Subjects
-      } @else {
-        Available Subjects
-      }
-    </h2>
-    <p class="text-white">
-      @if (selectedSubject()) {
-        Showing {{ selectedSubject() }} subjects
-      } @else {
-        Explore our comprehensive subject offerings
-      }
-    </p>
+  <!-- Subjects Header with Count -->
+  <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl shadow-xl p-6 mb-8 text-white">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <h2 class="text-3xl font-bold mb-2">
+          @if (selectedYearId()) {
+            {{ displayYearName() }} -
+          }
+          @if (selectedTerm() > 0) {
+            Term {{ selectedTerm() }} Subjects
+          } @else {
+            Available Subjects
+          }
+        </h2>
+        <p class="text-blue-100">
+          @if (isStudent()) {
+            Showing subjects for your year level
+          } @else if (selectedSubject()) {
+            Filtered by {{ selectedSubject() }}
+          } @else {
+            Explore our comprehensive subject offerings
+          }
+        </p>
+      </div>
+      <div class="bg-white/20 backdrop-blur-sm rounded-xl px-6 py-4 text-center">
+        <p class="text-sm text-blue-100 font-medium mb-1">Total Subjects</p>
+        <p class="text-4xl font-bold">{{ filteredCourses().length }}</p>
+      </div>
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -183,31 +272,43 @@
               </div>
             }
 
-            <!-- Level Badge -->
-            <div class="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium"
-                 [class]="course.level === 'Beginner' ? 'bg-green-100 text-green-800' :
-                          course.level === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'">
-              {{ course.level }}
+            <!-- Year & Term Badge -->
+            <div class="absolute top-3 right-3 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white shadow-md">
+              {{ getYearName(course.yearId) }} - {{ course.termNumber }} Terms
             </div>
           </div>
 
           <!-- Subject Content -->
           <div class="p-6">
-            <!-- Subject Name -->
-            <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
-              {{ course.name || course.subjectName }}
-            </h3>
+            <!-- Subject Name & Category -->
+            <div class="mb-3">
+              <h3 class="text-xl font-bold text-gray-900 mb-1">
+                {{ course.name || course.subjectName }}
+              </h3>
+              <p class="text-sm text-blue-600 font-medium">
+                {{ course.categoryName || 'Subject' }}
+              </p>
+            </div>
 
             <!-- Subject Description -->
-            <p class="text-gray-600 text-sm mb-3 line-clamp-3">
-              {{ course.description || course.categoryDescription }}
+            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+              {{ course.description || course.categoryDescription || 'Comprehensive course covering all essential topics' }}
             </p>
 
-            <!-- Subject Meta -->
-            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-              <span>{{ course.instructor || 'Instructor Name' }}</span>
-              <span>{{ course.duration + ' hours' || course.termNumber + ' terms' }}</span>
+            <!-- Subject Stats -->
+            <div class="flex items-center gap-4 text-xs text-gray-600 mb-4 pb-4 border-b border-gray-100">
+              <div class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <span>{{ course.weekNumber }} Weeks</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <span>{{ course.studentCount || 0 }} Students</span>
+              </div>
             </div>
 
             <!-- Rating -->
@@ -237,47 +338,81 @@
               </div>
             } -->
 
-            <!-- Price and Actions -->
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="text-2xl font-bold text-blue-600">${{ course.price }}</span>
-                @if (course.originalPrice && course.originalPrice > course.price) {
-                  <span class="text-sm text-gray-500 line-through">${{ course.originalPrice }}</span>
-                }
+            <!-- Price and Discount -->
+            <div class="mb-4">
+              <div class="flex items-baseline gap-2">
+                <span class="text-sm text-gray-500">Starting from</span>
+                <span class="text-2xl font-bold text-green-600">
+                  AUD {{ getMinPrice(course) }}
+                </span>
               </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="mt-4 flex gap-2">
-              <!-- View Lessons Button (Always visible) -->
-              <button
-                (click)="viewLessons(course)"
-                class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 text-sm">
-                View Lessons
-              </button>
-
-              @if (isInCart(course.id)) {
-                <button
-                  (click)="removeFromCart(course.id)"
-                  class="flex-1 bg-red-100 text-red-700 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition-colors duration-200 text-sm">
-                  Remove from Cart
-                </button>
-              } @else {
-                <button
-                  (click)="addToCart(course)"
-                  class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 text-sm">
-                  Add to Cart
-                </button>
+              @if (course.originalPrice && course.originalPrice > getMinPrice(course)) {
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-sm text-gray-400 line-through">AUD {{ course.originalPrice }}</span>
+                  <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                    Save {{ course.discountPercentage }}%
+                  </span>
+                </div>
+              }
+              @if (hasMultiplePlans(course)) {
+                <p class="text-xs text-gray-500 mt-1">
+                  {{ course.subscriptionPlans?.length }} plans available
+                </p>
               }
             </div>
 
-            <!-- Secondary Action -->
-            <div class="mt-2">
-              <button
-                (click)="enrollNow(course)"
-                class="w-full border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors duration-200 text-sm py-2">
-                Enroll Now
-              </button>
+            <!-- Action Buttons -->
+            <div class="mt-4">
+              @if (isEnrolled(course)) {
+                <!-- Already Enrolled - Show only Continue Learning -->
+                <div class="flex gap-2">
+                  <button
+                    (click)="viewLessons(course)"
+                    class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 text-sm">
+                    ✓ Continue Learning
+                  </button>
+                  <button
+                    (click)="viewLessons(course)"
+                    class="flex-1 bg-green-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-800 transition-colors duration-200 text-sm">
+                    View Lessons
+                  </button>
+                </div>
+              } @else {
+                <!-- Not Enrolled - Show Cart/Enrollment Options -->
+                <div class="flex flex-col gap-2">
+                  <!-- Primary Actions Row -->
+                  <div class="flex gap-2">
+                    <button
+                      (click)="viewLessons(course)"
+                      class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200 text-sm">
+                      View Lessons
+                    </button>
+
+                    @if (isInCart(course.id)) {
+                      <!-- In Cart -->
+                      <button
+                        (click)="removeFromCart(course.id)"
+                        class="flex-1 bg-red-100 text-red-700 px-4 py-2 rounded-lg font-medium hover:bg-red-200 transition-colors duration-200 text-sm">
+                        Remove from Cart
+                      </button>
+                    } @else {
+                      <!-- Not in Cart -->
+                      <button
+                        (click)="addToCart(course)"
+                        class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 text-sm">
+                        Add to Cart
+                      </button>
+                    }
+                  </div>
+
+                  <!-- Secondary Action - Enroll Now -->
+                  <button
+                    (click)="enrollNow(course)"
+                    class="w-full border-2 border-green-600 text-green-600 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-all duration-200 text-sm py-2">
+                    🎓 Enroll Now
+                  </button>
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -369,6 +504,15 @@
 </div>
   <!-- Newsletter Section -->
   <app-newsletter></app-newsletter>
+
+<!-- Plan Selection Modal -->
+<app-plan-selection-modal
+  [isOpen]="showPlanModal()"
+  [plans]="selectedCoursePlans()"
+  [courseName]="selectedCourseName()"
+  (close)="onClosePlanModal()"
+  (selectPlanConfirmed)="onPlanSelected($event)">
+</app-plan-selection-modal>
 
 <!-- Shopping Cart Floating Button (if items in cart) -->
 @if (cartItemCount() > 0) {

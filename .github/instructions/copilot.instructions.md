@@ -209,3 +209,16 @@ ng serve -o --hmr
 * Include comments in all major parts of the code for clarity
 * Use strong typing (`interface`) for all data structures under `/models`
 * Maintain clean and modular code
+
+
+# GitHub Copilot Custom Instruction
+
+If a feature implementation or frontend modification does NOT require backend endpoint changes,
+DO NOT generate or suggest a backend change report.
+
+Only generate a backend report when:
+- A new API endpoint must be added.
+- An existing API endpoint must be modified.
+- A model or database schema change is required.
+
+Otherwise, respond: "No backend change needed."

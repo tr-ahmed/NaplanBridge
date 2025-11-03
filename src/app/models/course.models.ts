@@ -1,4 +1,10 @@
 /**
+ * Course Models
+ * Import SubscriptionPlanSummary from subject.models.ts
+ */
+import { SubscriptionPlanSummary } from './subject.models';
+
+/**
  * Interface for Course data
  */
 export interface Course {
@@ -20,6 +26,10 @@ export interface Course {
   studentCount: number;
   termIds: number[];
   weekIds: number[];
+
+  // Subscription Plans (required for cart functionality)
+  subscriptionPlans?: SubscriptionPlanSummary[];
+
   // Legacy fields for backwards compatibility
   name?: string;
   description?: string;
@@ -81,9 +91,38 @@ export interface CourseCategory {
  * Interface for Shopping Cart Item
  */
 export interface CartItem {
-  course: Course;
+  // Legacy support for old structure
+  course?: Course;
   quantity: number;
-  addedDate: Date;
+  addedDate?: Date;
+  selectedPlan?: {
+    id: number;
+    name: string;
+    price: number;
+    duration: number;
+    features: string[];
+  };
+  _backendData?: {
+    cartItemId: number;
+    subscriptionPlanId: number;
+    studentId: number;
+  };
+
+  // ✅ NEW FIELDS from backend (preferred structure)
+  cartItemId?: number;
+  subscriptionPlanId?: number;
+  planName?: string;
+  studentId?: number;
+  price?: number;
+
+  // Subject/Year/Term identifiers
+  subjectId?: number;
+  subjectName?: string;
+  yearId?: number;
+  yearNumber?: number;
+  termId?: number;
+  termNumber?: number;
+  planType?: string;
 }
 
 /**
@@ -93,4 +132,29 @@ export interface Cart {
   items: CartItem[];
   totalAmount: number;
   totalItems: number;
+}
+
+/**
+ * Interface for Current Term/Week Detection
+ * Response from: GET /api/StudentSubjects/student/{studentId}/current-term-week
+ */
+export interface CurrentTermWeekDto {
+  studentId: number;
+  currentTermId: number | null;
+  currentTermNumber: number | null;
+  currentTermName: string | null;
+  currentWeekId: number | null;
+  currentWeekNumber: number | null;
+  termStartDate: string | null;
+  termEndDate: string | null;
+  weekStartDate: string | null;
+  weekEndDate: string | null;
+  totalWeeksInTerm: number | null;
+  weeksRemaining: number | null;
+  progressPercentage: number | null;
+  subscriptionType: string | null;
+  hasAccess: boolean;
+  message: string | null;
+  subjectId: number | null;
+  subjectName: string | null;
 }

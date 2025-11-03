@@ -1,4 +1,7 @@
 {
     "angular.log": "verbose",
-    "chat.agent.maxRequests": 100
+    "chat.agent.maxRequests": 100,
+    "github.copilot.chat.terminalAgent.allowed": "always",
+    "github.copilot.chat.runCommand.enabled": true,
+    "github.copilot.chat.terminalAgent.enabled": true
 }

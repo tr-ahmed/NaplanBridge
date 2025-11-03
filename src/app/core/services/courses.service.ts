@@ -1,8 +1,8 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { Course, CourseFilter, Cart, CartItem, CourseCategory } from '../../models/course.models';
+import { catchError, map, tap, switchMap } from 'rxjs/operators';
+import { Course, CourseFilter, Cart, CartItem, CourseCategory, CurrentTermWeekDto } from '../../models/course.models';
 import { ApiNodes } from '../api/api-nodes';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
@@ -24,9 +24,23 @@ export class CoursesService {
 
   public cart$ = this.cartSubject.asObservable();
 
+  /**
+   * Get current cart value synchronously
+   */
+  getCartValue(): Cart {
+    return this.cartSubject.value;
+  }
+
   // Loading states
   public loading = signal(false);
   public error = signal<string | null>(null);
+
+  // Plan selection modal state
+  private showPlanModalSubject = new BehaviorSubject<{show: boolean, course: Course | null}>({
+    show: false,
+    course: null
+  });
+  public showPlanModal$ = this.showPlanModalSubject.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -52,8 +66,19 @@ export class CoursesService {
       );
     }
 
-    return this.http.get<Course[]>(url).pipe(
-      map(courses => this.filterCourses(courses, filter)),
+    return this.http.get<any>(url).pipe(
+      map(response => {
+        // Handle both paginated response and direct array
+        const courses = response.items || response;
+        console.log('📦 API Response:', {
+          type: response.items ? 'Paginated' : 'Direct Array',
+          totalCount: response.totalCount || courses.length,
+          receivedCount: courses.length,
+          page: response.page,
+          pageSize: response.pageSize
+        });
+        return this.filterCourses(courses, filter);
+      }),
       tap(() => this.loading.set(false)),
       catchError((error: HttpErrorResponse) => {
         console.warn('API call failed, using mock data:', error);
@@ -125,115 +150,371 @@ export class CoursesService {
   addToCart(course: Course): Observable<boolean> {
     console.log('🛒 Starting addToCart for course:', course.id, course.name || course.subjectName);
 
-    const currentCart = this.cartSubject.value;
-    const existingItem = currentCart.items.find(item => item.course.id === course.id);
+    // ✅ Check if course has subscription plans
+    if (!course.subscriptionPlans || course.subscriptionPlans.length === 0) {
+      console.warn('⚠️ No subscription plans available for this course');
+      this.toastService.showError('No subscription plans available for this subject');
+      return of(false);
+    }
 
-    if (existingItem) {
-      existingItem.quantity += 1;
+    // ✅ Always show modal for plan selection (even if single plan)
+    console.log('📋 Opening plan selection modal with', course.subscriptionPlans.length, 'plans');
+    this.showPlanModalSubject.next({ show: true, course });
+    return of(true); // Modal will handle the actual add
+  }
+
+  /**
+   * Add specific plan to cart (internal method)
+   * Called when user selects a plan from modal or when there's only one plan
+   */
+  addPlanToCartInternal(planId: number, course: Course, planName?: string): Observable<boolean> {
+    const url = `${this.baseUrl}/Cart/items`; // ✅ Correct endpoint
+
+    // Get current user for studentId
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      this.toastService.showWarning('Please log in to add items to your cart');
+      return of(false);
+    }
+
+    // 🎯 CRITICAL: Use Student.Id for cart, NOT User.Id
+    // ⚠️ Common Mistake: Using currentUser.id (User.Id) instead of currentUser.studentId (Student.Id)
+
+    let studentId: number;
+
+    if (currentUser.studentId) {
+      // ✅ CORRECT: Use studentId from token (Student.Id from Students table)
+      studentId = currentUser.studentId;
+      console.log('✅ Using Student.Id from token:', studentId);
+      console.log('📊 This is the correct ID for cart/orders');
     } else {
-      const newItem: CartItem = {
-        course,
-        quantity: 1,
-        addedDate: new Date()
-      };
-      currentCart.items.push(newItem);
+      // ⚠️ FALLBACK: This should not happen for students
+      // Token should always have studentId for student role
+      console.error('❌ studentId NOT found in token!');
+      console.error('❌ Cannot add to cart without Student.Id');
+      console.error('🔧 User needs to re-login to get new token with studentId');
+
+      this.toastService.showError('Student ID not found. Please logout and login again.');
+      return of(false);
     }
 
-    this.updateCartTotals(currentCart);
-    this.cartSubject.next(currentCart);
-    this.saveCartToStorage();
+    // ✅ CRITICAL: Load cart from backend first to get latest data
+    console.log('📥 Loading cart from backend before validation...');
 
-    console.log('🛒 Local cart updated. Checking authentication...');
+    return this.loadCartFromBackend(studentId).pipe(
+      switchMap((loadedCart) => {
+        console.log('✅ Cart loaded for validation:', loadedCart);
 
-    // Debug auth service injection
-    console.log('🔐 AuthService instance:', !!this.authService);
+        // Extract year from plan name (most accurate) or course name or yearId
+        const planYearMatch = planName ? planName.match(/Year\s+(\d+)/i) : null;
+        const courseYearMatch = (course.subjectName || course.name || '').match(/Year\s+(\d+)/i);
+        const courseYear = planYearMatch ? parseInt(planYearMatch[1]) :
+                          (courseYearMatch ? parseInt(courseYearMatch[1]) : course.yearId);
 
-    // Check localStorage directly
-    const localStorageToken = localStorage.getItem('token');
-    const localStorageUserName = localStorage.getItem('userName');
-    const localStorageRoles = localStorage.getItem('roles');
+        // Now check if subject already exists in cart
+        console.log('🔍 Checking for duplicate subject in cart...');
+        console.log('📚 New course:', {
+          id: course.id,
+          name: course.subjectName || course.name,
+          planName: planName,
+          yearId: course.yearId,
+          extractedYear: courseYear
+        });
+        console.log('🛒 Current cart items:', loadedCart.items.map((item: any) => ({
+          id: item.course?.id,
+          name: item.course?.subjectName || item.course?.name,
+          yearId: item.course?.yearId
+        })));
 
-    console.log('🔐 LocalStorage token:', localStorageToken ? localStorageToken.substring(0, 20) + '...' : 'null');
-    console.log('🔐 LocalStorage userName:', localStorageUserName);
-    console.log('🔐 LocalStorage roles:', localStorageRoles);
+        const subjectAlreadyInCart = loadedCart.items.some((item: any) => {
+          // Extract subject name from cart item (remove term info)
+          const itemSubjectName = (item.course?.subjectName || item.course?.name || '').split(' - ')[0].trim();
+          const newSubjectName = (course.subjectName || course.name || '').split(' - ')[0].trim();
 
-    // Check if user is authenticated before making API call
-    const isAuthenticated = this.authService.isAuthenticated();
-    const token = this.authService.getToken();
-    const userName = this.authService.getUserName();
+          // Extract year from name (most reliable source)
+          const itemYearMatch = (item.course?.subjectName || item.course?.name || '').match(/Year\s+(\d+)/i);
+          const itemYear = itemYearMatch ? parseInt(itemYearMatch[1]) : item.course?.yearId;
 
-    console.log('🔐 Authentication status:', isAuthenticated);
-    console.log('🔐 Token exists:', !!token);
-    console.log('🔐 Token value:', token ? token.substring(0, 20) + '...' : 'null');
-    console.log('🔐 User name:', userName);
+          // Use the extracted year from course name (not yearId which might be wrong)
+          const newYear = courseYear;
 
-    // Force authentication check if user data exists but token is missing
-    if (!isAuthenticated && userName) {
-      console.log('🔍 User has userName but no token. This might be a token expiry issue.');
-      this.toastService.showWarning('Your session has expired. Please log in again to sync your cart with the server');
-      return of(true);
-    }
+          // Check if same subject and same year
+          const isSameSubject = itemSubjectName.toLowerCase().includes(newSubjectName.toLowerCase()) ||
+                               newSubjectName.toLowerCase().includes(itemSubjectName.toLowerCase());
+          const isSameYear = itemYear === newYear;
 
-    if (!isAuthenticated) {
-      console.log('⚠️ User not authenticated, showing warning');
-      this.toastService.showWarning('Please log in to sync your cart with the server');
-      return of(true);
-    }    // Make API call only if user is authenticated
-    const endpoint = ApiNodes.addToCart;
-    const url = `${this.baseUrl}${endpoint.url}`;
+          console.log('🔄 Comparing:', {
+            itemSubjectName,
+            newSubjectName,
+            isSameSubject,
+            itemYear,
+            newYear,
+            isSameYear,
+            match: isSameSubject && isSameYear
+          });
 
-    console.log('🛒 Cart API Debug Info:');
-    console.log('Base URL:', this.baseUrl);
-    console.log('Endpoint URL:', endpoint.url);
-    console.log('Full URL:', url);
-    console.log('Use Mock:', this.useMock);
-    console.log('Environment useMock:', environment.useMock);
-    console.log('User authenticated:', this.authService.isAuthenticated());
+          return isSameSubject && isSameYear;
+        });
 
-    if (this.useMock) {
-      console.log('Using mock data for cart');
-      this.toastService.showSuccess('Course added to cart!');
-      return of(true);
-    }
-
-    console.log('Making API call to add to cart...');
-    return this.http.post<any>(url, {
-      subjectId: course.id,
-      quantity: 1
-    }).pipe(
-      map((response) => {
-        console.log('✅ Cart API Success:', response);
-        this.toastService.showSuccess('Course added to cart!');
-        return true;
-      }),
-      catchError((error) => {
-        console.error('❌ Failed to add to cart via API:', error);
-        console.log('Error status:', error.status);
-        console.log('Error message:', error.message);
-        console.log('Error body:', error.error);
-
-        // If it's an authentication error (401), show a message to the user
-        if (error.status === 401) {
-          this.toastService.showWarning('Please log in to sync your cart with the server');
-        } else {
-          this.toastService.showError('Failed to sync with server, but course added to local cart');
+        if (subjectAlreadyInCart) {
+          console.warn('⚠️ Subject already in cart for this year');
+          this.toastService.showWarning('This subject is already in your cart for this year. Please remove the existing plan first if you want to change it.');
+          return of(false);
         }
 
-        return of(true); // Even if API fails, we've already updated local cart
+        console.log('✅ No duplicate found, proceeding to add...');
+
+        return this.addPlanToCartBackend(planId, studentId, course);
       })
     );
   }
 
   /**
+   * Actually add plan to backend (extracted method)
+   */
+  private addPlanToCartBackend(planId: number, studentId: number, course: Course): Observable<boolean> {
+    const url = `${this.baseUrl}/Cart/items`;
+
+    console.log('🛒 Adding to cart:', {
+      url,
+      subscriptionPlanId: planId,
+      studentId: studentId,  // ✅ Student.Id (e.g., 1)
+      studentIdType: typeof studentId,
+      quantity: 1,
+      note: 'Using Student.Id from Students table, NOT User.Id from AspNetUsers'
+    });
+
+    // ✅ Use correct API format with subscriptionPlanId
+    return this.http.post<any>(url, {
+      subscriptionPlanId: planId,
+      studentId: studentId,
+      quantity: 1
+    }).pipe(
+      tap(() => {
+        console.log('📦 Cart API call initiated...');
+      }),
+      switchMap((response) => {
+        console.log('✅ Cart API Success Response:', response);
+        console.log('✅ Status: Item added to cart successfully');
+
+        const courseName = course.name || course.subjectName;
+        this.toastService.showSuccess(`${courseName} has been added to your cart successfully!`);
+
+        // ✅ CRITICAL: Reload cart from backend to update UI
+        console.log('🔄 Reloading cart from backend to update UI...');
+        return this.loadCartFromBackend(studentId).pipe(
+          map(() => true)
+        );
+      }),
+      catchError((error) => {
+        console.error('❌ Cart API Error:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.error?.message,
+          details: error.error?.details,
+          traceId: error.error?.traceId
+        });
+
+        // ✅ Better error messages with backend feedback
+        if (error.status === 401) {
+          this.toastService.showWarning('Please log in to sync your cart with the server');
+        } else if (error.status === 400) {
+          const msg = error.error?.message || 'Invalid data';
+          this.toastService.showError(msg);
+        } else if (error.status === 404) {
+          const msg = error.error?.message || 'Selected plan not found';
+          this.toastService.showError(msg);
+        } else if (error.status === 409) {
+          const msg = error.error?.message || 'This plan is already in your cart';
+          this.toastService.showWarning(msg);
+        } else if (error.status === 500) {
+          const msg = error.error?.message || 'Server error, please try again later';
+          this.toastService.showError(msg);
+          console.error('🔧 Backend needs investigation. TraceId:', error.error?.traceId);
+        } else {
+          this.toastService.showError('Failed to sync with server');
+        }
+
+        return of(false); // Return false on error
+      })
+    );
+  }
+
+  /**
+   * Load cart from backend API
+   */
+  loadCartFromBackend(studentId?: number): Observable<Cart> {
+    const url = `${this.baseUrl}/Cart`;
+
+    console.log('📥 Loading cart from backend for studentId:', studentId);
+
+    return this.http.get<any>(url).pipe(
+      map((response) => {
+        console.log('✅ Cart loaded from backend (RAW):', response);
+        console.log('📊 Response structure:', {
+          hasItems: 'items' in response,
+          hasCartItems: 'cartItems' in response,
+          hasData: 'data' in response,
+          itemsLength: response.items?.length || response.cartItems?.length || 0
+        });
+
+        // Transform backend response to Cart model
+        // Handle different possible response structures
+        let rawItems = [];
+        if (response.data?.items) {
+          rawItems = response.data.items;
+        } else if (response.items) {
+          rawItems = response.items;
+        } else if (response.cartItems) {
+          rawItems = response.cartItems;
+        }
+
+        console.log('📦 Extracted raw items:', rawItems);
+        console.log('🔢 Items count:', rawItems.length);
+
+        // Log first item structure to see what backend returns
+        if (rawItems.length > 0) {
+          console.log('🔍 First item structure:', JSON.stringify(rawItems[0], null, 2));
+        }
+
+        // Transform backend items to frontend CartItem structure
+        // Backend: { cartItemId, subscriptionPlanId, planName, price, quantity, studentId, subjectId, yearId, termId }
+        // Frontend: CartItem with both legacy (course) and new (subjectId, yearId) fields
+        const items: CartItem[] = rawItems.map((backendItem: any) => ({
+          // Legacy course structure (for backward compatibility)
+          course: {
+            id: backendItem.subscriptionPlanId || backendItem.courseId,
+            subjectName: backendItem.planName || backendItem.courseName || 'Unknown Course',
+            name: backendItem.planName || backendItem.courseName || 'Unknown Course',
+            posterUrl: backendItem.imageUrl || backendItem.posterUrl || '',
+            description: backendItem.description || backendItem.planName || '',
+            categoryName: backendItem.categoryName || '',
+            teacherName: backendItem.teacherName || '',
+            instructor: backendItem.teacherName || backendItem.instructor,
+            duration: backendItem.duration,
+            price: backendItem.price,
+            originalPrice: backendItem.originalPrice,
+            level: backendItem.level,
+            tags: backendItem.tags || []
+          },
+          quantity: backendItem.quantity || 1,
+          selectedPlan: {
+            id: backendItem.subscriptionPlanId,
+            name: backendItem.planName || 'Standard Plan',
+            price: backendItem.price,
+            duration: backendItem.duration || 30,
+            features: []
+          },
+
+          // ✅ NEW FIELDS from enhanced backend response
+          cartItemId: backendItem.cartItemId,
+          subscriptionPlanId: backendItem.subscriptionPlanId,
+          planName: backendItem.planName,
+          studentId: backendItem.studentId,
+          price: backendItem.price,
+
+          // Subject/Year/Term identifiers
+          subjectId: backendItem.subjectId,
+          subjectName: backendItem.subjectName,
+          yearId: backendItem.yearId,
+          yearNumber: backendItem.yearNumber,
+          termId: backendItem.termId,
+          termNumber: backendItem.termNumber,
+          planType: backendItem.planType,
+
+          // Keep backend fields for reference
+          _backendData: {
+            cartItemId: backendItem.cartItemId,
+            subscriptionPlanId: backendItem.subscriptionPlanId,
+            studentId: backendItem.studentId
+          }
+        } as any));
+
+        console.log('✅ Transformed items:', items);
+
+        // Log first transformed item with new fields
+        if (items.length > 0) {
+          console.log('🔍 First transformed item:', {
+            subjectId: items[0].subjectId,
+            subjectName: items[0].subjectName,
+            yearId: items[0].yearId,
+            yearNumber: items[0].yearNumber,
+            termId: items[0].termId,
+            termNumber: items[0].termNumber,
+            planType: items[0].planType,
+            cartItemId: items[0].cartItemId
+          });
+        }
+
+        const cart: Cart = {
+          items: items,
+          totalAmount: response.totalAmount || response.total || response.data?.totalAmount || 0,
+          totalItems: items.length
+        };
+
+        console.log('✅ Transformed cart:', cart);
+
+        // Update local cart
+        this.cartSubject.next(cart);
+        this.saveCartToStorage();
+
+        return cart;
+      }),
+      catchError((error) => {
+        console.error('❌ Failed to load cart from backend:', error);
+
+        // Return empty cart on error
+        const emptyCart: Cart = {
+          items: [],
+          totalAmount: 0,
+          totalItems: 0
+        };
+
+        return of(emptyCart);
+      })
+    );
+  }
+
+  /**
+   * Show plan selection modal
+   */
+  openPlanSelectionModal(course: Course): void {
+    this.showPlanModalSubject.next({ show: true, course });
+  }
+
+  /**
+   * Close plan selection modal
+   */
+  closePlanSelectionModal(): void {
+    this.showPlanModalSubject.next({ show: false, course: null });
+  }
+
+  /**
+   * Handle plan selection from modal
+   */
+  onPlanSelected(planId: number, course: Course): Observable<boolean> {
+    this.closePlanSelectionModal();
+    // Get plan name from window (set by modal component)
+    const planName = (window as any).__selectedPlanName;
+    return this.addPlanToCartInternal(planId, course, planName);
+  }
+
+  /**
+   * Refresh cart item count
+   */
+  private refreshCartCount(): void {
+    // This will be updated when we integrate with CartService
+    // For now, it updates the local cart
+    const currentCart = this.cartSubject.value;
+    currentCart.totalItems = currentCart.items.length;
+    this.cartSubject.next(currentCart);
+  }
+
+  /**
    * Remove course from cart
    */
-  removeFromCart(courseId: number): Observable<boolean> {
-    const currentCart = this.cartSubject.value;
-    currentCart.items = currentCart.items.filter(item => item.course.id !== courseId);
-
-    this.updateCartTotals(currentCart);
-    this.cartSubject.next(currentCart);
-    this.saveCartToStorage();
+  removeFromCart(itemIdToRemove: number): Observable<boolean> {
+    console.log('🗑️ Removing itemId:', itemIdToRemove, 'from cart');
 
     // Check if user is authenticated before making API call
     if (!this.authService.isAuthenticated()) {
@@ -241,18 +522,50 @@ export class CoursesService {
       return of(true);
     }
 
-    const endpoint = ApiNodes.removeFromCart;
-    const url = `${this.baseUrl}${endpoint.url.replace(':id', courseId.toString())}`;
+    // ⚠️ CRITICAL: Find cart item by cartItemId directly
+    const currentCart = this.cartSubject.value;
+    console.log('📦 Current cart items:', currentCart.items);
 
-    if (this.useMock) {
-      this.toastService.showSuccess('Course removed from cart!');
-      return of(true);
+    const cartItem = currentCart.items.find((item: any) => {
+      // Try to get cartItemId from multiple possible locations
+      const itemCartId =
+        item.cartItemId ||                       // Direct field (new structure)
+        item._backendData?.cartItemId ||         // Backend data reference
+        item.id;                                 // Fallback
+
+      console.log('🔍 Checking item cartItemId:', itemCartId, 'against target:', itemIdToRemove);
+      return itemCartId === itemIdToRemove;
+    });
+
+    if (!cartItem) {
+      console.warn('⚠️ Cart item not found for cartItemId:', itemIdToRemove);
+      console.warn('📦 Available cart items:', currentCart.items.map((i: any) => ({
+        cartItemId: i.cartItemId || i._backendData?.cartItemId,
+        subjectId: i.subjectId,
+        subjectName: i.subjectName
+      })));
+      this.toastService.showError('Item not found in cart');
+      return of(false);
     }
 
+    // Use the itemIdToRemove directly as cartItemId
+    const cartItemId = itemIdToRemove;
+
+    console.log('🗑️ Removing cartItemId:', cartItemId, 'from backend');
+
+    // Use correct backend endpoint: DELETE /api/Cart/items/{cartItemId}
+    const url = `${this.baseUrl}/Cart/items/${cartItemId}`;
+
     return this.http.delete<any>(url).pipe(
-      map(() => {
+      switchMap(() => {
+        console.log('✅ Item removed from backend successfully');
         this.toastService.showSuccess('Course removed from cart!');
-        return true;
+
+        // Reload cart from backend to sync
+        const currentUser = this.authService.getCurrentUser();
+        return this.loadCartFromBackend(currentUser?.studentId).pipe(
+          map(() => true)
+        );
       }),
       catchError((error) => {
         console.error('Failed to remove from cart via API:', error);
@@ -276,7 +589,9 @@ export class CoursesService {
     }
 
     const currentCart = this.cartSubject.value;
-    const item = currentCart.items.find(item => item.course.id === courseId);
+    const item = currentCart.items.find((item: any) =>
+      item.course?.id === courseId || item.subscriptionPlanId === courseId
+    );
 
     if (item) {
       item.quantity = quantity;
@@ -309,12 +624,81 @@ export class CoursesService {
 
   /**
    * Check if course is in cart
+   * Now checks by subject name and year instead of ID
    */
   isInCart(courseId: number): boolean {
-    return this.cartSubject.value.items.some(item => item.course.id === courseId);
+    const cart = this.cartSubject.value;
+
+    if (!cart.items || cart.items.length === 0) {
+      return false;
+    }
+
+    // First try to match by ID (for plans already in cart)
+    const matchById = cart.items.some((item: any) => {
+      const itemCourseId =
+        item.course?.id ||                        // Transformed frontend structure
+        item._backendData?.subscriptionPlanId ||  // Backend data reference
+        item.subscriptionPlanId;                  // Direct backend structure
+
+      return itemCourseId === courseId;
+    });
+
+    if (matchById) {
+      return true;
+    }
+
+    // If no ID match, check by subject name and year
+    // This handles the case where we're checking from the courses page
+    // but the cart has different plan IDs for the same subject
+    return false; // Will be handled by the courses component directly
   }
 
   /**
+   * Check if a subject is in cart by name and year
+   */
+  isSubjectInCart(subjectName: string, yearId?: number): boolean {
+    const cart = this.cartSubject.value;
+
+    if (!cart.items || cart.items.length === 0) {
+      return false;
+    }
+
+    console.log('🔍 isSubjectInCart checking (legacy method):', {
+      subjectName,
+      yearId,
+      cartItemsCount: cart.items.length
+    });
+
+    // Note: This is the legacy method. Prefer using exact ID matching from cart items.
+    // This method is kept for backward compatibility.
+
+    return cart.items.some((item: any) => {
+      // New structure with IDs (preferred)
+      if (item.subjectName && item.yearId !== undefined) {
+        const match = item.subjectName.toLowerCase() === subjectName.toLowerCase() &&
+                     (!yearId || item.yearId === yearId);
+
+        console.log('� Checking cart item (new structure):', {
+          itemSubjectName: item.subjectName,
+          targetSubjectName: subjectName,
+          itemYearId: item.yearId,
+          targetYearId: yearId,
+          match
+        });
+
+        return match;
+      }
+
+      // Legacy structure (old way)
+      const itemFullName = (item.course?.subjectName || item.course?.name || '').trim();
+      const itemSubjectName = itemFullName.split(' - ')[0].trim().toLowerCase();
+      const baseSubjectName = subjectName.split(' - ')[0].trim().toLowerCase();
+      const itemNameNoYear = itemSubjectName.replace(/year\s*\d+/gi, '').trim();
+      const courseNameNoYear = baseSubjectName.replace(/year\s*\d+/gi, '').trim();
+
+      return itemNameNoYear === courseNameNoYear;
+    });
+  }  /**
    * Enroll in a course (simulate purchase)
    */
   enrollInCourse(courseId: number): Observable<boolean> {
@@ -452,7 +836,14 @@ export class CoursesService {
 
   private updateCartTotals(cart: Cart): void {
     cart.totalItems = cart.items.reduce((total, item) => total + item.quantity, 0);
-    cart.totalAmount = cart.items.reduce((total, item) => total + (item.course.price * item.quantity), 0);
+    cart.totalAmount = cart.items.reduce((total, item: any) => {
+      // New structure with price field
+      if (item.price !== undefined) {
+        return total + (item.price * item.quantity);
+      }
+      // Legacy structure with course.price
+      return total + ((item.course?.price || 0) * item.quantity);
+    }, 0);
   }
 
   private saveCartToStorage(): void {
@@ -474,5 +865,65 @@ export class CoursesService {
     } catch (error) {
       console.warn('Failed to load cart from localStorage:', error);
     }
+  }
+
+  /**
+   * Get current term and week for a student
+   * Determines which term/week student should be viewing based on subscription dates
+   * @param studentId - The ID of the student
+   * @param subjectId - Optional: Filter by specific subject
+   * @returns Observable of CurrentTermWeekDto
+   */
+  getCurrentTermWeek(studentId: number, subjectId?: number): Observable<CurrentTermWeekDto> {
+    let url = `${this.baseUrl}/StudentSubjects/student/${studentId}/current-term-week`;
+
+    if (subjectId) {
+      url += `?subjectId=${subjectId}`;
+    }
+
+    console.log('📅 Fetching current term/week:', { studentId, subjectId, url });
+
+    return this.http.get<CurrentTermWeekDto>(url).pipe(
+      tap(result => {
+        console.log('✅ Current term/week response:', {
+          hasAccess: result.hasAccess,
+          currentTerm: result.currentTermName,
+          currentWeek: result.currentWeekNumber,
+          progress: result.progressPercentage,
+          subject: result.subjectName
+        });
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Error fetching current term/week:', error);
+
+        // Return a default "no access" response on error
+        const defaultResponse: CurrentTermWeekDto = {
+          studentId,
+          currentTermId: null,
+          currentTermNumber: null,
+          currentTermName: null,
+          currentWeekId: null,
+          currentWeekNumber: null,
+          termStartDate: null,
+          termEndDate: null,
+          weekStartDate: null,
+          weekEndDate: null,
+          totalWeeksInTerm: null,
+          weeksRemaining: null,
+          progressPercentage: null,
+          subscriptionType: null,
+          hasAccess: false,
+          message: error.status === 404
+            ? 'Student not found'
+            : error.status === 401
+            ? 'Please log in to continue'
+            : 'Unable to load subscription information',
+          subjectId: subjectId || null,
+          subjectName: null
+        };
+
+        return of(defaultResponse);
+      })
+    );
   }
 }

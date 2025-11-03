@@ -150,26 +150,31 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   /**
    * Load student progress for lessons
+   * TODO: Implement when Progress endpoint is integrated
+   * Currently disabled to avoid 404 errors
    */
   private loadStudentProgress(): void {
-    // For now, we'll use mock student ID = 1
-    // In a real app, this would come from the auth service
-    const studentId = 1;
+    // TODO: Use /api/Progress/by-student/{id} endpoint
+    // to get student progress for all lessons
+    // Then filter by current subject
 
-    this.lessonsService.getStudentLessons(studentId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (studentLessons) => {
-          // Filter for current subject
-          const subjectLessons = studentLessons.filter(
-            sl => sl.lesson.subject === this.currentSubject()
-          );
-          this.studentLessons.set(subjectLessons);
-        },
-        error: (error) => {
-          console.error('Error loading student progress:', error);
-        }
-      });
+    // const studentId = this.authService.getCurrentUser()?.studentId;
+    // if (!studentId) return;
+
+    // this.progressService.getProgressByStudent(studentId)
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe({
+    //     next: (progressList) => {
+    //       // Filter for current subject lessons
+    //       const subjectProgress = progressList.filter(
+    //         p => p.lesson?.subjectId === this.currentSubjectId()
+    //       );
+    //       this.studentLessons.set(subjectProgress);
+    //     },
+    //     error: (error) => {
+    //       console.error('Error loading student progress:', error);
+    //     }
+    //   });
   }
 
   /**

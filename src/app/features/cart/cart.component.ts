@@ -1,11 +1,16 @@
 import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Cart, CartItem } from '../../models/course.models';
 import { CoursesService } from '../../core/services/courses.service';
+import { CartService } from '../../core/services/cart.service';
+import { AuthService } from '../../auth/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { PaymentService } from '../../core/services/payment.service';
 import { environment } from '../../../environments/environment';
 
 // Student interface for the cart component
@@ -34,9 +39,18 @@ export class CartComponent implements OnInit, OnDestroy {
   loadingStudents = signal(false);
   selectedStudentId = signal<number | null>(null);
 
+  // User role detection
+  isStudent = signal<boolean>(false);
+  currentUserRole = signal<string>('');
+
   constructor(
     private coursesService: CoursesService,
-    private http: HttpClient
+    private cartService: CartService,
+    private authService: AuthService,
+    private http: HttpClient,
+    private router: Router,
+    private toastService: ToastService,
+    private paymentService: PaymentService
   ) {}
 
   ngOnInit(): void {
@@ -44,11 +58,110 @@ export class CartComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(cart => this.cart.set(cart));
 
-    // Load students when component initializes
-    this.loadStudents();
+    // Listen for cart cleared events (from payment success)
+    this.cartService.cartCleared$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(cleared => {
+        if (cleared) {
+          console.log('🔔 Cart cleared event received, reloading cart...');
+          this.reloadCart();
+        }
+      });
+
+    // Check user role (this will call loadStudents if needed)
+    this.checkUserRole();
+
+    // Load cart from backend
+    this.loadCartFromBackend();
   }
 
-  ngOnDestroy(): void {
+  /**
+   * Load cart from backend API
+   */
+  private loadCartFromBackend(): void {
+    const currentUser = this.authService.getCurrentUser();
+
+    if (!currentUser) {
+      console.warn('⚠️ No user logged in, skipping cart load');
+      return;
+    }
+
+    console.log('📥 Loading cart from backend...');
+    this.loading.set(true);
+
+    this.coursesService.loadCartFromBackend(currentUser.studentId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (cart) => {
+          console.log('✅ Cart loaded successfully:', cart);
+          this.loading.set(false);
+        },
+        error: (error) => {
+          console.error('❌ Failed to load cart:', error);
+          this.loading.set(false);
+        }
+      });
+  }
+
+  /**
+   * Public method to reload cart (called from other components)
+   */
+  public reloadCart(): void {
+    console.log('🔄 Reloading cart...');
+    this.loadCartFromBackend();
+  }
+
+  /**
+   * Check if current user is a Student
+   */
+  private checkUserRole(): void {
+    const currentUser = this.authService.getCurrentUser();
+
+    if (currentUser) {
+      // Handle role as array or string
+      let userRole = currentUser.role;
+
+      // If role is an array, get the first role or check if 'Student' exists
+      if (Array.isArray(userRole)) {
+        // Check if 'Student' role exists in array
+        const hasStudentRole = userRole.some(r =>
+          typeof r === 'string' && r.toLowerCase() === 'student'
+        );
+        this.isStudent.set(hasStudentRole);
+        this.currentUserRole.set(userRole.join(', '));
+      } else if (typeof userRole === 'string') {
+        // Handle single role as string
+        this.currentUserRole.set(userRole);
+        this.isStudent.set(userRole.toLowerCase() === 'student');
+      }
+
+      // If student, auto-select their Student.Id (NOT User.Id)
+      if (this.isStudent() && currentUser.studentId) {
+        this.selectedStudentId.set(currentUser.studentId);
+        console.log('✅ Student detected - Auto-selected Student.Id:', currentUser.studentId);
+        console.log('🎓 Using Student.Id for cart (NOT User.Id)');
+      } else if (this.isStudent() && !currentUser.studentId) {
+        console.error('❌ Student role but no studentId! Please re-login.');
+      }
+
+      console.log('🔍 Cart - User Role Check:', {
+        roles: currentUser.role,
+        isStudent: this.isStudent(),
+        userId: currentUser.id,  // User.Id (authentication)
+        studentId: currentUser.studentId,  // Student.Id (cart)
+        selectedStudentId: this.selectedStudentId(),
+        willLoadStudents: !this.isStudent()
+      });
+
+      // ✅ Load students after role check (only for parents)
+      if (!this.isStudent()) {
+        console.log('👨‍👩‍👧 Parent detected - Loading children...');
+        this.loadStudents();
+      } else {
+        console.log('🎓 Student detected - Skipping student list load');
+      }
+    }
+  }  ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -75,50 +188,98 @@ export class CartComponent implements OnInit, OnDestroy {
   clearCart(): void {
     if (confirm('Are you sure you want to clear your cart?')) {
       this.coursesService.clearCart();
-      this.selectedStudentId.set(null);
+      // Don't reset student selection if user is a student (they can't change it)
+      if (!this.isStudent()) {
+        this.selectedStudentId.set(null);
+      }
     }
   }
 
   /**
-   * Enroll in all courses
+   * Proceed to Stripe Checkout directly
    */
   enrollInAll(): void {
+    // Check if cart is empty
+    if (this.cart().items.length === 0) {
+      this.toastService.showWarning('Your cart is empty!');
+      return;
+    }
+
     // Check if student is selected
-    if (this.selectedStudentId() === null) {
-      alert('Please select the student you want to enroll in the courses');
+    const studentId = this.selectedStudentId();
+    if (studentId === null) {
+      this.toastService.showWarning('Please select the student you want to enroll in the courses');
       return;
     }
 
-    const selectedStudent = this.students().find(s => s.id === this.selectedStudentId());
-    if (!selectedStudent) {
-      alert('The selected student is invalid');
-      return;
+    // For students, get name from current user
+    let studentName = 'Student';
+    if (this.isStudent()) {
+      const currentUser = this.authService.getCurrentUser();
+      studentName = currentUser?.userName || 'Student';
+    } else {
+      // For parents, find student in list
+      const selectedStudent = this.students().find(s => s.id === studentId);
+      if (!selectedStudent) {
+        this.toastService.showError('The selected student is invalid');
+        return;
+      }
+      studentName = selectedStudent.userName;
     }
 
-    const confirmMessage = `Are you sure you want to enroll student "${selectedStudent.userName}" in all courses for $${this.cart().totalAmount}?`;
+    console.log('� Redirecting directly to Stripe:', {
+      studentId: studentId,
+      studentName: studentName,
+      totalAmount: this.cart().totalAmount,
+      itemsCount: this.cart().items.length
+    });
 
-    if (confirm(confirmMessage)) {
-      this.loading.set(true);
+    this.loading.set(true);
+    this.redirectToStripeCheckout();
+  }
 
-      // Simulate enrollment process with student information
-      const enrollmentPromises = this.cart().items.map(item =>
-        this.coursesService.enrollInCourse(item.course.id).toPromise()
-      );
+  /**
+   * Redirect to Stripe Checkout
+   */
+  private redirectToStripeCheckout(): void {
+    console.log('💳 Creating order and Stripe Checkout Session...');
 
-      Promise.all(enrollmentPromises)
-        .then(() => {
-          alert(`Student "${selectedStudent.userName}" has been successfully enrolled in all courses!`);
-          this.coursesService.clearCart();
-          // Reset student selection
-          this.selectedStudentId.set(null);
-        })
-        .catch(() => {
-          alert('Failed to enroll in some courses. Please try again.');
-        })
-        .finally(() => {
-          this.loading.set(false);
+    // Single endpoint that creates order + Stripe session
+    this.paymentService.createOrderFromCart().subscribe({
+      next: (response: any) => {
+        console.log('✅ Checkout response:', response);
+
+        // Support both sessionUrl and checkoutUrl (backend may use either)
+        const redirectUrl = response.sessionUrl || response.checkoutUrl;
+
+        console.log('📊 Response structure:', {
+          hasSessionUrl: !!response.sessionUrl,
+          hasCheckoutUrl: !!response.checkoutUrl,
+          hasSessionId: !!response.sessionId,
+          hasOrderId: !!response.orderId,
+          redirectUrl: redirectUrl,
+          sessionId: response.sessionId,
+          orderId: response.orderId,
+          fullResponse: response
         });
-    }
+
+        // Redirect to Stripe checkout page
+        if (redirectUrl) {
+          console.log('🔄 Redirecting to Stripe:', redirectUrl);
+          window.location.href = redirectUrl;
+        } else {
+          console.error('❌ No checkout URL in response!');
+          console.error('❌ Response received:', response);
+          this.loading.set(false);
+          this.toastService.showError('Checkout URL not received from backend');
+        }
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.toastService.showError('Failed to create checkout session');
+        console.error('❌ Checkout error:', err);
+      }
+    });
   }
 
   /**
@@ -224,10 +385,13 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Clear student selection
+   * Clear student selection (only for parents)
    */
   clearStudentSelection(): void {
-    this.selectedStudentId.set(null);
+    // Don't allow students to clear selection (they can't change it)
+    if (!this.isStudent()) {
+      this.selectedStudentId.set(null);
+    }
   }
 
   /**
@@ -250,5 +414,54 @@ export class CartComponent implements OnInit, OnDestroy {
   trackByStudentIndex(index: number, student: Student): string {
     // Use a combination of index and id to ensure uniqueness
     return `${index}-${student.id || 'unknown'}-${student.userName || 'unnamed'}`;
+  }
+
+  /**
+   * Extract subject name only (without year and term)
+   * Example: "Reading Comprehension Year 7 - Term 3" -> "Reading Comprehension"
+   */
+  getSubjectNameOnly(fullName: string): string {
+    if (!fullName) return '';
+
+    // Split by " Year " and take the first part
+    const parts = fullName.split(/\s+Year\s+/i);
+    return parts[0].trim();
+  }  /**
+   * Extract year and term info
+   * Example: "Reading Comprehension Year 7 - Term 3" -> "Year 7 - Term 3"
+   */
+  getYearAndTerm(fullName: string): string {
+    if (!fullName) return '';
+
+    // Find "Year X" and everything after it
+    const match = fullName.match(/Year\s+\d+[\s\S]*/i);
+    return match ? match[0] : '';
+  }
+
+  /**
+   * Handle duplicate subject error when adding to cart
+   */
+  handleDuplicateSubjectError(error: any): void {
+    if (error.status === 400 &&
+        error.error?.message?.includes('already has a subscription plan')) {
+
+      this.toastService.showWarning(
+        '⚠️ Plan Already in Cart: You already have a plan for this subject. Remove the existing plan first or proceed to checkout.'
+      );
+
+      // Auto-scroll to show the cart
+      setTimeout(() => {
+        const cartSection = document.querySelector('.cart-container');
+        if (cartSection) {
+          cartSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 1000);
+
+    } else {
+      // Generic error
+      this.toastService.showError(
+        `❌ Add to Cart Failed: ${error.error?.message || 'Could not add item to cart. Please try again.'}`
+      );
+    }
   }
 }

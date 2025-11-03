@@ -116,7 +116,8 @@ export class LessonPlayerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Initialize video player with Bunny.net HLS
+   * Initialize video player with multi-provider support
+   * Supports: Mux (recommended), BunnyStream, BunnyStorage, Cloudinary
    */
   private initializeVideoPlayer(): void {
     const lessonData = this.lesson();
@@ -124,16 +125,27 @@ export class LessonPlayerComponent implements OnInit, OnDestroy {
 
     const progressData = this.progress();
     const startTime = progressData?.lastWatchedPosition || 0;
+    const currentUser = this.authService.getCurrentUser();
+
+    // Build player configuration based on provider
+    const playerConfig: any = {
+      videoUrl: lessonData.videoUrl || '',
+      posterUrl: lessonData.posterUrl,
+      provider: lessonData.videoProvider || 'BunnyStream',
+      startTime: startTime,
+      autoplay: false,
+      muted: false
+    };
+
+    // Add Mux-specific configuration
+    if (lessonData.videoProvider === 'Mux' && lessonData.muxPlaybackId) {
+      playerConfig.muxPlaybackId = lessonData.muxPlaybackId;
+      playerConfig.metadataVideoTitle = lessonData.title;
+      playerConfig.metadataViewerUserId = currentUser?.id?.toString() || 'anonymous';
+    }
 
     this.videoService.initializePlayer(
-      {
-        videoUrl: lessonData.videoUrl || '',
-        posterUrl: lessonData.posterUrl,
-        provider: lessonData.videoProvider || 'BunnyStream',
-        startTime: startTime,
-        autoplay: false,
-        muted: false
-      },
+      playerConfig,
       this.videoPlayerRef.nativeElement,
       this.lessonId
     );

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
@@ -31,12 +31,30 @@ type Id = number;
   templateUrl: './content-management.html',
   styleUrls: ['./content-management.scss'],
 })
-export class ContentManagementComponent implements OnInit {
-  sidebarCollapsed = false;
+export class ContentManagementComponent implements OnInit, OnDestroy {
+  sidebarMobileOpen = false;
+  isMobile = false;
   userName = 'Admin User';
+  private resizeListener: any;
 
   toggleSidebar() {
-    this.sidebarCollapsed = !this.sidebarCollapsed;
+    this.sidebarMobileOpen = !this.sidebarMobileOpen;
+  }
+
+  toggleMobileSidebar() {
+    this.sidebarMobileOpen = !this.sidebarMobileOpen;
+  }
+
+  closeMobileSidebar() {
+    this.sidebarMobileOpen = false;
+  }
+
+  checkScreenSize() {
+    this.isMobile = window.innerWidth < 992;
+    // Close mobile sidebar when switching to desktop
+    if (!this.isMobile) {
+      this.sidebarMobileOpen = false;
+    }
   }
 
   // ===== Data stores =====
@@ -205,6 +223,8 @@ export class ContentManagementComponent implements OnInit {
     'year';
   entityTitle = '';
   form: any = {};
+  formErrors: any = {}; // Track form validation errors
+  formTouched: any = {}; // Track which fields have been touched
 
   previewOpen = false;
   preview: any = {};
@@ -232,11 +252,27 @@ export class ContentManagementComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.checkScreenSize();
     this.loadAllFromAPI();
+    
+    // Listen for window resize events
+    this.resizeListener = () => {
+      this.checkScreenSize();
+    };
+    window.addEventListener('resize', this.resizeListener);
+  }
+
+  ngOnDestroy(): void {
+    // Clean up resize listener
+    if (this.resizeListener) {
+      window.removeEventListener('resize', this.resizeListener);
+    }
   }
 
   // دالة محسنة لاستخراج الرسائل الإنجليزية من الأخطاء
   private extractEnglishError(error: any): string {
+    console.error('Full error object:', error);
+    
     if (error.originalError && error.originalError.error && typeof error.originalError.error === 'string') {
       return error.originalError.error;
     }
@@ -264,6 +300,21 @@ export class ContentManagementComponent implements OnInit {
     
     if (error.details && typeof error.details === 'string') {
       return error.details;
+    }
+    
+    // Try to extract from error.error object
+    if (error.error && typeof error.error === 'object') {
+      if (error.error.title) return error.error.title;
+      if (error.error.message) return error.error.message;
+      if (error.error.errors) {
+        const errors = Object.values(error.error.errors).flat();
+        if (errors.length > 0) return errors.join(', ');
+      }
+    }
+    
+    // Include status information if available
+    if (error.status) {
+      return `Server error (${error.status}): ${error.statusText || 'Unknown error'}. Please check server logs for details.`;
     }
     
     return 'An unknown error occurred. Please try again.';
@@ -340,7 +391,15 @@ async loadTeachers(): Promise<void> {
 }
   async loadSubjects(): Promise<void> {
     try {
-      this.subjects = (await this.contentService.getSubjects().toPromise()) || [];
+      const resp: any = await this.contentService.getSubjects().toPromise();
+      // Accept both array and paged result shapes (array or { items: [] })
+      if (Array.isArray(resp)) {
+        this.subjects = resp;
+      } else if (resp && Array.isArray(resp.items)) {
+        this.subjects = resp.items;
+      } else {
+        this.subjects = [];
+      }
     } catch (error) {
       console.error('Error loading subjects:', error);
       throw error;
@@ -464,6 +523,27 @@ nameTeacher(id: Id | undefined | null) {
     }
   }
 
+  // Helpers used by template
+  countSubjectsByYear(yearId: Id): number {
+    return Array.isArray(this.subjects)
+      ? this.subjects.filter(s => s.yearId === yearId).length
+      : 0;
+  }
+
+  clearFilters(): void {
+    this.filters = {
+      yearId: null,
+      subjectId: null,
+      termId: null,
+      weekId: null,
+      type: '',
+      status: '',
+      categoryId: null,
+    };
+    this.searchTerm = '';
+    this.resetPaging();
+  }
+
   applyFilters() {
     const q = (this.searchTerm || '').toLowerCase();
 
@@ -473,50 +553,39 @@ nameTeacher(id: Id | undefined | null) {
     );
 
     // SUBJECTS
-    this.filteredSubjects = this.subjects.filter((s) => {
-      const byYear = this.filters.yearId
-        ? s.yearId === this.filters.yearId
-        : true;
-      const byCategory = this.filters.categoryId
-        ? s.categoryId === this.filters.categoryId
-        : true;
+    const subjectsArr = Array.isArray(this.subjects) ? this.subjects : [];
+    this.filteredSubjects = subjectsArr.filter((s: any) => {
+      const byYear = this.filters.yearId ? s.yearId === this.filters.yearId : true;
+      const byCategory = this.filters.categoryId ? s.categoryId === this.filters.categoryId : true;
       const bySearch =
         !q ||
-        s.subjectName.toLowerCase().includes(q) ||
-        s.categoryName.toLowerCase().includes(q);
+        (s.subjectName && s.subjectName.toLowerCase().includes(q)) ||
+        (s.categoryName && s.categoryName.toLowerCase().includes(q));
       return byYear && byCategory && bySearch;
     });
 
     // TERMS
     this.filteredTerms = this.terms.filter((t) => {
-      const bySubject = this.filters.subjectId
-        ? t.subjectId === this.filters.subjectId
-        : true;
+      const bySubject = this.filters.subjectId ? t.subjectId === this.filters.subjectId : true;
       const bySearch = !q || t.termNumber.toString().includes(q);
       return bySubject && bySearch;
     });
 
     // WEEKS
     this.filteredWeeks = this.weeks.filter((w) => {
-      const byTerm = this.filters.termId
-        ? w.termId === this.filters.termId
-        : true;
+      const byTerm = this.filters.termId ? w.termId === this.filters.termId : true;
       const bySearch = !q || w.weekNumber.toString().includes(q);
       return byTerm && bySearch;
     });
 
     // LESSONS
     this.filteredLessons = this.lessons.filter((l) => {
-      const byWeek = this.filters.weekId
-        ? l.weekId === this.filters.weekId
-        : true;
-      const bySubject = this.filters.subjectId
-        ? l.subjectId === this.filters.subjectId
-        : true;
+      const byWeek = this.filters.weekId ? l.weekId === this.filters.weekId : true;
+      const bySubject = this.filters.subjectId ? l.subjectId === this.filters.subjectId : true;
       const bySearch =
         !q ||
-        l.title.toLowerCase().includes(q) ||
-        l.description.toLowerCase().includes(q);
+        (l.title && l.title.toLowerCase().includes(q)) ||
+        (l.description && l.description.toLowerCase().includes(q));
       return byWeek && bySubject && bySearch;
     });
 
@@ -524,19 +593,15 @@ nameTeacher(id: Id | undefined | null) {
     this.filteredCategories = this.categories.filter((c) => {
       const bySearch =
         !q ||
-        c.name.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q);
+        (c.name && c.name.toLowerCase().includes(q)) ||
+        (c.description && c.description.toLowerCase().includes(q));
       return bySearch;
     });
 
     // SUBJECT NAMES
     this.filteredSubjectNames = this.subjectNames.filter((sn) => {
-      const byCategory = this.filters.categoryId
-        ? sn.categoryId === this.filters.categoryId
-        : true;
-      const bySearch =
-        !q ||
-        sn.name.toLowerCase().includes(q);
+      const byCategory = this.filters.categoryId ? sn.categoryId === this.filters.categoryId : true;
+      const bySearch = !q || (sn.name && sn.name.toLowerCase().includes(q));
       return byCategory && bySearch;
     });
   }
@@ -620,6 +685,8 @@ nameTeacher(id: Id | undefined | null) {
     this.entityType = type;
     this.entityTitle = this.capitalize(type);
     this.form = this.defaultFormFor(type);
+    this.formErrors = {};
+    this.formTouched = {};
     this.isFormOpen = true;
   }
 
@@ -631,11 +698,15 @@ nameTeacher(id: Id | undefined | null) {
     this.entityType = type;
     this.entityTitle = this.capitalize(type);
     this.form = { ...entity };
+    this.formErrors = {};
+    this.formTouched = {};
     this.isFormOpen = true;
   }
 
   closeForm() {
     this.isFormOpen = false;
+    this.formErrors = {};
+    this.formTouched = {};
   }
 
   async submitForm() {
@@ -668,8 +739,8 @@ nameTeacher(id: Id | undefined | null) {
     switch (this.entityType) {
       case 'year': {
         const { yearNumber } = this.form;
-        if (yearNumber == null) {
-          Swal.fire('Error', 'Please provide a year number.', 'error');
+        if (yearNumber == null || yearNumber <= 0) {
+          Swal.fire('Error', 'Please provide a valid year number (greater than 0).', 'error');
           throw new Error('Validation failed');
         }
         const newYear = await this.contentService.addYear({ yearNumber }).toPromise();
@@ -678,22 +749,22 @@ nameTeacher(id: Id | undefined | null) {
       }
       case 'category': {
         const { name, description, color } = this.form;
-        if (!name || !description) {
-          Swal.fire('Error', 'Please fill all required category fields.', 'error');
+        if (!name || !name.trim() || !description || !description.trim()) {
+          Swal.fire('Error', 'Please fill all required category fields (name and description).', 'error');
           throw new Error('Validation failed');
         }
-        const payload = { name, description, color };
+        const payload = { name: name.trim(), description: description.trim(), color: color || '' };
         const newCategory = await this.contentService.addCategory(payload).toPromise();
         if (newCategory) this.categories.push(newCategory);
         break;
       }
       case 'subjectName': {
         const { name, categoryId } = this.form;
-        if (!name || !categoryId) {
-          Swal.fire('Error', 'Please fill all required subject name fields.', 'error');
+        if (!name || !name.trim() || !categoryId) {
+          Swal.fire('Error', 'Please fill all required subject name fields (name and category).', 'error');
           throw new Error('Validation failed');
         }
-        const payload = { name, categoryId };
+        const payload = { name: name.trim(), categoryId };
         const newSubjectName = await this.contentService.addSubjectName(payload).toPromise();
         if (newSubjectName) this.subjectNames.push(newSubjectName);
         break;
@@ -711,27 +782,87 @@ nameTeacher(id: Id | undefined | null) {
           posterFile
         } = this.form;
 
-        if (
-          !yearId ||
-          !subjectNameId ||
-          originalPrice == null ||
-          discountPercentage == null ||
-          !level ||
-          duration == null ||
-          !teacherId ||
-          !startDate ||
-          !posterFile
-        ) {
-          Swal.fire('Error', 'Please fill all required subject fields.', 'error');
+        // Enhanced validation
+        if (!yearId) {
+          Swal.fire('Error', 'Please select a year.', 'error');
           throw new Error('Validation failed');
         }
+        if (!subjectNameId) {
+          Swal.fire('Error', 'Please select a subject name.', 'error');
+          throw new Error('Validation failed');
+        }
+        if (originalPrice == null || originalPrice < 0) {
+          Swal.fire('Error', 'Please provide a valid original price (0 or greater).', 'error');
+          throw new Error('Validation failed');
+        }
+        if (discountPercentage == null || discountPercentage < 0 || discountPercentage > 100) {
+          Swal.fire('Error', 'Please provide a valid discount percentage (0-100).', 'error');
+          throw new Error('Validation failed');
+        }
+        if (!level || !level.trim()) {
+          Swal.fire('Error', 'Please provide a level.', 'error');
+          throw new Error('Validation failed');
+        }
+        if (duration == null || duration <= 0) {
+          Swal.fire('Error', 'Please provide a valid duration (greater than 0).', 'error');
+          throw new Error('Validation failed');
+        }
+        if (!teacherId) {
+          Swal.fire('Error', 'Please select a teacher.', 'error');
+          throw new Error('Validation failed');
+        }
+        if (!startDate) {
+          Swal.fire('Error', 'Please select a start date.', 'error');
+          throw new Error('Validation failed');
+        }
+        if (!posterFile || !(posterFile instanceof File)) {
+          Swal.fire('Error', 'Please upload a poster image.', 'error');
+          throw new Error('Validation failed');
+        }
+
+        // Verify that the selected IDs exist
+        const yearExists = this.years.find(y => y.id === yearId);
+        if (!yearExists) {
+          Swal.fire('Error', `Year with ID ${yearId} not found. Please refresh and select a valid year.`, 'error');
+          throw new Error('Invalid year selection');
+        }
+
+        const subjectNameExists = this.subjectNames.find(sn => sn.id === subjectNameId);
+        if (!subjectNameExists) {
+          Swal.fire('Error', `Subject name with ID ${subjectNameId} not found. Please refresh and select a valid subject name.`, 'error');
+          throw new Error('Invalid subject name selection');
+        }
+
+        const teacherExists = this.teachers.find(t => t.id === teacherId);
+        if (!teacherExists) {
+          Swal.fire('Error', `Teacher with ID ${teacherId} not found. Please refresh and select a valid teacher.`, 'error');
+          throw new Error('Invalid teacher selection');
+        }
+
+        // Log the data being sent for debugging
+        console.log('Creating subject with:', {
+          yearId,
+          yearNumber: yearExists.yearNumber,
+          subjectNameId,
+          subjectName: subjectNameExists.name,
+          originalPrice,
+          discountPercentage,
+          level: level.trim(),
+          duration,
+          teacherId,
+          teacherName: teacherExists.userName,
+          startDate,
+          posterFileName: posterFile.name,
+          posterFileSize: posterFile.size,
+          posterFileType: posterFile.type
+        });
 
         const newSubject = await this.contentService.addSubject(
           yearId,
           subjectNameId,
           originalPrice,
           discountPercentage,
-          level,
+          level.trim(),
           duration,
           teacherId,
           startDate,
@@ -743,8 +874,16 @@ nameTeacher(id: Id | undefined | null) {
       }
       case 'term': {
         const { subjectId, termNumber, startDate } = this.form;
-        if (!subjectId || termNumber == null || !startDate) {
-          Swal.fire('Error', 'Please provide all required term fields.', 'error');
+        if (!subjectId) {
+          Swal.fire('Error', 'Please select a subject.', 'error');
+          throw new Error('Validation failed');
+        }
+        if (termNumber == null || termNumber <= 0) {
+          Swal.fire('Error', 'Please provide a valid term number (greater than 0).', 'error');
+          throw new Error('Validation failed');
+        }
+        if (!startDate) {
+          Swal.fire('Error', 'Please select a start date.', 'error');
           throw new Error('Validation failed');
         }
         const newTerm = await this.contentService.addTerm({ subjectId, termNumber, startDate }).toPromise();
@@ -753,8 +892,12 @@ nameTeacher(id: Id | undefined | null) {
       }
       case 'week': {
         const { termId, weekNumber } = this.form;
-        if (!termId || weekNumber == null) {
-          Swal.fire('Error', 'Please provide week number and termId.', 'error');
+        if (!termId) {
+          Swal.fire('Error', 'Please select a term.', 'error');
+          throw new Error('Validation failed');
+        }
+        if (weekNumber == null || weekNumber <= 0) {
+          Swal.fire('Error', 'Please provide a valid week number (greater than 0).', 'error');
           throw new Error('Validation failed');
         }
         const newWeek = await this.contentService.addWeek({ termId, weekNumber }).toPromise();
@@ -764,13 +907,29 @@ nameTeacher(id: Id | undefined | null) {
       case 'lesson': {
         const { title, description, weekId, posterFile, videoFile } = this.form;
 
-        if (!title || !description || !weekId || !posterFile || !videoFile) {
-          Swal.fire('Error', 'Please fill all required lesson fields.', 'error');
+        if (!title || !title.trim()) {
+          Swal.fire('Error', 'Please provide a lesson title.', 'error');
+          throw new Error('Validation failed');
+        }
+        if (!description || !description.trim()) {
+          Swal.fire('Error', 'Please provide a lesson description.', 'error');
+          throw new Error('Validation failed');
+        }
+        if (!weekId) {
+          Swal.fire('Error', 'Please select a week.', 'error');
+          throw new Error('Validation failed');
+        }
+        if (!posterFile || !(posterFile instanceof File)) {
+          Swal.fire('Error', 'Please upload a poster image.', 'error');
+          throw new Error('Validation failed');
+        }
+        if (!videoFile || !(videoFile instanceof File)) {
+          Swal.fire('Error', 'Please upload a video file.', 'error');
           throw new Error('Validation failed');
         }
 
         const newLesson = await this.contentService
-          .addLesson(title, description, weekId, posterFile, videoFile)
+          .addLesson(title.trim(), description.trim(), weekId, posterFile, videoFile)
           .toPromise();
         if (newLesson) this.lessons.push(newLesson);
         break;
@@ -1067,7 +1226,22 @@ nameTeacher(id: Id | undefined | null) {
   // ===== File Handling =====
   onFileChange(event: any, field: string) {
     if (event.target.files && event.target.files.length > 0) {
-      this.form[field] = event.target.files[0];
+      const file = event.target.files[0];
+      // Validate file type for posters (images)
+      if (field === 'posterFile') {
+        if (!file.type.startsWith('image/')) {
+          Swal.fire('Error', 'Please select a valid image file for poster.', 'error');
+          return;
+        }
+      }
+      // Validate file type for videos
+      if (field === 'videoFile') {
+        if (!file.type.startsWith('video/')) {
+          Swal.fire('Error', 'Please select a valid video file.', 'error');
+          return;
+        }
+      }
+      this.form[field] = file;
     }
   }
 
@@ -1077,6 +1251,14 @@ nameTeacher(id: Id | undefined | null) {
     }
   }
 
+  // Get file name for display
+  getFileName(field: string): string {
+    if (this.form[field] && this.form[field] instanceof File) {
+      return this.form[field].name;
+    }
+    return '';
+  }
+
   // ===== utils =====
   capitalize(s: string) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
@@ -1084,6 +1266,87 @@ nameTeacher(id: Id | undefined | null) {
 
   setActiveTab(tab: string) {
     this.activeTab = tab;
+  }
+
+  // Mark field as touched for validation display
+  markFieldTouched(fieldName: string) {
+    this.formTouched[fieldName] = true;
+  }
+
+  // Check if field has error and is touched
+  hasFieldError(fieldName: string): boolean {
+    return this.formTouched[fieldName] && !!this.formErrors[fieldName];
+  }
+
+  // Get error message for field
+  getFieldError(fieldName: string): string {
+    return this.formErrors[fieldName] || '';
+  }
+
+  // Validate form on input change
+  validateField(fieldName: string, value: any) {
+    this.formErrors[fieldName] = '';
+    
+    switch (this.entityType) {
+      case 'year':
+        if (fieldName === 'yearNumber' && (value == null || value <= 0)) {
+          this.formErrors[fieldName] = 'Year number must be greater than 0';
+        }
+        break;
+      case 'category':
+        if (fieldName === 'name' && (!value || !value.trim())) {
+          this.formErrors[fieldName] = 'Category name is required';
+        }
+        if (fieldName === 'description' && (!value || !value.trim())) {
+          this.formErrors[fieldName] = 'Description is required';
+        }
+        break;
+      case 'subjectName':
+        if (fieldName === 'name' && (!value || !value.trim())) {
+          this.formErrors[fieldName] = 'Subject name is required';
+        }
+        if (fieldName === 'categoryId' && !value) {
+          this.formErrors[fieldName] = 'Category is required';
+        }
+        break;
+      case 'subject':
+        if (fieldName === 'originalPrice' && (value == null || value < 0)) {
+          this.formErrors[fieldName] = 'Price must be 0 or greater';
+        }
+        if (fieldName === 'discountPercentage' && (value == null || value < 0 || value > 100)) {
+          this.formErrors[fieldName] = 'Discount must be between 0 and 100';
+        }
+        if (fieldName === 'duration' && (value == null || value <= 0)) {
+          this.formErrors[fieldName] = 'Duration must be greater than 0';
+        }
+        if (fieldName === 'level' && (!value || !value.trim())) {
+          this.formErrors[fieldName] = 'Level is required';
+        }
+        break;
+      case 'term':
+        if (fieldName === 'termNumber' && (value == null || value <= 0)) {
+          this.formErrors[fieldName] = 'Term number must be greater than 0';
+        }
+        break;
+      case 'week':
+        if (fieldName === 'weekNumber' && (value == null || value <= 0)) {
+          this.formErrors[fieldName] = 'Week number must be greater than 0';
+        }
+        break;
+      case 'lesson':
+        if (fieldName === 'title' && (!value || !value.trim())) {
+          this.formErrors[fieldName] = 'Title is required';
+        }
+        if (fieldName === 'description' && (!value || !value.trim())) {
+          this.formErrors[fieldName] = 'Description is required';
+        }
+        break;
+    }
+  }
+
+  // Check if form is valid
+  isFormValid(): boolean {
+    return Object.keys(this.formErrors).every(key => !this.formErrors[key]);
   }
 
 getSubjectIdFromTermId(termId: Id): Id | null {

@@ -1,12 +1,14 @@
 /**
  * Video Provider Types - Based on Backend API
+ * Supports 4 providers: Mux (recommended), BunnyStream, BunnyStorage, Cloudinary
  */
-export type VideoProvider = 'Cloudinary' | 'BunnyStorage' | 'BunnyStream';
+export type VideoProvider = 'Mux' | 'BunnyStream' | 'BunnyStorage' | 'Cloudinary';
 
 export const VideoProviders = {
-  CLOUDINARY: 'Cloudinary' as VideoProvider,
-  BUNNY_STORAGE: 'BunnyStorage' as VideoProvider,
-  BUNNY_STREAM: 'BunnyStream' as VideoProvider
+  MUX: 'Mux' as VideoProvider,                  // Recommended - Premium streaming with HLS, DRM, Analytics
+  BUNNY_STREAM: 'BunnyStream' as VideoProvider,  // Adaptive streaming with HLS/DASH
+  BUNNY_STORAGE: 'BunnyStorage' as VideoProvider,// Simple CDN storage + delivery
+  CLOUDINARY: 'Cloudinary' as VideoProvider      // Deprecated - Legacy support
 };
 
 /**
@@ -35,13 +37,21 @@ export interface Lesson {
   title: string;
   description?: string;
 
-  // Video Info (from Bunny.net Integration)
+  // Video Info (Multi-Provider Support)
   videoUrl?: string;
   videoProvider?: VideoProvider;
   videoDuration?: number; // in seconds
   duration?: number; // alias for videoDuration
   posterUrl?: string;
   thumbnailUrl?: string; // alias for posterUrl
+
+  // Bunny.net-specific fields (when videoProvider === 'BunnyStream' or 'BunnyStorage')
+  bunnyVideoId?: string;        // Video ID from Bunny.net
+  bunnyStoragePath?: string;    // Storage path for BunnyStorage
+
+  // Mux-specific fields (when videoProvider === 'Mux')
+  muxPlaybackId?: string;
+  muxAssetId?: string;
 
   // Structure
   order: number;
@@ -234,6 +244,12 @@ export interface VideoPlayerConfig {
   autoplay?: boolean;
   muted?: boolean;
   startTime?: number;
+
+  // Mux-specific configuration
+  muxPlaybackId?: string;
+  muxAssetId?: string;
+  metadataVideoTitle?: string;
+  metadataViewerUserId?: string;
 }
 
 /**

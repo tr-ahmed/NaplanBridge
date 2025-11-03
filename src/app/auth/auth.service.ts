@@ -100,11 +100,49 @@ export class AuthService {
     localStorage.setItem('authToken', response.token);
     localStorage.setItem('userName', response.userName);
     localStorage.setItem('roles', JSON.stringify(response.roles));
-    localStorage.setItem('currentUser', JSON.stringify({
-      userName: response.userName,
-      email: email,
-      roles: response.roles
-    }));
+
+    // Extract user ID from token
+    // 🔓 Decode token to extract user data
+    try {
+      const payload = JSON.parse(atob(response.token.split('.')[1]));
+
+      console.log('🔓 Decoding JWT Token...');
+      console.log('📦 Raw token payload:', payload);
+
+      const userData = {
+        id: payload.nameid || payload.sub,  // User.Id (AspNetUsers.Id) for authentication
+        studentId: payload.studentId ? parseInt(payload.studentId) : undefined,  // Student.Id for cart/orders
+        userName: response.userName,
+        email: email,
+        roles: response.roles,
+        role: response.roles, // Also store as 'role' for compatibility
+        yearId: payload.yearId ? parseInt(payload.yearId) : undefined
+      };
+
+      if (!environment.production) {
+        const isStudent = response.roles.includes('Student');
+        if (isStudent) {
+          console.log('🎓 Student logged in:', userData.userName);
+          if (!userData.studentId) {
+            console.warn('⚠️ Student role but no studentId in token! Cart may not work.');
+          }
+        } else {
+          console.log('👤 User logged in:', userData.userName, '| Role:', response.roles.join(', '));
+        }
+      }
+
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+    } catch (e) {
+      console.error('❌ Failed to parse token:', e);
+      // Fallback: store basic user data
+      localStorage.setItem('currentUser', JSON.stringify({
+        id: null,
+        userName: response.userName,
+        email: email,
+        roles: response.roles,
+        role: response.roles
+      }));
+    }
 
     if (rememberMe) {
       localStorage.setItem('rememberedEmail', email);
@@ -173,12 +211,76 @@ export class AuthService {
   // ✅ Get current user data
   getCurrentUser(): any {
     const userData = localStorage.getItem('currentUser');
-    return userData ? JSON.parse(userData) : null;
+    if (userData) {
+      return JSON.parse(userData);
+    }
+
+    // Fallback: decode token to get user data
+    const token = this.getToken();
+    if (token) {
+      const decoded = this.decodeToken(token);
+      return decoded;
+    }
+
+    return null;
   }
 
   // ✅ Get authentication token
   getToken(): string | null {
     return localStorage.getItem('authToken');
+  }
+
+  /**
+   * Decode JWT token
+   */
+  private decodeToken(token: string): any {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = atob(payload);
+      const parsed = JSON.parse(decoded);
+
+      // Reduced logging for cleaner console
+      if (!environment.production) {
+        console.log('🔓 User authenticated:', parsed.unique_name, '| Role:', parsed.role);
+      }
+
+      // 🎯 CRITICAL: Map JWT claims to user object
+      // ⚠️ DO NOT confuse these IDs:
+      // - id (nameid): User.Id from AspNetUsers → Use for authentication
+      // - studentId: Student.Id from Students → Use for cart/orders
+
+      const user = {
+        id: parsed.nameid || parsed.sub,  // User.Id (authentication)
+        studentId: parsed.studentId ? parseInt(parsed.studentId) : undefined,  // Student.Id (cart/orders)
+        userName: parsed.unique_name || parsed.username,
+        email: parsed.email,
+        role: Array.isArray(parsed.role) ? parsed.role : [parsed.role],
+        yearId: parsed.yearId ? parseInt(parsed.yearId) : undefined
+      };
+
+      // Only show warnings for Student role
+      const isStudent = user.role.includes('Student');
+
+      if (!environment.production) {
+        // Detailed logging in development only
+        if (isStudent) {
+          console.log('🎓 Student logged in:', user.userName);
+          if (!parsed.studentId) {
+            console.warn('⚠️ studentId NOT found in token! Cart will not work.');
+          }
+          if (!parsed.yearId) {
+            console.warn('⚠️ yearId NOT found in token! Year filtering disabled.');
+          }
+        } else {
+          console.log('👤 User logged in:', user.userName, '| Role:', user.role.join(', '));
+        }
+      }
+
+      return user;
+    } catch (error) {
+      console.error('❌ Failed to decode token:', error);
+      return null;
+    }
   }
 
   // ✅ Get remembered email

@@ -19,10 +19,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   navigationItems = [
     { id: 1, label: 'Home', route: '/', icon: 'home' },
     { id: 2, label: 'About Us', route: '/', icon: 'info', fragment: 'about', isAboutSection: true },
-    { id: 3, label: 'Subscriptions', route: '/subscription/plans', icon: 'star' },
-    { id: 4, label: 'Plans', route: '/plans', icon: 'star' },
     { id: 5, label: 'Subjects', route: '/courses', icon: 'book' },
-    { id: 6, label: 'Blog', route: '/blog', icon: 'article' },
     { id: 7, label: 'Contact', route: '/contact', icon: 'mail' }
   ];
 
@@ -240,8 +237,13 @@ isAdminDashboard(): boolean {
   return this.router.url.startsWith('/admin/users')
       || this.router.url.startsWith('/admin/content')
        || this.router.url.startsWith('/admin/subscriptions');
-
 }
 
+/**
+ * Navigate to Teacher Dashboard
+ */
+navigateToTeacherDashboard(): void {
+  this.router.navigate(['/teacher/dashboard']);
+}
 
 }

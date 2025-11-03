@@ -109,16 +109,16 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4">
-              <button
-                (click)="goToDashboard()"
-                class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+              <a
+                routerLink="/dashboard"
+                class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-center">
                 Go to Dashboard
-              </button>
-              <button
-                (click)="viewOrders()"
-                class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold">
-                View Orders
-              </button>
+              </a>
+              <a
+                routerLink="/courses"
+                class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold text-center">
+                View Courses
+              </a>
             </div>
 
             <!-- Support Info -->

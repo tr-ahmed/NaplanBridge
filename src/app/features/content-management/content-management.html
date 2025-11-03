@@ -13,830 +13,1785 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+      min-height: 100vh;
+    }
+
+    /* Modern Form Validation Styles */
     .is-invalid {
-      border-color: #dc3545 !important;
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+      border-color: #ef4444 !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23ef4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23ef4444' stroke='none'/%3e%3c/svg%3e");
       background-repeat: no-repeat;
       background-position: right calc(0.375em + 0.1875rem) center;
       background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     }
     
     .is-valid {
-      border-color: #198754 !important;
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+      border-color: #10b981 !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2310b981' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
       background-repeat: no-repeat;
       background-position: right calc(0.375em + 0.1875rem) center;
       background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
     }
     
     .invalid-feedback, .valid-feedback {
       display: block;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      animation: slideDown 0.2s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     
+    /* Enhanced Form Controls */
+    .form-control, .form-select {
+      border-radius: 0.5rem;
+      border: 2px solid #e5e7eb;
+      transition: all 0.2s ease;
+      padding: 0.625rem 1rem;
+    }
+
     .form-control:focus, .form-select:focus {
-      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      transform: translateY(-1px);
     }
     
     .form-control.is-invalid:focus, .form-select.is-invalid:focus {
-      box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
     }
     
     .form-control.is-valid:focus, .form-select.is-valid:focus {
-      box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      letter-spacing: 0.025em;
+    }
+    
+    /* Modern Buttons */
+    .btn {
+      border-radius: 0.5rem;
+      font-weight: 500;
+      padding: 0.625rem 1.25rem;
+      transition: all 0.2s ease;
+      border: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     }
     
     .btn-gradient {
       background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
       color: white;
-      border: none;
     }
     
     .btn-gradient:hover {
       background: linear-gradient(135deg, #2563eb 0%, #1e293b 100%);
-      color: white;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
     }
     
-    .bg-gray-50 {
-      background-color: #f9fafb;
+    /* Modern Cards */
+    .card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+      overflow: hidden;
+      background: white;
+    }
+
+    .card:hover {
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      border-bottom: 2px solid #e5e7eb;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .card-footer {
+      background: #fafafa;
+      border-top: 1px solid #e5e7eb;
     }
     
-    .bg-gray-100 {
-      background-color: #f3f4f6;
+    /* Modern Tables */
+    .table {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .table thead th {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      color: #475569;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      padding: 1rem;
+      border: none;
+    }
+
+    .table tbody tr {
+      transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+      background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%);
+      transform: scale(1.01);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #f1f5f9;
     }
     
-    .bg-gray-200 {
-      background-color: #e5e7eb;
-    }
-    
-    .text-blue-700 {
-      color: #1d4ed8;
-    }
-    
-    .hover\:bg-white\/10:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-    
+    /* Modern Sidebar - Always Fixed */
     .sidebar {
       width: 280px;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
     }
-    
-    .sidebar.collapsed {
-      width: 80px;
+
+    /* Mobile Sidebar - Overlay style on small screens */
+    @media (max-width: 991.98px) {
+      .sidebar {
+        transform: translateX(-100%);
+        z-index: 1050 !important;
+      }
+
+      .sidebar.mobile-active {
+        transform: translateX(0);
+      }
+
+      /* Mobile overlay */
+      .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1045;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Mobile menu button */
+      .mobile-menu-toggle {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1051;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .mobile-menu-toggle:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    /* Desktop Sidebar - Always visible */
+    @media (min-width: 992px) {
+      .sidebar {
+        transform: translateX(0) !important;
+      }
+
+      .sidebar-overlay {
+        display: none !important;
+      }
+
+      .mobile-menu-toggle {
+        display: none !important;
+      }
+    }
+
+    .sidebar .nav-link {
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar .nav-link::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: white;
+      transform: scaleY(0);
+      transition: transform 0.2s ease;
+    }
+
+    .sidebar .nav-link:hover::before,
+    .sidebar .nav-link.active::before {
+      transform: scaleY(1);
+    }
+
+    .sidebar .nav-link:hover {
+      background: rgba(255, 255, 255, 0.2);
+      padding-left: 1.5rem;
+    }
+
+    .sidebar .nav-link.active {
+      background: rgba(255, 255, 255, 0.15);
+      font-weight: 600;
     }
     
     .main-content {
       margin-left: 280px;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 100vh;
+      width: calc(100% - 280px);
     }
-    
-    .main-content.expanded {
-      margin-left: 80px;
+
+    /* Responsive adjustments for main content */
+    @media (max-width: 991.98px) {
+      .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+      }
     }
-    
+
+    /* Modern Badges */
+    .badge {
+      padding: 0.375rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 500;
+      font-size: 0.75rem;
+      letter-spacing: 0.025em;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Modern Stats Cards */
+    .stats-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stats-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transform: translate(30%, -30%);
+    }
+
+    /* Modern Tabs */
+    .nav-tabs .nav-link {
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      color: #6b7280;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      margin: 0 0.25rem;
+    }
+
+    .nav-tabs .nav-link:hover {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+
+    .nav-tabs .nav-link.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Modern Modal */
+    .modal-content {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-bottom: 2px solid #e5e7eb;
+      border-radius: 1rem 1rem 0 0;
+      padding: 1.5rem;
+    }
+
+    .modal-title {
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      background: #fafafa;
+      border-top: 1px solid #e5e7eb;
+      border-radius: 0 0 1rem 1rem;
+      padding: 1rem 1.5rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card, .btn, .badge {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    /* Modern Search */
+    .search-input {
+      border-radius: 9999px;
+      padding-left: 3rem;
+      border: 2px solid #e5e7eb;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    }
+
+    /* Loading States */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s ease-in-out infinite;
+    }
+
+    @keyframes loading {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    /* Hover Effects */
+    .hover-lift {
+      transition: all 0.2s ease;
+    }
+
+    .hover-lift:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Glass Morphism Effect */
+    .glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
     .resource-item {
       padding: 1rem;
       border-bottom: 1px solid #e5e7eb;
+      transition: all 0.2s ease;
+    }
+
+    .resource-item:hover {
+      background: #f9fafb;
+      padding-left: 1.5rem;
     }
     
     .resource-item:last-child {
       border-bottom: none;
+    }
+
+    /* Pagination Modern Style */
+    .pagination {
+      gap: 0.25rem;
+    }
+
+    .page-link {
+      border-radius: 0.5rem;
+      border: 2px solid #e5e7eb;
+      color: #6b7280;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      min-width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .page-link:hover:not(:disabled) {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-color: #3b82f6;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .page-item.active .page-link {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-color: #3b82f6;
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .page-item.disabled .page-link {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: #f9fafb;
+      border-color: #e5e7eb;
+    }
+
+    .page-link:focus {
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    }
+
+    /* Action Buttons Enhancement */
+    .btn-group .btn {
+      border: 1px solid #e5e7eb;
+    }
+
+    .btn-group .btn:hover {
+      z-index: 2;
+    }
+
+    .btn-outline-primary {
+      border-color: #3b82f6;
+      color: #3b82f6;
+    }
+
+    .btn-outline-primary:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    .btn-outline-secondary {
+      border-color: #6b7280;
+      color: #6b7280;
+    }
+
+    .btn-outline-secondary:hover {
+      background: #6b7280;
+      border-color: #6b7280;
+      color: white;
+    }
+
+    .btn-outline-danger {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .btn-outline-danger:hover {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border-color: #ef4444;
+      color: white;
+    }
+
+    .btn-outline-info {
+      border-color: #0ea5e9;
+      color: #0ea5e9;
+    }
+
+    .btn-outline-info:hover {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      border-color: #0ea5e9;
+      color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: #d1d5db;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h5 {
+      color: #6b7280;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: #9ca3af;
+      margin-bottom: 0;
+    }
+
+    /* Loading Spinner */
+    .spinner-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+    }
+
+    .spinner-border {
+      width: 3rem;
+      height: 3rem;
+      border-width: 0.3rem;
+    }
+
+    /* Cursor Pointer */
+    .cursor-pointer {
+      cursor: pointer;
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .status-badge.active {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-badge.inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Dropdown Menu Enhancement */
+    .dropdown-menu {
+      border: none;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border-radius: 0.75rem;
+      padding: 0.5rem;
+    }
+
+    .dropdown-item {
+      border-radius: 0.5rem;
+      padding: 0.625rem 1rem;
+      transition: all 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+
+    .dropdown-item i {
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      font-size: 0.875rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 767.98px) {
+      /* Stats cards - 1 column on small mobile */
+      .stats-card {
+        min-height: auto;
+      }
+
+      /* Smaller fonts on mobile */
+      h1, .h1 {
+        font-size: 1.75rem !important;
+      }
+
+      h2, .h2 {
+        font-size: 1.5rem !important;
+      }
+
+      /* Adjust padding */
+      .container-fluid {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+
+      /* Stack action buttons */
+      .d-flex.gap-3 {
+        flex-direction: column;
+      }
+
+      /* Full width search on mobile */
+      .search-input {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      /* Adjust table on mobile */
+      .table-responsive {
+        font-size: 0.875rem;
+      }
+
+      /* Stack pagination on mobile */
+      .pagination {
+        flex-wrap: wrap;
+      }
+
+      /* Smaller modal on mobile */
+      .modal-dialog {
+        margin: 0.5rem;
+      }
+
+      /* Adjust tabs */
+      .card.p-2 .d-flex {
+        gap: 0.5rem !important;
+      }
+
+      .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+      }
+    }
+
+    @media (min-width: 768px) and (max-width: 991.98px) {
+      /* Tablet adjustments */
+      .container-fluid {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+      }
+    }
+
+    /* Fix for very small screens */
+    @media (max-width: 575.98px) {
+      .page-link {
+        min-width: 36px;
+        height: 36px;
+        font-size: 0.875rem;
+      }
+
+      .badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+      }
+
+      /* Hide some pagination buttons on very small screens */
+      .pagination li:not(.active):not(:first-child):not(:last-child):not(:nth-child(2)):not(:nth-last-child(2)) {
+        display: none;
+      }
+    }
+
+    /* Improve touch targets for mobile */
+    @media (max-width: 991.98px) {
+      .btn, .page-link, .nav-link {
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      .form-control, .form-select {
+        min-height: 44px;
+      }
+    }
+
+    /* Landscape mobile adjustments */
+    @media (max-width: 991.98px) and (orientation: landscape) {
+      .sidebar {
+        max-height: 100vh;
+      }
+    }
+
+    /* Image Preview */
+    .img-preview {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 0.75rem;
+      border: 2px solid #e5e7eb;
+    }
+
+    @media (max-width: 767.98px) {
+      .img-preview {
+        height: 150px;
+      }
     }
   </style>
 </head>
 
 <body class="bg-gray-50">
 
-  <!-- Toggle Sidebar -->
-  <button
-    class="fixed z-50 rounded-full shadow-lg p-3 transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400 border-0"
-    (click)="toggleSidebar()" aria-label="Toggle sidebar" [ngStyle]="{
-    top: '2rem',
-    left: sidebarCollapsed ? '1rem' : '270px',
-    width: '48px',
-    height: '48px',
-    background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 100%)',
-    color: '#fff'
-  }">
-    <i class="fas" [class.fa-chevron-right]="sidebarCollapsed" [class.fa-chevron-left]="!sidebarCollapsed"></i>
-  </button>
+<!-- Mobile Menu Toggle Button (Only visible on mobile) -->
+<button class="mobile-menu-toggle d-lg-none" (click)="toggleMobileSidebar()" aria-label="Toggle menu">
+  <i class="fas" [class.fa-bars]="!sidebarMobileOpen" [class.fa-times]="sidebarMobileOpen"></i>
+</button>
 
-  <!-- Sidebar -->
-  <aside class="sidebar position-fixed top-0 bottom-0 start-0 z-40" [class.collapsed]="sidebarCollapsed" id="sidebar"
-    style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);box-shadow:0 8px 32px rgba(31,38,135,.37);border-top-right-radius:2rem;border-bottom-right-radius:2rem;min-height:100vh;">
-    <div class="sidebar-logo d-flex align-items-center py-4 px-3">
-      <div class="me-3" style="background:rgba(255,255,255,0.2);width:48px;height:48px;"
-        class="rounded-circle d-flex align-items-center justify-content-center shadow">
-        <span class="fw-bold fs-4 text-blue-700">N</span>
-      </div>
-      <div class="fw-bold fs-5 text-white" *ngIf="!sidebarCollapsed">NAPLAN<span class="text-warning">Bridge</span></div>
-    </div>
-    <nav class="sidebar-nav mt-4">
-      <a [routerLink]="'/admin/users'"
-        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-        <i class="fas fa-users"></i>
-        <span *ngIf="!sidebarCollapsed">User Management</span>
-      </a>
+<!-- Sidebar Overlay for Mobile -->
+<div class="sidebar-overlay" [class.active]="sidebarMobileOpen" (click)="closeMobileSidebar()"></div>
 
-      <a [routerLink]="'/admin/content'"
-        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all text-white active">
-        <i class="fas fa-book"></i>
-        <span *ngIf="!sidebarCollapsed">Content Management</span>
-      </a>
-
-      <a [routerLink]="'/admin/subscriptions'"
-        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all  hover:bg-white/10  text-white ">
-        <i class="fas fa-credit-card"></i>
-        <span *ngIf="!sidebarCollapsed">Subscription & Billing</span>
-      </a>
-    </nav>
-    <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
-      <div class="d-flex align-items-center gap-3">
-        <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
-        <div *ngIf="!sidebarCollapsed">
-          <div class="fw-medium text-white">{{ userName }}</div>
-          <small class="text-white-50">Super Admin</small>
-        </div>
-      </div>
-      <a (click)="handleLogout()" class="d-block mt-3 text-white-50 small" *ngIf="!sidebarCollapsed"><i
-          class="fas fa-sign-out-alt me-2"></i>Logout</a>
-    </div>
-  </aside>
+<!-- Sidebar -->
+<aside
+  class="position-fixed top-0 bottom-0 start-0 sidebar"
+  [class.mobile-active]="sidebarMobileOpen"
+  style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);min-height:100vh;z-index:1040;overflow-y:auto;overflow-x:hidden;width:280px;">
   
-  <!-- Main -->
-  <main class="main-content" [class.expanded]="sidebarCollapsed" id="mainContent">
-    <div class="container-fluid py-4">
-      <div class="flex items-center justify-between mb-6">
-        <div class="relative w-[520px] max-w-full">
-          <input type="text" class="form-control ps-10" placeholder="Search content..." [(ngModel)]="searchTerm"
-            (input)="onFilterChange()">
-          <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+  <!-- Logo Section -->
+  <div class="d-flex align-items-center justify-content-center py-4 px-3" style="min-height:80px;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center shadow-lg me-3"
+         style="background:rgba(255,255,255,0.25);width:52px;height:52px;flex-shrink:0;">
+      <i class="fas fa-graduation-cap text-white fs-4"></i>
+    </div>
+    <div>
+      <div class="fw-bold fs-5 text-white mb-0">NAPLAN<span class="text-warning">Bridge</span></div>
+      <small class="text-white-50">Admin Portal</small>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="px-3 mt-4">
+    <div class="mb-2">
+      <small class="text-white-50 text-uppercase px-3 d-block mb-2" style="font-size:0.7rem;letter-spacing:0.1em;">Management</small>
+      
+      <a [routerLink]="'/admin/users'"
+         routerLinkActive="active"
+         (click)="closeMobileSidebar()"
+         class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 mb-2 text-white position-relative">
+        <i class="fas fa-users fa-fw fs-5"></i>
+        <span class="flex-grow-1">User Management</span>
+        <i class="fas fa-chevron-right fa-xs opacity-50"></i>
+      </a>
+      
+      <a [routerLink]="'/admin/content'"
+         routerLinkActive="active"
+         (click)="closeMobileSidebar()"
+         class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 mb-2 text-white position-relative active">
+        <i class="fas fa-book fa-fw fs-5"></i>
+        <span class="flex-grow-1">Content Management</span>
+        <i class="fas fa-chevron-right fa-xs opacity-50"></i>
+      </a>
+      
+      <a [routerLink]="'/admin/subscriptions'"
+         routerLinkActive="active"
+         (click)="closeMobileSidebar()"
+         class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 mb-2 text-white position-relative">
+        <i class="fas fa-credit-card fa-fw fs-5"></i>
+        <span class="flex-grow-1">Subscriptions</span>
+        <i class="fas fa-chevron-right fa-xs opacity-50"></i>
+      </a>
+
+      <a [routerLink]="'/admin/reports'"
+         routerLinkActive="active"
+         (click)="closeMobileSidebar()"
+         class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 mb-2 text-white position-relative">
+        <i class="fas fa-chart-line fa-fw fs-5"></i>
+        <span class="flex-grow-1">Reports</span>
+        <i class="fas fa-chevron-right fa-xs opacity-50"></i>
+      </a>
+    </div>
+
+    <hr class="border-white-50 opacity-25 my-3">
+    <small class="text-white-50 text-uppercase px-3 d-block mb-2" style="font-size:0.7rem;letter-spacing:0.1em;">Quick Actions</small>
+
+    <a [routerLink]="'/admin/settings'"
+       routerLinkActive="active"
+       (click)="closeMobileSidebar()"
+       class="nav-link d-flex align-items-center gap-3 px-3 py-3 rounded-3 mb-2 text-white position-relative">
+      <i class="fas fa-cog fa-fw fs-5"></i>
+      <span class="flex-grow-1">Settings</span>
+      <i class="fas fa-chevron-right fa-xs opacity-50"></i>
+    </a>
+  </nav>
+
+  <!-- Profile Section -->
+  <div class="mt-auto px-3 py-4 border-top border-white border-opacity-25">
+    <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:rgba(255,255,255,0.1);">
+      <div class="position-relative flex-shrink-0">
+        <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="48" height="48">
+        <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-2 border-white rounded-circle" style="width:14px;height:14px;"></span>
+      </div>
+      <div class="flex-grow-1 text-truncate">
+        <div class="fw-semibold text-white mb-0 text-truncate">{{ userName }}</div>
+        <small class="text-white-50">Super Admin</small>
+      </div>
+      <div class="dropdown">
+        <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow">
+          <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+          <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item text-danger" (click)="handleLogout()"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main-content" style="margin-left: 280px; width: calc(100% - 280px);">
+  <div class="container-fluid py-4 px-3 px-md-4">
+
+    <!-- Top Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <!-- Search -->
+      <div class="position-relative" style="max-width:520px;width:100%;">
+        <input 
+          type="text" 
+          class="form-control search-input ps-5 shadow-sm" 
+          placeholder="🔍 Search content..." 
+          [(ngModel)]="searchTerm" 
+          (input)="onFilterChange()">
+        <i class="fas fa-search position-absolute text-muted" style="left:1.25rem;top:50%;transform:translateY(-50%);"></i>
+      </div>
+      <!-- Actions -->
+      <div class="d-flex align-items-center gap-3">
+        <button [routerLink]="'/home'" class="btn btn-outline-primary hover-lift d-flex align-items-center gap-2 px-4">
+          <i class="fas fa-home"></i><span class="d-none d-sm-inline">Home</span>
+        </button>
+        <button (click)="loadAllFromAPI()" class="btn btn-outline-secondary hover-lift d-flex align-items-center gap-2 px-4">
+          <i class="fas fa-sync-alt"></i><span class="d-none d-sm-inline">Refresh</span>
+        </button>
+
+        <!-- Bell -->
+        <div class="position-relative">
+          <button class="btn btn-outline-secondary rounded-circle hover-lift d-flex align-items-center justify-content-center" style="width:44px;height:44px;">
+            <i class="fas fa-bell"></i>
+          </button>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.65rem;">
+            3
+          </span>
         </div>
 
-        <div class="flex items-center gap-3">
-          <button
-          [routerLink]="'/home'"
-            class="btn btn-gradient inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition w-full sm:w-auto"
-            type="button">
-            <span class="whitespace-nowrap"> home</span>
-          </button>
-          <div class="flex items-center gap-4">
-            <!-- Notification Bell -->
-            <div class="relative">
-              <button
-                class="w-10 h-10 rounded-full bg-[#0F376B] flex items-center justify-center hover:bg-blue-300 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="currentColor"
-                  viewBox="0 0 20 20">
-                  <path
-                    d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
-                </svg>
-              </button>
-              <!-- Notification Dot -->
-              <span class="absolute top-1 right-1 block w-2 h-2 bg-red-500 rounded-full"></span>
+        <!-- User -->
+        <div class="position-relative">
+          <div class="rounded-circle border-2 border-primary overflow-hidden shadow hover-lift cursor-pointer"
+               style="width:48px;height:48px;"
+               (click)="toggleDropdown()">
+            <img src="https://i.pravatar.cc/48?img=11" alt="User" class="w-100 h-100 object-fit-cover">
+          </div>
+          @if (dropdownOpen) {
+            <div class="position-absolute end-0 mt-2 bg-white rounded-3 shadow-lg border" style="min-width:200px;z-index:1000;animation:fadeIn 0.2s ease;">
+              <ul class="list-unstyled mb-0 py-2">
+                <li><button class="dropdown-item px-4 py-2 d-flex align-items-center gap-3"><i class="fas fa-user text-primary"></i> Profile</button></li>
+                <li><button class="dropdown-item px-4 py-2 d-flex align-items-center gap-3"><i class="fas fa-cog text-secondary"></i> Settings</button></li>
+                <li><hr class="dropdown-divider my-2"></li>
+                <li><button (click)="handleLogout()" class="dropdown-item px-4 py-2 d-flex align-items-center gap-3 text-danger"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+              </ul>
             </div>
+          }
+        </div>
+      </div>
+    </div>
 
-            <!-- User Avatar -->
-            <div class="relative inline-block text-left">
-              <!-- Avatar -->
-              <div class="w-12 h-12 rounded-full border-2 border-gray-300 overflow-hidden shadow-md cursor-pointer"
-                (click)="toggleMenu()">
-                <img src="https://i.pravatar.cc/48?img=11" alt="User" class="w-full h-full object-cover" />
-              </div>
+    <!-- Header -->
+    <div class="mb-5">
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <div class="rounded-3 p-3 d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);width:56px;height:56px;">
+          <i class="fas fa-book-open text-white fa-lg"></i>
+        </div>
+        <div>
+          <h1 class="h2 fw-bold mb-1" style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Content Management</h1>
+          <p class="text-muted mb-0">Manage Years, Categories, Subject Names, Subjects, Terms, Weeks, and Lessons</p>
+        </div>
+      </div>
+    </div>
 
-              <!-- Dropdown -->
-              <div *ngIf="isOpen"
-                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                <ul class="py-1 text-gray-700">
-                  <li>
-                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">Profile</button>
-                  </li>
-                  <li>
-                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">Settings</button>
-                  </li>
-                  <li>
-                    <button (click)="handleLogout()"
-                      class="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100">Logout</button>
-                  </li>
-                </ul>
+    <!-- Stats -->
+    <div class="row g-4 mb-5">
+      <div class="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stats-card hover-lift" style="background:linear-gradient(135deg,#3b82f6 0%,#4f46e5 100%);color:#fff;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="rounded-circle bg-white bg-opacity-25 p-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                <i class="fas fa-calendar-alt fa-xl"></i>
               </div>
+              <span class="badge bg-white text-primary fs-6 px-3 py-2">{{ stats.years }}</span>
             </div>
+            <h6 class="card-title fw-semibold mb-1">Years</h6>
+            <p class="small mb-0 opacity-75">Academic years</p>
           </div>
         </div>
       </div>
-      
-      <!-- Header -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <h1 class="h3 fw-bold">Content Management</h1>
-          <p class="text-muted">Manage Years, Subjects, Terms, Weeks, Lessons, and Categories</p>
+      <div class="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stats-card hover-lift" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="rounded-circle bg-white bg-opacity-25 p-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                <i class="fas fa-chalkboard fa-xl"></i>
+              </div>
+              <span class="badge bg-white text-purple fs-6 px-3 py-2">{{ stats.categories }}</span>
+            </div>
+            <h6 class="card-title fw-semibold mb-1">Categories</h6>
+            <p class="small mb-0 opacity-75">Content groups</p>
+          </div>
         </div>
       </div>
-
-      <!-- Stats Modern Responsive -->
-      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-8">
-        <!-- Years -->
-        <div
-          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white 
-                transition-transform transform hover:scale-105 hover:shadow-2xl">
-          <i class="fas fa-calendar-alt fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
-          <div class="text-sm font-medium opacity-90">Years</div>
-          <h4 class="text-3xl font-bold">{{ stats.years }}</h4>
-        </div>
-
-        <!-- Subjects -->
-        <div
-          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-pink-500 to-rose-600 text-white 
-                transition-transform transform hover:scale-105 hover:shadow-2xl">
-          <i class="fas fa-book-open fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
-          <div class="text-sm font-medium opacity-90">Subjects</div>
-          <h4 class="text-3xl font-bold">{{ stats.subjects }}</h4>
-        </div>
-
-        <!-- Terms -->
-        <div
-          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
-                transition-transform transform hover:scale-105 hover:shadow-2xl">
-          <i class="fas fa-layer-group fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
-          <div class="text-sm font-medium opacity-90">Terms</div>
-          <h4 class="text-3xl font-bold">{{ stats.terms }}</h4>
-        </div>
-
-        <!-- Weeks -->
-        <div
-          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-yellow-400 to-orange-500 text-white 
-                transition-transform transform hover:scale-105 hover:shadow-2xl">
-          <i class="fas fa-calendar-week fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
-          <div class="text-sm font-medium opacity-90">Weeks</div>
-          <h4 class="text-3xl font-bold">{{ stats.weeks }}</h4>
-        </div>
-
-        <!-- Lessons -->
-        <div
-          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-cyan-400 to-sky-500 text-gray-900 
-                transition-transform transform hover:scale-105 hover:shadow-2xl">
-          <i class="fas fa-video fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
-          <div class="text-sm font-medium opacity-90">Lessons</div>
-          <h4 class="text-3xl font-bold">{{ stats.lessons }}</h4>
-        </div>
-
-        <!-- Categories -->
-        <div
-          class="group rounded-2xl shadow-lg p-6 bg-gradient-to-r from-purple-500 to-violet-700 text-white 
-                transition-transform transform hover:scale-105 hover:shadow-2xl">
-          <i class="fas fa-chalkboard fa-xl opacity-90 mb-3 block group-hover:rotate-6 transition"></i>
-          <div class="text-sm font-medium opacity-90">Categories</div>
-          <h4 class="text-3xl font-bold">{{ stats.categories }}</h4>
+      <div class="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stats-card hover-lift" style="background:linear-gradient(135deg,#ec4899 0%,#e11d48 100%);color:#fff;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="rounded-circle bg-white bg-opacity-25 p-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                <i class="fas fa-book-open fa-xl"></i>
+              </div>
+              <span class="badge bg-white text-danger fs-6 px-3 py-2">{{ stats.subjects }}</span>
+            </div>
+            <h6 class="card-title fw-semibold mb-1">Subjects</h6>
+            <p class="small mb-0 opacity-75">Active courses</p>
+          </div>
         </div>
       </div>
-      
-      <!-- Modern Responsive Tabs -->
-      <div class="flex flex-wrap justify-center gap-3 mb-6">
-        <!-- Years -->
-        <button
-          (click)="setActiveTab('years')"
-          [class]="activeTab==='years' 
-            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md scale-105' 
-            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
-        >
-          <i class="fas fa-calendar-alt"></i> Years
-        </button>
+      <div class="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stats-card hover-lift" style="background:linear-gradient(135deg,#22c55e 0%,#059669 100%);color:#fff;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="rounded-circle bg-white bg-opacity-25 p-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                <i class="fas fa-layer-group fa-xl"></i>
+              </div>
+              <span class="badge bg-white text-success fs-6 px-3 py-2">{{ stats.terms }}</span>
+            </div>
+            <h6 class="card-title fw-semibold mb-1">Terms</h6>
+            <p class="small mb-0 opacity-75">Study periods</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stats-card hover-lift" style="background:linear-gradient(135deg,#facc15 0%,#f97316 100%);color:#fff;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="rounded-circle bg-white bg-opacity-25 p-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                <i class="fas fa-calendar-week fa-xl"></i>
+              </div>
+              <span class="badge bg-white text-warning fs-6 px-3 py-2">{{ stats.weeks }}</span>
+            </div>
+            <h6 class="card-title fw-semibold mb-1">Weeks</h6>
+            <p class="small mb-0 opacity-75">Learning weeks</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stats-card hover-lift" style="background:linear-gradient(135deg,#22d3ee 0%,#0ea5e9 100%);color:#111827;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="rounded-circle bg-white bg-opacity-25 p-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                <i class="fas fa-video fa-xl"></i>
+              </div>
+              <span class="badge bg-white text-info fs-6 px-3 py-2">{{ stats.lessons }}</span>
+            </div>
+            <h6 class="card-title fw-semibold mb-1">Lessons</h6>
+            <p class="small mb-0 opacity-75">Video content</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <!-- Categories -->
-        <button
-          (click)="setActiveTab('categories')"
-          [class]="activeTab==='categories' 
-            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-violet-700 text-white shadow-md scale-105' 
-            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
-        >
-          <i class="fas fa-chalkboard"></i> Categories
+    <!-- Tabs -->
+    <div class="card border-0 shadow-sm mb-4 p-2">
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        <button (click)="activeTab='years'; resetPaging()" 
+                [class]="activeTab==='years' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
+                class="hover-lift">
+          <i class="fas fa-calendar-alt me-2"></i> Years
         </button>
-
-        <!-- Subject Names -->
-        <button
-          (click)="setActiveTab('subjectNames')"
-          [class]="activeTab==='subjectNames' 
-            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-md scale-105' 
-            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
-        >
-          <i class="fas fa-book"></i> Subject Names
+        <button (click)="activeTab='categories'; resetPaging()" 
+                [class]="activeTab==='categories' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
+                class="hover-lift">
+          <i class="fas fa-chalkboard me-2"></i> Categories
         </button>
-
-        <!-- Subjects -->
-        <button
-          (click)="setActiveTab('subjects')"
-          [class]="activeTab==='subjects' 
-            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md scale-105' 
-            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
-        >
-          <i class="fas fa-book-open"></i> Subjects
+        <button (click)="activeTab='subjectNames'; resetPaging()" 
+                [class]="activeTab==='subjectNames' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
+                class="hover-lift">
+          <i class="fas fa-book me-2"></i> Subject Names
         </button>
-
-        <!-- Terms -->
-        <button
-          (click)="setActiveTab('terms')"
-          [class]="activeTab==='terms' 
-            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md scale-105' 
-            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
-        >
-          <i class="fas fa-layer-group"></i> Terms
+        <button (click)="activeTab='subjects'; resetPaging()" 
+                [class]="activeTab==='subjects' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
+                class="hover-lift">
+          <i class="fas fa-book-open me-2"></i> Subjects
         </button>
-
-        <!-- Weeks -->
-        <button
-          (click)="setActiveTab('weeks')"
-          [class]="activeTab==='weeks' 
-            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-500 text-gray-900 shadow-md scale-105' 
-            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
-        >
-          <i class="fas fa-calendar-week"></i> Weeks
+        <button (click)="activeTab='terms'; resetPaging()" 
+                [class]="activeTab==='terms' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
+                class="hover-lift">
+          <i class="fas fa-layer-group me-2"></i> Terms
         </button>
-
-        <!-- Lessons -->
-        <button
-          (click)="setActiveTab('lessons')"
-          [class]="activeTab==='lessons' 
-            ? 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-400 to-teal-600 text-white shadow-md scale-105' 
-            : 'flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition'"
-        >
-          <i class="fas fa-video"></i> Lessons
+        <button (click)="activeTab='weeks'; resetPaging()" 
+                [class]="activeTab==='weeks' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
+                class="hover-lift">
+          <i class="fas fa-calendar-week me-2"></i> Weeks
+        </button>
+        <button (click)="activeTab='lessons'; resetPaging()" 
+                [class]="activeTab==='lessons' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
+                class="hover-lift">
+          <i class="fas fa-video me-2"></i> Lessons
         </button>
       </div>
+    </div>
 
-      <div class="tab-content">
+    <!-- Tab Content -->
+    <div class="tab-content">
 
-        <!-- Years Tab -->
-        <div class="tab-pane fade show active" *ngIf="activeTab==='years'">
-          <div class="row g-3 mb-4 align-items-end filters-container">
+      <!-- Years -->
+      @if (activeTab === 'years') {
+        <div class="tab-pane fade show active">
+          <div class="row g-3 mb-4 align-items-end">
             <div class="col-12 col-md-auto">
-              <button class="btn btn-gradient w-100" (click)="openAdd('year')">
-                <i class="fas fa-plus me-1"></i> Add Year
-              </button>
+              <button class="btn btn-primary w-100" (click)="openAdd('year')"><i class="fas fa-plus me-1"></i> Add Year</button>
             </div>
             <div class="col-12 col-md">
-              <input type="text" class="form-control" placeholder="Search years..." [(ngModel)]="searchTerm"
-                (input)="onFilterChange()" />
+              <input type="text" class="form-control" placeholder="Search years..." [(ngModel)]="searchTerm" (input)="onFilterChange()">
             </div>
           </div>
-          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+
+          <div class="card border-0 shadow-sm">
             <div class="table-responsive">
               <table class="table table-hover align-middle mb-0">
-                <thead class="bg-gray-50">
+                <thead class="bg-light">
                   <tr>
-                    <th>#</th>
-                    <th>Number</th>
-                    <th class="text-end">Actions</th>
+                    <th style="width:60px" class="text-center">#</th>
+                    <th>Year Number</th>
+                    <th>Subjects Count</th>
+                    <th class="text-end" style="width:200px">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let y of pagedYears; let i = index; trackBy: trackById">
-                    <td>{{ (yearPage - 1) * pageSize + i + 1 }}</td>
-                    <td class="fw-semibold">Year {{ y.yearNumber }}</td>
-                    <td class="text-end">
-                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('year', y)"><i
-                          class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('year', y)"><i
-                          class="fas fa-trash-alt"></i></button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="pagedYears.length === 0">
-                    <td colspan="3" class="text-center py-4 text-muted">No years found.</td>
-                  </tr>
+                  @for (year of pagedYears; track year.id; let i = $index) {
+                    <tr>
+                      <td class="text-center text-muted">{{ (yearPage - 1) * pageSize + i + 1 }}</td>
+                      <td class="fw-semibold">Year {{ year.yearNumber }}</td>
+                      <td><span class="badge bg-info">{{ countSubjectsByYear(year.id) }} subjects</span></td>
+                      <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-primary" (click)="openEdit('year', year)"><i class="fas fa-edit"></i></button>
+                          <button class="btn btn-outline-danger" (click)="confirmDelete('year', year)"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="4" class="text-center py-5 text-muted">No years found.</td></tr>
+                  }
                 </tbody>
               </table>
             </div>
-            <!-- Pagination -->
-            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
-              <div>Showing {{ yStart }}–{{ yEnd }} of {{ filteredYears.length }}</div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" (click)="goYearPage(yearPage-1)"
-                  [disabled]="yearPage===1">Previous</button>
-                <button class="btn btn-sm btn-outline-secondary" (click)="goYearPage(yearPage+1)"
-                  [disabled]="yearPage===yearTotalPages">Next</button>
+            @if (filteredYears.length > 0) {
+              <div class="card-footer bg-white border-top">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small">Showing</span>
+                    <span class="badge bg-primary">{{ yStart }}–{{ yEnd }}</span>
+                    <span class="text-muted small">of</span>
+                    <span class="badge bg-secondary">{{ filteredYears.length }}</span>
+                    <span class="text-muted small">entries</span>
+                  </div>
+                  <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                      <li class="page-item" [class.disabled]="yearPage === 1">
+                        <button class="page-link" (click)="goYearPage(1)" [disabled]="yearPage === 1">
+                          <i class="fas fa-angle-double-left"></i>
+                        </button>
+                      </li>
+                      <li class="page-item" [class.disabled]="yearPage === 1">
+                        <button class="page-link" (click)="goYearPage(yearPage - 1)" [disabled]="yearPage === 1">
+                          <i class="fas fa-chevron-left"></i>
+                        </button>
+                      </li>
+                      @for (p of [].constructor(yearTotalPages); track $index; let j = $index) {
+                        @if (j + 1 === 1 || j + 1 === yearTotalPages || (j + 1 >= yearPage - 1 && j + 1 <= yearPage + 1)) {
+                          <li class="page-item" [class.active]="yearPage === j + 1">
+                            <button class="page-link" (click)="goYearPage(j + 1)">{{ j + 1 }}</button>
+                          </li>
+                        } @else if (j + 1 === yearPage - 2 || j + 1 === yearPage + 2) {
+                          <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                          </li>
+                        }
+                      }
+                      <li class="page-item" [class.disabled]="yearPage === yearTotalPages">
+                        <button class="page-link" (click)="goYearPage(yearPage + 1)" [disabled]="yearPage === yearTotalPages">
+                          <i class="fas fa-chevron-right"></i>
+                        </button>
+                      </li>
+                      <li class="page-item" [class.disabled]="yearPage === yearTotalPages">
+                        <button class="page-link" (click)="goYearPage(yearTotalPages)" [disabled]="yearPage === yearTotalPages">
+                          <i class="fas fa-angle-double-right"></i>
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
               </div>
-            </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-center">
-              <small class="text-muted">Page {{ yearPage }} of {{ yearTotalPages }}</small>
-            </div>
+            }
           </div>
         </div>
+      }
 
-        <!-- Categories Tab -->
-        <div class="tab-pane fade show active" *ngIf="activeTab==='categories'">
-          <div class="row g-3 mb-4 align-items-end filters-container">
+      <!-- Categories -->
+      @if (activeTab === 'categories') {
+        <div class="tab-pane fade show active">
+          <div class="row g-3 mb-4 align-items-end">
             <div class="col-12 col-md-auto">
-              <button class="btn btn-gradient w-100" (click)="openAdd('category')">
-                <i class="fas fa-plus me-1"></i> Add Category
-              </button>
+              <button class="btn btn-primary w-100" (click)="openAdd('category')"><i class="fas fa-plus me-1"></i> Add Category</button>
             </div>
             <div class="col-12 col-md">
-              <input type="text" class="form-control" placeholder="Search categories..." [(ngModel)]="searchTerm"
-                (input)="onFilterChange()" />
+              <input type="text" class="form-control" placeholder="Search categories..." [(ngModel)]="searchTerm" (input)="onFilterChange()">
             </div>
           </div>
-          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+
+          <div class="card border-0 shadow-sm">
             <div class="table-responsive">
               <table class="table table-hover align-middle mb-0">
-                <thead class="bg-gray-50">
+                <thead class="bg-light">
                   <tr>
-                    <th>#</th>
+                    <th style="width:60px" class="text-center">#</th>
                     <th>Name</th>
                     <th>Description</th>
-                    <th>Subject Count</th>
-                    <th class="text-end">Actions</th>
+                    <th>Subject Names</th>
+                    <th class="text-end" style="width:220px">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let c of pagedCategories; let i = index; trackBy: trackById">
-                    <td>{{ (categoryPage - 1) * pageSize + i + 1 }}</td>
-                    <td class="fw-semibold">{{ c.name }}</td>
-                    <td>{{ c.description | slice:0:50 }}{{ c.description.length > 50 ? '...' : '' }}</td>
-                    <td>{{ getSubjectNameCountForCategory(c.id) }}</td>
-                    <td class="text-end">
-                      <button class="btn btn-sm btn-outline-primary me-1" (click)="openCategoryView(c)"><i
-                          class="fas fa-eye"></i></button>
-                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('category', c)"><i
-                          class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('category', c)"><i
-                          class="fas fa-trash-alt"></i></button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="pagedCategories.length === 0">
-                    <td colspan="5" class="text-center py-4 text-muted">No categories found.</td>
-                  </tr>
+                  @for (c of pagedCategories; track c.id; let i = $index) {
+                    <tr>
+                      <td class="text-center text-muted">{{ (categoryPage - 1) * pageSize + i + 1 }}</td>
+                      <td class="fw-semibold">{{ c.name }}</td>
+                      <td>{{ c.description }}</td>
+                      <td>{{ getSubjectNameCountForCategory(c.id) }}</td>
+                      <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-primary" (click)="openCategoryView(c)"><i class="fas fa-eye"></i></button>
+                          <button class="btn btn-outline-secondary" (click)="openEdit('category', c)"><i class="fas fa-edit"></i></button>
+                          <button class="btn btn-outline-danger" (click)="confirmDelete('category', c)"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="5" class="text-center py-5 text-muted">No categories found.</td></tr>
+                  }
                 </tbody>
               </table>
             </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
-              <div>Showing {{ cStart }}–{{ cEnd }} of {{ filteredCategories.length }}</div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" (click)="goCategoryPage(categoryPage-1)"
-                  [disabled]="categoryPage===1">Previous</button>
-                <button class="btn btn-sm btn-outline-secondary" (click)="goCategoryPage(categoryPage+1)"
-                  [disabled]="categoryPage===categoryTotalPages">Next</button>
+
+            <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Showing</span>
+                <span class="badge bg-primary">{{ cStart }}–{{ cEnd }}</span>
+                <span class="text-muted small">of</span>
+                <span class="badge bg-secondary">{{ filteredCategories.length }}</span>
               </div>
-            </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-center">
-              <small class="text-muted">Page {{ categoryPage }} of {{ categoryTotalPages }}</small>
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="categoryPage===1">
+                    <button class="page-link" (click)="goCategoryPage(1)" [disabled]="categoryPage===1">
+                      <i class="fas fa-angle-double-left"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="categoryPage===1">
+                    <button class="page-link" (click)="goCategoryPage(categoryPage-1)" [disabled]="categoryPage===1">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                  </li>
+                  @for (p of [].constructor(categoryTotalPages); track $index; let j = $index) {
+                    @if (j + 1 === 1 || j + 1 === categoryTotalPages || (j + 1 >= categoryPage - 1 && j + 1 <= categoryPage + 1)) {
+                      <li class="page-item" [class.active]="categoryPage === j + 1">
+                        <button class="page-link" (click)="goCategoryPage(j + 1)">{{ j + 1 }}</button>
+                      </li>
+                    } @else if (j + 1 === categoryPage - 2 || j + 1 === categoryPage + 2) {
+                      <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                    }
+                  }
+                  <li class="page-item" [class.disabled]="categoryPage===categoryTotalPages">
+                    <button class="page-link" (click)="goCategoryPage(categoryPage+1)" [disabled]="categoryPage===categoryTotalPages">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="categoryPage===categoryTotalPages">
+                    <button class="page-link" (click)="goCategoryPage(categoryTotalPages)" [disabled]="categoryPage===categoryTotalPages">
+                      <i class="fas fa-angle-double-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
+      }
 
-        <!-- Subject Names Tab -->
-        <div class="tab-pane fade show active" *ngIf="activeTab==='subjectNames'">
-          <div class="row g-3 mb-4 align-items-end filters-container">
+      <!-- Subject Names -->
+      @if (activeTab === 'subjectNames') {
+        <div class="tab-pane fade show active">
+          <div class="row g-3 mb-4 align-items-end">
             <div class="col-12 col-md-auto">
-              <button class="btn btn-gradient w-100" (click)="openAdd('subjectName')">
-                <i class="fas fa-plus me-1"></i> Add Subject Name
-              </button>
+              <button class="btn btn-primary w-100" (click)="openAdd('subjectName')"><i class="fas fa-plus me-1"></i> Add Subject Name</button>
             </div>
             <div class="col-12 col-md">
-              <input type="text" class="form-control" placeholder="Search subject names..." [(ngModel)]="searchTerm"
-                (input)="onFilterChange()" />
+              <input type="text" class="form-control" placeholder="Search subject names..." [(ngModel)]="searchTerm" (input)="onFilterChange()">
             </div>
             <div class="col-12 col-md-auto">
               <select class="form-select" [(ngModel)]="filters.categoryId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Categories</option>
-                <option *ngFor="let c of categories; trackBy: trackById" [ngValue]="c.id">{{ c.name }}</option>
+                @for (c of categories; track c.id) {
+                  <option [ngValue]="c.id">{{ c.name }}</option>
+                }
               </select>
             </div>
           </div>
-          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+
+          <div class="card border-0 shadow-sm">
             <div class="table-responsive">
               <table class="table table-hover align-middle mb-0">
-                <thead class="bg-gray-50">
+                <thead class="bg-light">
                   <tr>
-                    <th>#</th>
+                    <th style="width:60px" class="text-center">#</th>
                     <th>Name</th>
                     <th>Category</th>
-                    <th class="text-end">Actions</th>
+                    <th class="text-end" style="width:180px">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let sn of pagedSubjectNames; let i = index; trackBy: trackById">
-                    <td>{{ (subjectPage - 1) * pageSize + i + 1 }}</td>
-                    <td class="fw-semibold">{{ sn.name }}</td>
-                    <td>{{ nameCategory(sn.categoryId) }}</td>
-                    <td class="text-end">
-                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('subjectName', sn)"><i
-                          class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('subjectName', sn)"><i
-                          class="fas fa-trash-alt"></i></button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="pagedSubjectNames.length === 0">
-                    <td colspan="4" class="text-center py-4 text-muted">No subject names found.</td>
-                  </tr>
+                  @for (sn of pagedSubjectNames; track sn.id; let i = $index) {
+                    <tr>
+                      <td class="text-center text-muted">{{ (subjectPage - 1) * pageSize + i + 1 }}</td>
+                      <td class="fw-semibold">{{ sn.name }}</td>
+                      <td>{{ nameCategory(sn.categoryId) }}</td>
+                      <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-secondary" (click)="openEdit('subjectName', sn)"><i class="fas fa-edit"></i></button>
+                          <button class="btn btn-outline-danger" (click)="confirmDelete('subjectName', sn)"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="4" class="text-center py-5 text-muted">No subject names found.</td></tr>
+                  }
                 </tbody>
               </table>
             </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
-              <div>Showing {{ sStart }}–{{ sEnd }} of {{ filteredSubjectNames.length }}</div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage-1)"
-                  [disabled]="subjectPage===1">Previous</button>
-                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage+1)"
-                  [disabled]="subjectPage===subjectTotalPages">Next</button>
+
+            <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Showing</span>
+                <span class="badge bg-primary">{{ sStart }}–{{ sEnd }}</span>
+                <span class="text-muted small">of</span>
+                <span class="badge bg-secondary">{{ filteredSubjectNames.length }}</span>
               </div>
-            </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-center">
-              <small class="text-muted">Page {{ subjectPage }} of {{ subjectTotalPages }}</small>
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="subjectPage===1">
+                    <button class="page-link" (click)="goSubjectPage(1)" [disabled]="subjectPage===1">
+                      <i class="fas fa-angle-double-left"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="subjectPage===1">
+                    <button class="page-link" (click)="goSubjectPage(subjectPage-1)" [disabled]="subjectPage===1">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                  </li>
+                  @for (p of [].constructor(subjectTotalPages); track $index; let j = $index) {
+                    @if (j + 1 === 1 || j + 1 === subjectTotalPages || (j + 1 >= subjectPage - 1 && j + 1 <= subjectPage + 1)) {
+                      <li class="page-item" [class.active]="subjectPage === j + 1">
+                        <button class="page-link" (click)="goSubjectPage(j + 1)">{{ j + 1 }}</button>
+                      </li>
+                    } @else if (j + 1 === subjectPage - 2 || j + 1 === subjectPage + 2) {
+                      <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                    }
+                  }
+                  <li class="page-item" [class.disabled]="subjectPage===subjectTotalPages">
+                    <button class="page-link" (click)="goSubjectPage(subjectPage+1)" [disabled]="subjectPage===subjectTotalPages">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="subjectPage===subjectTotalPages">
+                    <button class="page-link" (click)="goSubjectPage(subjectTotalPages)" [disabled]="subjectPage===subjectTotalPages">
+                      <i class="fas fa-angle-double-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
+      }
 
-        <!-- Subjects Tab -->
-        <div class="tab-pane fade show active" *ngIf="activeTab==='subjects'">
-          <div class="row g-3 mb-4 align-items-end filters-container">
+      <!-- Subjects -->
+      @if (activeTab === 'subjects') {
+        <div class="tab-pane fade show active">
+          <div class="row g-3 mb-4 align-items-end">
             <div class="col-12 col-md-auto">
-              <button class="btn btn-gradient w-100" (click)="openAdd('subject')">
-                <i class="fas fa-plus me-1"></i> Add Subject
-              </button>
+              <button class="btn btn-primary w-100" (click)="openAdd('subject')"><i class="fas fa-plus me-1"></i> Add Subject</button>
             </div>
             <div class="col-12 col-md">
-              <input type="text" class="form-control" placeholder="Search subjects..." [(ngModel)]="searchTerm"
-                (input)="onFilterChange()" />
+              <input type="text" class="form-control" placeholder="Search subjects..." [(ngModel)]="searchTerm" (input)="onFilterChange()">
             </div>
             <div class="col-12 col-md-auto">
               <select class="form-select" [(ngModel)]="filters.yearId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Years</option>
-                <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.yearNumber }}</option>
+                @for (y of years; track y.id) {
+                  <option [ngValue]="y.id">Year {{ y.yearNumber }}</option>
+                }
               </select>
             </div>
             <div class="col-12 col-md-auto">
               <select class="form-select" [(ngModel)]="filters.categoryId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Categories</option>
-                <option *ngFor="let c of categories; trackBy: trackById" [ngValue]="c.id">{{ c.name }}</option>
+                @for (c of categories; track c.id) {
+                  <option [ngValue]="c.id">{{ c.name }}</option>
+                }
               </select>
             </div>
           </div>
-          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+
+          <div class="card border-0 shadow-sm">
             <div class="table-responsive">
               <table class="table table-hover align-middle mb-0">
-                <thead class="bg-gray-50">
+                <thead class="bg-light">
                   <tr>
-                    <th>#</th>
+                    <th style="width:60px" class="text-center">#</th>
                     <th>Name</th>
                     <th>Year</th>
                     <th>Category</th>
                     <th>Level</th>
                     <th>Teacher</th>
-                    <th>Price</th>
-                    <th class="text-end">Actions</th>
+                    <th>Start</th>
+                    <th class="text-end" style="width:200px">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let s of pagedSubjects; let i = index; trackBy: trackById">
-                    <td>{{ (subjectPage - 1) * pageSize + i + 1 }}</td>
-                    <td class="fw-semibold">{{ s.subjectName }}</td>
-                    <td>Year {{ numberYear(s.yearId) }}</td>
-                    <td>{{ s.categoryName }}</td>
-                    <td>{{ s.level }}</td>
-                    <td>{{ nameTeacher(s.teacherId) }}</td>
-                    <td>${{ s.price | number:'1.2-2' }}</td>
-                    <td class="text-end">
-                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('subject', s)"><i
-                          class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('subject', s)"><i
-                          class="fas fa-trash-alt"></i></button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="pagedSubjects.length === 0">
-                    <td colspan="8" class="text-center py-4 text-muted">No subjects found.</td>
-                  </tr>
+                  @for (s of pagedSubjects; track s.id; let i = $index) {
+                    <tr>
+                      <td class="text-center text-muted">{{ (subjectPage - 1) * pageSize + i + 1 }}</td>
+                      <td class="fw-semibold">{{ s.subjectName }}</td>
+                      <td>Year {{ numberYear(s.yearId) }}</td>
+                      <td>{{ s.categoryName }}</td>
+                      <td>{{ s.level }}</td>
+                      <td>{{ getTeacherNameById(s.teacherId || 0) }}</td>
+                      <td>{{ s.startDate | date }}</td>
+                      <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-secondary" (click)="openEdit('subject', s)"><i class="fas fa-edit"></i></button>
+                          <button class="btn btn-outline-danger" (click)="confirmDelete('subject', s)"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="8" class="text-center py-5 text-muted">No subjects found.</td></tr>
+                  }
                 </tbody>
               </table>
             </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
-              <div>Showing {{ sStart }}–{{ sEnd }} of {{ filteredSubjects.length }}</div>
+
+            <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center">
+              <div class="text-muted small">Showing {{ sStart }}–{{ sEnd }} of {{ filteredSubjects.length }}</div>
               <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage-1)"
-                  [disabled]="subjectPage===1">Previous</button>
-                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage+1)"
-                  [disabled]="subjectPage===subjectTotalPages">Next</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage-1)" [disabled]="subjectPage===1">Previous</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="goSubjectPage(subjectPage+1)" [disabled]="subjectPage===subjectTotalPages">Next</button>
               </div>
-            </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-center">
-              <small class="text-muted">Page {{ subjectPage }} of {{ subjectTotalPages }}</small>
             </div>
           </div>
         </div>
+      }
 
-        <!-- Terms Tab -->
-        <div class="tab-pane fade show active" *ngIf="activeTab==='terms'">
-          <div class="row g-3 mb-4 align-items-end filters-container">
+      <!-- Terms -->
+      @if (activeTab === 'terms') {
+        <div class="tab-pane fade show active">
+          <div class="row g-3 mb-4 align-items-end">
             <div class="col-12 col-md-auto">
-              <button class="btn btn-gradient w-100" (click)="openAdd('term')">
-                <i class="fas fa-plus me-1"></i> Add Term
-              </button>
+              <button class="btn btn-primary w-100" (click)="openAdd('term')"><i class="fas fa-plus me-1"></i> Add Term</button>
             </div>
             <div class="col-12 col-md">
-              <input type="text" class="form-control" placeholder="Search terms..." [(ngModel)]="searchTerm"
-                (input)="onFilterChange()" />
+              <input type="text" class="form-control" placeholder="Search terms..." [(ngModel)]="searchTerm" (input)="onFilterChange()">
             </div>
             <div class="col-12 col-md-auto">
               <select class="form-select" [(ngModel)]="filters.subjectId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Subjects</option>
-                <option *ngFor="let s of subjects; trackBy: trackById" [ngValue]="s.id">{{ s.subjectName }}</option>
+                @for (s of subjects; track s.id) {
+                  <option [ngValue]="s.id">{{ s.subjectName }}</option>
+                }
               </select>
             </div>
           </div>
-          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+
+          <div class="card border-0 shadow-sm">
             <div class="table-responsive">
               <table class="table table-hover align-middle mb-0">
-                <thead class="bg-gray-50">
+                <thead class="bg-light">
                   <tr>
-                    <th>#</th>
-                    <th>Number</th>
+                    <th style="width:60px" class="text-center">#</th>
+                    <th>Term</th>
                     <th>Subject</th>
                     <th>Start Date</th>
-                    <th class="text-end">Actions</th>
+                    <th class="text-end" style="width:180px">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let t of pagedTerms; let i = index; trackBy: trackById">
-                    <td>{{ (termPage - 1) * pageSize + i + 1 }}</td>
-                    <td class="fw-semibold">Term {{ t.termNumber }}</td>
-                    <td>{{ nameSubject(t.subjectId) }}</td>
-                    <td>{{ t.startDate | date }}</td>
-                    <td class="text-end">
-                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('term', t)"><i
-                          class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('term', t)"><i
-                          class="fas fa-trash-alt"></i></button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="pagedTerms.length === 0">
-                    <td colspan="5" class="text-center py-4 text-muted">No terms found.</td>
-                  </tr>
+                  @for (t of pagedTerms; track t.id; let i = $index) {
+                    <tr>
+                      <td class="text-center text-muted">{{ (termPage - 1) * pageSize + i + 1 }}</td>
+                      <td class="fw-semibold">Term {{ t.termNumber }}</td>
+                      <td>{{ nameSubject(t.subjectId) }}</td>
+                      <td>{{ t.startDate | date }}</td>
+                      <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-secondary" (click)="openEdit('term', t)"><i class="fas fa-edit"></i></button>
+                          <button class="btn btn-outline-danger" (click)="confirmDelete('term', t)"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="5" class="text-center py-5 text-muted">No terms found.</td></tr>
+                  }
                 </tbody>
               </table>
             </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
-              <div>Showing {{ tStart }}–{{ tEnd }} of {{ filteredTerms.length }}</div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" (click)="goTermPage(termPage-1)"
-                  [disabled]="termPage===1">Previous</button>
-                <button class="btn btn-sm btn-outline-secondary" (click)="goTermPage(termPage+1)"
-                  [disabled]="termPage===termTotalPages">Next</button>
+
+            <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Showing</span>
+                <span class="badge bg-primary">{{ tStart }}–{{ tEnd }}</span>
+                <span class="text-muted small">of</span>
+                <span class="badge bg-secondary">{{ filteredTerms.length }}</span>
               </div>
-            </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-center">
-              <small class="text-muted">Page {{ termPage }} of {{ termTotalPages }}</small>
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="termPage===1">
+                    <button class="page-link" (click)="goTermPage(1)" [disabled]="termPage===1">
+                      <i class="fas fa-angle-double-left"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="termPage===1">
+                    <button class="page-link" (click)="goTermPage(termPage-1)" [disabled]="termPage===1">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                  </li>
+                  @for (p of [].constructor(termTotalPages); track $index; let j = $index) {
+                    @if (j + 1 === 1 || j + 1 === termTotalPages || (j + 1 >= termPage - 1 && j + 1 <= termPage + 1)) {
+                      <li class="page-item" [class.active]="termPage === j + 1">
+                        <button class="page-link" (click)="goTermPage(j + 1)">{{ j + 1 }}</button>
+                      </li>
+                    } @else if (j + 1 === termPage - 2 || j + 1 === termPage + 2) {
+                      <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                    }
+                  }
+                  <li class="page-item" [class.disabled]="termPage===termTotalPages">
+                    <button class="page-link" (click)="goTermPage(termPage+1)" [disabled]="termPage===termTotalPages">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="termPage===termTotalPages">
+                    <button class="page-link" (click)="goTermPage(termTotalPages)" [disabled]="termPage===termTotalPages">
+                      <i class="fas fa-angle-double-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
+      }
 
-        <!-- Weeks Tab -->
-        <div class="tab-pane fade show active" *ngIf="activeTab==='weeks'">
-          <div class="row g-3 mb-4 align-items-end filters-container">
+      <!-- Weeks -->
+      @if (activeTab === 'weeks') {
+        <div class="tab-pane fade show active">
+          <div class="row g-3 mb-4 align-items-end">
             <div class="col-12 col-md-auto">
-              <button class="btn btn-gradient w-100" (click)="openAdd('week')">
-                <i class="fas fa-plus me-1"></i> Add Week
-              </button>
+              <button class="btn btn-primary w-100" (click)="openAdd('week')"><i class="fas fa-plus me-1"></i> Add Week</button>
             </div>
             <div class="col-12 col-md">
-              <input type="text" class="form-control" placeholder="Search weeks..." [(ngModel)]="searchTerm"
-                (input)="onFilterChange()" />
+              <input type="text" class="form-control" placeholder="Search weeks..." [(ngModel)]="searchTerm" (input)="onFilterChange()">
             </div>
             <div class="col-12 col-md-auto">
               <select class="form-select" [(ngModel)]="filters.termId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Terms</option>
-                <option *ngFor="let t of terms; trackBy: trackById" [ngValue]="t.id">Term {{ t.termNumber }} - {{ nameSubject(t.subjectId) }}</option>
+                @for (t of terms; track t.id) {
+                  <option [ngValue]="t.id">Term {{ t.termNumber }} - {{ nameSubject(t.subjectId) }}</option>
+                }
               </select>
             </div>
           </div>
-          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+
+          <div class="card border-0 shadow-sm">
             <div class="table-responsive">
               <table class="table table-hover align-middle mb-0">
-                <thead class="bg-gray-50">
+                <thead class="bg-light">
                   <tr>
-                    <th>#</th>
-                    <th>Number</th>
+                    <th style="width:60px" class="text-center">#</th>
+                    <th>Week</th>
                     <th>Term</th>
                     <th>Subject</th>
-                    <th class="text-end">Actions</th>
+                    <th class="text-end" style="width:180px">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let w of pagedWeeks; let i = index; trackBy: trackById">
-                    <td>{{ (weekPage - 1) * pageSize + i + 1 }}</td>
-                    <td class="fw-semibold">Week {{ w.weekNumber }}</td>
-                    <td>Term {{ numberTerm(w.termId) }}</td>
-                    <td>{{ nameSubject(getSubjectIdFromTermId(w.termId)) }}</td>
-                    <td class="text-end">
-                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('week', w)"><i
-                          class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('week', w)"><i
-                          class="fas fa-trash-alt"></i></button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="pagedWeeks.length === 0">
-                    <td colspan="5" class="text-center py-4 text-muted">No weeks found.</td>
-                  </tr>
+                  @for (w of pagedWeeks; track w.id; let i = $index) {
+                    <tr>
+                      <td class="text-center text-muted">{{ (weekPage - 1) * pageSize + i + 1 }}</td>
+                      <td class="fw-semibold">Week {{ w.weekNumber }}</td>
+                      <td>Term {{ numberTerm(w.termId) }}</td>
+                      <td>{{ nameSubject(getSubjectIdFromTermId(w.termId)) }}</td>
+                      <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-secondary" (click)="openEdit('week', w)"><i class="fas fa-edit"></i></button>
+                          <button class="btn btn-outline-danger" (click)="confirmDelete('week', w)"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="5" class="text-center py-5 text-muted">No weeks found.</td></tr>
+                  }
                 </tbody>
               </table>
             </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
-              <div>Showing {{ wStart }}–{{ wEnd }} of {{ filteredWeeks.length }}</div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" (click)="goWeekPage(weekPage-1)"
-                  [disabled]="weekPage===1">Previous</button>
-                <button class="btn btn-sm btn-outline-secondary" (click)="goWeekPage(weekPage+1)"
-                  [disabled]="weekPage===weekTotalPages">Next</button>
+
+            <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Showing</span>
+                <span class="badge bg-primary">{{ wStart }}–{{ wEnd }}</span>
+                <span class="text-muted small">of</span>
+                <span class="badge bg-secondary">{{ filteredWeeks.length }}</span>
               </div>
-            </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-center">
-              <small class="text-muted">Page {{ weekPage }} of {{ weekTotalPages }}</small>
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="weekPage===1">
+                    <button class="page-link" (click)="goWeekPage(1)" [disabled]="weekPage===1">
+                      <i class="fas fa-angle-double-left"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="weekPage===1">
+                    <button class="page-link" (click)="goWeekPage(weekPage-1)" [disabled]="weekPage===1">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                  </li>
+                  @for (p of [].constructor(weekTotalPages); track $index; let j = $index) {
+                    @if (j + 1 === 1 || j + 1 === weekTotalPages || (j + 1 >= weekPage - 1 && j + 1 <= weekPage + 1)) {
+                      <li class="page-item" [class.active]="weekPage === j + 1">
+                        <button class="page-link" (click)="goWeekPage(j + 1)">{{ j + 1 }}</button>
+                      </li>
+                    } @else if (j + 1 === weekPage - 2 || j + 1 === weekPage + 2) {
+                      <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                    }
+                  }
+                  <li class="page-item" [class.disabled]="weekPage===weekTotalPages">
+                    <button class="page-link" (click)="goWeekPage(weekPage+1)" [disabled]="weekPage===weekTotalPages">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="weekPage===weekTotalPages">
+                    <button class="page-link" (click)="goWeekPage(weekTotalPages)" [disabled]="weekPage===weekTotalPages">
+                      <i class="fas fa-angle-double-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
+      }
 
-        <!-- Lessons Tab -->
-        <div class="tab-pane fade show active" *ngIf="activeTab==='lessons'">
-          <div class="row g-3 mb-4 align-items-end filters-container">
+      <!-- Lessons -->
+      @if (activeTab === 'lessons') {
+        <div class="tab-pane fade show active">
+          <div class="row g-3 mb-4 align-items-end">
             <div class="col-12 col-md-auto">
-              <button class="btn btn-gradient w-100" (click)="openAdd('lesson')">
-                <i class="fas fa-plus me-1"></i> Add Lesson
-              </button>
+              <button class="btn btn-primary w-100" (click)="openAdd('lesson')"><i class="fas fa-plus me-1"></i> Add Lesson</button>
             </div>
             <div class="col-12 col-md">
-              <input type="text" class="form-control" placeholder="Search lessons..." [(ngModel)]="searchTerm"
-                (input)="onFilterChange()" />
+              <input type="text" class="form-control" placeholder="Search lessons..." [(ngModel)]="searchTerm" (input)="onFilterChange()">
             </div>
             <div class="col-12 col-md-auto">
               <select class="form-select" [(ngModel)]="filters.weekId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Weeks</option>
-                <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">Week {{ w.weekNumber }} (Term {{ numberTerm(w.termId) }})</option>
+                @for (w of weeks; track w.id) {
+                  <option [ngValue]="w.id">Week {{ w.weekNumber }} (Term {{ numberTerm(w.termId) }})</option>
+                }
               </select>
             </div>
             <div class="col-12 col-md-auto">
               <select class="form-select" [(ngModel)]="filters.subjectId" (change)="onFilterChange()">
                 <option [ngValue]="null">All Subjects</option>
-                <option *ngFor="let s of subjects; trackBy: trackById" [ngValue]="s.id">{{ s.subjectName }}</option>
+                @for (s of subjects; track s.id) {
+                  <option [ngValue]="s.id">{{ s.subjectName }}</option>
+                }
               </select>
             </div>
           </div>
-          <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+
+          <div class="card border-0 shadow-sm">
             <div class="table-responsive">
               <table class="table table-hover align-middle mb-0">
-                <thead class="bg-gray-50">
+                <thead class="bg-light">
                   <tr>
-                    <th>#</th>
+                    <th style="width:60px" class="text-center">#</th>
                     <th>Title</th>
                     <th>Week</th>
                     <th>Subject</th>
-                    <th class="text-end">Actions</th>
+                    <th class="text-end" style="width:260px">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let l of pagedLessons; let i = index; trackBy: trackById">
-                    <td>{{ (lessonPage - 1) * pageSize + i + 1 }}</td>
-                    <td class="fw-semibold">{{ l.title }}</td>
-                    <td>Week {{ numberWeek(l.weekId) }}</td>
-                    <td>{{ nameSubject(l.subjectId) }}</td>
-                    <td class="text-end">
-                      <button class="btn btn-sm btn-outline-primary me-1" (click)="openLessonPreview(l)"><i
-                          class="fas fa-eye"></i></button>
-                      <button class="btn btn-sm btn-outline-info me-1" (click)="manageResources(l)"><i
-                          class="fas fa-paperclip"></i></button>
-                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('lesson', l)"><i
-                          class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('lesson', l)"><i
-                          class="fas fa-trash-alt"></i></button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="pagedLessons.length === 0">
-                    <td colspan="5" class="text-center py-4 text-muted">No lessons found.</td>
-                  </tr>
+                  @for (l of pagedLessons; track l.id; let i = $index) {
+                    <tr>
+                      <td class="text-center text-muted">{{ (lessonPage - 1) * pageSize + i + 1 }}</td>
+                      <td class="fw-semibold">{{ l.title }}</td>
+                      <td>Week {{ numberWeek(l.weekId) }}</td>
+                      <td>{{ nameSubject(getSubjectIdFromWeekId(l.weekId)) }}</td>
+                      <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-primary" (click)="openLessonPreview(l)"><i class="fas fa-eye"></i></button>
+                          <button class="btn btn-outline-info" (click)="manageResources(l)"><i class="fas fa-paperclip"></i></button>
+                          <button class="btn btn-outline-secondary" (click)="openEdit('lesson', l)"><i class="fas fa-edit"></i></button>
+                          <button class="btn btn-outline-danger" (click)="confirmDelete('lesson', l)"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="5" class="text-center py-5 text-muted">No lessons found.</td></tr>
+                  }
                 </tbody>
               </table>
             </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-between align-items-center text-sm">
-              <div>Showing {{ lStart }}–{{ lEnd }} of {{ filteredLessons.length }}</div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" (click)="goLessonPage(lessonPage-1)"
-                  [disabled]="lessonPage===1">Previous</button>
-                <button class="btn btn-sm btn-outline-secondary" (click)="goLessonPage(lessonPage+1)"
-                  [disabled]="lessonPage===lessonTotalPages">Next</button>
+
+            <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Showing</span>
+                <span class="badge bg-primary">{{ lStart }}–{{ lEnd }}</span>
+                <span class="text-muted small">of</span>
+                <span class="badge bg-secondary">{{ filteredLessons.length }}</span>
               </div>
-            </div>
-            <div class="border-top px-4 py-3 d-flex justify-content-center">
-              <small class="text-muted">Page {{ lessonPage }} of {{ lessonTotalPages }}</small>
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="lessonPage===1">
+                    <button class="page-link" (click)="goLessonPage(1)" [disabled]="lessonPage===1">
+                      <i class="fas fa-angle-double-left"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="lessonPage===1">
+                    <button class="page-link" (click)="goLessonPage(lessonPage-1)" [disabled]="lessonPage===1">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                  </li>
+                  @for (p of [].constructor(lessonTotalPages); track $index; let j = $index) {
+                    @if (j + 1 === 1 || j + 1 === lessonTotalPages || (j + 1 >= lessonPage - 1 && j + 1 <= lessonPage + 1)) {
+                      <li class="page-item" [class.active]="lessonPage === j + 1">
+                        <button class="page-link" (click)="goLessonPage(j + 1)">{{ j + 1 }}</button>
+                      </li>
+                    } @else if (j + 1 === lessonPage - 2 || j + 1 === lessonPage + 2) {
+                      <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                      </li>
+                    }
+                  }
+                  <li class="page-item" [class.disabled]="lessonPage===lessonTotalPages">
+                    <button class="page-link" (click)="goLessonPage(lessonPage+1)" [disabled]="lessonPage===lessonTotalPages">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="lessonPage===lessonTotalPages">
+                    <button class="page-link" (click)="goLessonPage(lessonTotalPages)" [disabled]="lessonPage===lessonTotalPages">
+                      <i class="fas fa-angle-double-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
-
-      </div><!-- /tab-content -->
-
+      }
     </div>
-  </main>
+  </div>
+</main>
 
-  <!-- Dynamic Add/Edit Modal -->
-  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="isFormOpen">
+<!-- Add/Edit Modal -->
+@if (isFormOpen) {
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -845,271 +1800,395 @@
         </div>
         <div class="modal-body">
           <!-- Year -->
-          <ng-container *ngIf="entityType==='year'">
+          @if (entityType==='year') {
             <div class="row g-3">
-              <div class="col-md-12">
-                <label class="form-label">Year Number *</label>
-                <input type="number" class="form-control" 
+              <div class="col-12">
+                <label class="form-label fw-semibold">Year Number <span class="text-danger">*</span></label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('yearNumber')"
+                  [class.is-valid]="formTouched['yearNumber'] && !formErrors['yearNumber']"
                   [(ngModel)]="form.yearNumber" 
-                  placeholder="7, 8, 9..." 
+                  (blur)="markFieldTouched('yearNumber')"
+                  (ngModelChange)="validateField('yearNumber', $event)"
+                  placeholder="Enter year number (e.g., 7, 8, 9...)" 
                   min="1" 
                   max="12" 
                   required>
+                @if (hasFieldError('yearNumber')) {
+                  <div class="invalid-feedback">{{ getFieldError('yearNumber') }}</div>
+                }
+                <small class="text-muted">Enter a year number between 1 and 12</small>
               </div>
             </div>
-          </ng-container>
+          }
 
           <!-- Category -->
-          <ng-container *ngIf="entityType==='category'">
+          @if (entityType==='category') {
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Name *</label>
-                <input class="form-control" 
-                  [(ngModel)]="form.name" 
-                  placeholder="Mathematics / Science ..." 
+                <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+                <input 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('name')"
+                  [class.is-valid]="formTouched['name'] && !formErrors['name']"
+                  [(ngModel)]="form.name"
+                  (blur)="markFieldTouched('name')"
+                  (ngModelChange)="validateField('name', $event)"
+                  placeholder="Enter category name"
                   required>
+                @if (hasFieldError('name')) {
+                  <div class="invalid-feedback">{{ getFieldError('name') }}</div>
+                }
               </div>
               <div class="col-md-6">
-                <label class="form-label">Color Tag</label>
-                <select class="form-select" 
-                  [(ngModel)]="form.color">
-                  <option value="">Select Color</option>
+                <label class="form-label fw-semibold">Color</label>
+                <select class="form-select" [(ngModel)]="form.color">
+                  <option value="">None</option>
                   <option value="primary">Blue</option>
                   <option value="success">Green</option>
                   <option value="warning">Orange</option>
                   <option value="danger">Red</option>
                   <option value="info">Cyan</option>
-                  <option value="purple">Purple</option>
                 </select>
+                <small class="text-muted">Optional theme color</small>
               </div>
-              <div class="col-md-12">
-                <label class="form-label">Description *</label>
-                <textarea class="form-control" 
+              <div class="col-12">
+                <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+                <textarea 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('description')"
+                  [class.is-valid]="formTouched['description'] && !formErrors['description']"
                   rows="4" 
-                  [(ngModel)]="form.description" 
+                  [(ngModel)]="form.description"
+                  (blur)="markFieldTouched('description')"
+                  (ngModelChange)="validateField('description', $event)"
+                  placeholder="Enter category description"
                   required></textarea>
+                @if (hasFieldError('description')) {
+                  <div class="invalid-feedback">{{ getFieldError('description') }}</div>
+                }
               </div>
             </div>
-          </ng-container>
+          }
 
           <!-- Subject Name -->
-          <ng-container *ngIf="entityType==='subjectName'">
+          @if (entityType==='subjectName') {
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Name *</label>
-                <input class="form-control" 
-                  [(ngModel)]="form.name" 
-                  placeholder="Mathematics, Science, English..." 
+                <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+                <input 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('name')"
+                  [class.is-valid]="formTouched['name'] && !formErrors['name']"
+                  [(ngModel)]="form.name"
+                  (blur)="markFieldTouched('name')"
+                  (ngModelChange)="validateField('name', $event)"
+                  placeholder="Enter subject name"
                   required>
+                @if (hasFieldError('name')) {
+                  <div class="invalid-feedback">{{ getFieldError('name') }}</div>
+                }
               </div>
               <div class="col-md-6">
-                <label class="form-label">Category *</label>
-                <select class="form-select" 
-                  [(ngModel)]="form.categoryId" 
+                <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                <select 
+                  class="form-select" 
+                  [class.is-invalid]="hasFieldError('categoryId')"
+                  [class.is-valid]="formTouched['categoryId'] && !formErrors['categoryId']"
+                  [(ngModel)]="form.categoryId"
+                  (blur)="markFieldTouched('categoryId')"
+                  (ngModelChange)="validateField('categoryId', $event)"
                   required>
                   <option [ngValue]="null">Select Category</option>
-                  <option *ngFor="let c of categories; trackBy: trackById" [ngValue]="c.id">{{ c.name }}</option>
+                  @for (c of categories; track c.id) {
+                    <option [ngValue]="c.id">{{ c.name }}</option>
+                  }
                 </select>
+                @if (hasFieldError('categoryId')) {
+                  <div class="invalid-feedback">{{ getFieldError('categoryId') }}</div>
+                }
               </div>
             </div>
-          </ng-container>
+          }
 
           <!-- Subject -->
-          <ng-container *ngIf="entityType==='subject'">
+          @if (entityType==='subject') {
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Year *</label>
-                <select class="form-select" 
-                  [(ngModel)]="form.yearId" 
-                  required>
+                <label class="form-label fw-semibold">Year <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="form.yearId" required>
                   <option [ngValue]="null">Select Year</option>
-                  <option *ngFor="let y of years; trackBy: trackById" [ngValue]="y.id">Year {{ y.yearNumber }}</option>
+                  @for (y of years; track y.id) {
+                    <option [ngValue]="y.id">Year {{ y.yearNumber }}</option>
+                  }
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Subject Name *</label>
-                <select class="form-select" 
-                  [(ngModel)]="form.subjectNameId" 
-                  required>
+                <label class="form-label fw-semibold">Subject Name <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="form.subjectNameId" required>
                   <option [ngValue]="null">Select Subject Name</option>
-                  <option *ngFor="let sn of subjectNames; trackBy: trackById" [ngValue]="sn.id">{{ sn.name }}</option>
+                  @for (sn of subjectNames; track sn.id) {
+                    <option [ngValue]="sn.id">{{ sn.name }}</option>
+                  }
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Original Price ($) *</label>
-                <input type="number" class="form-control" 
-                  [(ngModel)]="form.originalPrice" 
+                <label class="form-label fw-semibold">Original Price ($) <span class="text-danger">*</span></label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('originalPrice')"
+                  [class.is-valid]="formTouched['originalPrice'] && !formErrors['originalPrice']"
+                  [(ngModel)]="form.originalPrice"
+                  (blur)="markFieldTouched('originalPrice')"
+                  (ngModelChange)="validateField('originalPrice', $event)"
                   min="0" 
                   step="0.01" 
+                  placeholder="0.00"
                   required>
+                @if (hasFieldError('originalPrice')) {
+                  <div class="invalid-feedback">{{ getFieldError('originalPrice') }}</div>
+                }
               </div>
               <div class="col-md-6">
-                <label class="form-label">Discount Percentage (%)</label>
-                <input type="number" class="form-control" 
-                  [(ngModel)]="form.discountPercentage" 
+                <label class="form-label fw-semibold">Discount (%)</label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('discountPercentage')"
+                  [class.is-valid]="formTouched['discountPercentage'] && !formErrors['discountPercentage']"
+                  [(ngModel)]="form.discountPercentage"
+                  (blur)="markFieldTouched('discountPercentage')"
+                  (ngModelChange)="validateField('discountPercentage', $event)"
                   min="0" 
-                  max="100">
+                  max="100"
+                  placeholder="0">
+                @if (hasFieldError('discountPercentage')) {
+                  <div class="invalid-feedback">{{ getFieldError('discountPercentage') }}</div>
+                }
+                <small class="text-muted">Value between 0-100</small>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Level *</label>
-                <select class="form-select" 
-                  [(ngModel)]="form.level" 
+                <label class="form-label fw-semibold">Level <span class="text-danger">*</span></label>
+                <select 
+                  class="form-select" 
+                  [class.is-invalid]="hasFieldError('level')"
+                  [class.is-valid]="formTouched['level'] && !formErrors['level']"
+                  [(ngModel)]="form.level"
+                  (blur)="markFieldTouched('level')"
+                  (ngModelChange)="validateField('level', $event)"
                   required>
                   <option value="">Select Level</option>
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate">Intermediate</option>
                   <option value="Advanced">Advanced</option>
                 </select>
+                @if (hasFieldError('level')) {
+                  <div class="invalid-feedback">{{ getFieldError('level') }}</div>
+                }
               </div>
               <div class="col-md-6">
-                <label class="form-label">Duration (hours) *</label>
-                <input type="number" class="form-control" 
-                  [(ngModel)]="form.duration" 
+                <label class="form-label fw-semibold">Duration (hours) <span class="text-danger">*</span></label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('duration')"
+                  [class.is-valid]="formTouched['duration'] && !formErrors['duration']"
+                  [(ngModel)]="form.duration"
+                  (blur)="markFieldTouched('duration')"
+                  (ngModelChange)="validateField('duration', $event)"
                   min="0" 
-                  step="0.5" 
+                  step="0.5"
+                  placeholder="10"
                   required>
+                @if (hasFieldError('duration')) {
+                  <div class="invalid-feedback">{{ getFieldError('duration') }}</div>
+                }
               </div>
               <div class="col-md-6">
-                <label class="form-label">Teacher *</label>
-                <select class="form-select" 
-                  [(ngModel)]="form.teacherId" 
-                  required>
+                <label class="form-label fw-semibold">Teacher <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="form.teacherId" required>
                   <option [ngValue]="null">Select Teacher</option>
-                  <option *ngFor="let t of teachers; trackBy: trackById" [ngValue]="t.id">    {{ t.userName }} {{ t.email ? '(' + t.email + ')' : '' }}</option>
+                  @for (t of teachers; track t.id) {
+                    <option [ngValue]="t.id">{{ t.userName }} {{ t.email ? '(' + t.email + ')' : '' }}</option>
+                  }
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Start Date *</label>
-                <input type="date" class="form-control" 
-                  [(ngModel)]="form.startDate" 
-                  required>
+                <label class="form-label fw-semibold">Start Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" [(ngModel)]="form.startDate" required>
               </div>
-              <div class="col-md-12">
-                <label class="form-label">Poster Image *</label>
-                <input type="file" class="form-control" 
-                  (change)="onFileChange($event, 'posterFile')"
-                  accept="image/*">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Poster Image <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" (change)="onFileChange($event, 'posterFile')" accept="image/*">
+                @if (getFileName('posterFile')) {
+                  <small class="text-success d-block mt-1">
+                    <i class="fas fa-check-circle me-1"></i>{{ getFileName('posterFile') }}
+                  </small>
+                }
+                @if (formMode === 'edit' && !getFileName('posterFile')) {
+                  <small class="text-muted d-block mt-1">Leave empty to keep existing poster</small>
+                }
               </div>
             </div>
-          </ng-container>
+          }
 
           <!-- Term -->
-          <ng-container *ngIf="entityType==='term'">
+          @if (entityType==='term') {
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Subject *</label>
-<select class="form-select" 
-        [(ngModel)]="form.subjectId" 
-        required>
-  <option [ngValue]="null">Select Subject</option>
-  <option *ngFor="let s of subjects; trackBy: trackById" [ngValue]="s.id">
-    {{ s.subjectName }} - Year {{ numberYear(s.yearId) }} ({{ s.level }})
-  </option>
-</select>
+                <label class="form-label fw-semibold">Subject <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="form.subjectId" required>
+                  <option [ngValue]="null">Select Subject</option>
+                  @for (s of subjects; track s.id) {
+                    <option [ngValue]="s.id">{{ getSubjectDisplayName(s) }}</option>
+                  }
+                </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Term Number *</label>
-                <input type="number" class="form-control" 
-                  [(ngModel)]="form.termNumber" 
+                <label class="form-label fw-semibold">Term Number <span class="text-danger">*</span></label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('termNumber')"
+                  [class.is-valid]="formTouched['termNumber'] && !formErrors['termNumber']"
+                  [(ngModel)]="form.termNumber"
+                  (blur)="markFieldTouched('termNumber')"
+                  (ngModelChange)="validateField('termNumber', $event)"
                   min="1" 
-                  max="4" 
-                  placeholder="1, 2, 3, 4" 
+                  max="4"
+                  placeholder="1-4"
                   required>
+                @if (hasFieldError('termNumber')) {
+                  <div class="invalid-feedback">{{ getFieldError('termNumber') }}</div>
+                }
+                <small class="text-muted">Typically 1-4</small>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">Start Date *</label>
-                <input type="date" class="form-control" 
-                  [(ngModel)]="form.startDate" 
-                  required>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Start Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" [(ngModel)]="form.startDate" required>
               </div>
             </div>
-          </ng-container>
+          }
 
           <!-- Week -->
-          <ng-container *ngIf="entityType==='week'">
+          @if (entityType==='week') {
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Term *</label>
-<select class="form-select" 
-        [(ngModel)]="form.termId" 
-        required>
-  <option [ngValue]="null">Select Term</option>
-  <option *ngFor="let t of terms; trackBy: trackById" [ngValue]="t.id">
-    {{ getTermDisplayName(t) }}
-  </option>
-</select>
+                <label class="form-label fw-semibold">Term <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="form.termId" required>
+                  <option [ngValue]="null">Select Term</option>
+                  @for (t of terms; track t.id) {
+                    <option [ngValue]="t.id">{{ getTermDisplayName(t) }}</option>
+                  }
+                </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Week Number *</label>
-                <input type="number" class="form-control" 
-                  [(ngModel)]="form.weekNumber" 
+                <label class="form-label fw-semibold">Week Number <span class="text-danger">*</span></label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('weekNumber')"
+                  [class.is-valid]="formTouched['weekNumber'] && !formErrors['weekNumber']"
+                  [(ngModel)]="form.weekNumber"
+                  (blur)="markFieldTouched('weekNumber')"
+                  (ngModelChange)="validateField('weekNumber', $event)"
                   min="1" 
-                  max="52" 
-                  placeholder="1, 2, 3..." 
+                  max="52"
+                  placeholder="1-52"
                   required>
+                @if (hasFieldError('weekNumber')) {
+                  <div class="invalid-feedback">{{ getFieldError('weekNumber') }}</div>
+                }
+                <small class="text-muted">Week number within the term</small>
               </div>
             </div>
-          </ng-container>
+          }
 
           <!-- Lesson -->
-          <ng-container *ngIf="entityType==='lesson'">
+          @if (entityType==='lesson') {
             <div class="row g-3">
-              <div class="col-md-12">
-                <label class="form-label">Title *</label>
-                <input class="form-control" 
-                  [(ngModel)]="form.title" 
-                  name="title" 
-                  placeholder="Fractions Basics" 
+              <div class="col-12">
+                <label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+                <input 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('title')"
+                  [class.is-valid]="formTouched['title'] && !formErrors['title']"
+                  [(ngModel)]="form.title"
+                  (blur)="markFieldTouched('title')"
+                  (ngModelChange)="validateField('title', $event)"
+                  placeholder="Enter lesson title"
                   required>
+                @if (hasFieldError('title')) {
+                  <div class="invalid-feedback">{{ getFieldError('title') }}</div>
+                }
               </div>
-              <div class="col-md-12">
-                <label class="form-label">Description *</label>
-                <textarea class="form-control" 
+              <div class="col-12">
+                <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+                <textarea 
+                  class="form-control" 
+                  [class.is-invalid]="hasFieldError('description')"
+                  [class.is-valid]="formTouched['description'] && !formErrors['description']"
                   rows="4" 
-                  [(ngModel)]="form.description" 
-                  name="description" 
+                  [(ngModel)]="form.description"
+                  (blur)="markFieldTouched('description')"
+                  (ngModelChange)="validateField('description', $event)"
+                  placeholder="Enter lesson description"
                   required></textarea>
+                @if (hasFieldError('description')) {
+                  <div class="invalid-feedback">{{ getFieldError('description') }}</div>
+                }
               </div>
-              <div class="col-md-12">
-                <label class="form-label">Week *</label>
-<select class="form-select" 
-        [(ngModel)]="form.weekId" 
-        name="weekId" 
-        required>
-  <option [ngValue]="null">Select Week</option>
-  <option *ngFor="let w of weeks; trackBy: trackById" [ngValue]="w.id">
-    {{ getWeekDisplayName(w) }}
-  </option>
-</select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Poster Image *</label>
-                <input type="file" class="form-control" 
-                  (change)="onFileChange($event, 'posterFile')"
-                  accept="image/*">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Week <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="form.weekId" required>
+                  <option [ngValue]="null">Select Week</option>
+                  @for (w of weeks; track w.id) {
+                    <option [ngValue]="w.id">{{ getWeekDisplayName(w) }}</option>
+                  }
+                </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label">Video File *</label>
-                <input type="file" class="form-control" 
-                  (change)="onFileChange($event, 'videoFile')"
-                  accept="video/*">
+                <label class="form-label fw-semibold">Poster Image <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" (change)="onFileChange($event, 'posterFile')" accept="image/*">
+                @if (getFileName('posterFile')) {
+                  <small class="text-success d-block mt-1">
+                    <i class="fas fa-check-circle me-1"></i>{{ getFileName('posterFile') }}
+                  </small>
+                }
+                @if (formMode === 'edit' && !getFileName('posterFile')) {
+                  <small class="text-muted d-block mt-1">Leave empty to keep existing poster</small>
+                }
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Video File <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" (change)="onFileChange($event, 'videoFile')" accept="video/*">
+                @if (getFileName('videoFile')) {
+                  <small class="text-success d-block mt-1">
+                    <i class="fas fa-check-circle me-1"></i>{{ getFileName('videoFile') }}
+                  </small>
+                }
+                @if (formMode === 'edit' && !getFileName('videoFile')) {
+                  <small class="text-muted d-block mt-1">Leave empty to keep existing video</small>
+                }
               </div>
             </div>
-          </ng-container>
+          }
         </div>
-
         <div class="modal-footer">
           <button class="btn btn-light" (click)="closeForm()">Cancel</button>
-          <button class="btn btn-primary" (click)="submitForm()">
-            <i class="fas fa-save me-1"></i> {{ formMode === 'add' ? 'Add' : 'Update' }} {{ entityTitle }}
-          </button>
+          <button class="btn btn-primary" (click)="submitForm()"><i class="fas fa-save me-1"></i> {{ formMode==='add' ? 'Add' : 'Update' }} {{ entityTitle }}</button>
         </div>
       </div>
     </div>
   </div>
+}
 
-  <!-- Resource Management Modal -->
-  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="resourceModalOpen">
+<!-- Resources Modal -->
+@if (resourceModalOpen) {
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -1119,31 +2198,24 @@
         <div class="modal-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h6 class="mb-0">Resources ({{ lessonResources.length }})</h6>
-            <button class="btn btn-sm btn-primary" (click)="openAddResource()">
-              <i class="fas fa-plus me-1"></i> Add Resource
-            </button>
+            <button class="btn btn-sm btn-primary" (click)="openAddResource()"><i class="fas fa-plus me-1"></i> Add Resource</button>
           </div>
-          
-          <div *ngIf="lessonResources.length === 0" class="text-center py-4 text-muted">
-            No resources added yet.
-          </div>
-          
-          <div *ngFor="let resource of lessonResources" class="resource-item">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <h6 class="mb-1">{{ resource.title }}</h6>
-                <p class="mb-1 text-muted small">{{ resource.fileUrl }}</p>
-                <!-- <div class="d-flex gap-2">
-                  <span class="badge badge-light">{{ resource.type || 'Resource' }}</span>
-                </div> -->
+
+          @if (lessonResources.length === 0) {
+            <div class="text-center py-4 text-muted">No resources added yet.</div>
+          } @else {
+            @for (r of lessonResources; track r.id) {
+              <div class="d-flex justify-content-between align-items-start border-bottom py-2">
+                <div>
+                  <div class="fw-semibold">{{ r.title }}</div>
+                  <div class="small text-muted">{{ r.fileUrl }}</div>
+                </div>
+                <div class="d-flex gap-1">
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteResource(r)"><i class="fas fa-trash-alt"></i></button>
+                </div>
               </div>
-              <div class="d-flex gap-1">
-                <button class="btn btn-sm btn-outline-danger" (click)="deleteResource(resource)">
-                  <i class="fas fa-trash-alt"></i>
-                </button>
-              </div>
-            </div>
-          </div>
+            }
+          }
         </div>
         <div class="modal-footer">
           <button class="btn btn-light" (click)="closeResourceModal()">Close</button>
@@ -1151,9 +2223,11 @@
       </div>
     </div>
   </div>
+}
 
-  <!-- Add/Edit Resource Modal -->
-  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="resourceFormOpen">
+<!-- Add/Edit Resource -->
+@if (resourceFormOpen) {
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -1162,11 +2236,11 @@
         </div>
         <div class="modal-body">
           <div class="row g-3">
-            <div class="col-md-12">
+            <div class="col-12">
               <label class="form-label">Title *</label>
-              <input type="text" class="form-control" [(ngModel)]="resourceForm.title" required>
+              <input class="form-control" [(ngModel)]="resourceForm.title" required>
             </div>
-            <div class="col-md-12">
+            <div class="col-12">
               <label class="form-label">File *</label>
               <input type="file" class="form-control" (change)="onResourceFileChange($event)" required>
             </div>
@@ -1174,16 +2248,16 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-light" (click)="closeResourceForm()">Cancel</button>
-          <button class="btn btn-primary" (click)="saveResource()">
-            <i class="fas fa-save me-1"></i> Save Resource
-          </button>
+          <button class="btn btn-primary" (click)="saveResource()"><i class="fas fa-save me-1"></i> Save</button>
         </div>
       </div>
     </div>
   </div>
+}
 
-  <!-- Preview Modal -->
-  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)" *ngIf="previewOpen">
+<!-- Preview Modal -->
+@if (previewOpen) {
+  <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,.5)">
     <div class="modal-dialog modal-xl modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -1191,40 +2265,28 @@
           <button type="button" class="btn-close" (click)="closePreview()"></button>
         </div>
         <div class="modal-body">
-          <!-- Lesson -->
-          <div *ngIf="preview.type==='lesson'">
-            <div class="ratio ratio-16x9 mb-3" *ngIf="preview.videoUrl">
-              <iframe [src]="preview.safeVideoUrl" allowfullscreen></iframe>
-            </div>
+          @if (preview.type==='lesson') {
+            @if (preview.safeVideoUrl) {
+              <div class="ratio ratio-16x9 mb-3">
+                <iframe [src]="preview.safeVideoUrl" allowfullscreen></iframe>
+              </div>
+            }
             <h6>Description</h6>
             <p class="text-muted">{{ preview.description }}</p>
             <div class="row">
-              <div class="col-md-6">
-                <div class="small text-secondary">Week: {{ numberWeek(preview.weekId) }}</div>
-              </div>
-              <div class="col-md-6">
-                <div class="small text-secondary">Subject: {{ nameSubject(preview.subjectId) }}</div>
-              </div>
+              <div class="col-md-6 small text-secondary">Week: {{ numberWeek(preview.weekId) }}</div>
+              <div class="col-md-6 small text-secondary">Subject: {{ nameSubject(getSubjectIdFromWeekId(preview.weekId)) }}</div>
             </div>
-          </div>
+          }
 
-          <!-- Category -->
-          <div *ngIf="preview.type==='category'">
+          @if (preview.type==='category') {
             <div class="d-flex align-items-center mb-3">
-              <span class="badge me-2" [ngClass]="{
-                'bg-primary': preview.color === 'primary',
-                'bg-success': preview.color === 'success',
-                'bg-warning': preview.color === 'warning',
-                'bg-danger': preview.color === 'danger',
-                'bg-info': preview.color === 'info',
-                'bg-purple': preview.color === 'purple',
-                'bg-secondary': !preview.color
-              }">{{ preview.name }}</span>
+              <span class="badge bg-secondary me-2">{{ preview.name }}</span>
               <span class="text-muted">{{ getSubjectNameCountForCategory(preview.id) }} subject names</span>
             </div>
             <h6>Description</h6>
             <p class="text-muted">{{ preview.description }}</p>
-          </div>
+          }
         </div>
         <div class="modal-footer">
           <button class="btn btn-light" (click)="closePreview()">Close</button>
@@ -1232,7 +2294,7 @@
       </div>
     </div>
   </div>
-
+}
   <!-- Bootstrap JS Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

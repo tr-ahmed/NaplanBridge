@@ -12,32 +12,16 @@
 }
 
 /* General Styles */
-    body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-        }
-        
-        /* Sidebar Styles */
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background: linear-gradient(135deg, #143e7a 0%, #2563eb 100%);
-            color: white;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1100;
-            transition: margin-left 0.3s;
-            margin-left: 0;
-        }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Sidebar Styles - Overridden by inline styles in HTML */
+/* Sidebar is controlled by HTML inline styles and component logic */
 
 .bg-gray-50 {
   background-color: #f9fafb;
-}
-
-
-.sidebar.collapsed {
-  transform: translateX(-100%);
 }
 
 .sidebar-logo {
@@ -65,16 +49,10 @@
 }
 
 /* Main Content */
-        /* Main Content */
-        .main-content {
-            margin-left: 250px;
-            transition: all 0.3s;
-            min-height: 100vh;
-        }
-        
-        .main-content.expanded {
-            margin-left: 0;
-        }
+.main-content {
+  transition: all 0.3s;
+  min-height: 100vh;
+}
 
 /* Card Styles */
 .card {
@@ -250,47 +228,7 @@
   background-color: #f8f9fa;
 }
 
-/* Sidebar Toggle Button */
-.sidebar-toggle {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  z-index: 1200;
-  background-color: var(--primary-color, #031225);
-  border: none;
-  color: white;
-  padding: 10px;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(3,18,37,0.08);
-  transition: background 0.2s;
-}
-
-.sidebar-toggle:hover {
-  background-color: var(--secondary-color, #f97316);
-}
-
-@media (max-width: 768px) {
-  .sidebar-toggle {
-    right: 10px;
-    top: 10px;
-    padding: 8px;
-  }
-}
-
-/* Responsive Adjustments */
-@media (max-width: 992px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
-  .sidebar:not(.collapsed) {
-    transform: translateX(0);
-  }
-  .main-content,
-  .main-content.expanded {
-    margin-left: 0 !important;
-  }
-}
-
+/* Responsive Adjustments - Remove old sidebar toggle styles */
 @media (max-width: 768px) {
   .stats-card {
     margin-bottom: 1rem;
@@ -383,21 +321,11 @@
         
         /* Mobile Styles */
         @media (max-width: 768px) {
-/* Responsive for mobile */
-@media (max-width: 768px) {
-  .sidebar {
-    margin-left: -250px;
-  }
-  .sidebar.collapsed {
-    margin-left: -250px !important;
-  }
-  .sidebar:not(.collapsed) {
-    margin-left: 0 !important;
-  }
-  .main-content {
-    margin-left: 0;
-  }
-}
+            /* Sidebar is controlled by HTML inline styles */
+            
+            .main-content {
+                margin-left: 0 !important;
+            }
             .stat-card {
                 margin-bottom: 15px;
             }

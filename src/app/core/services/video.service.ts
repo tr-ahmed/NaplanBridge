@@ -42,20 +42,101 @@ export class VideoService {
   // ============================================
 
   /**
-   * Initialize video player with Bunny.net HLS support
+   * Initialize video player with multi-provider support
+   * Supports: Mux (recommended), BunnyStream, BunnyStorage, Cloudinary
    */
   initializePlayer(config: VideoPlayerConfig, videoElement: HTMLVideoElement, lessonId?: number): void {
     this.videoElement = videoElement;
     this.currentLessonId = lessonId;
     this.destroyPlayer(); // Clean up existing player
 
-    if (config.provider === 'BunnyStream') {
+    if (config.provider === 'Mux') {
+      this.initializeMuxPlayer(config);
+    } else if (config.provider === 'BunnyStream') {
       this.initializeBunnyStreamPlayer(config);
     } else {
       this.initializeStandardPlayer(config);
     }
 
     this.setupEventListeners();
+  }
+
+  /**
+   * Initialize Mux player (Recommended)
+   * Uses Mux Player Web Component for best performance and features
+   */
+  private initializeMuxPlayer(config: VideoPlayerConfig): void {
+    if (!this.videoElement || !config.muxPlaybackId) {
+      console.error('Mux playback ID is required for Mux provider');
+      return;
+    }
+
+    // Replace video element with mux-player component
+    const container = this.videoElement.parentElement;
+    if (!container) return;
+
+    // Create mux-player element
+    const muxPlayer = document.createElement('mux-player');
+    muxPlayer.setAttribute('playback-id', config.muxPlaybackId);
+    muxPlayer.setAttribute('accent-color', '#FF0000');
+    muxPlayer.setAttribute('thumbnail-time', '0');
+
+    if (config.metadataVideoTitle) {
+      muxPlayer.setAttribute('metadata-video-title', config.metadataVideoTitle);
+    }
+
+    if (config.metadataViewerUserId) {
+      muxPlayer.setAttribute('metadata-viewer-user-id', config.metadataViewerUserId);
+    }
+
+    if (config.autoplay) {
+      muxPlayer.setAttribute('autoplay', 'true');
+    }
+
+    if (config.muted) {
+      muxPlayer.setAttribute('muted', 'true');
+    }
+
+    if (config.startTime && config.startTime > 0) {
+      muxPlayer.setAttribute('start-time', config.startTime.toString());
+    }
+
+    // Replace video element with mux-player
+    container.replaceChild(muxPlayer, this.videoElement);
+    this.videoElement = muxPlayer as any;
+
+    // Note: Mux Player has built-in event handling
+    // For progress tracking, we can listen to its events
+    this.setupMuxEventListeners(muxPlayer);
+  }
+
+  /**
+   * Setup Mux player event listeners
+   */
+  private setupMuxEventListeners(muxPlayer: HTMLElement): void {
+    muxPlayer.addEventListener('play', () => {
+      this.videoPlaying$.next();
+    });
+
+    muxPlayer.addEventListener('pause', () => {
+      this.videoPaused$.next();
+    });
+
+    muxPlayer.addEventListener('ended', () => {
+      this.videoEnded$.next();
+    });
+
+    muxPlayer.addEventListener('timeupdate', () => {
+      const currentTime = (muxPlayer as any).currentTime || 0;
+      const duration = (muxPlayer as any).duration || 0;
+
+      this.videoProgress$.next({ currentTime, duration });
+
+      // Auto-save progress every 10 seconds
+      if (this.currentLessonId && currentTime % 10 < 1) {
+        this.saveProgress();
+      }
+    });
   }
 
   /**

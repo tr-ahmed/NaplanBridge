@@ -76,6 +76,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/subscription-checkout/subscription-checkout.component').then(m => m.SubscriptionCheckoutComponent),
     canActivate: [authGuard]
   },
+  {
+    path: 'checkout',
+    loadComponent: () => import('./features/checkout/checkout.component').then(m => m.CheckoutComponent),
+    canActivate: [authGuard]
+  },
 
   // Parent Dashboard
   {
@@ -99,12 +104,12 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
   },
 
-  // Student Dashboard and Routes (commented out until student routes are created)
-  // {
-  //   path: 'student',
-  //   loadChildren: () => import('./student/student.routes').then(m => m.STUDENT_ROUTES),
-  //   canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
-  // },
+  // Student Dashboard
+  {
+    path: 'student/dashboard',
+    loadComponent: () => import('./features/student-dashboard/student-dashboard.component').then(m => m.StudentDashboardComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
 
   // Admin Content Management
   {
@@ -131,14 +136,83 @@ export const routes: Routes = [
   // Teacher Dashboard
   {
     path: 'teacher/dashboard',
-    loadComponent: () => import('./teacher/dashboard/dashboard.component').then(m => m.ContentManagementComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')]
-          ,  data: { hideHeader: true, hideFooter: true }
-
+    loadComponent: () => import('./features/teacher-dashboard/teacher-dashboard.component').then(m => m.TeacherDashboardComponent),
+    canActivate: [authGuard]
   },
+
+  // Teacher Management Routes (Placeholder - To be implemented)
+  {
+    path: 'teacher/grade/:studentExamId',
+    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
+    pathMatch: 'full'
+  },
+  {
+    path: 'teacher/exams',
+    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
+    pathMatch: 'full'
+  },
+  {
+    path: 'teacher/class/:classId',
+    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
+    pathMatch: 'full'
+  },
+  {
+    path: 'teacher/exam/create',
+    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
+    pathMatch: 'full'
+  },
+  {
+    path: 'teacher/students',
+    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
+    pathMatch: 'full'
+  },
+
 { path: 'user/:id', component: UserProfileComponent },
 
   { path: 'user/edit/:id', component: UserEditComponent },
+
+  // Payment Routes
+  {
+    path: 'payment/success',
+    loadComponent: () => import('./features/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent)
+  },
+  {
+    path: 'payment/cancel',
+    loadComponent: () => import('./features/payment-cancel/payment-cancel.component').then(m => m.PaymentCancelComponent)
+  },
+
+  // Private Sessions (Booking) Routes
+  {
+    path: 'sessions/browse',
+    loadComponent: () => import('./features/sessions/browse-teachers/browse-teachers.component').then(m => m.BrowseTeachersComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+  },
+  {
+    path: 'sessions/book/:teacherId',
+    loadComponent: () => import('./features/sessions/book-session/book-session.component').then(m => m.BookSessionComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+  },
+  {
+    path: 'sessions/my-bookings',
+    loadComponent: () => import('./features/sessions/my-bookings/my-bookings.component').then(m => m.MyBookingsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+  },
+  {
+    path: 'sessions/availability',
+    loadComponent: () => import('./features/sessions/teacher-availability/teacher-availability.component').then(m => m.TeacherAvailabilityComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')]
+  },
+  {
+    path: 'sessions/teacher',
+    loadComponent: () => import('./features/sessions/teacher-sessions/teacher-sessions.component').then(m => m.TeacherSessionsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')]
+  },
+  {
+    path: 'sessions/student',
+    loadComponent: () => import('./features/sessions/student-sessions/student-sessions.component').then(m => m.StudentSessionsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
+
   // Fallback route
   { path: '**', redirectTo: '' }
 ];

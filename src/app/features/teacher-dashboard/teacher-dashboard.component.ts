@@ -10,6 +10,7 @@ import { AuthService } from '../../auth/auth.service';
 import { ExamService } from '../../core/services/exam.service';
 import { SubjectService } from '../../core/services/subject.service';
 import { ToastService } from '../../core/services/toast.service';
+import { DashboardService, TeacherDashboardData } from '../../core/services/dashboard.service';
 
 interface TeacherStats {
   totalStudents: number;
@@ -52,7 +53,7 @@ interface RecentActivity {
 @Component({
   selector: 'app-teacher-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './teacher-dashboard.component.html',
   styleUrl: './teacher-dashboard.component.scss'
 })
@@ -63,6 +64,7 @@ export class TeacherDashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  private dashboardService = inject(DashboardService);
 
   // State
   loading = signal<boolean>(true);
@@ -90,11 +92,12 @@ export class TeacherDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
-    if (currentUser && currentUser.role === 'Teacher') {
-      this.teacherId = currentUser.id;
+    if (currentUser && Array.isArray(currentUser.role) && currentUser.role.includes('Teacher')) {
+      this.teacherId = parseInt(currentUser.id);
       this.loadDashboardData();
     } else {
-      this.router.navigate(['/login']);
+      console.warn('⚠️ Not authorized to access Teacher Dashboard');
+      this.router.navigate(['/']);
     }
   }
 
@@ -123,200 +126,216 @@ export class TeacherDashboardComponent implements OnInit {
   }
 
   /**
-   * Load teacher statistics
+   * Load teacher statistics from API
    */
   private loadTeacherStats(): Promise<void> {
-    return new Promise((resolve) => {
-      // Mock data for now
-      this.stats.set({
-        totalStudents: 125,
-        activeClasses: 8,
-        pendingGrading: 12,
-        upcomingExams: 5,
-        completedExams: 34,
-        averageClassScore: 78
+    return new Promise((resolve, reject) => {
+      this.dashboardService.getTeacherDashboard().subscribe({
+        next: (response) => {
+          if (response) {
+            // Map the new API response to our stats
+            this.stats.set({
+              totalStudents: response.studentProgress?.totalStudents || 0,
+              activeClasses: response.teacherInfo?.subjects?.length || 0,
+              pendingGrading: response.pendingQuestions?.unansweredCount || 0,
+              upcomingExams: response.upcomingSessions?.length || 0,
+              completedExams: response.sessionStats?.totalCompleted || 0,
+              averageClassScore: response.studentProgress?.averageProgress || 0
+            });
+
+            // Store the raw data for other uses
+            if (response.upcomingSessions) {
+              this.upcomingExams.set(response.upcomingSessions.map((session: any) => ({
+                id: session.id,
+                title: `Session with ${session.studentName}`,
+                className: session.subjectName || 'Private Session',
+                date: new Date(session.scheduledDateTime),
+                duration: session.duration || 60,
+                totalMarks: 0
+              })));
+            }
+          }
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error loading teacher stats:', error);
+          // Use empty data as fallback
+          this.stats.set({
+            totalStudents: 0,
+            activeClasses: 0,
+            pendingGrading: 0,
+            upcomingExams: 0,
+            completedExams: 0,
+            averageClassScore: 0
+          });
+          resolve(); // Don't reject to allow other data to load
+        }
       });
-      resolve();
     });
   }
 
   /**
-   * Load teacher's classes
+   * Load teacher's classes (subjects)
    */
   private loadClasses(): Promise<void> {
     return new Promise((resolve) => {
-      // Mock data for now
-      this.classes.set([
-        {
-          id: 1,
-          name: 'Math Year 7 - Class A',
-          subjectName: 'Mathematics',
-          studentCount: 25,
-          averageScore: 82,
-          nextExam: {
-            title: 'Week 3 Quiz',
-            date: new Date('2025-10-30')
+      // Get teacher's subjects from the teachings endpoint
+      this.subjectService.getSubjects().subscribe({
+        next: (response) => {
+          if (response && response.items) {
+            // Map subjects to class overview format
+            this.classes.set(response.items.slice(0, 5).map((subject: any) => ({
+              id: subject.id,
+              name: subject.name,
+              subjectName: subject.subjectName?.name || 'N/A',
+              studentCount: subject.enrollmentCount || 0,
+              averageScore: 0, // Will need specific endpoint for this
+              nextExam: undefined
+            })));
           }
+          resolve();
         },
-        {
-          id: 2,
-          name: 'Science Year 8 - Class B',
-          subjectName: 'Science',
-          studentCount: 22,
-          averageScore: 75,
-          nextExam: {
-            title: 'Monthly Test',
-            date: new Date('2025-11-05')
-          }
-        },
-        {
-          id: 3,
-          name: 'English Year 9',
-          subjectName: 'English',
-          studentCount: 28,
-          averageScore: 79
+        error: (error) => {
+          console.error('Error loading classes:', error);
+          this.classes.set([]);
+          resolve();
         }
-      ]);
-      resolve();
+      });
     });
   }
 
   /**
-   * Load pending grading tasks
+   * Load pending grading tasks (pending questions)
    */
   private loadPendingGrading(): Promise<void> {
     return new Promise((resolve) => {
-      // Mock data for now
-      this.pendingGrading.set([
-        {
-          studentExamId: 101,
-          studentName: 'Ahmed Hassan',
-          examTitle: 'Math Week 2 - Essay Questions',
-          submittedAt: new Date('2025-10-23T14:30:00'),
-          totalQuestions: 10,
-          autoGradedScore: 65
+      this.dashboardService.getTeacherDashboard().subscribe({
+        next: (response) => {
+          if (response && response.pendingQuestions?.recentQuestions) {
+            // Map pending questions to pending grading format
+            this.pendingGrading.set(response.pendingQuestions.recentQuestions.map((q: any) => ({
+              studentExamId: q.id || 0,
+              studentName: q.studentName || 'Unknown Student',
+              examTitle: q.lessonName || 'Question',
+              submittedAt: new Date(q.askedAt || Date.now()),
+              totalQuestions: 1,
+              autoGradedScore: 0
+            })));
+          }
+          resolve();
         },
-        {
-          studentExamId: 102,
-          studentName: 'Sara Mohamed',
-          examTitle: 'Science Lab Report',
-          submittedAt: new Date('2025-10-23T16:15:00'),
-          totalQuestions: 5,
-          autoGradedScore: 0
-        },
-        {
-          studentExamId: 103,
-          studentName: 'Omar Ali',
-          examTitle: 'Math Week 2 - Essay Questions',
-          submittedAt: new Date('2025-10-24T09:00:00'),
-          totalQuestions: 10,
-          autoGradedScore: 58
+        error: (error) => {
+          console.error('Error loading pending questions:', error);
+          this.pendingGrading.set([]);
+          resolve();
         }
-      ]);
-      resolve();
+      });
     });
   }
 
   /**
-   * Load upcoming exams
+   * Load upcoming exams (private sessions)
+   * This data is already loaded in loadTeacherStats
    */
   private loadUpcomingExams(): Promise<void> {
-    return new Promise((resolve) => {
-      // Mock data for now
-      this.upcomingExams.set([
-        {
-          id: 201,
-          title: 'Math Week 3 Quiz',
-          className: 'Math Year 7 - Class A',
-          date: new Date('2025-10-30T10:00:00'),
-          duration: 45,
-          totalMarks: 50
-        },
-        {
-          id: 202,
-          title: 'Science Monthly Test',
-          className: 'Science Year 8 - Class B',
-          date: new Date('2025-11-05T11:00:00'),
-          duration: 60,
-          totalMarks: 100
-        }
-      ]);
-      resolve();
-    });
+    // Data already populated in loadTeacherStats
+    return Promise.resolve();
   }
 
   /**
-   * Load recent activities
+   * Load recent activities (from reviews and questions)
    */
   private loadRecentActivities(): Promise<void> {
     return new Promise((resolve) => {
-      this.recentActivities.set([
-        {
-          id: 1,
-          type: 'StudentSubmission',
-          description: '3 students submitted Math Week 2 exam',
-          timestamp: new Date('2025-10-24T09:30:00'),
-          icon: '📝'
+      this.dashboardService.getTeacherDashboard().subscribe({
+        next: (response) => {
+          const activities: RecentActivity[] = [];
+
+          // Add recent reviews as activities
+          if (response && response.recentReviews) {
+            response.recentReviews.forEach((review: any, index: number) => {
+              activities.push({
+                id: index + 1,
+                type: 'StudentSubmission',
+                description: `${review.parentName || 'Parent'} left a review: "${review.comment?.substring(0, 50)}..."`,
+                timestamp: new Date(review.createdAt || Date.now()),
+                icon: '⭐'
+              });
+            });
+          }
+
+          // Add pending questions as activities
+          if (response && response.pendingQuestions?.recentQuestions) {
+            response.pendingQuestions.recentQuestions.forEach((q: any, index: number) => {
+              activities.push({
+                id: activities.length + index + 1,
+                type: 'StudentSubmission',
+                description: `${q.studentName || 'Student'} asked a question in ${q.lessonName || 'lesson'}`,
+                timestamp: new Date(q.askedAt || Date.now()),
+                icon: '❓'
+              });
+            });
+          }
+
+          // Sort by timestamp descending and take top 10
+          this.recentActivities.set(
+            activities
+              .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+              .slice(0, 10)
+          );
+          resolve();
         },
-        {
-          id: 2,
-          type: 'ExamCreated',
-          description: 'Created Science Week 3 Quiz',
-          timestamp: new Date('2025-10-23T15:00:00'),
-          icon: '➕'
-        },
-        {
-          id: 3,
-          type: 'ExamGraded',
-          description: 'Graded 15 English essays',
-          timestamp: new Date('2025-10-23T11:30:00'),
-          icon: '✅'
-        },
-        {
-          id: 4,
-          type: 'LessonAdded',
-          description: 'Added new lesson: Algebra Basics',
-          timestamp: new Date('2025-10-22T14:00:00'),
-          icon: '📚'
+        error: (error) => {
+          console.error('Error loading recent activities:', error);
+          this.recentActivities.set([]);
+          resolve();
         }
-      ]);
-      resolve();
+      });
     });
   }
 
   /**
-   * Navigate to grading page
+   * Navigate to answer question
    */
-  goToGrading(studentExamId: number): void {
-    this.router.navigate(['/teacher/grade', studentExamId]);
+  goToGrading(questionId: number): void {
+    // Navigate to discussions/questions page
+    this.toastService.showInfo('Redirecting to answer student question...');
+    console.log('Navigate to answer question:', questionId);
+    // TODO: Implement when questions page is ready
   }
 
   /**
-   * Navigate to exam management
+   * Navigate to questions management
    */
   goToExamManagement(): void {
-    this.router.navigate(['/teacher/exams']);
+    // Navigate to pending questions
+    this.toastService.showInfo('Questions management coming soon');
+    // TODO: Implement questions management page
   }
 
   /**
    * Navigate to class details
    */
   viewClass(classId: number): void {
-    this.router.navigate(['/teacher/class', classId]);
+    // TODO: Implement class details page
+    this.toastService.showWarning('Class details page coming soon');
+    console.log('Navigate to class:', classId);
   }
 
   /**
    * Navigate to create exam
    */
   createExam(): void {
-    this.router.navigate(['/teacher/exam/create']);
+    // TODO: Implement exam creation page
+    this.toastService.showWarning('Exam creation page coming soon');
   }
 
   /**
    * Navigate to students
    */
   viewStudents(): void {
-    this.router.navigate(['/teacher/students']);
+    // TODO: Implement students list page
+    this.toastService.showWarning('Students page coming soon');
   }
 
   /**
