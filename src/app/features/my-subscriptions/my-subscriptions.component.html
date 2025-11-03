@@ -1,0 +1,294 @@
+<!-- My Subscriptions Page -->
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">My Subscriptions</h1>
+        <p class="mt-1 text-sm text-gray-600">Manage your children's learning subscriptions</p>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          (click)="refresh()"
+          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+          <span class="text-lg">🔄</span>
+          <span class="hidden sm:inline">Refresh</span>
+        </button>
+        <button
+          (click)="browseNewPlans()"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2">
+          <span class="text-lg">➕</span>
+          <span>New Plan</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    }
+
+    <!-- Content -->
+    @if (!loading()) {
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <!-- Total Subscriptions -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Total</p>
+              <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats().total }}</p>
+            </div>
+            <div class="text-4xl">📚</div>
+          </div>
+        </div>
+
+        <!-- Active -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Active</p>
+              <p class="text-3xl font-bold text-green-600 mt-2">{{ stats().active }}</p>
+            </div>
+            <div class="text-4xl">✅</div>
+          </div>
+        </div>
+
+        <!-- Expiring Soon -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Expiring Soon</p>
+              <p class="text-3xl font-bold text-orange-600 mt-2">{{ stats().expiringSoon }}</p>
+            </div>
+            <div class="text-4xl">⚠️</div>
+          </div>
+        </div>
+
+        <!-- Total Spent -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Total Spent</p>
+              <p class="text-3xl font-bold text-indigo-600 mt-2">${{ stats().totalSpent }}</p>
+            </div>
+            <div class="text-4xl">💰</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscriptions List -->
+      <div class="space-y-6">
+        @for (subscription of subscriptions(); track subscription.id) {
+          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold mb-1">{{ subscription.planName }}</h3>
+                  <p class="text-indigo-100 text-sm">Student: {{ subscription.studentName }}</p>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                  <!-- Status Badge -->
+                  <span [class]="'px-3 py-1 rounded-full text-sm font-semibold ' + getStatusColor(subscription.status)">
+                    {{ subscription.status }}
+                  </span>
+
+                  <!-- Expiry Badge -->
+                  @if (getExpiryBadge(subscription.daysUntilExpiry || 0); as badge) {
+                    <span [class]="'px-3 py-1 rounded-full text-sm font-semibold ' + badge.class">
+                      {{ badge.text }}
+                    </span>
+                  }
+
+                  <!-- Auto-Renew Badge -->
+                  @if (subscription.autoRenew) {
+                    <span class="px-3 py-1 rounded-full text-sm font-semibold bg-white/20 text-white">
+                      🔄 Auto-Renew
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-6">
+              <!-- Details Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <!-- Dates -->
+                <div>
+                  <h4 class="text-sm font-semibold text-gray-700 mb-3">Subscription Period</h4>
+                  <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Start Date:</span>
+                      <span class="font-medium">{{ subscription.startDate | date:'MMM d, y' }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">End Date:</span>
+                      <span class="font-medium">{{ subscription.endDate | date:'MMM d, y' }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Days Left:</span>
+                      <span class="font-bold text-indigo-600">{{ subscription.daysUntilExpiry }} days</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Payment Info -->
+                <div>
+                  <h4 class="text-sm font-semibold text-gray-700 mb-3">Payment Details</h4>
+                  <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Total Amount:</span>
+                      <span class="font-medium">${{ subscription.totalAmount }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Paid:</span>
+                      <span class="font-medium text-green-600">${{ subscription.paidAmount }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Method:</span>
+                      <span class="font-medium capitalize">{{ subscription.paymentMethod.replace('_', ' ') }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Usage Stats -->
+                <div>
+                  <h4 class="text-sm font-semibold text-gray-700 mb-3">Usage Statistics</h4>
+                  <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Progress:</span>
+                      <span class="font-bold text-blue-600">{{ subscription.progressPercentage }}%</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Lessons:</span>
+                      <span class="font-medium">{{ subscription.completedLessons }}/{{ subscription.totalLessons }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Last Access:</span>
+                      <span class="font-medium">{{ subscription.lastAccessDate | date:'MMM d' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-sm font-medium text-gray-700">Learning Progress</span>
+                  <span class="text-sm font-bold text-gray-900">{{ subscription.usagePercentage }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                  <div
+                    class="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-500"
+                    [style.width.%]="subscription.usagePercentage">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex flex-wrap gap-3">
+                <button
+                  (click)="viewUsageDetails(subscription)"
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                  📊 View Details
+                </button>
+
+                <button
+                  (click)="upgradeSubscription(subscription)"
+                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                  ⬆️ Upgrade
+                </button>
+
+                <button
+                  (click)="toggleAutoRenew(subscription)"
+                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+                  {{ subscription.autoRenew ? '🔄 Disable Auto-Renew' : '▶️ Enable Auto-Renew' }}
+                </button>
+
+                <button
+                  (click)="downloadInvoice(subscription)"
+                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+                  📄 Invoice
+                </button>
+
+                @if (subscription.status === 'Active') {
+                  <button
+                    (click)="openCancelModal(subscription)"
+                    class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium">
+                    ❌ Cancel
+                  </button>
+                }
+              </div>
+
+              <!-- Notes -->
+              @if (subscription.notes) {
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                  <p class="text-sm text-blue-800">
+                    <span class="font-semibold">Note:</span> {{ subscription.notes }}
+                  </p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Empty State -->
+      @if (subscriptions().length === 0) {
+        <div class="bg-white rounded-lg shadow p-12 text-center">
+          <div class="text-6xl mb-4">📚</div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">No Subscriptions Yet</h3>
+          <p class="text-gray-600 mb-6">Start by browsing our subscription plans for your children</p>
+          <button
+            (click)="browseNewPlans()"
+            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors inline-flex items-center gap-2">
+            <span>➕</span>
+            <span>Browse Plans</span>
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<!-- Cancel Modal -->
+@if (showCancelModal()) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <h3 class="text-xl font-bold text-gray-900 mb-4">Cancel Subscription</h3>
+
+      <p class="text-gray-600 mb-4">
+        Are you sure you want to cancel <strong>{{ selectedSubscription()?.planName }}</strong> for <strong>{{ selectedSubscription()?.studentName }}</strong>?
+      </p>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Reason (optional)</label>
+        <textarea
+          [(ngModel)]="cancelReason"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          rows="3"
+          placeholder="Tell us why you're cancelling..."></textarea>
+      </div>
+
+      <div class="flex gap-3">
+        <button
+          (click)="closeCancelModal()"
+          class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+          Keep Subscription
+        </button>
+        <button
+          (click)="cancelSubscription()"
+          class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+          Cancel Subscription
+        </button>
+      </div>
+    </div>
+  </div>
+}

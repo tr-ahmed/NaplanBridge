@@ -1,0 +1,25 @@
+<!-- Main App Layout -->
+<div class="min-h-screen flex flex-col bg-gradient-to-br from-blue-800 to-blue-900">
+  <!-- Header Component -->
+  @if (showHeader) {
+    <app-header></app-header>
+  }
+
+  <!-- Main Content Area with padding-top to account for fixed header -->
+  <main class="flex-1 pt-16 !pt-16">
+    <router-outlet></router-outlet>
+  </main>
+
+  <app-scroll-to-top />
+
+  <!-- Footer Component -->
+  @if (showFooter) {
+    <app-footer></app-footer>
+  }
+
+  <!-- Toast Container for notifications -->
+  <app-toast-container></app-toast-container>
+
+  <!-- Global Confirmation Dialog -->
+  <app-global-confirmation-dialog></app-global-confirmation-dialog>
+</div>

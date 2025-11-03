@@ -1,0 +1,360 @@
+<!-- header.component.html -->
+<header class="bg-white shadow-lg fixed top-0 left-0 w-full z-50">
+  <div class="w-full px-2 sm:px-4 lg:px-6">
+    <nav class="flex justify-between items-center py-2 min-h-[3.5rem] sm:min-h-[4rem]">
+      <!-- Logo (far left) -->
+      <div class="flex-shrink-0 order-1 min-w-0">
+        <a routerLink="/" class="flex items-center text-decoration-none">
+          <img src="assets/img/logo.png" alt="NAPLAN Bridge Logo" class="w-auto mr-2 sm:mr-3 h-10 sm:h-12 lg:h-14"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <div class="text-center" style="display: none;">
+            <span class="text-lg sm:text-xl font-bold text-primary-500 leading-none whitespace-nowrap">NAPLAN</span>
+            <span class="text-xs sm:text-sm text-gray-600 font-medium -mt-1 block whitespace-nowrap">Bridge</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Navigation (center) -->
+      <ul class="hidden lg:flex xl:space-x-6 lg:space-x-4 list-none order-2 items-center">
+        @for (item of navigationItems; track item.id) {
+          @if (item.label === 'Subjects') {
+            <li class="relative group">
+              <button class="nav-button text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 whitespace-nowrap">
+                {{ item.label }}
+                <svg class="w-3 h-3 xl:w-4 xl:h-4 transform group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <ul class="absolute left-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <li><a (click)="navigateToCoursesWithFilter('mathematics')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                  <i class="fas fa-calculator text-blue-600"></i>
+                  Mathematics
+                </a></li>
+                <li><a (click)="navigateToCoursesWithFilter('reading')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                  <i class="fas fa-book-open text-green-600"></i>
+                  Reading
+                </a></li>
+                <li><a (click)="navigateToCoursesWithFilter('writing')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                  <i class="fas fa-pen text-purple-600"></i>
+                  Writing
+                </a></li>
+                <li><a (click)="navigateToCoursesWithFilter('language')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                  <i class="fas fa-language text-orange-600"></i>
+                  Language Conventions
+                </a></li>
+                <li><a routerLink="/courses" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 border-t border-gray-100 mt-1 pt-3 flex items-center gap-2 whitespace-nowrap text-sm">
+                  <i class="fas fa-list text-gray-600"></i>
+                  View All Subjects
+                </a></li>
+              </ul>
+            </li>
+          } @else if (item.isAboutSection) {
+            <li>
+              <a class="nav-button px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 no-underline hover:text-primary-500 hover:bg-blue-50 cursor-pointer whitespace-nowrap"
+                 (click)="navigateToAboutSection()">
+                {{ item.label }}
+              </a>
+            </li>
+          } @else {
+            <li>
+              <a [routerLink]="item.route"
+                 routerLinkActive="text-primary-500 bg-blue-50 font-semibold"
+                 class="nav-button px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 no-underline hover:text-primary-500 hover:bg-blue-50 whitespace-nowrap">
+                {{ item.label }}
+              </a>
+            </li>
+          }
+        }
+      </ul>
+
+      <!-- Login/Logout Button & Mobile Menu Toggle -->
+      <div class="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 order-3 min-w-0">
+        <!-- Desktop Login/Logout Button -->
+        @if (isLoggedIn) {
+          <div class="hidden md:flex items-center space-x-2 xl:space-x-3">
+            <!-- Cart Icon -->
+            <button
+              (click)="navigateToCart()"
+              class="relative p-1.5 xl:p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0">
+              <svg class="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
+              </svg>
+              @if (cartItemCount > 0) {
+                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 xl:w-5 xl:h-5 flex items-center justify-center text-[10px] xl:text-xs">
+                  {{ cartItemCount }}
+                </span>
+              }
+            </button>
+
+            <!-- Notifications Icon -->
+            <div class="relative" clickOutside (clickOutside)="closeNotificationsDropdown()">
+              <button
+                (click)="toggleNotificationsDropdown()"
+                class="relative p-1.5 xl:p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0">
+                <svg class="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+                @if (unreadNotificationsCount > 0) {
+                  <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 xl:w-5 xl:h-5 flex items-center justify-center text-[10px] xl:text-xs">
+                    {{ unreadNotificationsCount }}
+                  </span>
+                }
+              </button>
+
+              <!-- Notifications Dropdown -->
+              @if (showNotificationsDropdown) {
+                <div class="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                  <div class="p-3 sm:p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                      <h3 class="font-semibold text-gray-900 text-sm sm:text-base">Notifications</h3>
+                      <button
+                        (click)="navigateToNotifications(); closeNotificationsDropdown()"
+                        class="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium whitespace-nowrap">
+                        View All
+                      </button>
+                    </div>
+                  </div>
+                  <div class="max-h-80 sm:max-h-96 overflow-y-auto">
+                    <!-- Recent Notifications Preview -->
+                    @if (recentNotifications.length > 0) {
+                      <div class="divide-y divide-gray-100">
+                        @for (notification of recentNotifications; track notification.id) {
+                          <div
+                            class="p-3 sm:p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200"
+                            (click)="onDropdownNotificationClick(notification)">
+                            <div class="flex items-start gap-2 sm:gap-3">
+                              <!-- Notification Icon -->
+                              <div class="flex-shrink-0">
+                                <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center"
+                                     [ngClass]="notification.type === 'course' ? 'bg-blue-100' :
+                                                notification.type === 'success' ? 'bg-green-100' :
+                                                notification.type === 'warning' ? 'bg-yellow-100' :
+                                                notification.type === 'error' ? 'bg-red-100' :
+                                                notification.type === 'info' ? 'bg-blue-100' : 'bg-gray-100'">
+                                  <i [class]="getNotificationIcon(notification.type) + ' text-xs sm:text-sm ' + getNotificationColor(notification.type)"></i>
+                                </div>
+                              </div>
+
+                              <!-- Notification Content -->
+                              <div class="flex-1 min-w-0 notification-content">
+                                <div class="flex items-start justify-between">
+                                  <div class="flex-1 min-w-0">
+                                    <p class="text-xs sm:text-sm font-medium text-gray-900 line-clamp-1">
+                                      {{ notification.title }}
+                                      @if (!notification.isRead) {
+                                        <span class="inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full ml-1"></span>
+                                      }
+                                    </p>
+                                    <p class="text-xs text-gray-600 line-clamp-2 mt-1">{{ notification.message }}</p>
+                                    <p class="text-xs text-gray-400 mt-1">{{ getRelativeTime(notification.createdAt) }}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+
+                      <!-- Show more link -->
+                      <div class="p-3 sm:p-4 border-t border-gray-200 bg-gray-50">
+                        <button
+                          (click)="navigateToNotifications(); closeNotificationsDropdown()"
+                          class="w-full text-center text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium py-2 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                          View All {{ unreadNotificationsCount > 0 ? '(' + unreadNotificationsCount + ' unread)' : '' }}
+                        </button>
+                      </div>
+                    } @else {
+                      <!-- Empty state -->
+                      <div class="p-4 sm:p-6 text-center text-gray-500">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <i class="fas fa-bell-slash text-gray-400 text-sm sm:text-base"></i>
+                        </div>
+                        <p class="text-xs sm:text-sm">No notifications yet</p>
+                        <p class="text-xs text-gray-400 mt-1">You'll see your notifications here</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            @if (userName) {
+              <span class="user-welcome hidden lg:block text-gray-700 font-medium whitespace-nowrap truncate">Welcome, {{ userName }}</span>
+            }
+
+            <!-- Role-based dashboard buttons -->
+            @if (userRole === 'Admin') {
+              <button
+                routerLink="/admin/users"
+                class="hidden xl:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold transition-all duration-200 text-sm xl:text-base whitespace-nowrap">
+                Admin Panel
+              </button>
+            }
+            @if (userRole === 'Teacher') {
+              <button
+                (click)="navigateToTeacherDashboard()"
+                class="hidden xl:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold transition-all duration-200 text-sm xl:text-base whitespace-nowrap">
+                Teacher Panel
+              </button>
+            }
+            @if (userRole === 'Parent') {
+              <button
+                routerLink="/parent/dashboard"
+                class="role-button hidden xl:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold transition-all duration-200 whitespace-nowrap">
+                My Children
+              </button>
+            }
+            @if (userRole === 'Student') {
+              <button
+                routerLink="/student/dashboard"
+                class="hidden xl:block border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold transition-all duration-200 text-sm xl:text-base whitespace-nowrap">
+                My Dashboard
+              </button>
+            }
+
+            <button
+              (click)="handleLogout()"
+              class="action-button bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 xl:px-6 xl:py-2 rounded-lg font-semibold transition-colors duration-300 whitespace-nowrap">
+              Logout
+            </button>
+          </div>
+        } @else {
+          @if (isLoginPage) {
+            <a routerLink="/auth/register" class="action-button hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-4 py-1.5 xl:px-6 xl:py-2 rounded-lg font-semibold whitespace-nowrap">
+              Register
+            </a>
+          } @else {
+            <a routerLink="/auth/register" class="action-button hidden lg:block bg-primary-500 hover:bg-primary-600 text-white px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold whitespace-nowrap">
+              Register
+            </a>
+            <a routerLink="/auth/login" class="action-button hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-4 py-1.5 xl:px-6 xl:py-2 rounded-lg font-semibold whitespace-nowrap">
+              Login
+            </a>
+          }
+        }
+
+        <!-- Mobile Menu Toggle -->
+        <button
+          class="md:hidden lg:hidden flex flex-col space-y-1 p-2 flex-shrink-0"
+          (click)="toggleMobileMenu()"
+          [class.active]="isMobileMenuOpen"
+          aria-label="Toggle navigation">
+          <span class="block w-5 h-0.5 sm:w-6 sm:h-0.5 bg-gray-600 transition-transform duration-300"
+                [class.rotate-45]="isMobileMenuOpen"
+                [class.translate-y-1.5]="isMobileMenuOpen"></span>
+          <span class="block w-5 h-0.5 sm:w-6 sm:h-0.5 bg-gray-600 transition-opacity duration-300"
+                [class.opacity-0]="isMobileMenuOpen"></span>
+          <span class="block w-5 h-0.5 sm:w-6 sm:h-0.5 bg-gray-600 transition-transform duration-300"
+                [class.-rotate-45]="isMobileMenuOpen"
+                [class.-translate-y-1.5]="isMobileMenuOpen"></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    @if (isMobileMenuOpen) {
+      <div class="md:hidden lg:hidden bg-white border-t border-gray-200 py-4">
+        <ul class="space-y-2 list-none">
+          @for (item of navigationItems; track item.id) {
+            <li>
+              <a
+                [routerLink]="item.route"
+                routerLinkActive="text-primary-500 bg-blue-50 font-semibold"
+                [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+                class="block text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-all duration-300 no-underline whitespace-nowrap"
+                (click)="toggleMobileMenu()">
+                {{ item.label }}
+              </a>
+            </li>
+          }
+          <li class="pt-2">
+            @if (isLoggedIn) {
+              <div class="space-y-2">
+                @if (userName) {
+                  <div class="text-center text-gray-700 font-medium px-4 py-1 text-sm">
+                    Welcome, {{ userName }}
+                  </div>
+                }
+
+                <!-- Mobile Cart and Notifications -->
+                <div class="flex justify-center space-x-4 px-4 py-2">
+                  <button
+                    (click)="navigateToCart(); toggleMobileMenu()"
+                    class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
+                    </svg>
+                    @if (cartItemCount > 0) {
+                      <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {{ cartItemCount }}
+                      </span>
+                    }
+                  </button>
+
+                  <button
+                    (click)="navigateToNotifications(); toggleMobileMenu()"
+                    class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    @if (unreadNotificationsCount > 0) {
+                      <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {{ unreadNotificationsCount }}
+                      </span>
+                    }
+                  </button>
+                </div>
+
+                <!-- Mobile Role-based buttons -->
+                @if (userRole === 'Admin') {
+                  <a
+                    routerLink="/admin/users"
+                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap"
+                    (click)="toggleMobileMenu()">
+                    Admin Panel
+                  </a>
+                }
+                @if (userRole === 'Teacher') {
+                  <button
+                    (click)="navigateToTeacherDashboard(); toggleMobileMenu()"
+                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap">
+                    Teacher Panel
+                  </button>
+                }
+                @if (userRole === 'Parent') {
+                  <a
+                    routerLink="/parent/dashboard"
+                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap"
+                    (click)="toggleMobileMenu()">
+                    My Children
+                  </a>
+                }
+                @if (userRole === 'Student') {
+                  <a
+                    routerLink="/student/dashboard"
+                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap"
+                    (click)="toggleMobileMenu()">
+                    My Dashboard
+                  </a>
+                }
+
+                <button
+                  (click)="handleLogout()"
+                  class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300 text-sm whitespace-nowrap">
+                  Logout
+                </button>
+              </div>
+            } @else {
+              <a
+                routerLink="/auth/login"
+                class="block w-full bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300 text-center text-sm whitespace-nowrap"
+                (click)="toggleMobileMenu()">
+                Login
+              </a>
+            }
+          </li>
+        </ul>
+      </div>
+    }
+  </div>
+</header>

@@ -1,0 +1,228 @@
+<!-- Notifications Page -->
+<div class="notifications-container container mx-auto px-6 py-12 pt-32">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Header -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Notifications</h1>
+          <p class="text-gray-600">Stay updated with your courses and system messages</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="flex gap-4 text-sm">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-blue-600">{{ stats().totalCount }}</div>
+            <div class="text-gray-500">Total</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-red-600">{{ stats().unreadCount }}</div>
+            <div class="text-gray-500">Unread</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600">{{ stats().todayCount }}</div>
+            <div class="text-gray-500">Today</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+      <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+
+        <!-- Filter Tabs -->
+        <div class="flex flex-wrap gap-2">
+          @for (option of filterOptions; track option.value) {
+            <button
+              (click)="onFilterChange(option.value)"
+              [class.bg-blue-600]="selectedFilter() === option.value"
+              [class.text-white]="selectedFilter() === option.value"
+              [class.bg-gray-100]="selectedFilter() !== option.value"
+              [class.text-gray-700]="selectedFilter() !== option.value"
+              class="px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-md flex items-center gap-2">
+              <i [class]="option.icon"></i>
+              {{ option.label }}
+              @if (option.value !== 'all') {
+                <span class="bg-white/20 text-xs px-2 py-1 rounded-full">
+                  {{ stats().typeBreakdown[option.value] || 0 }}
+                </span>
+              }
+            </button>
+          }
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2">
+          <button
+            (click)="toggleUnreadFilter()"
+            [class.bg-orange-100]="showOnlyUnread()"
+            [class.text-orange-800]="showOnlyUnread()"
+            [class.bg-gray-100]="!showOnlyUnread()"
+            [class.text-gray-700]="!showOnlyUnread()"
+            class="px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:shadow-md flex items-center gap-2">
+            <i class="fas fa-eye"></i>
+            Unread Only
+          </button>
+
+          @if (stats().unreadCount > 0) {
+            <button
+              (click)="markAllAsRead()"
+              class="px-4 py-2 bg-green-100 text-green-800 rounded-lg font-medium hover:bg-green-200 transition-colors duration-200 flex items-center gap-2">
+              <i class="fas fa-check-double"></i>
+              Mark All Read
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-600">Loading notifications...</span>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error()) {
+      <div class="bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded-lg mb-6">
+        <div class="flex items-center">
+          <i class="fas fa-exclamation-triangle mr-2"></i>
+          {{ error() }}
+        </div>
+      </div>
+    }
+
+    <!-- Notifications List -->
+    @if (!loading() && filteredNotifications().length > 0) {
+      <div class="space-y-4">
+        @for (notification of filteredNotifications(); track notification.id) {
+          <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer"
+            [class.border-l-4]="!notification.isRead"
+            [class.border-l-blue-500]="!notification.isRead"
+            [class.bg-gray-50]="notification.isRead"
+            (click)="onNotificationClick(notification)">
+
+            <div class="p-6">
+              <div class="flex items-start gap-4">
+
+                <!-- Notification Icon -->
+                <div class="flex-shrink-0">
+                  <div [class]="getNotificationBgColor(notification.type)"
+                       class="w-12 h-12 rounded-full flex items-center justify-center">
+                    <i [class]="getNotificationIcon(notification.type) + ' ' + getNotificationColor(notification.type)"></i>
+                  </div>
+                </div>
+
+                <!-- Notification Content -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1">
+                      <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                        {{ notification.title }}
+                        @if (!notification.isRead) {
+                          <span class="inline-block w-2 h-2 bg-blue-500 rounded-full ml-2"></span>
+                        }
+                      </h3>
+                      <p class="text-gray-600 mb-3 line-clamp-2">{{ notification.message }}</p>
+
+                      <!-- Meta Information -->
+                      <div class="flex items-center gap-4 text-sm text-gray-500">
+                        <span class="flex items-center gap-1">
+                          <i class="fas fa-clock"></i>
+                          {{ getRelativeTime(notification.createdAt) }}
+                        </span>
+
+                        @if (notification.priority !== 'low') {
+                          <span [class]="'px-2 py-1 rounded-full text-xs font-medium ' + getPriorityBadgeClass(notification.priority)">
+                            {{ notification.priority }}
+                          </span>
+                        }
+
+                        @if (notification.category) {
+                          <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
+                            {{ notification.category }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Notification Image -->
+                    @if (notification.imageUrl) {
+                      <div class="flex-shrink-0 bg-gray-200 rounded-lg">
+                        <img [src]="notification.imageUrl"
+                             [alt]="notification.title"
+                             (error)="$event.target.style.display='none'"
+                             class="w-16 h-16 rounded-lg object-cover">
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Action Button -->
+                  @if (notification.actionText && notification.actionUrl) {
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                      <button class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1">
+                        {{ notification.actionText }}
+                        <i class="fas fa-external-link-alt"></i>
+                      </button>
+                    </div>
+                  }
+                </div>
+
+                <!-- Actions Menu -->
+                <div class="flex-shrink-0 flex flex-col gap-2">
+                  @if (!notification.isRead) {
+                    <button
+                      (click)="markAsRead(notification); $event.stopPropagation()"
+                      class="text-gray-400 hover:text-blue-600 transition-colors duration-200"
+                      title="Mark as read">
+                      <i class="fas fa-check"></i>
+                    </button>
+                  }
+
+                  <button
+                    (click)="deleteNotification(notification.id); $event.stopPropagation()"
+                    class="text-gray-400 hover:text-red-600 transition-colors duration-200"
+                    title="Delete notification">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Empty State -->
+    @if (!loading() && filteredNotifications().length === 0) {
+      <div class="text-center py-16">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-bell-slash text-3xl text-gray-400"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">No notifications found</h3>
+        <p class="text-gray-600 mb-6">
+          @if (showOnlyUnread()) {
+            You don't have any unread notifications.
+          } @else if (selectedFilter() !== 'all') {
+            No notifications found for the selected filter.
+          } @else {
+            You don't have any notifications yet.
+          }
+        </p>
+        @if (selectedFilter() !== 'all' || showOnlyUnread()) {
+          <button
+            (click)="selectedFilter.set('all'); showOnlyUnread.set(false)"
+            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+            Show All Notifications
+          </button>
+        }
+      </div>
+    }
+
+  </div>
+</div>

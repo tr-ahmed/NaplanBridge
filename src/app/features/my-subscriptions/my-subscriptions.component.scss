@@ -1,0 +1,107 @@
+/**
+ * My Subscriptions Styles
+ * Custom styles for subscriptions management component
+ */
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Component styles
+:host {
+  display: block;
+}
+
+// Card animations
+.bg-white {
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Progress bar animation
+.w-full {
+  .h-full {
+    transition: width 0.5s ease-out;
+  }
+}
+
+// Stats cards stagger animation
+.grid > .bg-white {
+  &:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  &:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+}
+
+// Subscription cards
+.space-y-6 > div {
+  animation: slideIn 0.4s ease-out;
+
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+}
+
+// Modal animation
+.fixed.inset-0 {
+  animation: modalFadeIn 0.2s ease-out;
+
+  > div {
+    animation: fadeIn 0.3s ease-out;
+  }
+}
+
+// Hover effects
+.hover\:shadow-lg {
+  transition: box-shadow 0.3s ease;
+}
+
+// Button transitions
+button {
+  transition: all 0.2s ease;
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+}

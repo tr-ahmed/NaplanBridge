@@ -1,0 +1,83 @@
+
+<footer class="bg-white rounded-2xl shadow-sm mx-8 mb-10" style="margin-top:42px;">
+  <div class=" mx-auto px-8 lg:px-16 py-8">
+    <!-- Main Footer Content -->
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-start gap-12">
+      <!-- Brand Section -->
+      <div class="flex flex-col items-start lg:w-1/2">
+        <div class="flex items-center mb-8">
+          <img
+            src="assets/img/logo.png"
+            alt="NAPLAN Bridge Logo"
+            class="h-16 w-auto mr-3"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-3" style="display: none;">
+            <span class="text-white font-bold text-lg">W</span>
+          </div>
+          <span class="text-2xl font-bold text-blue-600">NAPLAN Bridge</span>
+        </div>
+        <p class="text-blue-900 mb-8 max-w-lg leading-relaxed">
+          Join Edify today and start your journey towards a brighter, more skilled future.
+          With courses designed for every level, your potential is limitless.
+        </p>
+        <!-- Action Buttons -->
+        <div class="flex gap-4 mb-8">
+          <button class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+            Get Started
+          </button>
+          <button class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+            Contact Us
+          </button>
+        </div>
+        <!-- Social Media Icons -->
+        <div class="flex gap-4">
+          @for (social of socialLinks; track social.platform) {
+            <a
+              [href]="social.url"
+              [title]="social.platform"
+              class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer">
+              <i [class]="social.icon"></i>
+            </a>
+          }
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="flex flex-col sm:flex-row gap-12 lg:gap-20 lg:w-1/2 lg:justify-end">
+        <!-- Left Column Links -->
+        <div class="flex flex-col space-y-6">
+          @for (link of footerLinks.leftColumn; track link.route) {
+            <a [routerLink]="link.route" class="text-blue-600 hover:text-primary-800 transition-colors font-medium">
+              {{ link.label }}
+            </a>
+          }
+        </div>
+
+        <!-- Right Column Links -->
+        <div class="flex flex-col space-y-6">
+          @for (link of footerLinks.rightColumn; track link.route) {
+            <a [routerLink]="link.route" class="text-blue-600 hover:text-primary-800 transition-colors font-medium">
+              {{ link.label }}
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Bottom -->
+    <div class="mt-16 pt-10 border-t border-gray-200">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+        <p class="text-gray-600 text-sm">
+          © {{ currentYear }}. All rights reserved.
+        </p>
+        <div class="flex gap-8 text-sm">
+          <a routerLink="/privacy" class="text-gray-600 hover:text-blue-600 underline transition-colors">Privacy Policy</a>
+          <a routerLink="/terms" class="text-gray-600 hover:text-blue-600 underline transition-colors">Terms of Service</a>
+          <a routerLink="/cookies" class="text-gray-600 hover:text-blue-600 underline transition-colors">Cookies Settings</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

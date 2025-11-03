@@ -1,0 +1,34 @@
+/* Teacher Dashboard Styles */
+
+.teacher-dashboard-container {
+  min-height: 100vh;
+}
+
+/* Stats card hover animation */
+.stats-card {
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Class card hover */
+.class-card {
+  transition: all 0.2s ease;
+}
+
+.class-card:hover {
+  transform: translateX(4px);
+  border-color: #3b82f6;
+}
+
+/* Grading task hover */
+.grading-task {
+  transition: all 0.2s ease;
+}
+
+.grading-task:hover {
+  background-color: #fff7ed;
+  border-color: #fb923c;
+}

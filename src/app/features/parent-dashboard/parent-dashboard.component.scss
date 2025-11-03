@@ -1,0 +1,86 @@
+/**
+ * Parent Dashboard Styles
+ * Custom styles for parent dashboard component
+ */
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Component styles
+:host {
+  display: block;
+}
+
+// Card animations
+.bg-white {
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Progress bar animation
+.w-full {
+  .h-full {
+    transition: width 0.5s ease-out;
+  }
+}
+
+// Activity items
+.space-y-2 > div {
+  animation: slideIn 0.3s ease-out;
+
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+}
+
+// Hover effects
+.hover\:shadow-lg {
+  transition: box-shadow 0.3s ease;
+}
+
+// Alert animations
+[class*="bg-blue-50"],
+[class*="bg-yellow-50"],
+[class*="bg-green-50"],
+[class*="bg-red-50"] {
+  animation: slideIn 0.4s ease-out;
+}
+
+// Stats cards
+.grid > .bg-white {
+  &:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+}

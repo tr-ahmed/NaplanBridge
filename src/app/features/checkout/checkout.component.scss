@@ -1,0 +1,24 @@
+/* Checkout Component Styles */
+
+.checkout-container {
+  min-height: 100vh;
+}
+
+/* Stripe card element styling */
+#card-element {
+  min-height: 50px;
+}
+
+/* Payment method selection */
+.payment-method-card {
+  transition: all 0.2s ease;
+}
+
+.payment-method-card:hover {
+  transform: translateX(2px);
+}
+
+/* Processing overlay */
+.processing-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}

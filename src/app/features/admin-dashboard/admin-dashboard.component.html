@@ -1,0 +1,265 @@
+<div class="admin-dashboard-container min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+        <p class="text-gray-600 mt-1">Welcome back! Here's what's happening with your system.</p>
+      </div>
+      <button
+        (click)="refresh()"
+        [disabled]="loading()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 flex items-center gap-2">
+        <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+          <p class="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    }
+
+    @if (!loading()) {
+      <!-- System Alerts -->
+      @if (activeAlerts().length > 0) {
+        <div class="mb-8 space-y-3">
+          @for (alert of activeAlerts(); track alert.id) {
+            <div
+              class="rounded-lg border p-4 flex items-start justify-between"
+              [ngClass]="getAlertColorClass(alert.type)">
+              <div class="flex-1">
+                <p class="font-medium">{{ alert.message }}</p>
+                <p class="text-sm mt-1 opacity-75">{{ formatDate(alert.timestamp) }}</p>
+              </div>
+              <button
+                (click)="dismissAlert(alert.id)"
+                class="ml-4 hover:opacity-75">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        @for (card of statsCards(); track card.title) {
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-start justify-between mb-4">
+              <div
+                class="w-12 h-12 rounded-lg flex items-center justify-center"
+                [ngClass]="card.bgColor">
+                <svg class="w-6 h-6" [ngClass]="card.color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  @if (card.icon === 'users') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                  }
+                  @if (card.icon === 'exam') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  }
+                  @if (card.icon === 'money') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  }
+                  @if (card.icon === 'health') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  }
+                </svg>
+              </div>
+              <span
+                class="text-sm font-semibold flex items-center gap-1"
+                [ngClass]="getChangeColor(card.changeType)">
+                {{ getChangeIcon(card.changeType) }} {{ card.change }}%
+              </span>
+            </div>
+            <h3 class="text-sm text-gray-600 mb-1">{{ card.title }}</h3>
+            <p class="text-3xl font-bold text-gray-900">
+              @if (card.icon === 'money') {
+                {{ formatCurrency(card.value) }}
+              } @else if (card.icon === 'health') {
+                {{ card.value }}%
+              } @else {
+                {{ card.value }}
+              }
+            </p>
+          </div>
+        }
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- User Statistics -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">User Statistics</h2>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Students</span>
+              <span class="font-semibold text-blue-600">{{ userStats().students }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Teachers</span>
+              <span class="font-semibold text-green-600">{{ userStats().teachers }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Parents</span>
+              <span class="font-semibold text-purple-600">{{ userStats().parents }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Admins</span>
+              <span class="font-semibold text-red-600">{{ userStats().admins }}</span>
+            </div>
+            <div class="pt-4 border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-900 font-medium">Active Today</span>
+                <span class="font-bold text-gray-900">{{ userStats().activeToday }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exam Statistics -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Exam Statistics</h2>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Published</span>
+              <span class="font-semibold text-green-600">{{ examStats().published }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Pending</span>
+              <span class="font-semibold text-yellow-600">{{ examStats().pending }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Completed</span>
+              <span class="font-semibold text-blue-600">{{ examStats().completed }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Average Score</span>
+              <span class="font-semibold text-purple-600">{{ examStats().averageScore }}%</span>
+            </div>
+            <div class="pt-4 border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-900 font-medium">Total Exams</span>
+                <span class="font-bold text-gray-900">{{ examStats().total }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Statistics -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Financial Overview</h2>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">This Month</span>
+              <span class="font-semibold text-green-600">{{ formatCurrency(financialStats().thisMonth) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Last Month</span>
+              <span class="font-semibold text-blue-600">{{ formatCurrency(financialStats().lastMonth) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Pending</span>
+              <span class="font-semibold text-yellow-600">{{ financialStats().pendingPayments }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Completed</span>
+              <span class="font-semibold text-purple-600">{{ financialStats().completedPayments }}</span>
+            </div>
+            <div class="pt-4 border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-900 font-medium">Total Revenue</span>
+                <span class="font-bold text-gray-900">{{ formatCurrency(financialStats().totalRevenue) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          @for (action of quickActions; track action.title) {
+            <button
+              (click)="navigateTo(action.route)"
+              class="bg-white rounded-lg shadow-sm p-6 text-left hover:shadow-md transition-all">
+              <div
+                class="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
+                [class.bg-blue-100]="action.color === 'blue'"
+                [class.bg-green-100]="action.color === 'green'"
+                [class.bg-yellow-100]="action.color === 'yellow'"
+                [class.bg-purple-100]="action.color === 'purple'">
+                <svg class="w-6 h-6"
+                  [class.text-blue-600]="action.color === 'blue'"
+                  [class.text-green-600]="action.color === 'green'"
+                  [class.text-yellow-600]="action.color === 'yellow'"
+                  [class.text-purple-600]="action.color === 'purple'"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  @if (action.icon === 'users') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                  }
+                  @if (action.icon === 'content') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                  }
+                  @if (action.icon === 'money') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                  }
+                  @if (action.icon === 'settings') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  }
+                </svg>
+              </div>
+              <h3 class="font-semibold text-gray-900 mb-1">{{ action.title }}</h3>
+              <p class="text-sm text-gray-600">{{ action.description }}</p>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
+        <div class="space-y-4">
+          @for (activity of recentActivitiesFiltered(); track activity.id) {
+            <div class="flex items-start gap-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+              <div [ngClass]="getActivityIconClass(activity.color)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  @if (activity.icon === 'user-add') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                  }
+                  @if (activity.icon === 'exam' || activity.icon === 'grade') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  }
+                  @if (activity.icon === 'money' || activity.icon === 'renew') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  }
+                  @if (activity.icon === 'check') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  }
+                  @if (activity.icon === 'user-check') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  }
+                  @if (activity.icon === 'lock') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  }
+                </svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-gray-900">{{ activity.message }}</p>
+                <p class="text-sm text-gray-600 mt-1">{{ formatDate(activity.timestamp) }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

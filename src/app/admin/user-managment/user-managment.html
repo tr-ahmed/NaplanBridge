@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAPLANBridge - User Management</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Tailwind CSS (if used in your project) -->
+</head>
+
+<body class="bg-gray-50">
+
+  <button
+    class="fixed z-50 rounded-full shadow-lg p-3 transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400 border-0"
+    (click)="toggleSidebar()" aria-label="Toggle sidebar" [ngStyle]="{
+    top: '2rem',
+    left: sidebarCollapsed ? '1rem' : '270px',
+    width: '48px',
+    height: '48px',
+    background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 100%)',
+    color: '#fff'
+  }">
+    <i class="fas" [class.fa-chevron-right]="sidebarCollapsed" [class.fa-chevron-left]="!sidebarCollapsed"></i>
+  </button>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed" id="sidebar"
+    style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);box-shadow:0 8px 32px rgba(31,38,135,.37);border-top-right-radius:2rem;border-bottom-right-radius:2rem;min-height:100vh;">
+    <div class="sidebar-logo d-flex align-items-center py-4 px-3">
+      <div class="me-3" style="background:rgba(255,255,255,0.2);width:48px;height:48px;"
+        class="rounded-circle d-flex align-items-center justify-content-center shadow">
+        <span class="fw-bold fs-4 text-blue-700">N</span>
+      </div>
+      <div class="fw-bold fs-5 text-white">NAPLAN<span class="text-warning">Bridge</span></div>
+    </div>
+    <nav class="sidebar-nav mt-4">
+      <a routerLink="/admin/users"
+        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all text-white active">
+        <i class="fas fa-users"></i>
+        <span>User Management</span>
+      </a>
+      <a routerLink="/admin/content"
+        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+        <i class="fas fa-book"></i>
+        <span>Content Management</span>
+      </a>
+            <a [routerLink]="'/admin/subscriptions'"
+        class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all  hover:bg-white/10  text-white ">
+        <i class="fas fa-credit-card"></i>
+        <span>Subscription & Billing</span>
+      </a>
+    </nav>
+    <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
+      <div class="d-flex align-items-center gap-3">
+        <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
+        <div>
+          <div class="fw-medium text-white">{{ userName }}</div>
+          <small class="text-white-50">Super Admin</small>
+        </div>
+      </div>
+      <a (click)="handleLogout()" class="d-block mt-3 text-white-50 small"><i
+          class="fas fa-sign-out-alt me-2"></i>Logout</a>
+    </div>
+  </aside>
+  <!-- Main Content -->
+  <main class="main-content" [class.expanded]="sidebarCollapsed" id="mainContent">
+    <div class="container-fluid py-4">
+      <div class="flex items-center justify-between mb-6">
+        <div class="relative w-[520px] max-w-full">
+          <input type="text" class="form-control ps-10" placeholder="Search content..." [(ngModel)]="searchTerm"
+            >
+          <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button
+          [routerLink]="'/home'"
+            class="btn btn-gradient inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition w-full sm:w-auto"
+            type="button">
+            <span class="whitespace-nowrap"> home  </span>
+          </button>
+          <div class="flex items-center gap-4">
+            <!-- Notification Bell -->
+            <div class="relative">
+              <button
+                class="w-10 h-10 rounded-full bg-[#0F376B] flex items-center justify-center hover:bg-blue-300 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="currentColor"
+                  viewBox="0 0 20 20">
+                  <path
+                    d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
+                </svg>
+              </button>
+              <!-- Notification Dot -->
+              <span class="absolute top-1 right-1 block w-2 h-2 bg-red-500 rounded-full"></span>
+            </div>
+
+            <!-- User Avatar -->
+            <div class="relative inline-block text-left">
+              <!-- Avatar -->
+              <div class="w-12 h-12 rounded-full border-2 border-gray-300 overflow-hidden shadow-md cursor-pointer"
+                (click)="toggleMenu()">
+                <img src="https://i.pravatar.cc/48?img=11" alt="User" class="w-full h-full object-cover" />
+              </div>
+
+              <!-- Dropdown -->
+              <div *ngIf="isOpen"
+                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                <ul class="py-1 text-gray-700">
+                  <li>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">Profile</button>
+                  </li>
+                  <li>
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100">Settings</button>
+                  </li>
+                  <li>
+                    <button (click)="handleLogout()"
+                      class="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100">Logout</button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- Page Header -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h1 class="h3 fw-bold">User Management</h1>
+          <p class="text-muted">Manage all platform users and their permissions</p>
+        </div>
+      </div>
+
+      <!-- User Statistics Cards (modern look) -->
+      <div class="row mb-4 g-3">
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card stat-card border-0 shadow-lg text-white"
+            style="background: linear-gradient(135deg, #2563eb 0%, #1e293b 100%);">
+            <div class="card-body d-flex flex-column align-items-start">
+              <div class="mb-2">
+                <i class="fas fa-users fa-2x opacity-75"></i>
+              </div>
+              <h5 class="card-title fw-bold mb-1">Total Users</h5>
+              <h2 class="fw-bolder mb-0">{{ admin.totalUsers }}</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card stat-card border-0 shadow-lg text-white"
+            style="background: linear-gradient(135deg, #22c55e 0%, #166534 100%);">
+            <div class="card-body d-flex flex-column align-items-start">
+              <div class="mb-2">
+                <i class="fas fa-chalkboard-teacher fa-2x opacity-75"></i>
+              </div>
+              <h5 class="card-title fw-bold mb-1">Teachers</h5>
+              <h2 class="fw-bolder mb-0">{{ totalTeachers }}</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card stat-card border-0 shadow-lg text-white"
+            style="background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%);">
+            <div class="card-body d-flex flex-column align-items-start">
+              <div class="mb-2">
+                <i class="fas fa-user-friends fa-2x opacity-75"></i>
+              </div>
+              <h5 class="card-title fw-bold mb-1">Parents</h5>
+              <h2 class="fw-bolder mb-0">{{ totalParents }}</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card stat-card border-0 shadow-lg text-dark"
+            style="background: linear-gradient(135deg, #facc15 0%, #f59e42 100%);">
+            <div class="card-body d-flex flex-column align-items-start">
+              <div class="mb-2">
+                <i class="fas fa-user-graduate fa-2x opacity-75"></i>
+              </div>
+              <h5 class="card-title fw-bold mb-1">Students</h5>
+              <h2 class="fw-bolder mb-0">{{ totalStudents }}</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter and Search Section -->
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <!-- Role Filter -->
+            <div class="d-flex align-items-center me-3">
+              <label for="roleFilter" class="fw-semibold text-gray-700 me-2">Filter by Role:</label>
+              <select id="roleFilter" class="form-select w-auto" [(ngModel)]="selectedRole"
+                (change)="onRoleFilterChange()">
+                <option value="">All Roles</option>
+                <option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option>
+              </select>
+            </div>
+            <!-- Search Box -->
+            <div class="relative flex-grow">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input type="text" [(ngModel)]="searchTerm" (input)="currentPage.set(1)" placeholder="Search users..."
+                class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              <button *ngIf="searchTerm" (click)="clearSearch()"
+                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <!-- Add User Button -->
+            <button id="addUserBtn"
+              class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm flex items-center justify-center gap-1.5 whitespace-nowrap"
+              (click)="openAddUserModal()">
+              <i class="fas fa-plus"></i>
+              Add User
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden flex-grow flex flex-col w-full">
+        @if (loading) {
+        <div class="p-6 grid place-content-center flex-grow">
+          <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+        }
+
+        @if (errorMessage) {
+        <div class="p-3 text-red-600 bg-red-50 border-b border-red-100 text-sm">
+          {{ errorMessage }}
+          <button (click)="fetchUsers()" class="ml-3 text-blue-700 hover:text-blue-900 text-sm">
+            Retry
+          </button>
+        </div>
+        }
+
+        @if (!loading && !errorMessage) {
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">#</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Username
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Roles</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of pagedUsers; track user.id; let i = $index) {
+              <tr class="hover:bg-blue-50 transition">
+                <td class="px-4 py-3 text-gray-600">{{ (currentPage() - 1) * pageSize + i + 1 }}</td>
+                <td class="px-4 py-3 font-semibold text-gray-900">{{ user.userName }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ user.email || '-' }}</td>
+                <td class="px-4 py-3">
+                  <div class="flex flex-wrap gap-1">
+                    @for (role of user.roles; track role) {
+                    <span
+                      class="px-2 py-0.5 text-xs font-semibold rounded-full
+                            {{ role === 'Admin' ? 'bg-purple-100 text-purple-800' : '' }}
+                            {{ role === 'Teacher' ? 'bg-blue-100 text-blue-800' : '' }}
+                            {{ role === 'Student' ? 'bg-green-100 text-green-800' : '' }}
+                            {{ role === 'Parent' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                            {{ !['Admin','Teacher','Student','Parent'].includes(role) ? 'bg-gray-100 text-gray-800' : '' }}">
+                      {{ role }}
+                    </span>
+                    }
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/user', user.id]" ><i class="fas fa-eye"></i></button>
+                  <button (click)="editUserRoles(user)" class="btn btn-sm btn-outline-secondary me-1"><i
+                      class="fas fa-edit"></i></button>
+                  <button (click)="deleteUser(user)" class="btn btn-sm btn-outline-danger"><i
+                      class="fas fa-trash-alt"></i></button>
+                </td>
+              </tr>
+              }
+              @if (pagedUsers.length === 0) {
+              <tr>
+                <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-600">
+                  @if (searchTerm || selectedRole) {
+                  No users found matching your filter.
+                  } @else {
+                  No users available.
+                  }
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div
+          class="border-t border-gray-200 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+          <div class="text-gray-700">
+            Showing <span class="font-semibold">{{ startIndex }}</span> to
+            <span class="font-semibold">{{ endIndex }}</span> of
+            <span class="font-semibold">{{ filteredUsers.length }}</span> entries
+          </div>
+          <div class="flex items-center gap-2">
+            <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1"
+              class="px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+              Previous
+            </button>
+            <div class="flex items-center gap-1">
+              @for (page of getVisiblePages(); track page) {
+              @if (page === -1) {
+              <span class="px-1">...</span>
+              } @else {
+              <button (click)="goToPage(page)" [class.bg-blue-600]="page === currentPage()"
+                [class.text-white]="page === currentPage()"
+                class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 font-semibold">
+                {{ page }}
+              </button>
+              }
+              }
+            </div>
+            <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages"
+              class="px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+              Next
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </main>
+
+  <!-- Add User Modal -->
+  @if (isAddUserModalOpen) {
+  <app-add-user-modal (close)="closeAddUserModal()" (userCreated)="handleUserCreated($event)">
+  </app-add-user-modal>
+  }
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

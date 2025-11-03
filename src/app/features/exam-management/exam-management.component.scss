@@ -1,0 +1,35 @@
+/* Exam Management Component Styles */
+
+.exam-management-container {
+  min-height: 100vh;
+}
+
+/* Table styles */
+table {
+  tbody tr {
+    transition: all 0.2s ease;
+  }
+
+  tbody tr:hover {
+    background-color: #f9fafb;
+  }
+}
+
+/* Card hover animation */
+.exam-card {
+  transition: all 0.3s ease;
+}
+
+.exam-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Action button hover */
+.action-btn {
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+}

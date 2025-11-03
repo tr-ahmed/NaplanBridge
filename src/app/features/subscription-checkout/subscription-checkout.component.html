@@ -1,0 +1,472 @@
+<!-- Subscription Checkout Page -->
+<!-- Subscription Checkout Page -->
+<div class="min-h-screen bg-gray-50 pt-32 pb-16">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Complete Your Subscription</h1>
+      <p class="text-lg text-gray-600">Complete your subscription</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="mb-8">
+      <div class="flex items-center justify-center">
+        @for (step of [1,2,3]; track step; let i = $index) {
+          <div class="flex items-center">
+            <!-- Step Circle -->
+            <div class="flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold"
+                 [class.bg-blue-600]="currentStep() >= step"
+                 [class.text-white]="currentStep() >= step"
+                 [class.bg-gray-200]="currentStep() < step"
+                 [class.text-gray-600]="currentStep() < step">
+              @if (currentStep() > step) {
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+              } @else {
+                {{ step }}
+              }
+            </div>
+
+            <!-- Step Connector -->
+            @if (i < 2) {
+              <div class="w-20 h-1"
+                   [class.bg-blue-600]="currentStep() > step"
+                   [class.bg-gray-200]="currentStep() <= step">
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Step Labels -->
+      <div class="flex justify-center mt-4">
+        <div class="grid grid-cols-3 gap-20 text-center">
+          <div class="text-sm font-medium"
+               [class.text-blue-600]="currentStep() >= 1"
+               [class.text-gray-600]="currentStep() < 1">
+            Student Info
+          </div>
+          <div class="text-sm font-medium"
+               [class.text-blue-600]="currentStep() >= 2"
+               [class.text-gray-600]="currentStep() < 2">
+            Review & Discount
+          </div>
+          <div class="text-sm font-medium"
+               [class.text-blue-600]="currentStep() >= 3"
+               [class.text-gray-600]="currentStep() < 3">
+            Payment
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Left Column - Forms -->
+      <div class="lg:col-span-2">
+
+        <!-- Step 1: Student Information -->
+        @if (currentStep() === 1) {
+          <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Student Information</h2>
+
+            <form [formGroup]="studentForm" class="space-y-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Select Student <span class="text-red-500">*</span>
+                </label>
+                <select formControlName="studentId"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Choose a student...</option>
+                  <option value="1">Ahmed Ali - Grade 5</option>
+                  <option value="2">Sarah Mohammed - Grade 6</option>
+                  <option value="3">Omar Hassan - Grade 4</option>
+                </select>
+
+                @if (studentForm.get('studentId')?.errors?.['required'] && studentForm.get('studentId')?.touched) {
+                  <p class="text-red-500 text-sm mt-1">Please select a student</p>
+                }
+              </div>
+
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-start">
+                  <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                  </svg>
+                  <div class="text-sm text-blue-800">
+                    <p class="font-medium">Important Note:</p>
+                    <p>The subscription will be linked to the selected student's account. Progress tracking and content access will be specific to this student.</p>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        }
+
+        <!-- Step 2: Review & Discount -->
+        @if (currentStep() === 2) {
+          <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Review & Apply Discount</h2>
+
+            <!-- Plan Summary -->
+            @if (plan()) {
+              <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <h3 class="font-semibold text-gray-900 mb-2">Selected Plan</h3>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="font-medium">{{ plan()!.name }}</p>
+                    <p class="text-sm text-gray-600">{{ plan()!.description }}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-lg font-bold">{{ formatPrice(plan()!.currentPrice) }}</p>
+                    @if (plan()!.currentOriginalPrice > plan()!.currentPrice) {
+                      <p class="text-sm text-gray-500 line-through">{{ formatPrice(plan()!.currentOriginalPrice) }}</p>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Discount Code -->
+            <div class="border border-gray-200 rounded-lg p-4">
+              <h3 class="font-semibold text-gray-900 mb-4">Discount Code</h3>
+
+              @if (!discount()) {
+                <form [formGroup]="discountForm" class="flex gap-3">
+                  <input type="text"
+                         formControlName="code"
+                         placeholder="Enter discount code..."
+                         class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <button type="button"
+                          (click)="applyDiscount()"
+                          [disabled]="!discountForm.get('code')?.value"
+                          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                    Apply
+                  </button>
+                </form>
+
+                @if (discountForm.get('code')?.errors?.['invalid']) {
+                  <p class="text-red-500 text-sm mt-2">Invalid or expired discount code</p>
+                }
+              } @else {
+                <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <div>
+                      <p class="font-medium text-green-800">{{ discount()!.code }} Applied</p>
+                      <p class="text-sm text-green-600">{{ discount()!.name }}</p>
+                    </div>
+                  </div>
+                  <button (click)="removeDiscount()"
+                          class="text-red-600 hover:text-red-800 font-medium text-sm">
+                    Remove
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Step 3: Payment -->
+        @if (currentStep() === 3) {
+          <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Payment Information</h2>
+
+            <!-- Payment Methods -->
+            <div class="mb-6">
+              <h3 class="font-semibold text-gray-900 mb-4">Payment Method</h3>
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-center">
+                  <span class="text-2xl mr-3">💳</span>
+                  <div>
+                    <p class="font-medium text-gray-900">Credit/Debit Card</p>
+                    <p class="text-sm text-gray-600">Secure payment powered by Stripe</p>
+                  </div>
+                  <div class="ml-auto flex items-center space-x-2">
+                    <span class="text-xs text-gray-500">Powered by</span>
+                    <svg class="h-4 w-auto" viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M59.5 12.5c0-6.904-5.596-12.5-12.5-12.5s-12.5 5.596-12.5 12.5 5.596 12.5 12.5 12.5 12.5-5.596 12.5-12.5zM47 7.5h-2v10h2v-10zm-6 0h-2v10h2v-10zm-6 0h-2v10h2v-10zm-6 0h-2v10h2v-10zm-6 0h-2v10h2v-10zm-6 0h-2v10h2v-10zm-6 0h-2v10h2v-10zm-6 0h-2v10h2v-10z" fill="#6772E5"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Form -->
+            <form [formGroup]="paymentForm" class="space-y-6">
+
+              <!-- Credit Card Fields -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Card Number <span class="text-red-500">*</span>
+                  </label>
+                  <input type="text"
+                         formControlName="cardNumber"
+                         placeholder="1234 5678 9012 3456"
+                         maxlength="16"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Cardholder Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           formControlName="cardholderName"
+                           placeholder="John Doe"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Expiry Month <span class="text-red-500">*</span>
+                    </label>
+                    <select formControlName="expiryMonth"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">Month</option>
+                      @for (month of getExpiryMonths(); track month) {
+                        <option [value]="month">{{ month.toString().padStart(2, '0') }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Expiry Year <span class="text-red-500">*</span>
+                    </label>
+                    <select formControlName="expiryYear"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">Year</option>
+                      @for (year of getExpiryYears(); track year) {
+                        <option [value]="year">{{ year }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      CVV <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           formControlName="cvv"
+                           placeholder="123"
+                           maxlength="4"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+                </div>
+
+              <!-- Billing Address -->
+              <div class="border-t border-gray-200 pt-6">
+                <h3 class="font-semibold text-gray-900 mb-4">Billing Address</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+                    <input type="text"
+                           formControlName="street"
+                           placeholder="123 Main St"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                    <input type="text"
+                           formControlName="city"
+                           placeholder="City"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">State</label>
+                    <input type="text"
+                           formControlName="state"
+                           placeholder="State"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
+                    <input type="text"
+                           formControlName="zipCode"
+                           placeholder="12345"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                    <select formControlName="country"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="USA">United States</option>
+                      <option value="UAE">United Arab Emirates</option>
+                      <option value="SAU">Saudi Arabia</option>
+                      <option value="EGY">Egypt</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Terms and Conditions -->
+              <div class="border-t border-gray-200 pt-6 space-y-3">
+                <h3 class="font-semibold text-gray-900 mb-4">Terms and Agreements</h3>
+
+                <label class="flex items-start">
+                  <input type="checkbox"
+                         formControlName="termsAccepted"
+                         class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                  <span class="text-sm text-gray-700">
+                    I agree to the <a href="/terms" class="text-blue-600 hover:text-blue-800">Terms of Service</a> <span class="text-red-500">*</span>
+                  </span>
+                </label>
+
+                <label class="flex items-start">
+                  <input type="checkbox"
+                         formControlName="privacyAccepted"
+                         class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                  <span class="text-sm text-gray-700">
+                    I agree to the <a href="/privacy" class="text-blue-600 hover:text-blue-800">Privacy Policy</a> <span class="text-red-500">*</span>
+                  </span>
+                </label>
+
+                <label class="flex items-start">
+                  <input type="checkbox"
+                         formControlName="marketingAccepted"
+                         class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                  <span class="text-sm text-gray-700">
+                    I agree to receive marketing communications (optional)
+                  </span>
+                </label>
+              </div>
+            </form>
+          </div>
+        }
+
+        <!-- Error Message -->
+        @if (error()) {
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mt-6">
+            {{ error() }}
+          </div>
+        }
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between mt-8">
+          <button type="button"
+                  (click)="currentStep() === 1 ? goBackToPlans() : previousStep()"
+                  class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            {{ currentStep() === 1 ? 'Back to Plans' : 'Previous' }}
+          </button>
+
+          @if (currentStep() < totalSteps) {
+            <button type="button"
+                    (click)="nextStep()"
+                    [disabled]="!validateCurrentStep()"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+              Next Step
+            </button>
+          } @else {
+            <button type="button"
+                    (click)="completePurchase()"
+                    [disabled]="!validateAllForms() || processing()"
+                    class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-semibold">
+              @if (processing()) {
+                <div class="flex items-center">
+                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Processing...
+                </div>
+              } @else {
+                Complete Purchase
+              }
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Right Column - Order Summary -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-lg p-6 sticky top-32">
+          <h3 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h3>
+
+          @if (plan()) {
+            <!-- Plan Details -->
+            <div class="border-b border-gray-200 pb-4 mb-4">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h4 class="font-medium text-gray-900">{{ plan()!.name }}</h4>
+                  <p class="text-sm text-gray-600 mt-1">{{ plan()!.description }}</p>
+                  <div class="flex items-center mt-2 text-sm text-gray-500">
+                    <span>{{ plan()!.totalSubjects }} subjects</span>
+                    <span class="mx-2">•</span>
+                    <span>{{ plan()!.totalLessons }} lessons</span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="font-semibold text-gray-900">{{ formatPrice(plan()!.currentPrice) }}</p>
+                  @if (plan()!.currentOriginalPrice > plan()!.currentPrice) {
+                    <p class="text-sm text-gray-500 line-through">{{ formatPrice(plan()!.currentOriginalPrice) }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Discount Applied -->
+            @if (discount()) {
+              <div class="border-b border-gray-200 pb-4 mb-4">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="font-medium text-green-700">Discount Applied</p>
+                    <p class="text-sm text-gray-600">{{ discount()!.code }}</p>
+                  </div>
+                  <p class="font-semibold text-green-700">-{{ formatPrice(calculateDiscountAmount()) }}</p>
+                </div>
+              </div>
+            }
+
+            <!-- Total -->
+            <div class="border-t border-gray-200 pt-4">
+              <div class="flex justify-between items-center mb-2">
+                <p class="text-lg font-semibold text-gray-900">Total</p>
+                <p class="text-2xl font-bold text-gray-900">{{ formatPrice(finalPrice()) }}</p>
+              </div>
+
+              @if (plan()!.paymentType === 'monthly') {
+                <p class="text-sm text-gray-600 text-right">Billed monthly</p>
+              } @else if (plan()!.paymentType === 'yearly') {
+                <p class="text-sm text-gray-600 text-right">Billed annually</p>
+              } @else {
+                <p class="text-sm text-gray-600 text-right">One-time payment</p>
+              }
+            </div>
+
+            <!-- Security Notice -->
+            <div class="bg-gray-50 rounded-lg p-4 mt-6">
+              <div class="flex items-start">
+                <svg class="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                </svg>
+                <div class="text-sm">
+                  <p class="font-medium text-gray-900">Secure Payment</p>
+                  <p class="text-gray-600">Your payment information is encrypted and secure.</p>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    @if (loading()) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 flex items-center">
+          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+          <span class="text-gray-700">Loading...</span>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

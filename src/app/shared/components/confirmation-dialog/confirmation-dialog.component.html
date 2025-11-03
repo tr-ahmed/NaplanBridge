@@ -1,0 +1,72 @@
+<!-- Backdrop -->
+<div
+  *ngIf="isOpen"
+  class="fixed inset-0 z-50 overflow-y-auto"
+  (click)="onCancel()">
+
+  <!-- Background Overlay -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+
+  <!-- Dialog Container -->
+  <div class="flex min-h-full items-center justify-center p-4">
+
+    <!-- Dialog Panel -->
+    <div
+      class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-2xl transition-all"
+      (click)="$event.stopPropagation()">
+
+      <!-- Icon -->
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
+           [ngClass]="{
+             'bg-red-100': type === 'danger',
+             'bg-yellow-100': type === 'warning',
+             'bg-blue-100': type === 'info',
+             'bg-green-100': type === 'success'
+           }">
+        <svg
+          class="h-6 w-6"
+          [ngClass]="getIconClass()"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            [attr.d]="icon || getDefaultIcon()">
+          </path>
+        </svg>
+      </div>
+
+      <!-- Content -->
+      <div class="mt-4 text-center">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">
+          {{ title }}
+        </h3>
+        <p class="text-sm text-gray-600">
+          {{ message }}
+        </p>
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-6 flex gap-3">
+        <!-- Cancel Button -->
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+          {{ cancelText }}
+        </button>
+
+        <!-- Confirm Button -->
+        <button
+          type="button"
+          (click)="onConfirm()"
+          [ngClass]="getButtonClass()"
+          class="flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors">
+          {{ confirmText }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

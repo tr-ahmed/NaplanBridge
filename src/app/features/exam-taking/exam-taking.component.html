@@ -1,0 +1,368 @@
+<div class="exam-taking-container min-h-screen bg-gray-50">
+  <!-- Loading State -->
+  @if (loading() && !examStarted()) {
+    <div class="flex items-center justify-center h-screen">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+        <p class="mt-4 text-gray-600">Loading exam...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="flex items-center justify-center h-screen">
+      <div class="text-center max-w-md">
+        <svg class="w-16 h-16 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h3 class="mt-4 text-xl font-semibold text-gray-900">{{ error() }}</h3>
+        <button (click)="router.navigate(['/student/exams'])" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          Back to Exams
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Exam Instructions (Before Start) -->
+  @if (exam() && !examStarted() && !error()) {
+    <div class="container mx-auto px-4 py-12">
+      <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ exam()!.title }}</h1>
+          @if (exam()!.description) {
+            <p class="text-gray-600">{{ exam()!.description }}</p>
+          }
+        </div>
+
+        <!-- Exam Info -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-blue-50 rounded-lg p-4 text-center">
+            <svg class="w-8 h-8 text-blue-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-2xl font-bold text-gray-900">{{ exam()!.durationInMinutes }}</p>
+            <p class="text-sm text-gray-600">Minutes</p>
+          </div>
+
+          <div class="bg-green-50 rounded-lg p-4 text-center">
+            <svg class="w-8 h-8 text-green-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <p class="text-2xl font-bold text-gray-900">{{ exam()!.questionCount || 0 }}</p>
+            <p class="text-sm text-gray-600">Questions</p>
+          </div>
+
+          <div class="bg-yellow-50 rounded-lg p-4 text-center">
+            <svg class="w-8 h-8 text-yellow-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+            </svg>
+            <p class="text-2xl font-bold text-gray-900">{{ exam()!.totalMarks }}</p>
+            <p class="text-sm text-gray-600">Total Marks</p>
+          </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-yellow-800">Important Instructions</h3>
+              <div class="mt-2 text-sm text-yellow-700">
+                <ul class="list-disc list-inside space-y-1">
+                  <li>Read each question carefully before answering</li>
+                  <li>You can navigate between questions at any time</li>
+                  <li>The exam will auto-submit when time runs out</li>
+                  <li>Make sure to review your answers before submitting</li>
+                  <li>You cannot change answers after submission</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Start Button -->
+        <div class="text-center">
+          <button
+            (click)="startExam()"
+            [disabled]="loading()"
+            class="px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-lg font-semibold shadow-lg">
+            @if (loading()) {
+              <span>Starting...</span>
+            } @else {
+              <span>Start Exam Now</span>
+            }
+          </button>
+          <p class="mt-4 text-sm text-gray-500">Click the button when you're ready to begin</p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Exam in Progress -->
+  @if (examStarted() && !examCompleted() && exam()) {
+    <div class="container mx-auto px-4 py-6">
+      <!-- Top Bar with Timer -->
+      <div class="bg-white rounded-lg shadow-sm p-4 mb-6 sticky top-0 z-10">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">{{ exam()!.title }}</h2>
+            <p class="text-sm text-gray-500">Question {{ currentQuestionIndex() + 1 }} of {{ totalQuestions() }}</p>
+          </div>
+
+          <!-- Timer -->
+          <div
+            class="flex items-center gap-3 px-6 py-3 rounded-lg"
+            [class.bg-red-100]="timeWarning()"
+            [class.bg-blue-50]="!timeWarning()">
+            <svg
+              class="w-6 h-6"
+              [class.text-red-600]="timeWarning()"
+              [class.text-blue-600]="!timeWarning()"
+              [class.animate-pulse]="timeWarning()"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <p
+                class="text-2xl font-bold font-mono"
+                [class.text-red-600]="timeWarning()"
+                [class.text-blue-900]="!timeWarning()">
+                {{ timeRemainingFormatted() }}
+              </p>
+              <p class="text-xs text-gray-500">Time Remaining</p>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div class="text-right">
+            <p class="text-sm text-gray-600">Progress</p>
+            <p class="text-xl font-bold text-gray-900">{{ progressPercentage() }}%</p>
+            <p class="text-xs text-gray-500">{{ answeredCount() }}/{{ totalQuestions() }} answered</p>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mt-4 bg-gray-200 rounded-full h-2">
+          <div
+            class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            [style.width.%]="progressPercentage()">
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Question Area -->
+        <div class="lg:col-span-3">
+          @if (currentQuestion()) {
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <!-- Question Header -->
+              <div class="flex items-start justify-between mb-6">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                      Question {{ currentQuestionIndex() + 1 }}
+                    </span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                      {{ currentQuestion()!.marks }} {{ currentQuestion()!.marks === 1 ? 'Mark' : 'Marks' }}
+                    </span>
+                  </div>
+                  <p class="text-lg font-medium text-gray-900 leading-relaxed">
+                    {{ currentQuestion()!.questionText }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Answer Options Based on Question Type -->
+              <div class="space-y-4">
+                <!-- Text Answer -->
+                @if (currentQuestion()!.questionType === QuestionTypeEnum.TEXT) {
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Answer:</label>
+                    <textarea
+                      [value]="getAnswer(currentQuestion()!.id)?.textAnswer || ''"
+                      (input)="onTextAnswer(currentQuestion()!.id, $event)"
+                      rows="6"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Type your answer here..."></textarea>
+                  </div>
+                }
+
+                <!-- Multiple Choice (Single Selection) -->
+                @if (currentQuestion()!.questionType === QuestionTypeEnum.MULTIPLE_CHOICE && currentQuestion()!.options) {
+                  <div class="space-y-3">
+                    @for (option of currentQuestion()!.options; track option.id) {
+                      <label
+                        class="flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all"
+                        [class.border-blue-500]="isMCQSelected(currentQuestion()!.id, option.id)"
+                        [class.bg-blue-50]="isMCQSelected(currentQuestion()!.id, option.id)"
+                        [class.border-gray-200]="!isMCQSelected(currentQuestion()!.id, option.id)"
+                        [class.hover:border-blue-300]="!isMCQSelected(currentQuestion()!.id, option.id)">
+                        <input
+                          type="radio"
+                          [name]="'question-' + currentQuestion()!.id"
+                          [checked]="isMCQSelected(currentQuestion()!.id, option.id)"
+                          (change)="onMCQAnswer(currentQuestion()!.id, option.id)"
+                          class="mt-1 w-5 h-5 text-blue-600 focus:ring-blue-500">
+                        <span class="flex-1 text-gray-900">{{ option.optionText }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+
+                <!-- Multiple Select (Multiple Selection) -->
+                @if (currentQuestion()!.questionType === QuestionTypeEnum.MULTIPLE_SELECT && currentQuestion()!.options) {
+                  <div>
+                    <p class="text-sm text-gray-600 mb-3 italic">Select all that apply</p>
+                    <div class="space-y-3">
+                      @for (option of currentQuestion()!.options; track option.id) {
+                        <label
+                          class="flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all"
+                          [class.border-blue-500]="isMultiSelectSelected(currentQuestion()!.id, option.id)"
+                          [class.bg-blue-50]="isMultiSelectSelected(currentQuestion()!.id, option.id)"
+                          [class.border-gray-200]="!isMultiSelectSelected(currentQuestion()!.id, option.id)"
+                          [class.hover:border-blue-300]="!isMultiSelectSelected(currentQuestion()!.id, option.id)">
+                          <input
+                            type="checkbox"
+                            [checked]="isMultiSelectSelected(currentQuestion()!.id, option.id)"
+                            (change)="onMultiSelectAnswer(currentQuestion()!.id, option.id, $event)"
+                            class="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
+                          <span class="flex-1 text-gray-900">{{ option.optionText }}</span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <!-- True/False -->
+                @if (currentQuestion()!.questionType === QuestionTypeEnum.TRUE_FALSE && currentQuestion()!.options) {
+                  <div class="grid grid-cols-2 gap-4">
+                    @for (option of currentQuestion()!.options; track option.id) {
+                      <label
+                        class="flex items-center justify-center gap-3 p-6 border-2 rounded-lg cursor-pointer transition-all"
+                        [class.border-green-500]="getTrueFalseAnswer(currentQuestion()!.id) === option.id && option.optionText.toLowerCase().includes('true')"
+                        [class.bg-green-50]="getTrueFalseAnswer(currentQuestion()!.id) === option.id && option.optionText.toLowerCase().includes('true')"
+                        [class.border-red-500]="getTrueFalseAnswer(currentQuestion()!.id) === option.id && option.optionText.toLowerCase().includes('false')"
+                        [class.bg-red-50]="getTrueFalseAnswer(currentQuestion()!.id) === option.id && option.optionText.toLowerCase().includes('false')"
+                        [class.border-gray-200]="getTrueFalseAnswer(currentQuestion()!.id) !== option.id"
+                        [class.hover:border-gray-400]="getTrueFalseAnswer(currentQuestion()!.id) !== option.id">
+                        <input
+                          type="radio"
+                          [name]="'question-' + currentQuestion()!.id"
+                          [checked]="getTrueFalseAnswer(currentQuestion()!.id) === option.id"
+                          (change)="onTrueFalseAnswer(currentQuestion()!.id, option.id)"
+                          class="w-5 h-5">
+                        <span class="text-lg font-semibold">{{ option.optionText }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Navigation Buttons -->
+              <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+                <button
+                  (click)="previousQuestion()"
+                  [disabled]="currentQuestionIndex() === 0"
+                  class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+                  ← Previous
+                </button>
+
+                <div class="flex gap-2">
+                  <button
+                    (click)="flagQuestion(currentQuestion()!.id)"
+                    class="px-4 py-3 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 font-medium">
+                    🚩 Flag for Review
+                  </button>
+                </div>
+
+                <button
+                  (click)="nextQuestion()"
+                  [disabled]="currentQuestionIndex() === totalQuestions() - 1"
+                  class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+                  Next →
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Question Navigator Sidebar -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Questions</h3>
+
+            <div class="grid grid-cols-5 gap-2 mb-6">
+              @for (question of exam()?.questions; track question.id; let i = $index) {
+                <button
+                  (click)="goToQuestion(i)"
+                  class="w-10 h-10 rounded-lg font-medium text-sm transition-all"
+                  [class.bg-blue-600]="i === currentQuestionIndex()"
+                  [class.text-white]="i === currentQuestionIndex()"
+                  [class.bg-green-100]="isQuestionAnswered(question.id) && i !== currentQuestionIndex()"
+                  [class.text-green-700]="isQuestionAnswered(question.id) && i !== currentQuestionIndex()"
+                  [class.bg-gray-100]="!isQuestionAnswered(question.id) && i !== currentQuestionIndex()"
+                  [class.text-gray-700]="!isQuestionAnswered(question.id) && i !== currentQuestionIndex()"
+                  [class.hover:bg-gray-200]="i !== currentQuestionIndex()">
+                  {{ i + 1 }}
+                </button>
+              }
+            </div>
+
+            <div class="space-y-2 text-sm mb-6">
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-green-100 rounded"></div>
+                <span class="text-gray-600">Answered</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-gray-100 rounded"></div>
+                <span class="text-gray-600">Not Answered</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-blue-600 rounded"></div>
+                <span class="text-gray-600">Current</span>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              (click)="submitExam()"
+              [disabled]="submitting()"
+              class="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold shadow-lg">
+              @if (submitting()) {
+                <span>Submitting...</span>
+              } @else {
+                <span>Submit Exam</span>
+              }
+            </button>
+
+            <button
+              (click)="cancelExam()"
+              class="w-full mt-2 px-6 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium">
+              Cancel Exam
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Exam Completed -->
+  @if (examCompleted()) {
+    <div class="flex items-center justify-center h-screen">
+      <div class="text-center">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Exam Submitted Successfully!</h2>
+        <p class="text-gray-600">Redirecting to results...</p>
+      </div>
+    </div>
+  }
+</div>

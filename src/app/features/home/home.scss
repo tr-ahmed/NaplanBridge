@@ -1,0 +1,63 @@
+/* Home component styles using Tailwind CSS */
+
+/* Any custom styles that can't be achieved with Tailwind utilities */
+
+/* Remove default link underlines */
+a {
+  text-decoration: none;
+}
+
+/* Ensure smooth transitions for hover effects */
+.hover\:shadow-xl:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Custom gradient background for hero decorative elements */
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+/* Hero image automatic animation enhancements */
+.hero-image {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+
+  &:hover {
+    transform: scale(1.05) !important;
+    z-index: 10;
+  }
+
+  img {
+    transition: transform 0.3s ease-out;
+  }
+
+  &:hover img {
+    transform: scale(1.1);
+  }
+}
+
+/* Add subtle floating animation fallback for non-JS environments */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.hero-image:nth-child(odd) {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.hero-image:nth-child(even) {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 3s;
+}
+
+/* Enhance performance for smooth animations */
+.hero-image, .hero-image img {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}

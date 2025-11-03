@@ -1,0 +1,124 @@
+<div class="book-session-container p-6 max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="flex items-center mb-6">
+    <button (click)="goBack()" class="mr-4 text-gray-600 hover:text-gray-800">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Book Private Session</h1>
+      <p class="text-gray-600 mt-1">Select student and preferred time</p>
+    </div>
+  </div>
+
+  <!-- Student Selection -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Select Student</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <button
+        *ngFor="let student of students()"
+        (click)="selectedStudentId.set(student.id)"
+        [class]="selectedStudentId() === student.id
+          ? 'border-2 border-indigo-600 bg-indigo-50'
+          : 'border-2 border-gray-200 hover:border-gray-300'"
+        class="p-4 rounded-lg text-left transition-colors">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-lg font-bold mr-3">
+            {{ student.name.charAt(0) }}
+          </div>
+          <div>
+            <p class="font-semibold text-gray-800">{{ student.name }}</p>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Date Selection -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Select Date</h2>
+    <div class="grid grid-cols-4 md:grid-cols-7 gap-3">
+      <button
+        *ngFor="let date of getNextDays()"
+        (click)="selectDate(date)"
+        [class]="isDateSelected(date)
+          ? 'bg-indigo-600 text-white'
+          : 'bg-gray-100 text-gray-800 hover:bg-gray-200'"
+        class="p-3 rounded-lg text-center transition-colors">
+        <div class="text-sm">{{ formatDateDisplay(date) }}</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Time Slots Selection -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Select Time</h2>
+
+    <div *ngIf="loading()" class="flex items-center justify-center py-8">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <div *ngIf="!loading() && getSlotsForDate(selectedDate()).length > 0"
+         class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <button
+        *ngFor="let slot of getSlotsForDate(selectedDate())"
+        (click)="selectSlot(slot)"
+        [class]="isSlotSelected(slot)
+          ? 'bg-indigo-600 text-white'
+          : 'bg-gray-100 text-gray-800 hover:bg-gray-200'"
+        class="p-3 rounded-lg text-center transition-colors font-medium">
+        {{ formatTime(slot.dateTime) }}
+      </button>
+    </div>
+
+    <div *ngIf="!loading() && getSlotsForDate(selectedDate()).length === 0"
+         class="text-center py-8">
+      <p class="text-gray-500">No available time slots for this date</p>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Notes (Optional)</h2>
+    <textarea
+      [value]="notes()"
+      (input)="notes.set($any($event.target).value)"
+      rows="4"
+      placeholder="Add any notes for the teacher (e.g., topics needed, areas of weakness, etc...)"
+      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
+  </div>
+
+  <!-- Booking Summary & Action -->
+  <div class="bg-indigo-50 rounded-lg p-6">
+    <h3 class="text-lg font-bold text-gray-800 mb-4">Booking Summary</h3>
+
+    <div class="space-y-2 mb-6">
+      <div class="flex justify-between">
+        <span class="text-gray-600">Student:</span>
+        <span class="font-semibold text-gray-800">
+          {{ getSelectedStudentName() }}
+        </span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Date:</span>
+        <span class="font-semibold text-gray-800">
+          {{ getSelectedSlotDate() }}
+        </span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600">Time:</span>
+        <span class="font-semibold text-gray-800">
+          {{ selectedSlot() ? formatTime(selectedSlot()!.dateTime) : '-' }}
+        </span>
+      </div>
+    </div>
+
+    <button
+      (click)="bookSession()"
+      [disabled]="!selectedStudentId() || !selectedSlot() || booking()"
+      class="w-full py-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-bold text-lg">
+      {{ booking() ? 'Booking...' : 'Confirm Booking & Proceed to Payment' }}
+    </button>
+  </div>
+</div>
