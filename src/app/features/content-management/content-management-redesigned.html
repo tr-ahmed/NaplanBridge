@@ -1,0 +1,486 @@
+<!-- Content Management - Redesigned Layout -->
+<!-- Remove DOCTYPE and html/head tags - this is an Angular component template -->
+
+<!-- Mobile Menu Toggle Button -->
+<button 
+  class="mobile-menu-toggle d-lg-none" 
+  (click)="toggleMobileSidebar()" 
+  aria-label="Toggle menu"
+  [attr.aria-expanded]="sidebarMobileOpen">
+  <i class="fas" [class.fa-bars]="!sidebarMobileOpen" [class.fa-times]="sidebarMobileOpen"></i>
+</button>
+
+<!-- Sidebar Overlay for Mobile -->
+<div class="sidebar-overlay" [class.active]="sidebarMobileOpen" (click)="closeMobileSidebar()"></div>
+
+<!-- Sidebar Navigation -->
+<aside class="sidebar" [class.mobile-active]="sidebarMobileOpen">
+  
+  <!-- Logo Section -->
+  <div class="sidebar-header">
+    <div class="logo-container">
+      <div class="logo-icon">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <div class="logo-text">
+        <h5 class="mb-0">NAPLANBridge</h5>
+        <small>Content Management</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Links -->
+  <nav class="sidebar-nav">
+    <!-- Main Navigation -->
+    <div class="nav-section">
+      <small class="nav-section-title">MAIN</small>
+      
+      <a [routerLink]="'/admin/dashboard'" class="nav-link" routerLinkActive="active">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      
+      <a [routerLink]="'/admin/content'" class="nav-link active">
+        <i class="fas fa-book-open"></i>
+        <span>Content Management</span>
+      </a>
+      
+      <a [routerLink]="'/admin/users'" class="nav-link" routerLinkActive="active">
+        <i class="fas fa-users"></i>
+        <span>Users</span>
+      </a>
+      
+      <a [routerLink]="'/admin/subscriptions'" class="nav-link" routerLinkActive="active">
+        <i class="fas fa-credit-card"></i>
+        <span>Subscriptions</span>
+      </a>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="nav-section mt-4">
+      <small class="nav-section-title">QUICK ACTIONS</small>
+      
+      <button class="nav-link btn-link" (click)="openAdd('subject')">
+        <i class="fas fa-plus-circle"></i>
+        <span>Add Subject</span>
+      </button>
+      
+      <button class="nav-link btn-link" (click)="openAdd('lesson')">
+        <i class="fas fa-plus-circle"></i>
+        <span>Add Lesson</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- User Profile -->
+  <div class="sidebar-footer">
+    <div class="user-profile">
+      <div class="user-avatar">
+        <i class="fas fa-user-circle"></i>
+      </div>
+      <div class="user-info">
+        <div class="user-name">{{ userName }}</div>
+        <small class="user-role">Administrator</small>
+      </div>
+      <button class="btn-logout" (click)="handleLogout()" title="Logout">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content Area -->
+<main class="main-content">
+  <div class="container-fluid">
+    
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h1 class="page-title">
+            <i class="fas fa-book-open me-2"></i>
+            Content Management
+          </h1>
+          <p class="page-subtitle">Manage your educational content hierarchy</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <!-- Global Search -->
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search content..." 
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onSearchChange()"
+            />
+            @if (searchTerm) {
+              <button class="btn-clear" (click)="clearSearch()">
+                <i class="fas fa-times"></i>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+      <div class="row g-4">
+        <div class="col-xl-2 col-lg-4 col-md-6">
+          <div class="stat-card stat-primary">
+            <div class="stat-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats.years }}</div>
+              <div class="stat-label">Years</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6">
+          <div class="stat-card stat-success">
+            <div class="stat-icon">
+              <i class="fas fa-folder"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats.categories }}</div>
+              <div class="stat-label">Categories</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6">
+          <div class="stat-card stat-info">
+            <div class="stat-icon">
+              <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats.subjects }}</div>
+              <div class="stat-label">Subjects</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6">
+          <div class="stat-card stat-warning">
+            <div class="stat-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats.terms }}</div>
+              <div class="stat-label">Terms</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6">
+          <div class="stat-card stat-danger">
+            <div class="stat-icon">
+              <i class="fas fa-calendar-week"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats.weeks }}</div>
+              <div class="stat-label">Weeks</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6">
+          <div class="stat-card stat-purple">
+            <div class="stat-icon">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats.lessons }}</div>
+              <div class="stat-label">Lessons</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Filters -->
+    <div class="filters-section card">
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-lg-2 col-md-4 col-sm-6">
+            <label class="form-label">
+              <i class="fas fa-filter me-1"></i>
+              Filter by Year
+            </label>
+            <select class="form-select" [(ngModel)]="filters.yearId" (change)="onFilterChange()">
+              <option [value]="null">All Years</option>
+              @for (year of years; track year.id) {
+                <option [value]="year.id">Year {{ year.yearNumber }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-lg-2 col-md-4 col-sm-6">
+            <label class="form-label">
+              <i class="fas fa-filter me-1"></i>
+              Filter by Category
+            </label>
+            <select class="form-select" [(ngModel)]="filters.categoryId" (change)="onFilterChange()">
+              <option [value]="null">All Categories</option>
+              @for (cat of categories; track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-lg-2 col-md-4 col-sm-6">
+            <label class="form-label">
+              <i class="fas fa-filter me-1"></i>
+              Filter by Subject
+            </label>
+            <select class="form-select" [(ngModel)]="filters.subjectId" (change)="onFilterChange()">
+              <option [value]="null">All Subjects</option>
+              @for (subj of filteredSubjects; track subj.id) {
+                <option [value]="subj.id">{{ subj.subjectName }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-lg-2 col-md-4 col-sm-6">
+            <label class="form-label">
+              <i class="fas fa-filter me-1"></i>
+              Filter by Term
+            </label>
+            <select class="form-select" [(ngModel)]="filters.termId" (change)="onFilterChange()">
+              <option [value]="null">All Terms</option>
+              @for (term of filteredTerms; track term.id) {
+                <option [value]="term.id">
+                  Term {{ term.termNumber }} - {{ nameSubject(term.subjectId) }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="col-lg-2 col-md-4 col-sm-6">
+            <label class="form-label">
+              <i class="fas fa-filter me-1"></i>
+              Filter by Week
+            </label>
+            <select class="form-select" [(ngModel)]="filters.weekId" (change)="onFilterChange()">
+              <option [value]="null">All Weeks</option>
+              @for (week of filteredWeeks; track week.id) {
+                <option [value]="week.id">Week {{ week.weekNumber }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-lg-2 col-md-4 col-sm-6">
+            <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+              <i class="fas fa-times me-1"></i>
+              Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Tabs -->
+    <div class="content-tabs card">
+      <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+          <li class="nav-item">
+            <button 
+              class="nav-link" 
+              [class.active]="activeTab === 'hierarchy'"
+              (click)="setActiveTab('hierarchy')">
+              <i class="fas fa-sitemap me-2"></i>
+              Hierarchy View
+            </button>
+          </li>
+          <li class="nav-item">
+            <button 
+              class="nav-link" 
+              [class.active]="activeTab === 'years'"
+              (click)="setActiveTab('years')">
+              <i class="fas fa-calendar-alt me-2"></i>
+              Years
+            </button>
+          </li>
+          <li class="nav-item">
+            <button 
+              class="nav-link" 
+              [class.active]="activeTab === 'categories'"
+              (click)="setActiveTab('categories')">
+              <i class="fas fa-folder me-2"></i>
+              Categories
+            </button>
+          </li>
+          <li class="nav-item">
+            <button 
+              class="nav-link" 
+              [class.active]="activeTab === 'subjects'"
+              (click)="setActiveTab('subjects')">
+              <i class="fas fa-book me-2"></i>
+              Subjects
+            </button>
+          </li>
+          <li class="nav-item">
+            <button 
+              class="nav-link" 
+              [class.active]="activeTab === 'lessons'"
+              (click)="setActiveTab('lessons')">
+              <i class="fas fa-graduation-cap me-2"></i>
+              Lessons
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card-body">
+        <!-- Tab Content Will Be Inserted Here -->
+        <div class="tab-content">
+          
+          <!-- Hierarchy View Tab -->
+          @if (activeTab === 'hierarchy') {
+            <div class="hierarchy-view">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">
+                  <i class="fas fa-sitemap me-2"></i>
+                  Content Hierarchy
+                </h4>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-outline-primary" (click)="expandAll()">
+                    <i class="fas fa-plus-square me-1"></i>
+                    Expand All
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary" (click)="collapseAll()">
+                    <i class="fas fa-minus-square me-1"></i>
+                    Collapse All
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tree Structure -->
+              <div class="hierarchy-tree">
+                @for (year of filteredYears; track year.id) {
+                  <app-hierarchy-node
+                    [year]="year"
+                    [subjects]="getSubjectsByYear(year.id)"
+                    [terms]="terms"
+                    [weeks]="weeks"
+                    [lessons]="lessons"
+                    (add)="openAdd($event.type)"
+                    (edit)="openEdit($event.type, $event.entity)"
+                    (delete)="confirmDelete($event.type, $event.entity)">
+                  </app-hierarchy-node>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Years Tab -->
+          @if (activeTab === 'years') {
+            <app-years-table
+              [years]="pagedYears"
+              [totalPages]="yearTotalPages"
+              [currentPage]="yearPage"
+              [totalItems]="filteredYears.length"
+              (pageChange)="goYearPage($event)"
+              (edit)="openEdit('year', $event)"
+              (delete)="confirmDelete('year', $event)"
+              (add)="openAdd('year')">
+            </app-years-table>
+          }
+
+          <!-- Categories Tab -->
+          @if (activeTab === 'categories') {
+            <app-categories-table
+              [categories]="pagedCategories"
+              [totalPages]="categoryTotalPages"
+              [currentPage]="categoryPage"
+              [totalItems]="filteredCategories.length"
+              (pageChange)="goCategoryPage($event)"
+              (edit)="openEdit('category', $event)"
+              (delete)="confirmDelete('category', $event)"
+              (add)="openAdd('category')">
+            </app-categories-table>
+          }
+
+          <!-- Subjects Tab -->
+          @if (activeTab === 'subjects') {
+            <app-subjects-table
+              [subjects]="pagedSubjects"
+              [years]="years"
+              [categories]="categories"
+              [teachers]="teachers"
+              [totalPages]="subjectTotalPages"
+              [currentPage]="subjectPage"
+              [totalItems]="filteredSubjects.length"
+              (pageChange)="goSubjectPage($event)"
+              (edit)="openEdit('subject', $event)"
+              (delete)="confirmDelete('subject', $event)"
+              (add)="openAdd('subject')">
+            </app-subjects-table>
+          }
+
+          <!-- Lessons Tab -->
+          @if (activeTab === 'lessons') {
+            <app-lessons-table
+              [lessons]="pagedLessons"
+              [weeks]="weeks"
+              [subjects]="subjects"
+              [totalPages]="lessonTotalPages"
+              [currentPage]="lessonPage"
+              [totalItems]="filteredLessons.length"
+              (pageChange)="goLessonPage($event)"
+              (edit)="openEdit('lesson', $event)"
+              (delete)="confirmDelete('lesson', $event)"
+              (add)="openAdd('lesson')"
+              (manageResources)="manageResources($event)"
+              (preview)="openLessonPreview($event)">
+            </app-lessons-table>
+          }
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modals will be handled by separate components -->
+<app-content-modal
+  [(isOpen)]="isFormOpen"
+  [mode]="formMode"
+  [entityType]="entityType"
+  [formData]="form"
+  [years]="years"
+  [categories]="categories"
+  [subjectNames]="subjectNames"
+  [subjects]="subjects"
+  [terms]="terms"
+  [weeks]="weeks"
+  [teachers]="teachers"
+  (save)="submitForm()"
+  (cancel)="closeForm()">
+</app-content-modal>
+
+<app-resource-modal
+  [(isOpen)]="resourceModalOpen"
+  [lesson]="selectedLesson"
+  [resources]="lessonResources"
+  (addResource)="openAddResource()"
+  (deleteResource)="deleteResource($event)"
+  (close)="closeResourceModal()">
+</app-resource-modal>
+
+<app-resource-form-modal
+  [(isOpen)]="resourceFormOpen"
+  [formData]="resourceForm"
+  (save)="saveResource()"
+  (cancel)="closeResourceForm()">
+</app-resource-form-modal>
+
+<app-preview-modal
+  [(isOpen)]="previewOpen"
+  [preview]="preview"
+  (close)="closePreview()">
+</app-preview-modal>

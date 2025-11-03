@@ -1,0 +1,111 @@
+.hierarchy-node {
+  padding: 0.5rem 0;
+}
+
+.hierarchy-item {
+  padding: 0.5rem 0;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+
+  &.year-item {
+    border-left-color: #3b82f6;
+    padding-left: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &.subject-item {
+    border-left-color: #06b6d4;
+    padding-left: 0.5rem;
+  }
+
+  &.term-item {
+    border-left-color: #f59e0b;
+    padding-left: 0.5rem;
+  }
+
+  &.week-item {
+    border-left-color: #ef4444;
+    padding-left: 0.5rem;
+  }
+
+  &.lesson-item {
+    border-left-color: #8b5cf6;
+    padding-left: 0.5rem;
+  }
+
+  &.empty-item {
+    padding-left: 1rem;
+    color: #6b7280;
+    font-style: italic;
+  }
+}
+
+.hierarchy-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  strong {
+    font-weight: 600;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.25rem;
+    margin-left: auto;
+
+    .btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+.toggle-btn {
+  color: #6b7280;
+  text-decoration: none;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #3b82f6;
+  }
+
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+.hierarchy-children {
+  margin-top: 0.5rem;
+}
+
+.text-purple {
+  color: #8b5cf6;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+// Responsive
+@media (max-width: 767.98px) {
+  .hierarchy-content {
+    flex-wrap: wrap;
+
+    .actions {
+      width: 100%;
+      margin-top: 0.5rem;
+      margin-left: 0;
+      justify-content: flex-start;
+    }
+  }
+}

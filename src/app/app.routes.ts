@@ -114,7 +114,7 @@ export const routes: Routes = [
   // Admin Content Management
   {
     path: 'admin/content',
-    loadComponent: () => import('./features/content-management/content-management').then(m => m.ContentManagementComponent),
+    loadComponent: () => import('./features/content-management/content-management-redesigned').then(m => m.ContentManagementComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
       ,  data: { hideHeader: true, hideFooter: true }
   },
