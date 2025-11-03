@@ -369,7 +369,15 @@ async loadTeachers(): Promise<void> {
 
   async loadLessons(): Promise<void> {
     try {
-      this.lessons = (await this.contentService.getLessons().toPromise()) || [];
+      const result = await this.contentService.getLessons().toPromise();
+      // Handle both array and paginated result types
+      if (Array.isArray(result)) {
+        this.lessons = result;
+      } else if (result && 'items' in result) {
+        this.lessons = result.items as any[];
+      } else {
+        this.lessons = [];
+      }
     } catch (error) {
       console.error('Error loading lessons:', error);
       throw error;
@@ -771,8 +779,15 @@ nameTeacher(id: Id | undefined | null) {
           throw new Error('Validation failed');
         }
 
+        // Get subjectId from weekId
+        const subjectId = this.getSubjectIdFromWeekId(weekId);
+        if (!subjectId) {
+          Swal.fire('Error', 'Could not determine subject from the selected week.', 'error');
+          throw new Error('Invalid week selection');
+        }
+
         const newLesson = await this.contentService
-          .addLesson(title, description, weekId, posterFile, videoFile)
+          .addLesson(title, description, weekId, subjectId, posterFile, videoFile)
           .toPromise();
         if (newLesson) this.lessons.push(newLesson);
         break;
@@ -834,11 +849,19 @@ nameTeacher(id: Id | undefined | null) {
         this.weeks = this.weeks.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'lesson':
+        // Get subjectId from weekId
+        const subjectIdForUpdate = this.getSubjectIdFromWeekId(this.form.weekId);
+        if (!subjectIdForUpdate) {
+          Swal.fire('Error', 'Could not determine subject from the selected week.', 'error');
+          throw new Error('Invalid week selection');
+        }
+        
         await this.contentService.updateLesson(
           this.form.id,
           this.form.title,
           this.form.description,
           this.form.weekId,
+          subjectIdForUpdate,
           this.form.posterFile,
           this.form.videoFile
         ).toPromise();

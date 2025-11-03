@@ -269,55 +269,73 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-  // دالة محسنة لاستخراج الرسائل الإنجليزية من الأخطاء
+  /**
+   * Extract user-friendly English error messages from API responses
+   * Handles various error formats from the .NET backend
+   */
   private extractEnglishError(error: any): string {
     console.error('Full error object:', error);
     
-    if (error.originalError && error.originalError.error && typeof error.originalError.error === 'string') {
-      return error.originalError.error;
+    // Check for validation errors from .NET API (ModelState)
+    if (error.error?.errors) {
+      const validationErrors = error.error.errors;
+      const messages: string[] = [];
+      
+      for (const field in validationErrors) {
+        if (Array.isArray(validationErrors[field])) {
+          messages.push(...validationErrors[field]);
+        }
+      }
+      
+      if (messages.length > 0) {
+        return messages.join('. ');
+      }
     }
     
+    // Check for direct error message from .NET API
+    if (error.error?.title && typeof error.error.title === 'string') {
+      return error.error.title;
+    }
+    
+    if (error.error?.detail && typeof error.error.detail === 'string') {
+      return error.error.detail;
+    }
+    
+    // Check for string error message
     if (error.error && typeof error.error === 'string') {
       return error.error;
+    }
+    
+    // Check for message property
+    if (error.error?.message && typeof error.error.message === 'string') {
+      return error.error.message;
     }
     
     if (error.message && typeof error.message === 'string') {
       return error.message;
     }
     
-    if (typeof error === 'string') {
-      return error;
-    }
-    
-    if (error.originalError && error.originalError.error && typeof error.originalError.error === 'object') {
-      const possibleProperties = ['message', 'error', 'detail', 'title', 'reason'];
-      for (const prop of possibleProperties) {
-        if (error.originalError.error[prop] && typeof error.originalError.error[prop] === 'string') {
-          return error.originalError.error[prop];
-        }
-      }
-    }
-    
-    if (error.details && typeof error.details === 'string') {
-      return error.details;
-    }
-    
-    // Try to extract from error.error object
-    if (error.error && typeof error.error === 'object') {
-      if (error.error.title) return error.error.title;
-      if (error.error.message) return error.error.message;
-      if (error.error.errors) {
-        const errors = Object.values(error.error.errors).flat();
-        if (errors.length > 0) return errors.join(', ');
-      }
-    }
-    
-    // Include status information if available
+    // Handle specific HTTP status codes
     if (error.status) {
-      return `Server error (${error.status}): ${error.statusText || 'Unknown error'}. Please check server logs for details.`;
+      switch (error.status) {
+        case 400:
+          return 'Invalid request. Please check your input and try again.';
+        case 401:
+          return 'Unauthorized. Please login again.';
+        case 403:
+          return 'You do not have permission to perform this action.';
+        case 404:
+          return 'The requested resource was not found.';
+        case 409:
+          return 'A conflict occurred. The resource may already exist.';
+        case 500:
+          return 'Internal server error. Please contact support.';
+        default:
+          return `HTTP ${error.status}: ${error.statusText || 'Unknown error'}`;
+      }
     }
     
-    return 'An unknown error occurred. Please try again.';
+    return 'An unexpected error occurred. Please try again.';
   }
 
   // ===== API Calls =====
@@ -406,6 +424,28 @@ async loadTeachers(): Promise<void> {
     }
   }
 
+  // Load subjects by year (filtered)
+  async loadSubjectsByYear(yearId: number): Promise<void> {
+    try {
+      this.subjects = (await this.contentService.getSubjectsByYear(yearId).toPromise()) || [];
+      this.refreshAll();
+    } catch (error) {
+      console.error('Error loading subjects by year:', error);
+      Swal.fire('Error', this.extractEnglishError(error), 'error');
+    }
+  }
+
+  // Load subjects by category (filtered)
+  async loadSubjectsByCategory(categoryId: number): Promise<void> {
+    try {
+      this.subjects = (await this.contentService.getSubjectsByCategory(categoryId).toPromise()) || [];
+      this.refreshAll();
+    } catch (error) {
+      console.error('Error loading subjects by category:', error);
+      Swal.fire('Error', this.extractEnglishError(error), 'error');
+    }
+  }
+
   async loadTerms(): Promise<void> {
     try {
       this.terms = (await this.contentService.getTerms().toPromise()) || [];
@@ -426,10 +466,54 @@ async loadTeachers(): Promise<void> {
 
   async loadLessons(): Promise<void> {
     try {
-      this.lessons = (await this.contentService.getLessons().toPromise()) || [];
+      const result = await this.contentService.getLessons().toPromise();
+      
+      // Handle both paginated and non-paginated responses
+      if (result && 'items' in result) {
+        // Paginated response
+        this.lessons = result.items as any[];
+      } else if (Array.isArray(result)) {
+        // Array response
+        this.lessons = result;
+      } else {
+        this.lessons = [];
+      }
     } catch (error) {
       console.error('Error loading lessons:', error);
       throw error;
+    }
+  }
+
+  // Load lessons by week
+  async loadLessonsByWeek(weekId: number): Promise<void> {
+    try {
+      this.lessons = (await this.contentService.getLessonsByWeek(weekId).toPromise()) || [];
+      this.refreshAll();
+    } catch (error) {
+      console.error('Error loading lessons by week:', error);
+      Swal.fire('Error', this.extractEnglishError(error), 'error');
+    }
+  }
+
+  // Load lessons by term
+  async loadLessonsByTerm(termId: number): Promise<void> {
+    try {
+      this.lessons = (await this.contentService.getLessonsByTerm(termId).toPromise()) || [];
+      this.refreshAll();
+    } catch (error) {
+      console.error('Error loading lessons by term:', error);
+      Swal.fire('Error', this.extractEnglishError(error), 'error');
+    }
+  }
+
+  // Load lessons by subject
+  async loadLessonsBySubject(subjectId: number): Promise<void> {
+    try {
+      this.lessons = (await this.contentService.getLessonsBySubject(subjectId).toPromise()) || [];
+      this.refreshAll();
+    } catch (error) {
+      console.error('Error loading lessons by subject:', error);
+      Swal.fire('Error', this.extractEnglishError(error), 'error');
     }
   }
 
@@ -496,7 +580,22 @@ nameTeacher(id: Id | undefined | null) {
   }
 
   // ===== Filtering / Paging =====
-  onFilterChange() {
+  async onFilterChange() {
+    // Load filtered data from backend when filters change
+    if (this.filters.yearId) {
+      await this.loadSubjectsByYear(this.filters.yearId);
+    }
+    if (this.filters.categoryId) {
+      await this.loadSubjectsByCategory(this.filters.categoryId);
+    }
+    if (this.filters.weekId) {
+      await this.loadLessonsByWeek(this.filters.weekId);
+    } else if (this.filters.termId) {
+      await this.loadLessonsByTerm(this.filters.termId);
+    } else if (this.filters.subjectId) {
+      await this.loadLessonsBySubject(this.filters.subjectId);
+    }
+    
     this.resetPaging();
   }
 
@@ -905,7 +1004,7 @@ nameTeacher(id: Id | undefined | null) {
         break;
       }
       case 'lesson': {
-        const { title, description, weekId, posterFile, videoFile } = this.form;
+        const { title, description, weekId, subjectId, posterFile, videoFile, duration, orderIndex } = this.form;
 
         if (!title || !title.trim()) {
           Swal.fire('Error', 'Please provide a lesson title.', 'error');
@@ -919,6 +1018,10 @@ nameTeacher(id: Id | undefined | null) {
           Swal.fire('Error', 'Please select a week.', 'error');
           throw new Error('Validation failed');
         }
+        if (!subjectId) {
+          Swal.fire('Error', 'Please select a subject.', 'error');
+          throw new Error('Validation failed');
+        }
         if (!posterFile || !(posterFile instanceof File)) {
           Swal.fire('Error', 'Please upload a poster image.', 'error');
           throw new Error('Validation failed');
@@ -929,7 +1032,16 @@ nameTeacher(id: Id | undefined | null) {
         }
 
         const newLesson = await this.contentService
-          .addLesson(title.trim(), description.trim(), weekId, posterFile, videoFile)
+          .addLesson(
+            title.trim(), 
+            description.trim(), 
+            weekId,
+            subjectId || this.getSubjectIdFromWeekId(weekId) || 0,
+            posterFile, 
+            videoFile,
+            duration || 0,
+            orderIndex || 0
+          )
           .toPromise();
         if (newLesson) this.lessons.push(newLesson);
         break;
@@ -996,8 +1108,11 @@ nameTeacher(id: Id | undefined | null) {
           this.form.title,
           this.form.description,
           this.form.weekId,
+          this.form.subjectId || this.getSubjectIdFromWeekId(this.form.weekId) || 0,
           this.form.posterFile,
-          this.form.videoFile
+          this.form.videoFile,
+          this.form.duration || 0,
+          this.form.orderIndex || 0
         ).toPromise();
         this.lessons = this.lessons.map(x => x.id === this.form.id ? this.form : x);
         break;
@@ -1107,8 +1222,11 @@ nameTeacher(id: Id | undefined | null) {
           title: '',
           description: '',
           weekId: this.weeks.length > 0 ? this.weeks[0].id : null,
+          subjectId: null,
           posterFile: null,
-          videoFile: null
+          videoFile: null,
+          duration: 0,
+          orderIndex: 0
         };
       default:
         return {};

@@ -968,6 +968,46 @@
       </div>
     </div>
 
+    <!-- Advanced Filters -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-3">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label mb-1"><i class="fas fa-calendar me-2"></i>Year</label>
+            <select class="form-select" [(ngModel)]="filters.yearId" (change)="onFilterChange()">
+              <option [value]="null">All Years</option>
+              @for (year of years; track year.id) {
+                <option [value]="year.id">Year {{ year.yearNumber }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label mb-1"><i class="fas fa-folder me-2"></i>Category</label>
+            <select class="form-select" [(ngModel)]="filters.categoryId" (change)="onFilterChange()">
+              <option [value]="null">All Categories</option>
+              @for (category of categories; track category.id) {
+                <option [value]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label mb-1"><i class="fas fa-book me-2"></i>Subject</label>
+            <select class="form-select" [(ngModel)]="filters.subjectId" (change)="onFilterChange()">
+              <option [value]="null">All Subjects</option>
+              @for (subject of filteredSubjects; track subject.id) {
+                <option [value]="subject.id">{{ subject.subjectName }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button (click)="clearFilters()" class="btn btn-outline-danger w-100">
+              <i class="fas fa-times me-2"></i>Clear Filters
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Header -->
     <div class="mb-5">
       <div class="d-flex align-items-center gap-3 mb-2">
@@ -2141,7 +2181,7 @@
                   <div class="invalid-feedback">{{ getFieldError('description') }}</div>
                 }
               </div>
-              <div class="col-12">
+              <div class="col-md-6">
                 <label class="form-label fw-semibold">Week <span class="text-danger">*</span></label>
                 <select class="form-select" [(ngModel)]="form.weekId" required>
                   <option [ngValue]="null">Select Week</option>
@@ -2151,6 +2191,45 @@
                 </select>
               </div>
               <div class="col-md-6">
+                <label class="form-label fw-semibold">Subject <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="form.subjectId" required>
+                  <option [ngValue]="null">Select Subject</option>
+                  @for (s of filteredSubjects; track s.id) {
+                    <option [ngValue]="s.id">{{ s.subjectName || getSubjectDisplayName(s) }}</option>
+                  }
+                </select>
+                <small class="text-muted">Auto-populated from selected week</small>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Duration (minutes)</label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [(ngModel)]="form.duration"
+                  min="0" 
+                  step="5"
+                  placeholder="45">
+                <small class="text-muted">Lesson duration in minutes</small>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Order Index</label>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [(ngModel)]="form.orderIndex"
+                  min="0" 
+                  step="1"
+                  placeholder="1">
+                <small class="text-muted">Order within the week</small>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Status</label>
+                <select class="form-select" [(ngModel)]="form.isPublished">
+                  <option [ngValue]="true">Published</option>
+                  <option [ngValue]="false">Draft</option>
+                </select>
+              </div>
+              <div class="col-12">
                 <label class="form-label fw-semibold">Poster Image <span class="text-danger">*</span></label>
                 <input type="file" class="form-control" (change)="onFileChange($event, 'posterFile')" accept="image/*">
                 @if (getFileName('posterFile')) {

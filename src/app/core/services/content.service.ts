@@ -59,13 +59,44 @@ export interface Week {
 }
 
 export interface Lesson {
-  id: number;
+  id?: number;
   title: string;
-  posterUrl: string;
-  videoUrl: string;
+  posterUrl?: string;
+  videoUrl?: string;
   description: string;
   weekId: number;
   subjectId: number;
+  duration?: number;
+  orderIndex?: number;
+  isPublished?: boolean;
+  createdAt?: string;
+}
+
+export interface LessonDetailsDto {
+  id: number;
+  title: string;
+  description: string;
+  videoUrl?: string;
+  posterUrl?: string;
+  duration: number;
+  orderIndex: number;
+  isPublished: boolean;
+  weekId: number;
+  weekNumber: number;
+  subjectId: number;
+  subjectName: string;
+  resourceCount: number;
+  createdAt: string;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
 }
 
 export interface Resource {
@@ -73,6 +104,9 @@ export interface Resource {
   title: string;
   fileUrl: string;
   lessonId: number;
+  createdAt?: string;
+  fileSize?: number;
+  fileType?: string;
 }
 
 export interface Teacher {
@@ -236,6 +270,10 @@ export class ContentService {
     return this.http.get<Subject[]>(`${this.apiUrl}/Subjects/by-category/${categoryId}`);
   }
 
+  getSubjectsByYear(yearId: number): Observable<Subject[]> {
+    return this.http.get<Subject[]>(`${this.apiUrl}/Subjects/by-year/${yearId}`);
+  }
+
   getSubjectsByTerm(termId: number): Observable<Subject[]> {
     return this.http.get<Subject[]>(`${this.apiUrl}/Subjects/by-term/${termId}`);
   }
@@ -295,8 +333,41 @@ export class ContentService {
   }
 
   // ===== Lessons =====
-  getLessons(): Observable<Lesson[]> {
-    return this.http.get<Lesson[]>(`${this.apiUrl}/Lessons`);
+  getLessons(
+    pageNumber?: number,
+    pageSize?: number,
+    filters?: {
+      searchTerm?: string;
+      weekId?: number;
+      subjectId?: number;
+      termId?: number;
+    }
+  ): Observable<Lesson[] | PaginatedResult<LessonDetailsDto>> {
+    let params = new HttpParams();
+    
+    if (pageNumber) params = params.set('pageNumber', pageNumber.toString());
+    if (pageSize) params = params.set('pageSize', pageSize.toString());
+    if (filters?.searchTerm) params = params.set('searchTerm', filters.searchTerm);
+    if (filters?.weekId) params = params.set('weekId', filters.weekId.toString());
+    if (filters?.subjectId) params = params.set('subjectId', filters.subjectId.toString());
+    if (filters?.termId) params = params.set('termId', filters.termId.toString());
+
+    return this.http.get<Lesson[] | PaginatedResult<LessonDetailsDto>>(
+      `${this.apiUrl}/Lessons`,
+      { params }
+    );
+  }
+
+  getLessonsByWeek(weekId: number): Observable<Lesson[]> {
+    return this.http.get<Lesson[]>(`${this.apiUrl}/Lessons/week/${weekId}`);
+  }
+
+  getLessonsByTerm(termId: number): Observable<Lesson[]> {
+    return this.http.get<Lesson[]>(`${this.apiUrl}/Lessons/term/${termId}`);
+  }
+
+  getLessonsBySubject(subjectId: number): Observable<Lesson[]> {
+    return this.http.get<Lesson[]>(`${this.apiUrl}/Lessons/subject/${subjectId}`);
   }
 
   getLesson(id: number): Observable<Lesson> {
@@ -307,17 +378,24 @@ export class ContentService {
     title: string,
     description: string,
     weekId: number,
+    subjectId: number,
     posterFile: File,
-    videoFile: File
+    videoFile: File,
+    duration?: number,
+    orderIndex?: number
   ): Observable<Lesson> {
     const formData = new FormData();
     formData.append('PosterFile', posterFile);
     formData.append('VideoFile', videoFile);
 
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('Title', title)
       .set('Description', description)
-      .set('WeekId', weekId.toString());
+      .set('WeekId', weekId.toString())
+      .set('SubjectId', subjectId.toString());
+
+    if (duration) params = params.set('Duration', duration.toString());
+    if (orderIndex !== undefined) params = params.set('OrderIndex', orderIndex.toString());
 
     return this.http.post<Lesson>(`${this.apiUrl}/Lessons`, formData, { params });
   }
@@ -327,8 +405,11 @@ export class ContentService {
     title: string,
     description: string,
     weekId: number,
+    subjectId: number,
     posterFile?: File,
-    videoFile?: File
+    videoFile?: File,
+    duration?: number,
+    orderIndex?: number
   ): Observable<Lesson> {
     const formData = new FormData();
     if (posterFile) {
@@ -338,10 +419,14 @@ export class ContentService {
       formData.append('VideoFile', videoFile);
     }
 
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('Title', title)
       .set('Description', description)
-      .set('WeekId', weekId.toString());
+      .set('WeekId', weekId.toString())
+      .set('SubjectId', subjectId.toString());
+
+    if (duration) params = params.set('Duration', duration.toString());
+    if (orderIndex !== undefined) params = params.set('OrderIndex', orderIndex.toString());
 
     return this.http.put<Lesson>(`${this.apiUrl}/Lessons/${id}`, formData, { params });
   }
