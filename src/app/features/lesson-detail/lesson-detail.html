@@ -1,0 +1,588 @@
+<!-- Lesson Detail Page -->
+<div class="lesson-detail-container min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    
+    <!-- Header with Back Button -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-4">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="p-2 bg-white rounded-lg hover:bg-gray-100 border border-gray-300">
+          <i class="fas fa-arrow-left text-gray-700"></i>
+        </button>
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            {{ lesson?.title || 'Lesson Details' }}
+          </h1>
+          <p class="text-gray-600 mt-1">Manage lesson content and related materials</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+      </div>
+    }
+
+    <!-- Main Content -->
+    @if (!isLoading && lesson) {
+      <!-- Tabs -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+        <div class="border-b border-gray-200">
+          <nav class="flex space-x-2 px-4" aria-label="Tabs">
+            <button 
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+              [class.border-blue-500]="activeTab === 'overview'"
+              [class.border-transparent]="activeTab !== 'overview'"
+              [class.text-blue-600]="activeTab === 'overview'"
+              [class.text-gray-500]="activeTab !== 'overview'"
+              (click)="setActiveTab('overview')">
+              <i class="fas fa-info-circle mr-2"></i>
+              Overview
+            </button>
+
+            <button 
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+              [class.border-blue-500]="activeTab === 'questions'"
+              [class.border-transparent]="activeTab !== 'questions'"
+              [class.text-blue-600]="activeTab === 'questions'"
+              [class.text-gray-500]="activeTab !== 'questions'"
+              (click)="setActiveTab('questions')">
+              <i class="fas fa-question-circle mr-2"></i>
+              Quiz Questions ({{ lessonQuestions.length }})
+            </button>
+
+            <button 
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+              [class.border-blue-500]="activeTab === 'discussions'"
+              [class.border-transparent]="activeTab !== 'discussions'"
+              [class.text-blue-600]="activeTab === 'discussions'"
+              [class.text-gray-500]="activeTab !== 'discussions'"
+              (click)="setActiveTab('discussions')">
+              <i class="fas fa-comments mr-2"></i>
+              Discussions ({{ discussions.length }})
+            </button>
+
+            <button 
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+              [class.border-blue-500]="activeTab === 'resources'"
+              [class.border-transparent]="activeTab !== 'resources'"
+              [class.text-blue-600]="activeTab === 'resources'"
+              [class.text-gray-500]="activeTab !== 'resources'"
+              (click)="setActiveTab('resources')">
+              <i class="fas fa-file-alt mr-2"></i>
+              Resources ({{ resources.length }})
+            </button>
+          </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-6">
+          
+          <!-- Overview Tab -->
+          @if (activeTab === 'overview') {
+            <div class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-6 rounded-lg">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-4">Lesson Information</h3>
+                  <div class="space-y-3">
+                    <div>
+                      <p class="text-sm text-gray-600">Title</p>
+                      <p class="text-base font-medium text-gray-900">{{ lesson.title }}</p>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-600">Description</p>
+                      <p class="text-base text-gray-900">{{ lesson.description }}</p>
+                    </div>
+                    @if (lesson.videoUrl) {
+                      <div>
+                        <p class="text-sm text-gray-600">Video</p>
+                        <a [href]="lesson.videoUrl" target="_blank" class="text-blue-600 hover:underline">
+                          <i class="fas fa-video mr-1"></i> View Video
+                        </a>
+                      </div>
+                    }
+                    @if (lesson.posterUrl) {
+                      <div>
+                        <p class="text-sm text-gray-600 mb-2">Poster</p>
+                        <img [src]="lesson.posterUrl" alt="Lesson Poster" class="w-full h-48 object-cover rounded-lg">
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="bg-gray-50 p-6 rounded-lg">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg">
+                      <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-3">
+                          <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div>
+                          <p class="text-sm text-gray-600">Questions</p>
+                          <p class="text-2xl font-bold text-gray-900">{{ lessonQuestions.length }}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg">
+                      <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600 mr-3">
+                          <i class="fas fa-comments"></i>
+                        </div>
+                        <div>
+                          <p class="text-sm text-gray-600">Discussions</p>
+                          <p class="text-2xl font-bold text-gray-900">{{ discussions.length }}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg">
+                      <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-3">
+                          <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div>
+                          <p class="text-sm text-gray-600">Resources</p>
+                          <p class="text-2xl font-bold text-gray-900">{{ resources.length }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Questions Tab -->
+          @if (activeTab === 'questions') {
+            <div>
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-900">Quiz Questions</h3>
+                <button
+                  type="button"
+                  (click)="openAddQuestion()"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                  <i class="fas fa-plus mr-2"></i>
+                  Add Question
+                </button>
+              </div>
+
+              @if (isLoadingQuestions) {
+                <div class="flex justify-center py-12">
+                  <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+              } @else if (lessonQuestions.length === 0) {
+                <div class="text-center py-12 bg-gray-50 rounded-lg">
+                  <i class="fas fa-question-circle text-gray-400 text-5xl mb-4"></i>
+                  <p class="text-gray-600">No questions added yet</p>
+                  <button
+                    type="button"
+                    (click)="openAddQuestion()"
+                    class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Add First Question
+                  </button>
+                </div>
+              } @else {
+                <div class="space-y-4">
+                  <div *ngFor="let question of lessonQuestions; let i = index" 
+                       class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start mb-3">
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                          <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                            Q{{ i + 1 }}
+                          </span>
+                          <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                            {{ question.questionType }}
+                          </span>
+                          <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                            {{ question.points }} pts
+                          </span>
+                        </div>
+                        <p class="text-gray-900 font-medium">{{ question.questionText }}</p>
+                      </div>
+                      <button
+                        type="button"
+                        (click)="deleteQuestion(question.id)"
+                        class="p-2 text-red-600 hover:bg-red-50 rounded">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                    
+                    @if (question.options && question.options.length > 0) {
+                      <div class="mt-4 space-y-2">
+                        <p class="text-sm text-gray-600 font-medium">Options:</p>
+                        <div *ngFor="let option of question.options" class="flex items-center gap-2">
+                          <i class="fas" [class.fa-check-circle]="option.isCorrect" [class.fa-circle]="!option.isCorrect"
+                             [class.text-green-600]="option.isCorrect" [class.text-gray-400]="!option.isCorrect"></i>
+                          <span [class.text-green-700]="option.isCorrect" [class.font-medium]="option.isCorrect">
+                            {{ option.optionText }}
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Discussions Tab -->
+          @if (activeTab === 'discussions') {
+            <div>
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-900">Discussions</h3>
+                <button
+                  type="button"
+                  (click)="openAddDiscussion()"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                  <i class="fas fa-plus mr-2"></i>
+                  Add Discussion
+                </button>
+              </div>
+
+              @if (isLoadingDiscussions) {
+                <div class="flex justify-center py-12">
+                  <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+              } @else if (discussions.length === 0) {
+                <div class="text-center py-12 bg-gray-50 rounded-lg">
+                  <i class="fas fa-comments text-gray-400 text-5xl mb-4"></i>
+                  <p class="text-gray-600">No discussions started yet</p>
+                  <button
+                    type="button"
+                    (click)="openAddDiscussion()"
+                    class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Start First Discussion
+                  </button>
+                </div>
+              } @else {
+                <div class="space-y-4">
+                  <div *ngFor="let discussion of discussions" 
+                       class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ discussion.question }}</h4>
+                        @if (discussion.details) {
+                          <p class="text-gray-600 mb-3">{{ discussion.details }}</p>
+                        }
+                        <div class="flex items-center gap-4 text-sm text-gray-500">
+                          <span>
+                            <i class="fas fa-user mr-1"></i>
+                            {{ discussion.studentName || 'Unknown' }}
+                          </span>
+                          <span>
+                            <i class="fas fa-clock mr-1"></i>
+                            {{ discussion.createdAt | date:'short' }}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        (click)="deleteDiscussion(discussion.id)"
+                        class="p-2 text-red-600 hover:bg-red-50 rounded">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Resources Tab -->
+          @if (activeTab === 'resources') {
+            <div>
+              <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-900">Lesson Resources</h3>
+                <button
+                  type="button"
+                  (click)="openAddResource()"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                  <i class="fas fa-plus mr-2"></i>
+                  Add Resource
+                </button>
+              </div>
+
+              @if (isLoadingResources) {
+                <div class="flex justify-center py-12">
+                  <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+              } @else if (resources.length === 0) {
+                <div class="text-center py-12 bg-gray-50 rounded-lg">
+                  <i class="fas fa-file-alt text-gray-400 text-5xl mb-4"></i>
+                  <p class="text-gray-600">No resources added yet</p>
+                  <button
+                    type="button"
+                    (click)="openAddResource()"
+                    class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Add First Resource
+                  </button>
+                </div>
+              } @else {
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div *ngFor="let resource of resources" 
+                       class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex items-start justify-between mb-3">
+                      <div class="flex items-center gap-3">
+                        <div class="p-3 rounded-lg bg-blue-50 text-blue-600">
+                          <i class="fas fa-file-pdf text-xl"></i>
+                        </div>
+                        <div>
+                          <h4 class="font-semibold text-gray-900">{{ resource.title }}</h4>
+                          @if (resource.description) {
+                            <p class="text-sm text-gray-600">{{ resource.description }}</p>
+                          }
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        (click)="deleteResource(resource.id)"
+                        class="p-2 text-red-600 hover:bg-red-50 rounded">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                    @if (resource.fileUrl) {
+                      <a [href]="resource.fileUrl" target="_blank" 
+                         class="block w-full text-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm font-medium">
+                        <i class="fas fa-download mr-2"></i>
+                        Download
+                      </a>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+        </div>
+      </div>
+    }
+
+  </div>
+</div>
+
+<!-- Add Question Modal -->
+@if (isAddingQuestion) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-900">Add Quiz Question</h2>
+        <button type="button" (click)="closeQuestionForm()" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="p-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Question Text *</label>
+            <textarea
+              [(ngModel)]="questionForm.questionText"
+              rows="3"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your question"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Question Type *</label>
+              <select
+                [(ngModel)]="questionForm.questionType"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option value="MultipleChoice">Multiple Choice</option>
+                <option value="TrueFalse">True/False</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Points *</label>
+              <input
+                type="number"
+                [(ngModel)]="questionForm.points"
+                min="1"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          @if (questionForm.questionType === 'MultipleChoice') {
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <label class="block text-sm font-medium text-gray-700">Options *</label>
+                <button
+                  type="button"
+                  (click)="addOption()"
+                  class="text-sm text-blue-600 hover:text-blue-700">
+                  <i class="fas fa-plus mr-1"></i> Add Option
+                </button>
+              </div>
+              <div class="space-y-3">
+                <div *ngFor="let option of questionForm.options; let i = index" class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="option.isCorrect"
+                    class="w-5 h-5 text-blue-600 rounded">
+                  <input
+                    type="text"
+                    [(ngModel)]="option.optionText"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    [placeholder]="'Option ' + (i + 1)">
+                  <button
+                    type="button"
+                    (click)="removeOption(i)"
+                    [disabled]="questionForm.options.length <= 2"
+                    class="p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-2">* Check the box to mark correct answer(s)</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+        <button
+          type="button"
+          (click)="closeQuestionForm()"
+          class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="saveQuestion()"
+          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+          Save Question
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Add Discussion Modal -->
+@if (isAddingDiscussion) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-900">Start Discussion</h2>
+        <button type="button" (click)="closeDiscussionForm()" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="p-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Question *</label>
+            <input
+              type="text"
+              [(ngModel)]="discussionForm.question"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter discussion question">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Details</label>
+            <textarea
+              [(ngModel)]="discussionForm.details"
+              rows="4"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Add additional details or context"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+        <button
+          type="button"
+          (click)="closeDiscussionForm()"
+          class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="saveDiscussion()"
+          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+          Start Discussion
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Add Resource Modal -->
+@if (isAddingResource) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-900">Add Resource</h2>
+        <button type="button" (click)="closeResourceForm()" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="p-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+            <input
+              type="text"
+              [(ngModel)]="resourceForm.title"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter resource title (e.g., Homework PDF, Worksheet)">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">File *</label>
+            <input
+              #fileInput
+              type="file"
+              (change)="onResourceFileChange($event)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip">
+            
+            @if (resourceForm.file) {
+              <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-center gap-2 text-sm">
+                  <i class="fas fa-file text-blue-600"></i>
+                  <span class="font-medium text-gray-900">{{ resourceForm.file.name }}</span>
+                  <span class="text-gray-500">({{ (resourceForm.file.size / 1024).toFixed(2) }} KB)</span>
+                </div>
+              </div>
+            }
+            
+            <p class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-info-circle mr-1"></i>
+              Supported: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, ZIP (Max 10MB)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+        <button
+          type="button"
+          (click)="closeResourceForm()"
+          class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="saveResource()"
+          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+          Upload Resource
+        </button>
+      </div>
+    </div>
+  </div>
+}
