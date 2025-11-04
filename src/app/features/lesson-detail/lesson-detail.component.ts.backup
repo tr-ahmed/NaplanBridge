@@ -2,16 +2,16 @@ import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, forkJoin } from 'rxjs';
+import { takeUntil, catchError } from 'rxjs/operators';
 
 import { Lesson, LessonResource, StudentLesson, LessonProgress } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ExamService } from '../../core/services/exam.service';
-import { NotesService, Note, CreateNoteDto } from '../../core/services/notes.service';
+import { NotesService, Note, CreateNoteDto, UpdateNoteDto } from '../../core/services/notes.service';
 import { LessonQuestionsService, LessonQuestion, CreateLessonQuestionDto } from '../../core/services/lesson-questions.service';
-import { Exam, ExamDetails, StudentExamSession, ExamSubmission, ExamAnswer, ExamResult } from '../../models/exam.models';
+import { Exam, ExamDetails, StudentExamSession, ExamSubmission, ExamAnswer, ExamResult, QuestionType } from '../../models/exam.models';
 import { ToastService } from '../../core/services/toast.service';
 
 interface Quiz {
@@ -54,22 +54,6 @@ interface QuizMaker {
   updatedAt: Date;
 }
 
-interface LessonNote {
-  id: number;
-  content: string;
-  timestamp: number; // video timestamp in seconds
-  createdAt: Date;
-}
-
-interface TeacherQuestion {
-  id: number;
-  question: string;
-  answer?: string;
-  isAnswered: boolean;
-  askedAt: Date;
-  answeredAt?: Date;
-}
-
 @Component({
   selector: 'app-lesson-detail',
   standalone: true,
@@ -102,7 +86,17 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   isEditingChapters = signal(false);
   chapterForm: FormGroup;
 
-  // Quiz state
+  // Exams state (from backend)
+  lessonExams = signal<Exam[]>([]);
+  currentExam = signal<ExamDetails | null>(null);
+  currentExamSession = signal<StudentExamSession | null>(null);
+  examAnswers = signal<ExamAnswer[]>([]);
+  examResult = signal<ExamResult | null>(null);
+  isLoadingExam = signal(false);
+  isSubmittingExam = signal(false);
+  showExamResults = signal(false);
+
+  // Quiz state (legacy - keeping for compatibility)
   quizzes = signal<Quiz[]>([]);
   currentQuizIndex = signal(0);
   quizAnswers = signal<number[]>([]);
@@ -117,18 +111,20 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   quizMakerForm: FormGroup;
   quizQuestionForm: FormGroup;
 
-  // Notes state
-  notes = signal<LessonNote[]>([]);
+  // Notes state (from backend)
+  notes = signal<Note[]>([]);
   noteForm: FormGroup;
   isAddingNote = signal(false);
+  isLoadingNotes = signal(false);
 
-  // Teacher interaction state
-  teacherQuestions = signal<TeacherQuestion[]>([]);
+  // Teacher interaction state (from backend)
+  teacherQuestions = signal<LessonQuestion[]>([]);
   questionForm: FormGroup;
   isAskingQuestion = signal(false);
+  isLoadingQuestions = signal(false);
 
   // Active tab
-  activeTab = signal<'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker'>('video');
+  activeTab = signal<'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker' | 'exams'>('video');
 
   // Computed values
   currentQuiz = computed(() => {
@@ -138,6 +134,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   });
 
   hasQuizzes = computed(() => this.quizzes().length > 0);
+  hasExams = computed(() => this.lessonExams().length > 0);
   quizProgress = computed(() => {
     const total = this.quizzes().length;
     const current = this.currentQuizIndex() + 1;
@@ -150,8 +147,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   hasChapters = computed(() => this.videoChapters().length > 0);
   canEditContent = computed(() => {
     if (!this.authService.isAuthenticated()) return false;
-
-    // Check if user has teacher or admin role
     return this.authService.hasAnyRole(['teacher', 'admin']);
   });
   hasQuizMakers = computed(() => this.quizMakers().length > 0);
@@ -161,6 +156,10 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private lessonsService: LessonsService,
     private authService: AuthService,
+    private examService: ExamService,
+    private notesService: NotesService,
+    private lessonQuestionsService: LessonQuestionsService,
+    private toastService: ToastService,
     private fb: FormBuilder
   ) {
     this.noteForm = this.fb.group({
@@ -208,6 +207,13 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
           this.loadAdjacentLessons(lessonId);
           this.loadVideoChapters(lessonId);
           this.loadQuizMakers(lessonId);
+          
+          // Load backend data
+          if (this.authService.isAuthenticated()) {
+            this.loadLessonExams(lessonId);
+            this.loadLessonNotes(lessonId);
+            this.loadLessonQuestions(lessonId);
+          }
         }
       });
   }
@@ -216,6 +222,338 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  // ==================== BACKEND INTEGRATION METHODS ====================
+
+  /**
+   * Load exams for this lesson from backend
+   */
+  private loadLessonExams(lessonId: number): void {
+    this.examService.getExamsByLesson(lessonId)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error loading lesson exams:', error);
+          this.toastService.error('Failed to load exams');
+          return [];
+        })
+      )
+      .subscribe({
+        next: (exams) => {
+          this.lessonExams.set(exams);
+          console.log(`Loaded ${exams.length} exams for lesson ${lessonId}`);
+        }
+      });
+  }
+
+  /**
+   * Load notes for this lesson from backend
+   */
+  private loadLessonNotes(lessonId: number): void {
+    this.isLoadingNotes.set(true);
+    this.notesService.getNotesByLesson(lessonId)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error loading notes:', error);
+          this.toastService.error('Failed to load notes');
+          return [];
+        })
+      )
+      .subscribe({
+        next: (notes) => {
+          this.notes.set(notes);
+          this.isLoadingNotes.set(false);
+          console.log(`Loaded ${notes.length} notes for lesson ${lessonId}`);
+        },
+        error: () => {
+          this.isLoadingNotes.set(false);
+        }
+      });
+  }
+
+  /**
+   * Load questions for this lesson from backend
+   */
+  private loadLessonQuestions(lessonId: number): void {
+    this.isLoadingQuestions.set(true);
+    this.lessonQuestionsService.getQuestionsByLesson(lessonId)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error loading questions:', error);
+          this.toastService.error('Failed to load questions');
+          return [];
+        })
+      )
+      .subscribe({
+        next: (questions) => {
+          this.teacherQuestions.set(questions);
+          this.isLoadingQuestions.set(false);
+          console.log(`Loaded ${questions.length} questions for lesson ${lessonId}`);
+        },
+        error: () => {
+          this.isLoadingQuestions.set(false);
+        }
+      });
+  }
+
+  /**
+   * Start an exam
+   */
+  startExam(exam: Exam): void {
+    this.isLoadingExam.set(true);
+    
+    this.examService.startExam(exam.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error starting exam:', error);
+          this.toastService.error('Failed to start exam');
+          this.isLoadingExam.set(false);
+          throw error;
+        })
+      )
+      .subscribe({
+        next: (session) => {
+          this.currentExamSession.set(session);
+          this.examAnswers.set([]);
+          this.showExamResults.set(false);
+          this.setActiveTab('exams');
+          this.isLoadingExam.set(false);
+          this.toastService.success('Exam started successfully');
+        }
+      });
+  }
+
+  /**
+   * Submit exam answers
+   */
+  submitExam(): void {
+    const session = this.currentExamSession();
+    if (!session) return;
+
+    if (confirm('Are you sure you want to submit your exam? This action cannot be undone.')) {
+      this.isSubmittingExam.set(true);
+
+      const submission: ExamSubmission = {
+        studentExamId: session.studentExamId,
+        answers: this.examAnswers()
+      };
+
+      this.examService.submitExam(submission)
+        .pipe(
+          takeUntil(this.destroy$),
+          catchError(error => {
+            console.error('Error submitting exam:', error);
+            this.toastService.error('Failed to submit exam');
+            this.isSubmittingExam.set(false);
+            throw error;
+          })
+        )
+        .subscribe({
+          next: (result) => {
+            this.examResult.set(result);
+            this.showExamResults.set(true);
+            this.isSubmittingExam.set(false);
+            this.toastService.success('Exam submitted successfully');
+          }
+        });
+    }
+  }
+
+  /**
+   * Save exam answer
+   */
+  saveExamAnswer(questionId: number, answer: ExamAnswer): void {
+    const currentAnswers = this.examAnswers();
+    const existingIndex = currentAnswers.findIndex(a => a.questionId === questionId);
+
+    if (existingIndex >= 0) {
+      currentAnswers[existingIndex] = answer;
+    } else {
+      currentAnswers.push(answer);
+    }
+
+    this.examAnswers.set([...currentAnswers]);
+  }
+
+  /**
+   * Get saved answer for a question
+   */
+  getExamAnswer(questionId: number): ExamAnswer | undefined {
+    return this.examAnswers().find(a => a.questionId === questionId);
+  }
+
+  /**
+   * Close exam and go back to exams list
+   */
+  closeExam(): void {
+    this.currentExamSession.set(null);
+    this.currentExam.set(null);
+    this.examAnswers.set([]);
+    this.examResult.set(null);
+    this.showExamResults.set(false);
+  }
+
+  // ==================== NOTES METHODS (Backend Integrated) ====================
+
+  /**
+   * Add note to backend
+   */
+  addNote(): void {
+    if (this.noteForm.valid && this.lesson()) {
+      this.isAddingNote.set(true);
+
+      const dto: CreateNoteDto = {
+        content: this.noteForm.value.content,
+        lessonId: this.lesson()!.id,
+        timestamp: Math.floor(this.videoCurrentTime())
+      };
+
+      this.notesService.createNote(dto)
+        .pipe(
+          takeUntil(this.destroy$),
+          catchError(error => {
+            console.error('Error creating note:', error);
+            this.toastService.error('Failed to create note');
+            this.isAddingNote.set(false);
+            throw error;
+          })
+        )
+        .subscribe({
+          next: (note) => {
+            const currentNotes = this.notes();
+            this.notes.set([...currentNotes, note]);
+            this.noteForm.reset();
+            this.isAddingNote.set(false);
+            this.toastService.success('Note added successfully');
+          }
+        });
+    }
+  }
+
+  /**
+   * Delete note from backend
+   */
+  deleteNote(noteId: number): void {
+    if (confirm('Are you sure you want to delete this note?')) {
+      this.notesService.deleteNote(noteId)
+        .pipe(
+          takeUntil(this.destroy$),
+          catchError(error => {
+            console.error('Error deleting note:', error);
+            this.toastService.error('Failed to delete note');
+            throw error;
+          })
+        )
+        .subscribe({
+          next: () => {
+            const currentNotes = this.notes();
+            this.notes.set(currentNotes.filter(note => note.id !== noteId));
+            this.toastService.success('Note deleted successfully');
+          }
+        });
+    }
+  }
+
+  /**
+   * Toggle note favorite status
+   */
+  toggleNoteFavorite(note: Note): void {
+    this.notesService.toggleFavorite(note.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error toggling favorite:', error);
+          this.toastService.error('Failed to update note');
+          throw error;
+        })
+      )
+      .subscribe({
+        next: (updatedNote) => {
+          const currentNotes = this.notes();
+          const index = currentNotes.findIndex(n => n.id === updatedNote.id);
+          if (index >= 0) {
+            currentNotes[index] = updatedNote;
+            this.notes.set([...currentNotes]);
+          }
+        }
+      });
+  }
+
+  /**
+   * Jump to note timestamp in video
+   */
+  jumpToNoteTimestamp(note: Note): void {
+    if (note.timestamp) {
+      this.seekToTime(note.timestamp);
+      this.setActiveTab('video');
+      this.toastService.info(`Jumped to ${this.formatTime(note.timestamp)}`);
+    }
+  }
+
+  // ==================== TEACHER QUESTIONS METHODS (Backend Integrated) ====================
+
+  /**
+   * Ask teacher a question
+   */
+  askTeacher(): void {
+    if (this.questionForm.valid && this.lesson()) {
+      this.isAskingQuestion.set(true);
+
+      const dto: CreateLessonQuestionDto = {
+        lessonId: this.lesson()!.id,
+        questionText: this.questionForm.value.question
+      };
+
+      this.lessonQuestionsService.createQuestion(dto)
+        .pipe(
+          takeUntil(this.destroy$),
+          catchError(error => {
+            console.error('Error creating question:', error);
+            this.toastService.error('Failed to send question');
+            this.isAskingQuestion.set(false);
+            throw error;
+          })
+        )
+        .subscribe({
+          next: (question) => {
+            const currentQuestions = this.teacherQuestions();
+            this.teacherQuestions.set([...currentQuestions, question]);
+            this.questionForm.reset();
+            this.isAskingQuestion.set(false);
+            this.toastService.success('Question sent to teacher successfully');
+          }
+        });
+    }
+  }
+
+  /**
+   * Delete a question
+   */
+  deleteQuestion(questionId: number): void {
+    if (confirm('Are you sure you want to delete this question?')) {
+      this.lessonQuestionsService.deleteQuestion(questionId)
+        .pipe(
+          takeUntil(this.destroy$),
+          catchError(error => {
+            console.error('Error deleting question:', error);
+            this.toastService.error('Failed to delete question');
+            throw error;
+          })
+        )
+        .subscribe({
+          next: () => {
+            const currentQuestions = this.teacherQuestions();
+            this.teacherQuestions.set(currentQuestions.filter(q => q.id !== questionId));
+            this.toastService.success('Question deleted successfully');
+          }
+        });
+    }
+  }
+
+  // ==================== EXISTING METHODS (Preserved) ====================
 
   /**
    * Load lesson details
@@ -231,8 +569,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
           if (lesson) {
             this.lesson.set(lesson);
             this.loadMockQuizzes(lessonId);
-            this.loadMockNotes(lessonId);
-            this.loadMockTeacherQuestions(lessonId);
 
             // Load student progress if authenticated
             if (this.authService.isAuthenticated()) {
@@ -255,8 +591,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
    * Load student progress for this lesson
    */
   private loadStudentProgress(lessonId: number): void {
-    // Mock student ID - in real app this would come from auth service
-    const studentId = 1;
+    const studentId = 1; // Mock student ID - should come from auth service
 
     this.lessonsService.getStudentLessons(studentId)
       .pipe(takeUntil(this.destroy$))
@@ -272,10 +607,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load mock quizzes for the lesson
+   * Load mock quizzes for the lesson (legacy)
    */
   private loadMockQuizzes(lessonId: number): void {
-    // Mock quiz data - in real app this would come from API
     const mockQuizzes: Quiz[] = [
       {
         id: 1,
@@ -308,52 +642,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load mock notes for the lesson
-   */
-  private loadMockNotes(lessonId: number): void {
-    const mockNotes: LessonNote[] = [
-      {
-        id: 1,
-        content: "Important formula mentioned at the beginning",
-        timestamp: 120,
-        createdAt: new Date(Date.now() - 86400000)
-      },
-      {
-        id: 2,
-        content: "Remember to practice this example",
-        timestamp: 300,
-        createdAt: new Date(Date.now() - 43200000)
-      }
-    ];
-
-    this.notes.set(mockNotes);
-  }
-
-  /**
-   * Load mock teacher questions
-   */
-  private loadMockTeacherQuestions(lessonId: number): void {
-    const mockQuestions: TeacherQuestion[] = [
-      {
-        id: 1,
-        question: "Can you explain this concept in more detail?",
-        answer: "Sure! Let me break it down step by step...",
-        isAnswered: true,
-        askedAt: new Date(Date.now() - 172800000),
-        answeredAt: new Date(Date.now() - 86400000)
-      },
-      {
-        id: 2,
-        question: "I'm having trouble with the practice problems",
-        isAnswered: false,
-        askedAt: new Date(Date.now() - 3600000)
-      }
-    ];
-
-    this.teacherQuestions.set(mockQuestions);
-  }
-
-  /**
    * Load adjacent lessons for navigation
    */
   private loadAdjacentLessons(currentLessonId: number): void {
@@ -364,7 +652,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
           const currentLesson = this.lesson();
           if (!currentLesson) return;
 
-          // Filter lessons by same subject and course
           const sameCourse = lessons.filter(l =>
             l.subject === currentLesson.subject &&
             l.courseId === currentLesson.courseId
@@ -390,7 +677,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
    * Load video chapters for the lesson
    */
   private loadVideoChapters(lessonId: number): void {
-    // Mock video chapters data
     const mockChapters: VideoChapter[] = [
       {
         id: 1,
@@ -423,8 +709,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     ];
 
     this.videoChapters.set(mockChapters);
-
-    // Set current chapter based on video time
     this.updateCurrentChapter();
   }
 
@@ -432,7 +716,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
    * Load quiz makers for the lesson
    */
   private loadQuizMakers(lessonId: number): void {
-    // Mock quiz makers data
     const mockQuizMakers: QuizMaker[] = [
       {
         id: 1,
@@ -472,7 +755,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   /**
    * Set active tab
    */
-  setActiveTab(tab: 'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker'): void {
+  setActiveTab(tab: 'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker' | 'exams'): void {
     this.activeTab.set(tab);
   }
 
@@ -500,11 +783,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     this.videoDuration.set(duration);
     this.videoProgress.set(duration > 0 ? (currentTime / duration) * 100 : 0);
 
-    // Update current chapter
     this.updateCurrentChapter();
-
-    // Update lesson progress
-    // this.updateLessonProgress(currentTime, duration);
   }
 
   onVideoPlay(): void {
@@ -518,17 +797,11 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   onVideoLoadedMetadata(event: any): void {
     const duration = event.target.duration;
     this.videoDuration.set(duration);
-    console.log('Video loaded with duration:', duration);
   }
 
   onVideoError(event: any): void {
     console.error('Video playback error:', event);
-    // You can add user notification here
-  }
-
-  onVideoClick(event: any): void {
-    // Handle video click events if needed
-    console.log('Video clicked');
+    this.toastService.error('Video playback error');
   }
 
   playVideo(): void {
@@ -536,62 +809,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     if (videoElement) {
       videoElement.play();
     }
-  }
-
-  /**
-   * Poster management methods
-   */
-  onPosterImageError(event: any): void {
-    console.warn('Poster image failed to load, using fallback');
-    // Set a fallback image or hide the poster
-    event.target.style.display = 'none';
-  }
-
-  updatePosterUrl(newUrl: string): void {
-    const currentLesson = this.lesson();
-    if (currentLesson) {
-      // In a real app, this would update the lesson in the backend
-      currentLesson.posterUrl = newUrl.trim() || currentLesson.posterUrl || 'https://via.placeholder.com/800x450/3B82F6/FFFFFF?text=No+Poster';
-      console.log('Poster URL updated:', newUrl);
-    }
-  }
-
-  generatePosterFromThumbnail(): void {
-    const currentLesson = this.lesson();
-    if (currentLesson && currentLesson.thumbnailUrl) {
-      currentLesson.posterUrl = currentLesson.thumbnailUrl;
-      console.log('Poster generated from thumbnail');
-    }
-  }
-
-  clearPoster(): void {
-    const currentLesson = this.lesson();
-    if (currentLesson) {
-      currentLesson.posterUrl = 'https://via.placeholder.com/800x450/3B82F6/FFFFFF?text=No+Poster';
-      console.log('Poster cleared');
-    }
-  }
-
-  saveLessonSettings(): void {
-    const currentLesson = this.lesson();
-    if (currentLesson) {
-      // In a real app, this would save to the backend
-      console.log('Saving lesson settings:', currentLesson);
-
-      // Show success message (you can replace with a proper toast service)
-      alert('Lesson settings saved successfully!');
-    }
-  }
-
-  /**
-   * Get the best available poster URL with fallback
-   */
-  getVideoPosterUrl(): string | undefined {
-    const lesson = this.lesson();
-    if (!lesson) return undefined;
-
-    // Prefer dedicated poster URL, fallback to thumbnail, then to a default
-    return lesson.posterUrl || lesson.thumbnailUrl || '/assets/img/default-video-poster.jpg';
   }
 
   seekToTime(timestamp: number): void {
@@ -624,53 +841,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get chapter width as percentage of total video duration
-   */
-  getChapterWidth(chapter: VideoChapter): number {
-    const duration = this.videoDuration();
-    if (duration === 0) return 0;
-    const chapterDuration = chapter.endTime - chapter.startTime;
-    return (chapterDuration / duration) * 100;
-  }
-
-  /**
-   * Get chapter color class based on index
-   */
-  getChapterColor(index: number): string {
-    const colors = ['blue-200', 'green-200', 'yellow-200', 'purple-200', 'pink-200', 'indigo-200', 'red-200', 'orange-200'];
-    return colors[index % colors.length];
-  }
-
-  /**
-   * Get current chapter index
-   */
-  getCurrentChapterIndex(): number {
-    const current = this.currentChapter();
-    if (!current) return -1;
-    return this.videoChapters().findIndex(c => c.id === current.id);
-  }
-
-  /**
-   * Update lesson progress
-   */
-  private updateLessonProgress(currentTime: number, duration: number): void {
-    const lesson = this.lesson();
-    if (!lesson || !this.authService.isAuthenticated()) return;
-
-    const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-    const studentId = 1; // Mock student ID
-
-    this.lessonsService.updateProgress(
-      lesson.id,
-      studentId,
-      Math.round(progress),
-      Math.round(currentTime / 60), // time spent in minutes
-      currentTime
-    ).subscribe();
-  }
-
-  /**
-   * Quiz methods
+   * Legacy Quiz methods
    */
   selectQuizAnswer(answerIndex: number): void {
     const answers = [...this.quizAnswers()];
@@ -719,65 +890,10 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Notes methods
-   */
-  addNote(): void {
-    if (this.noteForm.valid) {
-      this.isAddingNote.set(true);
-
-      const newNote: LessonNote = {
-        id: Date.now(),
-        content: this.noteForm.value.content,
-        timestamp: this.videoCurrentTime(),
-        createdAt: new Date()
-      };
-
-      const currentNotes = this.notes();
-      this.notes.set([...currentNotes, newNote]);
-
-      this.noteForm.reset();
-      this.isAddingNote.set(false);
-    }
-  }
-
-  deleteNote(noteId: number): void {
-    if (confirm('Are you sure you want to delete this note?')) {
-      const currentNotes = this.notes();
-      this.notes.set(currentNotes.filter(note => note.id !== noteId));
-    }
-  }
-
-  /**
-   * Teacher interaction methods
-   */
-  askTeacher(): void {
-    if (this.questionForm.valid) {
-      this.isAskingQuestion.set(true);
-
-      const newQuestion: TeacherQuestion = {
-        id: Date.now(),
-        question: this.questionForm.value.question,
-        isAnswered: false,
-        askedAt: new Date()
-      };
-
-      const currentQuestions = this.teacherQuestions();
-      this.teacherQuestions.set([...currentQuestions, newQuestion]);
-
-      this.questionForm.reset();
-      this.isAskingQuestion.set(false);
-
-      // Show success message
-      alert('Your question has been sent to the teacher. You will be notified when they respond.');
-    }
-  }
-
-  /**
    * Resource methods
    */
   downloadResource(resource: LessonResource): void {
     if (resource.downloadable) {
-      // In a real app, this would trigger a download
       window.open(resource.url, '_blank');
     } else {
       this.router.navigate([resource.url]);
@@ -801,6 +917,20 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  goToPreviousLesson(): void {
+    const prevLesson = this.previousLesson();
+    if (prevLesson) {
+      this.router.navigate(['/lesson', prevLesson.id]);
+    }
+  }
+
+  goToNextLesson(): void {
+    const nextLesson = this.nextLesson();
+    if (nextLesson) {
+      this.router.navigate(['/lesson', nextLesson.id]);
+    }
+  }
+
   /**
    * Utility methods
    */
@@ -811,9 +941,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   }
 
   formatTimestamp(seconds: number): string {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return this.formatTime(seconds);
   }
 
   getResourceIcon(type: string): string {
@@ -836,47 +964,16 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Get quiz option letter (A, B, C, D)
-   */
   getOptionLetter(index: number): string {
     return String.fromCharCode(65 + index);
   }
 
-  // ==================== LESSON NAVIGATION METHODS ====================
-
-  /**
-   * Navigate to previous lesson
-   */
-  goToPreviousLesson(): void {
-    const prevLesson = this.previousLesson();
-    if (prevLesson) {
-      this.router.navigate(['/lesson', prevLesson.id]);
-    }
-  }
-
-  /**
-   * Navigate to next lesson
-   */
-  goToNextLesson(): void {
-    const nextLesson = this.nextLesson();
-    if (nextLesson) {
-      this.router.navigate(['/lesson', nextLesson.id]);
-    }
-  }
-
   // ==================== VIDEO CHAPTER METHODS ====================
 
-  /**
-   * Jump to specific chapter
-   */
   jumpToChapter(chapter: VideoChapter): void {
     this.seekToTime(chapter.startTime);
   }
 
-  /**
-   * Add new video chapter
-   */
   addChapter(): void {
     if (this.chapterForm.valid && this.canEditContent()) {
       const formValue = this.chapterForm.value;
@@ -892,39 +989,18 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       this.videoChapters.set([...currentChapters, newChapter].sort((a, b) => a.startTime - b.startTime));
 
       this.chapterForm.reset();
-      alert('Chapter added successfully!');
+      this.toastService.success('Chapter added successfully');
     }
   }
 
-  /**
-   * Edit video chapter
-   */
-  editChapter(chapter: VideoChapter): void {
-    if (this.canEditContent()) {
-      this.chapterForm.patchValue({
-        title: chapter.title,
-        startTime: chapter.startTime,
-        endTime: chapter.endTime,
-        description: chapter.description
-      });
-      this.isEditingChapters.set(true);
-    }
-  }
-
-  /**
-   * Delete video chapter
-   */
   deleteChapter(chapterId: number): void {
     if (this.canEditContent() && confirm('Are you sure you want to delete this chapter?')) {
       const currentChapters = this.videoChapters();
       this.videoChapters.set(currentChapters.filter(chapter => chapter.id !== chapterId));
-      alert('Chapter deleted successfully!');
+      this.toastService.success('Chapter deleted successfully');
     }
   }
 
-  /**
-   * Toggle chapter editing mode
-   */
   toggleChapterEditing(): void {
     this.isEditingChapters.set(!this.isEditingChapters());
     if (!this.isEditingChapters()) {
@@ -934,9 +1010,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
 
   // ==================== QUIZ MAKER METHODS ====================
 
-  /**
-   * Start creating new quiz
-   */
   startCreatingQuiz(): void {
     if (this.canEditContent()) {
       this.isCreatingQuiz.set(true);
@@ -958,9 +1031,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Add question to current quiz
-   */
   addQuestionToQuiz(): void {
     if (this.quizQuestionForm.valid) {
       const formValue = this.quizQuestionForm.value;
@@ -984,9 +1054,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Remove question from quiz
-   */
   removeQuestionFromQuiz(questionId: number): void {
     const currentQuiz = this.currentQuizMaker();
     if (currentQuiz) {
@@ -995,9 +1062,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Save quiz
-   */
   saveQuiz(): void {
     if (this.quizMakerForm.valid && this.currentQuizMaker()?.questions.length! > 0) {
       const formValue = this.quizMakerForm.value;
@@ -1014,25 +1078,20 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       };
 
       if (quizToSave.id === 0) {
-        // New quiz
         quizToSave.id = Date.now();
         const currentQuizzes = this.quizMakers();
         this.quizMakers.set([...currentQuizzes, quizToSave]);
       } else {
-        // Update existing quiz
         const currentQuizzes = this.quizMakers();
         const updatedQuizzes = currentQuizzes.map(q => q.id === quizToSave.id ? quizToSave : q);
         this.quizMakers.set(updatedQuizzes);
       }
 
       this.cancelQuizCreation();
-      alert('Quiz saved successfully!');
+      this.toastService.success('Quiz saved successfully');
     }
   }
 
-  /**
-   * Edit existing quiz
-   */
   editQuiz(quiz: QuizMaker): void {
     if (this.canEditContent()) {
       this.isEditingQuiz.set(true);
@@ -1048,20 +1107,14 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Delete quiz
-   */
   deleteQuiz(quizId: number): void {
     if (this.canEditContent() && confirm('Are you sure you want to delete this quiz?')) {
       const currentQuizzes = this.quizMakers();
       this.quizMakers.set(currentQuizzes.filter(q => q.id !== quizId));
-      alert('Quiz deleted successfully!');
+      this.toastService.success('Quiz deleted successfully');
     }
   }
 
-  /**
-   * Cancel quiz creation/editing
-   */
   cancelQuizCreation(): void {
     this.isCreatingQuiz.set(false);
     this.isEditingQuiz.set(false);
@@ -1070,9 +1123,6 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     this.quizQuestionForm.reset();
   }
 
-  /**
-   * Toggle quiz active status
-   */
   toggleQuizStatus(quizId: number): void {
     if (this.canEditContent()) {
       const currentQuizzes = this.quizMakers();
@@ -1083,27 +1133,75 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Get total points for current quiz
-   */
   getTotalQuizPoints(): number {
     const currentQuiz = this.currentQuizMaker();
     return currentQuiz?.questions.reduce((total, q) => total + q.points, 0) || 0;
   }
 
-  /**
-   * Get total points for any quiz
-   */
   getQuizTotalPoints(quiz: QuizMaker): number {
     return quiz.questions.reduce((total, q) => total + q.points, 0);
   }
 
-  /**
-   * Format seconds to MM:SS
-   */
-  formatSecondsToTime(seconds: number): string {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  // ==================== POSTER MANAGEMENT METHODS ====================
+
+  onPosterImageError(event: any): void {
+    console.warn('Poster image failed to load, using fallback');
+    event.target.style.display = 'none';
+  }
+
+  updatePosterUrl(newUrl: string): void {
+    const currentLesson = this.lesson();
+    if (currentLesson) {
+      currentLesson.posterUrl = newUrl.trim() || currentLesson.posterUrl || 'https://via.placeholder.com/800x450/3B82F6/FFFFFF?text=No+Poster';
+      this.toastService.info('Poster URL updated');
+    }
+  }
+
+  generatePosterFromThumbnail(): void {
+    const currentLesson = this.lesson();
+    if (currentLesson && currentLesson.thumbnailUrl) {
+      currentLesson.posterUrl = currentLesson.thumbnailUrl;
+      this.toastService.success('Poster generated from thumbnail');
+    }
+  }
+
+  clearPoster(): void {
+    const currentLesson = this.lesson();
+    if (currentLesson) {
+      currentLesson.posterUrl = 'https://via.placeholder.com/800x450/3B82F6/FFFFFF?text=No+Poster';
+      this.toastService.info('Poster cleared');
+    }
+  }
+
+  saveLessonSettings(): void {
+    const currentLesson = this.lesson();
+    if (currentLesson) {
+      console.log('Saving lesson settings:', currentLesson);
+      this.toastService.success('Lesson settings saved successfully');
+    }
+  }
+
+  getVideoPosterUrl(): string | undefined {
+    const lesson = this.lesson();
+    if (!lesson) return undefined;
+    return lesson.posterUrl || lesson.thumbnailUrl || '/assets/img/default-video-poster.jpg';
+  }
+
+  getChapterWidth(chapter: VideoChapter): number {
+    const duration = this.videoDuration();
+    if (duration === 0) return 0;
+    const chapterDuration = chapter.endTime - chapter.startTime;
+    return (chapterDuration / duration) * 100;
+  }
+
+  getChapterColor(index: number): string {
+    const colors = ['blue-200', 'green-200', 'yellow-200', 'purple-200', 'pink-200', 'indigo-200', 'red-200', 'orange-200'];
+    return colors[index % colors.length];
+  }
+
+  getCurrentChapterIndex(): number {
+    const current = this.currentChapter();
+    if (!current) return -1;
+    return this.videoChapters().findIndex(c => c.id === current.id);
   }
 }

@@ -24,7 +24,7 @@
         <div class="actions ms-auto">
           <button 
             class="btn btn-sm btn-outline-primary me-1" 
-            (click)="onAdd('term', subject)"
+            (click)="onAdd('term', { subject: subject, year: year })"
             title="Add Term">
             <i class="fas fa-plus"></i> Term
           </button>
@@ -61,7 +61,7 @@
                 <div class="actions ms-auto">
                   <button 
                     class="btn btn-sm btn-outline-primary me-1" 
-                    (click)="onAdd('week', term)"
+                    (click)="onAdd('week', { term: term, subject: subject, year: year })"
                     title="Add Week">
                     <i class="fas fa-plus"></i> Week
                   </button>
@@ -98,7 +98,7 @@
                         <div class="actions ms-auto">
                           <button 
                             class="btn btn-sm btn-outline-primary me-1" 
-                            (click)="onAdd('lesson', week)"
+                            (click)="onAdd('lesson', { week: week, term: term, subject: subject, year: year })"
                             title="Add Lesson">
                             <i class="fas fa-plus"></i> Lesson
                           </button>

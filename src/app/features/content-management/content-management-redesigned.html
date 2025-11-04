@@ -47,7 +47,7 @@
           </div>
           <div>
             <p class="text-gray-600 text-sm mb-1">Years</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats.years }}</p>
+            <p class="text-3xl font-bold text-gray-900">{{ totalCounts.years }}</p>
           </div>
         </div>
       </div>
@@ -59,7 +59,7 @@
           </div>
           <div>
             <p class="text-gray-600 text-sm mb-1">Categories</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats.categories }}</p>
+            <p class="text-3xl font-bold text-gray-900">{{ totalCounts.categories }}</p>
           </div>
         </div>
       </div>
@@ -71,7 +71,7 @@
           </div>
           <div>
             <p class="text-gray-600 text-sm mb-1">Subjects</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats.subjects }}</p>
+            <p class="text-3xl font-bold text-gray-900">{{ totalCounts.subjects }}</p>
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@
           </div>
           <div>
             <p class="text-gray-600 text-sm mb-1">Terms</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats.terms }}</p>
+            <p class="text-3xl font-bold text-gray-900">{{ totalCounts.terms }}</p>
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@
           </div>
           <div>
             <p class="text-gray-600 text-sm mb-1">Weeks</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats.weeks }}</p>
+            <p class="text-3xl font-bold text-gray-900">{{ totalCounts.weeks }}</p>
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@
           </div>
           <div>
             <p class="text-gray-600 text-sm mb-1">Lessons</p>
-            <p class="text-3xl font-bold text-gray-900">{{ stats.lessons }}</p>
+            <p class="text-3xl font-bold text-gray-900">{{ totalCounts.lessons }}</p>
           </div>
         </div>
       </div>
@@ -352,11 +352,12 @@
               <div class="hierarchy-tree">
                 <app-hierarchy-node *ngFor="let year of filteredYears"
                     [year]="year"
-                    [subjects]="getSubjectsByYear(year.id)"
-                    [terms]="terms"
-                    [weeks]="weeks"
-                    [lessons]="lessons"
-                    (add)="openAdd($event.type)"
+                    [subjects]="filteredSubjects"
+                    [terms]="filteredTerms"
+                    [weeks]="filteredWeeks"
+                    [lessons]="filteredLessons"
+                    [expandState]="hierarchyExpandedState"
+                    (add)="openAddFromHierarchy($event.type, $event.entity)"
                     (edit)="openEdit($event.type, $event.entity)"
                     (delete)="confirmDelete($event.type, $event.entity)">
                 </app-hierarchy-node>

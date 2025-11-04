@@ -1,0 +1,325 @@
+<!-- 
+  ================================================================
+  EXAMS TAB - إضافة هذا الكود في lesson-detail.component.html
+  بعد Quiz Tab وقبل Notes Tab
+  ================================================================
+-->
+
+<!-- Add this button in the tab navigation section -->
+@if (hasExams()) {
+  <button
+    (click)="setActiveTab('exams')"
+    [class.border-blue-500]="activeTab() === 'exams'"
+    [class.text-blue-600]="activeTab() === 'exams'"
+    [class.border-transparent]="activeTab() !== 'exams'"
+    [class.text-gray-500]="activeTab() !== 'exams'"
+    class="flex-shrink-0 whitespace-nowrap py-3 md:py-4 px-1 border-b-2 font-medium text-xs md:text-sm hover:text-blue-600 hover:border-blue-300 transition-colors">
+    <i class="fas fa-file-alt mr-1 md:mr-2"></i>
+    <span class="hidden md:inline">Exams</span>
+    <span class="md:hidden">Ex</span>
+    <span class="ml-1 md:ml-2 bg-red-100 text-red-800 text-xs font-medium px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">
+      {{ lessonExams().length }}
+    </span>
+  </button>
+}
+
+<!-- Add this in the tab content section -->
+@if (activeTab() === 'exams') {
+  <div class="space-y-6">
+    @if (!currentExamSession()) {
+      <!-- Exams List View -->
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-gray-900">Lesson Exams</h3>
+        @if (lessonExams().length > 0) {
+          <span class="text-sm text-gray-600">
+            {{ lessonExams().length }} {{ lessonExams().length === 1 ? 'exam' : 'exams' }} available
+          </span>
+        }
+      </div>
+      
+      @if (isLoadingExam()) {
+        <div class="flex justify-center items-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span class="ml-3 text-gray-600">Loading exam...</span>
+        </div>
+      } @else if (lessonExams().length > 0) {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          @for (exam of lessonExams(); track exam.id) {
+            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-blue-500 hover:shadow-lg transition-all duration-200">
+              <div class="flex items-start justify-between mb-3">
+                <h4 class="text-lg font-semibold text-gray-900 flex-1">{{ exam.title }}</h4>
+                <span class="px-3 py-1 rounded-full text-xs font-medium flex-shrink-0 ml-2"
+                      [ngClass]="{
+                        'bg-green-100 text-green-800': exam.examType === 'Lesson',
+                        'bg-blue-100 text-blue-800': exam.examType === 'Monthly',
+                        'bg-purple-100 text-purple-800': exam.examType === 'Term',
+                        'bg-red-100 text-red-800': exam.examType === 'Year'
+                      }">
+                  <i class="fas fa-tag mr-1"></i>
+                  {{ exam.examType }}
+                </span>
+              </div>
+              
+              @if (exam.description) {
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ exam.description }}</p>
+              }
+              
+              <div class="flex flex-wrap gap-3 text-sm text-gray-500 mb-4">
+                <span class="flex items-center">
+                  <i class="fas fa-clock text-blue-500 mr-1.5"></i>
+                  <span class="font-medium">{{ exam.durationInMinutes }}</span> min
+                </span>
+                <span class="flex items-center">
+                  <i class="fas fa-question-circle text-green-500 mr-1.5"></i>
+                  <span class="font-medium">{{ exam.questionCount }}</span> questions
+                </span>
+                <span class="flex items-center">
+                  <i class="fas fa-trophy text-yellow-500 mr-1.5"></i>
+                  Pass: <span class="font-medium ml-1">{{ exam.passingMarks }}/{{ exam.totalMarks }}</span>
+                </span>
+              </div>
+              
+              @if (exam.startTime && exam.endTime) {
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2 mb-4 text-xs">
+                  <i class="fas fa-calendar-alt text-yellow-600 mr-1"></i>
+                  <span class="text-yellow-800">
+                    Available: {{ exam.startTime | date: 'short' }} - {{ exam.endTime | date: 'short' }}
+                  </span>
+                </div>
+              }
+              
+              <button
+                (click)="startExam(exam)"
+                class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center">
+                <i class="fas fa-play mr-2"></i>
+                Start Exam
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="text-center py-12 bg-gray-50 rounded-lg">
+          <i class="fas fa-clipboard-list text-6xl text-gray-300 mb-4"></i>
+          <h4 class="text-lg font-medium text-gray-700 mb-2">No Exams Available</h4>
+          <p class="text-gray-500">There are no exams for this lesson yet.</p>
+        </div>
+      }
+      
+    } @else {
+      <!-- Active Exam Session -->
+      @if (!showExamResults()) {
+        <!-- Exam Header -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex-1">
+              <h4 class="text-xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-file-alt text-blue-600 mr-2"></i>
+                {{ currentExamSession()!.title }}
+              </h4>
+              <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                <span class="flex items-center">
+                  <i class="fas fa-clock text-blue-500 mr-2"></i>
+                  Duration: <strong class="ml-1">{{ currentExamSession()!.durationInMinutes }} minutes</strong>
+                </span>
+                <span class="flex items-center">
+                  <i class="fas fa-question-circle text-green-500 mr-2"></i>
+                  Questions: <strong class="ml-1">{{ currentExamSession()!.questions.length }}</strong>
+                </span>
+              </div>
+            </div>
+            
+            <div class="flex gap-2">
+              <button
+                (click)="closeExam()"
+                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                <i class="fas fa-times mr-2"></i>
+                Cancel
+              </button>
+              <button
+                (click)="submitExam()"
+                [disabled]="isSubmittingExam()"
+                class="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors shadow-md hover:shadow-lg">
+                <i class="fas fa-check mr-2"></i>
+                {{ isSubmittingExam() ? 'Submitting...' : 'Submit Exam' }}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Exam Questions -->
+        <div class="space-y-6">
+          @for (question of currentExamSession()!.questions; track question.id; let i = $index) {
+            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-blue-300 transition-all">
+              <div class="flex items-start gap-4 mb-4">
+                <span class="flex-shrink-0 w-10 h-10 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-bold text-lg">
+                  {{ i + 1 }}
+                </span>
+                <div class="flex-1">
+                  <p class="text-gray-900 font-medium text-lg mb-2">{{ question.questionText }}</p>
+                  <div class="flex items-center gap-3 text-xs text-gray-500">
+                    <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
+                      {{ question.questionType }}
+                    </span>
+                    <span class="flex items-center">
+                      <i class="fas fa-star text-yellow-500 mr-1"></i>
+                      {{ question.marks }} {{ question.marks === 1 ? 'mark' : 'marks' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Multiple Choice Questions -->
+              @if (question.questionType === 'MultipleChoice') {
+                <div class="space-y-2 ml-14">
+                  @for (option of question.options; track option.id; let optIndex = $index) {
+                    <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-400 transition-all group">
+                      <input
+                        type="radio"
+                        [name]="'question-' + question.id"
+                        [checked]="getExamAnswer(question.id)?.selectedOptionId === option.id"
+                        (change)="saveExamAnswer(question.id, { questionId: question.id, selectedOptionId: option.id })"
+                        class="w-5 h-5 text-blue-600 focus:ring-2 focus:ring-blue-500">
+                      <span class="ml-3 text-gray-700 group-hover:text-gray-900 font-medium">
+                        <span class="inline-block w-6 h-6 rounded-full bg-gray-200 text-gray-700 text-center text-sm font-bold mr-2 group-hover:bg-blue-100">
+                          {{ getOptionLetter(optIndex) }}
+                        </span>
+                        {{ option.optionText }}
+                      </span>
+                    </label>
+                  }
+                </div>
+              }
+              
+              <!-- Text Questions -->
+              @if (question.questionType === 'Text') {
+                <div class="ml-14">
+                  <textarea
+                    rows="5"
+                    [value]="getExamAnswer(question.id)?.textAnswer || ''"
+                    (input)="saveExamAnswer(question.id, { questionId: question.id, textAnswer: $any($event.target).value })"
+                    placeholder="Type your answer here..."
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                  </textarea>
+                  <p class="text-xs text-gray-500 mt-1">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Provide a detailed answer
+                  </p>
+                </div>
+              }
+              
+              <!-- True/False Questions -->
+              @if (question.questionType === 'TrueFalse') {
+                <div class="space-y-2 ml-14">
+                  @for (option of question.options; track option.id) {
+                    <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-400 transition-all">
+                      <input
+                        type="radio"
+                        [name]="'question-' + question.id"
+                        [checked]="getExamAnswer(question.id)?.selectedOptionId === option.id"
+                        (change)="saveExamAnswer(question.id, { questionId: question.id, selectedOptionId: option.id })"
+                        class="w-5 h-5 text-blue-600 focus:ring-2 focus:ring-blue-500">
+                      <span class="ml-3 text-gray-700 font-medium">{{ option.optionText }}</span>
+                    </label>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+        
+        <!-- Submit Button (Bottom) -->
+        <div class="sticky bottom-4 bg-white border-2 border-blue-200 rounded-xl p-4 shadow-lg">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-600">
+              <i class="fas fa-check-circle text-green-500 mr-2"></i>
+              Answered: <strong>{{ examAnswers().length }}/{{ currentExamSession()!.questions.length }}</strong>
+            </div>
+            <button
+              (click)="submitExam()"
+              [disabled]="isSubmittingExam()"
+              class="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-xl">
+              <i class="fas fa-paper-plane mr-2"></i>
+              {{ isSubmittingExam() ? 'Submitting...' : 'Submit Exam' }}
+            </button>
+          </div>
+        </div>
+        
+      } @else {
+        <!-- Exam Results -->
+        <div class="max-w-2xl mx-auto text-center space-y-8 py-8">
+          <div class="inline-flex items-center justify-center w-32 h-32 rounded-full shadow-lg"
+               [ngClass]="{
+                 'bg-gradient-to-br from-green-100 to-green-200': examResult()!.isPassed,
+                 'bg-gradient-to-br from-red-100 to-red-200': !examResult()!.isPassed
+               }">
+            <i class="text-6xl"
+               [ngClass]="{
+                 'fas fa-check-circle text-green-600': examResult()!.isPassed,
+                 'fas fa-times-circle text-red-600': !examResult()!.isPassed
+               }"></i>
+          </div>
+          
+          <div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-2">
+              {{ examResult()!.isPassed ? '🎉 Congratulations!' : '💪 Keep Trying!' }}
+            </h3>
+            <p class="text-gray-600">
+              {{ examResult()!.isPassed ? 'You passed the exam!' : 'You can retake the exam after reviewing the material.' }}
+            </p>
+          </div>
+          
+          <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border-2 border-blue-200">
+            <div class="text-6xl font-bold text-blue-600 mb-3">
+              {{ examResult()!.score }}/{{ examResult()!.totalMarks }}
+            </div>
+            <p class="text-gray-700 font-medium text-lg">Your Score</p>
+            
+            @if (examResult()!.percentage !== undefined) {
+              <div class="mt-4">
+                <div class="w-full bg-gray-200 rounded-full h-4">
+                  <div
+                    class="h-4 rounded-full transition-all duration-500"
+                    [style.width.%]="examResult()!.percentage"
+                    [ngClass]="{
+                      'bg-green-500': examResult()!.isPassed,
+                      'bg-red-500': !examResult()!.isPassed
+                    }">
+                  </div>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">{{ examResult()!.percentage }}%</p>
+              </div>
+            }
+          </div>
+          
+          @if (examResult()!.feedback) {
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-left">
+              <h4 class="font-semibold text-gray-900 mb-2">
+                <i class="fas fa-comment text-yellow-600 mr-2"></i>
+                Teacher Feedback
+              </h4>
+              <p class="text-gray-700">{{ examResult()!.feedback }}</p>
+            </div>
+          }
+          
+          <div class="flex gap-4 justify-center pt-4">
+            <button
+              (click)="closeExam()"
+              class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg">
+              <i class="fas fa-list mr-2"></i>
+              Back to Exams
+            </button>
+            
+            @if (!examResult()!.isPassed) {
+              <button
+                (click)="closeExam()"
+                class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg">
+                <i class="fas fa-redo mr-2"></i>
+                Try Again
+              </button>
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+}

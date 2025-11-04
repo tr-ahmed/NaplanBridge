@@ -197,8 +197,11 @@ export class ContentService {
   }
 
   // ===== Subjects =====
-  getSubjects(): Observable<Subject[]> {
-    return this.http.get<Subject[]>(`${this.apiUrl}/Subjects`);
+  getSubjects(page: number = 1, pageSize: number = 1000): Observable<any> {
+    const params = new HttpParams()
+      .set('Page', page.toString())
+      .set('PageSize', pageSize.toString());
+    return this.http.get<any>(`${this.apiUrl}/Subjects`, { params });
   }
 
   getSubject(id: number): Observable<Subject> {
@@ -234,30 +237,29 @@ export class ContentService {
 
   updateSubject(
     id: number,
-    yearId: number,
-    subjectNameId: number,
     originalPrice: number,
     discountPercentage: number,
     level: string,
     duration: number,
     teacherId: number,
-    startDate: string,
     posterFile?: File
   ): Observable<Subject> {
     const formData = new FormData();
+    
+    // Always append PosterFile, even if empty (some backends require it)
     if (posterFile) {
       formData.append('PosterFile', posterFile);
+    } else {
+      // Append empty blob to satisfy multipart/form-data requirement
+      formData.append('PosterFile', new Blob(), '');
     }
 
     const params = new HttpParams()
-      .set('YearId', yearId.toString())
-      .set('SubjectNameId', subjectNameId.toString())
       .set('OriginalPrice', originalPrice.toString())
       .set('DiscountPercentage', discountPercentage.toString())
       .set('Level', level)
       .set('Duration', duration.toString())
-      .set('TeacherId', teacherId.toString())
-      .set('StartDate', startDate);
+      .set('TeacherId', teacherId.toString());
 
     return this.http.put<Subject>(`${this.apiUrl}/Subjects/${id}`, formData, { params });
   }
@@ -378,24 +380,19 @@ export class ContentService {
     title: string,
     description: string,
     weekId: number,
-    subjectId: number,
     posterFile: File,
-    videoFile: File,
-    duration?: number,
-    orderIndex?: number
+    videoFile: File
   ): Observable<Lesson> {
     const formData = new FormData();
     formData.append('PosterFile', posterFile);
     formData.append('VideoFile', videoFile);
 
-    let params = new HttpParams()
+    // According to Swagger API: Title, Description, WeekId as query parameters
+    // SubjectId and TermId are automatically calculated by backend
+    const params = new HttpParams()
       .set('Title', title)
       .set('Description', description)
-      .set('WeekId', weekId.toString())
-      .set('SubjectId', subjectId.toString());
-
-    if (duration) params = params.set('Duration', duration.toString());
-    if (orderIndex !== undefined) params = params.set('OrderIndex', orderIndex.toString());
+      .set('WeekId', weekId.toString());
 
     return this.http.post<Lesson>(`${this.apiUrl}/Lessons`, formData, { params });
   }
@@ -405,28 +402,28 @@ export class ContentService {
     title: string,
     description: string,
     weekId: number,
-    subjectId: number,
     posterFile?: File,
-    videoFile?: File,
-    duration?: number,
-    orderIndex?: number
+    videoFile?: File
   ): Observable<Lesson> {
     const formData = new FormData();
+    
+    // Always append files, even if empty (some backends require it)
     if (posterFile) {
       formData.append('PosterFile', posterFile);
+    } else {
+      formData.append('PosterFile', new Blob(), '');
     }
+    
     if (videoFile) {
       formData.append('VideoFile', videoFile);
+    } else {
+      formData.append('VideoFile', new Blob(), '');
     }
 
     let params = new HttpParams()
       .set('Title', title)
       .set('Description', description)
-      .set('WeekId', weekId.toString())
-      .set('SubjectId', subjectId.toString());
-
-    if (duration) params = params.set('Duration', duration.toString());
-    if (orderIndex !== undefined) params = params.set('OrderIndex', orderIndex.toString());
+      .set('WeekId', weekId.toString());
 
     return this.http.put<Lesson>(`${this.apiUrl}/Lessons/${id}`, formData, { params });
   }
