@@ -51,7 +51,7 @@ export const routes: Routes = [
   },
   {
     path: 'lesson/:id',
-    loadComponent: () => import('./features/lesson-detail/lesson-detail.component').then(m => m.LessonDetailComponent)
+    loadComponent: () => import('./features/lesson-detail/lesson-detail').then(m => m.LessonDetail)
   },
   {
     path: 'cart',
@@ -115,6 +115,12 @@ export const routes: Routes = [
   {
     path: 'admin/content',
     loadComponent: () => import('./features/content-management/content-management-redesigned').then(m => m.ContentManagementComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+      ,  data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'lesson-detail/:id',
+    loadComponent: () => import('./features/lesson-detail/lesson-detail').then(m => m.LessonDetail),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
       ,  data: { hideHeader: true, hideFooter: true }
   },

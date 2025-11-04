@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 
 import { AuthService } from '../../core/services/auth.service';
@@ -190,7 +191,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   constructor(
     private sanitizer: DomSanitizer,
     private authService: AuthService,
-    private contentService: ContentService
+    private contentService: ContentService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -878,7 +880,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         }).toPromise();
         break;
       case 'lesson':
-        await this.contentService.addLesson(
+        const newLesson = await this.contentService.addLesson(
           data.title,
           data.description,
           data.weekId,
@@ -888,6 +890,18 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           data.duration,
           data.orderIndex
         ).toPromise();
+        
+        // Navigate to lesson detail page
+        if (newLesson && newLesson.id) {
+          await Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Lesson created successfully. Redirecting to lesson details...',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          this.router.navigate(['/lesson-detail', newLesson.id]);
+        }
         break;
     }
   }

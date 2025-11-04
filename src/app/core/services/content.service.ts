@@ -455,6 +455,77 @@ export class ContentService {
     return this.http.delete<void>(`${this.apiUrl}/Resources/${id}`);
   }
 
+  // ===== Lesson Questions (Quiz) =====
+  getLessonQuestions(lessonId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/LessonQuestions/lesson/${lessonId}`);
+  }
+
+  addLessonQuestion(lessonId: number, questionText: string, questionType: string, points: number, options: any[]): Observable<any> {
+    const body = {
+      lessonId,
+      questionText,
+      questionType,
+      points,
+      options
+    };
+    return this.http.post<any>(`${this.apiUrl}/LessonQuestions`, body);
+  }
+
+  updateLessonQuestion(id: number, questionText: string, questionType: string, points: number, options: any[]): Observable<any> {
+    const body = {
+      questionText,
+      questionType,
+      points,
+      options
+    };
+    return this.http.put<any>(`${this.apiUrl}/LessonQuestions/${id}`, body);
+  }
+
+  deleteLessonQuestion(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/LessonQuestions/${id}`);
+  }
+
+  // ===== Lesson Discussions =====
+  getLessonDiscussions(lessonId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/Discussions/lessons/${lessonId}`);
+  }
+
+  addLessonDiscussion(lessonId: number, question: string, details: string): Observable<any> {
+    const body = {
+      lessonId,
+      question,
+      details
+    };
+    return this.http.post<any>(`${this.apiUrl}/Discussions/lessons/${lessonId}`, body);
+  }
+
+  deleteLessonDiscussion(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/Discussions/${id}`);
+  }
+
+  // ===== Lesson Resources =====
+  addLessonResource(lessonId: number, title: string, description: string, resourceType: string, file: File): Observable<any> {
+    console.log('addLessonResource called with:', { lessonId, title, fileName: file.name, fileSize: file.size });
+    
+    const formData = new FormData();
+    formData.append('File', file);
+
+    // API only accepts Title and LessonId as query params (based on Swagger)
+    const params = new HttpParams()
+      .set('Title', title)
+      .set('LessonId', lessonId.toString());
+
+    console.log('Request URL:', `${this.apiUrl}/Resources`);
+    console.log('Query Params:', params.toString());
+    console.log('FormData File:', file.name);
+
+    return this.http.post<any>(`${this.apiUrl}/Resources`, formData, { params });
+  }
+
+  deleteLessonResource(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/Resources/${id}`);
+  }
+
   // ===== Users =====
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/User`);
