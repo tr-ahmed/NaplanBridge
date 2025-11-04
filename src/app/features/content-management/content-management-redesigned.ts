@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import Swal from 'sweetalert2';
 
@@ -42,7 +41,6 @@ type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson
   selector: 'app-content-management',
   standalone: true,
   imports: [
-    RouterLink,
     CommonModule,
     FormsModule,
     HierarchyNodeComponent,
@@ -63,13 +61,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // UI State Management
   // ============================================
-  sidebarMobileOpen = false;
-  isMobile = false;
-  userName = 'Admin User';
   activeTab: string = 'hierarchy';
   searchTerm = '';
-  
-  private resizeListener: any;
 
   // ============================================
   // Data Collections
@@ -201,17 +194,11 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.checkScreenSize();
     this.loadAllData();
-    
-    this.resizeListener = () => this.checkScreenSize();
-    window.addEventListener('resize', this.resizeListener);
   }
 
   ngOnDestroy(): void {
-    if (this.resizeListener) {
-      window.removeEventListener('resize', this.resizeListener);
-    }
+    // Cleanup if needed
   }
 
   // ============================================
@@ -476,21 +463,6 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   // UI State Management
   // ============================================
 
-  toggleMobileSidebar(): void {
-    this.sidebarMobileOpen = !this.sidebarMobileOpen;
-  }
-
-  closeMobileSidebar(): void {
-    this.sidebarMobileOpen = false;
-  }
-
-  checkScreenSize(): void {
-    this.isMobile = window.innerWidth < 992;
-    if (!this.isMobile) {
-      this.sidebarMobileOpen = false;
-    }
-  }
-
   setActiveTab(tab: string): void {
     this.activeTab = tab;
   }
@@ -720,27 +692,291 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   }
 
   // ============================================
-  // CRUD Operations - Will be implemented
+  // CRUD Operations
   // ============================================
 
   openAdd(type: EntityType): void {
-    // Implementation here
+    this.formMode = 'add';
+    this.entityType = type;
+    this.form = this.getEmptyForm(type);
+    this.isFormOpen = true;
   }
 
   openEdit(type: EntityType, entity: any): void {
-    // Implementation here
+    this.formMode = 'edit';
+    this.entityType = type;
+    this.form = { ...entity };
+    this.isFormOpen = true;
   }
 
   closeForm(): void {
     this.isFormOpen = false;
+    this.form = {};
   }
 
   async submitForm(): Promise<void> {
-    // Implementation here
+    try {
+      Swal.fire({
+        title: 'Saving...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      if (this.formMode === 'add') {
+        await this.createEntity(this.entityType, this.form);
+      } else {
+        await this.updateEntity(this.entityType, this.form);
+      }
+
+      await this.loadAllData();
+      this.closeForm();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: `${this.getEntityTitle(this.entityType)} ${this.formMode === 'add' ? 'created' : 'updated'} successfully`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error: any) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: this.extractErrorMessage(error)
+      });
+    }
   }
 
   async confirmDelete(type: EntityType, entity: any): Promise<void> {
-    // Implementation here
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: `Do you want to delete this ${this.getEntityTitle(type)}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        Swal.fire({
+          title: 'Deleting...',
+          text: 'Please wait',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        await this.deleteEntity(type, entity.id);
+        await this.loadAllData();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: `${this.getEntityTitle(type)} has been deleted`,
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error: any) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: this.extractErrorMessage(error)
+        });
+      }
+    }
+  }
+
+  private getEmptyForm(type: EntityType): any {
+    const forms: { [key: string]: any } = {
+      'year': { yearNumber: 1 },
+      'category': { name: '', description: '', color: '#3B82F6' },
+      'subjectName': { name: '', categoryId: null },
+      'subject': {
+        yearId: null,
+        subjectNameId: null,
+        originalPrice: 0,
+        discountPercentage: 0,
+        level: 'Beginner',
+        duration: 0,
+        teacherId: null,
+        startDate: new Date().toISOString().split('T')[0],
+        posterFile: null
+      },
+      'term': { subjectId: null, termNumber: 1, startDate: new Date().toISOString().split('T')[0] },
+      'week': { termId: null, weekNumber: 1 },
+      'lesson': {
+        title: '',
+        description: '',
+        weekId: null,
+        subjectId: null,
+        duration: 0,
+        orderIndex: 0,
+        posterFile: null,
+        videoFile: null
+      }
+    };
+    return forms[type] || {};
+  }
+
+  private getEntityTitle(type: EntityType): string {
+    const titles: { [key: string]: string } = {
+      'year': 'Year',
+      'category': 'Category',
+      'subjectName': 'Subject Name',
+      'subject': 'Subject',
+      'term': 'Term',
+      'week': 'Week',
+      'lesson': 'Lesson'
+    };
+    return titles[type] || 'Item';
+  }
+
+  private async createEntity(type: EntityType, data: any): Promise<void> {
+    switch (type) {
+      case 'year':
+        await this.contentService.addYear({ yearNumber: data.yearNumber }).toPromise();
+        break;
+      case 'category':
+        await this.contentService.addCategory({
+          name: data.name,
+          description: data.description,
+          color: data.color
+        }).toPromise();
+        break;
+      case 'subjectName':
+        await this.contentService.addSubjectName({
+          name: data.name,
+          categoryId: data.categoryId
+        }).toPromise();
+        break;
+      case 'subject':
+        await this.contentService.addSubject(
+          data.yearId,
+          data.subjectNameId,
+          data.originalPrice,
+          data.discountPercentage || 0,
+          data.level,
+          data.duration || 0,
+          data.teacherId,
+          data.startDate,
+          data.posterFile
+        ).toPromise();
+        break;
+      case 'term':
+        await this.contentService.addTerm({
+          subjectId: data.subjectId,
+          termNumber: data.termNumber,
+          startDate: data.startDate
+        }).toPromise();
+        break;
+      case 'week':
+        await this.contentService.addWeek({
+          termId: data.termId,
+          weekNumber: data.weekNumber
+        }).toPromise();
+        break;
+      case 'lesson':
+        await this.contentService.addLesson(
+          data.title,
+          data.description,
+          data.weekId,
+          data.subjectId,
+          data.posterFile,
+          data.videoFile,
+          data.duration,
+          data.orderIndex
+        ).toPromise();
+        break;
+    }
+  }
+
+  private async updateEntity(type: EntityType, data: any): Promise<void> {
+    switch (type) {
+      case 'year':
+        await this.contentService.updateYear(data.id, { yearNumber: data.yearNumber }).toPromise();
+        break;
+      case 'category':
+        await this.contentService.updateCategory(data.id, {
+          name: data.name,
+          description: data.description,
+          color: data.color
+        }).toPromise();
+        break;
+      case 'subjectName':
+        await this.contentService.updateSubjectName(data.id, {
+          name: data.name,
+          categoryId: data.categoryId
+        }).toPromise();
+        break;
+      case 'subject':
+        await this.contentService.updateSubject(
+          data.id,
+          data.yearId,
+          data.subjectNameId,
+          data.originalPrice,
+          data.discountPercentage || 0,
+          data.level,
+          data.duration || 0,
+          data.teacherId,
+          data.startDate,
+          data.posterFile
+        ).toPromise();
+        break;
+      case 'term':
+        await this.contentService.updateTerm(data.id, {
+          subjectId: data.subjectId,
+          termNumber: data.termNumber,
+          startDate: data.startDate
+        }).toPromise();
+        break;
+      case 'week':
+        await this.contentService.updateWeek(data.id, {
+          termId: data.termId,
+          weekNumber: data.weekNumber
+        }).toPromise();
+        break;
+      case 'lesson':
+        await this.contentService.updateLesson(
+          data.id,
+          data.title,
+          data.description,
+          data.weekId,
+          data.subjectId,
+          data.posterFile,
+          data.videoFile,
+          data.duration,
+          data.orderIndex
+        ).toPromise();
+        break;
+    }
+  }
+
+  private async deleteEntity(type: EntityType, id: number): Promise<void> {
+    switch (type) {
+      case 'year':
+        await this.contentService.deleteYear(id).toPromise();
+        break;
+      case 'category':
+        await this.contentService.deleteCategory(id).toPromise();
+        break;
+      case 'subjectName':
+        await this.contentService.deleteSubjectName(id).toPromise();
+        break;
+      case 'subject':
+        await this.contentService.deleteSubject(id).toPromise();
+        break;
+      case 'term':
+        await this.contentService.deleteTerm(id).toPromise();
+        break;
+      case 'week':
+        await this.contentService.deleteWeek(id).toPromise();
+        break;
+      case 'lesson':
+        await this.contentService.deleteLesson(id).toPromise();
+        break;
+    }
   }
 
   // ============================================
@@ -925,12 +1161,4 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   }
 
   // ============================================
-  // Logout
-  // ============================================
-
-  handleLogout(): void {
-    if (confirm('Are you sure you want to logout?')) {
-      this.authService.logout();
-    }
-  }
 }

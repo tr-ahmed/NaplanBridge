@@ -1,0 +1,726 @@
+<!-- Sidebar Toggle Button -->
+<button class="sidebar-toggle btn btn-primary" (click)="toggleSidebar()" aria-label="Toggle Sidebar">
+  <i class="fas" [ngClass]="sidebarCollapsed ? 'fa-bars' : 'fa-times'"></i>
+</button>
+
+<!-- Sidebar -->
+<div class="sidebar" [ngClass]="{ 'collapsed': sidebarCollapsed }">
+  <!-- Logo & Brand -->
+  <div class="sidebar-logo p-4 text-center border-bottom border-light border-opacity-10">
+    <h4 class="text-white mb-0">
+      <i class="fas fa-graduation-cap me-2"></i>
+      NAPLAN Bridge
+    </h4>
+    <small class="text-white-50">Admin Panel</small>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav flex-grow-1 p-3">
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link text-white rounded-3 mb-2" 
+           [ngClass]="{ 'active bg-white bg-opacity-15': activeTab === 'dashboard' }"
+           (click)="setActiveTab('dashboard')">
+          <i class="fas fa-chart-line me-2"></i>
+          Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white rounded-3 mb-2"
+           [ngClass]="{ 'active bg-white bg-opacity-15': activeTab === 'plans' }"
+           (click)="setActiveTab('plans')">
+          <i class="fas fa-box me-2"></i>
+          Subscription Plans
+          <span class="badge bg-light text-dark ms-2">{{ stats.totalPlans }}</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white rounded-3 mb-2"
+           [ngClass]="{ 'active bg-white bg-opacity-15': activeTab === 'orders' }"
+           (click)="setActiveTab('orders')">
+          <i class="fas fa-shopping-cart me-2"></i>
+          Orders
+          <span class="badge bg-light text-dark ms-2">{{ stats.totalOrders }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- User Profile -->
+  <div class="sidebar-profile p-3 border-top border-light border-opacity-10">
+    <div class="d-flex align-items-center position-relative">
+      <div class="flex-shrink-0">
+        <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" 
+             style="width: 40px; height: 40px;">
+          <i class="fas fa-user text-white"></i>
+        </div>
+      </div>
+      <div class="flex-grow-1 ms-3">
+        <h6 class="mb-0 text-white">{{ userName }}</h6>
+        <small class="text-white-50">Administrator</small>
+      </div>
+      <button class="btn btn-sm btn-link text-white p-0" (click)="toggleUserMenu()">
+        <i class="fas fa-ellipsis-v"></i>
+      </button>
+      
+      <!-- User Menu Dropdown -->
+      <div class="dropdown-menu dropdown-menu-end" [ngClass]="{ 'show': isUserMenuOpen }" 
+           style="position: absolute; bottom: 50px; right: 10px;">
+        <a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a>
+        <a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a>
+        <hr class="dropdown-divider">
+        <a class="dropdown-item text-danger" (click)="handleLogout()">
+          <i class="fas fa-sign-out-alt me-2"></i>Logout
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content" [ngClass]="{ 'expanded': sidebarCollapsed }">
+  <!-- Alert Messages -->
+  <div class="container-fluid px-4 pt-3" *ngIf="successMessage || errorMessage">
+    <div class="alert alert-success alert-dismissible fade show" *ngIf="successMessage" role="alert">
+      <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show" *ngIf="errorMessage" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i>{{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Dashboard View -->
+  <div class="container-fluid px-4 py-4" *ngIf="activeTab === 'dashboard'">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">Dashboard</h2>
+        <p class="text-muted mb-0">Subscription & Order Management Overview</p>
+      </div>
+      <button class="btn btn-gradient" (click)="refreshData()">
+        <i class="fas fa-sync-alt me-2"></i>Refresh
+      </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+      <!-- Total Plans -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="flex-shrink-0">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-3 p-3">
+                  <i class="fas fa-box fa-2x"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <h6 class="text-muted mb-1">Total Plans</h6>
+                <h3 class="mb-0">{{ stats.totalPlans }}</h3>
+                <small class="text-success">
+                  <i class="fas fa-arrow-up me-1"></i>{{ stats.activePlans }} Active
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Orders -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="flex-shrink-0">
+                <div class="icon-box bg-info bg-opacity-10 text-info rounded-3 p-3">
+                  <i class="fas fa-shopping-cart fa-2x"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <h6 class="text-muted mb-1">Total Orders</h6>
+                <h3 class="mb-0">{{ stats.totalOrders }}</h3>
+                <small class="text-warning">
+                  <i class="fas fa-clock me-1"></i>{{ stats.pendingOrders }} Pending
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Revenue -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="flex-shrink-0">
+                <div class="icon-box bg-success bg-opacity-10 text-success rounded-3 p-3">
+                  <i class="fas fa-dollar-sign fa-2x"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <h6 class="text-muted mb-1">Total Revenue</h6>
+                <h3 class="mb-0">{{ formatCurrency(stats.totalRevenue) }}</h3>
+                <small class="text-success">
+                  <i class="fas fa-arrow-up me-1"></i>{{ formatCurrency(stats.revenue30d) }} (30d)
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Average Order Value -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="flex-shrink-0">
+                <div class="icon-box bg-warning bg-opacity-10 text-warning rounded-3 p-3">
+                  <i class="fas fa-chart-line fa-2x"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <h6 class="text-muted mb-1">Avg Order Value</h6>
+                <h3 class="mb-0">{{ formatCurrency(stats.averageOrderValue) }}</h3>
+                <small class="text-info">
+                  <i class="fas fa-info-circle me-1"></i>{{ stats.completedOrders }} Completed
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-white border-bottom">
+            <h5 class="mb-0"><i class="fas fa-chart-pie me-2 text-primary"></i>Order Status Distribution</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-muted">Completed</span>
+              <span class="badge bg-success">{{ stats.completedOrders }}</span>
+            </div>
+            <div class="progress mb-3" style="height: 10px;">
+              <div class="progress-bar bg-success" [style.width.%]="(stats.completedOrders / stats.totalOrders) * 100"></div>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-muted">Pending</span>
+              <span class="badge bg-warning text-dark">{{ stats.pendingOrders }}</span>
+            </div>
+            <div class="progress mb-3" style="height: 10px;">
+              <div class="progress-bar bg-warning" [style.width.%]="(stats.pendingOrders / stats.totalOrders) * 100"></div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-muted">Cancelled</span>
+              <span class="badge bg-secondary">{{ stats.cancelledOrders }}</span>
+            </div>
+            <div class="progress" style="height: 10px;">
+              <div class="progress-bar bg-secondary" [style.width.%]="(stats.cancelledOrders / stats.totalOrders) * 100"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-white border-bottom">
+            <h5 class="mb-0"><i class="fas fa-calendar-alt me-2 text-info"></i>Revenue Overview</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Last 7 Days</span>
+                <strong class="text-success">{{ formatCurrency(stats.revenue7d) }}</strong>
+              </div>
+              <div class="progress" style="height: 15px;">
+                <div class="progress-bar bg-gradient-success" 
+                     [style.width.%]="(stats.revenue7d / stats.revenue30d) * 100"></div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Last 30 Days</span>
+                <strong class="text-primary">{{ formatCurrency(stats.revenue30d) }}</strong>
+              </div>
+              <div class="progress" style="height: 15px;">
+                <div class="progress-bar bg-gradient-primary" 
+                     [style.width.%]="(stats.revenue30d / stats.totalRevenue) * 100"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">All Time</span>
+                <strong class="text-dark">{{ formatCurrency(stats.totalRevenue) }}</strong>
+              </div>
+              <div class="progress" style="height: 15px;">
+                <div class="progress-bar bg-dark" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plans Management View -->
+  <div class="container-fluid px-4 py-4" *ngIf="activeTab === 'plans'">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">Subscription Plans</h2>
+        <p class="text-muted mb-0">Manage subscription plans and pricing</p>
+      </div>
+      <button class="btn btn-gradient" (click)="openAddPlan()">
+        <i class="fas fa-plus me-2"></i>Add New Plan
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label small text-muted">Search</label>
+            <input type="text" class="form-control" [(ngModel)]="filters.searchTerm" 
+                   (ngModelChange)="applyFilters()" placeholder="Search plans...">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small text-muted">Status</label>
+            <select class="form-select" [(ngModel)]="filters.planStatus" (ngModelChange)="applyFilters()">
+              <option value="">All</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small text-muted">Plan Type</label>
+            <select class="form-select" [(ngModel)]="filters.planType" (ngModelChange)="applyFilters()">
+              <option [ngValue]="null">All Types</option>
+              <option [ngValue]="PlanType.Basic">Basic</option>
+              <option [ngValue]="PlanType.Standard">Standard</option>
+              <option [ngValue]="PlanType.Premium">Premium</option>
+              <option [ngValue]="PlanType.Enterprise">Enterprise</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small text-muted">Subject</label>
+            <select class="form-select" [(ngModel)]="filters.subjectId" (ngModelChange)="applyFilters()">
+              <option [ngValue]="null">All Subjects</option>
+              <option *ngFor="let subject of subjects" [ngValue]="subject.id">{{ subject.name }}</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small text-muted">Year</label>
+            <select class="form-select" [(ngModel)]="filters.yearId" (ngModelChange)="applyFilters()">
+              <option [ngValue]="null">All Years</option>
+              <option *ngFor="let year of years" [ngValue]="year.id">{{ year.name || year.yearNumber }}</option>
+            </select>
+          </div>
+          <div class="col-md-1 d-flex align-items-end">
+            <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+              <i class="fas fa-redo"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plans Table -->
+    <div class="card shadow-sm border-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th>ID</th>
+              <th>Plan Name</th>
+              <th>Type</th>
+              <th>Price</th>
+              <th>Duration</th>
+              <th>Subject</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let plan of paged.plans">
+              <td>{{ plan.id }}</td>
+              <td>
+                <strong>{{ plan.name }}</strong>
+                <br>
+                <small class="text-muted">{{ plan.description }}</small>
+              </td>
+              <td>
+                <span class="badge bg-primary">{{ plan.planTypeLabel }}</span>
+              </td>
+              <td>
+                <strong>{{ formatCurrency(plan.price) }}</strong>
+              </td>
+              <td>{{ plan.durationInDays }} days</td>
+              <td>
+                <small>{{ plan.subjectName }}</small>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="plan.isActive ? 'bg-success' : 'bg-secondary'">
+                  {{ plan.statusLabel }}
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary" (click)="openPlanPreview(plan)" title="View">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="btn btn-outline-warning" (click)="openEditPlan(plan)" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-outline-info" (click)="togglePlanStatus(plan.id!)" 
+                          [title]="plan.isActive ? 'Deactivate' : 'Activate'">
+                    <i class="fas" [ngClass]="plan.isActive ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="paged.plans.length === 0">
+              <td colspan="8" class="text-center py-5 text-muted">
+                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                No plans found
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="card-footer bg-white border-top" *ngIf="filtered.plans.length > pageSize">
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">
+            Showing {{ (currentPages.plans - 1) * pageSize + 1 }} to 
+            {{ Math.min(currentPages.plans * pageSize, filtered.plans.length) }} of 
+            {{ filtered.plans.length }} plans
+          </small>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPages.plans === 1">
+                <a class="page-link" (click)="goToPage('plans', currentPages.plans - 1)">Previous</a>
+              </li>
+              <li class="page-item" *ngFor="let page of [].constructor(getTotalPages('plans')); let i = index"
+                  [class.active]="currentPages.plans === i + 1">
+                <a class="page-link" (click)="goToPage('plans', i + 1)">{{ i + 1 }}</a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPages.plans === getTotalPages('plans')">
+                <a class="page-link" (click)="goToPage('plans', currentPages.plans + 1)">Next</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Management View -->
+  <div class="container-fluid px-4 py-4" *ngIf="activeTab === 'orders'">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">Orders</h2>
+        <p class="text-muted mb-0">Track and manage customer orders</p>
+      </div>
+      <button class="btn btn-gradient" (click)="exportToCSV('orders')">
+        <i class="fas fa-download me-2"></i>Export CSV
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label small text-muted">Search</label>
+            <input type="text" class="form-control" [(ngModel)]="filters.searchTerm" 
+                   (ngModelChange)="applyFilters()" placeholder="Search by user...">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small text-muted">Status</label>
+            <select class="form-select" [(ngModel)]="filters.orderStatus" (ngModelChange)="applyFilters()">
+              <option [ngValue]="null">All Status</option>
+              <option [ngValue]="OrderStatus.Pending">Pending</option>
+              <option [ngValue]="OrderStatus.Completed">Completed</option>
+              <option [ngValue]="OrderStatus.Cancelled">Cancelled</option>
+              <option [ngValue]="OrderStatus.Failed">Failed</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small text-muted">From Date</label>
+            <input type="date" class="form-control" [(ngModel)]="filters.dateFrom" (ngModelChange)="applyFilters()">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small text-muted">To Date</label>
+            <input type="date" class="form-control" [(ngModel)]="filters.dateTo" (ngModelChange)="applyFilters()">
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+              <i class="fas fa-redo me-2"></i>Clear
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="card shadow-sm border-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Items</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of paged.orders">
+              <td><strong>#{{ order.id }}</strong></td>
+              <td>
+                <div>
+                  <strong>{{ order.userName }}</strong>
+                  <br>
+                  <small class="text-muted">{{ order.userEmail }}</small>
+                </div>
+              </td>
+              <td>
+                <strong>{{ formatCurrency(order.totalAmount) }}</strong>
+              </td>
+              <td>
+                <span class="badge bg-info">{{ order.orderItemsCount }} item(s)</span>
+              </td>
+              <td>
+                <span [ngClass]="getOrderStatusClass(order.orderStatus)">
+                  {{ order.statusLabel }}
+                </span>
+              </td>
+              <td>
+                <small>{{ formatDateTime(order.createdAt) }}</small>
+              </td>
+              <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary" (click)="viewOrderDetails(order.id)" title="View Details">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="paged.orders.length === 0">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                No orders found
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="card-footer bg-white border-top" *ngIf="filtered.orders.length > pageSize">
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">
+            Showing {{ (currentPages.orders - 1) * pageSize + 1 }} to 
+            {{ Math.min(currentPages.orders * pageSize, filtered.orders.length) }} of 
+            {{ filtered.orders.length }} orders
+          </small>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPages.orders === 1">
+                <a class="page-link" (click)="goToPage('orders', currentPages.orders - 1)">Previous</a>
+              </li>
+              <li class="page-item" *ngFor="let page of [].constructor(getTotalPages('orders')); let i = index"
+                  [class.active]="currentPages.orders === i + 1">
+                <a class="page-link" (click)="goToPage('orders', i + 1)">{{ i + 1 }}</a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPages.orders === getTotalPages('orders')">
+                <a class="page-link" (click)="goToPage('orders', currentPages.orders + 1)">Next</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Plan Form Modal -->
+<div class="modal fade" [class.show]="isFormOpen" [style.display]="isFormOpen ? 'block' : 'none'" 
+     tabindex="-1" (click)="closeForm()">
+  <div class="modal-dialog modal-lg modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ formTitle }}</h5>
+        <button type="button" class="btn-close" (click)="closeForm()"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Plan Name *</label>
+              <input type="text" class="form-control" [(ngModel)]="form.name" name="name" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Plan Type *</label>
+              <select class="form-select" [(ngModel)]="form.planType" name="planType" required>
+                <option [ngValue]="PlanType.Basic">Basic</option>
+                <option [ngValue]="PlanType.Standard">Standard</option>
+                <option [ngValue]="PlanType.Premium">Premium</option>
+                <option [ngValue]="PlanType.Enterprise">Enterprise</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description *</label>
+              <textarea class="form-control" [(ngModel)]="form.description" name="description" rows="3" required></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Price *</label>
+              <div class="input-group">
+                <span class="input-group-text">{{ currencyCode }}</span>
+                <input type="number" class="form-control" [(ngModel)]="form.price" name="price" min="0" step="0.01" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Duration (Days) *</label>
+              <input type="number" class="form-control" [(ngModel)]="form.durationInDays" name="duration" min="1" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Subject</label>
+              <select class="form-select" [(ngModel)]="form.subjectId" name="subjectId">
+                <option [ngValue]="null">None</option>
+                <option *ngFor="let subject of subjects" [ngValue]="subject.id">{{ subject.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Term</label>
+              <select class="form-select" [(ngModel)]="form.termId" name="termId">
+                <option [ngValue]="null">None</option>
+                <option *ngFor="let term of terms" [ngValue]="term.id">{{ term.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Year</label>
+              <select class="form-select" [(ngModel)]="form.yearId" name="yearId">
+                <option [ngValue]="null">None</option>
+                <option *ngFor="let year of years" [ngValue]="year.id">{{ year.name || year.yearNumber }}</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+        <button type="button" class="btn btn-gradient" (click)="submitForm()">
+          <i class="fas fa-save me-2"></i>{{ formMode === 'add' ? 'Create Plan' : 'Update Plan' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" [class.show]="previewOpen" [style.display]="previewOpen ? 'block' : 'none'" 
+     tabindex="-1" (click)="closePreview()">
+  <div class="modal-dialog modal-lg modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Details Preview</h5>
+        <button type="button" class="btn-close" (click)="closePreview()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="preview.name">
+          <!-- Plan Preview -->
+          <div class="row g-3">
+            <div class="col-12">
+              <h4>{{ preview.name }}</h4>
+              <p class="text-muted">{{ preview.description }}</p>
+            </div>
+            <div class="col-md-6">
+              <strong>Price:</strong> {{ formatCurrency(preview.price) }}
+            </div>
+            <div class="col-md-6">
+              <strong>Duration:</strong> {{ preview.durationInDays }} days
+            </div>
+            <div class="col-md-6">
+              <strong>Type:</strong> <span class="badge bg-primary">{{ preview.planTypeLabel }}</span>
+            </div>
+            <div class="col-md-6">
+              <strong>Status:</strong> 
+              <span class="badge" [ngClass]="preview.isActive ? 'bg-success' : 'bg-secondary'">
+                {{ preview.statusLabel }}
+              </span>
+            </div>
+            <div class="col-md-4" *ngIf="preview.subjectName">
+              <strong>Subject:</strong> {{ preview.subjectName }}
+            </div>
+            <div class="col-md-4" *ngIf="preview.termName">
+              <strong>Term:</strong> {{ preview.termName }}
+            </div>
+            <div class="col-md-4" *ngIf="preview.yearName">
+              <strong>Year:</strong> {{ preview.yearName }}
+            </div>
+          </div>
+        </div>
+        <div *ngIf="preview.totalAmount !== undefined">
+          <!-- Order Preview -->
+          <div class="row g-3">
+            <div class="col-12">
+              <h4>Order #{{ preview.id }}</h4>
+            </div>
+            <div class="col-md-6">
+              <strong>Customer:</strong> {{ preview.userName }}
+            </div>
+            <div class="col-md-6">
+              <strong>Email:</strong> {{ preview.userEmail }}
+            </div>
+            <div class="col-md-6">
+              <strong>Amount:</strong> {{ formatCurrency(preview.totalAmount) }}
+            </div>
+            <div class="col-md-6">
+              <strong>Status:</strong> 
+              <span [ngClass]="getOrderStatusClass(preview.orderStatus)">
+                {{ preview.statusLabel }}
+              </span>
+            </div>
+            <div class="col-12">
+              <strong>Date:</strong> {{ formatDateTime(preview.createdAt) }}
+            </div>
+            <div class="col-12" *ngIf="preview.stripeSessionId">
+              <strong>Stripe Session:</strong> 
+              <code class="small">{{ preview.stripeSessionId }}</code>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closePreview()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade" [class.show]="isFormOpen || previewOpen" 
+     *ngIf="isFormOpen || previewOpen"></div>

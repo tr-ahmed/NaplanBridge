@@ -1,358 +1,348 @@
-<!-- Content Management - Redesigned Layout -->
-<!-- Remove DOCTYPE and html/head tags - this is an Angular component template -->
-
-<!-- Mobile Menu Toggle Button -->
-<button 
-  class="mobile-menu-toggle d-lg-none" 
-  (click)="toggleMobileSidebar()" 
-  aria-label="Toggle menu"
-  [attr.aria-expanded]="sidebarMobileOpen">
-  <i class="fas" [class.fa-bars]="!sidebarMobileOpen" [class.fa-times]="sidebarMobileOpen"></i>
-</button>
-
-<!-- Sidebar Overlay for Mobile -->
-<div class="sidebar-overlay" [class.active]="sidebarMobileOpen" (click)="closeMobileSidebar()"></div>
-
-<!-- Sidebar Navigation -->
-<aside class="sidebar" [class.mobile-active]="sidebarMobileOpen">
-  
-  <!-- Logo Section -->
-  <div class="sidebar-header">
-    <div class="logo-container">
-      <div class="logo-icon">
-        <i class="fas fa-graduation-cap"></i>
+<!-- Content Management - Full Page Design with Tailwind CSS -->
+<div class="content-management-container min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Content Management</h1>
+        <p class="text-gray-600 mt-1">Manage educational content hierarchy</p>
       </div>
-      <div class="logo-text">
-        <h5 class="mb-0">NAPLANBridge</h5>
-        <small>Content Management</small>
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          (click)="openAdd('year')"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Add Year
+        </button>
+        <button
+          type="button"
+          (click)="openAdd('subject')"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Add Subject
+        </button>
+        <button
+          type="button"
+          (click)="openAdd('lesson')"
+          class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Add Lesson
+        </button>
       </div>
     </div>
-  </div>
 
-  <!-- Navigation Links -->
-  <nav class="sidebar-nav">
-    <!-- Main Navigation -->
-    <div class="nav-section">
-      <small class="nav-section-title">MAIN</small>
-      
-      <a [routerLink]="'/admin/dashboard'" class="nav-link" routerLinkActive="active">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-      </a>
-      
-      <a [routerLink]="'/admin/content'" class="nav-link active">
-        <i class="fas fa-book-open"></i>
-        <span>Content Management</span>
-      </a>
-      
-      <a [routerLink]="'/admin/users'" class="nav-link" routerLinkActive="active">
-        <i class="fas fa-users"></i>
-        <span>Users</span>
-      </a>
-      
-      <a [routerLink]="'/admin/subscriptions'" class="nav-link" routerLinkActive="active">
-        <i class="fas fa-credit-card"></i>
-        <span>Subscriptions</span>
-      </a>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="nav-section mt-4">
-      <small class="nav-section-title">QUICK ACTIONS</small>
-      
-      <button class="nav-link btn-link" (click)="openAdd('subject')">
-        <i class="fas fa-plus-circle"></i>
-        <span>Add Subject</span>
-      </button>
-      
-      <button class="nav-link btn-link" (click)="openAdd('lesson')">
-        <i class="fas fa-plus-circle"></i>
-        <span>Add Lesson</span>
-      </button>
-    </div>
-  </nav>
-
-  <!-- User Profile -->
-  <div class="sidebar-footer">
-    <div class="user-profile">
-      <div class="user-avatar">
-        <i class="fas fa-user-circle"></i>
-      </div>
-      <div class="user-info">
-        <div class="user-name">{{ userName }}</div>
-        <small class="user-role">Administrator</small>
-      </div>
-      <button class="btn-logout" (click)="handleLogout()" title="Logout">
-        <i class="fas fa-sign-out-alt"></i>
-      </button>
-    </div>
-  </div>
-</aside>
-
-<!-- Main Content Area -->
-<main class="main-content">
-  <div class="container-fluid">
-    
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="row align-items-center">
-        <div class="col-md-6">
-          <h1 class="page-title">
-            <i class="fas fa-book-open me-2"></i>
-            Content Management
-          </h1>
-          <p class="page-subtitle">Manage your educational content hierarchy</p>
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+            <i class="fas fa-calendar-alt text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-600 text-sm mb-1">Years</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats.years }}</p>
+          </div>
         </div>
-        <div class="col-md-6 text-md-end">
-          <!-- Global Search -->
-          <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input 
-              type="text" 
-              class="form-control" 
-              placeholder="Search content..." 
-              [(ngModel)]="searchTerm"
-              (ngModelChange)="onSearchChange()"
-            />
-            @if (searchTerm) {
-              <button class="btn-clear" (click)="clearSearch()">
-                <i class="fas fa-times"></i>
-              </button>
-            }
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+            <i class="fas fa-folder text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-600 text-sm mb-1">Categories</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats.categories }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-indigo-100 text-indigo-600 mr-4">
+            <i class="fas fa-book text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-600 text-sm mb-1">Subjects</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats.subjects }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+            <i class="fas fa-chart-line text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-600 text-sm mb-1">Terms</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats.terms }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
+            <i class="fas fa-calendar-week text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-600 text-sm mb-1">Weeks</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats.weeks }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+            <i class="fas fa-graduation-cap text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-600 text-sm mb-1">Lessons</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stats.lessons }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="stats-section">
-      <div class="row g-4">
-        <div class="col-xl-2 col-lg-4 col-md-6">
-          <div class="stat-card stat-primary">
-            <div class="stat-icon">
-              <i class="fas fa-calendar-alt"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stats.years }}</div>
-              <div class="stat-label">Years</div>
-            </div>
-          </div>
+    <!-- Search & Quick Actions -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="flex-1">
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()"
+            placeholder="Search in all content..."
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </div>
-
-        <div class="col-xl-2 col-lg-4 col-md-6">
-          <div class="stat-card stat-success">
-            <div class="stat-icon">
-              <i class="fas fa-folder"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stats.categories }}</div>
-              <div class="stat-label">Categories</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-xl-2 col-lg-4 col-md-6">
-          <div class="stat-card stat-info">
-            <div class="stat-icon">
-              <i class="fas fa-book"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stats.subjects }}</div>
-              <div class="stat-label">Subjects</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-xl-2 col-lg-4 col-md-6">
-          <div class="stat-card stat-warning">
-            <div class="stat-icon">
-              <i class="fas fa-chart-line"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stats.terms }}</div>
-              <div class="stat-label">Terms</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-xl-2 col-lg-4 col-md-6">
-          <div class="stat-card stat-danger">
-            <div class="stat-icon">
-              <i class="fas fa-calendar-week"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stats.weeks }}</div>
-              <div class="stat-label">Weeks</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-xl-2 col-lg-4 col-md-6">
-          <div class="stat-card stat-purple">
-            <div class="stat-icon">
-              <i class="fas fa-graduation-cap"></i>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stats.lessons }}</div>
-              <div class="stat-label">Lessons</div>
-            </div>
-          </div>
-        </div>
+        @if (searchTerm) {
+          <button
+            type="button"
+            (click)="clearSearch()"
+            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
+            <i class="fas fa-times mr-2"></i>
+            Clear
+          </button>
+        }
       </div>
     </div>
 
-    <!-- Advanced Filters -->
-    <div class="filters-section card">
-      <div class="card-body">
-        <div class="row g-3 align-items-end">
-          <div class="col-lg-2 col-md-4 col-sm-6">
-            <label class="form-label">
-              <i class="fas fa-filter me-1"></i>
-              Filter by Year
-            </label>
-            <select class="form-select" [(ngModel)]="filters.yearId" (change)="onFilterChange()">
-              <option [value]="null">All Years</option>
-              @for (year of years; track year.id) {
-                <option [value]="year.id">Year {{ year.yearNumber }}</option>
-              }
-            </select>
-          </div>
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <!-- Year Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fas fa-filter text-gray-400 mr-1"></i>
+            Year
+          </label>
+          <select
+            [(ngModel)]="filters.yearId"
+            (change)="onFilterChange()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option [value]="null">All Years</option>
+            <option *ngFor="let year of years" [value]="year.id">Year {{ year.yearNumber }}</option>
+          </select>
+        </div>
 
-          <div class="col-lg-2 col-md-4 col-sm-6">
-            <label class="form-label">
-              <i class="fas fa-filter me-1"></i>
-              Filter by Category
-            </label>
-            <select class="form-select" [(ngModel)]="filters.categoryId" (change)="onFilterChange()">
-              <option [value]="null">All Categories</option>
-              @for (cat of categories; track cat.id) {
-                <option [value]="cat.id">{{ cat.name }}</option>
-              }
-            </select>
-          </div>
+        <!-- Category Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fas fa-filter text-gray-400 mr-1"></i>
+            Category
+          </label>
+          <select
+            [(ngModel)]="filters.categoryId"
+            (change)="onFilterChange()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option [value]="null">All Categories</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+          </select>
+        </div>
 
-          <div class="col-lg-2 col-md-4 col-sm-6">
-            <label class="form-label">
-              <i class="fas fa-filter me-1"></i>
-              Filter by Subject
-            </label>
-            <select class="form-select" [(ngModel)]="filters.subjectId" (change)="onFilterChange()">
-              <option [value]="null">All Subjects</option>
-              @for (subj of filteredSubjects; track subj.id) {
-                <option [value]="subj.id">{{ subj.subjectName }}</option>
-              }
-            </select>
-          </div>
+        <!-- Subject Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fas fa-filter text-gray-400 mr-1"></i>
+            Subject
+          </label>
+          <select
+            [(ngModel)]="filters.subjectId"
+            (change)="onFilterChange()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option [value]="null">All Subjects</option>
+            <option *ngFor="let subj of filteredSubjects" [value]="subj.id">{{ subj.subjectName }}</option>
+          </select>
+        </div>
 
-          <div class="col-lg-2 col-md-4 col-sm-6">
-            <label class="form-label">
-              <i class="fas fa-filter me-1"></i>
-              Filter by Term
-            </label>
-            <select class="form-select" [(ngModel)]="filters.termId" (change)="onFilterChange()">
-              <option [value]="null">All Terms</option>
-              @for (term of filteredTerms; track term.id) {
-                <option [value]="term.id">
-                  Term {{ term.termNumber }} - {{ nameSubject(term.subjectId) }}
-                </option>
-              }
-            </select>
-          </div>
+        <!-- Term Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fas fa-filter text-gray-400 mr-1"></i>
+            Term
+          </label>
+          <select
+            [(ngModel)]="filters.termId"
+            (change)="onFilterChange()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option [value]="null">All Terms</option>
+            <option *ngFor="let term of filteredTerms" [value]="term.id">Term {{ term.termNumber }} - {{ nameSubject(term.subjectId) }}</option>
+          </select>
+        </div>
 
-          <div class="col-lg-2 col-md-4 col-sm-6">
-            <label class="form-label">
-              <i class="fas fa-filter me-1"></i>
-              Filter by Week
-            </label>
-            <select class="form-select" [(ngModel)]="filters.weekId" (change)="onFilterChange()">
-              <option [value]="null">All Weeks</option>
-              @for (week of filteredWeeks; track week.id) {
-                <option [value]="week.id">Week {{ week.weekNumber }}</option>
-              }
-            </select>
-          </div>
+        <!-- Week Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fas fa-filter text-gray-400 mr-1"></i>
+            Week
+          </label>
+          <select
+            [(ngModel)]="filters.weekId"
+            (change)="onFilterChange()"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option [value]="null">All Weeks</option>
+            <option *ngFor="let week of filteredWeeks" [value]="week.id">Week {{ week.weekNumber }}</option>
+          </select>
+        </div>
 
-          <div class="col-lg-2 col-md-4 col-sm-6">
-            <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
-              <i class="fas fa-times me-1"></i>
-              Clear All
-            </button>
-          </div>
+        <!-- Clear Filters -->
+        <div class="flex items-end">
+          <button 
+            type="button"
+            class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
+            (click)="clearFilters()">
+            <i class="fas fa-times mr-2"></i>
+            Clear All
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Content Tabs -->
-    <div class="content-tabs card">
-      <div class="card-header">
-        <ul class="nav nav-tabs card-header-tabs">
-          <li class="nav-item">
-            <button 
-              class="nav-link" 
-              [class.active]="activeTab === 'hierarchy'"
-              (click)="setActiveTab('hierarchy')">
-              <i class="fas fa-sitemap me-2"></i>
-              Hierarchy View
-            </button>
-          </li>
-          <li class="nav-item">
-            <button 
-              class="nav-link" 
-              [class.active]="activeTab === 'years'"
-              (click)="setActiveTab('years')">
-              <i class="fas fa-calendar-alt me-2"></i>
-              Years
-            </button>
-          </li>
-          <li class="nav-item">
-            <button 
-              class="nav-link" 
-              [class.active]="activeTab === 'categories'"
-              (click)="setActiveTab('categories')">
-              <i class="fas fa-folder me-2"></i>
-              Categories
-            </button>
-          </li>
-          <li class="nav-item">
-            <button 
-              class="nav-link" 
-              [class.active]="activeTab === 'subjects'"
-              (click)="setActiveTab('subjects')">
-              <i class="fas fa-book me-2"></i>
-              Subjects
-            </button>
-          </li>
-          <li class="nav-item">
-            <button 
-              class="nav-link" 
-              [class.active]="activeTab === 'lessons'"
-              (click)="setActiveTab('lessons')">
-              <i class="fas fa-graduation-cap me-2"></i>
-              Lessons
-            </button>
-          </li>
-        </ul>
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="border-b border-gray-200">
+        <nav class="flex space-x-2 px-4" aria-label="Tabs">
+          <button 
+            type="button"
+            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            [class.border-blue-500]="activeTab === 'hierarchy'"
+            [class.border-transparent]="activeTab !== 'hierarchy'"
+            [class.text-blue-600]="activeTab === 'hierarchy'"
+            [class.text-gray-500]="activeTab !== 'hierarchy'"
+            [class.hover:text-blue-700]="activeTab !== 'hierarchy'"
+            [class.hover:border-gray-300]="activeTab !== 'hierarchy'"
+            (click)="setActiveTab('hierarchy')">
+            <i class="fas fa-sitemap mr-2 text-lg" 
+               [class.text-blue-500]="activeTab === 'hierarchy'"
+               [class.text-gray-400]="activeTab !== 'hierarchy'"
+               [class.group-hover:text-blue-700]="activeTab !== 'hierarchy'"></i>
+            Hierarchy View
+          </button>
+          
+          <button 
+            type="button"
+            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            [class.border-blue-500]="activeTab === 'years'"
+            [class.border-transparent]="activeTab !== 'years'"
+            [class.text-blue-600]="activeTab === 'years'"
+            [class.text-gray-500]="activeTab !== 'years'"
+            [class.hover:text-blue-700]="activeTab !== 'years'"
+            [class.hover:border-gray-300]="activeTab !== 'years'"
+            (click)="setActiveTab('years')">
+            <i class="fas fa-calendar-alt mr-2 text-lg"
+               [class.text-blue-500]="activeTab === 'years'"
+               [class.text-gray-400]="activeTab !== 'years'"
+               [class.group-hover:text-blue-700]="activeTab !== 'years'"></i>
+            Years
+          </button>
+          
+          <button 
+            type="button"
+            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            [class.border-blue-500]="activeTab === 'categories'"
+            [class.border-transparent]="activeTab !== 'categories'"
+            [class.text-blue-600]="activeTab === 'categories'"
+            [class.text-gray-500]="activeTab !== 'categories'"
+            [class.hover:text-blue-700]="activeTab !== 'categories'"
+            [class.hover:border-gray-300]="activeTab !== 'categories'"
+            (click)="setActiveTab('categories')">
+            <i class="fas fa-folder mr-2 text-lg"
+               [class.text-blue-500]="activeTab === 'categories'"
+               [class.text-gray-400]="activeTab !== 'categories'"
+               [class.group-hover:text-blue-700]="activeTab !== 'categories'"></i>
+            Categories
+          </button>
+          
+          <button 
+            type="button"
+            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            [class.border-blue-500]="activeTab === 'subjects'"
+            [class.border-transparent]="activeTab !== 'subjects'"
+            [class.text-blue-600]="activeTab === 'subjects'"
+            [class.text-gray-500]="activeTab !== 'subjects'"
+            [class.hover:text-blue-700]="activeTab !== 'subjects'"
+            [class.hover:border-gray-300]="activeTab !== 'subjects'"
+            (click)="setActiveTab('subjects')">
+            <i class="fas fa-book mr-2 text-lg"
+               [class.text-blue-500]="activeTab === 'subjects'"
+               [class.text-gray-400]="activeTab !== 'subjects'"
+               [class.group-hover:text-blue-700]="activeTab !== 'subjects'"></i>
+            Subjects
+          </button>
+          
+          <button 
+            type="button"
+            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            [class.border-blue-500]="activeTab === 'lessons'"
+            [class.border-transparent]="activeTab !== 'lessons'"
+            [class.text-blue-600]="activeTab === 'lessons'"
+            [class.text-gray-500]="activeTab !== 'lessons'"
+            [class.hover:text-blue-700]="activeTab !== 'lessons'"
+            [class.hover:border-gray-300]="activeTab !== 'lessons'"
+            (click)="setActiveTab('lessons')">
+            <i class="fas fa-graduation-cap mr-2 text-lg"
+               [class.text-blue-500]="activeTab === 'lessons'"
+               [class.text-gray-400]="activeTab !== 'lessons'"
+               [class.group-hover:text-blue-700]="activeTab !== 'lessons'"></i>
+            Lessons
+          </button>
+        </nav>
       </div>
 
-      <div class="card-body">
-        <!-- Tab Content Will Be Inserted Here -->
+      <div class="p-6">
+        <!-- Tab Content -->
         <div class="tab-content">
           
           <!-- Hierarchy View Tab -->
           @if (activeTab === 'hierarchy') {
             <div class="hierarchy-view">
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="mb-0">
-                  <i class="fas fa-sitemap me-2"></i>
+              <div class="flex justify-between items-center mb-6">
+                <h4 class="text-xl font-bold text-gray-900">
+                  <i class="fas fa-sitemap mr-2"></i>
                   Content Hierarchy
                 </h4>
-                <div class="btn-group">
-                  <button class="btn btn-sm btn-outline-primary" (click)="expandAll()">
-                    <i class="fas fa-plus-square me-1"></i>
+                <div class="flex gap-2">
+                  <button 
+                    type="button"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium" 
+                    (click)="expandAll()">
+                    <i class="fas fa-plus-square mr-1"></i>
                     Expand All
                   </button>
-                  <button class="btn btn-sm btn-outline-primary" (click)="collapseAll()">
-                    <i class="fas fa-minus-square me-1"></i>
+                  <button 
+                    type="button"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium" 
+                    (click)="collapseAll()">
+                    <i class="fas fa-minus-square mr-1"></i>
                     Collapse All
                   </button>
                 </div>
@@ -360,8 +350,7 @@
 
               <!-- Tree Structure -->
               <div class="hierarchy-tree">
-                @for (year of filteredYears; track year.id) {
-                  <app-hierarchy-node
+                <app-hierarchy-node *ngFor="let year of filteredYears"
                     [year]="year"
                     [subjects]="getSubjectsByYear(year.id)"
                     [terms]="terms"
@@ -370,8 +359,7 @@
                     (add)="openAdd($event.type)"
                     (edit)="openEdit($event.type, $event.entity)"
                     (delete)="confirmDelete($event.type, $event.entity)">
-                  </app-hierarchy-node>
-                }
+                </app-hierarchy-node>
               </div>
             </div>
           }
@@ -444,9 +432,9 @@
     </div>
 
   </div>
-</main>
+</div>
 
-<!-- Modals will be handled by separate components -->
+<!-- Modals -->
 <app-content-modal
   [(isOpen)]="isFormOpen"
   [mode]="formMode"
