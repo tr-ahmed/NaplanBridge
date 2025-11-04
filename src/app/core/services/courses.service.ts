@@ -926,4 +926,109 @@ export class CoursesService {
       })
     );
   }
+
+  /**
+   * Get lessons with progress for a subject
+   * @param subjectId - The subject ID
+   * @param studentId - The student ID
+   * @returns Observable of lessons with progress percentage
+   */
+  getLessonsWithProgress(subjectId: number, studentId: number): Observable<LessonWithProgress[]> {
+    const url = `${this.baseUrl}/Lessons/subject/${subjectId}/with-progress/${studentId}`;
+
+    console.log('📚 Fetching lessons with progress:', { subjectId, studentId, url });
+
+    return this.http.get<LessonWithProgress[]>(url).pipe(
+      tap(lessons => {
+        console.log('✅ Lessons with progress:', lessons);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Error fetching lessons with progress:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Get lessons with progress for a subject by term number (NEW - Nov 3, 2025)
+   * Fixes cross-subject navigation issue by using termNumber instead of termId
+   * INCLUDES FALLBACK: If new endpoint returns empty, tries to get termId from backend and retry
+   * @param subjectId - The subject ID
+   * @param termNumber - The term number (1-4)
+   * @param studentId - The student ID
+   * @returns Observable of lessons with progress percentage
+   */
+  getLessonsByTermNumber(subjectId: number, termNumber: number, studentId: number): Observable<LessonWithProgress[]> {
+    const url = `${this.baseUrl}/Lessons/subject/${subjectId}/term-number/${termNumber}/with-progress/${studentId}`;
+
+    console.log('📚 Fetching lessons by term number:', { subjectId, termNumber, studentId, url });
+
+    return this.http.get<LessonWithProgress[]>(url).pipe(
+      tap(lessons => {
+        console.log(`✅ Lessons for term ${termNumber}:`, lessons);
+      }),
+      switchMap(lessons => {
+        // ⚠️ CRITICAL FIX: Backend endpoint returns empty even when lessons exist
+        // If empty, use fallback: get terms, find matching termNumber, use termId
+        if (lessons.length === 0) {
+          console.warn(`⚠️ New endpoint returned empty, trying fallback for subject ${subjectId} term ${termNumber}`);
+          
+          // Get terms for this subject
+          return this.http.get<any[]>(`${this.baseUrl}/Terms/by-subject/${subjectId}`).pipe(
+            map(terms => {
+              // Find the term with matching term number
+              const matchingTerm = terms.find(t => t.termNumber === termNumber);
+              if (matchingTerm) {
+                console.log(`🔄 Fallback: Found termId ${matchingTerm.id} for term ${termNumber}`);
+                return matchingTerm.id;
+              }
+              console.error(`❌ Fallback failed: No term found with number ${termNumber}`);
+              return null;
+            }),
+            switchMap(termId => {
+              if (!termId) {
+                return of([]);
+              }
+              // Use old endpoint with termId
+              const fallbackUrl = `${this.baseUrl}/Lessons/term/${termId}/with-progress/${studentId}`;
+              console.log(`🔄 Using fallback endpoint: ${fallbackUrl}`);
+              return this.http.get<LessonWithProgress[]>(fallbackUrl).pipe(
+                tap(fallbackLessons => {
+                  console.log(`✅ Fallback success: ${fallbackLessons.length} lessons found`);
+                }),
+                catchError(fallbackError => {
+                  console.error(`❌ Fallback also failed:`, fallbackError);
+                  return of([]);
+                })
+              );
+            }),
+            catchError(error => {
+              console.error(`❌ Error in fallback mechanism:`, error);
+              return of([]);
+            })
+          );
+        }
+        // If lessons found, return them
+        return of(lessons);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error(`❌ Error fetching lessons for term ${termNumber}:`, error);
+        return of([]);
+      })
+    );
+  }
+}
+
+/**
+ * Interface for lesson with progress
+ */
+export interface LessonWithProgress {
+  id: number;
+  title: string;
+  order: number;
+  progressPercentage: number;
+  isCompleted: boolean;
+  lastAccessedAt?: string;
+  termId: number;
+  weekId: number;
 }

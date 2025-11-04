@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { Course, CourseFilter, Cart } from '../../models/course.models';
-import { CoursesService } from '../../core/services/courses.service';
+import { CoursesService, LessonWithProgress } from '../../core/services/courses.service';
 import { NewsletterComponent } from '../../shared/newsletter/newsletter.component';
 import { PlanSelectionModalComponent } from '../../components/plan-selection-modal/plan-selection-modal.component';
 import { SubscriptionPlanSummary } from '../../models/subject.models';
@@ -521,6 +521,63 @@ export class CoursesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Continue Learning - Navigate to last incomplete lesson
+   */
+  continueLearning(course: Course): void {
+    const studentId = this.coursesService['authService'].getCurrentUser()?.studentId;
+
+    if (!studentId) {
+      console.warn('⚠️ No studentId found, redirecting to login');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    console.log('📚 Finding last incomplete lesson for student:', studentId, 'subject:', course.id);
+
+    // Get lessons with progress for this subject
+    this.coursesService.getLessonsWithProgress(course.id, studentId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (lessons: LessonWithProgress[]) => {
+          if (!lessons || lessons.length === 0) {
+            this.coursesService['toastService'].showWarning('No lessons available for this subject');
+            return;
+          }
+
+          // Find last lesson with progress < 100%
+          let targetLesson = lessons.find((lesson: LessonWithProgress) =>
+            lesson.progressPercentage > 0 && lesson.progressPercentage < 100
+          );
+
+          // If no lesson in progress, find first incomplete lesson (progress = 0)
+          if (!targetLesson) {
+            targetLesson = lessons.find((lesson: LessonWithProgress) => lesson.progressPercentage === 0 || !lesson.progressPercentage);
+          }
+
+          // If all lessons are complete (100%), go to first lesson
+          if (!targetLesson) {
+            targetLesson = lessons[0];
+          }
+
+          console.log('✅ Navigating to lesson:', targetLesson);
+
+          // Navigate to the lesson detail page
+          this.router.navigate(['/lesson-detail', targetLesson.id], {
+            queryParams: {
+              subjectId: course.subjectNameId,
+              courseId: course.id,
+              progress: targetLesson.progressPercentage || 0
+            }
+          });
+        },
+        error: (error: any) => {
+          console.error('❌ Error fetching lessons:', error);
+          this.coursesService['toastService'].showError('Failed to load lessons');
+        }
+      });
+  }
+
+  /**
    * Navigate to lessons for a specific course/subject
    */
   viewLessons(course: Course): void {
@@ -539,38 +596,65 @@ export class CoursesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (termWeek) => {
-          if (!termWeek.hasAccess) {
-            console.warn('⚠️ No access:', termWeek.message);
-            this.coursesService['toastService'].showWarning(
-              termWeek.message || 'No active subscription found for this subject'
-            );
-            return;
-          }
-
-          console.log('✅ Navigating to current term:', {
+          console.log('✅ Term/Week info received:', {
             courseId: course.id,
             courseName: course.name || course.subjectName,
+            hasAccess: termWeek.hasAccess,
             currentTerm: termWeek.currentTermName,
             currentWeek: termWeek.currentWeekNumber,
-            termId: termWeek.currentTermId,
-            weekId: termWeek.currentWeekId,
             progress: `${termWeek.progressPercentage}%`
           });
 
+          // ✅ FIX: Use termNumber instead of termId for cross-subject navigation
+          // This fixes the issue where different subjects have different term IDs
+          // for the same term number (e.g., Algebra Term 3 = ID 3, Reading Term 3 = ID 11)
+
+          // ✅ FREEMIUM MODEL: Always navigate to lessons (even without subscription)
+          // User can see lesson names and terms, but lessons are locked
           this.router.navigate(['/lessons'], {
             queryParams: {
               subjectId: course.subjectNameId,
               subject: course.subject || course.subjectName,
               courseId: course.id,
               yearId: course.yearId,
-              termId: termWeek.currentTermId,
-              weekId: termWeek.currentWeekId
+              termNumber: termWeek.currentTermNumber || 3,  // Default to term 3 if not available
+              weekNumber: termWeek.currentWeekNumber || 1,  // Default to week 1 if not available
+              hasAccess: termWeek.hasAccess  // ✅ Pass access status to lessons component
             }
           });
+
+          // ⚠️ Show info message if no subscription (non-blocking)
+          if (!termWeek.hasAccess) {
+            console.warn('⚠️ No subscription:', termWeek.message);
+            // Show message after navigation completes
+            setTimeout(() => {
+              this.coursesService['toastService'].showInfo(
+                '🔒 Subscribe to unlock all lessons and features for this subject',
+                5000
+              );
+            }, 500);
+          }
         },
         error: (error) => {
           console.error('❌ Error fetching current term/week:', error);
-          this.coursesService['toastService'].showError('Failed to load course content');
+
+          // ✅ Still navigate to lessons even on error (with defaults)
+          // Better UX: Let user see the interface even if API fails
+          this.router.navigate(['/lessons'], {
+            queryParams: {
+              subjectId: course.subjectNameId,
+              subject: course.subject || course.subjectName,
+              courseId: course.id,
+              yearId: course.yearId,
+              termNumber: 3,  // Default term
+              weekNumber: 1,  // Default week
+              hasAccess: false  // Assume no access on error
+            }
+          });
+
+          this.coursesService['toastService'].showWarning(
+            'Unable to verify subscription. Some features may be limited.'
+          );
         }
       });
   }

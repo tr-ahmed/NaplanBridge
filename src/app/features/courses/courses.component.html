@@ -364,10 +364,10 @@
             <!-- Action Buttons -->
             <div class="mt-4">
               @if (isEnrolled(course)) {
-                <!-- Already Enrolled - Show only Continue Learning -->
+                <!-- Already Enrolled - Show Continue Learning and View Lessons -->
                 <div class="flex gap-2">
                   <button
-                    (click)="viewLessons(course)"
+                    (click)="continueLearning(course)"
                     class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 text-sm">
                     ✓ Continue Learning
                   </button>

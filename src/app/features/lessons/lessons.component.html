@@ -2,10 +2,38 @@
 <div class="min-h-screen bg-gray-50 pt-32 pb-8">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
+    <!-- ✅ NEW: Subscription Banner (if no access) -->
+    @if (showSubscriptionBanner()) {
+      <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border border-orange-200 rounded-2xl p-6 mb-6 shadow-sm">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-gray-900 mb-2">🔒 Preview Mode</h3>
+            <p class="text-gray-700 mb-4">
+              You can view lesson names and browse terms, but lessons are locked.
+              <strong>Subscribe</strong> to unlock all lessons, quizzes, and track your progress!
+            </p>
+            <button
+              (click)="goToSubscription()"
+              class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-md inline-flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+              Subscribe Now
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
+        <div class="flex-1">
           <button
             (click)="goBackToCourses()"
             class="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors duration-200">
@@ -18,10 +46,10 @@
             {{ currentSubject() }} Lessons
           </h1>
           <p class="text-gray-600">
-            @if (isEnrolledInSubject()) {
-              <span class="text-green-600 font-medium">✓ Enrolled</span> - Access all lessons below
+            @if (hasAccess()) {
+              <span class="text-green-600 font-medium">✓ Subscribed</span> - Access all lessons below
             } @else {
-              <span class="text-orange-600 font-medium">⚠ Not Enrolled</span> - Enroll to access lessons
+              <span class="text-orange-600 font-medium">🔒 Preview Mode</span> - Subscribe to unlock lessons
             }
           </p>
         </div>
@@ -35,6 +63,77 @@
           </button>
         }
       </div>
+
+      <!-- Term Selector -->
+      <!-- ✅ UPDATED: Show term selector even without subscription (preview mode) -->
+      @if (availableTerms().length > 0) {
+        <div class="mt-6 border-t border-gray-200 pt-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Select Term</h3>
+            <button
+              (click)="toggleTermSelector()"
+              class="text-sm text-blue-600 hover:text-blue-800 font-medium md:hidden">
+              {{ showTermSelector() ? 'Hide' : 'Show' }} Terms
+            </button>
+          </div>
+
+          <!-- Term Tabs -->
+          <div
+            [class.hidden]="!showTermSelector()"
+            [class.md:block]="true"
+            class="flex flex-wrap gap-3 md:gap-4">
+            @for (term of availableTerms(); track term.id) {
+              <button
+                (click)="switchTerm(term.id)"
+                [disabled]="!term.hasAccess"
+                [class.bg-blue-600]="selectedTermId() === term.id && term.hasAccess"
+                [class.text-white]="selectedTermId() === term.id && term.hasAccess"
+                [class.border-blue-600]="selectedTermId() === term.id && term.hasAccess"
+                [class.bg-white]="selectedTermId() !== term.id && term.hasAccess"
+                [class.text-gray-700]="selectedTermId() !== term.id && term.hasAccess"
+                [class.border-gray-300]="selectedTermId() !== term.id && term.hasAccess"
+                [class.bg-gray-100]="!term.hasAccess"
+                [class.text-gray-400]="!term.hasAccess"
+                [class.border-gray-200]="!term.hasAccess"
+                [class.cursor-not-allowed]="!term.hasAccess"
+                style="margin-inline-end: 8px;"
+                class="relative px-4 py-3.5 border-2 rounded-xl font-semibold text-base transition-all duration-200 hover:shadow-md disabled:hover:shadow-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex-shrink-0">
+
+                <!-- Current Term Badge -->
+                @if (term.isCurrentTerm && term.hasAccess) {
+                  <span class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
+                    Current
+                  </span>
+                }
+
+                <!-- Lock Icon for Locked Terms -->
+                @if (!term.hasAccess) {
+                  <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                  </svg>
+                }
+
+                <span>{{ term.name }}</span>
+
+                <!-- Selected Check Mark -->
+                @if (selectedTermId() === term.id && term.hasAccess) {
+                  <svg class="w-4 h-4 inline ml-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                }
+              </button>
+            }
+          </div>
+
+          <!-- Access Message -->
+          <p class="text-sm text-gray-500 mt-3">
+            <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+            </svg>
+            Terms with a lock icon require an active subscription to access
+          </p>
+        </div>
+      }
     </div>
 
     <!-- Loading State -->
@@ -62,8 +161,10 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @for (lesson of lessons(); track lesson.id) {
           <div
-            class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
-            [class.opacity-75]="lesson.isLocked"
+            class="bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+            [class.opacity-60]="!hasAccess() || lesson.isLocked"
+            [class.border-orange-300]="!hasAccess()"
+            [class.border-gray-100]="hasAccess()"
             [class.ring-2]="isLessonCompleted(lesson.id)"
             [class.ring-green-400]="isLessonCompleted(lesson.id)"
             (click)="onLessonClick(lesson)">
@@ -74,7 +175,17 @@
                 [src]="lesson.posterUrl || lesson.thumbnailUrl || 'https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80'"
                 [alt]="lesson.title"
                 (error)="$event.target.src='https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80'"
-                class="w-full h-full object-cover">
+                class="w-full h-full object-cover"
+                [class.blur-sm]="!hasAccess()">
+
+              <!-- ✅ NEW: Lock overlay for no subscription -->
+              @if (!hasAccess()) {
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                  <svg class="w-12 h-12 text-white opacity-90" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              }
 
               <!-- Completion Badge -->
               @if (isLessonCompleted(lesson.id)) {
@@ -86,13 +197,15 @@
                 </div>
               }
 
-              <!-- Locked Badge -->
-              @if (lesson.isLocked) {
-                <div class="absolute top-3 left-3 bg-gray-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center">
+              <!-- ✅ UPDATED: Show lock badge if no subscription OR lesson is locked -->
+              @if (!hasAccess() || lesson.isLocked) {
+                <div class="absolute top-3 left-3 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center"
+                     [class.bg-orange-500]="!hasAccess()"
+                     [class.bg-gray-500]="hasAccess() && lesson.isLocked">
                   <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
                   </svg>
-                  Locked
+                  {{ !hasAccess() ? 'Subscribe' : 'Locked' }}
                 </div>
               }
 
@@ -209,17 +322,35 @@
 
     <!-- Empty State -->
     @if (!loading() && lessons().length === 0) {
-      <div class="text-center py-12">
-        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-        </svg>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">No lessons found</h3>
-        <p class="text-gray-600 mb-4">There are no lessons available for {{ currentSubject() }} at the moment.</p>
-        <button
-          (click)="goBackToCourses()"
-          class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-          Back to Subjects
-        </button>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12">
+        <div class="text-center">
+          <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">No Lessons Available</h3>
+          <p class="text-gray-600 mb-6 max-w-md mx-auto">
+            @if (selectedTermId() && availableTerms().length > 0) {
+              There are no lessons for the selected term yet. Try selecting a different term or check back later.
+            } @else {
+              There are no lessons available for {{ currentSubject() }} at the moment.
+            }
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            @if (availableTerms().length > 1) {
+              <button
+                (click)="toggleTermSelector()"
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+                View Other Terms
+              </button>
+            }
+            <button
+              (click)="goBackToCourses()"
+              class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium">
+              Back to Subjects
+            </button>
+          </div>
+        </div>
       </div>
     }
 
