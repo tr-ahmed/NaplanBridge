@@ -600,13 +600,27 @@ export class LessonsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.selectedTermId.set(termId);
-    this.loadLessonsByTerm(termId);
+    console.log('🔄 Switching to term:', {
+      termId: term.id,
+      termNumber: term.termNumber,
+      termName: term.name
+    });
 
-    // Update URL with new termId
+    this.selectedTermId.set(termId);
+
+    // ✅ FIX: Use termNumber for loading lessons (not termId)
+    const subjectId = this.currentSubjectId();
+    if (subjectId && term.termNumber) {
+      this.loadLessonsByTermNumber(subjectId, term.termNumber);
+    } else {
+      // Fallback to old method if termNumber not available
+      this.loadLessonsByTerm(termId);
+    }
+
+    // ✅ FIX: Update URL with termNumber (not termId)
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { termId },
+      queryParams: { termNumber: term.termNumber },
       queryParamsHandling: 'merge'
     });
   }
