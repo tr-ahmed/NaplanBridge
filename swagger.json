@@ -6544,6 +6544,38 @@
         }
       }
     },
+    "/api/SubscriptionPlans/subject/{subjectId}/term/{termNumber}/available-plans": {
+      "get": {
+        "tags": [
+          "SubscriptionPlans"
+        ],
+        "parameters": [
+          {
+            "name": "subjectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "termNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Teacher/classes": {
       "get": {
         "tags": [

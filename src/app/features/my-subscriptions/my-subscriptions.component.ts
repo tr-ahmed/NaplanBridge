@@ -10,6 +10,10 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { StudentSubscription } from '../../models/subscription.models';
+import { UserService } from '../../core/services/user.service';
+import { DashboardService } from '../../core/services/dashboard.service';
+import { ProgressService } from '../../core/services/progress.service';
+import { forkJoin, catchError, of } from 'rxjs';
 
 // Interfaces
 interface SubscriptionWithDetails {
@@ -49,6 +53,9 @@ export class MySubscriptionsComponent implements OnInit {
   // Services
   private router = inject(Router);
   private subscriptionService = inject(SubscriptionService);
+  private userService = inject(UserService);
+  private dashboardService = inject(DashboardService);
+  private progressService = inject(ProgressService);
 
   // Signals
   subscriptions = signal<SubscriptionWithDetails[]>([]);
@@ -56,6 +63,7 @@ export class MySubscriptionsComponent implements OnInit {
   selectedSubscription = signal<SubscriptionWithDetails | null>(null);
   showCancelModal = signal(false);
   cancelReason = signal('');
+  parentId = signal<number | null>(null);
 
   // Stats
   stats = signal({
@@ -66,22 +74,148 @@ export class MySubscriptionsComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.extractParentId();
     this.loadSubscriptions();
+  }
+
+  /**
+   * Extract parent ID from JWT token
+   */
+  private extractParentId(): void {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.parentId.set(Number(payload.nameid));
+      } catch (error) {
+        console.error('Error extracting parent ID:', error);
+      }
+    }
   }
 
   /**
    * Load all subscriptions for parent's children
    */
   private loadSubscriptions(): void {
+    const parentId = this.parentId();
+    if (!parentId) {
+      console.error('Parent ID not found');
+      this.loading.set(false);
+      return;
+    }
+
     this.loading.set(true);
 
-    // Simulate API call with mock data
-    setTimeout(() => {
-      const mockSubs = this.getMockSubscriptions();
-      this.subscriptions.set(mockSubs);
-      this.calculateStats(mockSubs);
-      this.loading.set(false);
-    }, 500);
+    // Get parent's children
+    this.userService.getChildren(parentId).pipe(
+      catchError(error => {
+        console.error('Error loading children:', error);
+        return of([]);
+      })
+    ).subscribe(children => {
+      if (children.length === 0) {
+        this.subscriptions.set([]);
+        this.loading.set(false);
+        return;
+      }
+
+      // Load subscriptions and progress for each child
+      const childRequests = children.map(child => {
+        return forkJoin({
+          child: of(child),
+          subscriptions: this.dashboardService.getStudentSubscriptionsSummary(child.id).pipe(
+            catchError(() => of([]))
+          ),
+          progress: this.progressService.getStudentProgress(child.id).pipe(
+            catchError(() => of(null))
+          )
+        });
+      });
+
+      forkJoin(childRequests).subscribe({
+        next: (childrenData) => {
+          console.log('🔍 My Subscriptions - Raw API Response:', childrenData);
+
+          const allSubscriptions: SubscriptionWithDetails[] = [];
+
+          childrenData.forEach(data => {
+            const child = data.child;
+
+            // ✅ Extract subscriptions from API response { totalActiveSubscriptions, subscriptions: [...] }
+            let subscriptions: any[] = [];
+            if (data.subscriptions && typeof data.subscriptions === 'object') {
+              if (Array.isArray(data.subscriptions.subscriptions)) {
+                subscriptions = data.subscriptions.subscriptions;
+              } else if (Array.isArray(data.subscriptions)) {
+                subscriptions = data.subscriptions;
+              }
+            }
+
+            const progressData = Array.isArray(data.progress) ? data.progress : [];
+
+            console.log(`👤 ${child.userName} subscriptions:`, {
+              totalSubs: subscriptions.length,
+              subscriptions: subscriptions.map((s: any) => ({
+                planName: s.planName,
+                isActive: s.isActive,
+                startDate: s.startDate,
+                endDate: s.endDate
+              }))
+            });
+
+            subscriptions.forEach((sub: any) => {
+              // Calculate progress
+              const subjectProgress = progressData.filter((p: any) => p.subjectId === sub.subjectId);
+              const completedLessons = subjectProgress.filter((p: any) => p.isCompleted).length;
+              const totalLessons = subjectProgress.length;
+              const progressPercentage = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
+
+              // Calculate days until expiry
+              const endDate = new Date(sub.endDate || sub.subscriptionEndDate);
+              const daysUntilExpiry = this.calculateDaysUntilExpiry(endDate);
+
+              // Map to SubscriptionWithDetails
+              const subscription: SubscriptionWithDetails = {
+                id: sub.id || 0,
+                studentId: child.id,
+                studentName: child.userName,
+                planId: sub.planId || 0,
+                planName: sub.planName || sub.subjectName || 'Unknown Plan',
+                status: sub.isActive || sub.status === 'Active' ? 'Active' : 'Expired',
+                startDate: new Date(sub.startDate || sub.subscriptionStartDate || Date.now()),
+                endDate: endDate,
+                autoRenew: sub.autoRenew || false,
+                totalAmount: sub.totalAmount || sub.price || 0,
+                paidAmount: sub.paidAmount || sub.price || 0,
+                remainingAmount: sub.remainingAmount || 0,
+                paymentMethod: sub.paymentMethod || 'credit_card',
+                paymentStatus: sub.paymentStatus || (sub.isActive ? 'paid' : 'pending'),
+                progressPercentage: Math.round(progressPercentage),
+                completedLessons,
+                totalLessons,
+                lastAccessDate: sub.lastAccessDate ? new Date(sub.lastAccessDate) : undefined,
+                notes: sub.notes || '',
+                createdAt: new Date(sub.createdAt || Date.now()),
+                updatedAt: new Date(sub.updatedAt || Date.now()),
+                daysUntilExpiry,
+                usagePercentage: Math.round(progressPercentage)
+              };
+
+              allSubscriptions.push(subscription);
+            });
+          });
+
+          this.subscriptions.set(allSubscriptions);
+          this.calculateStats(allSubscriptions);
+          this.loading.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading subscriptions:', error);
+          this.subscriptions.set([]);
+          this.loading.set(false);
+        }
+      });
+    });
   }
 
   /**
@@ -97,91 +231,6 @@ export class MySubscriptionsComponent implements OnInit {
       totalSpent: subscriptions.reduce((sum, s) => sum + s.totalAmount, 0)
     };
     this.stats.set(stats);
-  }
-
-  /**
-   * Get mock subscriptions data
-   */
-  private getMockSubscriptions(): SubscriptionWithDetails[] {
-    const now = new Date();
-
-    return [
-      {
-        id: 1,
-        studentId: 1,
-        studentName: 'Ahmed Hassan',
-        planId: 3,
-        planName: 'Full Academic Year',
-        status: 'Active',
-        startDate: new Date('2024-09-01'),
-        endDate: new Date('2025-06-30'),
-        autoRenew: true,
-        totalAmount: 499,
-        paidAmount: 499,
-        remainingAmount: 0,
-        paymentMethod: 'credit_card',
-        paymentStatus: 'paid',
-        progressPercentage: 65,
-        completedLessons: 78,
-        totalLessons: 120,
-        lastAccessDate: new Date(),
-        notes: 'Active subscription for full academic year',
-        createdAt: new Date('2024-09-01'),
-        updatedAt: new Date(),
-        daysUntilExpiry: this.calculateDaysUntilExpiry(new Date('2025-06-30')),
-        usagePercentage: 65
-      },
-      {
-        id: 2,
-        studentId: 2,
-        studentName: 'Sara Hassan',
-        planId: 1,
-        planName: 'Terms 1 & 2 Package',
-        status: 'Active',
-        startDate: new Date('2024-09-01'),
-        endDate: new Date('2025-01-31'),
-        autoRenew: false,
-        totalAmount: 249,
-        paidAmount: 249,
-        remainingAmount: 0,
-        paymentMethod: 'credit_card',
-        paymentStatus: 'paid',
-        progressPercentage: 78,
-        completedLessons: 47,
-        totalLessons: 60,
-        lastAccessDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        notes: 'Terms 1 & 2 subscription',
-        createdAt: new Date('2024-09-01'),
-        updatedAt: new Date(),
-        daysUntilExpiry: this.calculateDaysUntilExpiry(new Date('2025-01-31')),
-        usagePercentage: 78
-      },
-      {
-        id: 3,
-        studentId: 3,
-        studentName: 'Omar Hassan',
-        planId: 3,
-        planName: 'Full Academic Year',
-        status: 'Active',
-        startDate: new Date('2024-09-01'),
-        endDate: new Date('2025-06-30'),
-        autoRenew: true,
-        totalAmount: 499,
-        paidAmount: 499,
-        remainingAmount: 0,
-        paymentMethod: 'debit_card',
-        paymentStatus: 'paid',
-        progressPercentage: 92,
-        completedLessons: 110,
-        totalLessons: 120,
-        lastAccessDate: new Date(),
-        notes: 'Excellent progress!',
-        createdAt: new Date('2024-09-01'),
-        updatedAt: new Date(),
-        daysUntilExpiry: this.calculateDaysUntilExpiry(new Date('2025-06-30')),
-        usagePercentage: 92
-      }
-    ];
   }
 
   /**

@@ -8,6 +8,8 @@ import { Lesson, StudentLesson } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
 import { CoursesService } from '../../core/services/courses.service';
 import { AuthService } from '../../auth/auth.service';
+import { CartService } from '../../core/services/cart.service';
+import { SubscriptionPlansService, TermPlansResponse, PlanOption } from '../../core/services/subscription-plans.service';
 
 interface Term {
   id: number;
@@ -49,12 +51,20 @@ export class LessonsComponent implements OnInit, OnDestroy {
   hasAccess = signal<boolean>(true);  // Default to true for backward compatibility
   showSubscriptionBanner = signal<boolean>(false);
 
+  // ✅ NEW: Plan selection modal
+  showPlansModal = signal<boolean>(false);
+  selectedTermPlans = signal<TermPlansResponse | null>(null);
+  addingToCart = signal<boolean>(false);
+  loadingPlans = signal<boolean>(false);
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private lessonsService: LessonsService,
     private coursesService: CoursesService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cartService: CartService,
+    private plansService: SubscriptionPlansService
   ) {}
 
   ngOnInit(): void {
@@ -552,8 +562,20 @@ export class LessonsComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error(`❌ Error loading lessons for term ${termNumber}:`, error);
-          this.error.set('Unable to load lessons. Please try again later.');
-          this.loading.set(false);
+
+          // ✅ Handle 403 (No subscription) - Show preview with locked state
+          if (error.status === 403) {
+            console.log('🔒 No subscription for this term - Showing locked state');
+            this.lessons.set([]);
+            this.error.set(null); // Don't show error, term is just locked
+            this.loading.set(false);
+
+            // Show message to user
+            console.log('💡 User can still see term button and add to cart');
+          } else {
+            this.error.set('Unable to load lessons. Please try again later.');
+            this.loading.set(false);
+          }
         }
       });
   }
@@ -566,11 +588,6 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
     if (!term) {
       console.warn('⚠️ Term not found:', termId);
-      return;
-    }
-
-    if (!term.hasAccess) {
-      alert('You do not have access to this term. Please check your subscription.');
       return;
     }
 
@@ -638,5 +655,102 @@ export class LessonsComponent implements OnInit, OnDestroy {
    */
   canAccessLesson(lesson: Lesson): boolean {
     return this.hasAccess();
+  }
+
+  /**
+   * ✅ NEW: Add current term to cart
+   * Fetches available plans and shows modal for selection
+   */
+  addTermToCart(): void {
+    const selectedTerm = this.availableTerms().find(t => t.id === this.selectedTermId());
+    const subjectId = this.currentSubjectId();
+    const studentId = this.authService.getCurrentUser()?.studentId;
+
+    if (!selectedTerm || !subjectId || !studentId) {
+      alert('Unable to proceed. Please try again.');
+      return;
+    }
+
+    console.log('🛒 Fetching available plans for:', {
+      subjectId,
+      termNumber: selectedTerm.termNumber,
+      termName: selectedTerm.name
+    });
+
+    this.loadingPlans.set(true);
+
+    // Fetch available plans from backend
+    this.plansService.getAvailablePlansForTerm(subjectId, selectedTerm.termNumber)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.loadingPlans.set(false);
+
+          if (!response.availablePlans || response.availablePlans.length === 0) {
+            alert('No subscription plans available for this term at the moment. Please contact support.');
+            return;
+          }
+
+          console.log(`✅ Found ${response.availablePlans.length} plans:`, response.availablePlans);
+
+          // Show plans modal
+          this.selectedTermPlans.set(response);
+          this.showPlansModal.set(true);
+        },
+        error: (error) => {
+          this.loadingPlans.set(false);
+          console.error('❌ Failed to fetch plans:', error);
+          alert('Failed to load subscription plans. Please try again later.');
+        }
+      });
+  }
+
+  /**
+   * ✅ NEW: Add selected plan to cart
+   */
+  addPlanToCart(plan: PlanOption): void {
+    const studentId = this.authService.getCurrentUser()?.studentId;
+
+    if (!studentId) {
+      alert('Please log in to add items to cart.');
+      return;
+    }
+
+    console.log('🛒 Adding plan to cart:', plan);
+
+    this.addingToCart.set(true);
+
+    this.cartService.addToCart({
+      subscriptionPlanId: plan.planId,
+      studentId: studentId,
+      quantity: 1
+    }).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.addingToCart.set(false);
+          this.closePlansModal();
+
+          console.log('✅ Plan added to cart:', response);
+
+          // Show success message
+          alert(`✅ ${plan.planName} has been added to your cart!`);
+
+          // Refresh cart count
+          this.cartService.getCartItemCount().subscribe();
+        },
+        error: (error) => {
+          this.addingToCart.set(false);
+          console.error('❌ Failed to add to cart:', error);
+          alert('Failed to add plan to cart. Please try again.');
+        }
+      });
+  }
+
+  /**
+   * ✅ NEW: Close plans modal
+   */
+  closePlansModal(): void {
+    this.showPlansModal.set(false);
+    this.selectedTermPlans.set(null);
   }
 }
