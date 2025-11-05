@@ -80,9 +80,9 @@ export class MyBookingsComponent implements OnInit {
       return;
     }
 
-    const reason = prompt('يرجى ذكر سبب الإلغاء (اختياري)');
+    const reason = prompt('Please specify the reason for cancellation (optional)');
 
-    this.sessionService.cancelSession(booking.id, reason || 'لم يتم تحديد سبب').subscribe({
+    this.sessionService.cancelSession(booking.id, reason || 'No reason specified').subscribe({
       next: (response) => {
         if (response.success) {
           this.toastService.showSuccess('Booking cancelled successfully');
@@ -125,7 +125,7 @@ export class MyBookingsComponent implements OnInit {
       'Confirmed': 'Confirmed',
       'Completed': 'Completed',
       'Cancelled': 'Cancelled',
-      'Pending': 'قيد الانتظار'
+      'Pending': 'Pending'
     };
     return texts[status] || status;
   }

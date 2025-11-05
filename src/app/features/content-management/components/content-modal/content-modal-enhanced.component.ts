@@ -15,15 +15,15 @@ interface ValidationError {
     :host {
       display: contents;
     }
-    
+
     .error-message {
       @apply text-red-600 text-sm mt-1 block;
     }
-    
+
     .input-error {
       @apply border-red-500 focus:ring-red-500;
     }
-    
+
     .input-valid {
       @apply border-green-500 focus:ring-green-500;
     }
@@ -127,7 +127,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
       this.filteredTerms = this.terms.filter(
         t => t.subjectId === Number(this.formData.subjectId)
       );
-      
+
       // Auto-fill term count
       if (this.entityType === 'term' && this.mode === 'add') {
         const maxTermNumber = this.filteredTerms.reduce((max, t) => Math.max(max, t.termNumber || 0), 0);
@@ -142,7 +142,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
       this.filteredWeeks = this.weeks.filter(
         w => w.termId === Number(this.formData.termId)
       );
-      
+
       // Auto-fill week count
       if (this.entityType === 'week' && this.mode === 'add') {
         const maxWeekNumber = this.filteredWeeks.reduce((max, w) => Math.max(max, w.weekNumber || 0), 0);
@@ -205,7 +205,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
     const requiredFields = this.getRequiredFields();
     if (requiredFields.includes(fieldName)) {
       if (!value || (typeof value === 'string' && !value.trim())) {
-        this.validationErrors[fieldName] = 'هذا الحقل مطلوب';
+        this.validationErrors[fieldName] = 'This field is required';
         return;
       }
     }
@@ -214,55 +214,55 @@ export class ContentModalComponent implements OnChanges, OnInit {
     switch (fieldName) {
       case 'yearNumber':
         if (value < 1 || value > 12) {
-          this.validationErrors[fieldName] = 'يجب أن يكون رقم السنة بين 1 و 12';
+          this.validationErrors[fieldName] = 'Year number must be between 1 and 12';
         }
         break;
 
       case 'originalPrice':
         if (value < 0) {
-          this.validationErrors[fieldName] = 'السعر لا يمكن أن يكون سالباً';
+          this.validationErrors[fieldName] = 'Price cannot be negative';
         }
         break;
 
       case 'discountPercentage':
         if (value < 0 || value > 100) {
-          this.validationErrors[fieldName] = 'نسبة الخصم يجب أن تكون بين 0 و 100';
+          this.validationErrors[fieldName] = 'Discount percentage must be between 0 and 100';
         }
         break;
 
       case 'duration':
         if (value < 0) {
-          this.validationErrors[fieldName] = 'المدة لا يمكن أن تكون سالبة';
+          this.validationErrors[fieldName] = 'Duration cannot be negative';
         }
         break;
 
       case 'termNumber':
         if (value < 1) {
-          this.validationErrors[fieldName] = 'رقم الفصل يجب أن يكون أكبر من 0';
+          this.validationErrors[fieldName] = 'Term number must be greater than 0';
         }
         break;
 
       case 'weekNumber':
         if (value < 1) {
-          this.validationErrors[fieldName] = 'رقم الأسبوع يجب أن يكون أكبر من 0';
+          this.validationErrors[fieldName] = 'Week number must be greater than 0';
         }
         break;
 
       case 'orderIndex':
         if (value < 0) {
-          this.validationErrors[fieldName] = 'الترتيب لا يمكن أن يكون سالباً';
+          this.validationErrors[fieldName] = 'Order index cannot be negative';
         }
         break;
 
       case 'title':
         if (value && value.length < 3) {
-          this.validationErrors[fieldName] = 'العنوان يجب أن يكون 3 أحرف على الأقل';
+          this.validationErrors[fieldName] = 'Title must be at least 3 characters long';
         }
         break;
 
       case 'name':
         if (value && value.length < 2) {
-          this.validationErrors[fieldName] = 'الاسم يجب أن يكون حرفين على الأقل';
+          this.validationErrors[fieldName] = 'Name must be at least 2 characters long';
         }
         break;
     }
@@ -338,15 +338,15 @@ export class ContentModalComponent implements OnChanges, OnInit {
    */
   getEntityTitle(): string {
     const titles: { [key: string]: string } = {
-      'year': 'السنة الدراسية',
-      'category': 'الفئة',
-      'subjectName': 'اسم المادة',
-      'subject': 'المادة',
-      'term': 'الفصل الدراسي',
-      'week': 'الأسبوع',
-      'lesson': 'الدرس'
+      'year': 'Academic Year',
+      'category': 'Category',
+      'subjectName': 'Subject Name',
+      'subject': 'Subject',
+      'term': 'Term',
+      'week': 'Week',
+      'lesson': 'Lesson'
     };
-    return titles[this.entityType] || 'العنصر';
+    return titles[this.entityType] || 'Item';
   }
 
   /**
@@ -404,15 +404,15 @@ export class ContentModalComponent implements OnChanges, OnInit {
    */
   getPlaceholder(fieldName: string): string {
     const placeholders: { [key: string]: string } = {
-      'yearNumber': 'أدخل رقم السنة (1-12)',
-      'name': 'أدخل الاسم',
-      'description': 'أدخل الوصف',
-      'title': 'أدخل العنوان',
+      'yearNumber': 'Enter year number (1-12)',
+      'name': 'Enter name',
+      'description': 'Enter description',
+      'title': 'Enter title',
       'originalPrice': '0.00',
       'discountPercentage': '0',
       'duration': '0',
-      'termNumber': 'أدخل رقم الفصل',
-      'weekNumber': 'أدخل رقم الأسبوع',
+      'termNumber': 'Enter term number',
+      'weekNumber': 'Enter week number',
       'orderIndex': '0'
     };
     return placeholders[fieldName] || '';

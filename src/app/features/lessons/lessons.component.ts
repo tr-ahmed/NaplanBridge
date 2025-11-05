@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, of } from 'rxjs';
@@ -9,7 +9,10 @@ import { LessonsService } from '../../core/services/lessons.service';
 import { CoursesService } from '../../core/services/courses.service';
 import { AuthService } from '../../auth/auth.service';
 import { CartService } from '../../core/services/cart.service';
-import { SubscriptionPlansService, TermPlansResponse, PlanOption } from '../../core/services/subscription-plans.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SubscriptionPlansService, TermPlansResponse, SubjectPlansResponse, PlanOption } from '../../core/services/subscription-plans.service';
+import { PlanSelectionModalComponent } from '../../components/plan-selection-modal/plan-selection-modal.component';
+import { SubscriptionPlanSummary } from '../../models/subject.models';
 
 interface Term {
   id: number;
@@ -22,7 +25,7 @@ interface Term {
 @Component({
   selector: 'app-lessons',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PlanSelectionModalComponent],
   templateUrl: './lessons.component.html',
   styleUrls: ['./lessons.component.scss']
 })
@@ -51,11 +54,13 @@ export class LessonsComponent implements OnInit, OnDestroy {
   hasAccess = signal<boolean>(true);  // Default to true for backward compatibility
   showSubscriptionBanner = signal<boolean>(false);
 
-  // ✅ NEW: Plan selection modal
-  showPlansModal = signal<boolean>(false);
-  selectedTermPlans = signal<TermPlansResponse | null>(null);
-  addingToCart = signal<boolean>(false);
+  // ✅ NEW: Plan selection modal (using PlanSelectionModalComponent)
+  showPlanModal = signal<boolean>(false);
+  selectedCoursePlans = signal<SubscriptionPlanSummary[]>([]);
+  selectedCourseName = signal<string>('');
   loadingPlans = signal<boolean>(false);
+
+  private toastService = inject(ToastService);
 
   constructor(
     private route: ActivatedRoute,
@@ -245,31 +250,29 @@ export class LessonsComponent implements OnInit, OnDestroy {
       console.warn('🔒 Lesson locked - no subscription:', lesson.title);
 
       const selectedTerm = this.availableTerms().find(t => t.id === this.selectedTermId());
-      const message = `🔒 This lesson is locked!\n\n` +
-        `You need an active subscription for ${selectedTerm?.name || 'this term'} to access lessons.\n\n` +
-        `Click "Add to Cart" button above to view available plans starting from $29.99.`;
+      const message = `This lesson is locked! You need an active subscription for ${selectedTerm?.name || 'this term'} to access lessons. Click "Add to Cart" button above to view available plans.`;
 
-      alert(message);
+      this.toastService.showWarning(message, 7000);
       return;
     }
 
     // Check if user is logged in
     if (!this.authService.isAuthenticated()) {
-      alert('Please log in to access lessons');
+      this.toastService.showInfo('Please log in to access lessons');
       this.router.navigate(['/auth/login']);
       return;
     }
 
     // Check if user is enrolled in the course
     if (!this.isEnrolledInSubject()) {
-      alert(`You need to enroll in ${this.currentSubject()} to access this lesson`);
+      this.toastService.showWarning(`You need to enroll in ${this.currentSubject()} to access this lesson`);
       this.goBackToCourses();
       return;
     }
 
     // Check if lesson is locked (has prerequisites)
     if (lesson.isLocked) {
-      alert('This lesson is locked. Complete the prerequisite lessons first.');
+      this.toastService.showWarning('This lesson is locked. Complete the prerequisite lessons first.');
       return;
     }
 
@@ -300,7 +303,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
    */
   enrollInCourse(): void {
     if (!this.authService.isAuthenticated()) {
-      alert('Please log in to enroll');
+      this.toastService.showInfo('Please log in to enroll');
       this.router.navigate(['/auth/login']);
       return;
     }
@@ -317,16 +320,16 @@ export class LessonsComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (success) => {
             if (success) {
-              alert(`Successfully enrolled in ${this.currentSubject()}!`);
+              this.toastService.showSuccess(`Successfully enrolled in ${this.currentSubject()}!`);
               this.isEnrolledInSubject.set(true);
               this.loadStudentProgress();
             } else {
-              alert('Enrollment failed. Please try again.');
+              this.toastService.showError('Enrollment failed. Please try again.');
             }
           },
           error: (error) => {
             console.error('Enrollment error:', error);
-            alert('Enrollment failed. Please try again.');
+            this.toastService.showError('Enrollment failed. Please try again.');
           }
         });
     }
@@ -383,10 +386,13 @@ export class LessonsComponent implements OnInit, OnDestroy {
    * Load available terms for the subject
    */
   private loadAvailableTerms(subjectId: number): void {
-    const studentId = this.authService.getCurrentUser()?.studentId;
+    const user = this.authService.getCurrentUser();
+    const studentId = user?.studentId;
 
+    // ✅ If no studentId, load terms without access info (browse mode)
     if (!studentId) {
-      console.warn('⚠️ No studentId found');
+      console.warn('⚠️ No studentId found - loading terms in browse mode');
+      this.loadTermsForBrowseMode(subjectId);
       return;
     }
 
@@ -405,13 +411,15 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
           // ✅ Backend now returns correct number of terms (4) filtered by current year
           // No client-side filtering needed
-          const terms: Term[] = termAccessStatus.terms.map(t => ({
-            id: t.termId,
+          const terms: Term[] = termAccessStatus.terms.map((t, index) => ({
+            id: t.termId || t.termNumber,  // ✅ FIX: Use termNumber if termId is 0
             termNumber: t.termNumber,
             name: t.termName,
             isCurrentTerm: t.isCurrentTerm,
             hasAccess: t.hasAccess  // ✅ Backend determines access per term
           }));
+
+          console.log('📋 Mapped Terms:', terms.map(t => ({ id: t.id, termNumber: t.termNumber, name: t.name })));
 
           this.availableTerms.set(terms);
 
@@ -450,9 +458,33 @@ export class LessonsComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('❌ Error loading term access status:', error);
-          alert('Unable to load subscription information. Please try again.');
+          this.toastService.showError('Unable to load subscription information. Please try again.');
         }
       });
+  }
+
+  /**
+   * ✅ NEW: Load terms in browse mode (without student ID)
+   * Shows all 4 terms as locked for preview
+   */
+  private loadTermsForBrowseMode(subjectId: number): void {
+    console.log('👀 Loading terms for browse mode (no student ID)');
+
+    // ✅ Fallback: Create default 4 terms (all locked for preview)
+    const defaultTerms: Term[] = [
+      { id: 1, termNumber: 1, name: 'Term 1', isCurrentTerm: false, hasAccess: false },
+      { id: 2, termNumber: 2, name: 'Term 2', isCurrentTerm: false, hasAccess: false },
+      { id: 3, termNumber: 3, name: 'Term 3', isCurrentTerm: false, hasAccess: false },
+      { id: 4, termNumber: 4, name: 'Term 4', isCurrentTerm: false, hasAccess: false }
+    ];
+
+    this.availableTerms.set(defaultTerms);
+
+    // Select first term by default
+    if (!this.selectedTermId()) {
+      this.selectedTermId.set(1);
+      console.log('✅ Selected Term 1 for browse mode');
+    }
   }
 
   /**
@@ -545,10 +577,29 @@ export class LessonsComponent implements OnInit, OnDestroy {
     console.log(`🎯 Loading lessons for subject ${subjectId}, term ${termNumber}`);
 
     // ✅ NEW ENDPOINT: /api/Lessons/subject/{subjectId}/term-number/{termNumber}/with-progress/{studentId}
+    console.log(`📡 API Call: getLessonsByTermNumber(${subjectId}, ${termNumber}, ${studentId})`);
+
     this.coursesService.getLessonsByTermNumber(subjectId, termNumber, studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
+          console.log('📦 API Response:', {
+            lessonsCount: lessons.length,
+            firstLesson: lessons[0],
+            firstThreeLessons: lessons.slice(0, 3),
+            allLessons: lessons
+          });
+
+          // ✅ Check lesson IDs
+          const lessonIds = lessons.map((l: any) => l.id);
+          console.log('🆔 Lesson IDs:', lessonIds.slice(0, 10));
+          const uniqueIds = new Set(lessonIds);
+          console.log(`📊 Unique IDs: ${uniqueIds.size} out of ${lessons.length}`);
+
+          if (uniqueIds.size !== lessons.length) {
+            console.warn('⚠️ WARNING: Duplicate lesson IDs detected!');
+          }
+
           this.lessons.set(lessons as any[]);
           this.loading.set(false);
 
@@ -557,10 +608,20 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
             // ✅ NEW: Check access status from first lesson
             const firstLesson = lessons[0] as any;
+            console.log('🔍 Checking hasAccess:', {
+              hasAccessField: firstLesson.hasAccess,
+              isLocked: firstLesson.isLocked,
+              videoUrl: firstLesson.videoUrl,
+              lessonId: firstLesson.id,
+              title: firstLesson.title
+            });
+
             if (firstLesson.hasAccess !== undefined) {
               const studentHasAccess = firstLesson.hasAccess === true;
               this.hasAccess.set(studentHasAccess);
               this.showSubscriptionBanner.set(!studentHasAccess);
+
+              console.log(`🎯 Access Status: ${studentHasAccess ? 'FULL ACCESS' : 'PREVIEW MODE'}`);
 
               if (studentHasAccess) {
                 console.log('✅ Student has subscription access to this term');
@@ -568,9 +629,12 @@ export class LessonsComponent implements OnInit, OnDestroy {
                 console.log('🔒 Preview mode - Student viewing locked lessons');
                 console.log(`📚 Showing ${lessons.length} lesson previews`);
               }
+            } else {
+              console.warn('⚠️ hasAccess field not found in lesson data');
             }
           } else {
             console.warn(`⚠️ No lessons found for subject ${subjectId}, term ${termNumber}`);
+            console.warn('⚠️ Backend may not have returned preview data');
             this.error.set('No lessons available for this term. The term may not have content yet.');
           }
 
@@ -600,24 +664,40 @@ export class LessonsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('🔄 Switching to term:', {
+    console.log('🔄 ====== SWITCHING TERM ======');
+    console.log('🔄 Selected Term:', {
       termId: term.id,
       termNumber: term.termNumber,
       termName: term.name,
       hasAccess: term.hasAccess
     });
 
+    console.log('📋 All Available Terms:', this.availableTerms().map(t => ({
+      id: t.id,
+      termNumber: t.termNumber,
+      name: t.name
+    })));
+
     // ✅ UPDATE: Set access status for the selected term
     this.hasAccess.set(term.hasAccess);
     this.showSubscriptionBanner.set(!term.hasAccess);
+    console.log(`🔒 Updated UI: hasAccess=${term.hasAccess}, showBanner=${!term.hasAccess}`);
 
     this.selectedTermId.set(termId);
 
     // ✅ FIX: Use termNumber for loading lessons (not termId)
     const subjectId = this.currentSubjectId();
+    console.log(`📚 Will load lessons for: subjectId=${subjectId}, termNumber=${term.termNumber}`);
+
+    if (!term.termNumber) {
+      console.error('❌ ERROR: termNumber is missing!', term);
+      return;
+    }
+
     if (subjectId && term.termNumber) {
       this.loadLessonsByTermNumber(subjectId, term.termNumber);
     } else {
+      console.warn('⚠️ Missing subjectId or termNumber, using fallback');
       // Fallback to old method if termNumber not available
       this.loadLessonsByTerm(termId);
     }
@@ -667,99 +747,128 @@ export class LessonsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * ✅ NEW: Add current term to cart
-   * Fetches available plans and shows modal for selection
+   * ✅ NEW: Show subscription plans modal for the subject
+   * Student can choose any plan (single term, multi-term, or full year)
    */
   addTermToCart(): void {
-    const selectedTerm = this.availableTerms().find(t => t.id === this.selectedTermId());
     const subjectId = this.currentSubjectId();
     const studentId = this.authService.getCurrentUser()?.studentId;
 
-    if (!selectedTerm || !subjectId || !studentId) {
-      alert('Unable to proceed. Please try again.');
+    console.log('🛒 addTermToCart called:', {
+      subjectId,
+      studentId,
+      currentSubject: this.currentSubject()
+    });
+
+    if (!subjectId) {
+      this.toastService.showError('Subject not found. Please try again.');
       return;
     }
 
-    console.log('🛒 Fetching available plans for:', {
-      subjectId,
-      termNumber: selectedTerm.termNumber,
-      termName: selectedTerm.name
-    });
+    if (!studentId) {
+      this.toastService.showInfo('Please log in to continue.');
+      return;
+    }
+
+    console.log('🛒 Fetching all available plans for subject:', subjectId);
 
     this.loadingPlans.set(true);
 
-    // Fetch available plans from backend
-    this.plansService.getAvailablePlansForTerm(subjectId, selectedTerm.termNumber)
+    // Fetch all available plans for this subject (no term filter)
+    console.log('📡 API Call: getAvailablePlansForSubject', { subjectId });
+
+    this.plansService.getAvailablePlansForSubject(subjectId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           this.loadingPlans.set(false);
 
+          console.log('📦 Plans API Response:', response);
+
           if (!response.availablePlans || response.availablePlans.length === 0) {
-            alert('No subscription plans available for this term at the moment. Please contact support.');
+            console.warn('⚠️ No plans returned from API');
+            this.toastService.showWarning('No subscription plans available at the moment. Please contact support.');
             return;
           }
 
-          console.log(`✅ Found ${response.availablePlans.length} plans:`, response.availablePlans);
+          console.log(`✅ Found ${response.availablePlans.length} plans for subject`);
 
-          // Show plans modal
-          this.selectedTermPlans.set(response);
-          this.showPlansModal.set(true);
+          // Convert API response to SubscriptionPlanSummary format
+          const plans: SubscriptionPlanSummary[] = response.availablePlans.map(plan => ({
+            id: plan.planId,
+            name: plan.planName,
+            description: plan.description,
+            price: plan.price,
+            currency: plan.currency,
+            duration: plan.duration,
+            planType: plan.planType,
+            isActive: plan.isActive,
+            isPopular: plan.isRecommended,
+            features: plan.features || [],
+            discount: plan.discountPercentage || undefined,
+            originalPrice: plan.originalPrice || undefined
+          }));
+
+          // Show modal with converted plans
+          this.selectedCoursePlans.set(plans);
+          this.selectedCourseName.set(response.subjectName);
+          this.showPlanModal.set(true);
         },
         error: (error) => {
           this.loadingPlans.set(false);
           console.error('❌ Failed to fetch plans:', error);
-          alert('Failed to load subscription plans. Please try again later.');
+          this.toastService.showError('Failed to load subscription plans. Please try again later.');
         }
       });
   }
 
   /**
-   * ✅ NEW: Add selected plan to cart
+   * Handle plan selection modal close
    */
-  addPlanToCart(plan: PlanOption): void {
+  onClosePlanModal(): void {
+    this.showPlanModal.set(false);
+    this.selectedCoursePlans.set([]);
+    this.selectedCourseName.set('');
+  }
+
+  /**
+   * Handle plan selection confirmation
+   */
+  onPlanSelected(planId: number): void {
     const studentId = this.authService.getCurrentUser()?.studentId;
 
     if (!studentId) {
-      alert('Please log in to add items to cart.');
+      this.toastService.showInfo('Please log in to add items to cart.');
       return;
     }
 
-    console.log('🛒 Adding plan to cart:', plan);
+    const selectedPlan = this.selectedCoursePlans().find(p => p.id === planId);
 
-    this.addingToCart.set(true);
+    console.log('🛒 Adding plan to cart:', { planId, selectedPlan });
 
+    // Add to cart
     this.cartService.addToCart({
-      subscriptionPlanId: plan.planId,
+      subscriptionPlanId: planId,
       studentId: studentId,
       quantity: 1
     }).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          this.addingToCart.set(false);
-          this.closePlansModal();
-
           console.log('✅ Plan added to cart:', response);
 
+          // Close modal
+          this.onClosePlanModal();
+
           // Show success message
-          alert(`✅ ${plan.planName} has been added to your cart!`);
+          this.toastService.showSuccess(`${selectedPlan?.name || 'Plan'} has been added to your cart!`);
 
           // Refresh cart count
           this.cartService.getCartItemCount().subscribe();
         },
         error: (error) => {
-          this.addingToCart.set(false);
           console.error('❌ Failed to add to cart:', error);
-          alert('Failed to add plan to cart. Please try again.');
+          this.toastService.showError('Failed to add plan to cart. Please try again.');
         }
       });
-  }
-
-  /**
-   * ✅ NEW: Close plans modal
-   */
-  closePlansModal(): void {
-    this.showPlansModal.set(false);
-    this.selectedTermPlans.set(null);
   }
 }

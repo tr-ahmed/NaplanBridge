@@ -13,6 +13,7 @@ import { StudentSubscription } from '../../models/subscription.models';
 import { UserService } from '../../core/services/user.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { ProgressService } from '../../core/services/progress.service';
+import { ToastService } from '../../core/services/toast.service';
 import { forkJoin, catchError, of } from 'rxjs';
 
 // Interfaces
@@ -40,6 +41,7 @@ interface SubscriptionWithDetails {
   updatedAt: Date;
   daysUntilExpiry?: number;
   usagePercentage?: number;
+  orderId?: number; // ✅ Added: Link to Orders table for invoice access
 }
 
 @Component({
@@ -56,6 +58,7 @@ export class MySubscriptionsComponent implements OnInit {
   private userService = inject(UserService);
   private dashboardService = inject(DashboardService);
   private progressService = inject(ProgressService);
+  private toastService = inject(ToastService);
 
   // Signals
   subscriptions = signal<SubscriptionWithDetails[]>([]);
@@ -198,7 +201,8 @@ export class MySubscriptionsComponent implements OnInit {
                 createdAt: new Date(sub.createdAt || Date.now()),
                 updatedAt: new Date(sub.updatedAt || Date.now()),
                 daysUntilExpiry,
-                usagePercentage: Math.round(progressPercentage)
+                usagePercentage: Math.round(progressPercentage),
+                orderId: sub.orderId // ✅ Added: Map orderId from API response
               };
 
               allSubscriptions.push(subscription);
@@ -318,14 +322,14 @@ export class MySubscriptionsComponent implements OnInit {
           this.closeCancelModal();
           this.loading.set(false);
 
-          alert(`✅ ${response.message || 'Subscription cancelled successfully'}\n\nRefund: $${response.refundAmount || 0}`);
+          this.toastService.showSuccess(`${response.message || 'Subscription cancelled successfully'}. Refund: $${response.refundAmount || 0}`);
         },
         error: (err) => {
           console.error('❌ Failed to cancel subscription:', err);
           this.loading.set(false);
 
           const errorMessage = err.error?.message || 'Failed to cancel subscription';
-          alert(`❌ ${errorMessage}\n\nPlease try again or contact support.`);
+          this.toastService.showError(`${errorMessage}. Please try again or contact support.`);
         }
       });
   }
@@ -352,19 +356,16 @@ export class MySubscriptionsComponent implements OnInit {
           this.subscriptions.set(updated);
           this.loading.set(false);
 
-          alert(`✅ Auto-renewal ${newValue ? 'enabled' : 'disabled'} successfully!`);
+          this.toastService.showSuccess(`Auto-renewal ${newValue ? 'enabled' : 'disabled'} successfully!`);
         },
         error: (err) => {
           console.error('❌ Failed to update auto-renewal:', err);
           this.loading.set(false);
 
-          let errorMessage = '❌ Failed to update auto-renewal.\n\n';
+          let errorMessage = 'Failed to update auto-renewal. ';
 
           if (err.status === 403) {
-            errorMessage += '⚠️ Permission Denied\n\n' +
-                          'You do not have permission to modify this subscription.\n' +
-                          'This feature may require Admin authorization.\n\n' +
-                          'Please contact support for assistance.';
+            errorMessage += 'Permission Denied. You do not have permission to modify this subscription. Please contact support for assistance.';
           } else if (err.status === 404) {
             errorMessage += 'Subscription not found.';
           } else if (err.error?.message) {
@@ -373,7 +374,7 @@ export class MySubscriptionsComponent implements OnInit {
             errorMessage += 'Please try again later.';
           }
 
-          alert(errorMessage);
+          this.toastService.showError(errorMessage);
         }
       });
   }
@@ -412,15 +413,32 @@ export class MySubscriptionsComponent implements OnInit {
   }
 
   /**
-   * Download invoice - Navigate to invoice page
+   * Download invoice - Navigate to invoice page with validation
    */
   downloadInvoice(subscription: SubscriptionWithDetails): void {
     console.log('📄 View Invoice:', subscription);
 
-    // Get orderId - use subscription ID as fallback
-    const orderId = (subscription as any).orderId || subscription.id;
+    // Check if orderId exists
+    const orderId = (subscription as any).orderId;
+
+    if (!orderId) {
+      // Show informative error message
+      this.toastService.showWarning(
+        `Invoice Not Available. This subscription (${subscription.planName}) does not have an associated order record. Please contact support for assistance.`,
+        7000
+      );
+
+      console.warn('⚠️ Missing orderId for subscription:', {
+        subscriptionId: subscription.id,
+        studentName: subscription.studentName,
+        planName: subscription.planName
+      });
+
+      return;
+    }
 
     // Navigate to invoice page
+    console.log(`✅ Navigating to invoice page for order ${orderId}`);
     this.router.navigate(['/parent/invoice', orderId]);
   }
 

@@ -38,12 +38,12 @@
            [href]="session.googleMeetLink"
            target="_blank"
            class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-bold">
-          🎥 الانضمام للحصة
+          🎥 Join Session
         </a>
         <button *ngIf="!canJoinSession(session.scheduledDateTime)"
                 disabled
                 class="px-6 py-3 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed">
-          سيتم التفعيل قبل الموعد بـ 15 دقيقة
+          Available 15 minutes before session
         </button>
       </div>
     </div>

@@ -18,12 +18,21 @@
               <strong>Subscribe</strong> to unlock all lessons, quizzes, and track your progress!
             </p>
             <button
-              (click)="goToSubscription()"
-              class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-md inline-flex items-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-              </svg>
-              Subscribe Now
+              (click)="addTermToCart()"
+              [disabled]="loadingPlans()"
+              class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-md inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              @if (loadingPlans()) {
+                <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading...
+              } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                View Plans & Subscribe
+              }
             </button>
           </div>
         </div>
@@ -185,7 +194,7 @@
     <!-- Lessons Grid -->
     @if (!loading() && lessons().length > 0) {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @for (lesson of lessons(); track lesson.id) {
+        @for (lesson of lessons(); track lesson.id || $index) {
           <div
             class="bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
             [class.opacity-60]="!hasAccess() || lesson.isLocked"
@@ -317,29 +326,16 @@
 
               <!-- Action Button -->
               <div class="mt-4">
-                <!-- ✅ UPDATED: Check hasAccess() first (subscription status) -->
+                <!-- ✅ UPDATED: No buttons in preview mode (locked term) -->
                 @if (!hasAccess()) {
-                  <!-- Locked Term - Show Add to Cart (Primary) -->
-                  <div class="space-y-2">
-                    <!-- Primary: Add to Cart -->
-                    <button
-                      (click)="addTermToCart()"
-                      class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center shadow-md">
-                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  <!-- Preview Mode: No action buttons, just locked state -->
+                  <div class="text-center py-2">
+                    <p class="text-sm text-gray-500">
+                      <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
                       </svg>
-                      Add to Cart
-                    </button>
-
-                    <!-- Secondary: Direct Purchase -->
-                    <button
-                      (click)="goToSubscription()"
-                      class="w-full bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center">
-                      <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                      </svg>
-                      <span class="text-sm">Or Buy Now</span>
-                    </button>
+                      Subscribe to unlock
+                    </p>
                   </div>
                 } @else if (lesson.isLocked) {
                 } @else if (lesson.isLocked) {
@@ -369,91 +365,21 @@
       </div>
     }
 
-    <!-- Empty State -->
+    <!-- Empty State (Only shows if NO lessons returned from backend) -->
     @if (!loading() && lessons().length === 0) {
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12">
         <div class="text-center">
-          <!-- Lock Icon for Locked Terms -->
-          @if (!hasAccess()) {
-            <svg class="w-20 h-20 text-orange-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
-            </svg>
-            <h3 class="text-2xl font-bold text-gray-900 mb-3">🔒 This Term is Locked</h3>
-            <p class="text-gray-600 mb-6 max-w-md mx-auto">
-              Subscribe to access all lessons for this term. You can enroll now or add it to your cart to purchase later.
-            </p>
-
-            <!-- CTA Buttons -->
-            <div class="space-y-4 max-w-md mx-auto">
-              <!-- Pricing Info -->
-              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-3">
-                <div class="text-center">
-                  <p class="text-sm font-semibold text-gray-700 mb-2">💰 Subscription Plans Available</p>
-                  <div class="grid grid-cols-3 gap-2 text-xs">
-                    <div class="bg-white rounded px-2 py-1">
-                      <div class="font-bold text-blue-600">$29.99</div>
-                      <div class="text-gray-600">Single Term</div>
-                    </div>
-                    <div class="bg-white rounded px-2 py-1">
-                      <div class="font-bold text-green-600">Save 15%</div>
-                      <div class="text-gray-600">Multi-Term</div>
-                    </div>
-                    <div class="bg-white rounded px-2 py-1">
-                      <div class="font-bold text-purple-600">Save 25%</div>
-                      <div class="text-gray-600">Full Year</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Primary Action: View Plans -->
-              <button
-                (click)="addTermToCart()"
-                [disabled]="loadingPlans()"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
-                @if (loadingPlans()) {
-                  <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Loading Plans...</span>
-                } @else {
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                  </svg>
-                  <span>View Plans & Add to Cart</span>
-                }
-              </button>
-
-              <!-- Secondary Action: Quick Buy -->
-              <button
-                (click)="goToSubscription()"
-                class="w-full bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-600 px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                <span>Quick Checkout</span>
-              </button>
-
-              <!-- Helper Text -->
-              <p class="text-center text-xs text-gray-500 mt-2">
-                💡 Choose the best plan for your learning journey
-              </p>
-            </div>
-          } @else {
-            <!-- Regular Empty State -->
-            <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-            </svg>
-            <h3 class="text-2xl font-bold text-gray-900 mb-3">No Lessons Available</h3>
-            <p class="text-gray-600 mb-6 max-w-md mx-auto">
-              @if (selectedTermId() && availableTerms().length > 0) {
-                There are no lessons for the selected term yet. Try selecting a different term or check back later.
-              } @else {
-                There are no lessons available for {{ currentSubject() }} at the moment.
-              }
-            </p>
-          }
+          <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">No Lessons Available</h3>
+          <p class="text-gray-600 mb-6 max-w-md mx-auto">
+            @if (selectedTermId() && availableTerms().length > 0) {
+              There are no lessons for the selected term yet. Try selecting a different term or check back later.
+            } @else {
+              There are no lessons available for {{ currentSubject() }} at the moment.
+            }
+          </p>
 
           <!-- Back Button (Outside the @if/@else block) -->
           <div class="flex justify-center mt-6">
@@ -467,138 +393,14 @@
       </div>
     }
 
-    <!-- ✅ NEW: Plan Selection Modal -->
-    @if (showPlansModal()) {
-      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="closePlansModal()">
-        <div class="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" (click)="$event.stopPropagation()">
-          <!-- Modal Header -->
-          <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-2xl">
-            <div class="flex justify-between items-start">
-              <div>
-                <h2 class="text-2xl font-bold mb-2">Choose Your Subscription Plan</h2>
-                <p class="text-blue-100">
-                  📚 {{ selectedTermPlans()?.subjectName }} - {{ selectedTermPlans()?.termName }}
-                </p>
-              </div>
-              <button
-                (click)="closePlansModal()"
-                class="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Plans Grid -->
-          <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              @for (plan of selectedTermPlans()?.availablePlans; track plan.planId) {
-                <div
-                  class="relative border-2 rounded-xl p-6 transition-all duration-300 hover:shadow-xl"
-                  [class.border-green-500]="plan.isRecommended"
-                  [class.border-gray-200]="!plan.isRecommended"
-                  [class.shadow-lg]="plan.isRecommended"
-                  [class.scale-105]="plan.isRecommended">
-
-                  <!-- Recommended Badge -->
-                  @if (plan.isRecommended) {
-                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <span class="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
-                        ⭐ Recommended
-                      </span>
-                    </div>
-                  }
-
-                  <!-- Plan Header -->
-                  <div class="text-center mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ plan.planName }}</h3>
-                    <p class="text-sm text-gray-600">{{ plan.description }}</p>
-                  </div>
-
-                  <!-- Pricing -->
-                  <div class="text-center mb-4">
-                    @if (plan.originalPrice) {
-                      <div class="text-sm text-gray-500 line-through mb-1">
-                        ${{ plan.originalPrice.toFixed(2) }}
-                      </div>
-                    }
-                    <div class="flex items-center justify-center gap-2">
-                      <span class="text-4xl font-bold text-blue-600">
-                        ${{ plan.price.toFixed(2) }}
-                      </span>
-                      @if (plan.discountPercentage) {
-                        <span class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                          -{{ plan.discountPercentage }}%
-                        </span>
-                      }
-                    </div>
-                    <div class="text-sm text-gray-600 mt-1">{{ plan.duration }}</div>
-                    @if (plan.saveAmount) {
-                      <div class="text-green-600 font-semibold mt-2">
-                        Save ${{ plan.saveAmount.toFixed(2) }}!
-                      </div>
-                    }
-                  </div>
-
-                  <!-- Features List -->
-                  <ul class="space-y-2 mb-6">
-                    @for (feature of plan.features; track feature) {
-                      <li class="flex items-start text-sm">
-                        <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="text-gray-700">{{ feature }}</span>
-                      </li>
-                    }
-                  </ul>
-
-                  <!-- Add to Cart Button -->
-                  <button
-                    (click)="addPlanToCart(plan)"
-                    [disabled]="addingToCart()"
-                    class="w-full py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center"
-                    [class.bg-blue-600]="!plan.isRecommended"
-                    [class.hover:bg-blue-700]="!plan.isRecommended"
-                    [class.bg-green-600]="plan.isRecommended"
-                    [class.hover:bg-green-700]="plan.isRecommended"
-                    [class.opacity-50]="addingToCart()"
-                    [class.cursor-not-allowed]="addingToCart()"
-                    class="text-white">
-                    @if (addingToCart()) {
-                      <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Adding...
-                    } @else {
-                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                      </svg>
-                      Add to Cart
-                    }
-                  </button>
-                </div>
-              }
-            </div>
-
-            <!-- Help Text -->
-            <div class="mt-6 text-center text-sm text-gray-600">
-              <p>💡 <strong>Tip:</strong> Multi-term packages offer the best value! You can continue shopping after adding to cart.</p>
-            </div>
-          </div>
-
-          <!-- Modal Footer -->
-          <div class="border-t border-gray-200 p-4 bg-gray-50 rounded-b-2xl">
-            <button
-              (click)="closePlansModal()"
-              class="w-full md:w-auto px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors">
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    }
+    <!-- ✅ Plan Selection Modal (Reusable Component) -->
+    <app-plan-selection-modal
+      [isOpen]="showPlanModal()"
+      [plans]="selectedCoursePlans()"
+      [courseName]="selectedCourseName()"
+      (close)="onClosePlanModal()"
+      (selectPlanConfirmed)="onPlanSelected($event)">
+    </app-plan-selection-modal>
 
   </div>
 </div>

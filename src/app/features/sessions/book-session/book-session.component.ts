@@ -38,8 +38,8 @@ export class BookSessionComponent implements OnInit {
 
   // Mock students for parent (should come from API)
   students = signal<any[]>([
-    { id: 1, name: 'أحمد محمد' },
-    { id: 2, name: 'سارة أحمد' }
+    { id: 1, name: 'Ahmed Mohamed' },
+    { id: 2, name: 'Sarah Ahmed' }
   ]);
 
   ngOnInit(): void {

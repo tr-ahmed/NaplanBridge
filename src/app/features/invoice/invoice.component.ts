@@ -1,7 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SubscriptionService } from '../../core/services/subscription.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-invoice',
@@ -15,6 +16,7 @@ export class InvoiceComponent implements OnInit {
   invoiceData = signal<any>(null);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
+  private toastService = inject(ToastService);
 
   constructor(
     private route: ActivatedRoute,
@@ -60,7 +62,7 @@ export class InvoiceComponent implements OnInit {
   async downloadPDF(): Promise<void> {
     const data = this.invoiceData();
     if (!data) {
-      alert('❌ No invoice data available');
+      this.toastService.showError('No invoice data available');
       return;
     }
 
@@ -99,7 +101,7 @@ export class InvoiceComponent implements OnInit {
       console.log('✅ PDF download initiated');
     } catch (error) {
       console.error('❌ PDF generation failed:', error);
-      alert('❌ Failed to generate PDF. Please try using the Print button instead.');
+      this.toastService.showError('Failed to generate PDF. Please try using the Print button instead.');
     }
   }
 

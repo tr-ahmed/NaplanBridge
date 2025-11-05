@@ -161,7 +161,8 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private lessonsService: LessonsService,
     private authService: AuthService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private toastService: ToastService
   ) {
     this.noteForm = this.fb.group({
       content: ['', [Validators.required, Validators.minLength(10)]]
@@ -578,8 +579,8 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       // In a real app, this would save to the backend
       console.log('Saving lesson settings:', currentLesson);
 
-      // Show success message (you can replace with a proper toast service)
-      alert('Lesson settings saved successfully!');
+      // Show success message
+      this.toastService.showSuccess('Lesson settings saved successfully!');
     }
   }
 
@@ -768,7 +769,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       this.isAskingQuestion.set(false);
 
       // Show success message
-      alert('Your question has been sent to the teacher. You will be notified when they respond.');
+      this.toastService.showSuccess('Your question has been sent to the teacher. You will be notified when they respond.');
     }
   }
 
@@ -892,7 +893,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       this.videoChapters.set([...currentChapters, newChapter].sort((a, b) => a.startTime - b.startTime));
 
       this.chapterForm.reset();
-      alert('Chapter added successfully!');
+      this.toastService.showSuccess('Chapter added successfully!');
     }
   }
 
@@ -918,7 +919,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     if (this.canEditContent() && confirm('Are you sure you want to delete this chapter?')) {
       const currentChapters = this.videoChapters();
       this.videoChapters.set(currentChapters.filter(chapter => chapter.id !== chapterId));
-      alert('Chapter deleted successfully!');
+      this.toastService.showSuccess('Chapter deleted successfully!');
     }
   }
 
@@ -1026,7 +1027,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       }
 
       this.cancelQuizCreation();
-      alert('Quiz saved successfully!');
+      this.toastService.showSuccess('Quiz saved successfully!');
     }
   }
 
@@ -1055,7 +1056,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     if (this.canEditContent() && confirm('Are you sure you want to delete this quiz?')) {
       const currentQuizzes = this.quizMakers();
       this.quizMakers.set(currentQuizzes.filter(q => q.id !== quizId));
-      alert('Quiz deleted successfully!');
+      this.toastService.showSuccess('Quiz deleted successfully!');
     }
   }
 

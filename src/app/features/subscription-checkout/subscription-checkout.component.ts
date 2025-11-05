@@ -49,12 +49,12 @@ export class SubscriptionCheckoutComponent implements OnInit, OnDestroy {
   });
 
   // Payment methods
-  paymentMethods: { value: PaymentMethod; label: string; labelAr: string; icon: string }[] = [
-    { value: 'credit_card', label: 'Credit/Debit Card', labelAr: 'بطاقة ائتمان/خصم', icon: '💳' },
-    { value: 'bank_transfer', label: 'Bank Transfer', labelAr: 'تحويل بنكي', icon: '🏦' },
-    { value: 'paypal', label: 'PayPal', labelAr: 'باي بال', icon: '💰' },
-    { value: 'apple_pay', label: 'Apple Pay', labelAr: 'أبل باي', icon: '🍎' },
-    { value: 'google_pay', label: 'Google Pay', labelAr: 'جوجل باي', icon: '🔍' }
+  paymentMethods: { value: PaymentMethod; label: string; icon: string }[] = [
+    { value: 'credit_card', label: 'Credit/Debit Card', icon: '💳' },
+    { value: 'bank_transfer', label: 'Bank Transfer', icon: '🏦' },
+    { value: 'paypal', label: 'PayPal', icon: '💰' },
+    { value: 'apple_pay', label: 'Apple Pay', icon: '🍎' },
+    { value: 'google_pay', label: 'Google Pay', icon: '🔍' }
   ];
 
   constructor(

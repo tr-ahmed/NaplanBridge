@@ -3,10 +3,11 @@
  * Comprehensive analytics dashboard with charts and reports
  */
 
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdvancedAnalyticsService, AnalyticsData, ChartData } from '../../core/services/advanced-analytics.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-advanced-analytics',
@@ -25,6 +26,7 @@ export class AdvancedAnalyticsComponent implements OnInit {
   // Data
   analyticsData = signal<AnalyticsData | null>(null);
   chartData = signal<ChartData | null>(null);
+  private toastService = inject(ToastService);
 
   constructor(private analyticsService: AdvancedAnalyticsService) {}
 
@@ -91,10 +93,10 @@ export class AdvancedAnalyticsComponent implements OnInit {
     this.analyticsService.exportToPDF(this.analyticsData()!)
       .subscribe({
         next: () => {
-          alert('PDF exported successfully!');
+          this.toastService.showSuccess('PDF exported successfully!');
         },
         error: (err: any) => {
-          alert('Failed to export PDF');
+          this.toastService.showError('Failed to export PDF');
         }
       });
   }
@@ -106,10 +108,10 @@ export class AdvancedAnalyticsComponent implements OnInit {
     this.analyticsService.exportToExcel(this.analyticsData()!)
       .subscribe({
         next: () => {
-          alert('Excel exported successfully!');
+          this.toastService.showSuccess('Excel exported successfully!');
         },
         error: (err: any) => {
-          alert('Failed to export Excel');
+          this.toastService.showError('Failed to export Excel');
         }
       });
   }

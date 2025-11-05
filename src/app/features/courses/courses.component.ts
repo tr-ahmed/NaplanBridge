@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { PlanSelectionModalComponent } from '../../components/plan-selection-mod
 import { SubscriptionPlanSummary } from '../../models/subject.models';
 import { AuthService } from '../../auth/auth.service';
 import { SubscriptionService } from '../../core/services/subscription.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-courses',
@@ -55,6 +56,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
   currentUser = signal<any>(null);
   userYear = signal<number | null>(null);
   isStudent = signal<boolean>(false);
+  selectedStudentId = signal<number | null>(null); // For parent - selected child
+  parentStudents = signal<any[]>([]); // Parent's children list
 
   // Available years for filtering
   availableYears = signal<Array<{id: number, name: string}>>([
@@ -87,6 +90,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   // Enrollment tracking
   private enrolledSubjectNames = new Set<string>();
   private hasFullYearSubscription = false;
+  private toastService = inject(ToastService);
 
   constructor(
     private coursesService: CoursesService,
@@ -144,9 +148,40 @@ export class CoursesComponent implements OnInit, OnDestroy {
         console.warn('📋 Backend may not have added yearId claim to JWT');
       } else {
         console.log('👔 Non-student user - showing all years');
+
+        // ✅ If parent, load their students
+        const isParentRole = roles.some((r: string) => r.toLowerCase() === 'parent');
+        if (isParentRole) {
+          this.loadParentStudents();
+        }
       }
     } else {
       console.log('⚠️ No user found - user not logged in');
+    }
+  }
+
+  /**
+   * Load parent's students
+   */
+  private loadParentStudents(): void {
+    const parentId = this.currentUser()?.id;
+    if (!parentId) return;
+
+    console.log('👨‍👩‍👧‍👦 Loading parent students...');
+
+    // TODO: Replace with actual API call
+    // this.parentService.getStudents(parentId).subscribe(...)
+
+    // For now, try to get from localStorage or sessionStorage if available
+    const studentsData = localStorage.getItem('parentStudents');
+    if (studentsData) {
+      try {
+        const students = JSON.parse(studentsData);
+        this.parentStudents.set(students);
+        console.log('✅ Loaded parent students:', students);
+      } catch (e) {
+        console.error('Failed to parse parent students data');
+      }
     }
   }
 
@@ -170,6 +205,24 @@ export class CoursesComponent implements OnInit, OnDestroy {
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
+        // ✅ Check for studentId and yearId params (from parent dashboard)
+        if (params['studentId']) {
+          const studentId = parseInt(params['studentId'], 10);
+          if (!isNaN(studentId)) {
+            this.selectedStudentId.set(studentId);
+            console.log('✅ Selected student ID from params:', studentId);
+          }
+        }
+
+        // ✅ Check for yearId param (filter by student's year)
+        if (params['yearId']) {
+          const yearId = parseInt(params['yearId'], 10);
+          if (!isNaN(yearId)) {
+            this.selectedYearId.set(yearId);
+            console.log('✅ Selected year ID from params:', yearId);
+          }
+        }
+
         // Set filters based on parameters
         if (params['subject']) {
           this.selectedSubject.set(params['subject']);
@@ -512,9 +565,9 @@ export class CoursesComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe(success => {
           if (success) {
-            alert(`Successfully enrolled in ${course.name}!`);
+            this.toastService.showSuccess(`Successfully enrolled in ${course.name}!`);
           } else {
-            alert('Enrollment failed. Please try again.');
+            this.toastService.showError('Enrollment failed. Please try again.');
           }
         });
     }
@@ -524,9 +577,35 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Continue Learning - Navigate to last incomplete lesson
    */
   continueLearning(course: Course): void {
-    const studentId = this.coursesService['authService'].getCurrentUser()?.studentId;
+    const user = this.authService.getCurrentUser();
+    let studentId: number | undefined;
 
-    if (!studentId) {
+    // ✅ Handle both Student and Parent roles
+    if (user?.role === 'Student' || (Array.isArray(user?.role) && user.role.includes('Student'))) {
+      studentId = user.studentId;
+    } else if (user?.role === 'Parent' || (Array.isArray(user?.role) && user.role.includes('Parent'))) {
+      // ✅ Parent access - Auto-select student if only one in the same year
+      studentId = this.selectedStudentId() || undefined;
+
+      if (!studentId) {
+        // ✅ Try to auto-select student based on course year
+        const courseYearId = course.yearId;
+        const studentsInSameYear = this.parentStudents().filter(s => s.yearId === courseYearId);
+
+        if (studentsInSameYear.length === 1) {
+          // ✅ Only one student in this year - auto-select
+          studentId = studentsInSameYear[0].id;
+          this.selectedStudentId.set(studentId || null);
+          console.log('✅ Auto-selected student for continue learning:', studentsInSameYear[0].name);
+        } else {
+          // ✅ No students or multiple students - Need student selection for progress tracking
+          console.warn('⚠️ Continue Learning requires student selection');
+          this.toastService.showInfo('Please select a student from your dashboard to continue their learning.');
+          this.router.navigate(['/parent/dashboard']);
+          return;
+        }
+      }
+    }    if (!studentId) {
       console.warn('⚠️ No studentId found, redirecting to login');
       this.router.navigate(['/login']);
       return;
@@ -581,7 +660,62 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Navigate to lessons for a specific course/subject
    */
   viewLessons(course: Course): void {
-    const studentId = this.coursesService['authService'].getCurrentUser()?.studentId;
+    const user = this.authService.getCurrentUser();
+    let studentId: number | undefined;
+    let isParentBrowseMode = false;
+
+    // ✅ Handle both Student and Parent roles
+    if (user?.role === 'Student' || (Array.isArray(user?.role) && user.role.includes('Student'))) {
+      // Direct student access
+      studentId = user.studentId;
+    } else if (user?.role === 'Parent' || (Array.isArray(user?.role) && user.role.includes('Parent'))) {
+      // ✅ Parent access - Try to auto-select student if only one in the same year
+      studentId = this.selectedStudentId() || undefined;
+
+      if (!studentId) {
+        // ✅ Try to auto-select student based on course year
+        const courseYearId = course.yearId;
+        const studentsInSameYear = this.parentStudents().filter(s => s.yearId === courseYearId);
+
+        console.log('🔍 Checking for auto-select student:', {
+          courseYearId,
+          totalStudents: this.parentStudents().length,
+          studentsInSameYear: studentsInSameYear.length
+        });
+
+        if (studentsInSameYear.length === 1) {
+          // ✅ Only one student in this year - auto-select
+          studentId = studentsInSameYear[0].id;
+          this.selectedStudentId.set(studentId || null);
+          console.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'ID:', studentId);
+        } else {
+          // ✅ No students or multiple students - Allow parent to browse in preview mode
+          console.log('👀 Parent browse mode - No student selected');
+          isParentBrowseMode = true;
+          // Don't return - continue to show lessons in browse mode
+        }
+      }
+    }
+
+    // ✅ If parent browse mode, navigate without student progress data
+    if (isParentBrowseMode) {
+      console.log('👀 Parent browsing lessons (no student selected)');
+
+      // Navigate to lessons without fetching term/week data
+      this.router.navigate(['/lessons'], {
+        queryParams: {
+          subjectId: course.subjectNameId,
+          subject: course.subject || course.subjectName,
+          courseId: course.id,
+          yearId: course.yearId,
+          termNumber: 1,  // Default to term 1
+          weekNumber: 1,  // Default to week 1
+          hasAccess: false,  // Parent browsing - no access
+          browseMode: true  // ✅ NEW: Indicate browse mode
+        }
+      });
+      return;
+    }
 
     if (!studentId) {
       console.warn('⚠️ No studentId found, redirecting to login');

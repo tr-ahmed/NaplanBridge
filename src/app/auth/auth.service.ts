@@ -1,10 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { map, tap, catchError, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { MockDataService } from '../core/services/mock-data.service';
+import { ToastService } from '../core/services/toast.service';
 
 interface LoginResponse {
   userName: string;
@@ -23,6 +24,7 @@ interface LoginRequest {
 export class AuthService {
   private authStatusSubject = new BehaviorSubject<boolean>(this.hasToken());
   public authStatus$ = this.authStatusSubject.asObservable();
+  private toastService = inject(ToastService);
 
   constructor(
     private router: Router,
@@ -181,7 +183,7 @@ export class AuthService {
     };
 
     localStorage.setItem('user', JSON.stringify(userData));
-    alert('✅ Account created successfully! You can now log in.');
+    this.toastService.showSuccess('Account created successfully! You can now log in.');
     this.router.navigate(['/auth/login']);
   }
 
