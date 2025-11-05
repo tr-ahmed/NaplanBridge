@@ -10,7 +10,7 @@ interface ValidationError {
   selector: 'app-content-modal',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './content-modal.component.html',
+  templateUrl: './content-modal-enhanced.component.html',
   styles: [`
     :host {
       display: contents;
@@ -205,7 +205,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
     const requiredFields = this.getRequiredFields();
     if (requiredFields.includes(fieldName)) {
       if (!value || (typeof value === 'string' && !value.trim())) {
-        this.validationErrors[fieldName] = 'This field is required';
+        this.validationErrors[fieldName] = 'هذا الحقل مطلوب';
         return;
       }
     }
@@ -214,74 +214,72 @@ export class ContentModalComponent implements OnChanges, OnInit {
     switch (fieldName) {
       case 'yearNumber':
         if (value < 1 || value > 12) {
-          this.validationErrors[fieldName] = 'Year number must be between 1 and 12';
+          this.validationErrors[fieldName] = 'يجب أن يكون رقم السنة بين 1 و 12';
         }
         break;
 
       case 'originalPrice':
         if (value < 0) {
-          this.validationErrors[fieldName] = 'Price cannot be negative';
+          this.validationErrors[fieldName] = 'السعر لا يمكن أن يكون سالباً';
         }
         break;
 
       case 'discountPercentage':
         if (value < 0 || value > 100) {
-          this.validationErrors[fieldName] = 'Discount must be between 0 and 100';
+          this.validationErrors[fieldName] = 'نسبة الخصم يجب أن تكون بين 0 و 100';
         }
         break;
 
       case 'duration':
         if (value < 0) {
-          this.validationErrors[fieldName] = 'Duration cannot be negative';
+          this.validationErrors[fieldName] = 'المدة لا يمكن أن تكون سالبة';
         }
         break;
 
       case 'termNumber':
         if (value < 1) {
-          this.validationErrors[fieldName] = 'Term number must be greater than 0';
+          this.validationErrors[fieldName] = 'رقم الفصل يجب أن يكون أكبر من 0';
         }
         break;
 
       case 'weekNumber':
         if (value < 1) {
-          this.validationErrors[fieldName] = 'Week number must be greater than 0';
+          this.validationErrors[fieldName] = 'رقم الأسبوع يجب أن يكون أكبر من 0';
         }
         break;
 
       case 'orderIndex':
         if (value < 0) {
-          this.validationErrors[fieldName] = 'Order cannot be negative';
+          this.validationErrors[fieldName] = 'الترتيب لا يمكن أن يكون سالباً';
         }
         break;
 
       case 'title':
         if (value && value.length < 3) {
-          this.validationErrors[fieldName] = 'Title must be at least 3 characters';
+          this.validationErrors[fieldName] = 'العنوان يجب أن يكون 3 أحرف على الأقل';
         }
         break;
 
       case 'name':
         if (value && value.length < 2) {
-          this.validationErrors[fieldName] = 'Name must be at least 2 characters';
+          this.validationErrors[fieldName] = 'الاسم يجب أن يكون حرفين على الأقل';
         }
         break;
     }
   }
 
   /**
-   * Get required fields based on entity type and mode
+   * Get required fields based on entity type
    */
   getRequiredFields(): string[] {
     const requiredFieldsMap: { [key: string]: string[] } = {
       'year': ['yearNumber'],
       'category': ['name'],
       'subjectName': ['name', 'categoryId'],
-      'subject': this.mode === 'add' 
-        ? ['yearId', 'subjectNameId', 'originalPrice', 'level', 'teacherId', 'startDate']
-        : ['originalPrice', 'level', 'teacherId'],
+      'subject': ['yearId', 'subjectNameId', 'originalPrice', 'level', 'teacherId'],
       'term': ['subjectId', 'termNumber', 'startDate'],
       'week': ['termId', 'weekNumber'],
-      'lesson': ['title', 'description', 'weekId'] // subjectId removed - auto-calculated by backend
+      'lesson': ['title', 'description', 'weekId', 'subjectId']
     };
 
     return requiredFieldsMap[this.entityType] || [];
@@ -339,16 +337,16 @@ export class ContentModalComponent implements OnChanges, OnInit {
    * Get entity title for display
    */
   getEntityTitle(): string {
-    const titles: Record<string, string> = {
-      'year': 'Year',
-      'category': 'Category',
-      'subjectName': 'Subject Name',
-      'subject': 'Subject',
-      'term': 'Term',
-      'week': 'Week',
-      'lesson': 'Lesson'
+    const titles: { [key: string]: string } = {
+      'year': 'السنة الدراسية',
+      'category': 'الفئة',
+      'subjectName': 'اسم المادة',
+      'subject': 'المادة',
+      'term': 'الفصل الدراسي',
+      'week': 'الأسبوع',
+      'lesson': 'الدرس'
     };
-    return titles[this.entityType] || this.entityType;
+    return titles[this.entityType] || 'العنصر';
   }
 
   /**
@@ -406,63 +404,17 @@ export class ContentModalComponent implements OnChanges, OnInit {
    */
   getPlaceholder(fieldName: string): string {
     const placeholders: { [key: string]: string } = {
-      'yearNumber': 'Enter year number (1-12)',
-      'name': 'Enter name',
-      'description': 'Enter description',
-      'title': 'Enter title',
+      'yearNumber': 'أدخل رقم السنة (1-12)',
+      'name': 'أدخل الاسم',
+      'description': 'أدخل الوصف',
+      'title': 'أدخل العنوان',
       'originalPrice': '0.00',
       'discountPercentage': '0',
       'duration': '0',
-      'termNumber': 'Enter term number',
-      'weekNumber': 'Enter week number',
+      'termNumber': 'أدخل رقم الفصل',
+      'weekNumber': 'أدخل رقم الأسبوع',
       'orderIndex': '0'
     };
     return placeholders[fieldName] || '';
-  }
-
-  /**
-   * Get formatted subject display with hierarchy info
-   */
-  getSubjectDisplay(subject: any): string {
-    const year = this.years.find(y => y.id === subject.yearId);
-    const yearText = year ? `Year ${year.yearNumber}` : '';
-    const categoryText = subject.categoryName || '';
-    const subjectText = subject.subjectName || '';
-    
-    return [yearText, categoryText, subjectText].filter(Boolean).join(' - ');
-  }
-
-  /**
-   * Get formatted term display with hierarchy info
-   */
-  getTermDisplay(term: any): string {
-    const subject = this.subjects.find(s => s.id === term.subjectId);
-    if (!subject) return `Term ${term.termNumber}`;
-    
-    const year = this.years.find(y => y.id === subject.yearId);
-    const yearText = year ? `Year ${year.yearNumber}` : '';
-    const subjectText = subject.subjectName || '';
-    const termText = `Term ${term.termNumber}`;
-    
-    return [yearText, subjectText, termText].filter(Boolean).join(' - ');
-  }
-
-  /**
-   * Get formatted week display with hierarchy info
-   */
-  getWeekDisplay(week: any): string {
-    const term = this.terms.find(t => t.id === week.termId);
-    if (!term) return `Week ${week.weekNumber}`;
-    
-    const subject = this.subjects.find(s => s.id === term.subjectId);
-    if (!subject) return `Week ${week.weekNumber}`;
-    
-    const year = this.years.find(y => y.id === subject.yearId);
-    const yearText = year ? `Year ${year.yearNumber}` : '';
-    const subjectText = subject.subjectName || '';
-    const termText = `Term ${term.termNumber}`;
-    const weekText = `Week ${week.weekNumber}`;
-    
-    return [yearText, subjectText, termText, weekText].filter(Boolean).join(' - ');
   }
 }

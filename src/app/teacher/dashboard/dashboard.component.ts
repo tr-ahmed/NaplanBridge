@@ -787,7 +787,7 @@ nameTeacher(id: Id | undefined | null) {
         }
 
         const newLesson = await this.contentService
-          .addLesson(title, description, weekId, subjectId, posterFile, videoFile)
+          .addLesson(title, description, weekId, posterFile, videoFile)
           .toPromise();
         if (newLesson) this.lessons.push(newLesson);
         break;
@@ -821,14 +821,11 @@ nameTeacher(id: Id | undefined | null) {
       case 'subject':
         await this.contentService.updateSubject(
           this.form.id,
-          this.form.yearId,
-          this.form.subjectNameId,
           this.form.originalPrice,
           this.form.discountPercentage,
           this.form.level,
           this.form.duration,
           this.form.teacherId,
-          this.form.startDate,
           this.form.posterFile
         ).toPromise();
         this.subjects = this.subjects.map(x => x.id === this.form.id ? this.form : x);
@@ -861,7 +858,6 @@ nameTeacher(id: Id | undefined | null) {
           this.form.title,
           this.form.description,
           this.form.weekId,
-          subjectIdForUpdate,
           this.form.posterFile,
           this.form.videoFile
         ).toPromise();

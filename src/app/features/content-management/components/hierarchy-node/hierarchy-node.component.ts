@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Year, Subject, Term, Week, Lesson } from '../../../../core/services/content.service';
 
@@ -11,12 +11,13 @@ export type EntityType = 'year' | 'category' | 'subjectName' | 'subject' | 'term
   templateUrl: './hierarchy-node.component.html',
   styleUrls: ['./hierarchy-node.component.scss']
 })
-export class HierarchyNodeComponent {
+export class HierarchyNodeComponent implements OnChanges {
   @Input() year!: Year;
   @Input() subjects: Subject[] = [];
   @Input() terms: Term[] = [];
   @Input() weeks: Week[] = [];
   @Input() lessons: Lesson[] = [];
+  @Input() expandState: 'expanded' | 'collapsed' | 'default' = 'default';
 
   @Output() add = new EventEmitter<{ type: EntityType; entity: any }>();
   @Output() edit = new EventEmitter<{ type: EntityType; entity: any }>();
@@ -25,6 +26,20 @@ export class HierarchyNodeComponent {
   expandedSubjects: Set<number> = new Set();
   expandedTerms: Set<number> = new Set();
   expandedWeeks: Set<number> = new Set();
+
+  ngOnChanges(): void {
+    if (this.expandState === 'expanded') {
+      // Expand all
+      this.subjects.forEach(s => this.expandedSubjects.add(s.id!));
+      this.terms.forEach(t => this.expandedTerms.add(t.id!));
+      this.weeks.forEach(w => this.expandedWeeks.add(w.id!));
+    } else if (this.expandState === 'collapsed') {
+      // Collapse all
+      this.expandedSubjects.clear();
+      this.expandedTerms.clear();
+      this.expandedWeeks.clear();
+    }
+  }
 
   getSubjectsForYear(): Subject[] {
     return this.subjects.filter(s => s.yearId === this.year.id);

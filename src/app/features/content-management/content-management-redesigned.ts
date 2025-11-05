@@ -141,12 +141,18 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // Statistics
   // ============================================
-  stats = {
+  totalCounts = {
     years: 0,
     categories: 0,
     subjects: 0,
     terms: 0,
     weeks: 0,
+    lessons: 0,
+  };
+
+  // Store total counts from API (for paginated endpoints)
+  apiTotalCounts = {
+    subjects: 0,
     lessons: 0,
   };
 
@@ -233,6 +239,9 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         this.loadLessons(),
       ]);
 
+      // Update total counts from API data
+      this.updateTotalCountsFromAPI();
+
       // Apply filters and update UI
       this.refreshAll();
 
@@ -309,11 +318,14 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
    */
   async loadSubjects(): Promise<void> {
     try {
-      const subjects = await this.contentService.getSubjects().toPromise();
-      this.subjects = Array.isArray(subjects) ? subjects : [];
+      const response = await this.contentService.getSubjects(1, 1000).toPromise();
+      // API returns paginated response: { items: [], page, pageSize, totalCount, ... }
+      this.subjects = response?.items || [];
+      this.apiTotalCounts.subjects = response?.totalCount || 0;
     } catch (error) {
       console.error('Error loading subjects:', error);
-      throw error;
+      this.subjects = [];
+      this.apiTotalCounts.subjects = 0;
     }
   }
 
@@ -346,15 +358,18 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
    */
   async loadLessons(): Promise<void> {
     try {
-      const result = await this.contentService.getLessons().toPromise();
+      const result = await this.contentService.getLessons(1, 1000).toPromise();
       
       // Handle both array and paginated result
       if (Array.isArray(result)) {
         this.lessons = result;
+        this.apiTotalCounts.lessons = result.length;
       } else if (result && 'items' in result) {
         this.lessons = result.items as any[];
+        this.apiTotalCounts.lessons = (result as any).totalCount || this.lessons.length;
       } else {
         this.lessons = [];
+        this.apiTotalCounts.lessons = 0;
       }
     } catch (error) {
       console.error('Error loading lessons:', error);
@@ -372,7 +387,6 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   async loadSubjectsByYear(yearId: number): Promise<void> {
     try {
       this.subjects = await this.contentService.getSubjectsByYear(yearId).toPromise() || [];
-      this.refreshAll();
     } catch (error) {
       console.error('Error loading subjects by year:', error);
     }
@@ -384,7 +398,6 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   async loadSubjectsByCategory(categoryId: number): Promise<void> {
     try {
       this.subjects = await this.contentService.getSubjectsByCategory(categoryId).toPromise() || [];
-      this.refreshAll();
     } catch (error) {
       console.error('Error loading subjects by category:', error);
     }
@@ -396,7 +409,6 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   async loadTermsBySubject(subjectId: number): Promise<void> {
     try {
       this.terms = await this.contentService.getTermsBySubject(subjectId).toPromise() || [];
-      this.refreshAll();
     } catch (error) {
       console.error('Error loading terms by subject:', error);
     }
@@ -408,7 +420,6 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   async loadWeeksByTerm(termId: number): Promise<void> {
     try {
       this.weeks = await this.contentService.getWeeksByTerm(termId).toPromise() || [];
-      this.refreshAll();
     } catch (error) {
       console.error('Error loading weeks by term:', error);
     }
@@ -420,7 +431,6 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   async loadLessonsByWeek(weekId: number): Promise<void> {
     try {
       this.lessons = await this.contentService.getLessonsByWeek(weekId).toPromise() || [];
-      this.refreshAll();
     } catch (error) {
       console.error('Error loading lessons by week:', error);
     }
@@ -484,32 +494,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   }
 
   async onFilterChange(): Promise<void> {
-    // Load filtered data from backend when filters change
-    try {
-      if (this.filters.yearId) {
-        await this.loadSubjectsByYear(this.filters.yearId);
-      }
-      
-      if (this.filters.categoryId) {
-        await this.loadSubjectsByCategory(this.filters.categoryId);
-      }
-      
-      if (this.filters.subjectId) {
-        await this.loadTermsBySubject(this.filters.subjectId);
-      }
-      
-      if (this.filters.termId) {
-        await this.loadWeeksByTerm(this.filters.termId);
-      }
-      
-      if (this.filters.weekId) {
-        await this.loadLessonsByWeek(this.filters.weekId);
-      }
-    } catch (error) {
-      console.error('Error applying filters:', error);
-    }
-    
-    this.resetPaging();
+    this.refreshAll();
   }
 
   clearFilters(): void {
@@ -530,16 +515,26 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   refreshAll(): void {
     this.applyFilters();
     this.updatePaged();
-    this.updateStats();
+    // Note: We don't call updateStats() here because totalCounts should reflect
+    // the total from API (via updateTotalCountsFromAPI), not filtered arrays
   }
 
   applyFilters(): void {
     const q = (this.searchTerm || '').toLowerCase();
 
-    // Filter Years
-    this.filteredYears = this.years.filter(y =>
-      !q || y.yearNumber.toString().includes(q)
-    );
+    // Convert string filter values to numbers for comparison
+    const yearIdNum = this.filters.yearId ? Number(this.filters.yearId) : null;
+    const categoryIdNum = this.filters.categoryId ? Number(this.filters.categoryId) : null;
+    const subjectIdNum = this.filters.subjectId ? Number(this.filters.subjectId) : null;
+    const termIdNum = this.filters.termId ? Number(this.filters.termId) : null;
+    const weekIdNum = this.filters.weekId ? Number(this.filters.weekId) : null;
+
+    // Filter Years - Apply year filter for hierarchy view
+    this.filteredYears = this.years.filter(y => {
+      const matchesSearch = !q || y.yearNumber.toString().includes(q);
+      const matchesYearFilter = !yearIdNum || y.id === yearIdNum;
+      return matchesSearch && matchesYearFilter;
+    });
 
     // Filter Categories
     this.filteredCategories = this.categories.filter(c =>
@@ -553,8 +548,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         s.subjectName?.toLowerCase().includes(q) ||
         s.categoryName?.toLowerCase().includes(q);
       
-      const matchesYear = !this.filters.yearId || s.yearId === this.filters.yearId;
-      const matchesCategory = !this.filters.categoryId || s.categoryId === this.filters.categoryId;
+      const matchesYear = !yearIdNum || s.yearId === yearIdNum;
+      const matchesCategory = !categoryIdNum || s.categoryId === categoryIdNum;
       
       return matchesSearch && matchesYear && matchesCategory;
     });
@@ -562,14 +557,14 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     // Filter Terms
     this.filteredTerms = this.terms.filter(t => {
       const matchesSearch = !q || t.termNumber.toString().includes(q);
-      const matchesSubject = !this.filters.subjectId || t.subjectId === this.filters.subjectId;
+      const matchesSubject = !subjectIdNum || t.subjectId === subjectIdNum;
       return matchesSearch && matchesSubject;
     });
 
     // Filter Weeks
     this.filteredWeeks = this.weeks.filter(w => {
       const matchesSearch = !q || w.weekNumber.toString().includes(q);
-      const matchesTerm = !this.filters.termId || w.termId === this.filters.termId;
+      const matchesTerm = !termIdNum || w.termId === termIdNum;
       return matchesSearch && matchesTerm;
     });
 
@@ -579,9 +574,9 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         l.title?.toLowerCase().includes(q) ||
         l.description?.toLowerCase().includes(q);
       
-      const matchesWeek = !this.filters.weekId || l.weekId === this.filters.weekId;
-      const matchesTerm = !this.filters.termId || this.getTermIdFromWeekId(l.weekId) === this.filters.termId;
-      const matchesSubject = !this.filters.subjectId || l.subjectId === this.filters.subjectId;
+      const matchesWeek = !weekIdNum || l.weekId === weekIdNum;
+      const matchesTerm = !termIdNum || this.getTermIdFromWeekId(l.weekId) === termIdNum;
+      const matchesSubject = !subjectIdNum || l.subjectId === subjectIdNum;
       
       return matchesSearch && matchesWeek && matchesTerm && matchesSubject;
     });
@@ -602,13 +597,27 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   }
 
   updateStats(): void {
-    this.stats = {
+    this.totalCounts = {
       years: this.years.length,
       categories: this.categories.length,
       subjects: this.subjects.length,
       terms: this.terms.length,
       weeks: this.weeks.length,
       lessons: this.lessons.length,
+    };
+  }
+
+  /**
+   * Update total counts from API data (original data before filtering)
+   */
+  updateTotalCountsFromAPI(): void {
+    this.totalCounts = {
+      years: this.years.length,
+      categories: this.categories.length,
+      subjects: this.apiTotalCounts.subjects || this.subjects.length,
+      terms: this.terms.length,
+      weeks: this.weeks.length,
+      lessons: this.apiTotalCounts.lessons || this.lessons.length,
     };
   }
 
@@ -701,6 +710,30 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.formMode = 'add';
     this.entityType = type;
     this.form = this.getEmptyForm(type);
+    this.isFormOpen = true;
+  }
+
+  /**
+   * Open add form from hierarchy view with pre-filled context
+   */
+  openAddFromHierarchy(type: EntityType, contextData: any): void {
+    this.formMode = 'add';
+    this.entityType = type;
+    this.form = this.getEmptyForm(type);
+    
+    // Pre-fill based on hierarchy context
+    if (type === 'term' && contextData?.subject) {
+      this.form.subjectId = contextData.subject.id;
+    } else if (type === 'week' && contextData?.term) {
+      this.form.termId = contextData.term.id;
+    } else if (type === 'lesson' && contextData?.week) {
+      this.form.weekId = contextData.week.id;
+      // Subject is auto-determined from week's term
+      if (contextData?.subject) {
+        this.form.subjectId = contextData.subject.id;
+      }
+    }
+    
     this.isFormOpen = true;
   }
 
@@ -884,11 +917,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           data.title,
           data.description,
           data.weekId,
-          data.subjectId,
           data.posterFile,
-          data.videoFile,
-          data.duration,
-          data.orderIndex
+          data.videoFile
         ).toPromise();
         
         // Navigate to lesson detail page
@@ -927,14 +957,11 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       case 'subject':
         await this.contentService.updateSubject(
           data.id,
-          data.yearId,
-          data.subjectNameId,
           data.originalPrice,
           data.discountPercentage || 0,
           data.level,
           data.duration || 0,
           data.teacherId,
-          data.startDate,
           data.posterFile
         ).toPromise();
         break;
@@ -957,11 +984,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           data.title,
           data.description,
           data.weekId,
-          data.subjectId,
           data.posterFile,
-          data.videoFile,
-          data.duration,
-          data.orderIndex
+          data.videoFile
         ).toPromise();
         break;
     }
@@ -1042,12 +1066,21 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   // ============================================
 
   expandAll(): void {
-    // Implementation for hierarchy view
+    // Emit event to all hierarchy node components to expand
+    this.hierarchyExpandedState = 'expanded';
+    // Force re-render
+    this.refreshAll();
   }
 
   collapseAll(): void {
-    // Implementation for hierarchy view
+    // Emit event to all hierarchy node components to collapse
+    this.hierarchyExpandedState = 'collapsed';
+    // Force re-render
+    this.refreshAll();
   }
+
+  // State for hierarchy expansion
+  hierarchyExpandedState: 'expanded' | 'collapsed' | 'default' = 'default';
 
   // ============================================
   // File Handling Methods

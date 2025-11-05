@@ -1036,11 +1036,8 @@ nameTeacher(id: Id | undefined | null) {
             title.trim(), 
             description.trim(), 
             weekId,
-            subjectId || this.getSubjectIdFromWeekId(weekId) || 0,
             posterFile, 
-            videoFile,
-            duration || 0,
-            orderIndex || 0
+            videoFile
           )
           .toPromise();
         if (newLesson) this.lessons.push(newLesson);
@@ -1075,14 +1072,11 @@ nameTeacher(id: Id | undefined | null) {
       case 'subject':
         await this.contentService.updateSubject(
           this.form.id,
-          this.form.yearId,
-          this.form.subjectNameId,
           this.form.originalPrice,
           this.form.discountPercentage,
           this.form.level,
           this.form.duration,
           this.form.teacherId,
-          this.form.startDate,
           this.form.posterFile
         ).toPromise();
         this.subjects = this.subjects.map(x => x.id === this.form.id ? this.form : x);
@@ -1108,11 +1102,8 @@ nameTeacher(id: Id | undefined | null) {
           this.form.title,
           this.form.description,
           this.form.weekId,
-          this.form.subjectId || this.getSubjectIdFromWeekId(this.form.weekId) || 0,
           this.form.posterFile,
-          this.form.videoFile,
-          this.form.duration || 0,
-          this.form.orderIndex || 0
+          this.form.videoFile
         ).toPromise();
         this.lessons = this.lessons.map(x => x.id === this.form.id ? this.form : x);
         break;
