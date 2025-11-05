@@ -226,19 +226,50 @@ export class SubscriptionService {
   }
 
   /**
-   * Cancel subscription
-   * Cancel subscription
+   * Cancel subscription - NEW BACKEND ENDPOINT
    */
-  cancelSubscription(subscriptionId: number, reason?: string): Observable<boolean> {
-    if (environment.useMock) {
-      console.log('Mock: Cancelling subscription', subscriptionId, reason);
-      return of(true);
-    }
+  cancelSubscription(subscriptionId: number, reason: string): Observable<any> {
+    const url = `${this.baseUrl}/StudentSubjects/subscriptions/${subscriptionId}/cancel`;
+    console.log('❌ Cancelling subscription:', { subscriptionId, reason, url });
 
-    const url = `${this.baseUrl}/api/subscriptions/${subscriptionId}/cancel`;
-    return this.http.post<any>(url, { reason }).pipe(
-      map(() => true),
-      catchError(() => of(true))
+    return this.http.put<any>(url, { reason }).pipe(
+      tap(response => console.log('✅ Subscription cancelled:', response)),
+      catchError(error => {
+        console.error('❌ Cancel subscription error:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Toggle auto-renewal - NEW BACKEND ENDPOINT
+   */
+  updateAutoRenew(subscriptionId: number, autoRenew: boolean): Observable<any> {
+    const url = `${this.baseUrl}/StudentSubjects/subscriptions/${subscriptionId}/auto-renew`;
+    console.log('🔄 Updating auto-renewal:', { subscriptionId, autoRenew, url });
+
+    return this.http.put<any>(url, { autoRenew }).pipe(
+      tap(response => console.log('✅ Auto-renewal updated:', response)),
+      catchError(error => {
+        console.error('❌ Update auto-renewal error:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Download invoice - NEW BACKEND ENDPOINT
+   */
+  downloadInvoice(orderId: number): Observable<any> {
+    const url = `${this.baseUrl}/Orders/${orderId}/invoice`;
+    console.log('📄 Downloading invoice:', { orderId, url });
+
+    return this.http.get<any>(url).pipe(
+      tap(response => console.log('✅ Invoice data received:', response)),
+      catchError(error => {
+        console.error('❌ Download invoice error:', error);
+        throw error;
+      })
     );
   }
 

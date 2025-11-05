@@ -1,0 +1,52 @@
+/**
+ * Invoice Component Styles
+ */
+
+// Print styles
+@media print {
+  // Hide non-printable elements
+  .no-print {
+    display: none !important;
+  }
+
+  // Optimize page for printing
+  :host {
+    display: block;
+  }
+
+  .bg-gray-50 {
+    background: white !important;
+  }
+
+  // Remove shadows and borders for cleaner print
+  .shadow-lg {
+    box-shadow: none !important;
+  }
+
+  // Ensure proper page breaks
+  .invoice-content {
+    page-break-inside: avoid;
+  }
+
+  // Adjust margins for print
+  .px-8 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+// Animation for loading
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bg-white {
+  animation: fadeIn 0.3s ease-out;
+}

@@ -243,9 +243,13 @@ export class LessonsComponent implements OnInit, OnDestroy {
     // ✅ PRIORITY 1: Check subscription/access
     if (!this.hasAccess()) {
       console.warn('🔒 Lesson locked - no subscription:', lesson.title);
-      alert('🔒 This lesson is locked. Subscribe to unlock all lessons and features!');
-      // Optionally redirect to subscription page
-      // this.goToSubscription();
+
+      const selectedTerm = this.availableTerms().find(t => t.id === this.selectedTermId());
+      const message = `🔒 This lesson is locked!\n\n` +
+        `You need an active subscription for ${selectedTerm?.name || 'this term'} to access lessons.\n\n` +
+        `Click "Add to Cart" button above to view available plans starting from $29.99.`;
+
+      alert(message);
       return;
     }
 
@@ -550,32 +554,37 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
           if (lessons.length > 0) {
             console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber}`);
+
+            // ✅ NEW: Check access status from first lesson
+            const firstLesson = lessons[0] as any;
+            if (firstLesson.hasAccess !== undefined) {
+              const studentHasAccess = firstLesson.hasAccess === true;
+              this.hasAccess.set(studentHasAccess);
+              this.showSubscriptionBanner.set(!studentHasAccess);
+
+              if (studentHasAccess) {
+                console.log('✅ Student has subscription access to this term');
+              } else {
+                console.log('🔒 Preview mode - Student viewing locked lessons');
+                console.log(`📚 Showing ${lessons.length} lesson previews`);
+              }
+            }
           } else {
             console.warn(`⚠️ No lessons found for subject ${subjectId}, term ${termNumber}`);
             this.error.set('No lessons available for this term. The term may not have content yet.');
           }
 
-          // Load student progress
-          if (this.authService.isAuthenticated()) {
+          // Load student progress (only if has access)
+          if (this.authService.isAuthenticated() && this.hasAccess()) {
             this.loadStudentProgress();
           }
         },
         error: (error) => {
           console.error(`❌ Error loading lessons for term ${termNumber}:`, error);
 
-          // ✅ Handle 403 (No subscription) - Show preview with locked state
-          if (error.status === 403) {
-            console.log('🔒 No subscription for this term - Showing locked state');
-            this.lessons.set([]);
-            this.error.set(null); // Don't show error, term is just locked
-            this.loading.set(false);
-
-            // Show message to user
-            console.log('💡 User can still see term button and add to cart');
-          } else {
-            this.error.set('Unable to load lessons. Please try again later.');
-            this.loading.set(false);
-          }
+          // Handle real errors (not 403 anymore since backend returns preview data)
+          this.error.set('Unable to load lessons. Please try again later.');
+          this.loading.set(false);
         }
       });
   }

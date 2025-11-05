@@ -295,11 +295,19 @@ export class MySubscriptionsComponent implements OnInit {
     const sub = this.selectedSubscription();
     if (!sub) return;
 
+    console.log('❌ Cancel Subscription:', {
+      subscription: sub,
+      reason: this.cancelReason()
+    });
+
     this.loading.set(true);
 
+    // Call real API endpoint
     this.subscriptionService.cancelSubscription(sub.id, this.cancelReason())
       .subscribe({
-        next: () => {
+        next: (response) => {
+          console.log('✅ Cancellation response:', response);
+
           // Update local state
           const subs = this.subscriptions();
           const updated = subs.map(s =>
@@ -309,37 +317,78 @@ export class MySubscriptionsComponent implements OnInit {
           this.calculateStats(updated);
           this.closeCancelModal();
           this.loading.set(false);
-          alert('Subscription cancelled successfully');
+
+          alert(`✅ ${response.message || 'Subscription cancelled successfully'}\n\nRefund: $${response.refundAmount || 0}`);
         },
         error: (err) => {
+          console.error('❌ Failed to cancel subscription:', err);
           this.loading.set(false);
-          alert('Failed to cancel subscription');
+
+          const errorMessage = err.error?.message || 'Failed to cancel subscription';
+          alert(`❌ ${errorMessage}\n\nPlease try again or contact support.`);
         }
       });
   }
 
   /**
-   * Toggle auto-renew
+   * Toggle auto-renew - NOW USING REAL API
    */
   toggleAutoRenew(subscription: SubscriptionWithDetails): void {
-    const subs = this.subscriptions();
-    const updated = subs.map(s =>
-      s.id === subscription.id ? { ...s, autoRenew: !s.autoRenew } : s
-    );
-    this.subscriptions.set(updated);
+    console.log('🔄 Toggle Auto-Renew:', subscription);
 
-    const message = subscription.autoRenew
-      ? 'Auto-renewal disabled'
-      : 'Auto-renewal enabled';
-    alert(message);
+    const newValue = !subscription.autoRenew;
+    this.loading.set(true);
+
+    this.subscriptionService.updateAutoRenew(subscription.id, newValue)
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Auto-renewal updated:', response);
+
+          // Update local state
+          const subs = this.subscriptions();
+          const updated = subs.map(s =>
+            s.id === subscription.id ? { ...s, autoRenew: newValue } : s
+          );
+          this.subscriptions.set(updated);
+          this.loading.set(false);
+
+          alert(`✅ Auto-renewal ${newValue ? 'enabled' : 'disabled'} successfully!`);
+        },
+        error: (err) => {
+          console.error('❌ Failed to update auto-renewal:', err);
+          this.loading.set(false);
+
+          let errorMessage = '❌ Failed to update auto-renewal.\n\n';
+
+          if (err.status === 403) {
+            errorMessage += '⚠️ Permission Denied\n\n' +
+                          'You do not have permission to modify this subscription.\n' +
+                          'This feature may require Admin authorization.\n\n' +
+                          'Please contact support for assistance.';
+          } else if (err.status === 404) {
+            errorMessage += 'Subscription not found.';
+          } else if (err.error?.message) {
+            errorMessage += err.error.message;
+          } else {
+            errorMessage += 'Please try again later.';
+          }
+
+          alert(errorMessage);
+        }
+      });
   }
 
   /**
    * Navigate to upgrade/downgrade
    */
   upgradeSubscription(subscription: SubscriptionWithDetails): void {
-    this.router.navigate(['/subscription-plans'], {
-      queryParams: { upgrade: subscription.id }
+    console.log('⬆️ Upgrade Subscription:', subscription);
+    // Navigate to available plans for this subject/term
+    this.router.navigate(['/subjects'], {
+      queryParams: {
+        studentId: subscription.studentId,
+        upgrade: true
+      }
     });
   }
 
@@ -347,30 +396,39 @@ export class MySubscriptionsComponent implements OnInit {
    * Navigate to subscription plans
    */
   browseNewPlans(): void {
-    this.router.navigate(['/subscription-plans']);
+    console.log('➕ Browse New Plans');
+    this.router.navigate(['/subjects']);
   }
 
   /**
    * View usage details
    */
   viewUsageDetails(subscription: SubscriptionWithDetails): void {
+    console.log('📊 View Usage Details:', subscription);
+    // Navigate to student dashboard to view progress
     this.router.navigate(['/student/dashboard'], {
       queryParams: { studentId: subscription.studentId }
     });
   }
 
   /**
-   * Download invoice
+   * Download invoice - Navigate to invoice page
    */
   downloadInvoice(subscription: SubscriptionWithDetails): void {
-    alert(`Downloading invoice for ${subscription.planName}...`);
-    // Implement actual download logic
+    console.log('📄 View Invoice:', subscription);
+
+    // Get orderId - use subscription ID as fallback
+    const orderId = (subscription as any).orderId || subscription.id;
+
+    // Navigate to invoice page
+    this.router.navigate(['/parent/invoice', orderId]);
   }
 
   /**
    * Refresh subscriptions
    */
   refresh(): void {
+    console.log('🔄 Refreshing subscriptions...');
     this.loadSubscriptions();
   }
 }

@@ -4053,6 +4053,29 @@
         }
       }
     },
+    "/api/Orders/{orderId}/invoice": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Payment/success": {
       "get": {
         "tags": [
@@ -5694,6 +5717,90 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/StudentSubjects/subscriptions/{subscriptionId}/auto-renew": {
+      "put": {
+        "tags": [
+          "StudentSubjects"
+        ],
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAutoRenewDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAutoRenewDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAutoRenewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentSubjects/subscriptions/{subscriptionId}/cancel": {
+      "put": {
+        "tags": [
+          "StudentSubjects"
+        ],
+        "parameters": [
+          {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelSubscriptionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelSubscriptionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelSubscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -8401,6 +8508,16 @@
         },
         "additionalProperties": false
       },
+      "CancelSubscriptionDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Cart": {
         "type": "object",
         "properties": {
@@ -10265,6 +10382,9 @@
           "progressPercentage": {
             "type": "integer",
             "format": "int32"
+          },
+          "hasAccess": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -13579,6 +13699,15 @@
           "description": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateAutoRenewDto": {
+        "type": "object",
+        "properties": {
+          "autoRenew": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

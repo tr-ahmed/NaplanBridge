@@ -104,6 +104,11 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
   },
   {
+    path: 'parent/invoice/:orderId',
+    loadComponent: () => import('./features/invoice/invoice.component').then(m => m.InvoiceComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+  },
+  {
     path: 'profile',
     loadComponent: () => import('./features/profile-management/profile-management.component').then(m => m.ProfileManagementComponent),
     canActivate: [authGuard]
