@@ -291,19 +291,27 @@
 
               <!-- Action Button -->
               <div class="mt-4">
-                @if (!isEnrolledInSubject()) {
-                  <button class="w-full bg-gray-100 text-gray-500 px-4 py-2 rounded-lg font-medium cursor-not-allowed">
-                    Enroll to Access
+                <!-- ✅ UPDATED: Check hasAccess() first (subscription status) -->
+                @if (!hasAccess()) {
+                  <button
+                    (click)="goToSubscription()"
+                    class="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                    <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    Subscribe to Access
                   </button>
                 } @else if (lesson.isLocked) {
                   <button class="w-full bg-gray-100 text-gray-500 px-4 py-2 rounded-lg font-medium cursor-not-allowed">
                     <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
                     </svg>
-                    Locked
+                    Locked - Complete Prerequisites
                   </button>
                 } @else {
-                  <button class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200">
+                  <button
+                    (click)="onLessonClick(lesson)"
+                    class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200">
                     @if (isLessonCompleted(lesson.id)) {
                       Review Lesson
                     } @else if (getLessonProgress(lesson.id) > 0) {

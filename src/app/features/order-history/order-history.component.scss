@@ -1,0 +1,32 @@
+/* Order History Component Styles */
+
+.order-card {
+  transition: all 0.3s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+}
+
+.status-badge {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive table on mobile */
+@media (max-width: 640px) {
+  .order-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

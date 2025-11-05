@@ -35,7 +35,7 @@
     <!-- Dashboard Content -->
     @if (!loading()) {
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Total Children -->
         <div class="bg-white rounded-lg shadow p-6">
           <div class="flex items-center justify-between">
@@ -69,9 +69,36 @@
             <div>
               <p class="text-sm font-medium text-gray-600">Total Spent</p>
               <p class="text-3xl font-bold text-green-600 mt-2">${{ dashboardData().totalSpent.toFixed(2) }}</p>
+              @if (dashboardData().orderCount > 0) {
+                <p class="text-xs text-gray-500 mt-1">{{ dashboardData().orderCount }} orders</p>
+              }
             </div>
             <div class="text-4xl">💰</div>
           </div>
+          <button
+            routerLink="/parent/orders"
+            class="mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+            View Orders →
+          </button>
+        </div>
+
+        <!-- Monthly Spending -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">This Month</p>
+              <p class="text-3xl font-bold text-blue-600 mt-2">${{ dashboardData().monthlySpent.toFixed(2) }}</p>
+              @if (dashboardData().lastOrderDate) {
+                <p class="text-xs text-gray-500 mt-1">Last order: {{ dashboardData().lastOrderDate | date:'short' }}</p>
+              }
+            </div>
+            <div class="text-4xl">📅</div>
+          </div>
+          <button
+            routerLink="/parent/analytics"
+            class="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
+            View Analytics →
+          </button>
         </div>
       </div>
 

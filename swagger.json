@@ -5591,6 +5591,113 @@
         }
       }
     },
+    "/api/StudentSubjects/student/{studentId}/subject/{subjectId}/term-access": {
+      "get": {
+        "tags": [
+          "StudentSubjects"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "subjectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TermAccessStatusDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TermAccessStatusDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TermAccessStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/StudentSubjects/student/{studentId}/subject/{subjectId}/term/{termNumber}/has-access": {
+      "get": {
+        "tags": [
+          "StudentSubjects"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "subjectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "termNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/SubjectNames": {
       "get": {
         "tags": [
@@ -13151,6 +13258,89 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TermInstructor"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TermAccessDto": {
+        "type": "object",
+        "properties": {
+          "termId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "termNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "termName": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasAccess": {
+            "type": "boolean"
+          },
+          "subscriptionType": {
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "isCurrentTerm": {
+            "type": "boolean"
+          },
+          "lessonCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weekCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subscriptionPlanId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "subscriptionEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TermAccessStatusDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectName": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentTermNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "terms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TermAccessDto"
             },
             "nullable": true
           }

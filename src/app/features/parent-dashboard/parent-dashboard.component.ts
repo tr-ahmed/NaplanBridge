@@ -12,7 +12,8 @@ import { SubscriptionService } from '../../core/services/subscription.service';
 import { ExamService } from '../../core/services/exam.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { UserService, ChildDto } from '../../core/services/user.service';
-import { OrderService } from '../../core/services/order.service';
+import { OrderService, ParentOrderSummary } from '../../core/services/order.service';
+import { StudentService } from '../../core/services/student.service';
 import { forkJoin, catchError, of, map } from 'rxjs';
 
 // Interfaces
@@ -46,6 +47,9 @@ interface ParentDashboardData {
   totalSpent: number;
   activeSubscriptions: number;
   alerts: Alert[];
+  lastOrderDate: Date | null;
+  monthlySpent: number;
+  orderCount: number;
 }
 
 @Component({
@@ -64,13 +68,17 @@ export class ParentDashboardComponent implements OnInit {
   private dashboardService = inject(DashboardService);
   private userService = inject(UserService);
   private orderService = inject(OrderService);
+  private studentService = inject(StudentService);
 
   // Signals
   dashboardData = signal<ParentDashboardData>({
     children: [],
     totalSpent: 0,
     activeSubscriptions: 0,
-    alerts: []
+    alerts: [],
+    lastOrderDate: null,
+    monthlySpent: 0,
+    orderCount: 0
   });
   loading = signal(true);
   selectedChild = signal<Child | null>(null);
@@ -128,10 +136,16 @@ export class ParentDashboardComponent implements OnInit {
           console.error('Error loading order summary:', error);
           return of({ totalSpent: 0, orderCount: 0, lastOrderDate: null, orders: [] });
         })
+      ),
+      monthlyOrders: this.orderService.getCurrentMonthOrders().pipe(
+        catchError(error => {
+          console.error('Error loading monthly orders:', error);
+          return of({ totalSpent: 0, totalOrderCount: 0, lastOrderDate: null, orders: [], currentPage: 1, pageSize: 10, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
+        })
       )
     }).subscribe({
-      next: ({ dashboard, children, orderSummary }) => {
-        this.loadChildrenDetails(children, orderSummary.totalSpent);
+      next: ({ dashboard, children, orderSummary, monthlyOrders }) => {
+        this.loadChildrenDetails(children, orderSummary, monthlyOrders.totalSpent);
       },
       error: (error) => {
         console.error('Error loading dashboard data:', error);
@@ -143,19 +157,22 @@ export class ParentDashboardComponent implements OnInit {
   /**
    * Load detailed information for each child
    */
-  private loadChildrenDetails(children: ChildDto[], totalSpent: number = 0): void {
+  private loadChildrenDetails(children: ChildDto[], orderSummary: ParentOrderSummary, monthlySpent: number = 0): void {
     if (children.length === 0) {
       this.dashboardData.set({
         children: [],
-        totalSpent,
+        totalSpent: orderSummary.totalSpent,
         activeSubscriptions: 0,
-        alerts: []
+        alerts: [],
+        lastOrderDate: orderSummary.lastOrderDate ? new Date(orderSummary.lastOrderDate) : null,
+        monthlySpent,
+        orderCount: orderSummary.orderCount
       });
       this.loading.set(false);
       return;
     }
 
-    // Load progress, subscriptions, and exams for each child
+    // Load progress, subscriptions, exams and activities for each child
     const childRequests = children.map(child => {
       return forkJoin({
         child: of(child),
@@ -168,8 +185,7 @@ export class ParentDashboardComponent implements OnInit {
         exams: this.examService.getExams().pipe(
           catchError(() => of([]))
         ),
-        recentActivities: this.dashboardService.getStudentDashboard().pipe(
-          map(data => data.recentProgress || []),
+        recentActivities: this.studentService.getRecentActivities(child.id).pipe(
           catchError(() => of([]))
         )
       });
@@ -228,9 +244,12 @@ export class ParentDashboardComponent implements OnInit {
 
         this.dashboardData.set({
           children: processedChildren,
-          totalSpent,
+          totalSpent: orderSummary.totalSpent,
           activeSubscriptions,
-          alerts
+          alerts,
+          lastOrderDate: orderSummary.lastOrderDate ? new Date(orderSummary.lastOrderDate) : null,
+          monthlySpent,
+          orderCount: orderSummary.orderCount
         });
 
         this.loading.set(false);

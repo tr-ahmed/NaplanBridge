@@ -158,3 +158,35 @@ export interface CurrentTermWeekDto {
   subjectId: number | null;
   subjectName: string | null;
 }
+
+/**
+ * ✅ NEW: Per-Term Access Status DTO
+ * Response from: GET /api/StudentSubjects/student/{studentId}/subject/{subjectId}/term-access
+ * Returns subscription access status for all terms of a subject
+ */
+export interface TermAccessStatusDto {
+  studentId: number;
+  subjectId: number;
+  subjectName: string;
+  currentTermNumber: number;
+  terms: TermAccessDto[];
+}
+
+/**
+ * ✅ NEW: Individual Term Access DTO
+ * Contains access status and details for a single term
+ */
+export interface TermAccessDto {
+  termId: number;
+  termNumber: number;
+  termName: string;
+  hasAccess: boolean;
+  subscriptionType: string | null;
+  startDate: string;
+  endDate: string;
+  isCurrentTerm: boolean;
+  lessonCount: number;
+  weekCount: number;
+  subscriptionPlanId: number | null;
+  subscriptionEndDate: string | null;
+}

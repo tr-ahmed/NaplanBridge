@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, of } from 'rxjs';
-import { takeUntil, catchError, map } from 'rxjs/operators';
+import { takeUntil, catchError, map, switchMap } from 'rxjs/operators';
 
 import { Lesson, StudentLesson } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
@@ -365,6 +365,8 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   /**
    * Load available terms for the subject
+   */  /**
+   * Load available terms for the subject
    */
   private loadAvailableTerms(subjectId: number): void {
     const studentId = this.authService.getCurrentUser()?.studentId;
@@ -374,95 +376,67 @@ export class LessonsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Get current term/week to determine which term should be active
-    this.coursesService.getCurrentTermWeek(studentId, subjectId)
+    // ✅ Use new backend endpoint to get per-term access status
+    this.coursesService.getTermAccessStatus(studentId, subjectId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (termWeek) => {
-          // Fetch actual terms from backend
-          // Endpoint: /api/Terms/by-subject/{SubjectId}
-          const url = `${this.lessonsService['baseUrl']}/Terms/by-subject/${subjectId}`;
+        next: (termAccessStatus) => {
+          console.log('✅ Term access status loaded:', {
+            subject: termAccessStatus.subjectName,
+            currentTerm: termAccessStatus.currentTermNumber,
+            totalTerms: termAccessStatus.terms.length,
+            accessibleTerms: termAccessStatus.terms.filter(t => t.hasAccess).map(t => t.termNumber),
+            lockedTerms: termAccessStatus.terms.filter(t => !t.hasAccess).map(t => t.termNumber)
+          });
 
-          this.lessonsService['http'].get<any[]>(url)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-              next: (backendTerms) => {
-                console.log('📚 Backend terms:', backendTerms);
-                console.log('📅 Current term info:', termWeek);
+          // ✅ Backend now returns correct number of terms (4) filtered by current year
+          // No client-side filtering needed
+          const terms: Term[] = termAccessStatus.terms.map(t => ({
+            id: t.termId,
+            termNumber: t.termNumber,
+            name: t.termName,
+            isCurrentTerm: t.isCurrentTerm,
+            hasAccess: t.hasAccess  // ✅ Backend determines access per term
+          }));
 
-                // Map backend terms to our Term interface
-                const terms: Term[] = backendTerms.map(bt => {
-                  const isCurrentTerm = bt.id === termWeek.currentTermId;
+          this.availableTerms.set(terms);
 
-                  // Access logic:
-                  // - If user has subscription access (hasAccess = true), they can access current and previous terms
-                  // - Otherwise, no access
-                  let hasAccess = false;
-                  if (termWeek.hasAccess && termWeek.currentTermNumber) {
-                    // User can access current term and all previous terms
-                    hasAccess = bt.termNumber <= termWeek.currentTermNumber;
-                  }
+          // Find and set current term
+          const currentTerm = terms.find(t => t.isCurrentTerm);
+          if (currentTerm) {
+            this.currentTermId.set(currentTerm.id);
 
-                  return {
-                    id: bt.id,
-                    termNumber: bt.termNumber,
-                    name: bt.name || `Term ${bt.termNumber}`,
-                    isCurrentTerm,
-                    hasAccess
-                  };
-                });
-
-                this.availableTerms.set(terms);
-
-                // Set current term
-                if (termWeek.currentTermId) {
-                  this.currentTermId.set(termWeek.currentTermId);
-
-                  // If no term is selected yet, select the current term
-                  if (!this.selectedTermId()) {
-                    this.selectedTermId.set(termWeek.currentTermId);
-                  }
-                } else {
-                  // If no current term (no access), default to first term
-                  if (terms.length > 0 && !this.selectedTermId()) {
-                    this.selectedTermId.set(terms[0].id);
-                  }
-                }
-
-                console.log('✅ Terms loaded:', {
-                  totalTerms: terms.length,
-                  terms: terms.map(t => ({ id: t.id, number: t.termNumber, name: t.name, isCurrent: t.isCurrentTerm, hasAccess: t.hasAccess })),
-                  currentTermId: termWeek.currentTermId,
-                  currentTermNumber: termWeek.currentTermNumber,
-                  selectedTermId: this.selectedTermId(),
-                  userHasAccess: termWeek.hasAccess
-                });
-              },
-              error: (error) => {
-                console.error('❌ Error loading terms from backend:', error);
-
-                // Fallback to current term only
-                if (termWeek.currentTermId && termWeek.currentTermNumber) {
-                  const fallbackTerms: Term[] = [{
-                    id: termWeek.currentTermId,
-                    termNumber: termWeek.currentTermNumber,
-                    name: termWeek.currentTermName || `Term ${termWeek.currentTermNumber}`,
-                    isCurrentTerm: true,
-                    hasAccess: termWeek.hasAccess
-                  }];
-
-                  this.availableTerms.set(fallbackTerms);
-                  this.currentTermId.set(termWeek.currentTermId);
-
-                  if (!this.selectedTermId()) {
-                    this.selectedTermId.set(termWeek.currentTermId);
-                  }
+            // If no term is selected yet, select the current term if accessible
+            if (!this.selectedTermId()) {
+              if (currentTerm.hasAccess) {
+                this.selectedTermId.set(currentTerm.id);
+              } else {
+                // Current term not accessible, select first accessible term
+                const firstAccessibleTerm = terms.find(t => t.hasAccess);
+                if (firstAccessibleTerm) {
+                  this.selectedTermId.set(firstAccessibleTerm.id);
                 }
               }
-            });
+            }
+          } else {
+            // No current term, default to first accessible term
+            const firstAccessibleTerm = terms.find(t => t.hasAccess);
+            if (firstAccessibleTerm && !this.selectedTermId()) {
+              this.selectedTermId.set(firstAccessibleTerm.id);
+            }
+          }
+
+          console.log('✅ Terms loaded with backend access control:', {
+            totalTerms: terms.length,
+            accessibleTerms: terms.filter(t => t.hasAccess).map(t => t.termNumber),
+            lockedTerms: terms.filter(t => !t.hasAccess).map(t => t.termNumber),
+            currentTermNumber: termAccessStatus.currentTermNumber,
+            selectedTermId: this.selectedTermId()
+          });
         },
         error: (error) => {
-          console.error('❌ Error loading current term/week:', error);
+          console.error('❌ Error loading term access status:', error);
+          alert('Unable to load subscription information. Please try again.');
         }
       });
   }
@@ -603,8 +577,13 @@ export class LessonsComponent implements OnInit, OnDestroy {
     console.log('🔄 Switching to term:', {
       termId: term.id,
       termNumber: term.termNumber,
-      termName: term.name
+      termName: term.name,
+      hasAccess: term.hasAccess
     });
+
+    // ✅ UPDATE: Set access status for the selected term
+    this.hasAccess.set(term.hasAccess);
+    this.showSubscriptionBanner.set(!term.hasAccess);
 
     this.selectedTermId.set(termId);
 
@@ -617,10 +596,13 @@ export class LessonsComponent implements OnInit, OnDestroy {
       this.loadLessonsByTerm(termId);
     }
 
-    // ✅ FIX: Update URL with termNumber (not termId)
+    // ✅ FIX: Update URL with termNumber AND hasAccess
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { termNumber: term.termNumber },
+      queryParams: {
+        termNumber: term.termNumber,
+        hasAccess: term.hasAccess  // ✅ Include access status in URL
+      },
       queryParamsHandling: 'merge'
     });
   }

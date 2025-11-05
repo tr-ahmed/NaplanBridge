@@ -928,6 +928,56 @@ export class CoursesService {
   }
 
   /**
+   * ✅ NEW: Get per-term access status for a subject
+   * @param studentId - The student ID
+   * @param subjectId - The subject ID
+   * @returns Observable of term access status for all terms
+   */
+  getTermAccessStatus(studentId: number, subjectId: number): Observable<import('../../models/course.models').TermAccessStatusDto> {
+    const url = `${this.baseUrl}/StudentSubjects/student/${studentId}/subject/${subjectId}/term-access`;
+
+    console.log('🔒 Fetching term access status:', { studentId, subjectId, url });
+
+    return this.http.get<import('../../models/course.models').TermAccessStatusDto>(url).pipe(
+      tap(response => {
+        console.log('✅ Term access status:', {
+          subject: response.subjectName,
+          currentTerm: response.currentTermNumber,
+          accessibleTerms: response.terms.filter(t => t.hasAccess).map(t => t.termNumber)
+        });
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Error fetching term access status:', error);
+        this.toastService.showError('Unable to load subscription information');
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * ✅ NEW: Check if student has access to a specific term
+   * @param studentId - The student ID
+   * @param subjectId - The subject ID
+   * @param termNumber - The term number (1-4)
+   * @returns Observable of boolean indicating access
+   */
+  hasAccessToTerm(studentId: number, subjectId: number, termNumber: number): Observable<boolean> {
+    const url = `${this.baseUrl}/StudentSubjects/student/${studentId}/subject/${subjectId}/term/${termNumber}/has-access`;
+
+    console.log('🔍 Checking term access:', { studentId, subjectId, termNumber, url });
+
+    return this.http.get<boolean>(url).pipe(
+      tap(hasAccess => {
+        console.log(hasAccess ? '✅ Access granted' : '🔒 Access denied', { termNumber });
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Error checking term access:', error);
+        return of(false); // Default to no access on error
+      })
+    );
+  }
+
+  /**
    * Get lessons with progress for a subject
    * @param subjectId - The subject ID
    * @param studentId - The student ID
@@ -972,7 +1022,7 @@ export class CoursesService {
         // If empty, use fallback: get terms, find matching termNumber, use termId
         if (lessons.length === 0) {
           console.warn(`⚠️ New endpoint returned empty, trying fallback for subject ${subjectId} term ${termNumber}`);
-          
+
           // Get terms for this subject
           return this.http.get<any[]>(`${this.baseUrl}/Terms/by-subject/${subjectId}`).pipe(
             map(terms => {
