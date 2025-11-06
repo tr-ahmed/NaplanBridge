@@ -157,7 +157,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
    * View plan details
    */
   viewPlanDetails(plan: SubscriptionPlanDisplay): void {
-    this.router.navigate(['/subscription/plans', plan.id]);
+    this.router.navigate(['/courses', plan.id]);
   }
 
   /**

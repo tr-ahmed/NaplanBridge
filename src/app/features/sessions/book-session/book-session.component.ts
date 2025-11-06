@@ -6,16 +6,17 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SessionService } from '../../../core/services/session.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { AuthService } from '../../../auth/auth.service';
+import { UserService } from '../../../core/services/user.service';
 import { AvailableSlotDto, BookSessionDto } from '../../../models/session.models';
 
 @Component({
   selector: 'app-book-session',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './book-session.component.html',
   styleUrl: './book-session.component.scss'
 })
@@ -23,6 +24,7 @@ export class BookSessionComponent implements OnInit {
   private sessionService = inject(SessionService);
   private toastService = inject(ToastService);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -36,18 +38,59 @@ export class BookSessionComponent implements OnInit {
   loading = signal<boolean>(false);
   booking = signal<boolean>(false);
 
-  // Mock students for parent (should come from API)
-  students = signal<any[]>([
-    { id: 1, name: 'Ahmed Mohamed' },
-    { id: 2, name: 'Sarah Ahmed' }
-  ]);
+  // Students list (will be loaded from API)
+  students = signal<any[]>([]);
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const id = +params['teacherId'];
       if (id) {
         this.teacherId.set(id);
+        this.loadStudents();
         this.loadAvailableSlots();
+      }
+    });
+  }
+
+  /**
+   * Load parent's students from API
+   */
+  private loadStudents(): void {
+    console.log('🔍 Loading students from API...');
+
+    // Get real students from API
+    this.userService.getMyStudents().subscribe({
+      next: (students) => {
+        console.log('✅ Loaded students from API:', students);
+
+        if (students && students.length > 0) {
+          // Map students to simpler format
+          const mappedStudents = students.map(s => ({
+            id: s.id,
+            name: s.userName || `Student ${s.id}`
+          }));
+
+          console.log('📋 Mapped students:', mappedStudents);
+          this.students.set(mappedStudents);
+
+          // If only one student, auto-select
+          if (mappedStudents.length === 1) {
+            this.selectedStudentId.set(mappedStudents[0].id);
+            console.log('🎯 Auto-selected student:', mappedStudents[0]);
+          }
+        } else {
+          // No students found - show warning
+          console.warn('⚠️ No students found in API response');
+          this.toastService.showWarning('No students found. Please add students before booking a session.');
+          this.students.set([]);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error loading students:', error);
+        this.toastService.showError('Failed to load students. Please make sure you are logged in as a Parent.');
+
+        // Fallback to empty array
+        this.students.set([]);
       }
     });
   }
@@ -184,19 +227,55 @@ export class BookSessionComponent implements OnInit {
       notes: this.notes() || undefined
     };
 
+    // 🔍 Debug: Log booking request
+    console.log('🛒 Booking session with:', {
+      teacherId: dto.teacherId,
+      studentId: dto.studentId,  // Should be Student.Id (1, 2, 3...), NOT User.Id
+      studentName: this.getSelectedStudentName(),
+      scheduledDateTime: dto.scheduledDateTime
+    });
+
     this.sessionService.bookSession(dto).subscribe({
       next: (response) => {
+        console.log('✅ Booking response:', response);
+
         if (response.success && response.data) {
-          this.toastService.showSuccess('Booking created, redirecting to payment...');
+          this.toastService.showSuccess('Booking created! Redirecting to payment...');
 
           // Redirect to Stripe checkout
-          window.location.href = response.data.stripeCheckoutUrl;
+          setTimeout(() => {
+            window.location.href = response.data.stripeCheckoutUrl;
+          }, 1000);
+        } else {
+          const errorMsg = response.message || 'Failed to create booking. Please try again.';
+          this.toastService.showError(errorMsg);
+          this.booking.set(false);
         }
-        this.booking.set(false);
       },
       error: (error) => {
-        console.error('Error booking session:', error);
-        this.toastService.showError('Failed to book session');
+        console.error('❌ Booking error:', error);
+
+        // Extract specific error message from backend
+        let errorMessage = 'Failed to book session. Please try again.';
+
+        if (error?.error?.message) {
+          // Backend returned specific message
+          errorMessage = error.error.message;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+
+        // Display user-friendly error
+        this.toastService.showError(errorMessage);
+
+        // Log detailed error for debugging
+        console.error('📋 Error details:', {
+          status: error?.status,
+          statusText: error?.statusText,
+          message: errorMessage,
+          fullError: error
+        });
+
         this.booking.set(false);
       }
     });

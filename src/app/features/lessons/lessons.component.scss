@@ -1,5 +1,47 @@
 /* Lessons Component Styles */
 
+/* ✅ NEW: Responsive Tab Navigation (Similar to lesson-detail) */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+  }
+}
+
+/* Mobile-first responsive tab navigation */
+nav {
+  /* Ensure smooth scrolling on mobile */
+  scroll-behavior: smooth;
+
+  /* Add scroll indicators on mobile */
+  @media (max-width: 767px) {
+    position: relative;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    &::before {
+      left: 0;
+      background: linear-gradient(to right, rgba(255, 255, 255, 1), transparent);
+    }
+
+    &::after {
+      right: 0;
+      background: linear-gradient(to left, rgba(255, 255, 255, 1), transparent);
+    }
+  }
+}
+
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;

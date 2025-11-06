@@ -22,7 +22,8 @@ interface AcademicYear {
 
 interface StudentFormData {
   userName: string;
-  email?: string;
+  firstName: string; // Required - Student's first name
+  email: string; // Required for login
   password: string;
   age: number;
   yearId: number;
@@ -77,7 +78,8 @@ export class AddStudentComponent implements OnInit {
   private initializeForm(): void {
     this.addStudentForm = this.fb.group({
       userName: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.email]], // Optional
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]], // Required for login
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
       age: ['', [Validators.required, Validators.min(5), Validators.max(18)]],
@@ -120,6 +122,8 @@ export class AddStudentComponent implements OnInit {
     // Prepare payload
     const payload: StudentFormData = {
       userName: formData.userName,
+      firstName: formData.firstName,
+      email: formData.email, // Required for login
       password: formData.password,
       age: parseInt(formData.age),
       yearId: parseInt(formData.yearId),
@@ -127,9 +131,6 @@ export class AddStudentComponent implements OnInit {
     };
 
     // Add optional fields
-    if (formData.email) {
-      payload.email = formData.email;
-    }
     if (formData.phoneNumber) {
       payload.phoneNumber = formData.phoneNumber;
     }
@@ -231,6 +232,18 @@ export class AddStudentComponent implements OnInit {
     if (this.addStudentForm.get('userName')?.hasError('required')) {
       errors.push('Username is required');
     }
+    if (this.addStudentForm.get('firstName')?.hasError('required')) {
+      errors.push('First name is required');
+    }
+    if (this.addStudentForm.get('firstName')?.hasError('minlength')) {
+      errors.push('First name must be at least 2 characters');
+    }
+    if (this.addStudentForm.get('email')?.hasError('required')) {
+      errors.push('Email is required for login');
+    }
+    if (this.addStudentForm.get('email')?.hasError('email')) {
+      errors.push('Invalid email format');
+    }
     if (this.addStudentForm.get('password')?.hasError('required')) {
       errors.push('Password is required');
     }
@@ -245,9 +258,6 @@ export class AddStudentComponent implements OnInit {
     }
     if (this.addStudentForm.get('yearId')?.hasError('required')) {
       errors.push('Academic year is required');
-    }
-    if (this.addStudentForm.get('email')?.hasError('email')) {
-      errors.push('Invalid email format');
     }
 
     if (errors.length > 0) {

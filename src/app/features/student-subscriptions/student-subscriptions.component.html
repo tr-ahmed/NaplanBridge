@@ -1,0 +1,183 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">My Subscriptions</h1>
+          <p class="text-gray-600 mt-1">Manage your active subscriptions and plans</p>
+        </div>
+        <div class="flex gap-3">
+          <button
+            routerLink="/student/dashboard"
+            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            <span>Back</span>
+          </button>
+          <button
+            (click)="goToBrowsePlans()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>Browse Plans</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-600 text-sm">Total Subscriptions</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ stats().total }}</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-600 text-sm">Active</p>
+            <p class="text-3xl font-bold text-green-600 mt-1">{{ stats().active }}</p>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-600 text-sm">Expiring Soon</p>
+            <p class="text-3xl font-bold text-yellow-600 mt-1">{{ stats().expiringSoon }}</p>
+          </div>
+          <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+          <p class="mt-4 text-gray-600">Loading subscriptions...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Subscriptions List -->
+    @if (!loading()) {
+      @if (subscriptions().length === 0) {
+        <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+          <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">No Active Subscriptions</h3>
+          <p class="text-gray-600 mb-6">You don't have any subscriptions yet. Browse our plans to get started.</p>
+          <button
+            (click)="goToBrowsePlans()"
+            class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Browse Subscription Plans
+          </button>
+        </div>
+      }
+
+      @if (subscriptions().length > 0) {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          @for (sub of subscriptions(); track sub.id) {
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+              <!-- Header -->
+              <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-xl font-bold">{{ sub.planName || 'Subscription Plan' }}</h3>
+                  <span
+                    class="px-3 py-1 rounded-full text-sm font-medium"
+                    [ngClass]="getStatusClass(sub.status)">
+                    {{ sub.status || 'Active' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Body -->
+              <div class="p-6">
+                <!-- Dates -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p class="text-sm text-gray-600 mb-1">Start Date</p>
+                    <p class="font-semibold">{{ formatDate(sub.startDate) }}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 mb-1">End Date</p>
+                    <p class="font-semibold">{{ formatDate(sub.endDate) }}</p>
+                  </div>
+                </div>
+
+                <!-- Days Until Expiry -->
+                @if (sub.daysUntilExpiry !== undefined) {
+                  <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-gray-600">Time Remaining</span>
+                      <span
+                        class="font-semibold"
+                        [ngClass]="getDaysUntilExpiryClass(sub.daysUntilExpiry)">
+                        @if (sub.daysUntilExpiry > 0) {
+                          {{ sub.daysUntilExpiry }} days
+                        } @else {
+                          Expired
+                        }
+                      </span>
+                    </div>
+                  </div>
+                }
+
+                <!-- Auto Renew -->
+                @if (sub.autoRenew !== undefined) {
+                  <div class="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
+                    <span class="text-sm text-gray-600">Auto Renewal</span>
+                    <span class="font-semibold" [class.text-green-600]="sub.autoRenew" [class.text-gray-600]="!sub.autoRenew">
+                      {{ sub.autoRenew ? 'Enabled' : 'Disabled' }}
+                    </span>
+                  </div>
+                }
+
+                <!-- Actions -->
+                <div class="flex gap-2 mt-4">
+                  <button
+                    (click)="viewDetails(sub)"
+                    class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
+                    View Details
+                  </button>
+                  @if (sub.isActive && sub.daysUntilExpiry <= 30) {
+                    <button
+                      (click)="renewSubscription(sub.id)"
+                      class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors">
+                      Renew
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

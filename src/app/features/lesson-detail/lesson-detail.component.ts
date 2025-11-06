@@ -8,11 +8,6 @@ import { takeUntil } from 'rxjs/operators';
 import { Lesson, LessonResource, StudentLesson, LessonProgress } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
 import { AuthService } from '../../core/services/auth.service';
-import { ExamService } from '../../core/services/exam.service';
-import { NotesService, Note, CreateNoteDto } from '../../core/services/notes.service';
-import { LessonQuestionsService, LessonQuestion, CreateLessonQuestionDto } from '../../core/services/lesson-questions.service';
-import { Exam, ExamDetails, StudentExamSession, ExamSubmission, ExamAnswer, ExamResult } from '../../models/exam.models';
-import { ToastService } from '../../core/services/toast.service';
 
 interface Quiz {
   id: number;
@@ -161,8 +156,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private lessonsService: LessonsService,
     private authService: AuthService,
-    private fb: FormBuilder,
-    private toastService: ToastService
+    private fb: FormBuilder
   ) {
     this.noteForm = this.fb.group({
       content: ['', [Validators.required, Validators.minLength(10)]]
@@ -230,10 +224,22 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (lesson) => {
           if (lesson) {
+            console.log('📹 Lesson loaded:', lesson);
+            console.log('📹 Video URL:', lesson.videoUrl);
+            console.log('📹 Resources:', lesson.resources);
+
+            // Fix undefined resources
+            if (!lesson.resources) {
+              lesson.resources = [];
+            }
+
             this.lesson.set(lesson);
-            this.loadMockQuizzes(lessonId);
+            this.loadQuizzes(lessonId);  // Changed from loadMockQuizzes
             this.loadMockNotes(lessonId);
             this.loadMockTeacherQuestions(lessonId);
+            this.loadAdjacentLessons(lessonId);
+            this.loadVideoChapters(lessonId);
+            this.loadQuizMakers(lessonId);
 
             // Load student progress if authenticated
             if (this.authService.isAuthenticated()) {
@@ -263,7 +269,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (studentLessons) => {
-          const studentLesson = studentLessons.find(sl => sl.lesson.id === lessonId);
+          // Check if response is array or has a lessons property
+          const lessons = Array.isArray(studentLessons) ? studentLessons : (studentLessons as any).lessons || [];
+          const studentLesson = lessons.find((sl: any) => sl.lesson?.id === lessonId);
           this.studentLesson.set(studentLesson || null);
         },
         error: (error) => {
@@ -273,7 +281,35 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load mock quizzes for the lesson
+   * Load quizzes from API for the lesson
+   */
+  private loadQuizzes(lessonId: number): void {
+    this.lessonsService.getLessonQuestions(lessonId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (questions) => {
+          // Transform API response to Quiz format
+          const quizzes: Quiz[] = questions.map(q => ({
+            id: q.id,
+            question: q.question,
+            options: q.options || [],
+            correctAnswer: q.correctAnswerIndex || 0,
+            explanation: q.explanation || ''
+          }));
+
+          this.quizzes.set(quizzes);
+          this.quizAnswers.set(new Array(quizzes.length).fill(-1));
+        },
+        error: (error) => {
+          console.error('Error loading quiz questions:', error);
+          // Fallback to mock data if API fails
+          this.loadMockQuizzes(lessonId);
+        }
+      });
+  }
+
+  /**
+   * Load mock quizzes for the lesson (Fallback)
    */
   private loadMockQuizzes(lessonId: number): void {
     // Mock quiz data - in real app this would come from API
@@ -361,17 +397,20 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     this.lessonsService.getLessons()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (lessons) => {
+        next: (response) => {
           const currentLesson = this.lesson();
           if (!currentLesson) return;
 
+          // Extract lessons array from response
+          const lessons = Array.isArray(response) ? response : (response as any).lessons || [];
+
           // Filter lessons by same subject and course
-          const sameCourse = lessons.filter(l =>
+          const sameCourse = lessons.filter((l: any) =>
             l.subject === currentLesson.subject &&
             l.courseId === currentLesson.courseId
-          ).sort((a, b) => (a.order || 0) - (b.order || 0));
+          ).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
 
-          const currentIndex = sameCourse.findIndex(l => l.id === currentLessonId);
+          const currentIndex = sameCourse.findIndex((l: any) => l.id === currentLessonId);
 
           if (currentIndex > 0) {
             this.previousLesson.set(sameCourse[currentIndex - 1]);
@@ -505,7 +544,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     this.updateCurrentChapter();
 
     // Update lesson progress
-    // this.updateLessonProgress(currentTime, duration);
+    this.updateLessonProgress(currentTime, duration);
   }
 
   onVideoPlay(): void {
@@ -552,7 +591,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     const currentLesson = this.lesson();
     if (currentLesson) {
       // In a real app, this would update the lesson in the backend
-      currentLesson.posterUrl = newUrl.trim() || currentLesson.posterUrl || 'https://via.placeholder.com/800x450/3B82F6/FFFFFF?text=No+Poster';
+      currentLesson.posterUrl = newUrl.trim() || undefined;
       console.log('Poster URL updated:', newUrl);
     }
   }
@@ -568,7 +607,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   clearPoster(): void {
     const currentLesson = this.lesson();
     if (currentLesson) {
-      currentLesson.posterUrl = 'https://via.placeholder.com/800x450/3B82F6/FFFFFF?text=No+Poster';
+      currentLesson.posterUrl = undefined;
       console.log('Poster cleared');
     }
   }
@@ -579,8 +618,8 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       // In a real app, this would save to the backend
       console.log('Saving lesson settings:', currentLesson);
 
-      // Show success message
-      this.toastService.showSuccess('Lesson settings saved successfully!');
+      // Show success message (you can replace with a proper toast service)
+      alert('Lesson settings saved successfully!');
     }
   }
 
@@ -702,8 +741,25 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     const quizzes = this.quizzes();
     let correct = 0;
 
+    // Submit answers to API
     answers.forEach((answer, index) => {
-      if (answer === quizzes[index]?.correctAnswer) {
+      const quiz = quizzes[index];
+      if (quiz && answer !== -1) {
+        // Submit each answer to the API
+        this.lessonsService.submitQuestionAnswer(
+          quiz.id,
+          quiz.options[answer]
+        ).subscribe({
+          next: (response) => {
+            console.log('Answer submitted:', response);
+          },
+          error: (error) => {
+            console.error('Error submitting answer:', error);
+          }
+        });
+      }
+
+      if (answer === quiz?.correctAnswer) {
         correct++;
       }
     });
@@ -769,7 +825,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       this.isAskingQuestion.set(false);
 
       // Show success message
-      this.toastService.showSuccess('Your question has been sent to the teacher. You will be notified when they respond.');
+      alert('Your question has been sent to the teacher. You will be notified when they respond.');
     }
   }
 
@@ -893,7 +949,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       this.videoChapters.set([...currentChapters, newChapter].sort((a, b) => a.startTime - b.startTime));
 
       this.chapterForm.reset();
-      this.toastService.showSuccess('Chapter added successfully!');
+      alert('Chapter added successfully!');
     }
   }
 
@@ -919,7 +975,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     if (this.canEditContent() && confirm('Are you sure you want to delete this chapter?')) {
       const currentChapters = this.videoChapters();
       this.videoChapters.set(currentChapters.filter(chapter => chapter.id !== chapterId));
-      this.toastService.showSuccess('Chapter deleted successfully!');
+      alert('Chapter deleted successfully!');
     }
   }
 
@@ -1027,7 +1083,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       }
 
       this.cancelQuizCreation();
-      this.toastService.showSuccess('Quiz saved successfully!');
+      alert('Quiz saved successfully!');
     }
   }
 
@@ -1056,7 +1112,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     if (this.canEditContent() && confirm('Are you sure you want to delete this quiz?')) {
       const currentQuizzes = this.quizMakers();
       this.quizMakers.set(currentQuizzes.filter(q => q.id !== quizId));
-      this.toastService.showSuccess('Quiz deleted successfully!');
+      alert('Quiz deleted successfully!');
     }
   }
 

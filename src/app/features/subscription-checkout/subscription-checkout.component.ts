@@ -84,7 +84,7 @@ export class SubscriptionCheckoutComponent implements OnInit, OnDestroy {
     if (planId) {
       this.loadPlan(parseInt(planId), yearId);
     } else {
-      this.router.navigate(['/subscription/plans']);
+      this.router.navigate(['/courses']);
     }
   }
 
@@ -424,6 +424,6 @@ export class SubscriptionCheckoutComponent implements OnInit, OnDestroy {
    * Go back to plans
    */
   goBackToPlans(): void {
-    this.router.navigate(['/subscription/plans']);
+    this.router.navigate(['/courses']);
   }
 }

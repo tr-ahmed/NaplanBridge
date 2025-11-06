@@ -11,9 +11,10 @@ export interface ParentRegisterRequest {
 
 /**
  * Interface for login request
+ * Supports flexible login with email, username, or phone number
  */
 export interface LoginRequest {
-  email: string;
+  identifier: string; // Can be email, username, or phone number
   password: string;
 }
 
@@ -31,6 +32,7 @@ export interface UserProfile {
  */
 export interface AuthResponse {
   userName: string;
+  firstName: string; // Student's first name
   token: string;
   roles: string[];
   userId: number;

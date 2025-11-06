@@ -64,6 +64,12 @@ export class LessonsComponent implements OnInit, OnDestroy {
   selectedCourseName = signal<string>('');
   loadingPlans = signal<boolean>(false);
 
+  // ✅ NEW: Tab management for lessons view
+  activeTab = signal<string>('lessons');
+
+  // ✅ NEW: Make Math available in template
+  Math = Math;
+
   private toastService = inject(ToastService);
 
   constructor(
@@ -868,5 +874,67 @@ export class LessonsComponent implements OnInit, OnDestroy {
    */
   isAuthenticated(): boolean {
     return this.authService.isAuthenticated();
+  }
+
+  /**
+   * Set active tab
+   */
+  setActiveTab(tab: string): void {
+    this.activeTab.set(tab);
+  }
+
+  /**
+   * Get count of completed lessons
+   */
+  getCompletedLessonsCount(): number {
+    return this.lessons().filter(l => this.isLessonCompleted(l.id)).length;
+  }
+
+  /**
+   * Get count of lessons in progress
+   */
+  getInProgressLessonsCount(): number {
+    return this.lessons().filter(l =>
+      this.getLessonProgress(l.id) > 0 && !this.isLessonCompleted(l.id)
+    ).length;
+  }
+
+  /**
+   * Get total duration of all lessons
+   */
+  getTotalDuration(): number {
+    return this.lessons().reduce((sum, lesson) =>
+      sum + (lesson.duration || 0), 0
+    );
+  }
+
+  /**
+   * Get overall completion percentage
+   */
+  getOverallCompletionPercentage(): number {
+    const total = this.lessons().length;
+    if (total === 0) return 0;
+    const completed = this.getCompletedLessonsCount();
+    return Math.round((completed / total) * 100);
+  }
+
+  /**
+   * Get lessons by term (for lessons tab)
+   */
+  getLessonsByTerm(): any[] {
+    // Group lessons by term number
+    const lessonsByTerm = this.lessons().reduce((acc: any, lesson: any) => {
+      const term = lesson.term || lesson.termId || 1;
+      if (!acc[term]) {
+        acc[term] = [];
+      }
+      acc[term].push(lesson);
+      return acc;
+    }, {});
+
+    return Object.keys(lessonsByTerm).map(term => ({
+      termNumber: parseInt(term),
+      lessons: lessonsByTerm[term]
+    }));
   }
 }

@@ -669,4 +669,41 @@ export class LessonsService {
       previousLesson: undefined
     })) as any;
   }
+
+  /**
+   * Get lesson questions (quiz) by lesson ID
+   */
+  getLessonQuestions(lessonId: number): Observable<any[]> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const url = `${this.baseUrl}/api/LessonQuestions/lesson/${lessonId}`;
+
+    return this.http.get<any[]>(url).pipe(
+      tap(() => this.loading.set(false)),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error loading lesson questions:', error);
+        this.error.set('Failed to load quiz questions');
+        this.loading.set(false);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Submit answer to a lesson question
+   */
+  submitQuestionAnswer(questionId: number, selectedAnswer: string): Observable<any> {
+    const url = `${this.baseUrl}/api/LessonQuestions/answer`;
+
+    return this.http.post<any>(url, {
+      questionId,
+      selectedAnswer
+    }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error submitting answer:', error);
+        return of({ success: false, error: error.message });
+      })
+    );
+  }
 }

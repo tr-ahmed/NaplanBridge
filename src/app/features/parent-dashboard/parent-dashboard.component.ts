@@ -422,14 +422,14 @@ export class ParentDashboardComponent implements OnInit {
    * Navigate to add new child
    */
   addNewChild(): void {
-    this.router.navigate(['/parent/add-student']);
+    this.router.navigate(['/add-student']);
   }
 
   /**
    * Navigate to subscription plans
    */
   viewSubscriptionPlans(): void {
-    this.router.navigate(['/subscription-plans']);
+    this.router.navigate(['/courses']);
   }
 
   /**

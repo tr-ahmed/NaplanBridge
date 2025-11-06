@@ -51,7 +51,7 @@ export const routes: Routes = [
   },
   {
     path: 'lesson/:id',
-    loadComponent: () => import('./features/lesson-detail/lesson-detail').then(m => m.LessonDetail)
+    loadComponent: () => import('./features/lesson-detail/lesson-detail.component').then(m => m.LessonDetailComponent)
   },
   {
     path: 'cart',
@@ -67,10 +67,6 @@ export const routes: Routes = [
   },
 
   // Subscription routes
-  {
-    path: 'subscription/plans',
-    loadComponent: () => import('./features/subscription-plans/subscription-plans.component').then(m => m.SubscriptionPlansComponent)
-  },
   {
     path: 'subscription/checkout/:planId',
     loadComponent: () => import('./features/subscription-checkout/subscription-checkout.component').then(m => m.SubscriptionCheckoutComponent),
@@ -126,6 +122,35 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
   },
 
+  // Student Exams
+  {
+    path: 'student/exams',
+    loadComponent: () => import('./features/student-exams/student-exams.component').then(m => m.StudentExamsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
+  {
+    path: 'student/exam/:id',
+    loadComponent: () => import('./features/exam-detail/exam-detail.component').then(m => m.ExamDetailComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
+  {
+    path: 'student/exam/:id/start',
+    loadComponent: () => import('./features/take-exam/take-exam.component').then(m => m.TakeExamComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
+  {
+    path: 'student/exam/result/:studentExamId',
+    loadComponent: () => import('./features/exam-result/exam-result.component').then(m => m.ExamResultComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
+
+  // Student Subscriptions
+  {
+    path: 'student/subscriptions',
+    loadComponent: () => import('./features/student-subscriptions/student-subscriptions.component').then(m => m.StudentSubscriptionsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
+
   // Admin Content Management
   {
     path: 'admin/content',
@@ -153,7 +178,7 @@ export const routes: Routes = [
   },
   {
     path: 'lesson-detail/:id',
-    loadComponent: () => import('./features/lesson-detail/lesson-detail').then(m => m.LessonDetail),
+    loadComponent: () => import('./features/lesson-detail/lesson-detail.component').then(m => m.LessonDetailComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
       ,  data: { hideHeader: true, hideFooter: true }
   },
