@@ -167,7 +167,7 @@ export class CoursesService {
    * Add specific plan to cart (internal method)
    * Called when user selects a plan from modal or when there's only one plan
    */
-  addPlanToCartInternal(planId: number, course: Course, planName?: string): Observable<boolean> {
+  addPlanToCartInternal(planId: number, course: Course, planName?: string, providedStudentId?: number): Observable<boolean> {
     const url = `${this.baseUrl}/Cart/items`; // ✅ Correct endpoint
 
     // Get current user for studentId
@@ -182,7 +182,12 @@ export class CoursesService {
 
     let studentId: number;
 
-    if (currentUser.studentId) {
+    // ✅ NEW: Accept providedStudentId for parent role
+    if (providedStudentId) {
+      studentId = providedStudentId;
+      console.log('✅ Using provided Student.Id (from parent):', studentId);
+      console.log('📊 Parent is adding to cart for selected student');
+    } else if (currentUser.studentId) {
       // ✅ CORRECT: Use studentId from token (Student.Id from Students table)
       studentId = currentUser.studentId;
       console.log('✅ Using Student.Id from token:', studentId);
@@ -492,11 +497,11 @@ export class CoursesService {
   /**
    * Handle plan selection from modal
    */
-  onPlanSelected(planId: number, course: Course): Observable<boolean> {
+  onPlanSelected(planId: number, course: Course, studentId?: number): Observable<boolean> {
     this.closePlanSelectionModal();
     // Get plan name from window (set by modal component)
     const planName = (window as any).__selectedPlanName;
-    return this.addPlanToCartInternal(planId, course, planName);
+    return this.addPlanToCartInternal(planId, course, planName, studentId);
   }
 
   /**

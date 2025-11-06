@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 
 import { AuthService } from '../../core/services/auth.service';
@@ -44,6 +44,7 @@ type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     HierarchyNodeComponent,
     YearsTableComponent,
     CategoriesTableComponent,
@@ -183,7 +184,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
 
   // Form data for file uploads
   formData: any = {};
-  
+
   // Validation tracking
   fieldErrors: { [key: string]: string } = {};
   touchedFields: { [key: string]: boolean } = {};
@@ -212,7 +213,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // Data Loading - Using Swagger Endpoints
   // ============================================
-  
+
   /**
    * Load all data from API
    * Uses parallel loading for better performance
@@ -359,7 +360,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   async loadLessons(): Promise<void> {
     try {
       const result = await this.contentService.getLessons(1, 1000).toPromise();
-      
+
       // Handle both array and paginated result
       if (Array.isArray(result)) {
         this.lessons = result;
@@ -544,13 +545,13 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     // Filter Subjects
     const subjectsArr = Array.isArray(this.subjects) ? this.subjects : [];
     this.filteredSubjects = subjectsArr.filter((s: Subject) => {
-      const matchesSearch = !q || 
+      const matchesSearch = !q ||
         s.subjectName?.toLowerCase().includes(q) ||
         s.categoryName?.toLowerCase().includes(q);
-      
+
       const matchesYear = !yearIdNum || s.yearId === yearIdNum;
       const matchesCategory = !categoryIdNum || s.categoryId === categoryIdNum;
-      
+
       return matchesSearch && matchesYear && matchesCategory;
     });
 
@@ -570,14 +571,14 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
 
     // Filter Lessons
     this.filteredLessons = this.lessons.filter((l: any) => {
-      const matchesSearch = !q || 
+      const matchesSearch = !q ||
         l.title?.toLowerCase().includes(q) ||
         l.description?.toLowerCase().includes(q);
-      
+
       const matchesWeek = !weekIdNum || l.weekId === weekIdNum;
       const matchesTerm = !termIdNum || this.getTermIdFromWeekId(l.weekId) === termIdNum;
       const matchesSubject = !subjectIdNum || l.subjectId === subjectIdNum;
-      
+
       return matchesSearch && matchesWeek && matchesTerm && matchesSubject;
     });
   }
@@ -720,7 +721,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.formMode = 'add';
     this.entityType = type;
     this.form = this.getEmptyForm(type);
-    
+
     // Pre-fill based on hierarchy context
     if (type === 'term' && contextData?.subject) {
       this.form.subjectId = contextData.subject.id;
@@ -733,7 +734,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         this.form.subjectId = contextData.subject.id;
       }
     }
-    
+
     this.isFormOpen = true;
   }
 
@@ -920,7 +921,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           data.posterFile,
           data.videoFile
         ).toPromise();
-        
+
         // Navigate to lesson detail page
         if (newLesson && newLesson.id) {
           await Swal.fire({
@@ -1113,7 +1114,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     const year = this.years.find(y => y.id === subject.yearId);
     const category = this.categories.find(c => c.id === subject.categoryId);
     const subjectName = this.subjectNames.find(s => s.id === subject.subjectNameId);
-    
+
     return `${subjectName?.name || 'N/A'} - Year ${year?.yearNumber || 'N/A'} - ${category?.name || 'N/A'}`;
   }
 

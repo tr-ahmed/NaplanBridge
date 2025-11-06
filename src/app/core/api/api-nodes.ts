@@ -396,7 +396,28 @@ export const ApiNodes = {
 
   // Get lessons by subject ID
   getLessonsBySubjectId: {
-    url: '\/Lessons/subject/:subjectId',
+    url: '/Lessons/subject/:subjectId',
+    method: 'GET' as const,
+    mockData: [] as any[]
+  },
+
+  // ✅ NEW: Get lessons by subject with progress (optional studentId for guest mode)
+  getLessonsBySubjectWithProgress: {
+    url: '/Lessons/subject/:subjectId/with-progress/:studentId?',
+    method: 'GET' as const,
+    mockData: [] as any[]
+  },
+
+  // ✅ NEW: Get lessons by term with progress (optional studentId for guest mode)
+  getLessonsByTermWithProgress: {
+    url: '/Lessons/term/:termId/with-progress/:studentId?',
+    method: 'GET' as const,
+    mockData: [] as any[]
+  },
+
+  // ✅ NEW: Get lessons by term number with progress (optional studentId for guest mode)
+  getLessonsByTermNumberWithProgress: {
+    url: '/Lessons/subject/:subjectId/term-number/:termNumber/with-progress/:studentId?',
     method: 'GET' as const,
     mockData: [] as any[]
   },

@@ -1,9 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../../core/services/toast.service';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
-// Temporary interfaces until services are properly configured
+// Interfaces
 export interface TeacherSubject {
   subjectId: number;
   subjectName: string;
@@ -48,6 +52,57 @@ interface Tab {
   icon: string;
 }
 
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+// Real Teacher Content Service
+class TeacherContentService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiBaseUrl}/TeacherContent`;
+  private baseApiUrl = environment.apiBaseUrl;
+
+  getMySubjects(): Observable<number[]> {
+    return this.http.get<ApiResponse<number[]>>(`${this.apiUrl}/my-subjects`)
+      .pipe(map(response => response.data));
+  }
+
+  canManageSubject(subjectId: number): Observable<{ canCreate: boolean; canEdit: boolean; canDelete: boolean }> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/can-manage/${subjectId}`)
+      .pipe(map(response => response.data));
+  }
+
+  getMyContent(filters?: { subjectId?: number; status?: string }): Observable<any[]> {
+    let params: any = {};
+    if (filters?.subjectId) params.subjectId = filters.subjectId;
+    if (filters?.status) params.status = filters.status;
+
+    return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/my-content`, { params })
+      .pipe(map(response => response.data));
+  }
+
+  createLesson(form: any): Observable<any> {
+    return this.http.post<any>(`${this.baseApiUrl}/Lessons`, form);
+  }
+
+  updateLesson(id: number, form: any): Observable<any> {
+    return this.http.put<any>(`${this.baseApiUrl}/Lessons/${id}`, form);
+  }
+
+  deleteContent(type: string, id: number): Observable<any> {
+    const endpoints: any = {
+      'lesson': 'Lessons',
+      'week': 'Weeks',
+      'term': 'Terms',
+      'resource': 'Resources'
+    };
+    const endpoint = endpoints[type.toLowerCase()] || 'Lessons';
+    return this.http.delete(`${this.baseApiUrl}/${endpoint}/${id}`);
+  }
+}
+
 @Component({
   selector: 'app-teacher-content-management',
   standalone: true,
@@ -55,42 +110,9 @@ interface Tab {
   templateUrl: './teacher-content-management.component.html',
   styleUrls: ['./teacher-content-management.component.scss']
 })
-// Temporary service
-class MockTeacherContentService {
-  getMySubjects() {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next([1, 2, 3]), 500);
-    }};
-  }
-
-  getSubjectContent(subjectId: any, filter: any) {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next({ lessons: [], weeks: [], terms: [], resources: [], statistics: {} }), 500);
-    }};
-  }
-
-  createLesson(form: any) {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next({}), 500);
-    }};
-  }
-
-  updateLesson(id: any, form: any) {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next({}), 500);
-    }};
-  }
-
-  deleteContent(type: any, id: any) {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next({}), 500);
-    }};
-  }
-}
-
 export class TeacherContentManagementComponent implements OnInit {
   private toastService = inject(ToastService);
-  private contentService = new MockTeacherContentService();
+  private contentService = new TeacherContentService();
 
   // State
   loading = signal(false);
@@ -158,46 +180,67 @@ export class TeacherContentManagementComponent implements OnInit {
 
     this.contentService.getMySubjects().subscribe({
       next: (subjectIds: number[]) => {
-        // For now, create mock TeacherSubject objects from IDs
-        // In a real implementation, you'd fetch subject details from another API
-        const mockSubjects: TeacherSubject[] = subjectIds.map(id => ({
-          subjectId: id,
-          subjectName: `Subject ${id}`,
-          yearId: 1,
-          yearName: 'Year 7',
-          canCreate: true,
-          canEdit: true,
-          canDelete: false,
-          termsCount: 4,
-          lessonsCount: 12,
-          pendingCount: 2
-        }));
-
-        this.authorizedSubjects.set(mockSubjects);
-
-        // Calculate total stats
-        const totalStats = mockSubjects.reduce((acc: any, subject: TeacherSubject) => ({
-          totalLessons: acc.totalLessons + (subject.lessonsCount || 0),
-          approvedLessons: acc.approvedLessons + (subject.lessonsCount || 0) - (subject.pendingCount || 0),
-          pendingLessons: acc.pendingLessons + (subject.pendingCount || 0),
-          rejectedLessons: acc.rejectedLessons,
-          totalSubjects: acc.totalSubjects + 1
-        }), {
-          totalLessons: 0,
-          approvedLessons: 0,
-          pendingLessons: 0,
-          rejectedLessons: 0,
-          totalSubjects: 0
-        });
-
-        this.stats.set(totalStats);
-
-        // Auto-select first subject if available
-        if (mockSubjects.length > 0 && !this.selectedSubject()) {
-          this.selectSubject(mockSubjects[0]);
+        if (subjectIds.length === 0) {
+          this.toastService.showWarning('You do not have permission to manage any subjects yet. Please contact an administrator.');
+          this.loading.set(false);
+          return;
         }
 
-        this.loading.set(false);
+        // Fetch subject details from Subjects API
+        const http = inject(HttpClient);
+        const subjectRequests = subjectIds.map(id =>
+          http.get<any>(`${environment.apiBaseUrl}/Subjects/${id}`)
+        );
+
+        // Use forkJoin to wait for all subjects to load
+        import('rxjs').then(({ forkJoin }) => {
+          forkJoin(subjectRequests).subscribe({
+            next: (subjects: any[]) => {
+              // Get permissions for each subject
+              const permissionRequests = subjectIds.map(id =>
+                this.contentService.canManageSubject(id)
+              );
+
+              forkJoin(permissionRequests).subscribe({
+                next: (permissions: any[]) => {
+                  // Combine subject data with permissions
+                  const teacherSubjects: TeacherSubject[] = subjects.map((subject, index) => ({
+                    subjectId: subject.id,
+                    subjectName: subject.name,
+                    yearId: subject.yearId,
+                    yearName: subject.yearName || `Year ${subject.yearId}`,
+                    canCreate: permissions[index].canCreate,
+                    canEdit: permissions[index].canEdit,
+                    canDelete: permissions[index].canDelete,
+                    termsCount: subject.termsCount || 0,
+                    lessonsCount: 0,
+                    pendingCount: 0
+                  }));
+
+                  this.authorizedSubjects.set(teacherSubjects);
+                  this.stats.update(s => ({ ...s, totalSubjects: teacherSubjects.length }));
+
+                  // Auto-select first subject
+                  if (teacherSubjects.length > 0 && !this.selectedSubject()) {
+                    this.selectSubject(teacherSubjects[0]);
+                  }
+
+                  this.loading.set(false);
+                },
+                error: (error: any) => {
+                  console.error('Error loading permissions:', error);
+                  this.toastService.showError('Failed to load permissions.');
+                  this.loading.set(false);
+                }
+              });
+            },
+            error: (error: any) => {
+              console.error('Error loading subjects:', error);
+              this.toastService.showError('Failed to load subject details.');
+              this.loading.set(false);
+            }
+          });
+        });
       },
       error: (error: any) => {
         console.error('Error loading authorized subjects:', error);
@@ -221,24 +264,37 @@ export class TeacherContentManagementComponent implements OnInit {
   loadSubjectContent(subjectId: number): void {
     this.loading.set(true);
 
-    this.contentService.getSubjectContent(subjectId, this.approvalFilter()).subscribe({
-      next: (content: any) => {
-        this.selectedSubjectContent.set(content);
-        this.lessons.set(content.lessons || []);
-        this.weeks.set(content.weeks || []);
-        this.terms.set(content.terms || []);
-        this.resources.set(content.resources || []);
+    const filters = {
+      subjectId: subjectId,
+      status: this.approvalFilter() === 'all' ? undefined : this.approvalFilter()
+    };
 
-        // Update stats
-        if (content.statistics) {
-          this.stats.update(s => ({
-            ...s,
-            totalLessons: content.statistics.totalLessons,
-            approvedLessons: content.statistics.approvedLessons,
-            pendingLessons: content.statistics.pendingLessons,
-            rejectedLessons: content.statistics.rejectedLessons
-          }));
-        }
+    this.contentService.getMyContent(filters).subscribe({
+      next: (content: any[]) => {
+        // Separate content by type
+        const lessons = content.filter(c => c.type === 'Lesson');
+        const weeks = content.filter(c => c.type === 'Week');
+        const terms = content.filter(c => c.type === 'Term');
+        const resources = content.filter(c => c.type === 'Resource');
+
+        this.lessons.set(lessons);
+        this.weeks.set(weeks);
+        this.terms.set(terms);
+        this.resources.set(resources);
+
+        // Calculate stats
+        const totalLessons = lessons.length;
+        const approvedLessons = lessons.filter(l => l.status === 'Approved').length;
+        const pendingLessons = lessons.filter(l => l.status === 'Pending').length;
+        const rejectedLessons = lessons.filter(l => l.status === 'Rejected').length;
+
+        this.stats.update(s => ({
+          ...s,
+          totalLessons,
+          approvedLessons,
+          pendingLessons,
+          rejectedLessons
+        }));
 
         this.loading.set(false);
       },

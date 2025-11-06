@@ -4,10 +4,10 @@
 
 ## GitHub Copilot Instructions for the Real Angular 17 Project
 
-### Project Path: D:\Projects\HospitalSystem\frontend>
+### Project Path: D:\Private\Ahmed Hamdi\angular
 
 **Goal:**
-Develop a real-world Angular 17 frontend for the **Hospital Information System (HIS)**, integrated with a Laravel backend API.
+Develop a real-world Angular 17 frontend for the **NaplanBridge Educational System**, integrated with a Laravel backend API.
 The application must use standalone components, new Angular control flow syntax, authentication via Laravel Sanctum, role-based access using Spatie Laravel Permission, and modern UI built with **Tailwind CSS**.
 All data used in the frontend should come from **real backend API endpoints**, not mock data.
 
@@ -18,11 +18,11 @@ All data used in the frontend should come from **real backend API endpoints**, n
 * Generate the project using Angular CLI:
 
 ```bash
-ng new hospital-frontend --style=scss --routing=true --standalone=true
+ng new naplanbridge-frontend --style=scss --routing=true --standalone=true
 ```
 
-* Default language: **Arabic (ar-EG)**
-* Enable internationalization (i18n) to support English (LTR) and Arabic (RTL).
+* Default language: **English (en-US)**
+* Single language application (English only)
 
 ---
 
@@ -58,11 +58,6 @@ export default {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-html[dir="rtl"] {
-  direction: rtl;
-  text-align: right;
-}
 ```
 
 ---
@@ -71,11 +66,11 @@ html[dir="rtl"] {
 
 ```
 /src/app/core/          → interceptors, guards, services
-/src/app/features/      → actual app pages (dashboard, patients, doctors, etc.)
+/src/app/features/      → actual app pages (dashboard, students, lessons, subscriptions, etc.)
 /src/app/components/    → shared UI (navbar, sidebar, loader, etc.)
-/src/app/models/        → TypeScript interfaces (User, Patient, Appointment)
+/src/app/models/        → TypeScript interfaces (User, Student, Lesson, Subscription)
 /src/app/shared/        → reusable pipes, directives
-/src/assets/            → images, translations, global assets
+/src/assets/            → images, global assets
 ```
 
 ---
@@ -84,10 +79,10 @@ html[dir="rtl"] {
 
 * `NavbarComponent`: navigation with real menu items from backend CMS
 * `SidebarComponent`: dynamically generated from backend permissions
-* `DashboardComponent`: summary cards (total patients, doctors, appointments)
-* `PatientsComponent`: CRUD with live data from `/api/patients`
-* `DoctorsComponent`: CRUD with `/api/doctors`
-* `AppointmentsComponent`: appointment booking, edit, and cancel
+* `DashboardComponent`: summary cards (total students, total lessons, total subscriptions)
+* `StudentsComponent`: CRUD with live data from `/api/students`
+* `LessonsComponent`: lesson management with `/api/lessons`
+* `SubscriptionsComponent`: subscription management and tracking
 * `ProfileComponent`: user profile and password update
 
 > ⚠️ Always fetch real data using services connected to backend endpoints.
@@ -102,39 +97,39 @@ html[dir="rtl"] {
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(c => c.DashboardComponent) },
-  { path: 'patients', loadComponent: () => import('./features/patients/patients.component').then(c => c.PatientsComponent) },
-  { path: 'doctors', loadComponent: () => import('./features/doctors/doctors.component').then(c => c.DoctorsComponent) },
-  { path: 'appointments', loadComponent: () => import('./features/appointments/appointments.component').then(c => c.AppointmentsComponent) },
+  { path: 'students', loadComponent: () => import('./features/students/students.component').then(c => c.StudentsComponent) },
+  { path: 'lessons', loadComponent: () => import('./features/lessons/lessons.component').then(c => c.LessonsComponent) },
+  { path: 'subscriptions', loadComponent: () => import('./features/subscriptions/subscriptions.component').then(c => c.SubscriptionsComponent) },
   { path: 'profile', loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent) },
 ];
 ```
 
 ---
 
-### 6. Real API Integration (Example: PatientsService)
+### 6. Real API Integration (Example: StudentsService)
 
-**patients.service.ts**
+**students.service.ts**
 
 ```ts
 @Injectable({ providedIn: 'root' })
-export class PatientsService {
-  private apiUrl = environment.apiUrl + '/patients';
+export class StudentsService {
+  private apiUrl = environment.apiUrl + '/students';
 
   constructor(private http: HttpClient) {}
 
-  getPatients(): Observable<Patient[]> {
-    return this.http.get<Patient[]>(this.apiUrl);
+  getStudents(): Observable<Student[]> {
+    return this.http.get<Student[]>(this.apiUrl);
   }
 
-  addPatient(patient: Patient): Observable<Patient> {
-    return this.http.post<Patient>(this.apiUrl, patient);
+  addStudent(student: Student): Observable<Student> {
+    return this.http.post<Student>(this.apiUrl, student);
   }
 
-  updatePatient(id: number, patient: Patient): Observable<Patient> {
-    return this.http.put<Patient>(`${this.apiUrl}/${id}`, patient);
+  updateStudent(id: number, student: Student): Observable<Student> {
+    return this.http.put<Student>(`${this.apiUrl}/${id}`, student);
   }
 
-  deletePatient(id: number): Observable<void> {
+  deleteStudent(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
@@ -180,7 +175,7 @@ withInterceptors([functionalErrorInterceptor])
 * Use Tailwind for all component layouts.
 * Apply custom theme colors (`#108092`, `#bf942d`) for consistency.
 * Maintain responsive design using Tailwind breakpoints.
-* All UI text must support translation through i18n.
+* All UI text in English only.
 
 ---
 
@@ -190,9 +185,9 @@ withInterceptors([functionalErrorInterceptor])
 
 ```ts
 this.http.get(`${environment.apiUrl}/dashboard/summary`).subscribe((data: any) => {
-  this.totalPatients = data.total_patients;
-  this.totalDoctors = data.total_doctors;
-  this.totalAppointments = data.total_appointments;
+  this.totalStudents = data.total_students;
+  this.totalLessons = data.total_lessons;
+  this.totalSubscriptions = data.total_subscriptions;
 });
 ```
 
@@ -201,27 +196,28 @@ this.http.get(`${environment.apiUrl}/dashboard/summary`).subscribe((data: any) =
 ```html
 <div class="grid md:grid-cols-3 gap-4">
   <div class="p-4 bg-primary text-white rounded-2xl shadow">
-    <h3>Patients</h3>
-    <p>{{ totalPatients }}</p>
+    <h3>Students</h3>
+    <p>{{ totalStudents }}</p>
   </div>
   <div class="p-4 bg-accent text-white rounded-2xl shadow">
-    <h3>Doctors</h3>
-    <p>{{ totalDoctors }}</p>
+    <h3>Lessons</h3>
+    <p>{{ totalLessons }}</p>
   </div>
   <div class="p-4 bg-green-600 text-white rounded-2xl shadow">
-    <h3>Appointments</h3>
-    <p>{{ totalAppointments }}</p>
+    <h3>Subscriptions</h3>
+    <p>{{ totalSubscriptions }}</p>
   </div>
 </div>
 ```
 
 ---
 
-### 11. Internationalization (i18n)
+### 11. Language Configuration
 
-* Use `@ngx-translate/core`.
-* Load language files from `/assets/i18n/en.json` and `/assets/i18n/ar.json`.
-* Change direction dynamically (`dir="ltr"` or `dir="rtl"`) in `app.component.ts`.
+* Application uses **English only** (en-US)
+* No internationalization (i18n) libraries needed
+* All UI text, labels, and messages in English
+* Direction: LTR (Left-to-Right) only
 
 ---
 
@@ -254,14 +250,16 @@ Laravel API: http://localhost:8000/api/
 Copilot must only generate a backend report **when** a new or modified Laravel endpoint, model, or migration is needed.
 If the change only affects frontend UI, routing, or data binding — respond:
 
-> **“No backend change needed.”**
+> **"No backend change needed."**
 
 ---
 
 ### ✅ Summary
 
 * Real API Integration: Laravel endpoints only
-* Real user data: patients, doctors, appointments
-* Secure and localized
+* Real educational data: students, lessons, subscriptions, terms, weeks
+* English language only (en-US)
+* Secure authentication with Laravel Sanctum
+* Role-based access control with Spatie Laravel Permission
 * Tailwind + Angular 17 best practices
 * Clean and modular production-ready code

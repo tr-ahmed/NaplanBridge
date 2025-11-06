@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -13,6 +14,7 @@ import { SubscriptionPlanSummary } from '../../models/subject.models';
 import { AuthService } from '../../auth/auth.service';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { ToastService } from '../../core/services/toast.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-courses',
@@ -59,6 +61,12 @@ export class CoursesComponent implements OnInit, OnDestroy {
   selectedStudentId = signal<number | null>(null); // For parent - selected child
   parentStudents = signal<any[]>([]); // Parent's children list
 
+  // ✅ NEW: Student selection modal for parents
+  showStudentSelector = signal<boolean>(false);
+  studentsToSelect = signal<any[]>([]);
+  pendingPlanId = signal<number | null>(null);
+  pendingCourse = signal<Course | null>(null);
+
   // Available years for filtering
   availableYears = signal<Array<{id: number, name: string}>>([
     { id: 1, name: 'Year 7' },
@@ -97,7 +105,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
-    private subscriptionService: SubscriptionService
+    private subscriptionService: SubscriptionService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -146,12 +155,20 @@ export class CoursesComponent implements OnInit, OnDestroy {
       } else if (isStudentRole && !user.yearId) {
         console.warn('⚠️ Student detected but NO yearId found in token!');
         console.warn('📋 Backend may not have added yearId claim to JWT');
+
+        // ✅ Also check for parent role
+        const isParentRole = roles.some((r: string) => r.toLowerCase() === 'parent');
+        if (isParentRole) {
+          console.log('👨‍👩‍👧‍👦 Student with Parent role - loading students...');
+          this.loadParentStudents();
+        }
       } else {
         console.log('👔 Non-student user - showing all years');
 
         // ✅ If parent, load their students
         const isParentRole = roles.some((r: string) => r.toLowerCase() === 'parent');
         if (isParentRole) {
+          console.log('👨‍👩‍👧‍👦 Parent user - loading students...');
           this.loadParentStudents();
         }
       }
@@ -167,22 +184,55 @@ export class CoursesComponent implements OnInit, OnDestroy {
     const parentId = this.currentUser()?.id;
     if (!parentId) return;
 
-    console.log('👨‍👩‍👧‍👦 Loading parent students...');
+    console.log('👨‍👩‍👧‍👦 Loading parent students from API...');
 
-    // TODO: Replace with actual API call
-    // this.parentService.getStudents(parentId).subscribe(...)
+    // ✅ Use actual API endpoint
+    this.http.get<any[]>(`${environment.apiBaseUrl}/User/get-children/${parentId}`)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (students: any[]) => {
+          console.log('✅ Loaded parent students from API (RAW):', students);
 
-    // For now, try to get from localStorage or sessionStorage if available
-    const studentsData = localStorage.getItem('parentStudents');
-    if (studentsData) {
-      try {
-        const students = JSON.parse(studentsData);
-        this.parentStudents.set(students);
-        console.log('✅ Loaded parent students:', students);
-      } catch (e) {
-        console.error('Failed to parse parent students data');
-      }
-    }
+          // Map to expected format
+          const mappedStudents = students.map((s: any) => {
+            const mapped = {
+              id: s.id,
+              name: s.name || s.userName,
+              yearId: s.yearId || s.schoolYearId || s.year,
+              yearName: s.yearName || s.schoolYearName || (s.yearId ? `Year ${s.yearId}` : 'Unknown'),
+              email: s.email
+            };
+
+            console.log('📝 Mapping student:', {
+              raw: { id: s.id, name: s.name, yearId: s.yearId, schoolYearId: s.schoolYearId, year: s.year },
+              mapped
+            });
+
+            return mapped;
+          });
+
+          console.log('✅ Final mapped students:', mappedStudents);
+          this.parentStudents.set(mappedStudents);
+
+          // Store in localStorage for quick access
+          localStorage.setItem('parentStudents', JSON.stringify(mappedStudents));
+        },
+        error: (error: any) => {
+          console.error('❌ Error loading parent students:', error);
+
+          // Fallback: Try localStorage
+          const studentsData = localStorage.getItem('parentStudents');
+          if (studentsData) {
+            try {
+              const students = JSON.parse(studentsData);
+              this.parentStudents.set(students);
+              console.log('✅ Loaded parent students from localStorage:', students);
+            } catch (e) {
+              console.error('Failed to parse parent students data');
+            }
+          }
+        }
+      });
   }
 
   /**
@@ -546,7 +596,51 @@ export class CoursesComponent implements OnInit, OnDestroy {
   onPlanSelected(planId: number): void {
     const course = this.selectedCourse();
     if (course) {
-      this.coursesService.onPlanSelected(planId, course)
+      // ✅ Get studentId for parent role
+      const user = this.authService.getCurrentUser();
+      let studentId: number | undefined;
+
+      if (user?.role === 'Student' || (Array.isArray(user?.role) && user.role.includes('Student'))) {
+        // Direct student access - use token studentId
+        studentId = user.studentId;
+      } else if (user?.role === 'Parent' || (Array.isArray(user?.role) && user.role.includes('Parent'))) {
+        // Parent access - use selected student ID
+        studentId = this.selectedStudentId() || undefined;
+
+        if (!studentId) {
+          // Try auto-select if only one student in same year
+          const courseYearId = course.yearId;
+          const allParentStudents = this.parentStudents();
+
+          // ✅ Map yearId (database ID) to actual year number
+          // yearId: 1 → Year 7, yearId: 2 → Year 8, yearId: 3 → Year 9
+          const courseYearNumber = courseYearId + 6; // 1→7, 2→8, 3→9
+
+          // ✅ Compare using yearNumber instead of yearId
+          const studentsInSameYear = allParentStudents.filter(s => s.yearId === courseYearNumber);
+
+          if (studentsInSameYear.length === 1) {
+            // ✅ Only one student in same year - auto-select
+            studentId = studentsInSameYear[0].id;
+            this.selectedStudentId.set(studentId || null);
+            console.log('✅ Auto-selected student for cart:', studentsInSameYear[0].name);
+          } else if (studentsInSameYear.length > 1) {
+            // ⚠️ Multiple students in same year - ask parent to select
+            console.log('⚠️ Multiple students in same year, need manual selection');
+            this.showStudentSelectionModal(studentsInSameYear, planId, course);
+            return;  // Exit early - will continue after selection
+          } else if (studentsInSameYear.length === 0) {
+            // Use any available student
+            const allStudents = this.parentStudents();
+            if (allStudents.length > 0) {
+              studentId = allStudents[0].id;
+              console.log('✅ Using first available student for cart:', allStudents[0].name);
+            }
+          }
+        }
+      }
+
+      this.coursesService.onPlanSelected(planId, course, studentId)
         .pipe(takeUntil(this.destroy$))
         .subscribe(success => {
           if (success) {
@@ -554,6 +648,60 @@ export class CoursesComponent implements OnInit, OnDestroy {
           }
         });
     }
+  }
+
+  /**
+   * ✅ NEW: Show student selection modal for parents with multiple students
+   */
+  showStudentSelectionModal(students: any[], planId: number, course: Course): void {
+    console.log('👨‍👩‍👧‍👦 Opening student selector:', students);
+    this.studentsToSelect.set(students);
+    this.pendingPlanId.set(planId);
+    this.pendingCourse.set(course);
+    this.showStudentSelector.set(true);
+  }
+
+  /**
+   * ✅ NEW: Handle student selection from modal
+   */
+  onStudentSelected(studentId: number): void {
+    console.log('✅ Student selected:', studentId);
+
+    // Store selected student
+    this.selectedStudentId.set(studentId);
+
+    // Close modal
+    this.showStudentSelector.set(false);
+
+    // Continue with adding to cart
+    const planId = this.pendingPlanId();
+    const course = this.pendingCourse();
+
+    if (planId && course) {
+      this.coursesService.onPlanSelected(planId, course, studentId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(success => {
+          if (success) {
+            console.log('Plan added to cart successfully for selected student');
+          }
+        });
+    }
+
+    // Clear pending data
+    this.pendingPlanId.set(null);
+    this.pendingCourse.set(null);
+    this.studentsToSelect.set([]);
+  }
+
+  /**
+   * ✅ NEW: Cancel student selection
+   */
+  onCancelStudentSelection(): void {
+    console.log('❌ Student selection cancelled');
+    this.showStudentSelector.set(false);
+    this.pendingPlanId.set(null);
+    this.pendingCourse.set(null);
+    this.studentsToSelect.set([]);
   }
 
   /**
@@ -689,17 +837,27 @@ export class CoursesComponent implements OnInit, OnDestroy {
           this.selectedStudentId.set(studentId || null);
           console.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'ID:', studentId);
         } else {
-          // ✅ No students or multiple students - Allow parent to browse in preview mode
-          console.log('👀 Parent browse mode - No student selected');
-          isParentBrowseMode = true;
-          // Don't return - continue to show lessons in browse mode
+          // ✅ Multiple students or no students - Try to pick any student for browse mode
+          console.log('👀 Parent browse mode - Multiple or no students in same year');
+
+          // Try to use any available student (for browse mode)
+          const allStudents = this.parentStudents();
+          if (allStudents.length > 0) {
+            // Pick the first available student (any year)
+            studentId = allStudents[0].id;
+            console.log('✅ Using first available student for browse mode:', allStudents[0].name, 'ID:', studentId);
+          } else {
+            // No students at all - still allow browsing
+            console.log('⚠️ No students available - pure browse mode');
+            isParentBrowseMode = true;
+          }
         }
       }
     }
 
-    // ✅ If parent browse mode, navigate without student progress data
+    // ✅ If parent browse mode (no student available), navigate without student data
     if (isParentBrowseMode) {
-      console.log('👀 Parent browsing lessons (no student selected)');
+      console.log('👀 Parent browsing lessons (no student available)');
 
       // Navigate to lessons without fetching term/week data
       this.router.navigate(['/lessons'], {
@@ -717,9 +875,20 @@ export class CoursesComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // ✅ UPDATED: Allow guests to view lessons in preview mode
     if (!studentId) {
-      console.warn('⚠️ No studentId found, redirecting to login');
-      this.router.navigate(['/login']);
+      console.log('👤 Guest user - redirecting to lessons preview mode');
+
+      // Navigate to lessons without studentId (preview mode)
+      this.router.navigate(['/lessons'], {
+        queryParams: {
+          subject: course.name || course.subjectName,
+          subjectId: course.id,
+          termNumber: 1,  // Default to term 1 for guests
+          hasAccess: false,
+          browseMode: true  // Indicate guest preview mode
+        }
+      });
       return;
     }
 
@@ -753,7 +922,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
               yearId: course.yearId,
               termNumber: termWeek.currentTermNumber || 3,  // Default to term 3 if not available
               weekNumber: termWeek.currentWeekNumber || 1,  // Default to week 1 if not available
-              hasAccess: termWeek.hasAccess  // ✅ Pass access status to lessons component
+              hasAccess: termWeek.hasAccess,  // ✅ Pass access status to lessons component
+              studentId: studentId  // ✅ NEW: Pass student ID for parent access
             }
           });
 
@@ -782,7 +952,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
               yearId: course.yearId,
               termNumber: 3,  // Default term
               weekNumber: 1,  // Default week
-              hasAccess: false  // Assume no access on error
+              hasAccess: false,  // Assume no access on error
+              studentId: studentId  // ✅ NEW: Pass student ID for parent access
             }
           });
 

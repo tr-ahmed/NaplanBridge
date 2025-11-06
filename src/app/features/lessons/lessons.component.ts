@@ -54,6 +54,10 @@ export class LessonsComponent implements OnInit, OnDestroy {
   hasAccess = signal<boolean>(true);  // Default to true for backward compatibility
   showSubscriptionBanner = signal<boolean>(false);
 
+  // ✅ NEW: Student selection (for parents)
+  selectedStudentId = signal<number | null>(null);
+  isBrowseMode = signal<boolean>(false);
+
   // ✅ NEW: Plan selection modal (using PlanSelectionModalComponent)
   showPlanModal = signal<boolean>(false);
   selectedCoursePlans = signal<SubscriptionPlanSummary[]>([]);
@@ -83,6 +87,19 @@ export class LessonsComponent implements OnInit, OnDestroy {
         const termNumber = params['termNumber'];  // ✅ NEW: Use termNumber instead of termId
         const termId = params['termId'];          // Keep for backward compatibility
         const hasAccessParam = params['hasAccess']; // ✅ NEW: Get access status from params
+        const browseMode = params['browseMode'] === 'true'; // ✅ NEW: Check if in browse mode
+        const studentIdParam = params['studentId']; // ✅ NEW: Get studentId from URL
+
+        // ✅ Set browse mode and student ID
+        this.isBrowseMode.set(browseMode);
+
+        if (studentIdParam) {
+          const studentId = parseInt(studentIdParam, 10);
+          if (!isNaN(studentId)) {
+            this.selectedStudentId.set(studentId);
+            console.log('✅ Selected student ID from URL:', studentId);
+          }
+        }
 
         // ✅ Set access status (convert string to boolean)
         if (hasAccessParam !== undefined) {
@@ -137,22 +154,41 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   /**
    * Load lessons for the specified subject ID (preferred method)
+   * ✅ UPDATED: Uses new with-progress endpoint that supports guest mode
    */
   private loadLessonsForSubjectId(subjectId: number): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.lessonsService.getLessonsBySubjectId(subjectId)
+    // ✅ Get studentId only if authenticated (undefined for guests)
+    const studentId = this.authService.isAuthenticated()
+      ? this.authService.getCurrentUser()?.studentId
+      : undefined;
+
+    console.log('📚 Loading lessons:', { subjectId, studentId, isGuest: !studentId });
+
+    // ✅ Use new endpoint that supports guest mode
+    this.lessonsService.getLessonsBySubjectWithProgress(subjectId, studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
           this.lessons.set(lessons);
           this.loading.set(false);
 
-          // If user is logged in, get their progress
-          if (this.authService.isAuthenticated()) {
-            this.loadStudentProgress();
+          // Check if any lessons have access
+          const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
+          this.hasAccess.set(hasAnyAccess);
+
+          // Show subscription banner if no access
+          if (!hasAnyAccess && this.authService.isAuthenticated()) {
+            this.showSubscriptionBanner.set(true);
           }
+
+          console.log('✅ Lessons loaded:', {
+            count: lessons.length,
+            hasAccess: hasAnyAccess,
+            isGuest: !studentId
+          });
         },
         error: (error) => {
           this.error.set('Failed to load lessons');
@@ -242,7 +278,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   /**
    * Handle lesson click
-   * ✅ UPDATED: Added subscription check
+   * ✅ UPDATED: Added subscription check + Guest preview mode
    */
   onLessonClick(lesson: Lesson): void {
     // ✅ PRIORITY 1: Check subscription/access
@@ -256,10 +292,10 @@ export class LessonsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Check if user is logged in
+    // ✅ Allow guests to view lessons in preview mode
     if (!this.authService.isAuthenticated()) {
-      this.toastService.showInfo('Please log in to access lessons');
-      this.router.navigate(['/auth/login']);
+      console.log('👤 Guest user viewing lesson in preview mode');
+      this.navigateToLesson(lesson.id, true); // true = preview mode
       return;
     }
 
@@ -278,7 +314,22 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
     // Navigate to lesson detail
     console.log('✅ Opening lesson:', lesson.title);
-    this.router.navigate(['/lesson', lesson.id]);
+    this.navigateToLesson(lesson.id, false);
+  }
+
+  /**
+   * Navigate to lesson detail page
+   * @param lessonId - The lesson ID
+   * @param isPreviewMode - Whether to open in preview mode (for guests)
+   */
+  private navigateToLesson(lessonId: number, isPreviewMode: boolean = false): void {
+    const queryParams: any = {};
+
+    if (isPreviewMode) {
+      queryParams.preview = 'true';
+    }
+
+    this.router.navigate(['/lesson', lessonId], { queryParams });
   }
 
   /**
@@ -387,9 +438,9 @@ export class LessonsComponent implements OnInit, OnDestroy {
    */
   private loadAvailableTerms(subjectId: number): void {
     const user = this.authService.getCurrentUser();
-    const studentId = user?.studentId;
+    let studentId = user?.studentId || this.selectedStudentId();
 
-    // ✅ If no studentId, load terms without access info (browse mode)
+    // ✅ If still no studentId, load terms without access info (browse mode)
     if (!studentId) {
       console.warn('⚠️ No studentId found - loading terms in browse mode');
       this.loadTermsForBrowseMode(subjectId);
@@ -492,64 +543,44 @@ export class LessonsComponent implements OnInit, OnDestroy {
    * ✅ Backend endpoint fixed (Nov 3, 2025) - now stable and performant
    * Fallback mechanism kept as safety net for edge cases
    */
+  /**
+   * ✅ UPDATED: Load lessons by term (supports guest mode)
+   */
   private loadLessonsByTerm(termId: number): void {
-    const studentId = this.authService.getCurrentUser()?.studentId;
-
-    if (!studentId || !this.currentSubjectId()) {
-      console.warn('⚠️ Missing studentId or subjectId');
-      return;
-    }
+    const user = this.authService.getCurrentUser();
+    const studentId = user?.studentId || this.selectedStudentId() || undefined;
 
     this.loading.set(true);
     this.error.set(null);
 
-    // ✅ Endpoint: /api/Lessons/term/{termId}/with-progress/{studentId}
-    // Status: Fixed and ready for production use
-    const url = `${this.lessonsService['baseUrl']}/Lessons/term/${termId}/with-progress/${studentId}`;
+    console.log('📚 Loading lessons by term:', { termId, studentId, isGuest: !studentId });
 
-    this.lessonsService['http'].get<any[]>(url)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((error) => {
-          console.error('❌ Error loading lessons by term endpoint:', error);
-          console.warn('🔄 Activating fallback: loading by subject and filtering...');
-
-          // Fallback: Load all lessons for subject and filter by term on frontend
-          return this.lessonsService.getLessonsBySubjectId(this.currentSubjectId()!)
-            .pipe(
-              map((allLessons: Lesson[]) => {
-                // Filter lessons by termId if available
-                const filteredLessons = allLessons.filter(lesson => lesson.termId === termId);
-                console.log(`✅ Fallback successful: Found ${filteredLessons.length} lessons for term ${termId}`);
-                return filteredLessons;
-              }),
-              catchError(() => {
-                // If fallback also fails, return empty array
-                console.error('❌ Fallback also failed');
-                return of([]);
-              })
-            );
-        })
-      )
+    // ✅ Use new endpoint that supports guest mode
+    this.lessonsService.getLessonsByTermWithProgress(termId, studentId)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
-          this.lessons.set(lessons as Lesson[]);
+          this.lessons.set(lessons);
           this.loading.set(false);
 
-          if (lessons.length > 0) {
-            console.log('✅ Lessons loaded for term:', termId, lessons);
-          } else {
-            console.warn('⚠️ No lessons found for term:', termId);
-            this.error.set('No lessons available for this term. The term may not have content yet.');
+          // Check if any lessons have access
+          const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
+          this.hasAccess.set(hasAnyAccess);
+
+          // Show subscription banner if no access and authenticated
+          if (!hasAnyAccess && this.authService.isAuthenticated()) {
+            this.showSubscriptionBanner.set(true);
           }
 
-          // Load student progress
-          if (this.authService.isAuthenticated()) {
-            this.loadStudentProgress();
-          }
+          console.log('✅ Term lessons loaded:', {
+            termId,
+            count: lessons.length,
+            hasAccess: hasAnyAccess,
+            isGuest: !studentId
+          });
         },
         error: (error) => {
-          console.error('❌ Fatal error loading lessons:', error);
+          console.error('❌ Failed to load term lessons:', error);
           this.error.set('Unable to load lessons. Please try again later.');
           this.loading.set(false);
         }
@@ -557,96 +588,53 @@ export class LessonsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load lessons by term NUMBER (NEW - Nov 3, 2025)
-   * ✅ This method fixes cross-subject navigation by using termNumber instead of termId
-   * Different subjects have different term IDs for the same term number
+   * ✅ UPDATED: Load lessons by term number (supports guest mode)
    * @param subjectId - The subject ID
    * @param termNumber - The term number (1-4)
    */
   private loadLessonsByTermNumber(subjectId: number, termNumber: number): void {
-    const studentId = this.authService.getCurrentUser()?.studentId;
-
-    if (!studentId || !subjectId) {
-      console.warn('⚠️ Missing studentId or subjectId');
-      return;
-    }
+    const user = this.authService.getCurrentUser();
+    const studentId = user?.studentId || this.selectedStudentId() || undefined;
 
     this.loading.set(true);
     this.error.set(null);
 
-    console.log(`🎯 Loading lessons for subject ${subjectId}, term ${termNumber}`);
+    console.log(`📚 Loading lessons for subject ${subjectId}, term ${termNumber}`, {
+      studentId,
+      isGuest: !studentId
+    });
 
-    // ✅ NEW ENDPOINT: /api/Lessons/subject/{subjectId}/term-number/{termNumber}/with-progress/{studentId}
-    console.log(`📡 API Call: getLessonsByTermNumber(${subjectId}, ${termNumber}, ${studentId})`);
-
-    this.coursesService.getLessonsByTermNumber(subjectId, termNumber, studentId)
+    // ✅ Use new endpoint that supports guest mode
+    this.lessonsService.getLessonsByTermNumberWithProgress(subjectId, termNumber, studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
-          console.log('📦 API Response:', {
-            lessonsCount: lessons.length,
-            firstLesson: lessons[0],
-            firstThreeLessons: lessons.slice(0, 3),
-            allLessons: lessons
+          console.log('📦 Lessons loaded:', {
+            count: lessons.length,
+            subjectId,
+            termNumber,
+            isGuest: !studentId
           });
 
-          // ✅ Check lesson IDs
-          const lessonIds = lessons.map((l: any) => l.id);
-          console.log('🆔 Lesson IDs:', lessonIds.slice(0, 10));
-          const uniqueIds = new Set(lessonIds);
-          console.log(`📊 Unique IDs: ${uniqueIds.size} out of ${lessons.length}`);
-
-          if (uniqueIds.size !== lessons.length) {
-            console.warn('⚠️ WARNING: Duplicate lesson IDs detected!');
-          }
-
-          this.lessons.set(lessons as any[]);
+          this.lessons.set(lessons);
           this.loading.set(false);
 
-          if (lessons.length > 0) {
-            console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber}`);
+          // Check if any lessons have access
+          const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
+          this.hasAccess.set(hasAnyAccess);
 
-            // ✅ NEW: Check access status from first lesson
-            const firstLesson = lessons[0] as any;
-            console.log('🔍 Checking hasAccess:', {
-              hasAccessField: firstLesson.hasAccess,
-              isLocked: firstLesson.isLocked,
-              videoUrl: firstLesson.videoUrl,
-              lessonId: firstLesson.id,
-              title: firstLesson.title
-            });
-
-            if (firstLesson.hasAccess !== undefined) {
-              const studentHasAccess = firstLesson.hasAccess === true;
-              this.hasAccess.set(studentHasAccess);
-              this.showSubscriptionBanner.set(!studentHasAccess);
-
-              console.log(`🎯 Access Status: ${studentHasAccess ? 'FULL ACCESS' : 'PREVIEW MODE'}`);
-
-              if (studentHasAccess) {
-                console.log('✅ Student has subscription access to this term');
-              } else {
-                console.log('🔒 Preview mode - Student viewing locked lessons');
-                console.log(`📚 Showing ${lessons.length} lesson previews`);
-              }
-            } else {
-              console.warn('⚠️ hasAccess field not found in lesson data');
-            }
-          } else {
-            console.warn(`⚠️ No lessons found for subject ${subjectId}, term ${termNumber}`);
-            console.warn('⚠️ Backend may not have returned preview data');
-            this.error.set('No lessons available for this term. The term may not have content yet.');
+          // Show subscription banner if no access and authenticated
+          if (!hasAnyAccess && this.authService.isAuthenticated()) {
+            this.showSubscriptionBanner.set(true);
+            console.log('🔒 Preview mode - Student viewing locked lessons');
+          } else if (hasAnyAccess) {
+            console.log('✅ Student has subscription access to this term');
           }
 
-          // Load student progress (only if has access)
-          if (this.authService.isAuthenticated() && this.hasAccess()) {
-            this.loadStudentProgress();
-          }
+          console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber} (Access: ${hasAnyAccess})`);
         },
         error: (error) => {
-          console.error(`❌ Error loading lessons for term ${termNumber}:`, error);
-
-          // Handle real errors (not 403 anymore since backend returns preview data)
+          console.error(`❌ Failed to load term ${termNumber} lessons:`, error);
           this.error.set('Unable to load lessons. Please try again later.');
           this.loading.set(false);
         }
@@ -752,7 +740,8 @@ export class LessonsComponent implements OnInit, OnDestroy {
    */
   addTermToCart(): void {
     const subjectId = this.currentSubjectId();
-    const studentId = this.authService.getCurrentUser()?.studentId;
+    const user = this.authService.getCurrentUser();
+    const studentId = user?.studentId || this.selectedStudentId();
 
     console.log('🛒 addTermToCart called:', {
       subjectId,
@@ -835,7 +824,8 @@ export class LessonsComponent implements OnInit, OnDestroy {
    * Handle plan selection confirmation
    */
   onPlanSelected(planId: number): void {
-    const studentId = this.authService.getCurrentUser()?.studentId;
+    const user = this.authService.getCurrentUser();
+    const studentId = user?.studentId || this.selectedStudentId();
 
     if (!studentId) {
       this.toastService.showInfo('Please log in to add items to cart.');
@@ -870,5 +860,12 @@ export class LessonsComponent implements OnInit, OnDestroy {
           this.toastService.showError('Failed to add plan to cart. Please try again.');
         }
       });
+  }
+
+  /**
+   * Check if user is authenticated
+   */
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
   }
 }

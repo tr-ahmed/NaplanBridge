@@ -134,8 +134,44 @@ export const routes: Routes = [
       ,  data: { hideHeader: true, hideFooter: true }
   },
   {
+    path: 'admin/exams',
+    loadComponent: () => import('./features/exam-management/exam-management.component').then(m => m.ExamManagementComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+      ,  data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'admin/exam/create',
+    loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+      ,  data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'admin/exam/edit/:id',
+    loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+      ,  data: { hideHeader: true, hideFooter: true }
+  },
+  {
     path: 'lesson-detail/:id',
     loadComponent: () => import('./features/lesson-detail/lesson-detail').then(m => m.LessonDetail),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+      ,  data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'admin/analytics',
+    loadComponent: () => import('./features/analytics-dashboard/analytics-dashboard.component').then(m => m.AnalyticsDashboardComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+      ,  data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'admin/advanced-analytics',
+    loadComponent: () => import('./features/advanced-analytics/advanced-analytics.component').then(m => m.AdvancedAnalyticsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+      ,  data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'admin/financial-reports',
+    loadComponent: () => import('./features/financial-reports/financial-reports.component').then(m => m.FinancialReportsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
       ,  data: { hideHeader: true, hideFooter: true }
   },
@@ -153,11 +189,41 @@ export const routes: Routes = [
           ,  data: { hideHeader: true, hideFooter: true }
 
   },
+  {
+    path: 'admin/video-settings',
+    loadComponent: () => import('./admin/video-settings/video-settings.component').then(m => m.VideoSettingsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: true, hideFooter: true }
+  },
 
   // Teacher Dashboard
   {
     path: 'teacher/dashboard',
     loadComponent: () => import('./features/teacher-dashboard/teacher-dashboard.component').then(m => m.TeacherDashboardComponent),
+    canActivate: [authGuard]
+  },
+
+  // Teacher Content Management
+  {
+    path: 'teacher/content-management',
+    loadComponent: () => import('./features/teacher/content-management/teacher-content-management.component').then(m => m.TeacherContentManagementComponent),
+    canActivate: [authGuard]
+  },
+
+  // Teacher Exam Management
+  {
+    path: 'teacher/exams',
+    loadComponent: () => import('./features/exam-management/exam-management.component').then(m => m.ExamManagementComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'teacher/exam/create',
+    loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'teacher/exam/edit/:id',
+    loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
     canActivate: [authGuard]
   },
 
@@ -168,17 +234,7 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'teacher/exams',
-    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
-    pathMatch: 'full'
-  },
-  {
     path: 'teacher/class/:classId',
-    redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
-    pathMatch: 'full'
-  },
-  {
-    path: 'teacher/exam/create',
     redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
     pathMatch: 'full'
   },

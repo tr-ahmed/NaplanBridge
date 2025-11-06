@@ -183,6 +183,121 @@ export class LessonsService {
   }
 
   /**
+   * ✅ NEW: Get lessons by subject with progress (supports guest mode)
+   * @param subjectId - Subject ID
+   * @param studentId - Optional student ID (omit for guest mode)
+   */
+  getLessonsBySubjectWithProgress(subjectId: number, studentId?: number): Observable<Lesson[]> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const endpoint = ApiNodes.getLessonsBySubjectWithProgress;
+    let url = `${this.baseUrl}${endpoint.url.replace(':subjectId', subjectId.toString())}`;
+
+    // ✅ Add studentId to URL only if provided (for authenticated users)
+    if (studentId) {
+      url = url.replace(':studentId?', studentId.toString());
+    } else {
+      // Remove optional parameter for guest mode
+      url = url.replace('/:studentId?', '');
+    }
+
+    console.log('📚 Fetching lessons with progress:', { subjectId, studentId, isGuest: !studentId, url });
+
+    return this.http.get<Lesson[]>(url).pipe(
+      tap((lessons) => {
+        console.log(`✅ Loaded ${lessons.length} lessons (guest: ${!studentId})`);
+        this.loading.set(false);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Failed to load lessons:', error);
+        this.error.set('Failed to load lessons');
+        this.loading.set(false);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * ✅ NEW: Get lessons by term with progress (supports guest mode)
+   * @param termId - Term ID
+   * @param studentId - Optional student ID (omit for guest mode)
+   */
+  getLessonsByTermWithProgress(termId: number, studentId?: number): Observable<Lesson[]> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const endpoint = ApiNodes.getLessonsByTermWithProgress;
+    let url = `${this.baseUrl}${endpoint.url.replace(':termId', termId.toString())}`;
+
+    // ✅ Add studentId to URL only if provided
+    if (studentId) {
+      url = url.replace(':studentId?', studentId.toString());
+    } else {
+      url = url.replace('/:studentId?', '');
+    }
+
+    console.log('📚 Fetching term lessons with progress:', { termId, studentId, isGuest: !studentId, url });
+
+    return this.http.get<Lesson[]>(url).pipe(
+      tap((lessons) => {
+        console.log(`✅ Loaded ${lessons.length} term lessons (guest: ${!studentId})`);
+        this.loading.set(false);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Failed to load term lessons:', error);
+        this.error.set('Failed to load lessons');
+        this.loading.set(false);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * ✅ NEW: Get lessons by term number with progress (supports guest mode)
+   * @param subjectId - Subject ID
+   * @param termNumber - Term number (1-4)
+   * @param studentId - Optional student ID (omit for guest mode)
+   */
+  getLessonsByTermNumberWithProgress(subjectId: number, termNumber: number, studentId?: number): Observable<Lesson[]> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const endpoint = ApiNodes.getLessonsByTermNumberWithProgress;
+    let url = `${this.baseUrl}${endpoint.url
+      .replace(':subjectId', subjectId.toString())
+      .replace(':termNumber', termNumber.toString())}`;
+
+    // ✅ Add studentId to URL only if provided
+    if (studentId) {
+      url = url.replace(':studentId?', studentId.toString());
+    } else {
+      url = url.replace('/:studentId?', '');
+    }
+
+    console.log('📚 Fetching term number lessons with progress:', {
+      subjectId,
+      termNumber,
+      studentId,
+      isGuest: !studentId,
+      url
+    });
+
+    return this.http.get<Lesson[]>(url).pipe(
+      tap((lessons) => {
+        console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber} (guest: ${!studentId})`);
+        this.loading.set(false);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Failed to load term number lessons:', error);
+        this.error.set('Failed to load lessons');
+        this.loading.set(false);
+        return of([]);
+      })
+    );
+  }
+
+  /**
    * Rate a lesson
    */
   rateLesson(lessonId: number, rating: number, comment?: string): Observable<boolean> {

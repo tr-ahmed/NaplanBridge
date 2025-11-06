@@ -80,7 +80,7 @@ interface ContentStats {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
 })
@@ -147,6 +147,34 @@ export class AdminDashboardComponent implements OnInit {
       route: '/admin/content'
     },
     {
+      title: 'Exam Management',
+      description: 'Manage exams and results',
+      icon: 'exam',
+      color: 'purple',
+      route: '/admin/exams'
+    },
+    {
+      title: 'Analytics Dashboard',
+      description: 'View detailed analytics',
+      icon: 'analytics',
+      color: 'indigo',
+      route: '/admin/analytics'
+    },
+    {
+      title: 'Advanced Analytics',
+      description: 'Advanced reports & insights',
+      icon: 'chart',
+      color: 'pink',
+      route: '/admin/advanced-analytics'
+    },
+    {
+      title: 'Detailed Financial Reports',
+      description: 'Transactions by source',
+      icon: 'report',
+      color: 'orange',
+      route: '/admin/financial-reports'
+    },
+    {
       title: 'Financial Reports',
       description: 'View payment reports',
       icon: 'money',
@@ -157,7 +185,7 @@ export class AdminDashboardComponent implements OnInit {
       title: 'System Settings',
       description: 'Configure system',
       icon: 'settings',
-      color: 'purple',
+      color: 'gray',
       route: '/admin/settings'
     }
   ];

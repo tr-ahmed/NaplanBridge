@@ -90,12 +90,26 @@ export class AdvancedAnalyticsComponent implements OnInit {
    * Export to PDF
    */
   exportToPDF(): void {
+    if (!this.analyticsData()) {
+      this.toastService.showWarning('No data available to export');
+      return;
+    }
+
     this.analyticsService.exportToPDF(this.analyticsData()!)
       .subscribe({
-        next: () => {
+        next: (blob: Blob) => {
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `analytics-report-${Date.now()}.pdf`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+
           this.toastService.showSuccess('PDF exported successfully!');
         },
         error: (err: any) => {
+          console.error('PDF export error:', err);
           this.toastService.showError('Failed to export PDF');
         }
       });
@@ -105,12 +119,26 @@ export class AdvancedAnalyticsComponent implements OnInit {
    * Export to Excel
    */
   exportToExcel(): void {
+    if (!this.analyticsData()) {
+      this.toastService.showWarning('No data available to export');
+      return;
+    }
+
     this.analyticsService.exportToExcel(this.analyticsData()!)
       .subscribe({
-        next: () => {
+        next: (blob: Blob) => {
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `analytics-report-${Date.now()}.xlsx`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+
           this.toastService.showSuccess('Excel exported successfully!');
         },
         error: (err: any) => {
+          console.error('Excel export error:', err);
           this.toastService.showError('Failed to export Excel');
         }
       });

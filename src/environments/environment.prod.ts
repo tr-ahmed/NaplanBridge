@@ -1,6 +1,5 @@
 export const environment = {
   production: true,
-// apiBaseUrl: 'https://localhost:44349/api',
   apiBaseUrl: 'https://naplan2.runasp.net/api',
   frontendUrl: 'http://naplan.babaservice.online', // Production frontend URL
   useMock: false,

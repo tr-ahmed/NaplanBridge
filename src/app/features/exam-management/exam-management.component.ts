@@ -5,7 +5,7 @@
 
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ExamService } from '../../core/services/exam.service';
 import { AuthService } from '../../auth/auth.service';

@@ -26,6 +26,8 @@ export interface PendingApproval {
   createdByEmail: string;
   createdAt: Date;
   pendingDays: number;
+  weekNumber?: number;
+  termNumber?: number;
 }
 
 // Temporary service

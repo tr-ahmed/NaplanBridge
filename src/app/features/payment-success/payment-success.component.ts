@@ -10,6 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { PaymentService } from '../../core/services/payment.service';
 import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../core/services/toast.service';
+import { environment } from '../../../environments/environment';
 
 interface PaymentResponse {
   message: string;
@@ -232,7 +233,7 @@ export class PaymentSuccessComponent implements OnInit {
    * Get API base URL from environment or fallback
    */
   private get apiBaseUrl(): string {
-    return 'https://naplan2.runasp.net/api'; // Using production API
+    return environment.apiBaseUrl;
   }
 
   /**

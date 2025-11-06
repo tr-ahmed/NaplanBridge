@@ -8,6 +8,14 @@
         <p class="text-gray-600 mt-1">Manage educational content hierarchy</p>
       </div>
       <div class="flex items-center gap-3">
+        <a
+          routerLink="/admin/exams"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Manage Exams
+        </a>
         <button
           type="button"
           (click)="openAdd('year')"
@@ -51,7 +59,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center">
           <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
@@ -216,7 +224,7 @@
 
         <!-- Clear Filters -->
         <div class="flex items-end">
-          <button 
+          <button
             type="button"
             class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
             (click)="clearFilters()">
@@ -231,7 +239,7 @@
     <div class="bg-white rounded-lg shadow-sm overflow-hidden">
       <div class="border-b border-gray-200">
         <nav class="flex space-x-2 px-4" aria-label="Tabs">
-          <button 
+          <button
             type="button"
             class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
             [class.border-blue-500]="activeTab === 'hierarchy'"
@@ -241,14 +249,14 @@
             [class.hover:text-blue-700]="activeTab !== 'hierarchy'"
             [class.hover:border-gray-300]="activeTab !== 'hierarchy'"
             (click)="setActiveTab('hierarchy')">
-            <i class="fas fa-sitemap mr-2 text-lg" 
+            <i class="fas fa-sitemap mr-2 text-lg"
                [class.text-blue-500]="activeTab === 'hierarchy'"
                [class.text-gray-400]="activeTab !== 'hierarchy'"
                [class.group-hover:text-blue-700]="activeTab !== 'hierarchy'"></i>
             Hierarchy View
           </button>
-          
-          <button 
+
+          <button
             type="button"
             class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
             [class.border-blue-500]="activeTab === 'years'"
@@ -264,8 +272,8 @@
                [class.group-hover:text-blue-700]="activeTab !== 'years'"></i>
             Years
           </button>
-          
-          <button 
+
+          <button
             type="button"
             class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
             [class.border-blue-500]="activeTab === 'categories'"
@@ -281,8 +289,8 @@
                [class.group-hover:text-blue-700]="activeTab !== 'categories'"></i>
             Categories
           </button>
-          
-          <button 
+
+          <button
             type="button"
             class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
             [class.border-blue-500]="activeTab === 'subjects'"
@@ -298,8 +306,8 @@
                [class.group-hover:text-blue-700]="activeTab !== 'subjects'"></i>
             Subjects
           </button>
-          
-          <button 
+
+          <button
             type="button"
             class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
             [class.border-blue-500]="activeTab === 'lessons'"
@@ -321,7 +329,7 @@
       <div class="p-6">
         <!-- Tab Content -->
         <div class="tab-content">
-          
+
           <!-- Hierarchy View Tab -->
           @if (activeTab === 'hierarchy') {
             <div class="hierarchy-view">
@@ -331,16 +339,16 @@
                   Content Hierarchy
                 </h4>
                 <div class="flex gap-2">
-                  <button 
+                  <button
                     type="button"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium" 
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
                     (click)="expandAll()">
                     <i class="fas fa-plus-square mr-1"></i>
                     Expand All
                   </button>
-                  <button 
+                  <button
                     type="button"
-                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium" 
+                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium"
                     (click)="collapseAll()">
                     <i class="fas fa-minus-square mr-1"></i>
                     Collapse All
