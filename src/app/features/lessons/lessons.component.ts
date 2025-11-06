@@ -278,31 +278,32 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   /**
    * Handle lesson click
-   * ✅ UPDATED: Added subscription check + Guest preview mode
+   * ✅ UPDATED: Removed isEnrolledInSubject check - now uses hasAccess() only
    */
   onLessonClick(lesson: Lesson): void {
+    console.log('🎯 Lesson clicked:', {
+      lessonId: lesson.id,
+      title: lesson.title,
+      hasAccess: this.hasAccess(),
+      isAuthenticated: this.authService.isAuthenticated(),
+      isLocked: lesson.isLocked
+    });
+
     // ✅ PRIORITY 1: Check subscription/access
     if (!this.hasAccess()) {
       console.warn('🔒 Lesson locked - no subscription:', lesson.title);
 
       const selectedTerm = this.availableTerms().find(t => t.id === this.selectedTermId());
-      const message = `This lesson is locked! You need an active subscription for ${selectedTerm?.name || 'this term'} to access lessons. Click "Add to Cart" button above to view available plans.`;
+      const message = `This lesson is locked! You need an active subscription for ${selectedTerm?.name || 'this term'} to access lessons.`;
 
       this.toastService.showWarning(message, 7000);
       return;
     }
 
-    // ✅ Allow guests to view lessons in preview mode
+    // ✅ Allow guests to view lessons in preview mode (shouldn't happen but safe fallback)
     if (!this.authService.isAuthenticated()) {
       console.log('👤 Guest user viewing lesson in preview mode');
       this.navigateToLesson(lesson.id, true); // true = preview mode
-      return;
-    }
-
-    // Check if user is enrolled in the course
-    if (!this.isEnrolledInSubject()) {
-      this.toastService.showWarning(`You need to enroll in ${this.currentSubject()} to access this lesson`);
-      this.goBackToCourses();
       return;
     }
 
@@ -313,7 +314,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
     }
 
     // Navigate to lesson detail
-    console.log('✅ Opening lesson:', lesson.title);
+    console.log('✅ Opening lesson:', lesson.title, '→ /lesson/' + lesson.id);
     this.navigateToLesson(lesson.id, false);
   }
 
