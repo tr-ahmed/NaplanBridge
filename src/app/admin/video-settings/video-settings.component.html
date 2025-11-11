@@ -1,0 +1,271 @@
+<!-- Video Settings Component (HTML) -->
+<div class="video-settings-container">
+  <!-- Header Section -->
+  <div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="mb-2">
+          <i class="fas fa-video me-2"></i>
+          Video Provider Management
+        </h2>
+        <p class="text-muted mb-0">
+          Manage and switch between different video hosting providers
+        </p>
+      </div>
+      <button
+        class="btn btn-outline-primary"
+        (click)="refreshStatus()"
+        [disabled]="loading">
+        <i class="fas fa-sync-alt me-2" [class.fa-spin]="loading"></i>
+        Refresh Status
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading video provider information...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading">
+    <!-- Current Active Provider Banner -->
+    <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+      <i class="fas fa-info-circle fs-4 me-3"></i>
+      <div class="flex-grow-1">
+        <h5 class="alert-heading mb-1">Current Active Provider</h5>
+        <p class="mb-0">
+          <strong class="text-primary fs-5">{{ activeProvider }}</strong>
+          <span class="text-muted ms-2">
+            - All new videos will be uploaded to this provider
+          </span>
+        </p>
+      </div>
+      <span class="badge bg-success fs-6 px-3 py-2">
+        <i class="fas fa-check-circle me-1"></i>
+        Active
+      </span>
+    </div>
+
+    <!-- Last Refreshed Info -->
+    <div class="text-muted small mb-3" *ngIf="lastRefreshed">
+      <i class="fas fa-clock me-1"></i>
+      Last updated: {{ lastRefreshed | date:'medium' }}
+    </div>
+
+    <!-- Provider Cards Grid -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-4 col-md-6" *ngFor="let providerConfig of providerConfigs">
+        <div class="card h-100 provider-card"
+             [class.active-provider]="isActiveProvider(providerConfig.provider)"
+             [class.border-success]="isActiveProvider(providerConfig.provider)">
+
+          <!-- Card Header -->
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-{{ providerConfig.icon }} fs-4 me-2 text-primary"></i>
+              <h5 class="mb-0">{{ providerConfig.displayName }}</h5>
+            </div>
+            <span *ngIf="isActiveProvider(providerConfig.provider)"
+                  class="badge bg-success">
+              <i class="fas fa-check me-1"></i>
+              Active
+            </span>
+          </div>
+
+          <!-- Card Body -->
+          <div class="card-body">
+            <!-- Description -->
+            <p class="text-muted mb-3">{{ providerConfig.description }}</p>
+
+            <!-- Status Badge -->
+            <div class="mb-3">
+              <div class="d-flex align-items-center mb-2">
+                <strong class="me-2">Status:</strong>
+                <span class="badge"
+                      [class.bg-success]="getProviderStatus(providerConfig.provider)?.isConfigured"
+                      [class.bg-danger]="!getProviderStatus(providerConfig.provider)?.isConfigured">
+                  <i class="fas"
+                     [class.fa-check-circle]="getProviderStatus(providerConfig.provider)?.isConfigured"
+                     [class.fa-times-circle]="!getProviderStatus(providerConfig.provider)?.isConfigured"
+                     class="me-1"></i>
+                  {{ getProviderStatus(providerConfig.provider)?.isConfigured ? 'Configured' : 'Not Configured' }}
+                </span>
+              </div>
+              <small class="text-muted">
+                {{ getProviderStatus(providerConfig.provider)?.configurationMessage }}
+              </small>
+            </div>
+
+            <!-- Cost Savings Badge (for BunnyNet) -->
+            <div *ngIf="providerConfig.costSavings"
+                 class="alert alert-success py-2 px-3 mb-3">
+              <i class="fas fa-piggy-bank me-2"></i>
+              <small><strong>{{ providerConfig.costSavings }}</strong></small>
+            </div>
+
+            <!-- Features List -->
+            <div class="mb-3">
+              <strong class="d-block mb-2">Features:</strong>
+              <ul class="list-unstyled feature-list">
+                <li *ngFor="let feature of providerConfig.features" class="mb-1">
+                  <i class="fas fa-check text-success me-2"></i>
+                  <small>{{ feature }}</small>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Last Checked -->
+            <div class="text-muted small">
+              <i class="fas fa-clock me-1"></i>
+              Last checked: {{ formatLastChecked(getProviderStatus(providerConfig.provider)?.lastChecked || '') }}
+            </div>
+          </div>
+
+          <!-- Card Footer with Actions -->
+          <div class="card-footer bg-transparent">
+            <div class="d-grid gap-2">
+              <button
+                *ngIf="!isActiveProvider(providerConfig.provider)"
+                class="btn btn-primary"
+                [disabled]="switching || !getProviderStatus(providerConfig.provider)?.isConfigured"
+                (click)="switchProvider(providerConfig.provider)">
+                <i class="fas fa-exchange-alt me-2"></i>
+                <span *ngIf="!switching">Switch to {{ providerConfig.displayName }}</span>
+                <span *ngIf="switching">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Switching...
+                </span>
+              </button>
+
+              <button
+                *ngIf="isActiveProvider(providerConfig.provider)"
+                class="btn btn-success"
+                disabled>
+                <i class="fas fa-check-circle me-2"></i>
+                Currently Active
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cost Comparison Table -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-chart-bar me-2"></i>
+          Cost Comparison
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Provider</th>
+                <th>Storage Cost</th>
+                <th>Bandwidth Cost</th>
+                <th>Est. Monthly Cost</th>
+                <th>Savings</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Cloudinary</strong></td>
+                <td>$0.10/GB</td>
+                <td>$0.11/GB</td>
+                <td>~$50+</td>
+                <td>-</td>
+              </tr>
+              <tr class="table-success">
+                <td><strong>BunnyNet</strong></td>
+                <td>$0.01/GB</td>
+                <td>$0.005/GB</td>
+                <td>~$5</td>
+                <td>
+                  <span class="badge bg-success">
+                    <i class="fas fa-arrow-down me-1"></i>
+                    90% Savings
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Mux</strong></td>
+                <td>$0.05/GB</td>
+                <td>$0.01/GB</td>
+                <td>~$20</td>
+                <td>
+                  <span class="badge bg-info">
+                    <i class="fas fa-arrow-down me-1"></i>
+                    60% Savings
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Important Notes Section -->
+    <div class="card border-warning">
+      <div class="card-header bg-warning bg-opacity-10">
+        <h5 class="mb-0 text-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Important Notes
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <h6>
+              <i class="fas fa-video me-2 text-primary"></i>
+              Video Migration
+            </h6>
+            <p class="text-muted small mb-0">
+              Switching providers only affects new uploads. Existing videos remain on their current provider.
+              Manual migration is required if you want to move old videos.
+            </p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <h6>
+              <i class="fas fa-code me-2 text-primary"></i>
+              Frontend Updates
+            </h6>
+            <p class="text-muted small mb-0">
+              Different providers may require different video players:
+              <br>• BunnyNet: HLS player required
+              <br>• Cloudinary: HTML5 video
+              <br>• Mux: Mux Player recommended
+            </p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <h6>
+              <i class="fas fa-database me-2 text-primary"></i>
+              Configuration Persistence
+            </h6>
+            <p class="text-muted small mb-0">
+              Provider settings are currently stored in appsettings.json.
+              Changes require application restart to take effect.
+            </p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <h6>
+              <i class="fas fa-cog me-2 text-primary"></i>
+              Configuration Required
+            </h6>
+            <p class="text-muted small mb-0">
+              Each provider must be properly configured with API keys and settings
+              in appsettings.json before it can be activated.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

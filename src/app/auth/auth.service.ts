@@ -1,10 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { map, tap, catchError, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { MockDataService } from '../core/services/mock-data.service';
+import { ToastService } from '../core/services/toast.service';
 
 interface LoginResponse {
   userName: string;
@@ -13,7 +14,7 @@ interface LoginResponse {
 }
 
 interface LoginRequest {
-  email: string;
+  identifier: string; // Can be email, username, or phone number
   password: string;
 }
 
@@ -23,6 +24,7 @@ interface LoginRequest {
 export class AuthService {
   private authStatusSubject = new BehaviorSubject<boolean>(this.hasToken());
   public authStatus$ = this.authStatusSubject.asObservable();
+  private toastService = inject(ToastService);
 
   constructor(
     private router: Router,
@@ -35,12 +37,12 @@ export class AuthService {
   }
 
   // ✅ Login method using API with mock fallback
-  login(email: string, password: string, rememberMe = false): Observable<boolean> {
-    // Determine role from email for mock data
+  login(identifier: string, password: string, rememberMe = false): Observable<boolean> {
+    // Determine role from identifier for mock data
     let mockRole = 'Student';
-    if (email.includes('admin')) mockRole = 'Admin';
-    else if (email.includes('teacher')) mockRole = 'Teacher';
-    else if (email.includes('parent')) mockRole = 'Parent';
+    if (identifier.includes('admin')) mockRole = 'Admin';
+    else if (identifier.includes('teacher')) mockRole = 'Teacher';
+    else if (identifier.includes('parent')) mockRole = 'Parent';
 
     // Create mock response
     const mockResponse: LoginResponse = this.mockDataService.getMockUser(mockRole);
@@ -50,14 +52,14 @@ export class AuthService {
       console.log('🎭 Using Mock Login (Mock Mode Enabled)');
       return this.mockDataService.mockSuccess(mockResponse, 1000).pipe(
         map((response: LoginResponse) => {
-          this.storeAuthData(response, email, rememberMe);
+          this.storeAuthData(response, identifier, rememberMe);
           return true;
         })
       );
     }
 
     // Try API call with fallback to mock
-    const loginData: LoginRequest = { email, password };
+    const loginData: LoginRequest = { identifier, password };
     const loginUrl = `${environment.apiBaseUrl}/Account/login`;
 
     console.log('🔍 Attempting API Login...');
@@ -67,7 +69,7 @@ export class AuthService {
       timeout(environment.apiTimeout || 10000),
       map((response: LoginResponse) => {
         console.log('✅ API Login Successful');
-        this.storeAuthData(response, email, rememberMe);
+        this.storeAuthData(response, identifier, rememberMe);
         return true;
       }),
       catchError((error) => {
@@ -78,7 +80,7 @@ export class AuthService {
           console.warn('⚠️ Falling back to Mock Data');
           return of(mockResponse).pipe(
             map((response: LoginResponse) => {
-              this.storeAuthData(response, email, rememberMe);
+              this.storeAuthData(response, identifier, rememberMe);
               return true;
             })
           );
@@ -96,7 +98,7 @@ export class AuthService {
   /**
    * Store authentication data
    */
-  private storeAuthData(response: LoginResponse, email: string, rememberMe: boolean): void {
+  private storeAuthData(response: LoginResponse, identifier: string, rememberMe: boolean): void {
     localStorage.setItem('authToken', response.token);
     localStorage.setItem('userName', response.userName);
     localStorage.setItem('roles', JSON.stringify(response.roles));
@@ -113,7 +115,7 @@ export class AuthService {
         id: payload.nameid || payload.sub,  // User.Id (AspNetUsers.Id) for authentication
         studentId: payload.studentId ? parseInt(payload.studentId) : undefined,  // Student.Id for cart/orders
         userName: response.userName,
-        email: email,
+        identifier: identifier, // Store the identifier used for login
         roles: response.roles,
         role: response.roles, // Also store as 'role' for compatibility
         yearId: payload.yearId ? parseInt(payload.yearId) : undefined
@@ -138,16 +140,16 @@ export class AuthService {
       localStorage.setItem('currentUser', JSON.stringify({
         id: null,
         userName: response.userName,
-        email: email,
+        identifier: identifier,
         roles: response.roles,
         role: response.roles
       }));
     }
 
     if (rememberMe) {
-      localStorage.setItem('rememberedEmail', email);
+      localStorage.setItem('rememberedIdentifier', identifier);
     } else {
-      localStorage.removeItem('rememberedEmail');
+      localStorage.removeItem('rememberedIdentifier');
     }
 
     this.authStatusSubject.next(true);
@@ -181,7 +183,7 @@ export class AuthService {
     };
 
     localStorage.setItem('user', JSON.stringify(userData));
-    alert('✅ Account created successfully! You can now log in.');
+    this.toastService.showSuccess('Account created successfully! You can now log in.');
     this.router.navigate(['/auth/login']);
   }
 

@@ -1,55 +1,58 @@
 ---
-applyTo: '**'
+
+## applyTo: '**'
+
+## GitHub Copilot Instructions for the Real Angular 17 Project
+
+### Project Path: D:\Private\Ahmed Hamdi\angular
+
+**Goal:**
+Develop a real-world Angular 17 frontend for the **NaplanBridge Educational System**, integrated with a Laravel backend API.
+The application must use standalone components, new Angular control flow syntax, authentication via Laravel Sanctum, role-based access using Spatie Laravel Permission, and modern UI built with **Tailwind CSS**.
+All data used in the frontend should come from **real backend API endpoints**, not mock data.
+
 ---
 
+### 1. Project Setup (Angular 17)
 
-## GitHub Copilot Instructions for an Angular 17 Project
-
-### AppPATH: D:\Private\Ahmed Hamdi\angular\my-angular-app>
-
-**Goal:** Create a modern and complete Angular 17 project leveraging its latest features like standalone components, new control flow, and best practices for structure, validation, error handling, security, styling with Tailwind CSS, and documentation.
-
----
-
-### 1. Project Setup (Angular 17 specifics):
-
-* Use Angular CLI to generate a new project named `my-angular-app`.
-* Use standalone components as the default (no NgModules).
-* Enable routing.
-* Use SCSS for styling.
-* **Command to run:**
+* Generate the project using Angular CLI:
 
 ```bash
-ng new my-angular-app --style=scss --routing=true --standalone=true
+ng new naplanbridge-frontend --style=scss --routing=true --standalone=true
 ```
+
+* Default language: **English (en-US)**
+* Single language application (English only)
 
 ---
 
-### 2. Tailwind CSS Setup:
+### 2. Tailwind CSS Setup
 
-* Install Tailwind and its dependencies:
+Install and configure Tailwind CSS:
 
 ```bash
 npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init
 ```
 
-* Configure `tailwind.config.js`:
+**tailwind.config.js**
 
 ```js
-/** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./src/**/*.{html,ts}"
-  ],
+  content: ["./src/**/*.{html,ts}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: "#108092",
+        accent: "#bf942d",
+      },
+    },
   },
   plugins: [],
 }
 ```
 
-* Add Tailwind directives to `src/styles.scss`:
+**src/styles.scss**
 
 ```scss
 @tailwind base;
@@ -57,72 +60,100 @@ export default {
 @tailwind utilities;
 ```
 
-* Verify Tailwind is working by adding a utility class (e.g., `text-blue-500`) to a component template.
-
 ---
 
-### 3. Folder Structure:
+### 3. Folder Structure
 
 ```
-/src/app/components/ → shared, reusable UI components (e.g., header, footer, spinner)
-/src/app/features/   → feature-based page components (e.g., home, about, contact)
-/src/app/shared/     → reusable directives, pipes, and core services
-/src/app/core/       → core functionalities like interceptors, guards, global services
-/src/app/models/     → TypeScript interfaces and data models
+/src/app/core/          → interceptors, guards, services
+/src/app/features/      → actual app pages (dashboard, students, lessons, subscriptions, etc.)
+/src/app/components/    → shared UI (navbar, sidebar, loader, etc.)
+/src/app/models/        → TypeScript interfaces (User, Student, Lesson, Subscription)
+/src/app/shared/        → reusable pipes, directives
+/src/assets/            → images, global assets
 ```
 
 ---
 
-### 4. Components to Create:
+### 4. Core Components (Standalone)
 
-> **Note for Copilot:** Generate all components as standalone using `--standalone`. Use the new control flow syntax (`@if`, `@for`) in templates instead of `*ngIf` and `*ngFor`.
+* `NavbarComponent`: navigation with real menu items from backend CMS
+* `SidebarComponent`: dynamically generated from backend permissions
+* `DashboardComponent`: summary cards (total students, total lessons, total subscriptions)
+* `StudentsComponent`: CRUD with live data from `/api/students`
+* `LessonsComponent`: lesson management with `/api/lessons`
+* `SubscriptionsComponent`: subscription management and tracking
+* `ProfileComponent`: user profile and password update
 
-* `HeaderComponent`: displays navigation links
-* `FooterComponent`: displays copyright info
-* `HomeComponent`: landing page with welcome text
-* `AboutComponent`: static page with basic info
-* `ContactFormComponent`: a form with name, email, and message fields
+> ⚠️ Always fetch real data using services connected to backend endpoints.
 
 ---
 
-### 5. Routing (using Standalone APIs):
+### 5. Routing (Standalone API-based)
 
-* Configure routes in `app.routes.ts`
-* Use `loadComponent` for lazy loading
-
-**Example routes:**
+**app.routes.ts**
 
 ```ts
-{ path: '', loadComponent: () => import('./features/home/home.component').then(c => c.HomeComponent) }
-{ path: 'about', loadComponent: () => import('./features/about/about.component').then(c => c.AboutComponent) }
-{ path: 'contact', loadComponent: () => import('./features/contact-form/contact-form.component').then(c => c.ContactFormComponent) }
+export const routes: Routes = [
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(c => c.DashboardComponent) },
+  { path: 'students', loadComponent: () => import('./features/students/students.component').then(c => c.StudentsComponent) },
+  { path: 'lessons', loadComponent: () => import('./features/lessons/lessons.component').then(c => c.LessonsComponent) },
+  { path: 'subscriptions', loadComponent: () => import('./features/subscriptions/subscriptions.component').then(c => c.SubscriptionsComponent) },
+  { path: 'profile', loadComponent: () => import('./features/profile/profile.component').then(c => c.ProfileComponent) },
+];
 ```
 
 ---
 
-### 6. Form Validation (ContactFormComponent):
+### 6. Real API Integration (Example: StudentsService)
 
-* Use Reactive Forms (`FormGroup`, `FormControl`)
-* Apply `Validators.required` to all fields
-* Use `Validators.email` for the email field
-* Display friendly error messages using `@if` blocks
+**students.service.ts**
 
-**Example:**
+```ts
+@Injectable({ providedIn: 'root' })
+export class StudentsService {
+  private apiUrl = environment.apiUrl + '/students';
 
-```html
-@if (contactForm.get('email')?.hasError('required')) {
-  <small class="error">Email is required.</small>
+  constructor(private http: HttpClient) {}
+
+  getStudents(): Observable<Student[]> {
+    return this.http.get<Student[]>(this.apiUrl);
+  }
+
+  addStudent(student: Student): Observable<Student> {
+    return this.http.post<Student>(this.apiUrl, student);
+  }
+
+  updateStudent(id: number, student: Student): Observable<Student> {
+    return this.http.put<Student>(`${this.apiUrl}/${id}`, student);
+  }
+
+  deleteStudent(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }
 ```
 
 ---
 
-### 7. Error Handling:
+### 7. Error Handling & Interceptors
 
-* Create `functional-error.interceptor.ts` in `/src/app/core/interceptors/`
-* Use RxJS `catchError` to handle errors globally
-* Display feedback using a Toast/Snackbar service
-* Register the interceptor in `app.config.ts`:
+**functional-error.interceptor.ts**
+
+```ts
+export const functionalErrorInterceptor: HttpInterceptorFn = (req, next) => {
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      console.error('API Error:', error);
+      toast.error(error.error.message || 'An unexpected error occurred');
+      return throwError(() => error);
+    })
+  );
+};
+```
+
+Register in `app.config.ts`:
 
 ```ts
 withInterceptors([functionalErrorInterceptor])
@@ -130,95 +161,105 @@ withInterceptors([functionalErrorInterceptor])
 
 ---
 
-### 8. Basic Security Measures:
+### 8. Security and Authentication
 
-* Use Angular’s `DomSanitizer` to prevent XSS with dynamic HTML
-* Always validate/sanitize inputs server-side (add a comment reminder)
-* Use `environment.ts` for base URLs and config (avoid hardcoding)
-* Never expose secrets or logic in frontend code
-
----
-
-### 9. Styling:
-
-* Use Tailwind CSS utility classes for rapid UI development
-* Define custom colors, fonts, etc. in `tailwind.config.js` if needed
-* Use responsive utilities and layout helpers (e.g., `grid`, `flex`, `container`, `gap-x`, `md:w-1/2`, etc.)
-* Combine Tailwind with SCSS variables if desired (only for scoped or custom styles)
+* Use **Laravel Sanctum** tokens for authentication.
+* Store access token in `localStorage`.
+* Add `AuthInterceptor` to attach the `Authorization: Bearer <token>` header automatically.
+* Protect routes with `auth.guard.ts`.
 
 ---
 
-### 10. App Layout (`app.component.html`):
+### 9. Styling and Theming
+
+* Use Tailwind for all component layouts.
+* Apply custom theme colors (`#108092`, `#bf942d`) for consistency.
+* Maintain responsive design using Tailwind breakpoints.
+* All UI text in English only.
+
+---
+
+### 10. Real Data Dashboard Example
+
+**dashboard.component.ts**
+
+```ts
+this.http.get(`${environment.apiUrl}/dashboard/summary`).subscribe((data: any) => {
+  this.totalStudents = data.total_students;
+  this.totalLessons = data.total_lessons;
+  this.totalSubscriptions = data.total_subscriptions;
+});
+```
+
+**dashboard.component.html**
 
 ```html
-<app-header />
-<main class="container mx-auto px-4 py-6">
-  <router-outlet />
-</main>
-<app-footer />
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="p-4 bg-primary text-white rounded-2xl shadow">
+    <h3>Students</h3>
+    <p>{{ totalStudents }}</p>
+  </div>
+  <div class="p-4 bg-accent text-white rounded-2xl shadow">
+    <h3>Lessons</h3>
+    <p>{{ totalLessons }}</p>
+  </div>
+  <div class="p-4 bg-green-600 text-white rounded-2xl shadow">
+    <h3>Subscriptions</h3>
+    <p>{{ totalSubscriptions }}</p>
+  </div>
+</div>
 ```
 
 ---
 
-### 11. Optional Enhancements & Advanced Features:
+### 11. Language Configuration
 
-* **Loading Spinner:** Create `LoadingSpinnerComponent` and use Angular Signals (`signal<boolean>`) for visibility
-* **Route Guards:** Create `auth.guard.ts` using functional guard pattern
-* **Deferred Loading:** Use `@defer` block in `HomeComponent` to lazy load heavy content
-
-**Example:**
-
-```html
-@defer (on viewport) {
-  <app-heavy-chart />
-} @placeholder {
-  <p>Chart is loading...</p>
-} @loading {
-  <app-loading-spinner />
-}
-```
+* Application uses **English only** (en-US)
+* No internationalization (i18n) libraries needed
+* All UI text, labels, and messages in English
+* Direction: LTR (Left-to-Right) only
 
 ---
 
-### 12. Documentation:
+### 12. Documentation
 
-* Create a dedicated `docs/` folder in the project root for markdown-based developer documentation
-* Add a `README.md` that explains:
+Create `/docs/` folder including:
 
-  * Project overview
-  * Development setup and build steps
-  * Folder structure and conventions
-  * How to contribute or extend the app
-* Include API contracts and interface documentation under `docs/interfaces.md`
-* Optionally integrate tools like [Compodoc](https://compodoc.app/) for auto-generating technical documentation from your Angular codebase
+* `README.md` – overview, setup, and deployment
+* `api-contracts.md` – API endpoints used by the frontend
+* `ui-guidelines.md` – Tailwind theme and UI standards
 
 ---
 
-### 13. Run the App:
-
-* To serve the application with Hot Module Replacement (HMR):
+### 13. Run the Application
 
 ```bash
-ng serve -o --hmr
+ng serve --hmr --open
+```
+
+Backend must be running on:
+
+```
+Laravel API: http://localhost:8000/api/
 ```
 
 ---
 
-### Notes:
+### 14. GitHub Copilot Custom Rule
 
-* Include comments in all major parts of the code for clarity
-* Use strong typing (`interface`) for all data structures under `/models`
-* Maintain clean and modular code
+Copilot must only generate a backend report **when** a new or modified Laravel endpoint, model, or migration is needed.
+If the change only affects frontend UI, routing, or data binding — respond:
 
+> **"No backend change needed."**
 
-# GitHub Copilot Custom Instruction
+---
 
-If a feature implementation or frontend modification does NOT require backend endpoint changes,
-DO NOT generate or suggest a backend change report.
+### ✅ Summary
 
-Only generate a backend report when:
-- A new API endpoint must be added.
-- An existing API endpoint must be modified.
-- A model or database schema change is required.
-
-Otherwise, respond: "No backend change needed."
+* Real API Integration: Laravel endpoints only
+* Real educational data: students, lessons, subscriptions, terms, weeks
+* English language only (en-US)
+* Secure authentication with Laravel Sanctum
+* Role-based access control with Spatie Laravel Permission
+* Tailwind + Angular 17 best practices
+* Clean and modular production-ready code

@@ -1,0 +1,40 @@
+// Lesson Management Component Styles
+.lesson-management-container {
+  min-height: 100vh;
+}
+
+// Custom scrollbar for content areas
+.lesson-management-container {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+// Smooth transitions
+.lesson-management-container {
+  button, a {
+    transition: all 0.2s ease-in-out;
+  }
+}
+
+// Card hover effects
+.lesson-management-container {
+  .bg-white {
+    transition: box-shadow 0.3s ease-in-out;
+  }
+}

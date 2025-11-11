@@ -33,7 +33,7 @@ interface DashboardStats {
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './student-dashboard.component.html',
   styleUrl: './student-dashboard.component.scss'
 })
@@ -161,7 +161,8 @@ export class StudentDashboardComponent implements OnInit {
       this.safeLoadSubscriptions(),
       this.safeLoadAchievements(),
       this.safeLoadExamHistory(),
-      this.safeLoadRecentActivities()
+      this.safeLoadRecentActivities(),
+      this.safeLoadUpcomingExams()
     ];
 
     Promise.allSettled(loadPromises).then((results) => {
@@ -305,11 +306,41 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   /**
+   * Safely load upcoming exams with fallback
+   */
+  private safeLoadUpcomingExams(): Promise<any> {
+    return new Promise((resolve) => {
+      this.examService.getUpcomingExams(this.studentId).subscribe({
+        next: (response: any) => {
+          if (response && Array.isArray(response)) {
+            this.upcomingExams.set(response);
+            console.log('✅ Upcoming exams loaded:', response.length, 'exams');
+            resolve(response);
+          } else if (response && response.data) {
+            this.upcomingExams.set(response.data);
+            console.log('✅ Upcoming exams loaded:', response.data.length, 'exams');
+            resolve(response.data);
+          } else {
+            this.upcomingExams.set([]);
+            resolve([]);
+          }
+        },
+        error: (err) => {
+          console.warn('⚠️ Upcoming exams endpoint failed:', err);
+          this.upcomingExams.set([]);
+          resolve([]);
+        }
+      });
+    });
+  }
+
+  /**
    * Calculate stats from available data only
    */
   private calculateStatsFromAvailableData(): void {
     const subs = this.subscriptions();
     const examHist = this.examHistory();
+    const upcoming = this.upcomingExams();
 
     // Calculate stats from available data
     const totalExams = Array.isArray(examHist) ? examHist.length : 0;
@@ -319,7 +350,10 @@ export class StudentDashboardComponent implements OnInit {
 
     // Use the activeSubsCount computed property for accurate count
     const activeSubs = this.activeSubsCount();
+    const upcomingCount = Array.isArray(upcoming) ? upcoming.length : 0;
+
     console.log('📊 Calculating stats - Active Subscriptions:', activeSubs);
+    console.log('📊 Calculating stats - Upcoming Exams:', upcomingCount);
 
     this.stats.set({
       totalLessonsCompleted: 0, // Will be updated when progress API is available
@@ -327,7 +361,7 @@ export class StudentDashboardComponent implements OnInit {
       averageScore: avgScore,
       currentStreak: 0,
       activeSubscriptions: activeSubs,
-      upcomingExams: 0 // Will be updated when upcoming exams API is available
+      upcomingExams: upcomingCount
     });
 
     console.log('✅ Stats updated:', this.stats());
@@ -681,17 +715,17 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   /**
-   * Navigate to exams
+   * Navigate to student exams
    */
   goToExams(): void {
-    this.router.navigate(['/exams']);
+    this.router.navigate(['/student/exams']);
   }
 
   /**
-   * Navigate to subscriptions
+   * Navigate to student subscriptions
    */
   goToSubscriptions(): void {
-    this.router.navigate(['/subscriptions']);
+    this.router.navigate(['/student/subscriptions']);
   }
 
   /**
@@ -705,14 +739,14 @@ export class StudentDashboardComponent implements OnInit {
    * Navigate to specific exam
    */
   viewExam(examId: number): void {
-    this.router.navigate(['/exam', examId]);
+    this.router.navigate(['/student/exam', examId]);
   }
 
   /**
    * Navigate to exam result
    */
   viewExamResult(studentExamId: number): void {
-    this.router.navigate(['/exam/result', studentExamId]);
+    this.router.navigate(['/student/exam/result', studentExamId]);
   }
 
   /**

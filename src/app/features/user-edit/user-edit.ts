@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../core/services/auth.service'; // عدل المسار حسب مشروعك
+import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 export interface User {
   id: number;
@@ -24,6 +25,7 @@ export class UserEditComponent implements OnInit {
   userForm!: FormGroup;
   userId!: number;
   isSubmitting = false;
+  private toastService = inject(ToastService);
 
   constructor(
     private fb: FormBuilder,
@@ -91,7 +93,7 @@ export class UserEditComponent implements OnInit {
       .subscribe({
         next: () => {
           this.isSubmitting = false;
-          alert('✅ User updated successfully');
+          this.toastService.showSuccess('User updated successfully');
           this.router.navigate(['/user/profile']);
         },
         error: (error) => {

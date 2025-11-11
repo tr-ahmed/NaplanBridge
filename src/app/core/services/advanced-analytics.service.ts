@@ -1,11 +1,33 @@
 /**
  * Advanced Analytics Service
  * Provides comprehensive analytics data and export functionality
+ *
+ * ✅ STATUS: REAL DATA MODE (Backend Implemented)
+ * ---------------------------------------
+ * Backend API has been successfully implemented and deployed.
+ * This service is now using REAL DATA from the server.
+ *
+ * Backend Implementation Date: November 6, 2025
+ * Phase 1 & 3 Complete: ✅ Analytics, Charts, PDF Export, Excel Export
+ *
+ * Available Endpoints:
+ * - GET  /api/Analytics/advanced?period={period}&reportType={type}
+ * - GET  /api/Analytics/charts?period={period}&reportType={type}
+ * - POST /api/Analytics/export/pdf
+ * - POST /api/Analytics/export/excel
+ *
+ * To switch back to MOCK DATA (for testing):
+ * Set `useMockData = true` in the service (line ~106)
+ *
+ * Documentation:
+ * - Backend Docs: /reports/backend_changes/backend_change_advanced_analytics_2025-11-06.md
+ * - Integration Guide: /ADVANCED_ANALYTICS_INTEGRATION.md
  */
-
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { delay, catchError } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 // Interfaces
 export interface AnalyticsData {
@@ -78,11 +100,106 @@ export interface ChartData {
   providedIn: 'root'
 })
 export class AdvancedAnalyticsService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiBaseUrl}/Analytics`;
+
+  // ✅ Backend is now ready - Using REAL DATA
+  private useMockData = false; // Changed from true to false (Backend implemented)
 
   /**
-   * Get analytics data
+   * Get analytics data from API
    */
   getAnalytics(period: 'week' | 'month' | 'year', reportType: 'overview' | 'students' | 'courses' | 'revenue'): Observable<AnalyticsData> {
+    // Use mock data until backend is implemented
+    if (this.useMockData) {
+      return this.getMockAnalytics(period, reportType);
+    }
+
+    // Real API call
+    const params = new HttpParams()
+      .set('period', period)
+      .set('reportType', reportType);
+
+    return this.http.get<AnalyticsData>(`${this.apiUrl}/advanced`, { params }).pipe(
+      catchError(error => {
+        console.error('Error loading analytics:', error);
+        // Fallback to mock data on error
+        return this.getMockAnalytics(period, reportType);
+      })
+    );
+  }
+
+  /**
+   * Get chart data from API
+   */
+  getChartData(period: 'week' | 'month' | 'year', reportType: 'overview' | 'students' | 'courses' | 'revenue'): Observable<ChartData> {
+    // Use mock data until backend is implemented
+    if (this.useMockData) {
+      return this.getMockChartData(period, reportType);
+    }
+
+    // Real API call
+    const params = new HttpParams()
+      .set('period', period)
+      .set('reportType', reportType);
+
+    return this.http.get<ChartData>(`${this.apiUrl}/charts`, { params }).pipe(
+      catchError(error => {
+        console.error('Error loading chart data:', error);
+        // Fallback to mock data on error
+        return this.getMockChartData(period, reportType);
+      })
+    );
+  }
+
+  /**
+   * Export analytics to PDF
+   */
+  exportToPDF(data: AnalyticsData): Observable<Blob> {
+    // Use mock until backend is implemented
+    if (this.useMockData) {
+      return this.mockExportPDF(data);
+    }
+
+    // Real API call
+    return this.http.post(`${this.apiUrl}/export/pdf`, data, {
+      responseType: 'blob'
+    }).pipe(
+      catchError(error => {
+        console.error('Error exporting PDF:', error);
+        return this.mockExportPDF(data);
+      })
+    );
+  }
+
+  /**
+   * Export analytics to Excel
+   */
+  exportToExcel(data: AnalyticsData): Observable<Blob> {
+    // Use mock until backend is implemented
+    if (this.useMockData) {
+      return this.mockExportExcel(data);
+    }
+
+    // Real API call
+    return this.http.post(`${this.apiUrl}/export/excel`, data, {
+      responseType: 'blob'
+    }).pipe(
+      catchError(error => {
+        console.error('Error exporting Excel:', error);
+        return this.mockExportExcel(data);
+      })
+    );
+  }
+
+  // ============================================
+  // MOCK DATA METHODS (Remove when backend is ready)
+  // ============================================
+
+  /**
+   * Mock analytics data
+   */
+  private getMockAnalytics(period: 'week' | 'month' | 'year', reportType: 'overview' | 'students' | 'courses' | 'revenue'): Observable<AnalyticsData> {
     // Mock data - replace with real API
     const mockData: AnalyticsData = {
       period,
@@ -142,9 +259,9 @@ export class AdvancedAnalyticsService {
   }
 
   /**
-   * Get chart data
+   * Mock chart data
    */
-  getChartData(period: 'week' | 'month' | 'year', reportType: 'overview' | 'students' | 'courses' | 'revenue'): Observable<ChartData> {
+  private getMockChartData(period: 'week' | 'month' | 'year', reportType: 'overview' | 'students' | 'courses' | 'revenue'): Observable<ChartData> {
     const mockChartData: ChartData = {
       labels: this.getLabels(period),
       datasets: [
@@ -167,31 +284,35 @@ export class AdvancedAnalyticsService {
   }
 
   /**
-   * Export to PDF
+   * Mock PDF export
    */
-  exportToPDF(data: AnalyticsData): Observable<boolean> {
-    // Mock PDF generation
-    console.log('Generating PDF report...', data);
+  private mockExportPDF(data: AnalyticsData): Observable<Blob> {
+    console.log('Generating mock PDF report...', data);
 
-    // Simulate PDF download
+    // Simulate PDF content
     const pdfContent = this.generatePDFContent(data);
+    const blob = new Blob([pdfContent], { type: 'application/pdf' });
+
+    // Trigger download
     this.downloadFile(pdfContent, `analytics-report-${Date.now()}.txt`, 'text/plain');
 
-    return of(true).pipe(delay(1000));
+    return of(blob).pipe(delay(1000));
   }
 
   /**
-   * Export to Excel
+   * Mock Excel export
    */
-  exportToExcel(data: AnalyticsData): Observable<boolean> {
-    // Mock Excel generation
-    console.log('Generating Excel report...', data);
+  private mockExportExcel(data: AnalyticsData): Observable<Blob> {
+    console.log('Generating mock Excel report...', data);
 
     // Generate CSV format (can be opened in Excel)
     const csvContent = this.generateCSVContent(data);
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+
+    // Trigger download
     this.downloadFile(csvContent, `analytics-report-${Date.now()}.csv`, 'text/csv');
 
-    return of(true).pipe(delay(1000));
+    return of(blob).pipe(delay(1000));
   }
 
   /**

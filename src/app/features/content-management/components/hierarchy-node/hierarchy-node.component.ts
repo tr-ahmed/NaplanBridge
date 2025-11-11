@@ -22,6 +22,7 @@ export class HierarchyNodeComponent implements OnChanges {
   @Output() add = new EventEmitter<{ type: EntityType; entity: any }>();
   @Output() edit = new EventEmitter<{ type: EntityType; entity: any }>();
   @Output() delete = new EventEmitter<{ type: EntityType; entity: any }>();
+  @Output() lessonClick = new EventEmitter<Lesson>();
 
   expandedSubjects: Set<number> = new Set();
   expandedTerms: Set<number> = new Set();
@@ -103,5 +104,9 @@ export class HierarchyNodeComponent implements OnChanges {
 
   onDelete(type: EntityType, entity: any): void {
     this.delete.emit({ type, entity });
+  }
+
+  onLessonClick(lesson: Lesson): void {
+    this.lessonClick.emit(lesson);
   }
 }

@@ -145,6 +145,13 @@ export class ParentDashboardComponent implements OnInit {
       )
     }).subscribe({
       next: ({ dashboard, children, orderSummary, monthlyOrders }) => {
+        console.log('💰 Order Summary Received:', {
+          totalSpent: orderSummary.totalSpent,
+          orderCount: orderSummary.orderCount,
+          lastOrderDate: orderSummary.lastOrderDate,
+          ordersCount: orderSummary.orders?.length || 0,
+          monthlySpent: monthlyOrders.totalSpent
+        });
         this.loadChildrenDetails(children, orderSummary, monthlyOrders.totalSpent);
       },
       error: (error) => {
@@ -193,20 +200,55 @@ export class ParentDashboardComponent implements OnInit {
 
     forkJoin(childRequests).subscribe({
       next: (childrenData) => {
+        console.log('🔍 Parent Dashboard - Raw API Response:', childrenData);
+
         const processedChildren: Child[] = childrenData.map(data => {
           const child = data.child;
           const progress = data.progress;
-          const subscriptions = Array.isArray(data.subscriptions) ? data.subscriptions : [];
+
+          // ✅ NEW: API now returns { totalActiveSubscriptions, subscriptions: [...] }
+          let subscriptions: any[] = [];
+          if (data.subscriptions && typeof data.subscriptions === 'object') {
+            // Extract subscriptions array from response object
+            if (Array.isArray(data.subscriptions.subscriptions)) {
+              subscriptions = data.subscriptions.subscriptions;
+            } else if (Array.isArray(data.subscriptions)) {
+              subscriptions = data.subscriptions;
+            }
+          }
+
           const exams = Array.isArray(data.exams) ? data.exams : [];
           const activities = Array.isArray(data.recentActivities) ? data.recentActivities : [];
+
+          console.log(`🔍 Processing child ${child.userName}:`, {
+            childId: child.id,
+            totalSubscriptions: subscriptions.length,
+            activeCount: subscriptions.filter((s: any) => s.isActive === true).length,
+            subscriptions: subscriptions.map((s: any) => ({
+              planName: s.planName,
+              isActive: s.isActive,
+              daysRemaining: s.daysRemaining
+            }))
+          });
 
           // Calculate overall progress
           const overallProgress = progress?.overallProgress || 0;
 
-          // Get active subscription
-          const activeSubscription = subscriptions.length > 0
-            ? subscriptions[0].planName || 'No Active Subscription'
+          // Get active subscription - filter for active subscriptions only
+          const activeSubscriptions = subscriptions.filter((sub: any) => sub.isActive === true);
+          const activeSubscription = activeSubscriptions.length > 0
+            ? activeSubscriptions.map((s: any) => s.planName || s.subjectName).join(', ')
             : 'No Active Subscription';
+
+          console.log(`👤 ${child.userName} subscriptions:`, {
+            total: subscriptions.length,
+            active: activeSubscriptions.length,
+            displayText: activeSubscription,
+            allSubs: subscriptions.map((s: any) => ({
+              name: s.planName || s.subjectName,
+              isActive: s.isActive
+            }))
+          });
 
           // Count upcoming exams
           const upcomingExams = exams.filter((exam: any) =>
@@ -233,14 +275,52 @@ export class ParentDashboardComponent implements OnInit {
           };
         });
 
-        // Calculate totals
+        // ✅ Calculate totals using NEW isActive field from backend
+        console.log('🔢 Calculating active subscriptions with new isActive field...');
         const activeSubscriptions = childrenData.reduce((sum, data) => {
-          const subscriptions = Array.isArray(data.subscriptions) ? data.subscriptions : [];
-          return sum + subscriptions.length;
+          // Extract subscriptions array from API response
+          let subscriptions: any[] = [];
+          if (data.subscriptions && typeof data.subscriptions === 'object') {
+            if (Array.isArray(data.subscriptions.subscriptions)) {
+              subscriptions = data.subscriptions.subscriptions;
+            } else if (Array.isArray(data.subscriptions)) {
+              subscriptions = data.subscriptions;
+            }
+          }
+
+          // ✅ Use backend's isActive field directly
+          const activeCount = subscriptions.filter((sub: any) => sub.isActive === true).length;
+
+          console.log(`  ✅ ${data.child.userName}: ${activeCount} active / ${subscriptions.length} total`);
+          return sum + activeCount;
         }, 0);
 
-        // Generate alerts
+        console.log('📊 Active subscriptions TOTAL:', {
+          totalChildren: childrenData.length,
+          activeSubscriptions,
+          perChild: childrenData.map((d: any) => {
+            let subs: any[] = [];
+            if (d.subscriptions?.subscriptions) {
+              subs = d.subscriptions.subscriptions;
+            } else if (Array.isArray(d.subscriptions)) {
+              subs = d.subscriptions;
+            }
+            return {
+              name: d.child.userName,
+              active: subs.filter((s: any) => s.isActive).length,
+              total: subs.length
+            };
+          })
+        });        // Generate alerts
         const alerts = this.generateAlerts(processedChildren);
+
+        console.log('📊 Final Dashboard Data:', {
+          totalSpent: orderSummary.totalSpent,
+          activeSubscriptions,
+          orderCount: orderSummary.orderCount,
+          monthlySpent,
+          childrenCount: processedChildren.length
+        });
 
         this.dashboardData.set({
           children: processedChildren,
@@ -342,14 +422,14 @@ export class ParentDashboardComponent implements OnInit {
    * Navigate to add new child
    */
   addNewChild(): void {
-    this.router.navigate(['/parent/add-student']);
+    this.router.navigate(['/add-student']);
   }
 
   /**
    * Navigate to subscription plans
    */
   viewSubscriptionPlans(): void {
-    this.router.navigate(['/subscription-plans']);
+    this.router.navigate(['/courses']);
   }
 
   /**
@@ -408,5 +488,29 @@ export class ParentDashboardComponent implements OnInit {
    */
   refreshDashboard(): void {
     this.loadDashboardData();
+  }
+
+  /**
+   * Get subscription list as array
+   */
+  getSubscriptionList(subscriptionText: string): string[] {
+    if (!subscriptionText || subscriptionText === 'No Active Subscription') {
+      return [];
+    }
+    return subscriptionText.split(',').map(s => s.trim()).filter(s => s.length > 0);
+  }
+
+  /**
+   * Get subscription count
+   */
+  getSubscriptionCount(subscriptionText: string): number {
+    return this.getSubscriptionList(subscriptionText).length;
+  }
+
+  /**
+   * Add subscription for child
+   */
+  addSubscription(childId: number): void {
+    this.router.navigate(['/parent/subscriptions'], { queryParams: { childId } });
   }
 }

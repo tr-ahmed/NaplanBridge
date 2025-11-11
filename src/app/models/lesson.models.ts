@@ -82,6 +82,9 @@ export interface Lesson {
   lastAccessedAt?: Date;
   prerequisites?: number[];
   learningObjectives?: string[];
+
+  // ✅ NEW: Subscription access status (from backend)
+  hasAccess?: boolean;  // Indicates if student has active subscription for this lesson's term
 }
 
 /**

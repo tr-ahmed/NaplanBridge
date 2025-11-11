@@ -1,0 +1,1087 @@
+<!-- Comprehensive Lesson Management - Full Page Design -->
+<div class="lesson-management-container min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-4">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+        </button>
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Lesson Management</h1>
+          <p class="text-gray-600 mt-1" *ngIf="lesson">{{ lesson.title }}</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="openLessonEdit()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        </svg>
+        Edit Lesson
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isLoading && lesson">
+      
+      <!-- Lesson Overview Card -->
+      <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Lesson Details</h2>
+            <div class="space-y-3">
+              <div>
+                <label class="text-sm font-medium text-gray-500">Title</label>
+                <p class="text-gray-900">{{ lesson.title }}</p>
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-500">Description</label>
+                <p class="text-gray-700">{{ lesson.description || 'No description' }}</p>
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-500">Duration</label>
+                <p class="text-gray-900">{{ lesson.duration || 0 }} minutes</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Media</h2>
+            <div class="space-y-4">
+              <div *ngIf="lesson.posterUrl">
+                <label class="text-sm font-medium text-gray-500">Poster</label>
+                <img [src]="lesson.posterUrl" alt="Lesson poster" class="w-full h-48 object-cover rounded-lg mt-2">
+              </div>
+              <div *ngIf="lesson.videoUrl">
+                <label class="text-sm font-medium text-gray-500">Video</label>
+                <video [src]="lesson.videoUrl" controls class="w-full h-48 rounded-lg mt-2"></video>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Resources</p>
+              <p class="text-2xl font-bold text-blue-600">{{ resources.length }}</p>
+            </div>
+            <div class="p-3 bg-blue-100 rounded-full">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Notes</p>
+              <p class="text-2xl font-bold text-green-600">{{ notes.length }}</p>
+            </div>
+            <div class="p-3 bg-green-100 rounded-full">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Questions</p>
+              <p class="text-2xl font-bold text-purple-600">{{ questions.length }}</p>
+            </div>
+            <div class="p-3 bg-purple-100 rounded-full">
+              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Discussions</p>
+              <p class="text-2xl font-bold text-yellow-600">{{ discussions.length }}</p>
+            </div>
+            <div class="p-3 bg-yellow-100 rounded-full">
+              <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Exams</p>
+              <p class="text-2xl font-bold text-red-600">{{ exams.length }}</p>
+            </div>
+            <div class="p-3 bg-red-100 rounded-full">
+              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-500">Chapters</p>
+              <p class="text-2xl font-bold text-indigo-600">{{ chapters.length }}</p>
+            </div>
+            <div class="p-3 bg-indigo-100 rounded-full">
+              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="border-b border-gray-200">
+          <nav class="flex space-x-2 px-4" aria-label="Tabs">
+            <button
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
+              [class.border-blue-500]="activeTab === 'overview'"
+              [class.border-transparent]="activeTab !== 'overview'"
+              [class.text-blue-600]="activeTab === 'overview'"
+              [class.text-gray-500]="activeTab !== 'overview'"
+              (click)="setActiveTab('overview')">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Overview
+            </button>
+
+            <button
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
+              [class.border-blue-500]="activeTab === 'resources'"
+              [class.border-transparent]="activeTab !== 'resources'"
+              [class.text-blue-600]="activeTab === 'resources'"
+              [class.text-gray-500]="activeTab !== 'resources'"
+              (click)="setActiveTab('resources')">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Resources ({{ resources.length }})
+            </button>
+
+            <button
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
+              [class.border-blue-500]="activeTab === 'notes'"
+              [class.border-transparent]="activeTab !== 'notes'"
+              [class.text-blue-600]="activeTab === 'notes'"
+              [class.text-gray-500]="activeTab !== 'notes'"
+              (click)="setActiveTab('notes')">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Notes ({{ notes.length }})
+            </button>
+
+            <button
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
+              [class.border-blue-500]="activeTab === 'questions'"
+              [class.border-transparent]="activeTab !== 'questions'"
+              [class.text-blue-600]="activeTab === 'questions'"
+              [class.text-gray-500]="activeTab !== 'questions'"
+              (click)="setActiveTab('questions')">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Questions ({{ questions.length }})
+            </button>
+
+            <button
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
+              [class.border-blue-500]="activeTab === 'discussions'"
+              [class.border-transparent]="activeTab !== 'discussions'"
+              [class.text-blue-600]="activeTab === 'discussions'"
+              [class.text-gray-500]="activeTab !== 'discussions'"
+              (click)="setActiveTab('discussions')">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+              </svg>
+              Discussions ({{ discussions.length }})
+            </button>
+
+            <button
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
+              [class.border-blue-500]="activeTab === 'exams'"
+              [class.border-transparent]="activeTab !== 'exams'"
+              [class.text-blue-600]="activeTab === 'exams'"
+              [class.text-gray-500]="activeTab !== 'exams'"
+              (click)="setActiveTab('exams')">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+              </svg>
+              Exams ({{ exams.length }})
+            </button>
+
+            <button
+              type="button"
+              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
+              [class.border-blue-500]="activeTab === 'chapters'"
+              [class.border-transparent]="activeTab !== 'chapters'"
+              [class.text-blue-600]="activeTab === 'chapters'"
+              [class.text-gray-500]="activeTab !== 'chapters'"
+              (click)="setActiveTab('chapters')">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+              </svg>
+              Chapters ({{ chapters.length }})
+            </button>
+          </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-6">
+          
+          <!-- Overview Tab -->
+          <div *ngIf="activeTab === 'overview'">
+            <div class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">Lesson Overview</h3>
+              <p class="mt-1 text-sm text-gray-500">View lesson statistics and quick actions above</p>
+            </div>
+          </div>
+
+          <!-- Resources Tab -->
+          <div *ngIf="activeTab === 'resources'">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Resources</h2>
+              <button
+                type="button"
+                (click)="openAddResource()"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Resource
+              </button>
+            </div>
+
+            <div *ngIf="isLoadingResources" class="text-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            </div>
+
+            <div *ngIf="!isLoadingResources && resources.length === 0" class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No resources</h3>
+              <p class="mt-1 text-sm text-gray-500">Get started by adding a new resource</p>
+            </div>
+
+            <div *ngIf="!isLoadingResources && resources.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div *ngFor="let resource of resources" class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900">{{ resource.title }}</h3>
+                    <p class="text-sm text-gray-600 mt-1">{{ resource.description }}</p>
+                    <div class="mt-2 flex items-center gap-2">
+                      <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{{ resource.resourceType }}</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      (click)="openEditResource(resource)"
+                      class="p-1 text-blue-600 hover:bg-blue-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="deleteResource(resource)"
+                      class="p-1 text-red-600 hover:bg-red-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes Tab -->
+          <div *ngIf="activeTab === 'notes'">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Notes</h2>
+              <button
+                type="button"
+                (click)="openAddNote()"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Note
+              </button>
+            </div>
+
+            <div *ngIf="isLoadingNotes" class="text-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+            </div>
+
+            <div *ngIf="!isLoadingNotes && notes.length === 0" class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No notes</h3>
+              <p class="mt-1 text-sm text-gray-500">Get started by adding a new note</p>
+            </div>
+
+            <div *ngIf="!isLoadingNotes && notes.length > 0" class="space-y-4">
+              <div *ngFor="let note of notes" class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-semibold text-gray-900">{{ note.title }}</h3>
+                      <button
+                        type="button"
+                        (click)="toggleNoteFavorite(note)"
+                        class="p-1">
+                        <svg class="w-5 h-5" [class.text-yellow-500]="note.isFavorite" [class.text-gray-400]="!note.isFavorite" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                        </svg>
+                      </button>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">{{ note.content }}</p>
+                  </div>
+                  <div class="flex items-center gap-2 ml-4">
+                    <button
+                      type="button"
+                      (click)="openEditNote(note)"
+                      class="p-1 text-green-600 hover:bg-green-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="deleteNote(note)"
+                      class="p-1 text-red-600 hover:bg-red-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Questions Tab -->
+          <div *ngIf="activeTab === 'questions'">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Questions / Quiz</h2>
+              <button
+                type="button"
+                (click)="openAddQuestion()"
+                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Question
+              </button>
+            </div>
+
+            <div *ngIf="isLoadingQuestions" class="text-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+            </div>
+
+            <div *ngIf="!isLoadingQuestions && questions.length === 0" class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No questions</h3>
+              <p class="mt-1 text-sm text-gray-500">Get started by adding a new question</p>
+            </div>
+
+            <div *ngIf="!isLoadingQuestions && questions.length > 0" class="space-y-4">
+              <div *ngFor="let question of questions; let i = index" class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded">Q{{ i + 1 }}</span>
+                      <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded">{{ question.points }} pts</span>
+                      <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded">{{ question.questionType }}</span>
+                    </div>
+                    <p class="text-gray-900 font-medium">{{ question.questionText }}</p>
+                    <div *ngIf="question.options && question.options.length > 0" class="mt-3 space-y-2">
+                      <div *ngFor="let option of question.options" class="flex items-center gap-2 text-sm">
+                        <span [class.text-green-600]="option.isCorrect" [class.font-semibold]="option.isCorrect">
+                          {{ option.isCorrect ? '✓' : '○' }}
+                        </span>
+                        <span [class.text-green-600]="option.isCorrect" [class.font-semibold]="option.isCorrect">
+                          {{ option.optionText }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 ml-4">
+                    <button
+                      type="button"
+                      (click)="openEditQuestion(question)"
+                      class="p-1 text-purple-600 hover:bg-purple-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="deleteQuestion(question)"
+                      class="p-1 text-red-600 hover:bg-red-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Discussions Tab -->
+          <div *ngIf="activeTab === 'discussions'">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Discussions</h2>
+              <button
+                type="button"
+                (click)="openAddDiscussion()"
+                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 font-medium flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Discussion
+              </button>
+            </div>
+
+            <div *ngIf="isLoadingDiscussions" class="text-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-600 mx-auto"></div>
+            </div>
+
+            <div *ngIf="!isLoadingDiscussions && discussions.length === 0" class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No discussions</h3>
+              <p class="mt-1 text-sm text-gray-500">Get started by adding a new discussion</p>
+            </div>
+
+            <div *ngIf="!isLoadingDiscussions && discussions.length > 0" class="space-y-4">
+              <div *ngFor="let discussion of discussions" class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900">{{ discussion.question }}</h3>
+                    <p class="text-sm text-gray-600 mt-2">{{ discussion.details }}</p>
+                    <div class="mt-3 flex items-center gap-4 text-xs text-gray-500">
+                      <span>{{ discussion.replies?.length || 0 }} replies</span>
+                      <span>{{ discussion.createdAt | date: 'short' }}</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 ml-4">
+                    <button
+                      type="button"
+                      (click)="deleteDiscussion(discussion)"
+                      class="p-1 text-red-600 hover:bg-red-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exams Tab -->
+          <div *ngIf="activeTab === 'exams'">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Exams</h2>
+              <button
+                type="button"
+                (click)="openAddExam()"
+                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Exam
+              </button>
+            </div>
+
+            <div *ngIf="isLoadingExams" class="text-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+            </div>
+
+            <div *ngIf="!isLoadingExams && exams.length === 0" class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No exams</h3>
+              <p class="mt-1 text-sm text-gray-500">Get started by adding a new exam</p>
+            </div>
+
+            <div *ngIf="!isLoadingExams && exams.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div *ngFor="let exam of exams" class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900">{{ exam.title }}</h3>
+                    <p class="text-sm text-gray-600 mt-1">{{ exam.description }}</p>
+                    <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <span class="text-gray-500">Duration:</span>
+                        <span class="ml-1 font-semibold">{{ exam.duration }} min</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-500">Total Marks:</span>
+                        <span class="ml-1 font-semibold">{{ exam.totalMarks }}</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-500">Passing:</span>
+                        <span class="ml-1 font-semibold">{{ exam.passingMarks }}</span>
+                      </div>
+                      <div>
+                        <span class="text-gray-500">Date:</span>
+                        <span class="ml-1 font-semibold">{{ exam.examDate | date: 'short' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 ml-4">
+                    <button
+                      type="button"
+                      (click)="openEditExam(exam)"
+                      class="p-1 text-red-600 hover:bg-red-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="deleteExam(exam)"
+                      class="p-1 text-red-600 hover:bg-red-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chapters Tab -->
+          <div *ngIf="activeTab === 'chapters'">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Chapters / Segments</h2>
+              <button
+                type="button"
+                (click)="openAddChapter()"
+                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Chapter
+              </button>
+            </div>
+
+            <div *ngIf="isLoadingChapters" class="text-center py-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+            </div>
+
+            <div *ngIf="!isLoadingChapters && chapters.length === 0" class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No chapters</h3>
+              <p class="mt-1 text-sm text-gray-500">Get started by adding a new chapter</p>
+            </div>
+
+            <div *ngIf="!isLoadingChapters && chapters.length > 0" class="space-y-3">
+              <div *ngFor="let chapter of chapters; let i = index" class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-semibold rounded">Ch {{ i + 1 }}</span>
+                      <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded">{{ chapter.startTime }} - {{ chapter.endTime }}</span>
+                    </div>
+                    <h3 class="font-semibold text-gray-900">{{ chapter.title }}</h3>
+                    <p class="text-sm text-gray-600 mt-1">{{ chapter.description }}</p>
+                  </div>
+                  <div class="flex items-center gap-2 ml-4">
+                    <button
+                      type="button"
+                      (click)="openEditChapter(chapter)"
+                      class="p-1 text-indigo-600 hover:bg-indigo-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="deleteChapter(chapter)"
+                      class="p-1 text-red-600 hover:bg-red-50 rounded">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODALS -->
+<!-- ============================================ -->
+
+<!-- Resource Modal -->
+<div *ngIf="isResourceFormOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="closeResourceForm()">
+  <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900">{{ editingResource ? 'Edit' : 'Add' }} Resource</h3>
+      <button type="button" (click)="closeResourceForm()" class="text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <form (ngSubmit)="saveResource()">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+          <input type="text" [(ngModel)]="resourceForm.title" name="title" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea [(ngModel)]="resourceForm.description" name="description" rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Resource Type</label>
+          <select [(ngModel)]="resourceForm.resourceType" name="resourceType"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="pdf">PDF</option>
+            <option value="document">Document</option>
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">File {{ editingResource ? '(optional)' : '*' }}</label>
+          <input type="file" (change)="onFileChange($event, 'resource')" #resourceFileInput
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <p *ngIf="getFileName('resource')" class="text-sm text-gray-600 mt-1">Selected: {{ getFileName('resource') }}</p>
+        </div>
+      </div>
+      
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" (click)="closeResourceForm()"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+          Cancel
+        </button>
+        <button type="submit"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          {{ editingResource ? 'Update' : 'Create' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Note Modal -->
+<div *ngIf="isNoteFormOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="closeNoteForm()">
+  <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900">{{ editingNote ? 'Edit' : 'Add' }} Note</h3>
+      <button type="button" (click)="closeNoteForm()" class="text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <form (ngSubmit)="saveNote()">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+          <input type="text" [(ngModel)]="noteForm.title" name="title" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Content *</label>
+          <textarea [(ngModel)]="noteForm.content" name="content" rows="6" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+        </div>
+      </div>
+      
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" (click)="closeNoteForm()"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+          Cancel
+        </button>
+        <button type="submit"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+          {{ editingNote ? 'Update' : 'Create' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Question Modal -->
+<div *ngIf="isQuestionFormOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="closeQuestionForm()">
+  <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900">{{ editingQuestion ? 'Edit' : 'Add' }} Question</h3>
+      <button type="button" (click)="closeQuestionForm()" class="text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <form (ngSubmit)="saveQuestion()">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Question Text *</label>
+          <textarea [(ngModel)]="questionForm.questionText" name="questionText" rows="3" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Question Type</label>
+            <select [(ngModel)]="questionForm.questionType" name="questionType"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+              <option value="MultipleChoice">Multiple Choice</option>
+              <option value="TrueFalse">True/False</option>
+              <option value="ShortAnswer">Short Answer</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Points</label>
+            <input type="number" [(ngModel)]="questionForm.points" name="points" min="1"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+          </div>
+        </div>
+        
+        <div *ngIf="questionForm.questionType === 'MultipleChoice'">
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-sm font-medium text-gray-700">Options</label>
+            <button type="button" (click)="addOption()"
+              class="px-3 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 text-sm">
+              + Add Option
+            </button>
+          </div>
+          
+          <div class="space-y-2">
+            <div *ngFor="let option of questionForm.options; let i = index" class="flex items-center gap-2">
+              <input type="text" [(ngModel)]="option.optionText" [name]="'option' + i" placeholder="Option text"
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+              
+              <label class="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
+                <input type="checkbox" [(ngModel)]="option.isCorrect" [name]="'correct' + i" class="rounded">
+                <span class="text-sm">Correct</span>
+              </label>
+              
+              <button type="button" (click)="removeOption(i)" *ngIf="questionForm.options.length > 2"
+                class="p-2 text-red-600 hover:bg-red-50 rounded">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" (click)="closeQuestionForm()"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+          Cancel
+        </button>
+        <button type="submit"
+          class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+          {{ editingQuestion ? 'Update' : 'Create' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Discussion Modal -->
+<div *ngIf="isDiscussionFormOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="closeDiscussionForm()">
+  <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900">Add Discussion</h3>
+      <button type="button" (click)="closeDiscussionForm()" class="text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <form (ngSubmit)="saveDiscussion()">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Question *</label>
+          <input type="text" [(ngModel)]="discussionForm.question" name="question" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
+          <textarea [(ngModel)]="discussionForm.details" name="details" rows="4"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"></textarea>
+        </div>
+      </div>
+      
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" (click)="closeDiscussionForm()"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+          Cancel
+        </button>
+        <button type="submit"
+          class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+          Create
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Exam Modal -->
+<div *ngIf="isExamFormOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="closeExamForm()">
+  <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900">{{ editingExam ? 'Edit' : 'Add' }} Exam</h3>
+      <button type="button" (click)="closeExamForm()" class="text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <form (ngSubmit)="saveExam()">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+          <input type="text" [(ngModel)]="examForm.title" name="title" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea [(ngModel)]="examForm.description" name="description" rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
+            <input type="number" [(ngModel)]="examForm.duration" name="duration" min="1"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Exam Date</label>
+            <input type="date" [(ngModel)]="examForm.examDate" name="examDate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Total Marks</label>
+            <input type="number" [(ngModel)]="examForm.totalMarks" name="totalMarks" min="1"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Passing Marks</label>
+            <input type="number" [(ngModel)]="examForm.passingMarks" name="passingMarks" min="1"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" (click)="closeExamForm()"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+          Cancel
+        </button>
+        <button type="submit"
+          class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+          {{ editingExam ? 'Update' : 'Create' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Chapter Modal -->
+<div *ngIf="isChapterFormOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="closeChapterForm()">
+  <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900">{{ editingChapter ? 'Edit' : 'Add' }} Chapter</h3>
+      <button type="button" (click)="closeChapterForm()" class="text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <form (ngSubmit)="saveChapter()">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+          <input type="text" [(ngModel)]="chapterForm.title" name="title" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea [(ngModel)]="chapterForm.description" name="description" rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Start Time (HH:MM:SS)</label>
+            <input type="text" [(ngModel)]="chapterForm.startTime" name="startTime" placeholder="00:00:00"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">End Time (HH:MM:SS)</label>
+            <input type="text" [(ngModel)]="chapterForm.endTime" name="endTime" placeholder="00:00:00"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Order Index</label>
+          <input type="number" [(ngModel)]="chapterForm.orderIndex" name="orderIndex" min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        </div>
+      </div>
+      
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" (click)="closeChapterForm()"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+          Cancel
+        </button>
+        <button type="submit"
+          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+          {{ editingChapter ? 'Update' : 'Create' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Lesson Edit Modal -->
+<div *ngIf="isLessonEditFormOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" (click)="closeLessonEdit()">
+  <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900">Edit Lesson</h3>
+      <button type="button" (click)="closeLessonEdit()" class="text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <form (ngSubmit)="saveLessonEdit()">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+          <input type="text" [(ngModel)]="lessonEditForm.title" name="title" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea [(ngModel)]="lessonEditForm.description" name="description" rows="4"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Poster Image (optional)</label>
+          <input type="file" (change)="onFileChange($event, 'posterFile')" accept="image/*"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <p *ngIf="getFileName('posterFile')" class="text-sm text-gray-600 mt-1">Selected: {{ getFileName('posterFile') }}</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Video File (optional)</label>
+          <input type="file" (change)="onFileChange($event, 'videoFile')" accept="video/*"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <p *ngIf="getFileName('videoFile')" class="text-sm text-gray-600 mt-1">Selected: {{ getFileName('videoFile') }}</p>
+        </div>
+      </div>
+      
+      <div class="flex justify-end gap-3 mt-6">
+        <button type="button" (click)="closeLessonEdit()"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+          Cancel
+        </button>
+        <button type="submit"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          Update Lesson
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

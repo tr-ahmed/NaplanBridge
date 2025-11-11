@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, of } from 'rxjs';
@@ -8,6 +8,11 @@ import { Lesson, StudentLesson } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
 import { CoursesService } from '../../core/services/courses.service';
 import { AuthService } from '../../auth/auth.service';
+import { CartService } from '../../core/services/cart.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SubscriptionPlansService, TermPlansResponse, SubjectPlansResponse, PlanOption } from '../../core/services/subscription-plans.service';
+import { PlanSelectionModalComponent } from '../../components/plan-selection-modal/plan-selection-modal.component';
+import { SubscriptionPlanSummary } from '../../models/subject.models';
 
 interface Term {
   id: number;
@@ -20,7 +25,7 @@ interface Term {
 @Component({
   selector: 'app-lessons',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PlanSelectionModalComponent],
   templateUrl: './lessons.component.html',
   styleUrls: ['./lessons.component.scss']
 })
@@ -49,12 +54,32 @@ export class LessonsComponent implements OnInit, OnDestroy {
   hasAccess = signal<boolean>(true);  // Default to true for backward compatibility
   showSubscriptionBanner = signal<boolean>(false);
 
+  // ✅ NEW: Student selection (for parents)
+  selectedStudentId = signal<number | null>(null);
+  isBrowseMode = signal<boolean>(false);
+
+  // ✅ NEW: Plan selection modal (using PlanSelectionModalComponent)
+  showPlanModal = signal<boolean>(false);
+  selectedCoursePlans = signal<SubscriptionPlanSummary[]>([]);
+  selectedCourseName = signal<string>('');
+  loadingPlans = signal<boolean>(false);
+
+  // ✅ NEW: Tab management for lessons view
+  activeTab = signal<string>('lessons');
+
+  // ✅ NEW: Make Math available in template
+  Math = Math;
+
+  private toastService = inject(ToastService);
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private lessonsService: LessonsService,
     private coursesService: CoursesService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cartService: CartService,
+    private plansService: SubscriptionPlansService
   ) {}
 
   ngOnInit(): void {
@@ -68,6 +93,19 @@ export class LessonsComponent implements OnInit, OnDestroy {
         const termNumber = params['termNumber'];  // ✅ NEW: Use termNumber instead of termId
         const termId = params['termId'];          // Keep for backward compatibility
         const hasAccessParam = params['hasAccess']; // ✅ NEW: Get access status from params
+        const browseMode = params['browseMode'] === 'true'; // ✅ NEW: Check if in browse mode
+        const studentIdParam = params['studentId']; // ✅ NEW: Get studentId from URL
+
+        // ✅ Set browse mode and student ID
+        this.isBrowseMode.set(browseMode);
+
+        if (studentIdParam) {
+          const studentId = parseInt(studentIdParam, 10);
+          if (!isNaN(studentId)) {
+            this.selectedStudentId.set(studentId);
+            console.log('✅ Selected student ID from URL:', studentId);
+          }
+        }
 
         // ✅ Set access status (convert string to boolean)
         if (hasAccessParam !== undefined) {
@@ -122,22 +160,41 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   /**
    * Load lessons for the specified subject ID (preferred method)
+   * ✅ UPDATED: Uses new with-progress endpoint that supports guest mode
    */
   private loadLessonsForSubjectId(subjectId: number): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.lessonsService.getLessonsBySubjectId(subjectId)
+    // ✅ Get studentId only if authenticated (undefined for guests)
+    const studentId = this.authService.isAuthenticated()
+      ? this.authService.getCurrentUser()?.studentId
+      : undefined;
+
+    console.log('📚 Loading lessons:', { subjectId, studentId, isGuest: !studentId });
+
+    // ✅ Use new endpoint that supports guest mode
+    this.lessonsService.getLessonsBySubjectWithProgress(subjectId, studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
           this.lessons.set(lessons);
           this.loading.set(false);
 
-          // If user is logged in, get their progress
-          if (this.authService.isAuthenticated()) {
-            this.loadStudentProgress();
+          // Check if any lessons have access
+          const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
+          this.hasAccess.set(hasAnyAccess);
+
+          // Show subscription banner if no access
+          if (!hasAnyAccess && this.authService.isAuthenticated()) {
+            this.showSubscriptionBanner.set(true);
           }
+
+          console.log('✅ Lessons loaded:', {
+            count: lessons.length,
+            hasAccess: hasAnyAccess,
+            isGuest: !studentId
+          });
         },
         error: (error) => {
           this.error.set('Failed to load lessons');
@@ -227,41 +284,59 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   /**
    * Handle lesson click
-   * ✅ UPDATED: Added subscription check
+   * ✅ UPDATED: Removed isEnrolledInSubject check - now uses hasAccess() only
    */
   onLessonClick(lesson: Lesson): void {
+    console.log('🎯 Lesson clicked:', {
+      lessonId: lesson.id,
+      title: lesson.title,
+      hasAccess: this.hasAccess(),
+      isAuthenticated: this.authService.isAuthenticated(),
+      isLocked: lesson.isLocked
+    });
+
     // ✅ PRIORITY 1: Check subscription/access
     if (!this.hasAccess()) {
       console.warn('🔒 Lesson locked - no subscription:', lesson.title);
-      alert('🔒 This lesson is locked. Subscribe to unlock all lessons and features!');
-      // Optionally redirect to subscription page
-      // this.goToSubscription();
+
+      const selectedTerm = this.availableTerms().find(t => t.id === this.selectedTermId());
+      const message = `This lesson is locked! You need an active subscription for ${selectedTerm?.name || 'this term'} to access lessons.`;
+
+      this.toastService.showWarning(message, 7000);
       return;
     }
 
-    // Check if user is logged in
+    // ✅ Allow guests to view lessons in preview mode (shouldn't happen but safe fallback)
     if (!this.authService.isAuthenticated()) {
-      alert('Please log in to access lessons');
-      this.router.navigate(['/auth/login']);
-      return;
-    }
-
-    // Check if user is enrolled in the course
-    if (!this.isEnrolledInSubject()) {
-      alert(`You need to enroll in ${this.currentSubject()} to access this lesson`);
-      this.goBackToCourses();
+      console.log('👤 Guest user viewing lesson in preview mode');
+      this.navigateToLesson(lesson.id, true); // true = preview mode
       return;
     }
 
     // Check if lesson is locked (has prerequisites)
     if (lesson.isLocked) {
-      alert('This lesson is locked. Complete the prerequisite lessons first.');
+      this.toastService.showWarning('This lesson is locked. Complete the prerequisite lessons first.');
       return;
     }
 
     // Navigate to lesson detail
-    console.log('✅ Opening lesson:', lesson.title);
-    this.router.navigate(['/lesson', lesson.id]);
+    console.log('✅ Opening lesson:', lesson.title, '→ /lesson/' + lesson.id);
+    this.navigateToLesson(lesson.id, false);
+  }
+
+  /**
+   * Navigate to lesson detail page
+   * @param lessonId - The lesson ID
+   * @param isPreviewMode - Whether to open in preview mode (for guests)
+   */
+  private navigateToLesson(lessonId: number, isPreviewMode: boolean = false): void {
+    const queryParams: any = {};
+
+    if (isPreviewMode) {
+      queryParams.preview = 'true';
+    }
+
+    this.router.navigate(['/lesson', lessonId], { queryParams });
   }
 
   /**
@@ -286,7 +361,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
    */
   enrollInCourse(): void {
     if (!this.authService.isAuthenticated()) {
-      alert('Please log in to enroll');
+      this.toastService.showInfo('Please log in to enroll');
       this.router.navigate(['/auth/login']);
       return;
     }
@@ -303,16 +378,16 @@ export class LessonsComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (success) => {
             if (success) {
-              alert(`Successfully enrolled in ${this.currentSubject()}!`);
+              this.toastService.showSuccess(`Successfully enrolled in ${this.currentSubject()}!`);
               this.isEnrolledInSubject.set(true);
               this.loadStudentProgress();
             } else {
-              alert('Enrollment failed. Please try again.');
+              this.toastService.showError('Enrollment failed. Please try again.');
             }
           },
           error: (error) => {
             console.error('Enrollment error:', error);
-            alert('Enrollment failed. Please try again.');
+            this.toastService.showError('Enrollment failed. Please try again.');
           }
         });
     }
@@ -369,10 +444,13 @@ export class LessonsComponent implements OnInit, OnDestroy {
    * Load available terms for the subject
    */
   private loadAvailableTerms(subjectId: number): void {
-    const studentId = this.authService.getCurrentUser()?.studentId;
+    const user = this.authService.getCurrentUser();
+    let studentId = user?.studentId || this.selectedStudentId();
 
+    // ✅ If still no studentId, load terms without access info (browse mode)
     if (!studentId) {
-      console.warn('⚠️ No studentId found');
+      console.warn('⚠️ No studentId found - loading terms in browse mode');
+      this.loadTermsForBrowseMode(subjectId);
       return;
     }
 
@@ -391,13 +469,15 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
           // ✅ Backend now returns correct number of terms (4) filtered by current year
           // No client-side filtering needed
-          const terms: Term[] = termAccessStatus.terms.map(t => ({
-            id: t.termId,
+          const terms: Term[] = termAccessStatus.terms.map((t, index) => ({
+            id: t.termId || t.termNumber,  // ✅ FIX: Use termNumber if termId is 0
             termNumber: t.termNumber,
             name: t.termName,
             isCurrentTerm: t.isCurrentTerm,
             hasAccess: t.hasAccess  // ✅ Backend determines access per term
           }));
+
+          console.log('📋 Mapped Terms:', terms.map(t => ({ id: t.id, termNumber: t.termNumber, name: t.name })));
 
           this.availableTerms.set(terms);
 
@@ -436,9 +516,33 @@ export class LessonsComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('❌ Error loading term access status:', error);
-          alert('Unable to load subscription information. Please try again.');
+          this.toastService.showError('Unable to load subscription information. Please try again.');
         }
       });
+  }
+
+  /**
+   * ✅ NEW: Load terms in browse mode (without student ID)
+   * Shows all 4 terms as locked for preview
+   */
+  private loadTermsForBrowseMode(subjectId: number): void {
+    console.log('👀 Loading terms for browse mode (no student ID)');
+
+    // ✅ Fallback: Create default 4 terms (all locked for preview)
+    const defaultTerms: Term[] = [
+      { id: 1, termNumber: 1, name: 'Term 1', isCurrentTerm: false, hasAccess: false },
+      { id: 2, termNumber: 2, name: 'Term 2', isCurrentTerm: false, hasAccess: false },
+      { id: 3, termNumber: 3, name: 'Term 3', isCurrentTerm: false, hasAccess: false },
+      { id: 4, termNumber: 4, name: 'Term 4', isCurrentTerm: false, hasAccess: false }
+    ];
+
+    this.availableTerms.set(defaultTerms);
+
+    // Select first term by default
+    if (!this.selectedTermId()) {
+      this.selectedTermId.set(1);
+      console.log('✅ Selected Term 1 for browse mode');
+    }
   }
 
   /**
@@ -446,64 +550,44 @@ export class LessonsComponent implements OnInit, OnDestroy {
    * ✅ Backend endpoint fixed (Nov 3, 2025) - now stable and performant
    * Fallback mechanism kept as safety net for edge cases
    */
+  /**
+   * ✅ UPDATED: Load lessons by term (supports guest mode)
+   */
   private loadLessonsByTerm(termId: number): void {
-    const studentId = this.authService.getCurrentUser()?.studentId;
-
-    if (!studentId || !this.currentSubjectId()) {
-      console.warn('⚠️ Missing studentId or subjectId');
-      return;
-    }
+    const user = this.authService.getCurrentUser();
+    const studentId = user?.studentId || this.selectedStudentId() || undefined;
 
     this.loading.set(true);
     this.error.set(null);
 
-    // ✅ Endpoint: /api/Lessons/term/{termId}/with-progress/{studentId}
-    // Status: Fixed and ready for production use
-    const url = `${this.lessonsService['baseUrl']}/Lessons/term/${termId}/with-progress/${studentId}`;
+    console.log('📚 Loading lessons by term:', { termId, studentId, isGuest: !studentId });
 
-    this.lessonsService['http'].get<any[]>(url)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((error) => {
-          console.error('❌ Error loading lessons by term endpoint:', error);
-          console.warn('🔄 Activating fallback: loading by subject and filtering...');
-
-          // Fallback: Load all lessons for subject and filter by term on frontend
-          return this.lessonsService.getLessonsBySubjectId(this.currentSubjectId()!)
-            .pipe(
-              map((allLessons: Lesson[]) => {
-                // Filter lessons by termId if available
-                const filteredLessons = allLessons.filter(lesson => lesson.termId === termId);
-                console.log(`✅ Fallback successful: Found ${filteredLessons.length} lessons for term ${termId}`);
-                return filteredLessons;
-              }),
-              catchError(() => {
-                // If fallback also fails, return empty array
-                console.error('❌ Fallback also failed');
-                return of([]);
-              })
-            );
-        })
-      )
+    // ✅ Use new endpoint that supports guest mode
+    this.lessonsService.getLessonsByTermWithProgress(termId, studentId)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
-          this.lessons.set(lessons as Lesson[]);
+          this.lessons.set(lessons);
           this.loading.set(false);
 
-          if (lessons.length > 0) {
-            console.log('✅ Lessons loaded for term:', termId, lessons);
-          } else {
-            console.warn('⚠️ No lessons found for term:', termId);
-            this.error.set('No lessons available for this term. The term may not have content yet.');
+          // Check if any lessons have access
+          const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
+          this.hasAccess.set(hasAnyAccess);
+
+          // Show subscription banner if no access and authenticated
+          if (!hasAnyAccess && this.authService.isAuthenticated()) {
+            this.showSubscriptionBanner.set(true);
           }
 
-          // Load student progress
-          if (this.authService.isAuthenticated()) {
-            this.loadStudentProgress();
-          }
+          console.log('✅ Term lessons loaded:', {
+            termId,
+            count: lessons.length,
+            hasAccess: hasAnyAccess,
+            isGuest: !studentId
+          });
         },
         error: (error) => {
-          console.error('❌ Fatal error loading lessons:', error);
+          console.error('❌ Failed to load term lessons:', error);
           this.error.set('Unable to load lessons. Please try again later.');
           this.loading.set(false);
         }
@@ -511,47 +595,53 @@ export class LessonsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load lessons by term NUMBER (NEW - Nov 3, 2025)
-   * ✅ This method fixes cross-subject navigation by using termNumber instead of termId
-   * Different subjects have different term IDs for the same term number
+   * ✅ UPDATED: Load lessons by term number (supports guest mode)
    * @param subjectId - The subject ID
    * @param termNumber - The term number (1-4)
    */
   private loadLessonsByTermNumber(subjectId: number, termNumber: number): void {
-    const studentId = this.authService.getCurrentUser()?.studentId;
-
-    if (!studentId || !subjectId) {
-      console.warn('⚠️ Missing studentId or subjectId');
-      return;
-    }
+    const user = this.authService.getCurrentUser();
+    const studentId = user?.studentId || this.selectedStudentId() || undefined;
 
     this.loading.set(true);
     this.error.set(null);
 
-    console.log(`🎯 Loading lessons for subject ${subjectId}, term ${termNumber}`);
+    console.log(`📚 Loading lessons for subject ${subjectId}, term ${termNumber}`, {
+      studentId,
+      isGuest: !studentId
+    });
 
-    // ✅ NEW ENDPOINT: /api/Lessons/subject/{subjectId}/term-number/{termNumber}/with-progress/{studentId}
-    this.coursesService.getLessonsByTermNumber(subjectId, termNumber, studentId)
+    // ✅ Use new endpoint that supports guest mode
+    this.lessonsService.getLessonsByTermNumberWithProgress(subjectId, termNumber, studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
-          this.lessons.set(lessons as any[]);
+          console.log('📦 Lessons loaded:', {
+            count: lessons.length,
+            subjectId,
+            termNumber,
+            isGuest: !studentId
+          });
+
+          this.lessons.set(lessons);
           this.loading.set(false);
 
-          if (lessons.length > 0) {
-            console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber}`);
-          } else {
-            console.warn(`⚠️ No lessons found for subject ${subjectId}, term ${termNumber}`);
-            this.error.set('No lessons available for this term. The term may not have content yet.');
+          // Check if any lessons have access
+          const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
+          this.hasAccess.set(hasAnyAccess);
+
+          // Show subscription banner if no access and authenticated
+          if (!hasAnyAccess && this.authService.isAuthenticated()) {
+            this.showSubscriptionBanner.set(true);
+            console.log('🔒 Preview mode - Student viewing locked lessons');
+          } else if (hasAnyAccess) {
+            console.log('✅ Student has subscription access to this term');
           }
 
-          // Load student progress
-          if (this.authService.isAuthenticated()) {
-            this.loadStudentProgress();
-          }
+          console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber} (Access: ${hasAnyAccess})`);
         },
         error: (error) => {
-          console.error(`❌ Error loading lessons for term ${termNumber}:`, error);
+          console.error(`❌ Failed to load term ${termNumber} lessons:`, error);
           this.error.set('Unable to load lessons. Please try again later.');
           this.loading.set(false);
         }
@@ -569,29 +659,40 @@ export class LessonsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!term.hasAccess) {
-      alert('You do not have access to this term. Please check your subscription.');
-      return;
-    }
-
-    console.log('🔄 Switching to term:', {
+    console.log('🔄 ====== SWITCHING TERM ======');
+    console.log('🔄 Selected Term:', {
       termId: term.id,
       termNumber: term.termNumber,
       termName: term.name,
       hasAccess: term.hasAccess
     });
 
+    console.log('📋 All Available Terms:', this.availableTerms().map(t => ({
+      id: t.id,
+      termNumber: t.termNumber,
+      name: t.name
+    })));
+
     // ✅ UPDATE: Set access status for the selected term
     this.hasAccess.set(term.hasAccess);
     this.showSubscriptionBanner.set(!term.hasAccess);
+    console.log(`🔒 Updated UI: hasAccess=${term.hasAccess}, showBanner=${!term.hasAccess}`);
 
     this.selectedTermId.set(termId);
 
     // ✅ FIX: Use termNumber for loading lessons (not termId)
     const subjectId = this.currentSubjectId();
+    console.log(`📚 Will load lessons for: subjectId=${subjectId}, termNumber=${term.termNumber}`);
+
+    if (!term.termNumber) {
+      console.error('❌ ERROR: termNumber is missing!', term);
+      return;
+    }
+
     if (subjectId && term.termNumber) {
       this.loadLessonsByTermNumber(subjectId, term.termNumber);
     } else {
+      console.warn('⚠️ Missing subjectId or termNumber, using fallback');
       // Fallback to old method if termNumber not available
       this.loadLessonsByTerm(termId);
     }
@@ -638,5 +739,202 @@ export class LessonsComponent implements OnInit, OnDestroy {
    */
   canAccessLesson(lesson: Lesson): boolean {
     return this.hasAccess();
+  }
+
+  /**
+   * ✅ NEW: Show subscription plans modal for the subject
+   * Student can choose any plan (single term, multi-term, or full year)
+   */
+  addTermToCart(): void {
+    const subjectId = this.currentSubjectId();
+    const user = this.authService.getCurrentUser();
+    const studentId = user?.studentId || this.selectedStudentId();
+
+    console.log('🛒 addTermToCart called:', {
+      subjectId,
+      studentId,
+      currentSubject: this.currentSubject()
+    });
+
+    if (!subjectId) {
+      this.toastService.showError('Subject not found. Please try again.');
+      return;
+    }
+
+    if (!studentId) {
+      this.toastService.showInfo('Please log in to continue.');
+      return;
+    }
+
+    console.log('🛒 Fetching all available plans for subject:', subjectId);
+
+    this.loadingPlans.set(true);
+
+    // Fetch all available plans for this subject (no term filter)
+    console.log('📡 API Call: getAvailablePlansForSubject', { subjectId });
+
+    this.plansService.getAvailablePlansForSubject(subjectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.loadingPlans.set(false);
+
+          console.log('📦 Plans API Response:', response);
+
+          if (!response.availablePlans || response.availablePlans.length === 0) {
+            console.warn('⚠️ No plans returned from API');
+            this.toastService.showWarning('No subscription plans available at the moment. Please contact support.');
+            return;
+          }
+
+          console.log(`✅ Found ${response.availablePlans.length} plans for subject`);
+
+          // Convert API response to SubscriptionPlanSummary format
+          const plans: SubscriptionPlanSummary[] = response.availablePlans.map(plan => ({
+            id: plan.planId,
+            name: plan.planName,
+            description: plan.description,
+            price: plan.price,
+            currency: plan.currency,
+            duration: plan.duration,
+            planType: plan.planType,
+            isActive: plan.isActive,
+            isPopular: plan.isRecommended,
+            features: plan.features || [],
+            discount: plan.discountPercentage || undefined,
+            originalPrice: plan.originalPrice || undefined
+          }));
+
+          // Show modal with converted plans
+          this.selectedCoursePlans.set(plans);
+          this.selectedCourseName.set(response.subjectName);
+          this.showPlanModal.set(true);
+        },
+        error: (error) => {
+          this.loadingPlans.set(false);
+          console.error('❌ Failed to fetch plans:', error);
+          this.toastService.showError('Failed to load subscription plans. Please try again later.');
+        }
+      });
+  }
+
+  /**
+   * Handle plan selection modal close
+   */
+  onClosePlanModal(): void {
+    this.showPlanModal.set(false);
+    this.selectedCoursePlans.set([]);
+    this.selectedCourseName.set('');
+  }
+
+  /**
+   * Handle plan selection confirmation
+   */
+  onPlanSelected(planId: number): void {
+    const user = this.authService.getCurrentUser();
+    const studentId = user?.studentId || this.selectedStudentId();
+
+    if (!studentId) {
+      this.toastService.showInfo('Please log in to add items to cart.');
+      return;
+    }
+
+    const selectedPlan = this.selectedCoursePlans().find(p => p.id === planId);
+
+    console.log('🛒 Adding plan to cart:', { planId, selectedPlan });
+
+    // Add to cart
+    this.cartService.addToCart({
+      subscriptionPlanId: planId,
+      studentId: studentId,
+      quantity: 1
+    }).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Plan added to cart:', response);
+
+          // Close modal
+          this.onClosePlanModal();
+
+          // Show success message
+          this.toastService.showSuccess(`${selectedPlan?.name || 'Plan'} has been added to your cart!`);
+
+          // Refresh cart count
+          this.cartService.getCartItemCount().subscribe();
+        },
+        error: (error) => {
+          console.error('❌ Failed to add to cart:', error);
+          this.toastService.showError('Failed to add plan to cart. Please try again.');
+        }
+      });
+  }
+
+  /**
+   * Check if user is authenticated
+   */
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
+  /**
+   * Set active tab
+   */
+  setActiveTab(tab: string): void {
+    this.activeTab.set(tab);
+  }
+
+  /**
+   * Get count of completed lessons
+   */
+  getCompletedLessonsCount(): number {
+    return this.lessons().filter(l => this.isLessonCompleted(l.id)).length;
+  }
+
+  /**
+   * Get count of lessons in progress
+   */
+  getInProgressLessonsCount(): number {
+    return this.lessons().filter(l =>
+      this.getLessonProgress(l.id) > 0 && !this.isLessonCompleted(l.id)
+    ).length;
+  }
+
+  /**
+   * Get total duration of all lessons
+   */
+  getTotalDuration(): number {
+    return this.lessons().reduce((sum, lesson) =>
+      sum + (lesson.duration || 0), 0
+    );
+  }
+
+  /**
+   * Get overall completion percentage
+   */
+  getOverallCompletionPercentage(): number {
+    const total = this.lessons().length;
+    if (total === 0) return 0;
+    const completed = this.getCompletedLessonsCount();
+    return Math.round((completed / total) * 100);
+  }
+
+  /**
+   * Get lessons by term (for lessons tab)
+   */
+  getLessonsByTerm(): any[] {
+    // Group lessons by term number
+    const lessonsByTerm = this.lessons().reduce((acc: any, lesson: any) => {
+      const term = lesson.term || lesson.termId || 1;
+      if (!acc[term]) {
+        acc[term] = [];
+      }
+      acc[term].push(lesson);
+      return acc;
+    }, {});
+
+    return Object.keys(lessonsByTerm).map(term => ({
+      termNumber: parseInt(term),
+      lessons: lessonsByTerm[term]
+    }));
   }
 }

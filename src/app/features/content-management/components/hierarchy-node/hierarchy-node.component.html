@@ -124,7 +124,13 @@
                             <div class="hierarchy-item lesson-item ms-4">
                               <div class="hierarchy-content">
                                 <i class="fas fa-graduation-cap text-purple me-2"></i>
-                                <strong>{{ lesson.title }}</strong>
+                                <strong 
+                                  class="lesson-title-link" 
+                                  (click)="onLessonClick(lesson)"
+                                  style="cursor: pointer; color: #6366f1; text-decoration: underline;"
+                                  title="Click to manage lesson">
+                                  {{ lesson.title }}
+                                </strong>
                                 @if (lesson.description) {
                                   <span class="text-muted ms-2">- {{ lesson.description }}</span>
                                 }

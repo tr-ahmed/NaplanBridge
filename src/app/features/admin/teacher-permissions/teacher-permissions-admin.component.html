@@ -1,0 +1,336 @@
+<div class="teacher-permissions-admin min-h-screen bg-gray-50 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">👨‍🏫 Teacher Management</h1>
+          <p class="text-gray-600 mt-1">Manage teacher permissions and content approvals</p>
+        </div>
+
+        @if (activeTab() === 'permissions') {
+          <button
+            (click)="openGrantModal()"
+            class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+            <span>+</span>
+            <span>Grant Permission</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white rounded-lg shadow-sm mb-6">
+      <nav class="tab-nav flex">
+        <button
+          (click)="switchTab('permissions')"
+          [class.active]="activeTab() === 'permissions'"
+          class="flex-1 py-4 px-6 text-center font-medium transition-colors">
+          🔐 Permissions Management
+        </button>
+        <button
+          (click)="switchTab('approvals')"
+          [class.active]="activeTab() === 'approvals'"
+          class="flex-1 py-4 px-6 text-center font-medium transition-colors relative">
+          ⏳ Pending Approvals
+          @if (pendingApprovals().length > 0) {
+            <span class="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+              {{ pendingApprovals().length }}
+            </span>
+          }
+        </button>
+      </nav>
+    </div>
+
+    <!-- Permissions Tab -->
+    @if (activeTab() === 'permissions') {
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        @if (loading()) {
+          <div class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p class="mt-4 text-gray-600">Loading teachers...</p>
+          </div>
+        } @else if (teachersWithPermissions().length === 0) {
+          <div class="text-center py-12">
+            <div class="text-6xl mb-4">👨‍🏫</div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">No Teachers with Permissions Yet</h3>
+            <p class="text-gray-600 mb-4">Start by granting permissions to teachers</p>
+            <button
+              (click)="openGrantModal()"
+              class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+              Grant First Permission
+            </button>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (teacher of teachersWithPermissions(); track teacher.teacherId) {
+              <div class="teacher-card border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                      <h3 class="text-xl font-bold text-gray-900">{{ teacher.teacherName }}</h3>
+                      <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                        {{ teacher.totalPermissions }} Subject{{ teacher.totalPermissions !== 1 ? 's' : '' }}
+                      </span>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-4">{{ teacher.email }}</p>
+
+                    <!-- Subjects List -->
+                    <div class="flex flex-wrap gap-2">
+                      @for (subject of teacher.subjects; track subject) {
+                        <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm">
+                          📚 {{ subject }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  <button
+                    (click)="revokePermission(teacher.teacherId)"
+                    class="text-red-600 hover:text-red-700 px-4 py-2 rounded hover:bg-red-50 transition-colors">
+                    Revoke All
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Approvals Tab -->
+    @if (activeTab() === 'approvals') {
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        @if (loading()) {
+          <div class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p class="mt-4 text-gray-600">Loading pending approvals...</p>
+          </div>
+        } @else if (pendingApprovals().length === 0) {
+          <div class="text-center py-12">
+            <div class="text-6xl mb-4">✅</div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">All Caught Up!</h3>
+            <p class="text-gray-600">No pending approvals at the moment</p>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (approval of pendingApprovals(); track approval.id) {
+              <div
+                class="approval-card border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                [class.urgent]="approval.pendingDays > 3"
+                [class.warning]="approval.pendingDays > 1 && approval.pendingDays <= 3"
+                [class.normal]="approval.pendingDays <= 1">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                      <span class="text-2xl">
+                        @if (approval.type === 'Lesson') { 📚 }
+                        @else if (approval.type === 'Week') { 📅 }
+                        @else if (approval.type === 'Term') { 🗓️ }
+                        @else { 📎 }
+                      </span>
+                      <h3 class="text-lg font-semibold text-gray-900">{{ approval.title }}</h3>
+                      <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                        {{ approval.type }}
+                      </span>
+                    </div>
+
+                    <div class="space-y-1 text-sm text-gray-600 mb-3">
+                      <p>📚 Subject: <strong>{{ approval.subjectName }}</strong></p>
+                      @if (approval.termNumber) {
+                        <p>🗓️ Term: <strong>{{ approval.termNumber }}</strong></p>
+                      }
+                      @if (approval.weekNumber) {
+                        <p>📅 Week: <strong>{{ approval.weekNumber }}</strong></p>
+                      }
+                      <p>👤 Created by: <strong>{{ approval.createdBy }}</strong> ({{ approval.createdByEmail }})</p>
+                      <p>📅 Created: {{ approval.createdAt | date:'medium' }}</p>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                      <span
+                        class="pending-days text-sm font-semibold"
+                        [class.urgent]="approval.pendingDays > 3"
+                        [class.warning]="approval.pendingDays > 1 && approval.pendingDays <= 3"
+                        [class.normal]="approval.pendingDays <= 1">
+                        ⏱️ Pending for {{ approval.pendingDays }} day{{ approval.pendingDays !== 1 ? 's' : '' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center space-x-2 ml-4">
+                    <button
+                      (click)="openApprovalDetail(approval)"
+                      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                      Review
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Grant Permission Modal -->
+  @if (showGrantModal()) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 modal-overlay">
+      <div class="bg-white rounded-lg max-w-md w-full">
+        <div class="p-6 border-b border-gray-200">
+          <h2 class="text-2xl font-bold text-gray-900">Grant Permission</h2>
+          <p class="text-sm text-gray-600 mt-1">Assign subject permissions to a teacher</p>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Teacher *</label>
+            <select
+              [(ngModel)]="grantForm.teacherId"
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option [value]="null">Select a teacher</option>
+              @for (teacher of availableTeachers(); track teacher.id) {
+                <option [value]="teacher.id">{{ teacher.name }} ({{ teacher.email }})</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+            <select
+              [(ngModel)]="grantForm.subjectId"
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option [value]="null">Select a subject</option>
+              @for (subject of availableSubjects(); track subject.id) {
+                <option [value]="subject.id">{{ subject.name }} - {{ subject.yearName }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="border-t border-gray-200 pt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-3">Permissions</label>
+
+            <div class="space-y-3">
+              <label class="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="grantForm.canCreate"
+                  class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+                <div>
+                  <div class="font-medium text-gray-900">Create Content</div>
+                  <div class="text-sm text-gray-600">Can create new lessons, weeks, and terms</div>
+                </div>
+              </label>
+
+              <label class="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="grantForm.canEdit"
+                  class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+                <div>
+                  <div class="font-medium text-gray-900">Edit Content</div>
+                  <div class="text-sm text-gray-600">Can modify existing content</div>
+                </div>
+              </label>
+
+              <label class="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="grantForm.canDelete"
+                  class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+                <div>
+                  <div class="font-medium text-gray-900">Delete Content</div>
+                  <div class="text-sm text-gray-600">Can remove content permanently</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+          <button
+            (click)="closeGrantModal()"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+            Cancel
+          </button>
+          <button
+            (click)="grantPermission()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            [disabled]="!grantForm.teacherId || !grantForm.subjectId">
+            Grant Permission
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Approval Detail Modal -->
+  @if (showApprovalDetailModal() && selectedApproval()) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 modal-overlay">
+      <div class="bg-white rounded-lg max-w-2xl w-full">
+        <div class="p-6 border-b border-gray-200">
+          <h2 class="text-2xl font-bold text-gray-900">Review {{ selectedApproval()!.type }}</h2>
+          <p class="text-sm text-gray-600 mt-1">Review and approve or reject this content</p>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ selectedApproval()!.title }}</h3>
+
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-600">Subject:</span>
+                <span class="ml-2 font-semibold">{{ selectedApproval()!.subjectName }}</span>
+              </div>
+
+              @if (selectedApproval()!.termNumber) {
+                <div>
+                  <span class="text-gray-600">Term:</span>
+                  <span class="ml-2 font-semibold">{{ selectedApproval()!.termNumber }}</span>
+                </div>
+              }
+
+              <div>
+                <span class="text-gray-600">Created by:</span>
+                <span class="ml-2 font-semibold">{{ selectedApproval()!.createdBy }}</span>
+              </div>
+
+              <div>
+                <span class="text-gray-600">Created:</span>
+                <span class="ml-2 font-semibold">{{ selectedApproval()!.createdAt | date:'short' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Rejection Reason (optional)</label>
+            <textarea
+              [(ngModel)]="rejectionReason"
+              rows="4"
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Provide a reason if rejecting this content..."></textarea>
+          </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+          <button
+            (click)="closeApprovalDetailModal()"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+            Cancel
+          </button>
+          <button
+            (click)="rejectContent()"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+            ❌ Reject
+          </button>
+          <button
+            (click)="approveContent()"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            ✅ Approve
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

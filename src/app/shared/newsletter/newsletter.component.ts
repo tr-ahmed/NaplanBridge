@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-newsletter',
@@ -10,6 +11,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './newsletter.component.scss'
 })
 export class NewsletterComponent {
+  private toastService = inject(ToastService);
   email: string = '';
 
   onSubmit() {
@@ -23,8 +25,8 @@ export class NewsletterComponent {
       // Reset form after submission
       this.email = '';
 
-      // Show success message (you can add a toast service here)
-      alert('Thank you for subscribing to our newsletter!');
+      // Show success message
+      this.toastService.showSuccess('Thank you for subscribing to our newsletter!');
     }
   }
 

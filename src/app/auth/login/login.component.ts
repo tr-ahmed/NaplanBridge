@@ -24,17 +24,17 @@ export class LoginComponent implements OnInit {
 
   // Reactive form for login
   loginForm: FormGroup = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+    identifier: ['', [Validators.required]], // Can be email, username, or phone
     password: ['', [Validators.required]],
     rememberMe: [false]
   });
 
   ngOnInit(): void {
-    // Load saved email if remember me was checked
-    const savedEmail = localStorage.getItem('rememberedEmail');
-    if (savedEmail) {
+    // Load saved identifier if remember me was checked
+    const savedIdentifier = localStorage.getItem('rememberedIdentifier');
+    if (savedIdentifier) {
       this.loginForm.patchValue({
-        email: savedEmail,
+        identifier: savedIdentifier,
         rememberMe: true
       });
     }
@@ -50,7 +50,7 @@ onLogin(): void {
     // Extract form data and prepare API request
     const formValue = this.loginForm.value;
     const loginData: LoginRequest = {
-      email: formValue.email,
+      identifier: formValue.identifier, // Updated to use identifier (email, username, or phone)
       password: formValue.password
     };
 
@@ -65,25 +65,25 @@ onLogin(): void {
 
           // Handle remember me functionality
           if (formValue.rememberMe) {
-            localStorage.setItem('rememberedEmail', formValue.email);
+            localStorage.setItem('rememberedIdentifier', formValue.identifier);
           } else {
-            localStorage.removeItem('rememberedEmail');
+            localStorage.removeItem('rememberedIdentifier');
           }
 
           // Check if user needs to select a role (has multiple non-Member roles)
           const roles = this.authService.userRoles();
           const nonMemberRoles = roles.filter(role => role.toLowerCase() !== 'member');
-          
+
           // If user has multiple roles and hasn't selected one yet, redirect to role selection
           if (nonMemberRoles.length > 1 && !this.authService.isRoleSelected()) {
             this.router.navigate(['/select-role']);
-          } 
+          }
           // Otherwise, determine where to navigate based on role selection or primary role
           else {
             // If user already selected a role, use that
             if (this.authService.isRoleSelected() && this.authService.selectedRole()) {
               this.authService.navigateToDashboard(this.authService.selectedRole()!);
-            } 
+            }
             // Otherwise, use primary role
             else {
               const primaryRole = this.authService.getPrimaryRole();

@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OrderService, OrderAnalyticsDto } from '../../core/services/order.service';
+import { ToastService } from '../../core/services/toast.service';
 import { catchError, of } from 'rxjs';
 
 @Component({
@@ -19,6 +20,7 @@ import { catchError, of } from 'rxjs';
 })
 export class AnalyticsDashboardComponent implements OnInit {
   private orderService = inject(OrderService);
+  private toastService = inject(ToastService);
 
   // Signals
   analytics = signal<OrderAnalyticsDto | null>(null);
@@ -62,7 +64,7 @@ export class AnalyticsDashboardComponent implements OnInit {
    */
   loadDateRangeAnalytics(): void {
     if (!this.startDate || !this.endDate) {
-      alert('Please select both start and end dates');
+      this.toastService.showWarning('Please select both start and end dates');
       return;
     }
 

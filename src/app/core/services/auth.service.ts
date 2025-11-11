@@ -31,6 +31,7 @@ export class AuthService {
   private initializeAuthState(): void {
     const token = localStorage.getItem('authToken');
     const userName = localStorage.getItem('userName');
+    const firstName = localStorage.getItem('firstName');
     const roles = localStorage.getItem('userRoles');
     const selectedRole = localStorage.getItem('selectedRole');
     const userId = localStorage.getItem('userId');
@@ -40,6 +41,7 @@ export class AuthService {
     if (token && userName && roles && userId && userProfile) {
       const user: AuthResponse = {
         userName,
+        firstName: firstName || '', // Default to empty string if not found
         token,
         roles: JSON.parse(roles),
         userId: parseInt(userId),
@@ -92,6 +94,7 @@ export class AuthService {
 
     localStorage.setItem('authToken', user.token);
     localStorage.setItem('userName', user.userName);
+    localStorage.setItem('firstName', user.firstName); // Store firstName
     localStorage.setItem('userRoles', JSON.stringify(user.roles));
 
     // Store new authentication data from backend
@@ -115,6 +118,7 @@ export class AuthService {
 
     localStorage.removeItem('authToken');
     localStorage.removeItem('userName');
+    localStorage.removeItem('firstName');
     localStorage.removeItem('userRoles');
     localStorage.removeItem('selectedRole');
     localStorage.removeItem('userId');

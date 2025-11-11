@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CurrencyPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { RouterLink } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -151,6 +152,8 @@ export class SubscriptionManagementComponent implements OnInit {
     payments: [] as Payment[],
     coupons: [] as Coupon[]
   };
+
+  private toastService = inject(ToastService);
 
   constructor(
     public authService: AuthService,
@@ -453,11 +456,11 @@ export class SubscriptionManagementComponent implements OnInit {
           this.updateStats();
           this.onFilterChange();
           this.closeForm();
-          alert('Plan created successfully!');
+          this.toastService.showSuccess('Plan created successfully!');
         },
         error: (error) => {
           console.error('Error creating plan:', error);
-          alert('Error creating plan: ' + (error.error?.message || error.message));
+          this.toastService.showError('Error creating plan: ' + (error.error?.message || error.message));
         }
       });
   }
@@ -471,7 +474,7 @@ export class SubscriptionManagementComponent implements OnInit {
       this.updateStats();
       this.onFilterChange();
       this.closeForm();
-      alert('Plan updated successfully!');
+      this.toastService.showSuccess('Plan updated successfully!');
     }
   }
 
@@ -486,11 +489,11 @@ export class SubscriptionManagementComponent implements OnInit {
           }
           this.updateStats();
           this.onFilterChange();
-          alert('Plan deactivated successfully!');
+          this.toastService.showSuccess('Plan deactivated successfully!');
         },
         error: (error) => {
           console.error('Error deactivating plan:', error);
-          alert('Error deactivating plan: ' + (error.error?.message || error.message));
+          this.toastService.showError('Error deactivating plan: ' + (error.error?.message || error.message));
         }
       });
   }
@@ -501,7 +504,7 @@ export class SubscriptionManagementComponent implements OnInit {
     this.plans = this.plans.filter(p => p.id !== planId);
     this.updateStats();
     this.onFilterChange();
-    alert('Plan deleted successfully!');
+    this.toastService.showSuccess('Plan deleted successfully!');
   }
 
   getOrderDetails(orderId: number) {
@@ -709,7 +712,7 @@ export class SubscriptionManagementComponent implements OnInit {
       if (type === 'payment') this.payments = this.payments.filter(x => x.id !== row.id);
       if (type === 'coupon') this.coupons = this.coupons.filter(x => x.id !== row.id);
       this.onFilterChange();
-      alert(`${this.entityTypeTitle(type)} deleted successfully!`);
+      this.toastService.showSuccess(`${this.entityTypeTitle(type)} deleted successfully!`);
     }
   }
 

@@ -1,0 +1,355 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-4">
+          <button
+            (click)="toggleSidebar()"
+            class="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+          <h1 class="text-2xl font-bold text-gray-900">📚 Content Management</h1>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <!-- Pending Count Badge -->
+          <div *ngIf="stats().pendingLessons > 0"
+               class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold">
+            ⏳ {{ stats().pendingLessons }} Pending
+          </div>
+
+          <button
+            (click)="openCreateModal()"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            [disabled]="!selectedSubject()">
+            <span>+</span>
+            <span>Create Lesson</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex">
+    <!-- Sidebar -->
+    <aside
+      class="w-64 bg-white border-r border-gray-200 min-h-screen p-4 transition-transform duration-300"
+      [class.hidden]="!sidebarOpen() && false"
+      [class.lg:block]="true">
+
+      <div class="mb-6">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase mb-3">My Subjects</h2>
+
+        <div *ngIf="loading()" class="space-y-2">
+          <div class="h-12 bg-gray-200 rounded animate-pulse"></div>
+          <div class="h-12 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        <div *ngIf="!loading() && authorizedSubjects().length === 0" class="text-center py-8 text-gray-500">
+          <p class="mb-2">🔒</p>
+          <p class="text-sm">No subjects assigned yet</p>
+          <p class="text-xs mt-2">Contact admin for permissions</p>
+        </div>
+
+        <div *ngIf="!loading() && authorizedSubjects().length > 0" class="space-y-2">
+          <button
+            *ngFor="let subject of authorizedSubjects()"
+            (click)="selectSubject(subject)"
+            class="w-full text-left px-4 py-3 rounded-lg transition-colors"
+            [class.bg-blue-50]="selectedSubject()?.subjectId === subject.subjectId"
+            [class.border-2]="selectedSubject()?.subjectId === subject.subjectId"
+            [class.border-blue-500]="selectedSubject()?.subjectId === subject.subjectId"
+            [class.hover:bg-gray-50]="selectedSubject()?.subjectId !== subject.subjectId">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-900">{{ subject.subjectName }}</p>
+                <p class="text-xs text-gray-500">{{ subject.yearName }}</p>
+              </div>
+              <span *ngIf="subject.pendingCount > 0"
+                    class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                {{ subject.pendingCount }}
+              </span>
+            </div>
+            <div class="mt-2 text-xs text-gray-600">
+              <span>📚 {{ subject.lessonsCount || 0 }} lessons</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Summary -->
+      <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">📊 Overview</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Total Subjects</span>
+            <span class="font-semibold">{{ stats().totalSubjects }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Total Lessons</span>
+            <span class="font-semibold">{{ stats().totalLessons }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-green-600">✅ Approved</span>
+            <span class="font-semibold">{{ stats().approvedLessons }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-yellow-600">⏳ Pending</span>
+            <span class="font-semibold">{{ stats().pendingLessons }}</span>
+          </div>
+          <div *ngIf="stats().rejectedLessons > 0" class="flex justify-between">
+            <span class="text-red-600">❌ Rejected</span>
+            <span class="font-semibold">{{ stats().rejectedLessons }}</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      <div *ngIf="!selectedSubject()" class="text-center py-16">
+        <div class="text-6xl mb-4">📚</div>
+        <h2 class="text-2xl font-semibold text-gray-800 mb-2">Select a Subject to Start</h2>
+        <p class="text-gray-600">Choose a subject from the sidebar to view and manage its content</p>
+      </div>
+
+      <div *ngIf="selectedSubject()">
+        <!-- Subject Header -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">{{ selectedSubject()?.subjectName }}</h2>
+              <p class="text-gray-600 mt-1">{{ selectedSubject()?.yearName }}</p>
+            </div>
+
+            <div class="flex items-center space-x-4">
+              <!-- Permissions Badge -->
+              <div class="flex items-center space-x-2 text-sm">
+                <span *ngIf="selectedSubject()?.canCreate" class="bg-green-100 text-green-800 px-2 py-1 rounded">✅ Create</span>
+                <span *ngIf="selectedSubject()?.canEdit" class="bg-blue-100 text-blue-800 px-2 py-1 rounded">✏️ Edit</span>
+                <span *ngIf="selectedSubject()?.canDelete" class="bg-red-100 text-red-800 px-2 py-1 rounded">🗑️ Delete</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <label class="text-sm font-medium text-gray-700">Filter by Status:</label>
+              <select
+                [(ngModel)]="approvalFilter"
+                (change)="changeApprovalFilter(approvalFilter())"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="all">All</option>
+                <option value="approved">✅ Approved</option>
+                <option value="pending">⏳ Pending</option>
+                <option value="rejected">❌ Rejected</option>
+              </select>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <input
+                type="search"
+                [(ngModel)]="searchQuery"
+                placeholder="Search lessons..."
+                class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white rounded-lg shadow-sm mb-6">
+          <div class="border-b border-gray-200">
+            <nav class="flex space-x-8 px-6" aria-label="Tabs">
+              <button
+                *ngFor="let tab of tabs"
+                (click)="switchTab(tab.id)"
+                class="py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                [class.border-blue-500]="activeTab() === tab.id"
+                [class.text-blue-600]="activeTab() === tab.id"
+                [class.border-transparent]="activeTab() !== tab.id"
+                [class.text-gray-500]="activeTab() !== tab.id"
+                [class.hover:text-gray-700]="activeTab() !== tab.id">
+                <span class="mr-2">{{ tab.icon }}</span>
+                {{ tab.label }}
+              </button>
+            </nav>
+          </div>
+
+          <!-- Tab Content -->
+          <div class="p-6">
+            <div *ngIf="loading()" class="text-center py-12">
+              <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <p class="mt-4 text-gray-600">Loading...</p>
+            </div>
+
+            <!-- Lessons Tab -->
+            <div *ngIf="!loading() && activeTab() === 'lessons'">
+              <div *ngIf="filteredLessons.length === 0" class="text-center py-12">
+                <div class="text-4xl mb-4">📚</div>
+                <p class="text-gray-600">No lessons found</p>
+                <button
+                  (click)="openCreateModal()"
+                  class="mt-4 text-blue-600 hover:text-blue-700 font-medium">
+                  Create your first lesson
+                </button>
+              </div>
+
+              <div *ngIf="filteredLessons.length > 0" class="space-y-4">
+                <div *ngFor="let lesson of filteredLessons"
+                     class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-3 mb-2">
+                        <h3 class="text-lg font-semibold text-gray-900">{{ lesson.title }}</h3>
+                        <span
+                          [ngClass]="getStatusBadgeClass(lesson.approvalStatus)"
+                          class="px-2 py-1 rounded text-xs font-medium">
+                          {{ getStatusIcon(lesson.approvalStatus) }} {{ lesson.approvalStatus }}
+                        </span>
+                      </div>
+                      <p class="text-gray-600 text-sm mb-3">{{ lesson.description }}</p>
+
+                      <div class="flex items-center space-x-4 text-xs text-gray-500">
+                        <span>📅 Created: {{ lesson.createdAt | date:'short' }}</span>
+                        <span *ngIf="lesson.approvedAt">✅ Approved: {{ lesson.approvedAt | date:'short' }}</span>
+                        <span *ngIf="lesson.duration">⏱️ {{ lesson.duration }} min</span>
+                      </div>
+
+                      <div *ngIf="lesson.rejectionReason" class="mt-3 bg-red-50 border border-red-200 rounded p-3">
+                        <p class="text-sm text-red-800">
+                          <strong>❌ Rejection Reason:</strong> {{ lesson.rejectionReason }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 ml-4">
+                      <button
+                        *ngIf="selectedSubject()?.canEdit"
+                        (click)="openEditModal(lesson)"
+                        class="text-blue-600 hover:text-blue-700 p-2 rounded hover:bg-blue-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                      </button>
+
+                      <button
+                        *ngIf="selectedSubject()?.canDelete"
+                        (click)="deleteItem('lesson', lesson.id)"
+                        class="text-red-600 hover:text-red-700 p-2 rounded hover:bg-red-50">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overview Tab -->
+            <div *ngIf="!loading() && activeTab() === 'overview'">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-6">
+                  <div class="text-3xl mb-2">📚</div>
+                  <div class="text-2xl font-bold">{{ stats().totalLessons }}</div>
+                  <div class="text-blue-100 mt-1">Total Lessons</div>
+                </div>
+
+                <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg p-6">
+                  <div class="text-3xl mb-2">✅</div>
+                  <div class="text-2xl font-bold">{{ stats().approvedLessons }}</div>
+                  <div class="text-green-100 mt-1">Approved</div>
+                </div>
+
+                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white rounded-lg p-6">
+                  <div class="text-3xl mb-2">⏳</div>
+                  <div class="text-2xl font-bold">{{ stats().pendingLessons }}</div>
+                  <div class="text-yellow-100 mt-1">Pending Approval</div>
+                </div>
+              </div>
+
+              <div *ngIf="stats().rejectedLessons > 0" class="mt-6 bg-red-50 border border-red-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-red-800 mb-2">❌ Rejected Items</h3>
+                <p class="text-red-700">You have {{ stats().rejectedLessons }} rejected items that need attention.</p>
+                <button
+                  (click)="changeApprovalFilter('rejected')"
+                  class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                  View Rejected Items
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create Lesson Modal -->
+  <div *ngIf="showCreateModal()" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-900">Create New Lesson</h2>
+        <p class="text-sm text-gray-600 mt-1">Your lesson will be submitted for admin approval</p>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Lesson Title *</label>
+          <input
+            type="text"
+            [(ngModel)]="lessonForm.title"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Enter lesson title">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea
+            [(ngModel)]="lessonForm.description"
+            rows="4"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Enter lesson description"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Video URL</label>
+            <input
+              type="url"
+              [(ngModel)]="lessonForm.videoUrl"
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="https://...">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
+            <input
+              type="number"
+              [(ngModel)]="lessonForm.duration"
+              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="45">
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+        <button
+          (click)="closeCreateModal()"
+          class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+          Cancel
+        </button>
+        <button
+          (click)="createLesson()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          Create Lesson
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

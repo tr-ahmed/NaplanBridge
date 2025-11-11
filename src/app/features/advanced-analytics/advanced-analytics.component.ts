@@ -3,10 +3,11 @@
  * Comprehensive analytics dashboard with charts and reports
  */
 
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdvancedAnalyticsService, AnalyticsData, ChartData } from '../../core/services/advanced-analytics.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-advanced-analytics',
@@ -25,6 +26,7 @@ export class AdvancedAnalyticsComponent implements OnInit {
   // Data
   analyticsData = signal<AnalyticsData | null>(null);
   chartData = signal<ChartData | null>(null);
+  private toastService = inject(ToastService);
 
   constructor(private analyticsService: AdvancedAnalyticsService) {}
 
@@ -88,13 +90,27 @@ export class AdvancedAnalyticsComponent implements OnInit {
    * Export to PDF
    */
   exportToPDF(): void {
+    if (!this.analyticsData()) {
+      this.toastService.showWarning('No data available to export');
+      return;
+    }
+
     this.analyticsService.exportToPDF(this.analyticsData()!)
       .subscribe({
-        next: () => {
-          alert('PDF exported successfully!');
+        next: (blob: Blob) => {
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `analytics-report-${Date.now()}.pdf`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+
+          this.toastService.showSuccess('PDF exported successfully!');
         },
         error: (err: any) => {
-          alert('Failed to export PDF');
+          console.error('PDF export error:', err);
+          this.toastService.showError('Failed to export PDF');
         }
       });
   }
@@ -103,13 +119,27 @@ export class AdvancedAnalyticsComponent implements OnInit {
    * Export to Excel
    */
   exportToExcel(): void {
+    if (!this.analyticsData()) {
+      this.toastService.showWarning('No data available to export');
+      return;
+    }
+
     this.analyticsService.exportToExcel(this.analyticsData()!)
       .subscribe({
-        next: () => {
-          alert('Excel exported successfully!');
+        next: (blob: Blob) => {
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `analytics-report-${Date.now()}.xlsx`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+
+          this.toastService.showSuccess('Excel exported successfully!');
         },
         error: (err: any) => {
-          alert('Failed to export Excel');
+          console.error('Excel export error:', err);
+          this.toastService.showError('Failed to export Excel');
         }
       });
   }

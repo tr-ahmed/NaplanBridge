@@ -187,26 +187,44 @@
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           @for (action of quickActions; track action.title) {
-            <button
-              (click)="navigateTo(action.route)"
-              class="bg-white rounded-lg shadow-sm p-6 text-left hover:shadow-md transition-all">
+            <a
+              [routerLink]="action.route"
+              class="bg-white rounded-lg shadow-sm p-6 text-left hover:shadow-md transition-all block cursor-pointer">
               <div
                 class="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
                 [class.bg-blue-100]="action.color === 'blue'"
                 [class.bg-green-100]="action.color === 'green'"
                 [class.bg-yellow-100]="action.color === 'yellow'"
-                [class.bg-purple-100]="action.color === 'purple'">
+                [class.bg-purple-100]="action.color === 'purple'"
+                [class.bg-indigo-100]="action.color === 'indigo'"
+                [class.bg-pink-100]="action.color === 'pink'"
+                [class.bg-gray-100]="action.color === 'gray'">
                 <svg class="w-6 h-6"
                   [class.text-blue-600]="action.color === 'blue'"
                   [class.text-green-600]="action.color === 'green'"
                   [class.text-yellow-600]="action.color === 'yellow'"
                   [class.text-purple-600]="action.color === 'purple'"
+                  [class.text-indigo-600]="action.color === 'indigo'"
+                  [class.text-pink-600]="action.color === 'pink'"
+                  [class.text-gray-600]="action.color === 'gray'"
                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   @if (action.icon === 'users') {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                   }
                   @if (action.icon === 'content') {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                  }
+                  @if (action.icon === 'exam') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  }
+                  @if (action.icon === 'analytics') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                  }
+                  @if (action.icon === 'chart') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                  }
+                  @if (action.icon === 'report') {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   }
                   @if (action.icon === 'money') {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -219,7 +237,7 @@
               </div>
               <h3 class="font-semibold text-gray-900 mb-1">{{ action.title }}</h3>
               <p class="text-sm text-gray-600">{{ action.description }}</p>
-            </button>
+            </a>
           }
         </div>
       </div>

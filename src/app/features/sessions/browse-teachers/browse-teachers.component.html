@@ -1,92 +1,145 @@
-<div class="browse-teachers-container p-6">
-  <!-- Header -->
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">Available Teachers for Booking</h1>
-    <p class="text-gray-600 mt-1">Book a private session with top teachers</p>
-  </div>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-  <!-- Search Bar -->
-  <div class="mb-6">
-    <input
-      type="text"
-      (input)="onSearchChange($event)"
-      placeholder="Search for teacher or subject..."
-      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-  </div>  <!-- Loading State -->
-  <div *ngIf="loading()" class="flex items-center justify-center py-12">
-    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-  </div>
-
-  <!-- Teachers Grid -->
-  <div *ngIf="!loading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div *ngFor="let teacher of filteredTeachers"
-         class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
-
-      <!-- Teacher Avatar -->
-      <div class="flex items-center mb-4">
-        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl font-bold">
-          {{ teacher.teacherName.charAt(0).toUpperCase() }}
-        </div>
-        <div class="mr-4">
-          <h3 class="text-lg font-bold text-gray-800">{{ teacher.teacherName }}</h3>
-          <p class="text-sm text-gray-600">{{ teacher.email }}</p>
-        </div>
-      </div>
-
-      <!-- Subjects -->
-      <div class="mb-4">
-        <p class="text-sm font-medium text-gray-700 mb-2">Teaching Subjects:</p>
-        <div class="flex flex-wrap gap-2">
-          <span *ngFor="let subject of teacher.subjects"
-                class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
-            {{ subject }}
-          </span>
-        </div>
-      </div>      <!-- Description -->
-      <p *ngIf="teacher.description" class="text-gray-600 text-sm mb-4 line-clamp-2">
-        {{ teacher.description }}
-      </p>
-
-      <!-- Session Info -->
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-xs text-gray-600">Price</p>
-          <p class="text-lg font-bold text-indigo-600">${{ teacher.pricePerSession }}</p>
-        </div>
-        <div class="bg-gray-50 p-3 rounded-lg">
-          <p class="text-xs text-gray-600">Session Duration</p>
-          <p class="text-lg font-bold text-gray-800">{{ teacher.sessionDurationMinutes }} min</p>
-        </div>
-      </div>
-
-      <!-- Booking Status -->
-      <div class="mb-4">
-        <span
-          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
-          [class]="teacher.isAcceptingBookings ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-          <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-            <circle cx="10" cy="10" r="8"/>
-          </svg>
-          {{ teacher.isAcceptingBookings ? 'Available for Booking' : 'Currently Unavailable' }}
-        </span>
-      </div>
-
-      <!-- Book Button -->
-      <button
-        (click)="bookWithTeacher(teacher)"
-        [disabled]="!teacher.isAcceptingBookings"
-        class="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium">
-        Book Session Now
-      </button>
+    <!-- Header Section -->
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-gray-900 mb-3">
+        Available Teachers for Booking
+      </h1>
+      <p class="text-lg text-gray-600">Book a private session with top teachers</p>
     </div>
-  </div>
 
-  <!-- Empty State -->
-  <div *ngIf="!loading() && filteredTeachers.length === 0" class="text-center py-12">
-    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-    </svg>
-    <h3 class="mt-4 text-lg font-medium text-gray-900">No Results Found</h3>
-    <p class="mt-2 text-sm text-gray-500">We couldn't find any teachers matching your search</p>
+    <!-- Search Bar -->
+    <div class="max-w-2xl mx-auto mb-8">
+      <div class="relative">
+        <input
+          type="text"
+          (input)="onSearchChange($event)"
+          placeholder="Search for teacher or subject..."
+          class="w-full px-6 py-4 pl-12 bg-white border-2 border-gray-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition-all text-lg">
+        <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="flex flex-col items-center justify-center py-20">
+      <div class="animate-spin rounded-full h-16 w-16 border-4 border-indigo-200 border-t-indigo-600 mb-4"></div>
+      <p class="text-gray-600 text-lg">Loading available teachers...</p>
+    </div>
+
+    <!-- Teachers Grid -->
+    <div *ngIf="!loading() && filteredTeachers.length > 0"
+         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+
+      <div *ngFor="let teacher of filteredTeachers"
+           class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100">
+
+        <!-- Teacher Header with gradient background -->
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 pb-20 relative">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center">
+              <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-indigo-600 text-3xl font-bold shadow-lg ring-4 ring-white ring-opacity-50">
+                {{ teacher.teacherName.charAt(0).toUpperCase() }}
+              </div>
+            </div>
+            <span
+              class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+              [class]="teacher.isAcceptingBookings ? 'bg-green-400 text-green-900' : 'bg-red-400 text-red-900'">
+              <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <circle cx="10" cy="10" r="6"/>
+              </svg>
+              {{ teacher.isAcceptingBookings ? 'Available' : 'Busy' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Card Content -->
+        <div class="p-6 -mt-16 relative">
+          <!-- Name Card -->
+          <div class="bg-white rounded-xl shadow-md p-4 mb-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-1">{{ teacher.teacherName }}</h3>
+            <p class="text-sm text-gray-500">{{ teacher.email }}</p>
+          </div>
+
+          <!-- Teaching Subjects -->
+          <div class="mb-4">
+            <p class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+              <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              Teaching Subjects
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let subject of teacher.subjects"
+                    class="px-3 py-1.5 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 rounded-lg text-sm font-medium border border-indigo-100">
+                {{ subject }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Session Info Grid -->
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-xl border border-indigo-200">
+              <div class="flex items-center mb-1">
+                <svg class="w-4 h-4 text-indigo-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-xs text-gray-600 font-medium">Price</p>
+              </div>
+              <p class="text-2xl font-bold text-indigo-600">${{ teacher.pricePerSession }}</p>
+            </div>
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
+              <div class="flex items-center mb-1">
+                <svg class="w-4 h-4 text-purple-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-xs text-gray-600 font-medium">Duration</p>
+              </div>
+              <p class="text-2xl font-bold text-purple-600">{{ teacher.sessionDurationMinutes }}<span class="text-sm"> min</span></p>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div *ngIf="teacher.description" class="mb-4">
+            <p class="text-sm text-gray-600 leading-relaxed line-clamp-3">
+              {{ teacher.description }}
+            </p>
+          </div>
+
+          <!-- Book Button -->
+          <button
+            (click)="bookWithTeacher(teacher)"
+            [disabled]="!teacher.isAcceptingBookings"
+            class="w-full py-4 rounded-xl font-semibold text-white transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            [class]="teacher.isAcceptingBookings
+              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl'
+              : 'bg-gray-400'">
+            <span class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {{ teacher.isAcceptingBookings ? 'Book Session Now' : 'Currently Unavailable' }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading() && filteredTeachers.length === 0"
+         class="text-center py-20">
+      <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-6">
+        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900 mb-2">No Teachers Found</h3>
+      <p class="text-gray-500 max-w-md mx-auto">
+        We couldn't find any teachers matching your search. Try adjusting your search terms.
+      </p>
+    </div>
+
   </div>
 </div>

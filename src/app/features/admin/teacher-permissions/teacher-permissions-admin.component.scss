@@ -1,0 +1,143 @@
+.teacher-permissions-admin {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.permissions-card {
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.teacher-card {
+  border-left: 4px solid #3b82f6;
+}
+
+.approval-card {
+  position: relative;
+
+  &.urgent {
+    border-left: 4px solid #ef4444;
+  }
+
+  &.warning {
+    border-left: 4px solid #f59e0b;
+  }
+
+  &.normal {
+    border-left: 4px solid #10b981;
+  }
+}
+
+.modal-overlay {
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.permission-toggle {
+  transition: background-color 0.2s ease;
+
+  &:checked {
+    background-color: #3b82f6;
+  }
+}
+
+.action-button {
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.pending-days {
+  &.urgent {
+    color: #dc2626;
+    font-weight: 700;
+  }
+
+  &.warning {
+    color: #f59e0b;
+    font-weight: 600;
+  }
+
+  &.normal {
+    color: #10b981;
+    font-weight: 500;
+  }
+}
+
+.tab-nav {
+  border-bottom: 2px solid #e5e7eb;
+
+  button {
+    position: relative;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &.active {
+      color: #2563eb;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: #2563eb;
+      }
+    }
+
+    &:not(.active) {
+      color: #6b7280;
+
+      &:hover {
+        color: #374151;
+      }
+    }
+  }
+}
+
+.empty-state {
+  animation: fadeIn 0.3s ease;
+}
+
+.loading-state {
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

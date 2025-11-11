@@ -502,25 +502,143 @@ export class ContentService {
 
   // ===== Lesson Resources =====
   addLessonResource(lessonId: number, title: string, description: string, resourceType: string, file: File): Observable<any> {
-    console.log('addLessonResource called with:', { lessonId, title, fileName: file.name, fileSize: file.size });
+    console.log('🔵 addLessonResource called with:', { lessonId, title, fileName: file.name, fileSize: file.size, fileType: file.type });
     
     const formData = new FormData();
-    formData.append('File', file);
+    // IMPORTANT: The parameter name MUST be 'File' (capital F) to match backend expectation
+    formData.append('File', file, file.name);
 
     // API only accepts Title and LessonId as query params (based on Swagger)
     const params = new HttpParams()
       .set('Title', title)
       .set('LessonId', lessonId.toString());
 
-    console.log('Request URL:', `${this.apiUrl}/Resources`);
-    console.log('Query Params:', params.toString());
-    console.log('FormData File:', file.name);
+    console.log('🔵 Request URL:', `${this.apiUrl}/Resources`);
+    console.log('🔵 Query Params:', params.toString());
+    console.log('🔵 FormData File:', file.name, 'Type:', file.type, 'Size:', file.size);
+    console.log('⚠️ NOTE: If you see 500 error, this is a known backend issue. See: backend_inquiry_resources_upload_500_error_2025-11-04.md');
 
     return this.http.post<any>(`${this.apiUrl}/Resources`, formData, { params });
   }
 
   deleteLessonResource(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/Resources/${id}`);
+  }
+
+  // ===== Notes Management =====
+  getLessonNotes(lessonId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/Notes`, { 
+      params: { lessonId: lessonId.toString() } 
+    });
+  }
+
+  addNote(lessonId: number, title: string, content: string): Observable<any> {
+    const body = {
+      lessonId,
+      title,
+      content
+    };
+    return this.http.post<any>(`${this.apiUrl}/Notes`, body);
+  }
+
+  updateNote(id: number, title: string, content: string): Observable<any> {
+    const body = {
+      title,
+      content
+    };
+    return this.http.put<any>(`${this.apiUrl}/Notes/${id}`, body);
+  }
+
+  deleteNote(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/Notes/${id}`);
+  }
+
+  toggleNoteFavorite(id: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/Notes/${id}/favorite`, {});
+  }
+
+  // ===== Exams Management =====
+  getLessonExams(lessonId: number): Observable<any[]> {
+    // Note: This endpoint might need adjustment based on your API
+    return this.http.get<any[]>(`${this.apiUrl}/Exam`);
+  }
+
+  addExam(lessonId: number, title: string, description: string, duration: number, totalMarks: number, passingMarks: number, examDate: string): Observable<any> {
+    const body = {
+      lessonId,
+      title,
+      description,
+      duration,
+      totalMarks,
+      passingMarks,
+      examDate
+    };
+    return this.http.post<any>(`${this.apiUrl}/Exam`, body);
+  }
+
+  updateExam(id: number, title: string, description: string, duration: number, totalMarks: number, passingMarks: number, examDate: string): Observable<any> {
+    const body = {
+      title,
+      description,
+      duration,
+      totalMarks,
+      passingMarks,
+      examDate
+    };
+    return this.http.put<any>(`${this.apiUrl}/Exam/${id}`, body);
+  }
+
+  deleteExam(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/Exam/${id}`);
+  }
+
+  // ===== Chapters Management =====
+  getLessonChapters(lessonId: number): Observable<any[]> {
+    // Note: This endpoint might need to be created on the backend
+    // For now, returning empty array
+    return this.http.get<any[]>(`${this.apiUrl}/Chapters/lesson/${lessonId}`);
+  }
+
+  addChapter(lessonId: number, title: string, description: string, startTime: string, endTime: string, orderIndex: number): Observable<any> {
+    const body = {
+      lessonId,
+      title,
+      description,
+      startTime,
+      endTime,
+      orderIndex
+    };
+    return this.http.post<any>(`${this.apiUrl}/Chapters`, body);
+  }
+
+  updateChapter(id: number, title: string, description: string, startTime: string, endTime: string, orderIndex: number): Observable<any> {
+    const body = {
+      title,
+      description,
+      startTime,
+      endTime,
+      orderIndex
+    };
+    return this.http.put<any>(`${this.apiUrl}/Chapters/${id}`, body);
+  }
+
+  deleteChapter(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/Chapters/${id}`);
+  }
+
+  // ===== Update Lesson Resource =====
+  updateLessonResource(id: number, title: string, description: string, resourceType: string, file: File | null): Observable<any> {
+    const formData = new FormData();
+    if (file) {
+      formData.append('File', file);
+    }
+
+    const params = new HttpParams()
+      .set('Title', title)
+      .set('Description', description || '')
+      .set('ResourceType', resourceType);
+
+    return this.http.put<any>(`${this.apiUrl}/Resources/${id}`, formData, { params });
   }
 
   // ===== Users =====
