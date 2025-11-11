@@ -454,27 +454,46 @@ export class ContentService {
 
   // ===== Lesson Questions (Quiz) =====
   getLessonQuestions(lessonId: number): Observable<any[]> {
+    console.log('🔵 Getting questions for lesson:', lessonId);
     return this.http.get<any[]>(`${this.apiUrl}/LessonQuestions/lesson/${lessonId}`);
   }
 
   addLessonQuestion(lessonId: number, questionText: string, questionType: string, points: number, options: any[]): Observable<any> {
+    // API expects: { lessonId, questionText, isMultipleChoice, videoMinute, explanation, options: [{ text, isCorrect }] }
+    const isMultipleChoice = questionType === 'MultipleChoice';
+    
     const body = {
       lessonId,
       questionText,
-      questionType,
-      points,
-      options
+      isMultipleChoice,
+      videoMinute: 0, // Default, can be enhanced later
+      explanation: null,
+      options: options.map(opt => ({
+        text: opt.optionText || opt.text,
+        isCorrect: opt.isCorrect || false
+      }))
     };
+    
+    console.log('🔵 Creating question:', body);
     return this.http.post<any>(`${this.apiUrl}/LessonQuestions`, body);
   }
 
   updateLessonQuestion(id: number, questionText: string, questionType: string, points: number, options: any[]): Observable<any> {
+    // API expects: { questionText, isMultipleChoice, videoMinute, explanation, options: [{ text, isCorrect }] }
+    const isMultipleChoice = questionType === 'MultipleChoice';
+    
     const body = {
       questionText,
-      questionType,
-      points,
-      options
+      isMultipleChoice,
+      videoMinute: 0,
+      explanation: null,
+      options: options.map(opt => ({
+        text: opt.optionText || opt.text,
+        isCorrect: opt.isCorrect || false
+      }))
     };
+    
+    console.log('🔵 Updating question:', id, body);
     return this.http.put<any>(`${this.apiUrl}/LessonQuestions/${id}`, body);
   }
 

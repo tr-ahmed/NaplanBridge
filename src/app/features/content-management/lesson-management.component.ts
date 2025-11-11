@@ -219,8 +219,9 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       this.isLoadingQuestions = true;
       const response: any = await this.contentService.getLessonQuestions(this.lessonId).toPromise();
       this.questions = Array.isArray(response) ? response : (response?.items || response?.data || []);
+      console.log('✅ Questions loaded:', this.questions.length, this.questions);
     } catch (error: any) {
-      console.error('Error loading questions:', error);
+      console.error('❌ Error loading questions:', error);
       this.questions = [];
     } finally {
       this.isLoadingQuestions = false;
@@ -629,16 +630,33 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   }
 
   openEditQuestion(question: any): void {
+    console.log('📝 Opening edit for question:', question);
+    
     this.editingQuestion = question;
+    
+    // Map API response to form structure
+    // API returns: { questionText, isMultipleChoice, videoMinute, options: [{ id, text }] }
+    // Form needs: { questionText, questionType, points, options: [{ optionText, isCorrect }] }
+    
+    const mappedOptions = question.options && Array.isArray(question.options) 
+      ? question.options.map((opt: any) => ({
+          optionText: opt.text || opt.optionText || '',
+          isCorrect: opt.isCorrect || false,
+          id: opt.id
+        }))
+      : [
+          { optionText: '', isCorrect: false },
+          { optionText: '', isCorrect: false }
+        ];
+    
     this.questionForm = {
       questionText: question.questionText || '',
-      questionType: question.questionType || 'MultipleChoice',
-      points: question.points || 1,
-      options: question.options ? [...question.options] : [
-        { optionText: '', isCorrect: false },
-        { optionText: '', isCorrect: false }
-      ]
+      questionType: question.isMultipleChoice ? 'MultipleChoice' : 'TrueFalse',
+      points: 1, // Not stored in API, default to 1
+      options: mappedOptions
     };
+    
+    console.log('📝 Form populated with:', this.questionForm);
     this.isQuestionFormOpen = true;
   }
 
