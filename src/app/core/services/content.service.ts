@@ -592,38 +592,55 @@ export class ContentService {
     return this.http.delete<void>(`${this.apiUrl}/Exam/${id}`);
   }
 
-  // ===== Chapters Management =====
+  // ===== Video Chapters Management =====
   getLessonChapters(lessonId: number): Observable<any[]> {
-    // Note: This endpoint might need to be created on the backend
-    // For now, returning empty array
-    return this.http.get<any[]>(`${this.apiUrl}/Chapters/lesson/${lessonId}`);
+    return this.http.get<any[]>(`${this.apiUrl}/VideoChapters/lesson/${lessonId}`);
   }
 
   addChapter(lessonId: number, title: string, description: string, startTime: string, endTime: string, orderIndex: number): Observable<any> {
+    // Convert time string (HH:MM:SS) to seconds timestamp
+    const timestamp = this.convertTimeToSeconds(startTime);
+    
     const body = {
       lessonId,
       title,
-      description,
-      startTime,
-      endTime,
-      orderIndex
+      description: description || null,
+      timestamp, // Required: time in seconds
+      order: orderIndex
     };
-    return this.http.post<any>(`${this.apiUrl}/Chapters`, body);
+    
+    console.log('🔵 Creating VideoChapter:', body);
+    return this.http.post<any>(`${this.apiUrl}/VideoChapters`, body);
   }
 
   updateChapter(id: number, title: string, description: string, startTime: string, endTime: string, orderIndex: number): Observable<any> {
     const body = {
       title,
-      description,
-      startTime,
-      endTime,
-      orderIndex
+      description: description || null,
+      timestamp: this.convertTimeToSeconds(startTime),
+      order: orderIndex
     };
-    return this.http.put<any>(`${this.apiUrl}/Chapters/${id}`, body);
+    
+    console.log('🔵 Updating VideoChapter:', id, body);
+    return this.http.put<any>(`${this.apiUrl}/VideoChapters/${id}`, body);
   }
 
   deleteChapter(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/Chapters/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/VideoChapters/${id}`);
+  }
+
+  // Helper method to convert HH:MM:SS to seconds
+  private convertTimeToSeconds(timeString: string): number {
+    if (!timeString) return 0;
+    
+    const parts = timeString.split(':');
+    if (parts.length === 3) {
+      const hours = parseInt(parts[0]) || 0;
+      const minutes = parseInt(parts[1]) || 0;
+      const seconds = parseInt(parts[2]) || 0;
+      return (hours * 3600) + (minutes * 60) + seconds;
+    }
+    return 0;
   }
 
   // ===== Update Lesson Resource =====

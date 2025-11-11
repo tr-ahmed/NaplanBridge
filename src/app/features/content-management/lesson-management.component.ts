@@ -1118,6 +1118,19 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     this.router.navigate(['/admin/content-management']);
   }
 
+  // Format timestamp (seconds) to HH:MM:SS for display
+  formatTimestamp(seconds: number): string {
+    if (!seconds && seconds !== 0) return '00:00:00';
+    
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    return [hours, minutes, secs]
+      .map(v => v.toString().padStart(2, '0'))
+      .join(':');
+  }
+
   private extractErrorMessage(error: any): string {
     if (error?.error?.message) {
       return error.error.message;
