@@ -787,7 +787,7 @@ nameTeacher(id: Id | undefined | null) {
         }
 
         const newLesson = await this.contentService
-          .addLesson(title, description, weekId, posterFile, videoFile)
+          .addLesson(title, description, weekId, subjectId, posterFile, videoFile)
           .toPromise();
         if (newLesson) this.lessons.push(newLesson);
         break;
@@ -858,6 +858,7 @@ nameTeacher(id: Id | undefined | null) {
           this.form.title,
           this.form.description,
           this.form.weekId,
+          subjectIdForUpdate,
           this.form.posterFile,
           this.form.videoFile
         ).toPromise();

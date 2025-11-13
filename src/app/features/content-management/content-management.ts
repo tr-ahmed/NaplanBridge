@@ -1036,8 +1036,11 @@ nameTeacher(id: Id | undefined | null) {
             title.trim(), 
             description.trim(), 
             weekId,
+            subjectId,
             posterFile, 
-            videoFile
+            videoFile,
+            duration,
+            orderIndex
           )
           .toPromise();
         if (newLesson) this.lessons.push(newLesson);
@@ -1102,8 +1105,11 @@ nameTeacher(id: Id | undefined | null) {
           this.form.title,
           this.form.description,
           this.form.weekId,
+          this.form.subjectId,
           this.form.posterFile,
-          this.form.videoFile
+          this.form.videoFile,
+          this.form.duration,
+          this.form.orderIndex
         ).toPromise();
         this.lessons = this.lessons.map(x => x.id === this.form.id ? this.form : x);
         break;

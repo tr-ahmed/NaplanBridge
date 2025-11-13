@@ -1,3 +1,6 @@
+/* Import shared admin styles */
+@import './app/shared/styles/admin-layout.scss';
+
 /* Hero Section Interactive Animations */
 .hero-image {
   transition: transform 0.1s ease-out, box-shadow 0.3s ease;

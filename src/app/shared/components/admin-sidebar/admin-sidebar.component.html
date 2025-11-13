@@ -1,0 +1,109 @@
+<aside class="sidebar" [class.collapsed]="collapsed" id="sidebar"
+  style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);box-shadow:0 8px 32px rgba(31,38,135,.37);border-top-right-radius:2rem;border-bottom-right-radius:2rem;min-height:100vh;">
+  <div class="sidebar-logo d-flex align-items-center py-4 px-3">
+    <div class="me-3" style="background:rgba(255,255,255,0.2);width:48px;height:48px;"
+      class="rounded-circle d-flex align-items-center justify-content-center shadow">
+      <span class="fw-bold fs-4 text-blue-700">N</span>
+    </div>
+    <div class="fw-bold fs-5 text-white">NAPLAN<span class="text-warning">Bridge</span></div>
+  </div>
+  <nav class="sidebar-nav mt-4">
+    <!-- Dashboard -->
+    <a routerLink="/admin/dashboard"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-home"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <!-- Content Management -->
+    <a routerLink="/admin/content"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-book"></i>
+      <span>Content Management</span>
+    </a>
+
+    <!-- Exams Management -->
+    <a routerLink="/admin/exams"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-file-alt"></i>
+      <span>Exams Management</span>
+    </a>
+
+    <!-- User Management -->
+    <a routerLink="/admin/users"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-users"></i>
+      <span>User Management</span>
+    </a>
+
+    <!-- Subscriptions & Billing -->
+    <a routerLink="/admin/subscriptions"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-credit-card"></i>
+      <span>Subscriptions & Billing</span>
+    </a>
+
+    <!-- Analytics Section -->
+    <div class="px-4 py-2 mt-3">
+      <small class="text-white/50 fw-semibold">ANALYTICS</small>
+    </div>
+
+    <a routerLink="/admin/analytics-dashboard"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-chart-line"></i>
+      <span>Data Analytics</span>
+    </a>
+
+    <a routerLink="/admin/advanced-analytics"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-chart-pie"></i>
+      <span>Advanced Analytics</span>
+    </a>
+
+    <a routerLink="/admin/financial-reports"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-dollar-sign"></i>
+      <span>Financial Reports</span>
+    </a>
+
+    <!-- Settings Section -->
+    <div class="px-4 py-2 mt-3">
+      <small class="text-white/50 fw-semibold">SETTINGS</small>
+    </div>
+
+    <a routerLink="/admin/video-settings"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-video"></i>
+      <span>Video Settings</span>
+    </a>
+  </nav>
+  <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
+    <div class="d-flex align-items-center gap-3">
+      <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
+      <div>
+        <div class="fw-medium text-white">Admin</div>
+        <small class="text-white-50">Super Admin</small>
+      </div>
+    </div>
+    <a (click)="handleLogout()" class="d-block mt-3 text-white-50 small cursor-pointer"><i
+        class="fas fa-sign-out-alt me-2"></i>Logout</a>
+  </div>
+</aside>

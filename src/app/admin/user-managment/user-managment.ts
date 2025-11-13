@@ -8,12 +8,13 @@ import Swal from 'sweetalert2';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { RouterLink } from '@angular/router';
+import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
 
 @Component({
   selector: 'app-user-managment',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule,AddUserModalComponent],
+  imports: [RouterLink, CommonModule, FormsModule, AddUserModalComponent, AdminSidebarComponent],
   templateUrl: './user-managment.html',
   styleUrls: ['./user-managment.scss']
 })
@@ -22,12 +23,6 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
 
   toggleSidebar() {
     this.sidebarCollapsed = !this.sidebarCollapsed;
-  }
-
-    handleLogout(): void {
-    if (confirm('Are you sure you want to logout?')) {
-      this.authService.logout();
-    }
   }
   // User data
   admin = {

@@ -1,5 +1,24 @@
 <!-- Content Management - Full Page Design with Tailwind CSS -->
-<div class="content-management-container min-h-screen bg-gray-50 py-8">
+
+<!-- Toggle Sidebar Button -->
+<button
+  class="fixed z-50 rounded-full shadow-lg p-3 transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400 border-0"
+  (click)="toggleSidebar()" aria-label="Toggle sidebar" [ngStyle]="{
+  top: '2rem',
+  left: sidebarCollapsed ? '1rem' : '270px',
+  width: '48px',
+  height: '48px',
+  background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 100%)',
+  color: '#fff'
+}">
+  <i class="fas" [class.fa-chevron-right]="sidebarCollapsed" [class.fa-chevron-left]="!sidebarCollapsed"></i>
+</button>
+
+<!-- Sidebar -->
+<app-admin-sidebar [collapsed]="sidebarCollapsed"></app-admin-sidebar>
+
+<!-- Main Content -->
+<div class="content-management-container min-h-screen bg-gray-50 py-8 main-content" [class.expanded]="sidebarCollapsed">
   <div class="container mx-auto px-4">
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
@@ -8,9 +27,19 @@
         <p class="text-gray-600 mt-1">Manage educational content hierarchy</p>
       </div>
       <div class="flex items-center gap-3 flex-wrap">
+        <!-- Admin Dashboard Button -->
+        <a
+          routerLink="/admin/dashboard"
+          class="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 font-medium flex items-center gap-2 shadow-md">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+          <span class="hidden sm:inline">Dashboard</span>
+        </a>
+        
         <!-- Analytics Buttons -->
         <a
-          routerLink="/admin/analytics-dashboard"
+          routerLink="/admin/analytics"
           class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 font-medium flex items-center gap-2 shadow-md">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
@@ -538,7 +567,7 @@
   [terms]="terms"
   [weeks]="weeks"
   [teachers]="teachers"
-  (save)="submitForm()"
+  (save)="submitForm($event)"
   (cancel)="closeForm()">
 </app-content-modal>
 

@@ -1,0 +1,68 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  z-index: 40;
+
+  &.collapsed {
+    width: 80px;
+
+    .sidebar-logo > div:last-child,
+    nav span,
+    .sidebar-profile > div > div,
+    .sidebar-profile > a,
+    .px-4 small {
+      display: none;
+    }
+
+    .sidebar-logo {
+      justify-content: center;
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+.nav-link {
+  position: relative;
+  transition: all 0.3s ease;
+  text-decoration: none;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: translateX(4px);
+  }
+
+  &.active {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-left: 4px solid #facc15;
+  }
+
+  i {
+    min-width: 20px;
+    text-align: center;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

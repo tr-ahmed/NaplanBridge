@@ -1,0 +1,17 @@
+/* Admin Layout Styles */
+.main-content {
+  margin-left: 280px;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+
+  &.expanded {
+    margin-left: 80px;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
+}

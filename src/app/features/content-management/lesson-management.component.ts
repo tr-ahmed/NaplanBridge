@@ -322,6 +322,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
         this.lessonEditForm.title,
         this.lessonEditForm.description,
         this.lessonEditForm.weekId,
+        this.lesson.subjectId, // Use existing lesson's subjectId
         this.lessonEditForm.posterFile,
         this.lessonEditForm.videoFile
       ).toPromise();

@@ -30,6 +30,7 @@ import { ContentModalComponent } from './components/content-modal/content-modal.
 import { ResourceModalComponent } from './components/resource-modal/resource-modal.component';
 import { ResourceFormModalComponent } from './components/resource-form-modal/resource-form-modal.component';
 import { PreviewModalComponent } from './components/preview-modal/preview-modal.component';
+import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
 type Id = number;
 type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson' | 'category';
@@ -54,6 +55,7 @@ type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson
     ResourceModalComponent,
     ResourceFormModalComponent,
     PreviewModalComponent,
+    AdminSidebarComponent,
   ],
   templateUrl: './content-management-redesigned.html',
   styleUrls: ['./content-management-redesigned.scss'],
@@ -65,6 +67,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   // ============================================
   activeTab: string = 'hierarchy';
   searchTerm = '';
+  sidebarCollapsed = false;
 
   // ============================================
   // Data Collections
@@ -750,8 +753,14 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.form = {};
   }
 
-  async submitForm(): Promise<void> {
+  async submitForm(modalFormData?: any): Promise<void> {
     try {
+      // Merge formData from modal with existing formData
+      if (modalFormData) {
+        this.formData = { ...this.formData, ...modalFormData };
+        console.log('📦 Received formData from modal:', modalFormData);
+      }
+      
       Swal.fire({
         title: 'Saving...',
         text: 'Please wait',
@@ -914,12 +923,49 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         }).toPromise();
         break;
       case 'lesson':
+        console.log('📤 Creating lesson with data:', data);
+        console.log('📦 FormData files:', this.formData);
+        
+        // Get files from formData instead of data
+        const posterFile = this.formData['posterFile'] || data.posterFile;
+        const videoFile = this.formData['videoFile'] || data.videoFile;
+        
+        console.log('🖼️ Poster file:', posterFile);
+        console.log('🎥 Video file:', videoFile);
+        
+        if (!posterFile) {
+          throw new Error('Poster file is required');
+        }
+        if (!videoFile) {
+          throw new Error('Video file is required');
+        }
+        
+        // Validate that they are actual File objects
+        if (!(posterFile instanceof File)) {
+          console.error('❌ posterFile is not a File object:', typeof posterFile, posterFile);
+          throw new Error('Poster file must be a File object');
+        }
+        if (!(videoFile instanceof File)) {
+          console.error('❌ videoFile is not a File object:', typeof videoFile, videoFile);
+          throw new Error('Video file must be a File object');
+        }
+        
+        // Validate required fields
+        if (!data.subjectId) {
+          throw new Error('Subject ID is required');
+        }
+        
+        console.log('✅ Files validated. Calling API...');
+        
         const newLesson = await this.contentService.addLesson(
           data.title,
           data.description,
           data.weekId,
-          data.posterFile,
-          data.videoFile
+          data.subjectId,
+          posterFile,
+          videoFile,
+          data.duration,
+          data.orderIndex
         ).toPromise();
 
         // Navigate to lesson detail page
@@ -980,13 +1026,20 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         }).toPromise();
         break;
       case 'lesson':
+        // Get files from formData instead of data (files may be optional for update)
+        const posterFileUpdate = this.formData['posterFile'] || data.posterFile;
+        const videoFileUpdate = this.formData['videoFile'] || data.videoFile;
+        
         await this.contentService.updateLesson(
           data.id,
           data.title,
           data.description,
           data.weekId,
-          data.posterFile,
-          data.videoFile
+          data.subjectId,
+          posterFileUpdate,
+          videoFileUpdate,
+          data.duration,
+          data.orderIndex
         ).toPromise();
         break;
     }
@@ -1216,6 +1269,13 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     }
 
     return 'An unexpected error occurred. Please try again.';
+  }
+
+  // ============================================
+  // Sidebar Methods
+  // ============================================
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   // ============================================

@@ -151,6 +151,14 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
   },
 
+  // Admin Dashboard
+  {
+    path: 'admin/dashboard',
+    loadComponent: () => import('./features/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+
   // Admin Content Management
   {
     path: 'admin/content',
@@ -189,7 +197,7 @@ export const routes: Routes = [
       ,  data: { hideHeader: true, hideFooter: true }
   },
   {
-    path: 'admin/analytics',
+    path: 'admin/analytics-dashboard',
     loadComponent: () => import('./features/analytics-dashboard/analytics-dashboard.component').then(m => m.AnalyticsDashboardComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
       ,  data: { hideHeader: true, hideFooter: true }
@@ -215,10 +223,9 @@ export const routes: Routes = [
   },
   {
     path: 'admin/subscriptions',
-    loadComponent: () => import('./features/subscriptions-admin/subscriptions-admin').then(m => m.SubscriptionManagementComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-          ,  data: { hideHeader: true, hideFooter: true }
-
+    loadComponent: () => import('./features/subscriptions/subscriptions.component').then(m => m.SubscriptionsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'admin/video-settings',
