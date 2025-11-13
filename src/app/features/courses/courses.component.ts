@@ -14,6 +14,7 @@ import { SubscriptionPlanSummary } from '../../models/subject.models';
 import { AuthService } from '../../auth/auth.service';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { ToastService } from '../../core/services/toast.service';
+import { LoggerService } from '../../core/services/logger.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -99,6 +100,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   private enrolledSubjectNames = new Set<string>();
   private hasFullYearSubscription = false;
   private toastService = inject(ToastService);
+  private logger = inject(LoggerService);
 
   constructor(
     private coursesService: CoursesService,
@@ -124,8 +126,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
   private loadUserInfo(): void {
     const user = this.authService.getCurrentUser();
 
-    console.log('🔍 Loading user info...');
-    console.log('📦 Raw user object:', user);
+    this.logger.log('🔍 Loading user info...');
+    this.logger.log('📦 Raw user object:', user);
 
     if (user) {
       this.currentUser.set(user);
@@ -135,7 +137,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       const isStudentRole = roles.some((r: string) => r.toLowerCase() === 'student');
       this.isStudent.set(isStudentRole);
 
-      console.log('👤 User Details:', {
+      this.logger.log('👤 User Details:', {
         id: user.id,
         userName: user.userName,
         email: user.email,
@@ -150,8 +152,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
       if (isStudentRole && user.yearId) {
         this.userYear.set(user.yearId);
         this.selectedYearId.set(user.yearId);
-        console.log('✅ Student detected - Auto-filtering for Year ID:', user.yearId);
-        console.log('� Will show only subjects with yearId =', user.yearId);
+        this.logger.log('✅ Student detected - Auto-filtering for Year ID:', user.yearId);
+        this.logger.log('� Will show only subjects with yearId =', user.yearId);
       } else if (isStudentRole && !user.yearId) {
         console.warn('⚠️ Student detected but NO yearId found in token!');
         console.warn('📋 Backend may not have added yearId claim to JWT');
@@ -159,21 +161,21 @@ export class CoursesComponent implements OnInit, OnDestroy {
         // ✅ Also check for parent role
         const isParentRole = roles.some((r: string) => r.toLowerCase() === 'parent');
         if (isParentRole) {
-          console.log('👨‍👩‍👧‍👦 Student with Parent role - loading students...');
+          this.logger.log('👨‍👩‍👧‍👦 Student with Parent role - loading students...');
           this.loadParentStudents();
         }
       } else {
-        console.log('👔 Non-student user - showing all years');
+        this.logger.log('👔 Non-student user - showing all years');
 
         // ✅ If parent, load their students
         const isParentRole = roles.some((r: string) => r.toLowerCase() === 'parent');
         if (isParentRole) {
-          console.log('👨‍👩‍👧‍👦 Parent user - loading students...');
+          this.logger.log('👨‍👩‍👧‍👦 Parent user - loading students...');
           this.loadParentStudents();
         }
       }
     } else {
-      console.log('⚠️ No user found - user not logged in');
+      this.logger.log('⚠️ No user found - user not logged in');
     }
   }
 
@@ -184,14 +186,14 @@ export class CoursesComponent implements OnInit, OnDestroy {
     const parentId = this.currentUser()?.id;
     if (!parentId) return;
 
-    console.log('👨‍👩‍👧‍👦 Loading parent students from API...');
+    this.logger.log('👨‍👩‍👧‍👦 Loading parent students from API...');
 
     // ✅ Use actual API endpoint
     this.http.get<any[]>(`${environment.apiBaseUrl}/User/get-children/${parentId}`)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (students: any[]) => {
-          console.log('✅ Loaded parent students from API (RAW):', students);
+          this.logger.log('✅ Loaded parent students from API (RAW):', students);
 
           // Map to expected format
           const mappedStudents = students.map((s: any) => {
@@ -203,7 +205,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
               email: s.email
             };
 
-            console.log('📝 Mapping student:', {
+            this.logger.log('📝 Mapping student:', {
               raw: { id: s.id, name: s.name, yearId: s.yearId, schoolYearId: s.schoolYearId, year: s.year },
               mapped
             });
@@ -211,7 +213,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
             return mapped;
           });
 
-          console.log('✅ Final mapped students:', mappedStudents);
+          this.logger.log('✅ Final mapped students:', mappedStudents);
           this.parentStudents.set(mappedStudents);
 
           // Store in localStorage for quick access
@@ -226,7 +228,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
             try {
               const students = JSON.parse(studentsData);
               this.parentStudents.set(students);
-              console.log('✅ Loaded parent students from localStorage:', students);
+              this.logger.log('✅ Loaded parent students from localStorage:', students);
             } catch (e) {
               console.error('Failed to parse parent students data');
             }
@@ -260,7 +262,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           const studentId = parseInt(params['studentId'], 10);
           if (!isNaN(studentId)) {
             this.selectedStudentId.set(studentId);
-            console.log('✅ Selected student ID from params:', studentId);
+            this.logger.log('✅ Selected student ID from params:', studentId);
           }
         }
 
@@ -269,7 +271,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           const yearId = parseInt(params['yearId'], 10);
           if (!isNaN(yearId)) {
             this.selectedYearId.set(yearId);
-            console.log('✅ Selected year ID from params:', yearId);
+            this.logger.log('✅ Selected year ID from params:', yearId);
           }
         }
 
@@ -313,12 +315,12 @@ export class CoursesComponent implements OnInit, OnDestroy {
       category: this.selectedCategory() || undefined
     };
 
-    console.log('🔍 Loading courses with filter:', filter);
+    this.logger.log('🔍 Loading courses with filter:', filter);
 
     this.coursesService.getCourses(filter)
       .pipe(takeUntil(this.destroy$))
       .subscribe(courses => {
-        console.log('📚 Received courses from API:', courses.length, courses);
+        this.logger.log('📚 Received courses from API:', courses.length, courses);
         this.courses.set(courses);
         this.applyFilters();
       });
@@ -339,8 +341,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
   applyFilters(): void {
     let filtered = [...this.courses()];
 
-    console.log('🔎 Applying filters to', filtered.length, 'courses');
-    console.log('📊 Current filters:', {
+    this.logger.log('🔎 Applying filters to', filtered.length, 'courses');
+    this.logger.log('📊 Current filters:', {
       term: this.selectedTerm(),
       subject: this.selectedSubject(),
       level: this.selectedLevel(),
@@ -352,7 +354,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
     // Apply year filter (important for students)
     if (this.selectedYearId()) {
       filtered = filtered.filter(course => course.yearId === this.selectedYearId());
-      console.log('📅 After year filter:', filtered.length, 'courses for Year ID:', this.selectedYearId());
+      this.logger.log('📅 After year filter:', filtered.length, 'courses for Year ID:', this.selectedYearId());
     }
 
     // Apply search filter
@@ -366,11 +368,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
         course.subjectName?.toLowerCase().includes(query) ||
         course.categoryName?.toLowerCase().includes(query)
       );
-      console.log('🔍 After search filter:', filtered.length);
+      this.logger.log('🔍 After search filter:', filtered.length);
     }
 
-    console.log('✅ Final filtered courses:', filtered.length);
-    console.log('📄 Current page:', this.currentPage(), '| Items per page:', this.itemsPerPage);
+    this.logger.log('✅ Final filtered courses:', filtered.length);
+    this.logger.log('📄 Current page:', this.currentPage(), '| Items per page:', this.itemsPerPage);
 
     this.filteredCourses.set(filtered);
     this.currentPage.set(1); // Reset to first page when filters change
@@ -454,7 +456,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       .subscribe(success => {
         if (success) {
           // Could show a toast notification here
-          console.log(`Added ${course.name} to cart`);
+          this.logger.log(`Added ${course.name} to cart`);
         }
       });
   }
@@ -475,7 +477,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       if (item.subjectId !== undefined && item.yearId !== undefined) {
         const match = item.subjectId === course.id && item.yearId === course.yearId;
 
-        console.log('🔍 Finding cart item by ID:', {
+        this.logger.log('🔍 Finding cart item by ID:', {
           courseId: course.id,
           courseName: course.name || course.subjectName,
           courseYearId: course.yearId,
@@ -500,7 +502,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     if (!cartItem) {
       console.error('❌ Cart item not found for course:', course.name || course.subjectName);
-      console.log('📦 Available cart items:', cart.items.map((item: any) => ({
+      this.logger.log('📦 Available cart items:', cart.items.map((item: any) => ({
         subjectId: item.subjectId,
         subjectName: item.subjectName,
         yearId: item.yearId,
@@ -514,7 +516,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
                    (cartItem as any).subscriptionPlanId ||
                    (cartItem as any)._backendData?.subscriptionPlanId;
 
-    console.log('🗑️ Removing cart item:', {
+    this.logger.log('🗑️ Removing cart item:', {
       courseId: course.id,
       courseName: course.name || course.subjectName,
       itemId,
@@ -529,7 +531,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(success => {
         if (success) {
-          console.log('✅ Removed course from cart');
+          this.logger.log('✅ Removed course from cart');
         }
       });
   }  isInCart(courseId: number): boolean {
@@ -539,7 +541,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     const cart = this.coursesService.getCartValue();
 
-    console.log('🔍 isInCart called:', {
+    this.logger.log('🔍 isInCart called:', {
       courseId: course.id,
       courseName: course.name || course.subjectName,
       courseYearId: course.yearId,
@@ -548,7 +550,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     // Check using exact subjectId and yearId from enhanced cart items
     const inCart = cart.items.some((item: any) => {
-      console.log('🔄 Checking cart item:', {
+      this.logger.log('🔄 Checking cart item:', {
         hasSubjectId: item.subjectId !== undefined,
         hasYearId: item.yearId !== undefined,
         subjectId: item.subjectId,
@@ -562,7 +564,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       if (item.subjectId !== undefined && item.yearId !== undefined) {
         const match = item.subjectId === course.id && item.yearId === course.yearId;
 
-        console.log('✅ Using exact ID matching:', {
+        this.logger.log('✅ Using exact ID matching:', {
           courseId: course.id,
           courseName: course.name || course.subjectName,
           courseYearId: course.yearId,
@@ -575,11 +577,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
       }
 
       // Fallback to legacy structure (for backward compatibility)
-      console.log('⚠️ Using legacy matching (subjectId/yearId not available)');
+      this.logger.log('⚠️ Using legacy matching (subjectId/yearId not available)');
       return this.coursesService.isInCart(courseId);
     });
 
-    console.log('🎯 Final isInCart result:', inCart);
+    this.logger.log('🎯 Final isInCart result:', inCart);
     return inCart;
   }
 
@@ -623,10 +625,10 @@ export class CoursesComponent implements OnInit, OnDestroy {
             // ✅ Only one student in same year - auto-select
             studentId = studentsInSameYear[0].id;
             this.selectedStudentId.set(studentId || null);
-            console.log('✅ Auto-selected student for cart:', studentsInSameYear[0].name);
+            this.logger.log('✅ Auto-selected student for cart:', studentsInSameYear[0].name);
           } else if (studentsInSameYear.length > 1) {
             // ⚠️ Multiple students in same year - ask parent to select
-            console.log('⚠️ Multiple students in same year, need manual selection');
+            this.logger.log('⚠️ Multiple students in same year, need manual selection');
             this.showStudentSelectionModal(studentsInSameYear, planId, course);
             return;  // Exit early - will continue after selection
           } else if (studentsInSameYear.length === 0) {
@@ -634,7 +636,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
             const allStudents = this.parentStudents();
             if (allStudents.length > 0) {
               studentId = allStudents[0].id;
-              console.log('✅ Using first available student for cart:', allStudents[0].name);
+              this.logger.log('✅ Using first available student for cart:', allStudents[0].name);
             }
           }
         }
@@ -644,7 +646,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe(success => {
           if (success) {
-            console.log('Plan added to cart successfully');
+            this.logger.log('Plan added to cart successfully');
           }
         });
     }
@@ -654,7 +656,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * ✅ NEW: Show student selection modal for parents with multiple students
    */
   showStudentSelectionModal(students: any[], planId: number, course: Course): void {
-    console.log('👨‍👩‍👧‍👦 Opening student selector:', students);
+    this.logger.log('👨‍👩‍👧‍👦 Opening student selector:', students);
     this.studentsToSelect.set(students);
     this.pendingPlanId.set(planId);
     this.pendingCourse.set(course);
@@ -665,7 +667,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * ✅ NEW: Handle student selection from modal
    */
   onStudentSelected(studentId: number): void {
-    console.log('✅ Student selected:', studentId);
+    this.logger.log('✅ Student selected:', studentId);
 
     // Store selected student
     this.selectedStudentId.set(studentId);
@@ -682,7 +684,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe(success => {
           if (success) {
-            console.log('Plan added to cart successfully for selected student');
+            this.logger.log('Plan added to cart successfully for selected student');
           }
         });
     }
@@ -697,7 +699,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * ✅ NEW: Cancel student selection
    */
   onCancelStudentSelection(): void {
-    console.log('❌ Student selection cancelled');
+    this.logger.log('❌ Student selection cancelled');
     this.showStudentSelector.set(false);
     this.pendingPlanId.set(null);
     this.pendingCourse.set(null);
@@ -744,7 +746,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           // ✅ Only one student in this year - auto-select
           studentId = studentsInSameYear[0].id;
           this.selectedStudentId.set(studentId || null);
-          console.log('✅ Auto-selected student for continue learning:', studentsInSameYear[0].name);
+          this.logger.log('✅ Auto-selected student for continue learning:', studentsInSameYear[0].name);
         } else {
           // ✅ No students or multiple students - Need student selection for progress tracking
           console.warn('⚠️ Continue Learning requires student selection');
@@ -759,7 +761,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('📚 Finding last incomplete lesson for student:', studentId, 'subject:', course.id);
+    this.logger.log('📚 Finding last incomplete lesson for student:', studentId, 'subject:', course.id);
 
     // Get lessons with progress for this subject
     this.coursesService.getLessonsWithProgress(course.id, studentId)
@@ -786,7 +788,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
             targetLesson = lessons[0];
           }
 
-          console.log('✅ Navigating to lesson:', targetLesson);
+          this.logger.log('✅ Navigating to lesson:', targetLesson);
 
           // Navigate to the lesson detail page
           this.router.navigate(['/lesson-detail', targetLesson.id], {
@@ -825,7 +827,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         const courseYearId = course.yearId;
         const studentsInSameYear = this.parentStudents().filter(s => s.yearId === courseYearId);
 
-        console.log('🔍 Checking for auto-select student:', {
+        this.logger.log('🔍 Checking for auto-select student:', {
           courseYearId,
           totalStudents: this.parentStudents().length,
           studentsInSameYear: studentsInSameYear.length
@@ -835,20 +837,20 @@ export class CoursesComponent implements OnInit, OnDestroy {
           // ✅ Only one student in this year - auto-select
           studentId = studentsInSameYear[0].id;
           this.selectedStudentId.set(studentId || null);
-          console.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'ID:', studentId);
+          this.logger.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'ID:', studentId);
         } else {
           // ✅ Multiple students or no students - Try to pick any student for browse mode
-          console.log('👀 Parent browse mode - Multiple or no students in same year');
+          this.logger.log('👀 Parent browse mode - Multiple or no students in same year');
 
           // Try to use any available student (for browse mode)
           const allStudents = this.parentStudents();
           if (allStudents.length > 0) {
             // Pick the first available student (any year)
             studentId = allStudents[0].id;
-            console.log('✅ Using first available student for browse mode:', allStudents[0].name, 'ID:', studentId);
+            this.logger.log('✅ Using first available student for browse mode:', allStudents[0].name, 'ID:', studentId);
           } else {
             // No students at all - still allow browsing
-            console.log('⚠️ No students available - pure browse mode');
+            this.logger.log('⚠️ No students available - pure browse mode');
             isParentBrowseMode = true;
           }
         }
@@ -857,7 +859,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     // ✅ If parent browse mode (no student available), navigate without student data
     if (isParentBrowseMode) {
-      console.log('👀 Parent browsing lessons (no student available)');
+      this.logger.log('👀 Parent browsing lessons (no student available)');
 
       // Navigate to lessons without fetching term/week data
       this.router.navigate(['/lessons'], {
@@ -877,7 +879,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     // ✅ UPDATED: Allow guests to view lessons in preview mode
     if (!studentId) {
-      console.log('👤 Guest user - redirecting to lessons preview mode');
+      this.logger.log('👤 Guest user - redirecting to lessons preview mode');
 
       // Navigate to lessons without studentId (preview mode)
       this.router.navigate(['/lessons'], {
@@ -892,14 +894,14 @@ export class CoursesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('📚 Fetching current term/week for student:', studentId, 'subject:', course.id);
+    this.logger.log('📚 Fetching current term/week for student:', studentId, 'subject:', course.id);
 
     // ✅ Use backend endpoint to get current term/week
     this.coursesService.getCurrentTermWeek(studentId, course.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (termWeek) => {
-          console.log('✅ Term/Week info received:', {
+          this.logger.log('✅ Term/Week info received:', {
             courseId: course.id,
             courseName: course.name || course.subjectName,
             hasAccess: termWeek.hasAccess,
@@ -1013,13 +1015,13 @@ export class CoursesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('📦 Loading subscriptions for student ID:', currentUser.studentId);
+    this.logger.log('📦 Loading subscriptions for student ID:', currentUser.studentId);
 
     this.subscriptionService.loadSubscriptionsSummary(currentUser.studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (summary) => {
-          console.log('✅ Subscriptions loaded:', summary);
+          this.logger.log('✅ Subscriptions loaded:', summary);
 
           // Check for Full Year subscription
           this.hasFullYearSubscription = summary.subscriptions.some(
@@ -1033,7 +1035,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
               .map(sub => sub.subjectName as string)
           );
 
-          console.log('📊 Enrollment status:', {
+          this.logger.log('📊 Enrollment status:', {
             hasFullYear: this.hasFullYearSubscription,
             enrolledSubjects: Array.from(this.enrolledSubjectNames)
           });

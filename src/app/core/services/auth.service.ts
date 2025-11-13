@@ -217,14 +217,14 @@ export class AuthService {
     if (!roles || roles.length === 0) return null;
 
     // Filter out Member role
-    const filteredRoles = roles.filter(r => r.toLowerCase() !== 'member');
+    const filteredRoles = roles.filter(r => r?.toLowerCase() !== 'member');
     if (filteredRoles.length === 0) return null;
 
     // Role priority
     const rolePriority = ['admin', 'teacher', 'parent', 'student'];
 
     for (const priorityRole of rolePriority) {
-      if (filteredRoles.some(userRole => userRole.toLowerCase() === priorityRole)) {
+      if (filteredRoles.some(userRole => userRole?.toLowerCase() === priorityRole)) {
         return priorityRole.charAt(0).toUpperCase() + priorityRole.slice(1);
       }
     }

@@ -1,5 +1,5 @@
 /* Import shared admin styles */
-@import './app/shared/styles/admin-layout.scss';
+@use './app/shared/styles/admin-layout.scss';
 
 /* Hero Section Interactive Animations */
 .hero-image {

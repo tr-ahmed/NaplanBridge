@@ -171,6 +171,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Navigate to courses page (main subjects page)
+   */
+  navigateToCourses(): void {
+    this.router.navigate(['/courses']);
+  }
+
+  /**
    * Get notification icon based on type
    */
   getNotificationIcon(type: string): string {

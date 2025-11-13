@@ -112,7 +112,7 @@ export class CartComponent implements OnInit, OnDestroy {
       if (Array.isArray(userRole)) {
         // Check if 'Student' role exists in array
         const hasStudentRole = userRole.some(r =>
-          typeof r === 'string' && r.toLowerCase() === 'student'
+          typeof r === 'string' && r?.toLowerCase() === 'student'
         );
         this.isStudent.set(hasStudentRole);
         this.currentUserRole.set(userRole.join(', '));
