@@ -130,36 +130,52 @@ export class CoursesComponent implements OnInit, OnDestroy {
     this.logger.log('📦 Raw user object:', user);
 
     if (user) {
-      this.currentUser.set(user);
+      // ✅ Normalize user object to handle both localStorage and token formats
+      const userId = user.id || user.userId;
+      const userRoles = user.role || user.roles;
+      const rolesArray = Array.isArray(userRoles) ? userRoles : [userRoles];
+      const isStudent = rolesArray.some((r: string) => r?.toLowerCase() === 'student');
+
+      const normalizedUser = {
+        id: userId,
+        // ✅ Use studentId from JWT token (decoded in AuthService)
+        studentId: user.studentId,  // Now properly populated from JWT token
+        userName: user.userName || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        email: user.email,
+        role: userRoles,
+        yearId: user.yearId
+      };
+
+      this.currentUser.set(normalizedUser);
 
       // Check if user is a student
-      const roles = Array.isArray(user.role) ? user.role : [user.role];
-      const isStudentRole = roles.some((r: string) => r?.toLowerCase() === 'student');
+      const isStudentRole = rolesArray.some((r: string) => r?.toLowerCase() === 'student');
       this.isStudent.set(isStudentRole);
 
       this.logger.log('👤 User Details:', {
-        id: user.id,
-        userName: user.userName,
-        email: user.email,
-        role: roles,
+        id: normalizedUser.id,
+        studentId: normalizedUser.studentId,
+        userName: normalizedUser.userName,
+        email: normalizedUser.email,
+        role: rolesArray,
         isStudent: isStudentRole,
-        yearId: user.yearId,
-        yearIdType: typeof user.yearId,
-        hasYearId: !!user.yearId
+        yearId: normalizedUser.yearId,
+        yearIdType: typeof normalizedUser.yearId,
+        hasYearId: !!normalizedUser.yearId
       });
 
       // If student and has yearId, auto-filter by their year
-      if (isStudentRole && user.yearId) {
-        this.userYear.set(user.yearId);
-        this.selectedYearId.set(user.yearId);
-        this.logger.log('✅ Student detected - Auto-filtering for Year ID:', user.yearId);
-        this.logger.log('� Will show only subjects with yearId =', user.yearId);
-      } else if (isStudentRole && !user.yearId) {
+      if (isStudentRole && normalizedUser.yearId) {
+        this.userYear.set(normalizedUser.yearId);
+        this.selectedYearId.set(normalizedUser.yearId);
+        this.logger.log('✅ Student detected - Auto-filtering for Year ID:', normalizedUser.yearId);
+        this.logger.log('📚 Will show only subjects with yearId =', normalizedUser.yearId);
+      } else if (isStudentRole && !normalizedUser.yearId) {
         console.warn('⚠️ Student detected but NO yearId found in token!');
         console.warn('📋 Backend may not have added yearId claim to JWT');
 
         // ✅ Also check for parent role
-        const isParentRole = roles.some((r: string) => r?.toLowerCase() === 'parent');
+        const isParentRole = rolesArray.some((r: string) => r?.toLowerCase() === 'parent');
         if (isParentRole) {
           this.logger.log('👨‍👩‍👧‍👦 Student with Parent role - loading students...');
           this.loadParentStudents();
@@ -168,7 +184,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.logger.log('👔 Non-student user - showing all years');
 
         // ✅ If parent, load their students
-        const isParentRole = roles.some((r: string) => r?.toLowerCase() === 'parent');
+        const isParentRole = rolesArray.some((r: string) => r?.toLowerCase() === 'parent');
         if (isParentRole) {
           this.logger.log('👨‍👩‍👧‍👦 Parent user - loading students...');
           this.loadParentStudents();
@@ -598,13 +614,22 @@ export class CoursesComponent implements OnInit, OnDestroy {
   onPlanSelected(planId: number): void {
     const course = this.selectedCourse();
     if (course) {
-      // ✅ Get studentId for parent role
-      const user = this.authService.getCurrentUser();
+      // ✅ Get studentId - use normalized user from signal
+      const user = this.currentUser();
       let studentId: number | undefined;
 
+      this.logger.log('🎯 onPlanSelected called:', {
+        planId,
+        courseName: course.name,
+        userRole: user?.role,
+        userStudentId: user?.studentId,
+        userId: user?.id
+      });
+
       if (user?.role === 'Student' || (Array.isArray(user?.role) && user.role.includes('Student'))) {
-        // Direct student access - use token studentId
-        studentId = user.studentId;
+        // Direct student access - use token studentId OR user.id as fallback
+        studentId = user.studentId || user.id;
+        this.logger.log('✅ Student role - using studentId:', studentId, 'from:', user.studentId ? 'token.studentId' : 'user.id');
       } else if (user?.role === 'Parent' || (Array.isArray(user?.role) && user.role.includes('Parent'))) {
         // Parent access - use selected student ID
         studentId = this.selectedStudentId() || undefined;
@@ -640,7 +665,25 @@ export class CoursesComponent implements OnInit, OnDestroy {
             }
           }
         }
+      } else {
+        // ❌ User is not Student or Parent - cannot add to cart
+        this.logger.log('❌ Cannot add to cart - User role is not Student or Parent');
+        this.toastService.showError('Only students and parents can add items to cart');
+        return;
       }
+
+      // ✅ Final validation: studentId must exist
+      if (!studentId) {
+        this.logger.log('❌ Cannot add to cart - No student ID available');
+        this.toastService.showError('Cannot add to cart without student information');
+        return;
+      }
+
+      this.logger.log('🚀 Calling coursesService.onPlanSelected with:', {
+        planId,
+        courseId: course.id,
+        studentId
+      });
 
       this.coursesService.onPlanSelected(planId, course, studentId)
         .pipe(takeUntil(this.destroy$))
@@ -727,12 +770,12 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Continue Learning - Navigate to last incomplete lesson
    */
   continueLearning(course: Course): void {
-    const user = this.authService.getCurrentUser();
+    const user = this.currentUser();
     let studentId: number | undefined;
 
     // ✅ Handle both Student and Parent roles
     if (user?.role === 'Student' || (Array.isArray(user?.role) && user.role.includes('Student'))) {
-      studentId = user.studentId;
+      studentId = user.studentId || user.id;
     } else if (user?.role === 'Parent' || (Array.isArray(user?.role) && user.role.includes('Parent'))) {
       // ✅ Parent access - Auto-select student if only one in the same year
       studentId = this.selectedStudentId() || undefined;
@@ -810,14 +853,14 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Navigate to lessons for a specific course/subject
    */
   viewLessons(course: Course): void {
-    const user = this.authService.getCurrentUser();
+    const user = this.currentUser();
     let studentId: number | undefined;
     let isParentBrowseMode = false;
 
     // ✅ Handle both Student and Parent roles
     if (user?.role === 'Student' || (Array.isArray(user?.role) && user.role.includes('Student'))) {
       // Direct student access
-      studentId = user.studentId;
+      studentId = user.studentId || user.id;
     } else if (user?.role === 'Parent' || (Array.isArray(user?.role) && user.role.includes('Parent'))) {
       // ✅ Parent access - Try to auto-select student if only one in the same year
       studentId = this.selectedStudentId() || undefined;
@@ -1008,16 +1051,26 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Load student's active subscriptions
    */
   private loadStudentSubscriptions(): void {
-    const currentUser = this.authService.getCurrentUser();
+    const currentUser = this.currentUser();
 
-    if (!currentUser?.studentId) {
-      console.warn('⚠️ No student ID found, skipping subscription load');
+    // ✅ Only load subscriptions for actual students
+    if (!this.isStudent()) {
+      this.logger.log('ℹ️ User is not a student - skipping subscription load');
       return;
     }
 
-    this.logger.log('📦 Loading subscriptions for student ID:', currentUser.studentId);
+    // ✅ Use studentId (must be integer, not GUID)
+    const studentId = currentUser?.studentId;
 
-    this.subscriptionService.loadSubscriptionsSummary(currentUser.studentId)
+    if (!studentId) {
+      console.warn('⚠️ No student ID found in token - cart functionality will not work');
+      console.warn('🔧 User needs to re-login to get updated token with studentId');
+      return;
+    }
+
+    this.logger.log('📦 Loading subscriptions for student ID:', studentId);
+
+    this.subscriptionService.loadSubscriptionsSummary(studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (summary) => {

@@ -37,7 +37,8 @@ export interface AuthResponse {
   roles: string[];
   userId: number;
   userProfile: UserProfile;
-  yearId?: number; // Only for students
+  yearId?: number;      // Year.Id - Only for students (from backend response)
+  studentId?: number;   // ✅ NEW - Student.Id (from JWT token) - Used for cart operations
 }
 
 /**

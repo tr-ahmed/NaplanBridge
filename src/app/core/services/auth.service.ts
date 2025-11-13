@@ -4,6 +4,22 @@ import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, map } from 'rxjs';
 import { ParentApiService } from './parent-api.service';
 import { LoginRequest, ParentRegisterRequest, AuthResponse } from '../../models/auth.models';
+import { jwtDecode } from 'jwt-decode';
+
+/**
+ * Interface for JWT Token Payload with custom claims
+ */
+interface JwtPayload {
+  nameid: string;              // userId (GUID or int)
+  unique_name: string;         // userName
+  email?: string;              // email
+  studentId?: string;          // ✅ Student.Id (from Students table) - for cart operations
+  yearId?: string;             // ✅ Year.Id - for year filtering
+  role: string | string[];     // user roles
+  exp: number;                 // expiration timestamp
+  iat?: number;                // issued at timestamp
+  nbf?: number;                // not before timestamp
+}
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +53,7 @@ export class AuthService {
     const userId = localStorage.getItem('userId');
     const userProfile = localStorage.getItem('userProfile');
     const yearId = localStorage.getItem('yearId');
+    const studentId = localStorage.getItem('studentId');  // ✅ Read studentId
 
     if (token && userName && roles && userId && userProfile) {
       const user: AuthResponse = {
@@ -46,7 +63,8 @@ export class AuthService {
         roles: JSON.parse(roles),
         userId: parseInt(userId),
         userProfile: JSON.parse(userProfile),
-        yearId: yearId ? parseInt(yearId) : undefined
+        yearId: yearId ? parseInt(yearId) : undefined,
+        studentId: studentId ? parseInt(studentId) : undefined  // ✅ Add studentId
       };
 
       this.setCurrentUser(user);
@@ -86,6 +104,31 @@ export class AuthService {
   }
 
   private setCurrentUser(user: AuthResponse): void {
+    // ✅ Decode JWT token to extract studentId and yearId
+    try {
+      const decoded = jwtDecode<JwtPayload>(user.token);
+
+      // ✅ Extract studentId and yearId from token claims
+      if (decoded.studentId) {
+        user.studentId = parseInt(decoded.studentId);
+      }
+
+      // ✅ Override yearId from token if present (token is source of truth)
+      if (decoded.yearId) {
+        user.yearId = parseInt(decoded.yearId);
+      }
+
+      console.log('🔐 Decoded JWT Token:', {
+        userId: decoded.nameid,
+        userName: decoded.unique_name,
+        studentId: decoded.studentId,
+        yearId: decoded.yearId,
+        roles: decoded.role
+      });
+    } catch (error) {
+      console.error('❌ Failed to decode JWT token:', error);
+    }
+
     this.currentUser.set(user);
     this.isAuthenticated.set(true);
     this.userRoles.set(user.roles);
@@ -100,6 +143,11 @@ export class AuthService {
     // Store new authentication data from backend
     localStorage.setItem('userId', user.userId.toString());
     localStorage.setItem('userProfile', JSON.stringify(user.userProfile));
+
+    // ✅ Store studentId for easy access (from token)
+    if (user.studentId) {
+      localStorage.setItem('studentId', user.studentId.toString());
+    }
 
     // Store yearId for students
     if (user.yearId) {
@@ -124,6 +172,7 @@ export class AuthService {
     localStorage.removeItem('userId');
     localStorage.removeItem('userProfile');
     localStorage.removeItem('yearId');
+    localStorage.removeItem('studentId');  // ✅ Clear studentId on logout
 
     this.router.navigate(['/auth/login']);
   }
@@ -177,18 +226,24 @@ export class AuthService {
    * Use this for API calls that require studentId parameter
    */
   getStudentId(): number | null {
+    // First, try from current user (already decoded in setCurrentUser)
+    const currentUser = this.currentUser();
+    if (currentUser?.studentId) {
+      return currentUser.studentId;
+    }
+
+    // Fallback: Decode token again
     const token = this.getToken();
     if (!token) {
-      console.warn('No auth token found');
+      console.warn('⚠️ No auth token found');
       return null;
     }
 
     try {
-      // Decode JWT token
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const decoded = jwtDecode<JwtPayload>(token);
 
-      if (payload.studentId) {
-        const studentId = parseInt(payload.studentId);
+      if (decoded.studentId) {
+        const studentId = parseInt(decoded.studentId);
         console.log('✅ Student.Id from token:', studentId);
         return studentId;
       }
