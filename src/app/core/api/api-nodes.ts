@@ -451,8 +451,9 @@ export const ApiNodes = {
   },
 
   // Update lesson progress
+  // ✅ FIXED: Using correct Progress controller endpoint
   updateLessonProgress: {
-    url: '\/lessons/:id/progress',
+    url: '\/Progress/students/:studentId/lessons/:lessonId',
     method: 'PUT' as const,
     mockData: {
       success: true,

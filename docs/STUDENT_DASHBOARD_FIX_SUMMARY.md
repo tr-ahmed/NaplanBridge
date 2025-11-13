@@ -17,7 +17,7 @@
 **Fix Applied:**
 ```typescript
 // Before (WRONG)
-const url = `${this.baseUrl}/api/subscriptions/plans`;
+const url = `${this.baseUrl}/subscriptions/plans`;
 
 // After (CORRECT)
 const url = `${this.baseUrl}/SubscriptionPlans`;

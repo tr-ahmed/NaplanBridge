@@ -134,7 +134,7 @@ export class SubscriptionService {
       );
     }
 
-    const url = `${this.baseUrl}/api/subscriptions/purchase`;
+    const url = `${this.baseUrl}/subscriptions/purchase`;
     return this.http.post<SubscriptionPurchaseResponse>(url, purchase).pipe(
       tap(() => this.loading.set(false)),
       catchError(() => {
@@ -158,7 +158,7 @@ export class SubscriptionService {
       return of(subscriptions);
     }
 
-    const url = `${this.baseUrl}/api/subscriptions/student/${studentId}`;
+    const url = `${this.baseUrl}/subscriptions/student/${studentId}`;
     return this.http.get<StudentSubscription[]>(url).pipe(
       tap(subscriptions => {
         this.userSubscriptionsSubject.next(subscriptions);
@@ -189,7 +189,7 @@ export class SubscriptionService {
       return of(discount || null);
     }
 
-    const url = `${this.baseUrl}/api/subscriptions/validate-discount`;
+    const url = `${this.baseUrl}/subscriptions/validate-discount`;
     return this.http.post<SubscriptionDiscount>(url, { code, planId }).pipe(
       catchError(() => of(null))
     );
@@ -204,7 +204,7 @@ export class SubscriptionService {
       return of(this.getMockProgress(subscriptionId));
     }
 
-    const url = `${this.baseUrl}/api/subscriptions/${subscriptionId}/progress`;
+    const url = `${this.baseUrl}/subscriptions/${subscriptionId}/progress`;
     return this.http.get<SubscriptionProgress>(url).pipe(
       catchError(() => of(this.getMockProgress(subscriptionId)))
     );
@@ -219,7 +219,7 @@ export class SubscriptionService {
       return of(this.getMockStats());
     }
 
-    const url = `${this.baseUrl}/api/subscriptions/stats`;
+    const url = `${this.baseUrl}/subscriptions/stats`;
     return this.http.get<SubscriptionStats>(url).pipe(
       catchError(() => of(this.getMockStats()))
     );
@@ -753,7 +753,7 @@ export class SubscriptionService {
    * Check if student has access to subject
    */
   hasAccessToSubject(studentId: number, subjectId: number): Observable<{ hasAccess: boolean; reason?: string }> {
-    const url = `${this.baseUrl}/api/studentsubjects/student/${studentId}/has-access/subject/${subjectId}`;
+    const url = `${this.baseUrl}/studentsubjects/student/${studentId}/has-access/subject/${subjectId}`;
 
     if (environment.useMock) {
       // Mock: Allow access for demo
@@ -769,7 +769,7 @@ export class SubscriptionService {
    * Check if student has access to term
    */
   hasAccessToTerm(studentId: number, termId: number): Observable<{ hasAccess: boolean; reason?: string }> {
-    const url = `${this.baseUrl}/api/studentsubjects/student/${studentId}/has-access/term/${termId}`;
+    const url = `${this.baseUrl}/studentsubjects/student/${studentId}/has-access/term/${termId}`;
 
     if (environment.useMock) {
       return of({ hasAccess: true });
@@ -784,7 +784,7 @@ export class SubscriptionService {
    * Check if student has access to lesson
    */
   hasAccessToLesson(studentId: number, lessonId: number): Observable<{ hasAccess: boolean; reason?: string }> {
-    const url = `${this.baseUrl}/api/studentsubjects/student/${studentId}/has-access/lesson/${lessonId}`;
+    const url = `${this.baseUrl}/studentsubjects/student/${studentId}/has-access/lesson/${lessonId}`;
 
     if (environment.useMock) {
       return of({ hasAccess: true });
@@ -799,7 +799,7 @@ export class SubscriptionService {
    * Check if student has access to exam
    */
   hasAccessToExam(studentId: number, examId: number): Observable<{ hasAccess: boolean; reason?: string }> {
-    const url = `${this.baseUrl}/api/studentsubjects/student/${studentId}/has-access/exam/${examId}`;
+    const url = `${this.baseUrl}/studentsubjects/student/${studentId}/has-access/exam/${examId}`;
 
     if (environment.useMock) {
       return of({ hasAccess: true });

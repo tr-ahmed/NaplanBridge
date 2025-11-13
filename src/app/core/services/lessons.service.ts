@@ -134,6 +134,7 @@ export class LessonsService {
 
   /**
    * Update lesson progress
+   * Uses correct Progress controller endpoint: PUT /api/Progress/students/{studentId}/lessons/{lessonId}
    */
   updateProgress(
     lessonId: number,
@@ -143,13 +144,16 @@ export class LessonsService {
     currentPosition?: number
   ): Observable<boolean> {
     const endpoint = ApiNodes.updateLessonProgress;
-    const url = `${this.baseUrl}${endpoint.url.replace(':id', lessonId.toString())}`;
+    // ✅ Replace both studentId and lessonId in URL
+    const url = `${this.baseUrl}${endpoint.url
+      .replace(':studentId', studentId.toString())
+      .replace(':lessonId', lessonId.toString())}`;
 
+    // ✅ Backend expects: progressNumber (not progress), and currentPosition as int
     const progressData = {
-      studentId,
-      progress,
+      progressNumber: progress,  // Changed from 'progress' to 'progressNumber'
       timeSpent,
-      currentPosition
+      currentPosition: currentPosition ? Math.floor(currentPosition) : 0  // Convert to int
     };
 
     if (this.useMock) {
@@ -159,7 +163,10 @@ export class LessonsService {
 
     return this.http.put<any>(url, progressData).pipe(
       map(() => true),
-      catchError(() => of(true))
+      catchError((error) => {
+        console.error('❌ Failed to update progress:', error);
+        return of(false);
+      })
     );
   }
 
@@ -677,7 +684,7 @@ export class LessonsService {
     this.loading.set(true);
     this.error.set(null);
 
-    const url = `${this.baseUrl}/api/LessonQuestions/lesson/${lessonId}`;
+    const url = `${this.baseUrl}/LessonQuestions/lesson/${lessonId}`;
 
     return this.http.get<any[]>(url).pipe(
       tap(() => this.loading.set(false)),
@@ -694,7 +701,7 @@ export class LessonsService {
    * Submit answer to a lesson question
    */
   submitQuestionAnswer(questionId: number, selectedAnswer: string): Observable<any> {
-    const url = `${this.baseUrl}/api/LessonQuestions/answer`;
+    const url = `${this.baseUrl}/LessonQuestions/answer`;
 
     return this.http.post<any>(url, {
       questionId,

@@ -186,11 +186,39 @@ export class ProgressService {
 
   /**
    * Update lesson progress (video position, completion)
-   * Endpoint: POST /api/progress/lesson/update
-   * Roles: Student
+   * ✅ FIXED: Using correct endpoint PUT /api/Progress/students/{studentId}/lessons/{lessonId}
+   * Backend expects: progressNumber, timeSpent, currentPosition (int)
    */
   updateLessonProgress(dto: UpdateLessonProgressDto): Observable<LessonProgress> {
-    return this.api.post<LessonProgress>('progress/lesson/update', dto);
+    // Get studentId from auth service (from JWT token)
+    const studentId = this.getStudentIdFromToken();
+
+    if (!studentId) {
+      console.error('❌ No studentId found - cannot update progress');
+      return of({} as LessonProgress);
+    }
+
+    // ✅ Use correct endpoint structure
+    const url = `Progress/students/${studentId}/lessons/${dto.lessonId}`;
+
+    // ✅ Transform DTO to match backend expectations
+    const payload = {
+      progressNumber: dto.progress,  // Backend expects 'progressNumber' not 'progress'
+      timeSpent: 0,  // Can be calculated if needed
+      currentPosition: dto.lastWatchedPosition ? Math.floor(dto.lastWatchedPosition) : 0  // Must be int
+    };
+
+    return this.api.put<LessonProgress>(url, payload);
+  }
+
+  /**
+   * Helper to get studentId from JWT token
+   */
+  private getStudentIdFromToken(): number | null {
+    // This should be implemented in auth service
+    // For now, check localStorage
+    const studentId = localStorage.getItem('studentId');
+    return studentId ? parseInt(studentId) : null;
   }
 
   /**
