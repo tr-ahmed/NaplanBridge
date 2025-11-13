@@ -134,7 +134,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
       // Check if user is a student
       const roles = Array.isArray(user.role) ? user.role : [user.role];
-      const isStudentRole = roles.some((r: string) => r.toLowerCase() === 'student');
+      const isStudentRole = roles.some((r: string) => r?.toLowerCase() === 'student');
       this.isStudent.set(isStudentRole);
 
       this.logger.log('👤 User Details:', {
@@ -159,7 +159,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         console.warn('📋 Backend may not have added yearId claim to JWT');
 
         // ✅ Also check for parent role
-        const isParentRole = roles.some((r: string) => r.toLowerCase() === 'parent');
+        const isParentRole = roles.some((r: string) => r?.toLowerCase() === 'parent');
         if (isParentRole) {
           this.logger.log('👨‍👩‍👧‍👦 Student with Parent role - loading students...');
           this.loadParentStudents();
@@ -168,7 +168,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.logger.log('👔 Non-student user - showing all years');
 
         // ✅ If parent, load their students
-        const isParentRole = roles.some((r: string) => r.toLowerCase() === 'parent');
+        const isParentRole = roles.some((r: string) => r?.toLowerCase() === 'parent');
         if (isParentRole) {
           this.logger.log('👨‍👩‍👧‍👦 Parent user - loading students...');
           this.loadParentStudents();
@@ -364,7 +364,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         (course.name || course.subjectName)?.toLowerCase().includes(query) ||
         (course.description || '')?.toLowerCase().includes(query) ||
         (course.instructor || '')?.toLowerCase().includes(query) ||
-        (course.tags || []).some(tag => tag.toLowerCase().includes(query)) ||
+        (course.tags || []).some(tag => tag?.toLowerCase().includes(query)) ||
         course.subjectName?.toLowerCase().includes(query) ||
         course.categoryName?.toLowerCase().includes(query)
       );
