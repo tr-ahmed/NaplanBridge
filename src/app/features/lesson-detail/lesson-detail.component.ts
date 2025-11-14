@@ -262,8 +262,12 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
    * Load student progress for this lesson
    */
   private loadStudentProgress(lessonId: number): void {
-    // Mock student ID - in real app this would come from auth service
-    const studentId = 1;
+    // Get the actual student ID from authenticated user
+    const studentId = this.authService.getStudentId();
+    if (!studentId) {
+      console.warn('⚠️ Cannot load progress: Student ID not found');
+      return;
+    }
 
     this.lessonsService.getStudentLessons(studentId)
       .pipe(takeUntil(this.destroy$))
@@ -697,8 +701,14 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     const lesson = this.lesson();
     if (!lesson || !this.authService.isAuthenticated()) return;
 
+    // Get the actual student ID from authenticated user
+    const studentId = this.authService.getStudentId();
+    if (!studentId) {
+      console.warn('⚠️ Cannot update progress: Student ID not found');
+      return;
+    }
+
     const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-    const studentId = 1; // Mock student ID
 
     this.lessonsService.updateProgress(
       lesson.id,

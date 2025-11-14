@@ -134,7 +134,9 @@ export class LessonsService {
 
   /**
    * Update lesson progress
-   * Uses correct Progress controller endpoint: PUT /api/Progress/students/{studentId}/lessons/{lessonId}
+   * Smart implementation: Creates progress if it doesn't exist (404), then updates
+   * Uses: POST /api/Progress/students/{studentId}/lessons/{lessonId} (create)
+   *       PUT /api/Progress/students/{studentId}/lessons/{lessonId} (update)
    */
   updateProgress(
     lessonId: number,
@@ -143,17 +145,11 @@ export class LessonsService {
     timeSpent: number,
     currentPosition?: number
   ): Observable<boolean> {
-    const endpoint = ApiNodes.updateLessonProgress;
-    // ✅ Replace both studentId and lessonId in URL
-    const url = `${this.baseUrl}${endpoint.url
-      .replace(':studentId', studentId.toString())
-      .replace(':lessonId', lessonId.toString())}`;
-
     // ✅ Backend expects: progressNumber (not progress), and currentPosition as int
     const progressData = {
-      progressNumber: progress,  // Changed from 'progress' to 'progressNumber'
+      progressNumber: progress,
       timeSpent,
-      currentPosition: currentPosition ? Math.floor(currentPosition) : 0  // Convert to int
+      currentPosition: currentPosition ? Math.floor(currentPosition) : 0
     };
 
     if (this.useMock) {
@@ -161,10 +157,59 @@ export class LessonsService {
       return of(true);
     }
 
+    // Build URL for both create and update (same endpoint, different methods)
+    const url = `${this.baseUrl}${ApiNodes.updateLessonProgress.url
+      .replace(':studentId', studentId.toString())
+      .replace(':lessonId', lessonId.toString())}`;
+
+    console.log('📤 Updating progress:', {
+      url,
+      studentId,
+      lessonId,
+      data: progressData
+    });
+
+    // Try UPDATE first (PUT)
     return this.http.put<any>(url, progressData).pipe(
-      map(() => true),
-      catchError((error) => {
-        console.error('❌ Failed to update progress:', error);
+      map(() => {
+        console.log('✅ Progress updated successfully');
+        return true;
+      }),
+      catchError((error: HttpErrorResponse) => {
+        // If 404, the progress record doesn't exist yet - create it with POST
+        if (error.status === 404) {
+          console.log('📝 Progress record not found, creating new one...');
+          return this.http.post<any>(url, progressData).pipe(
+            map(() => {
+              console.log('✅ Progress created successfully');
+              return true;
+            }),
+            catchError((createError: HttpErrorResponse) => {
+              console.error('❌ Failed to create progress:', {
+                status: createError.status,
+                statusText: createError.statusText,
+                url: url,
+                error: createError.error,
+                message: createError.message
+              });
+              return of(false);
+            })
+          );
+        }
+
+        // Handle other errors
+        console.error('❌ Failed to update progress:', {
+          status: error.status,
+          statusText: error.statusText,
+          url: url,
+          error: error.error,
+          message: error.message
+        });
+
+        if (error.status === 401 || error.status === 403) {
+          console.error('❌ Authentication/Authorization error. Check your login status.');
+        }
+
         return of(false);
       })
     );

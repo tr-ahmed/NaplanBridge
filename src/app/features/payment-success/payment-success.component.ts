@@ -71,10 +71,29 @@ export class PaymentSuccessComponent implements OnInit {
   }
 
   /**
-   * Verify Stripe payment with new backend API
+   * Verify Stripe payment with backend API
    */
   private verifyStripePayment(sessionId: string): void {
     console.log('🔍 Verifying payment with session ID:', sessionId);
+
+    // ✅ Verify session ID format (should be Stripe format after backend fix)
+    const isNumericId = /^\d+$/.test(sessionId);
+    const isStripeId = /^cs_(test|live)_/.test(sessionId);
+
+    if (isNumericId) {
+      console.warn('⚠️ WARNING: Received numeric session ID:', sessionId);
+      console.warn('⚠️ Expected Stripe session ID format: cs_test_... or cs_live_...');
+      console.warn('⚠️ Backend fix may not be deployed yet - attempting to process anyway...');
+
+      this.toastService.showWarning(
+        'Payment verification issue. If payment was successful, please contact support with reference: #' + sessionId
+      );
+      // Don't return - still attempt to process
+    } else if (isStripeId) {
+      console.log('✅ Valid Stripe session ID format detected:', sessionId);
+    } else {
+      console.warn('⚠️ Unknown session ID format:', sessionId);
+    }
 
     // Check if user is authenticated
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');

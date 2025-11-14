@@ -450,6 +450,17 @@ export const ApiNodes = {
     mockData: [] as any[]
   },
 
+  // Create lesson progress
+  // POST /api/Progress/students/{studentId}/lessons/{lessonId}
+  createLessonProgress: {
+    url: '\/Progress/students/:studentId/lessons/:lessonId',
+    method: 'POST' as const,
+    mockData: {
+      success: true,
+      message: 'Progress created successfully'
+    }
+  },
+
   // Update lesson progress
   // ✅ FIXED: Using correct Progress controller endpoint
   updateLessonProgress: {

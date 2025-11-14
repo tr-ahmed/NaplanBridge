@@ -1,1 +1,53 @@
 // My Bookings Component Styles
+
+.my-bookings-container {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Card hover effects
+.group:hover {
+  transform: translateY(-2px);
+}
+
+// Smooth transitions
+* {
+  transition: all 0.3s ease-in-out;
+}
+
+// Custom scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #4f46e5, #7c3aed);
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .my-bookings-container {
+    padding: 1rem;
+  }
+}

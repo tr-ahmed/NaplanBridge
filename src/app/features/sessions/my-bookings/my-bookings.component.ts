@@ -5,6 +5,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { SessionService } from '../../../core/services/session.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { PrivateSessionDto } from '../../../models/session.models';
@@ -12,7 +13,7 @@ import { PrivateSessionDto } from '../../../models/session.models';
 @Component({
   selector: 'app-my-bookings',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './my-bookings.component.html',
   styleUrl: './my-bookings.component.scss'
 })
@@ -109,12 +110,12 @@ export class MyBookingsComponent implements OnInit {
    */
   getStatusClass(status: string): string {
     const classes: { [key: string]: string } = {
-      'Confirmed': 'bg-green-100 text-green-800',
-      'Completed': 'bg-blue-100 text-blue-800',
-      'Cancelled': 'bg-red-100 text-red-800',
-      'Pending': 'bg-yellow-100 text-yellow-800'
+      'Confirmed': 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200',
+      'Completed': 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200',
+      'Cancelled': 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200',
+      'Pending': 'bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border border-yellow-200'
     };
-    return classes[status] || 'bg-gray-100 text-gray-800';
+    return classes[status] || 'bg-gray-100 text-gray-800 border border-gray-200';
   }
 
   /**
@@ -122,12 +123,35 @@ export class MyBookingsComponent implements OnInit {
    */
   getStatusText(status: string): string {
     const texts: { [key: string]: string } = {
-      'Confirmed': 'Confirmed',
-      'Completed': 'Completed',
-      'Cancelled': 'Cancelled',
-      'Pending': 'Pending'
+      'Confirmed': '✅ Confirmed',
+      'Completed': '✔️ Completed',
+      'Cancelled': '❌ Cancelled',
+      'Pending': '⏳ Pending'
     };
     return texts[status] || status;
+  }
+
+  /**
+   * Get count of upcoming sessions
+   */
+  getUpcomingCount(): number {
+    return this.bookings().filter(b =>
+      b.status === 'Confirmed' && this.sessionService.isUpcoming(b.scheduledDateTime)
+    ).length;
+  }
+
+  /**
+   * Get count of completed sessions
+   */
+  getCompletedCount(): number {
+    return this.bookings().filter(b => b.status === 'Completed').length;
+  }
+
+  /**
+   * Get count of cancelled sessions
+   */
+  getCancelledCount(): number {
+    return this.bookings().filter(b => b.status === 'Cancelled').length;
   }
 
   /**
