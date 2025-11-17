@@ -609,6 +609,104 @@
         }
       }
     },
+    "/api/Account/update-profile": {
+      "put": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Update user profile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.EditUserDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.EditUserDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.EditUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.UserDetailsDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.UserDetailsDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.UserDetailsDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Account/change-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Change password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ChangePasswordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ChangePasswordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Achievements": {
       "get": {
         "tags": [
@@ -1606,6 +1704,99 @@
         }
       }
     },
+    "/api/BunnyTest/upload": {
+      "post": {
+        "tags": [
+          "BunnyTest"
+        ],
+        "summary": "Test file upload to Bunny Edge Storage\r\nاختبار رفع ملف إلى Bunny Edge Storage",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "Test file to upload",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/BunnyTest/delete": {
+      "delete": {
+        "tags": [
+          "BunnyTest"
+        ],
+        "summary": "Test file deletion from Bunny Edge Storage\r\nاختبار حذف ملف من Bunny Edge Storage",
+        "parameters": [
+          {
+            "name": "storagePath",
+            "in": "query",
+            "description": "Storage path of file to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/BunnyTest/cdn-url": {
+      "get": {
+        "tags": [
+          "BunnyTest"
+        ],
+        "summary": "Get CDN URL for a file path\r\nالحصول على رابط CDN لمسار ملف",
+        "parameters": [
+          {
+            "name": "filePath",
+            "in": "query",
+            "description": "File path in storage",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/BunnyTest/config": {
+      "get": {
+        "tags": [
+          "BunnyTest"
+        ],
+        "summary": "Test Bunny configuration settings\r\nاختبار إعدادات Bunny",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Cart": {
       "get": {
         "tags": [
@@ -2271,6 +2462,58 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "IsAnswered",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "IsHelpful",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "SubjectId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortOrder",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -2279,26 +2522,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.DTOs.Discussion.DiscussionDto"
-                  }
+                  "$ref": "#/components/schemas/API.DTOs.Discussion.PagedDiscussionDto"
                 }
               },
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.DTOs.Discussion.DiscussionDto"
-                  }
+                  "$ref": "#/components/schemas/API.DTOs.Discussion.PagedDiscussionDto"
                 }
               },
               "text/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/API.DTOs.Discussion.DiscussionDto"
-                  }
+                  "$ref": "#/components/schemas/API.DTOs.Discussion.PagedDiscussionDto"
                 }
               }
             }
@@ -2405,6 +2639,89 @@
         }
       }
     },
+    "/api/Discussions/student/my-discussions": {
+      "get": {
+        "tags": [
+          "Discussions"
+        ],
+        "parameters": [
+          {
+            "name": "IsAnswered",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "IsHelpful",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "SubjectId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortOrder",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Discussion.PagedDiscussionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Discussion.PagedDiscussionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Discussion.PagedDiscussionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Discussions/{discussionId}/replies": {
       "post": {
         "tags": [
@@ -2460,6 +2777,52 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/Discussions/{discussionId}/mark-helpful": {
+      "post": {
+        "tags": [
+          "Discussions"
+        ],
+        "parameters": [
+          {
+            "name": "discussionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Discussions/{discussionId}/unmark-helpful": {
+      "post": {
+        "tags": [
+          "Discussions"
+        ],
+        "parameters": [
+          {
+            "name": "discussionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -3959,6 +4322,142 @@
         }
       }
     },
+    "/api/Media/upload-image": {
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Upload an image using the active media provider (configured in appsettings.json)\r\nرفع صورة باستخدام المزود النشط (Bunny أو Cloudinary)",
+        "parameters": [
+          {
+            "name": "folder",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Media/upload-video": {
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Upload a video using the active media provider\r\nرفع فيديو باستخدام المزود النشط",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "folder",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Media/{fileId}": {
+      "delete": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Delete a file using the active media provider\r\nحذف ملف باستخدام المزود النشط",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Media/switch-provider": {
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Switch media provider on-the-fly (for testing)\r\nتغيير المزود النشط أثناء التشغيل (للاختبار)",
+        "parameters": [
+          {
+            "name": "providerName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Notes": {
       "post": {
         "tags": [
@@ -4257,6 +4756,358 @@
         }
       }
     },
+    "/api/admin/NotificationManagement/events": {
+      "get": {
+        "tags": [
+          "NotificationManagement"
+        ],
+        "summary": "Get all system events with template counts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.SystemEventDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.SystemEventDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.SystemEventDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/NotificationManagement/events/{eventId}/toggle": {
+      "patch": {
+        "tags": [
+          "NotificationManagement"
+        ],
+        "summary": "Toggle system event activation",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.ToggleEventDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.ToggleEventDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.ToggleEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/NotificationManagement/templates/by-event/{eventKey}": {
+      "get": {
+        "tags": [
+          "NotificationManagement"
+        ],
+        "summary": "Get notification template by event key",
+        "parameters": [
+          {
+            "name": "eventKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/NotificationManagement/templates": {
+      "post": {
+        "tags": [
+          "NotificationManagement"
+        ],
+        "summary": "Create new notification template",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.CreateNotificationTemplateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.CreateNotificationTemplateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.CreateNotificationTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/NotificationManagement/templates/{id}": {
+      "put": {
+        "tags": [
+          "NotificationManagement"
+        ],
+        "summary": "Update existing notification template",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateNotificationTemplateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateNotificationTemplateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateNotificationTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotificationPreferences": {
+      "get": {
+        "tags": [
+          "NotificationPreferences"
+        ],
+        "summary": "Get current user's notification preferences",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UserNotificationPreferenceDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UserNotificationPreferenceDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UserNotificationPreferenceDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotificationPreferences/{eventId}": {
+      "put": {
+        "tags": [
+          "NotificationPreferences"
+        ],
+        "summary": "Update preference for a specific event",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateUserPreferenceDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateUserPreferenceDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateUserPreferenceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/NotificationPreferences/enable-all": {
+      "post": {
+        "tags": [
+          "NotificationPreferences"
+        ],
+        "summary": "Enable all notifications",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/NotificationPreferences/disable-all": {
+      "post": {
+        "tags": [
+          "NotificationPreferences"
+        ],
+        "summary": "Disable all notifications",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/NotificationPreferences/email-only": {
+      "post": {
+        "tags": [
+          "NotificationPreferences"
+        ],
+        "summary": "Enable email only",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Notifications": {
       "get": {
         "tags": [
@@ -4299,6 +5150,18 @@
       }
     },
     "/api/Notifications/stats": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Notifications/unread-count": {
       "get": {
         "tags": [
           "Notifications"
@@ -4364,6 +5227,556 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/NotificationTemplates": {
+      "get": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Get all notification templates (for listing in admin UI)",
+        "parameters": [
+          {
+            "name": "eventKey",
+            "in": "query",
+            "description": "Filter by specific event (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "description": "Filter by channel (Email, SMS, InApp, Push) (optional)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotificationTemplates/event/{eventKey}": {
+      "get": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Get templates for a specific event (all 4 channels)",
+        "parameters": [
+          {
+            "name": "eventKey",
+            "in": "path",
+            "description": "Event key (e.g., \"DISCUSSION_REPLY\")",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.EventTemplatesDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.EventTemplatesDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.EventTemplatesDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Bulk update templates for an event (update all 4 channels at once)",
+        "parameters": [
+          {
+            "name": "eventKey",
+            "in": "path",
+            "description": "Event key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Templates for all channels",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateEventTemplatesDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateEventTemplatesDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateEventTemplatesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.EventTemplatesDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.EventTemplatesDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.EventTemplatesDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotificationTemplates/{templateId}": {
+      "get": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Get a specific template by ID",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "Template ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Update a notification template (Admin can customize messages)",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "Template ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated template data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateNotificationTemplateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateNotificationTemplateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateNotificationTemplateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotificationTemplates/{templateId}/preview": {
+      "post": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Preview a template with sample data",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "Template ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Sample variable values",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.TemplatePreviewRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.TemplatePreviewRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.TemplatePreviewRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.TemplatePreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.TemplatePreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.TemplatePreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotificationTemplates/event/{eventKey}/variables": {
+      "get": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Get all available variables for an event\r\nHelps admin know which placeholders they can use",
+        "parameters": [
+          {
+            "name": "eventKey",
+            "in": "path",
+            "description": "Event key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotificationTemplates/{templateId}/reset": {
+      "post": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Reset a template to its default value",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "Template ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotificationTemplates/{templateId}/history": {
+      "get": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Get template history (audit log of changes)",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "Template ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.NotificationTemplate.TemplateHistoryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.NotificationTemplate.TemplateHistoryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.NotificationTemplate.TemplateHistoryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotificationTemplates/{templateId}/test-send": {
+      "post": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Test send a notification with current template",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "Template ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Test send details (recipient, sample variables)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.TestSendDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.TestSendDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.TestSendDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/NotificationTemplates/{templateId}/live-demo": {
+      "get": {
+        "tags": [
+          "NotificationTemplates"
+        ],
+        "summary": "Get live demo with real data from database\r\nShows how the template will look for a real user",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "Template ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sampleUserId",
+            "in": "query",
+            "description": "Sample user ID (optional - uses a random active user if not provided)",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.TemplatePreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.TemplatePreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.TemplatePreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
           }
         }
       }
@@ -4589,6 +6002,51 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Orders/{orderId}/request-refund": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Request a refund for an order",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "Order ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Refund request details",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Order.RefundRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Order.RefundRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Order.RefundRequestDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -5355,7 +6813,6 @@
           {
             "name": "Title",
             "in": "query",
-            "required": true,
             "schema": {
               "type": "string"
             }
@@ -5373,9 +6830,6 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "required": [
-                  "File"
-                ],
                 "type": "object",
                 "properties": {
                   "File": {
@@ -7708,6 +9162,198 @@
         }
       }
     },
+    "/api/TeacherContent/request-revision": {
+      "post": {
+        "tags": [
+          "TeacherContent"
+        ],
+        "summary": "Request content revision (Admin only)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.TeacherContent.ApprovalActionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.TeacherContent.ApprovalActionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.TeacherContent.ApprovalActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TeacherContent/bulk-approve": {
+      "post": {
+        "tags": [
+          "TeacherContent"
+        ],
+        "summary": "Bulk approve multiple items (Admin only)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.TeacherContent.BulkApprovalDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.TeacherContent.BulkApprovalDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.TeacherContent.BulkApprovalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TeacherContent/preview": {
+      "get": {
+        "tags": [
+          "TeacherContent"
+        ],
+        "summary": "Get content preview (Admin only)",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentPreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentPreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentPreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TeacherContent/history": {
+      "get": {
+        "tags": [
+          "TeacherContent"
+        ],
+        "summary": "Get approval history for content (Admin only)",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.TeacherContent.ApprovalHistoryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.TeacherContent.ApprovalHistoryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.TeacherContent.ApprovalHistoryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/TeacherContent/my-content": {
       "get": {
         "tags": [
@@ -9695,6 +11341,15 @@
   },
   "components": {
     "schemas": {
+      "API.Controllers.ToggleEventDto": {
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.AcademicTerm.AcademicTermDto": {
         "required": [
           "name"
@@ -10319,6 +11974,84 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.EventTemplatesDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.EventTemplatesDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ApiResponse`1[[API.DTOs.NotificationTemplate.TemplatePreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.TemplatePreviewDto"
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.ApiResponse`1[[API.DTOs.Session.BookingResponseDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
         "required": [
           "message"
@@ -10423,6 +12156,32 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentPreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/API.DTOs.TeacherContent.ContentPreviewDto"
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.ApiResponse`1[[API.DTOs.TeacherPermission.TeacherPermissionDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
         "required": [
           "message"
@@ -10445,6 +12204,32 @@
           },
           "data": {
             "$ref": "#/components/schemas/API.DTOs.TeacherPermission.TeacherPermissionDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ApiResponse`1[[API.DTOs.UserDetailsDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/API.DTOs.UserDetailsDto"
           }
         },
         "additionalProperties": false
@@ -10712,6 +12497,66 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.NotificationTemplate.NotificationTemplateDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.NotificationTemplate.TemplateHistoryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.TemplateHistoryDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.Session.AvailableSlotDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
         "required": [
           "message"
@@ -10832,6 +12677,36 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.TeacherContent.ApprovalHistoryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.TeacherContent.ApprovalHistoryDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.TeacherContent.PendingApprovalDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
         "required": [
           "message"
@@ -10917,6 +12792,36 @@
             "items": {
               "type": "integer",
               "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "string"
             },
             "nullable": true
           }
@@ -11269,6 +13174,30 @@
           "grade": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ChangePasswordDto": {
+        "required": [
+          "confirmPassword",
+          "currentPassword",
+          "newPassword"
+        ],
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "newPassword": {
+            "maxLength": 100,
+            "minLength": 6,
+            "type": "string"
+          },
+          "confirmPassword": {
+            "minLength": 1,
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -11951,6 +13880,10 @@
             "type": "string",
             "nullable": true
           },
+          "studentAvatar": {
+            "type": "string",
+            "nullable": true
+          },
           "question": {
             "type": "string",
             "nullable": true
@@ -11966,6 +13899,13 @@
           },
           "isAnswered": {
             "type": "boolean"
+          },
+          "isHelpful": {
+            "type": "boolean"
+          },
+          "helpfulCount": {
+            "type": "integer",
+            "format": "int32"
           },
           "repliesCount": {
             "type": "integer",
@@ -12004,6 +13944,10 @@
             "type": "string",
             "nullable": true
           },
+          "userAvatar": {
+            "type": "string",
+            "nullable": true
+          },
           "reply": {
             "type": "string",
             "nullable": true
@@ -12013,6 +13957,41 @@
             "format": "date-time"
           },
           "isTeacherReply": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.Discussion.PagedDiscussionDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.Discussion.DiscussionDto"
+            },
+            "nullable": true
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPrevious": {
+            "type": "boolean"
+          },
+          "hasNext": {
             "type": "boolean"
           }
         },
@@ -12218,6 +14197,10 @@
           "termId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "isPublished": {
+            "type": "boolean",
             "nullable": true
           }
         },
@@ -12608,14 +14591,17 @@
         "properties": {
           "identifier": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "User identifier (can be email, username, or phone number)\r\nمعرف المستخدم (يمكن أن يكون البريد الإلكتروني أو اسم المستخدم أو رقم الهاتف)"
           },
           "password": {
             "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "User password\r\nكلمة المرور"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Login credentials DTO\r\nبيانات تسجيل الدخول"
       },
       "API.DTOs.Note.CreateNoteDto": {
         "required": [
@@ -12760,13 +14746,462 @@
               12,
               13,
               14,
-              15
+              15,
+              16,
+              17
             ],
             "type": "integer",
             "format": "int32"
           }
         },
         "additionalProperties": false
+      },
+      "API.DTOs.NotificationTemplate.CreateNotificationTemplateDto": {
+        "type": "object",
+        "properties": {
+          "systemEventId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sendInApp": {
+            "type": "boolean"
+          },
+          "sendEmail": {
+            "type": "boolean"
+          },
+          "sendSMS": {
+            "type": "boolean"
+          },
+          "inAppTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "inAppMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "inAppType": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailSubject": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailBody": {
+            "type": "string",
+            "nullable": true
+          },
+          "smsMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "targetRoles": {
+            "type": "string",
+            "nullable": true
+          },
+          "delayMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.NotificationTemplate.EventTemplatesDto": {
+        "type": "object",
+        "properties": {
+          "eventKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventName": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventCategory": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "template": {
+            "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.NotificationTemplateDto"
+          },
+          "availableVariables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for getting all templates for an event"
+      },
+      "API.DTOs.NotificationTemplate.NotificationTemplateDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "systemEventId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventName": {
+            "type": "string",
+            "nullable": true
+          },
+          "sendInApp": {
+            "type": "boolean"
+          },
+          "sendEmail": {
+            "type": "boolean"
+          },
+          "sendSMS": {
+            "type": "boolean"
+          },
+          "inAppTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "inAppMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "inAppType": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailSubject": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailBody": {
+            "type": "string",
+            "nullable": true
+          },
+          "smsMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "targetRoles": {
+            "type": "string",
+            "nullable": true
+          },
+          "delayMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "availableVariables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.NotificationTemplate.SystemEventDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "templateCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.NotificationTemplate.TemplateHistoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "templateId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "previousContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "newContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "previousSubject": {
+            "type": "string",
+            "nullable": true
+          },
+          "newSubject": {
+            "type": "string",
+            "nullable": true
+          },
+          "changedBy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "changedByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "changedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "changeReason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for template change history (audit log)"
+      },
+      "API.DTOs.NotificationTemplate.TemplatePreviewDto": {
+        "type": "object",
+        "properties": {
+          "originalTemplate": {
+            "type": "string",
+            "nullable": true
+          },
+          "previewText": {
+            "type": "string",
+            "nullable": true
+          },
+          "subject": {
+            "type": "string",
+            "nullable": true
+          },
+          "usedVariables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "missingVariables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for previewing a template with sample data"
+      },
+      "API.DTOs.NotificationTemplate.TemplatePreviewRequestDto": {
+        "type": "object",
+        "properties": {
+          "sampleVariables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request DTO for template preview"
+      },
+      "API.DTOs.NotificationTemplate.TestSendDto": {
+        "type": "object",
+        "properties": {
+          "recipientUserId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sampleVariables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "testEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "testPhoneNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for test sending a notification"
+      },
+      "API.DTOs.NotificationTemplate.UpdateEventTemplatesDto": {
+        "type": "object",
+        "properties": {
+          "template": {
+            "$ref": "#/components/schemas/API.DTOs.NotificationTemplate.UpdateNotificationTemplateDto"
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for bulk updating templates for an event"
+      },
+      "API.DTOs.NotificationTemplate.UpdateNotificationTemplateDto": {
+        "type": "object",
+        "properties": {
+          "sendInApp": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "sendEmail": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "sendSMS": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "inAppTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "inAppMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "inAppType": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailSubject": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailBody": {
+            "type": "string",
+            "nullable": true
+          },
+          "smsMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "targetRoles": {
+            "type": "string",
+            "nullable": true
+          },
+          "delayMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.NotificationTemplate.UpdateUserPreferenceDto": {
+        "type": "object",
+        "properties": {
+          "enableInApp": {
+            "type": "boolean"
+          },
+          "enableEmail": {
+            "type": "boolean"
+          },
+          "enableSMS": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.NotificationTemplate.UserNotificationPreferenceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "systemEventId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "eventName": {
+            "type": "string",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "enableInApp": {
+            "type": "boolean"
+          },
+          "enableEmail": {
+            "type": "boolean"
+          },
+          "enableSMS": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.Order.RefundRequestDto": {
+        "required": [
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "details": {
+            "maxLength": 2000,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for requesting a refund"
       },
       "API.DTOs.ParentRegisterDto": {
         "required": [
@@ -14616,10 +17051,127 @@
             "maxLength": 500,
             "type": "string",
             "nullable": true
+          },
+          "comments": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false,
         "description": "DTO for admin actions on pending content (Approve/Reject)"
+      },
+      "API.DTOs.TeacherContent.ApprovalHistoryDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "nullable": true
+          },
+          "actionBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "actionAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "comments": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.TeacherContent.BulkApprovalDto": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.TeacherContent.BulkApprovalItem"
+            }
+          },
+          "comments": {
+            "maxLength": 1000,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.TeacherContent.BulkApprovalItem": {
+        "required": [
+          "itemId",
+          "itemType"
+        ],
+        "type": "object",
+        "properties": {
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "itemId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.TeacherContent.ContentPreviewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "videoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "posterUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "enum": [
+              0,
+              1,
+              2
+            ],
+            "type": "integer",
+            "description": "Approval status for content created by teachers",
+            "format": "int32"
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "API.DTOs.TeacherContent.PendingApprovalDto": {
         "type": "object",
@@ -15992,6 +18544,10 @@
           "isAnswered": {
             "type": "boolean"
           },
+          "helpfulCount": {
+            "type": "integer",
+            "format": "int32"
+          },
           "replies": {
             "type": "array",
             "items": {
@@ -16156,7 +18712,9 @@
               12,
               13,
               14,
-              15
+              15,
+              16,
+              17
             ],
             "type": "integer",
             "format": "int32"
@@ -16259,6 +18817,14 @@
             "type": "integer",
             "format": "int32"
           },
+          "itemType": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
           "orderId": {
             "type": "integer",
             "format": "int32"
@@ -16268,10 +18834,19 @@
           },
           "subscriptionPlanId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "subscriptionPlan": {
             "$ref": "#/components/schemas/API.Entities.SubscriptionPlan"
+          },
+          "privateSessionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "privateSession": {
+            "$ref": "#/components/schemas/API.Entities.PrivateSession"
           },
           "studentId": {
             "type": "integer",

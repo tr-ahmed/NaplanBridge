@@ -91,6 +91,22 @@ export class SessionService {
     return this.api.get<SessionApiResponse<PrivateSessionDto[]>>('Sessions/teacher/history');
   }
 
+  /**
+   * Update session meeting link (Google Meet)
+   * PUT /api/Sessions/{sessionId}/meeting-link
+   */
+  updateSessionMeetingLink(sessionId: number, meetingLink: string): Observable<SessionApiResponse<boolean>> {
+    return this.api.put<SessionApiResponse<boolean>>(`Sessions/${sessionId}/meeting-link`, { meetingLink });
+  }
+
+  /**
+   * Mark session as completed
+   * PUT /api/Sessions/{sessionId}/complete
+   */
+  markSessionAsCompleted(sessionId: number): Observable<SessionApiResponse<boolean>> {
+    return this.api.put<SessionApiResponse<boolean>>(`Sessions/${sessionId}/complete`, {});
+  }
+
   // ============================================
   // Parent Endpoints - لأولياء الأمور
   // ============================================

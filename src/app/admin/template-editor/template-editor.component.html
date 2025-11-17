@@ -1,0 +1,305 @@
+<div class="template-editor-container" *ngIf="template()">
+  <!-- Header -->
+  <div class="editor-header">
+    <button class="back-btn" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i>
+      Back
+    </button>
+
+    <div class="header-content">
+      <h1>{{ template()!.eventName }}</h1>
+      <span class="event-key">{{ template()!.eventKey }}</span>
+    </div>
+
+    <div class="header-actions">
+      <button
+        class="action-btn preview-btn"
+        (click)="previewTemplate()"
+        [disabled]="previewLoading()">
+        <i class="fas" [ngClass]="previewLoading() ? 'fa-spinner fa-spin' : 'fa-eye'"></i>
+        Quick Preview
+      </button>
+
+      <button
+        class="action-btn live-demo-btn"
+        (click)="openLiveDemo()"
+        [disabled]="liveDemoLoading()">
+        <i class="fas" [ngClass]="liveDemoLoading() ? 'fa-spinner fa-spin' : 'fa-magic'"></i>
+        Live Demo ⭐
+      </button>
+
+      <button
+        class="action-btn test-btn"
+        (click)="openTestDialog()">
+        <i class="fas fa-paper-plane"></i>
+        Test Send
+      </button>
+
+      <button
+        class="action-btn reset-btn"
+        (click)="resetToDefault()">
+        <i class="fas fa-undo"></i>
+        Reset
+      </button>
+
+      <button
+        class="action-btn save-btn"
+        (click)="saveTemplate()"
+        [disabled]="saving()">
+        <i class="fas" [ngClass]="saving() ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+        {{ saving() ? 'Saving...' : 'Save Changes' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="editor-content">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="section">
+        <h3>Channels</h3>
+        <div class="channel-toggles">
+          <label class="channel-toggle">
+            <input
+              type="checkbox"
+              [checked]="formData().sendInApp"
+              (change)="toggleChannel('InApp')">
+            <span class="toggle-label">
+              <i class="fas fa-bell" [style.color]="channelIcons['InApp'].color"></i>
+              In-App
+            </span>
+          </label>
+
+          <label class="channel-toggle">
+            <input
+              type="checkbox"
+              [checked]="formData().sendEmail"
+              (change)="toggleChannel('Email')">
+            <span class="toggle-label">
+              <i class="fas fa-envelope" [style.color]="channelIcons['Email'].color"></i>
+              Email
+            </span>
+          </label>
+
+          <label class="channel-toggle">
+            <input
+              type="checkbox"
+              [checked]="formData().sendSMS"
+              (change)="toggleChannel('SMS')">
+            <span class="toggle-label">
+              <i class="fas fa-sms" [style.color]="channelIcons['SMS'].color"></i>
+              SMS
+            </span>
+          </label>
+
+          <label class="channel-toggle">
+            <input
+              type="checkbox"
+              [checked]="formData().sendPush"
+              (change)="toggleChannel('Push')">
+            <span class="toggle-label">
+              <i class="fas fa-mobile-alt" [style.color]="channelIcons['Push'].color"></i>
+              Push
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Available Variables</h3>
+        <p class="hint">Click to insert</p>
+        <div class="variables-list">
+          <div
+            *ngFor="let variable of availableVariables()"
+            class="variable-chip"
+            [title]="'Insert {' + variable + '}'"
+            (click)="insertVariable(variable, activeTab() === 'inapp' ? 'inAppMessage' : activeTab() === 'email' ? 'emailBody' : activeTab() === 'sms' ? 'smsMessage' : 'pushBody')">
+            <code>{{ '{' + variable + '}' }}</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Settings</h3>
+        <label class="setting">
+          <span>Active</span>
+          <input
+            type="checkbox"
+            [checked]="formData().isActive"
+            (change)="updateField('isActive', !formData().isActive)">
+        </label>
+
+        <label class="setting">
+          <span>Delay (minutes)</span>
+          <input
+            type="number"
+            [value]="formData().delayMinutes || 0"
+            (input)="updateField('delayMinutes', $any($event.target).value)"
+            min="0">
+        </label>
+      </div>
+    </div>
+
+    <!-- Editor Tabs -->
+    <div class="editor-main">
+      <div class="tabs">
+        <button
+          [class.active]="activeTab() === 'inapp'"
+          (click)="activeTab.set('inapp')"
+          [disabled]="!formData().sendInApp">
+          <i class="fas fa-bell"></i>
+          In-App
+        </button>
+        <button
+          [class.active]="activeTab() === 'email'"
+          (click)="activeTab.set('email')"
+          [disabled]="!formData().sendEmail">
+          <i class="fas fa-envelope"></i>
+          Email
+        </button>
+        <button
+          [class.active]="activeTab() === 'sms'"
+          (click)="activeTab.set('sms')"
+          [disabled]="!formData().sendSMS">
+          <i class="fas fa-sms"></i>
+          SMS
+        </button>
+        <button
+          [class.active]="activeTab() === 'push'"
+          (click)="activeTab.set('push')"
+          [disabled]="!formData().sendPush">
+          <i class="fas fa-mobile-alt"></i>
+          Push
+        </button>
+      </div>
+
+      <!-- In-App Tab -->
+      <div class="tab-content" *ngIf="activeTab() === 'inapp'">
+        <div class="form-group">
+          <label>Title</label>
+          <input
+            type="text"
+            [value]="formData().inAppTitle"
+            (input)="updateField('inAppTitle', $any($event.target).value)"
+            placeholder="Enter notification title...">
+        </div>
+
+        <div class="form-group">
+          <label>Message</label>
+          <textarea
+            [value]="formData().inAppMessage"
+            (input)="updateField('inAppMessage', $any($event.target).value)"
+            placeholder="Enter notification message..."
+            rows="6"></textarea>
+        </div>
+      </div>
+
+      <!-- Email Tab -->
+      <div class="tab-content" *ngIf="activeTab() === 'email'">
+        <div class="form-group">
+          <label>Subject</label>
+          <input
+            type="text"
+            [value]="formData().emailSubject"
+            (input)="updateField('emailSubject', $any($event.target).value)"
+            placeholder="Enter email subject...">
+        </div>
+
+        <div class="form-group">
+          <label>Body</label>
+          <textarea
+            [value]="formData().emailBody"
+            (input)="updateField('emailBody', $any($event.target).value)"
+            placeholder="Enter email body..."
+            rows="12"></textarea>
+        </div>
+      </div>
+
+      <!-- SMS Tab -->
+      <div class="tab-content" *ngIf="activeTab() === 'sms'">
+        <div class="form-group">
+          <label>Message (160 chars max)</label>
+          <textarea
+            [value]="formData().smsMessage"
+            (input)="updateField('smsMessage', $any($event.target).value)"
+            placeholder="Enter SMS message..."
+            maxlength="160"
+            rows="4"></textarea>
+          <small>{{ (formData().smsMessage || '').length }} / 160</small>
+        </div>
+      </div>
+
+      <!-- Push Tab -->
+      <div class="tab-content" *ngIf="activeTab() === 'push'">
+        <div class="form-group">
+          <label>Title</label>
+          <input
+            type="text"
+            [value]="formData().pushTitle"
+            (input)="updateField('pushTitle', $any($event.target).value)"
+            placeholder="Enter push notification title...">
+        </div>
+
+        <div class="form-group">
+          <label>Body</label>
+          <textarea
+            [value]="formData().pushBody"
+            (input)="updateField('pushBody', $any($event.target).value)"
+            placeholder="Enter push notification body..."
+            rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Live Demo Modal -->
+<div class="modal-overlay" *ngIf="showLiveDemo()" (click)="closeLiveDemo()">
+  <div class="modal live-demo-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>📱 Live Demo - Real Database Data</h3>
+      <button class="close-btn" (click)="closeLiveDemo()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body" *ngIf="liveDemoData()">
+      <div class="demo-badge">
+        <i class="fas fa-database"></i>
+        Using Real Data from Database
+      </div>
+
+      <div class="notification-preview-card">
+        <div class="notification-mock">
+          <div class="notif-icon">🔔</div>
+          <div class="notif-content">
+            <h4>{{ liveDemoData()!.subject || liveDemoData()!.previewText }}</h4>
+            <p>{{ liveDemoData()!.previewText }}</p>
+            <span class="time">Just now</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-variables">
+        <h4>Real data used:</h4>
+        <table>
+          <tr *ngFor="let item of liveDemoData()!.usedVariables | keyvalue">
+            <td><code>{{ '{' + item.key + '}' }}</code></td>
+            <td>{{ item.value }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <p class="hint">
+        💡 This is exactly how the notification will appear to real users
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" *ngIf="loading()">
+  <i class="fas fa-spinner fa-spin fa-3x"></i>
+</div>

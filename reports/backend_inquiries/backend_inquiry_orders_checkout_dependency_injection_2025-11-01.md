@@ -224,7 +224,7 @@ This blocks the entire payment flow. Users cannot enroll in courses until this i
 
 ## 9. Contact
 
-**Frontend Developer:** Ahmed Hamdi  
+**Frontend Developer:** FrontEnd Team  
 **Date Reported:** November 1, 2025  
 **Affected Endpoint:** `POST /api/Orders/checkout`  
 **Error Code:** 500 Internal Server Error  

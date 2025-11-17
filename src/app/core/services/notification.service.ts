@@ -1,101 +1,93 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, BehaviorSubject, interval } from 'rxjs';
-import { catchError, map, tap, switchMap } from 'rxjs/operators';
+import { catchError, map, tap, switchMap, startWith } from 'rxjs/operators';
 import {
   Notification,
-  NotificationFilter,
-  NotificationStats,
-  NotificationSettings,
-  BulkNotificationAction
+  PaginatedNotifications,
+  NotificationQueryParams,
+  NotificationPreference,
+  PreferencesResponse,
+  UpdatePreferenceDto,
+  RefundRequestDto,
+  RefundResponse
 } from '../../models/notification.models';
-import { ApiNodes } from '../api/api-nodes';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
-  private readonly baseUrl = environment.apiBaseUrl || 'http://localhost:5000';
-  private useMock =  environment.useMock || false; // Set to true for development with mock data
+  private readonly apiUrl = `${environment.apiBaseUrl}/Notifications`;
+  private readonly ordersUrl = `${environment.apiBaseUrl}/Orders`;
 
-  // Notifications state
-  private notificationsSubject = new BehaviorSubject<Notification[]>([]);
-  private statsSubject = new BehaviorSubject<NotificationStats>({
-    totalCount: 0,
-    unreadCount: 0,
-    todayCount: 0,
-    weekCount: 0,
-    typeBreakdown: {}
-  });
-
-  public notifications$ = this.notificationsSubject.asObservable();
-  public stats$ = this.statsSubject.asObservable();
+  // Observable streams
+  public unreadCount$ = new BehaviorSubject<number>(0);
+  public notifications$ = new BehaviorSubject<Notification[]>([]);
+  public isPolling$ = new BehaviorSubject<boolean>(false);
 
   // Loading states
   public loading = signal(false);
   public error = signal<string | null>(null);
 
   // Real-time updates
-  private pollingInterval = 30000; // 30 seconds
+  private readonly pollingInterval = 30000; // 30 seconds
   private pollingSubscription: any;
 
-  constructor(private http: HttpClient) {
-    this.startRealTimeUpdates();
-  }
+  constructor(private http: HttpClient) {}
 
   /**
-   * Get all notifications with optional filtering
+   * Get notifications with pagination and filters
    */
-  getNotifications(filter?: NotificationFilter): Observable<Notification[]> {
+  getNotifications(params?: NotificationQueryParams): Observable<PaginatedNotifications> {
     this.loading.set(true);
     this.error.set(null);
 
-    const endpoint = ApiNodes.getNotifications;
-    const url = `${this.baseUrl}${endpoint.url}`;
+    let httpParams = new HttpParams();
 
-    if (this.useMock) {
-      const notifications = this.filterNotifications(endpoint.mockData, filter);
-      this.notificationsSubject.next(notifications);
-      this.loading.set(false);
-      return of(notifications);
+    if (params) {
+      if (params.isRead !== undefined) {
+        httpParams = httpParams.set('isRead', params.isRead.toString());
+      }
+      if (params.type) {
+        httpParams = httpParams.set('type', params.type);
+      }
+      if (params.pageNumber) {
+        httpParams = httpParams.set('pageNumber', params.pageNumber.toString());
+      }
+      if (params.pageSize) {
+        httpParams = httpParams.set('pageSize', params.pageSize.toString());
+      }
     }
 
-    return this.http.get<Notification[]>(url).pipe(
-      map(notifications => this.filterNotifications(notifications, filter)),
-      tap(notifications => {
-        this.notificationsSubject.next(notifications);
+    return this.http.get<PaginatedNotifications>(this.apiUrl, { params: httpParams }).pipe(
+      tap(response => {
+        this.notifications$.next(response.data);
         this.loading.set(false);
       }),
       catchError((error: HttpErrorResponse) => {
-        console.warn('API call failed, using mock data:', error);
+        console.error('Failed to load notifications:', error);
         this.error.set('Failed to load notifications');
-        const notifications = this.filterNotifications(endpoint.mockData, filter);
-        this.notificationsSubject.next(notifications);
         this.loading.set(false);
-        return of(notifications);
+        return of({
+          data: [],
+          pageNumber: 1,
+          pageSize: 10,
+          totalCount: 0,
+          totalPages: 0
+        });
       })
     );
   }
 
   /**
-   * Get notification statistics
+   * Get unread notification count
    */
-  getNotificationStats(): Observable<NotificationStats> {
-    const endpoint = ApiNodes.getNotificationStats;
-    const url = `${this.baseUrl}${endpoint.url}`;
-
-    if (this.useMock) {
-      this.statsSubject.next(endpoint.mockData);
-      return of(endpoint.mockData);
-    }
-
-    return this.http.get<NotificationStats>(url).pipe(
-      tap(stats => this.statsSubject.next(stats)),
+  getUnreadCount(): Observable<{count: number}> {
+    return this.http.get<{count: number}>(`${this.apiUrl}/unread-count`).pipe(
       catchError((error: HttpErrorResponse) => {
-        console.warn('API call failed, using mock data:', error);
-        this.statsSubject.next(endpoint.mockData);
-        return of(endpoint.mockData);
+        console.error('Failed to get unread count:', error);
+        return of({ count: 0 });
       })
     );
   }
@@ -103,230 +95,160 @@ export class NotificationService {
   /**
    * Mark notification as read
    */
-  markAsRead(notificationId: string): Observable<boolean> {
-    const endpoint = ApiNodes.markNotificationAsRead;
-    const url = `${this.baseUrl}${endpoint.url.replace(':id', notificationId)}`;
+  markAsRead(notificationId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${notificationId}/read`, {}).pipe(
+      tap(() => {
+        // Update local state
+        const current = this.notifications$.value;
+        const updated = current.map(n =>
+          n.id === notificationId ? { ...n, isRead: true } : n
+        );
+        this.notifications$.next(updated);
 
-    // Update local state
-    const currentNotifications = this.notificationsSubject.value;
-    const updatedNotifications = currentNotifications.map(n =>
-      n.id === notificationId ? { ...n, isRead: true } : n
-    );
-    this.notificationsSubject.next(updatedNotifications);
-    this.updateStats();
-
-    if (this.useMock) {
-      return of(true);
-    }
-
-    return this.http.put<any>(url, {}).pipe(
-      map(() => true),
-      catchError(() => of(true))
+        // Update unread count
+        const unreadCount = updated.filter(n => !n.isRead).length;
+        this.unreadCount$.next(unreadCount);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Failed to mark as read:', error);
+        return of(null);
+      })
     );
   }
 
   /**
    * Mark all notifications as read
    */
-  markAllAsRead(): Observable<boolean> {
-    const endpoint = ApiNodes.markAllNotificationsAsRead;
-    const url = `${this.baseUrl}${endpoint.url}`;
-
-    // Update local state
-    const currentNotifications = this.notificationsSubject.value;
-    const updatedNotifications = currentNotifications.map(n => ({ ...n, isRead: true }));
-    this.notificationsSubject.next(updatedNotifications);
-    this.updateStats();
-
-    if (this.useMock) {
-      return of(true);
-    }
-
-    return this.http.put<any>(url, {}).pipe(
-      map(() => true),
-      catchError(() => of(true))
+  markAllAsRead(): Observable<any> {
+    return this.http.put(`${this.apiUrl}/mark-all-read`, {}).pipe(
+      tap(() => {
+        // Update local state
+        const current = this.notifications$.value;
+        const updated = current.map(n => ({ ...n, isRead: true }));
+        this.notifications$.next(updated);
+        this.unreadCount$.next(0);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Failed to mark all as read:', error);
+        return of(null);
+      })
     );
   }
 
   /**
    * Delete notification
    */
-  deleteNotification(notificationId: string): Observable<boolean> {
-    const endpoint = ApiNodes.deleteNotification;
-    const url = `${this.baseUrl}${endpoint.url.replace(':id', notificationId)}`;
+  deleteNotification(notificationId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${notificationId}`).pipe(
+      tap(() => {
+        // Update local state
+        const current = this.notifications$.value;
+        const updated = current.filter(n => n.id !== notificationId);
+        this.notifications$.next(updated);
 
-    // Update local state
-    const currentNotifications = this.notificationsSubject.value;
-    const updatedNotifications = currentNotifications.filter(n => n.id !== notificationId);
-    this.notificationsSubject.next(updatedNotifications);
-    this.updateStats();
-
-    if (this.useMock) {
-      return of(true);
-    }
-
-    return this.http.delete<any>(url).pipe(
-      map(() => true),
-      catchError(() => of(true))
+        // Update unread count
+        const unreadCount = updated.filter(n => !n.isRead).length;
+        this.unreadCount$.next(unreadCount);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Failed to delete notification:', error);
+        return of(null);
+      })
     );
   }
 
   /**
-   * Get notification settings
+   * Get user's notification preferences
    */
-  getNotificationSettings(): Observable<NotificationSettings> {
-    const endpoint = ApiNodes.getNotificationSettings;
-    const url = `${this.baseUrl}${endpoint.url}`;
-
-    if (this.useMock) {
-      return of(endpoint.mockData);
-    }
-
-    return this.http.get<NotificationSettings>(url).pipe(
-      catchError(() => of(endpoint.mockData))
+  getPreferences(): Observable<PreferencesResponse> {
+    return this.http.get<PreferencesResponse>(`${this.apiUrl}/preferences`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Failed to load preferences:', error);
+        return of({ preferences: [] });
+      })
     );
   }
 
   /**
-   * Update notification settings
+   * Update notification preference
    */
-  updateNotificationSettings(settings: Partial<NotificationSettings>): Observable<boolean> {
-    const endpoint = ApiNodes.updateNotificationSettings;
-    const url = `${this.baseUrl}${endpoint.url}`;
-
-    if (this.useMock) {
-      return of(true);
-    }
-
-    return this.http.put<any>(url, settings).pipe(
-      map(() => true),
-      catchError(() => of(false))
+  updatePreference(dto: UpdatePreferenceDto): Observable<any> {
+    return this.http.put(`${this.apiUrl}/preferences`, dto).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Failed to update preference:', error);
+        throw error;
+      })
     );
   }
 
   /**
-   * Get unread notifications count
+   * Request refund for an order
    */
-  getUnreadCount(): Observable<number> {
-    return this.notifications$.pipe(
-      map(notifications => notifications.filter(n => !n.isRead).length)
+  requestRefund(orderId: number, dto: RefundRequestDto): Observable<RefundResponse> {
+    return this.http.post<RefundResponse>(
+      `${this.ordersUrl}/${orderId}/request-refund`,
+      dto
+    ).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Failed to request refund:', error);
+        throw error;
+      })
     );
   }
 
   /**
-   * Add new notification (for real-time updates simulation)
+   * Start auto-polling for notifications
    */
-  addNotification(notification: Notification): void {
-    const currentNotifications = this.notificationsSubject.value;
-    this.notificationsSubject.next([notification, ...currentNotifications]);
-    this.updateStats();
-  }
+  startPolling(): void {
+    if (this.isPolling$.value) return;
 
-  /**
-   * Perform bulk actions on notifications
-   */
-  performBulkAction(action: BulkNotificationAction): Observable<boolean> {
-    const currentNotifications = this.notificationsSubject.value;
-    let updatedNotifications = [...currentNotifications];
+    this.isPolling$.next(true);
 
-    switch (action.action) {
-      case 'markAsRead':
-        updatedNotifications = currentNotifications.map(n =>
-          action.notificationIds.includes(n.id) ? { ...n, isRead: true } : n
-        );
-        break;
-      case 'markAsUnread':
-        updatedNotifications = currentNotifications.map(n =>
-          action.notificationIds.includes(n.id) ? { ...n, isRead: false } : n
-        );
-        break;
-      case 'delete':
-        updatedNotifications = currentNotifications.filter(n =>
-          !action.notificationIds.includes(n.id)
-        );
-        break;
-    }
-
-    this.notificationsSubject.next(updatedNotifications);
-    this.updateStats();
-    return of(true);
-  }
-
-  /**
-   * Start real-time updates
-   */
-  private startRealTimeUpdates(): void {
+    // Poll for unread count
     this.pollingSubscription = interval(this.pollingInterval)
       .pipe(
-        // switchMap(() => this.getNotificationStats())
+        startWith(0), // Immediate first call
+        switchMap(() => this.getUnreadCount())
       )
-      .subscribe();
+      .subscribe({
+        next: (response) => {
+          this.unreadCount$.next(response.count);
+        },
+        error: (error) => {
+          console.error('Polling error:', error);
+        }
+      });
+
+    // Also load latest notifications periodically
+    interval(this.pollingInterval)
+      .pipe(
+        startWith(0),
+        switchMap(() => this.getNotifications({ pageSize: 10 }))
+      )
+      .subscribe({
+        next: (response) => {
+          this.notifications$.next(response.data);
+        },
+        error: (error) => {
+          console.error('Failed to load notifications:', error);
+        }
+      });
   }
 
   /**
-   * Stop real-time updates
+   * Stop polling
    */
-  stopRealTimeUpdates(): void {
+  stopPolling(): void {
+    this.isPolling$.next(false);
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe();
     }
   }
 
   /**
-   * Filter notifications based on criteria
-   */
-  private filterNotifications(notifications: Notification[], filter?: NotificationFilter): Notification[] {
-    if (!filter) return notifications;
-
-    return notifications.filter(notification => {
-      if (filter.type && notification.type !== filter.type) return false;
-      if (filter.isRead !== undefined && notification.isRead !== filter.isRead) return false;
-      if (filter.priority && notification.priority !== filter.priority) return false;
-      if (filter.category && notification.category !== filter.category) return false;
-      if (filter.dateRange) {
-        const notificationDate = new Date(notification.createdAt);
-        if (notificationDate < filter.dateRange.start || notificationDate > filter.dateRange.end) {
-          return false;
-        }
-      }
-      return true;
-    });
-  }
-
-  /**
-   * Update statistics based on current notifications
-   */
-  private updateStats(): void {
-    const notifications = this.notificationsSubject.value;
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-    const stats: NotificationStats = {
-      totalCount: notifications.length,
-      unreadCount: notifications.filter(n => !n.isRead).length,
-      todayCount: notifications.filter(n => new Date(n.createdAt) >= todayStart).length,
-      weekCount: notifications.filter(n => new Date(n.createdAt) >= weekStart).length,
-      typeBreakdown: notifications.reduce((acc, n) => {
-        acc[n.type] = (acc[n.type] || 0) + 1;
-        return acc;
-      }, {} as { [key: string]: number })
-    };
-
-    this.statsSubject.next(stats);
-  }
-
-  /**
-   * Set mock mode for development
-   */
-  setUseMock(useMock: boolean): void {
-    this.useMock = useMock;
-  }
-
-  /**
    * Cleanup
    */
   ngOnDestroy(): void {
-    this.stopRealTimeUpdates();
+    this.stopPolling();
   }
 }

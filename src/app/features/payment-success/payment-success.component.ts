@@ -9,6 +9,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { PaymentService } from '../../core/services/payment.service';
 import { CartService } from '../../core/services/cart.service';
+import { SessionService } from '../../core/services/session.service';
 import { ToastService } from '../../core/services/toast.service';
 import { environment } from '../../../environments/environment';
 
@@ -28,6 +29,7 @@ interface PaymentResponse {
 export class PaymentSuccessComponent implements OnInit {
   private paymentService = inject(PaymentService);
   private cartService = inject(CartService);
+  private sessionService = inject(SessionService);
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -41,12 +43,20 @@ export class PaymentSuccessComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       const orderId = params['orderId'];
       const sessionId = params['session_id']; // From Stripe redirect
+      const paymentType = params['type']; // 'session-booking' or undefined (default: cart)
 
       if (orderId) {
         this.orderId.set(+orderId);
         this.loadOrderDetails(+orderId);
       } else if (sessionId) {
-        this.verifyStripePayment(sessionId);
+        // ✅ Route to correct payment handler based on type
+        if (paymentType === 'session-booking') {
+          console.log('🎓 Processing Session Booking payment');
+          this.confirmSessionPayment(sessionId);
+        } else {
+          console.log('🛒 Processing Cart/Subscription payment');
+          this.verifyStripePayment(sessionId);
+        }
       } else {
         this.loading.set(false);
       }
@@ -71,7 +81,76 @@ export class PaymentSuccessComponent implements OnInit {
   }
 
   /**
-   * Verify Stripe payment with backend API
+   * ✅ NEW: Confirm payment for session booking
+   * This method is called when payment type is 'session-booking'
+   */
+  private confirmSessionPayment(stripeSessionId: string): void {
+    console.log('🔍 Confirming session booking payment:', stripeSessionId);
+    console.log('📞 Calling: POST /api/Sessions/confirm-payment/' + stripeSessionId);
+
+    this.loading.set(true);
+
+    this.sessionService.confirmPayment(stripeSessionId).subscribe({
+      next: (response) => {
+        console.log('✅ Session payment confirmed:', response);
+        this.loading.set(false);
+
+        if (response.success) {
+          this.toastService.showSuccess(
+            response.message || 'Payment confirmed! Your session has been booked. Google Meet link will be available soon.'
+          );
+
+          console.log('🎉 Session booking confirmed successfully!');
+          console.log('📧 Check your email for confirmation and Google Meet link.');
+          console.log('📅 Redirecting to My Bookings page...');
+
+          // Redirect to bookings page to see the session with Google Meet link
+          setTimeout(() => {
+            this.router.navigate(['/sessions/my-bookings']);
+          }, 2000);
+        } else {
+          this.toastService.showError(
+            response.message || 'Payment confirmation failed. Please contact support.'
+          );
+          console.error('❌ Payment confirmation returned success=false');
+        }
+      },
+      error: (error) => {
+        console.error('❌ Session payment confirmation error:', error);
+        console.error('📊 Error details:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.error?.message,
+          url: error.url
+        });
+
+        this.loading.set(false);
+
+        // User-friendly error message
+        let errorMessage = 'Payment verification failed. ';
+
+        if (error.status === 404) {
+          errorMessage += 'Session not found. Please contact support with session ID: ' + stripeSessionId;
+        } else if (error.status === 400) {
+          errorMessage += error.error?.message || 'Invalid payment session.';
+        } else if (error.status === 500) {
+          errorMessage += 'Server error. Please contact support.';
+        } else {
+          errorMessage += 'Please contact support with reference: ' + stripeSessionId;
+        }
+
+        this.toastService.showError(errorMessage);
+
+        // Still redirect to bookings page - user may want to check status
+        setTimeout(() => {
+          this.router.navigate(['/sessions/my-bookings']);
+        }, 3000);
+      }
+    });
+  }
+
+  /**
+   * Verify Stripe payment with backend API (for Cart/Subscription payments)
    */
   private verifyStripePayment(sessionId: string): void {
     console.log('🔍 Verifying payment with session ID:', sessionId);

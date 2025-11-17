@@ -7,10 +7,10 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ExamService } from '../../core/services/exam.service';
-import { AuthService } from '../../auth/auth.service';
+import { ExamApiService } from '../../core/services/exam-api.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { Exam, ExamType } from '../../models/exam.models';
+import { ExamDto, ExamType } from '../../models/exam-api.models';
 
 interface ExamListItem {
   id: number;
@@ -45,7 +45,7 @@ interface FilterOptions {
 })
 export class ExamManagementComponent implements OnInit {
   // Services
-  private examService = inject(ExamService);
+  private examApi = inject(ExamApiService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
@@ -139,9 +139,9 @@ export class ExamManagementComponent implements OnInit {
   selectedCount = computed(() => this.selectedExams().size);
 
   ngOnInit(): void {
-    const currentUser = this.authService.getCurrentUser();
-    if (currentUser && currentUser.role === 'Teacher') {
-      this.teacherId = currentUser.id;
+    const currentUser = this.authService.currentUser();
+    if (currentUser?.userId) {
+      this.teacherId = currentUser.userId;
       this.loadExams();
     } else {
       this.router.navigate(['/login']);
@@ -155,74 +155,35 @@ export class ExamManagementComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    // Mock data for now
-    setTimeout(() => {
-      const mockExams: ExamListItem[] = [
-        {
-          id: 1,
-          title: 'Math Week 3 - Algebra Quiz',
-          examType: 'Lesson',
-          subjectName: 'Mathematics',
-          className: 'Year 7 - Class A',
-          totalMarks: 50,
-          durationInMinutes: 45,
-          startTime: new Date('2025-10-30T10:00:00'),
-          endTime: new Date('2025-10-30T23:59:59'),
-          isPublished: true,
-          totalSubmissions: 18,
-          pendingGrading: 3,
-          averageScore: 78,
-          createdAt: new Date('2025-10-20')
-        },
-        {
-          id: 2,
-          title: 'Science Monthly Test',
-          examType: 'Monthly',
-          subjectName: 'Science',
-          className: 'Year 8 - Class B',
-          totalMarks: 100,
-          durationInMinutes: 60,
-          startTime: new Date('2025-11-05T11:00:00'),
-          endTime: new Date('2025-11-05T23:59:59'),
-          isPublished: true,
-          totalSubmissions: 0,
+    this.examApi.getAllExams().subscribe({
+      next: (exams: ExamDto[]) => {
+        const examList: ExamListItem[] = exams.map(exam => ({
+          id: exam.id,
+          title: exam.title,
+          examType: exam.examType,
+          subjectName: exam.subjectName || 'غير محدد',
+          className: undefined,
+          totalMarks: exam.totalMarks,
+          durationInMinutes: exam.durationInMinutes,
+          startTime: exam.startTime ? new Date(exam.startTime) : undefined,
+          endTime: exam.endTime ? new Date(exam.endTime) : undefined,
+          isPublished: exam.isPublished,
+          totalSubmissions: 0, // يمكن إضافتها من API منفصل إذا لزم الأمر
           pendingGrading: 0,
-          createdAt: new Date('2025-10-22')
-        },
-        {
-          id: 3,
-          title: 'English Essay - Draft',
-          examType: 'Lesson',
-          subjectName: 'English',
-          className: 'Year 9',
-          totalMarks: 30,
-          durationInMinutes: 60,
-          isPublished: false,
-          totalSubmissions: 0,
-          pendingGrading: 0,
-          createdAt: new Date('2025-10-23')
-        },
-        {
-          id: 4,
-          title: 'Math Midterm Exam',
-          examType: 'Term',
-          subjectName: 'Mathematics',
-          className: 'Year 7 - Class A',
-          totalMarks: 150,
-          durationInMinutes: 120,
-          startTime: new Date('2025-10-15T09:00:00'),
-          endTime: new Date('2025-10-15T23:59:59'),
-          isPublished: true,
-          totalSubmissions: 25,
-          pendingGrading: 5,
-          averageScore: 72,
-          createdAt: new Date('2025-10-01')
-        }
-      ];
+          averageScore: undefined,
+          createdAt: exam.createdAt ? new Date(exam.createdAt) : new Date()
+        }));
 
-      this.allExams.set(mockExams);
-      this.loading.set(false);
-    }, 1000);
+        this.allExams.set(examList);
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('Failed to load exams:', error);
+        this.error.set('فشل تحميل الامتحانات');
+        this.toastService.showError('فشل تحميل الامتحانات');
+        this.loading.set(false);
+      }
+    });
   }
 
   /**
@@ -312,13 +273,20 @@ export class ExamManagementComponent implements OnInit {
     const exam = this.allExams().find(e => e.id === examId);
     if (!exam) return;
 
-    if (!confirm(`Are you sure you want to delete "${exam.title}"? This action cannot be undone.`)) {
+    if (!confirm(`هل أنت متأكد من حذف "${exam.title}"؟`)) {
       return;
     }
 
-    // API call would go here
-    this.allExams.update(exams => exams.filter(e => e.id !== examId));
-    this.toastService.showSuccess('Exam deleted successfully');
+    this.examApi.deleteExam(examId).subscribe({
+      next: () => {
+        this.allExams.update(exams => exams.filter(e => e.id !== examId));
+        this.toastService.showSuccess('تم حذف الامتحان بنجاح');
+      },
+      error: (error) => {
+        console.error('Failed to delete exam:', error);
+        this.toastService.showError('فشل حذف الامتحان');
+      }
+    });
   }
 
   /**
@@ -368,13 +336,36 @@ export class ExamManagementComponent implements OnInit {
   togglePublish(examId: number, event?: Event): void {
     event?.stopPropagation();
 
-    this.allExams.update(exams =>
-      exams.map(e => e.id === examId ? { ...e, isPublished: !e.isPublished } : e)
-    );
-
     const exam = this.allExams().find(e => e.id === examId);
-    const action = exam?.isPublished ? 'published' : 'unpublished';
-    this.toastService.showSuccess(`Exam ${action} successfully`);
+    if (!exam) return;
+
+    const updatedExam: any = {
+      id: exam.id,
+      title: exam.title,
+      examType: exam.examType,
+      subjectId: 0,
+      durationInMinutes: exam.durationInMinutes,
+      totalMarks: exam.totalMarks,
+      passingMarks: exam.totalMarks * 0.5,
+      startTime: exam.startTime?.toISOString() || '',
+      endTime: exam.endTime?.toISOString() || '',
+      isPublished: !exam.isPublished
+    };
+
+    this.examApi.updateExam(examId, updatedExam).subscribe({
+      next: () => {
+        this.allExams.update(exams =>
+          exams.map(e => e.id === examId ? { ...e, isPublished: !e.isPublished } : e)
+        );
+
+        const action = updatedExam.isPublished ? 'نشر' : 'إلغاء نشر';
+        this.toastService.showSuccess(`تم ${action} الامتحان بنجاح`);
+      },
+      error: (error) => {
+        console.error('Failed to update exam:', error);
+        this.toastService.showError('فشل تحديث الامتحان');
+      }
+    });
   }
 
   /**
@@ -398,7 +389,6 @@ export class ExamManagementComponent implements OnInit {
    */
   refresh(): void {
     this.loadExams();
-    this.toastService.showSuccess('Exams refreshed');
   }
 
   /**
@@ -427,11 +417,11 @@ export class ExamManagementComponent implements OnInit {
    */
   getExamTypeBadge(type: ExamType): string {
     switch (type) {
-      case 'Lesson':
+      case ExamType.Lesson:
         return 'bg-blue-100 text-blue-800';
-      case 'Monthly':
+      case ExamType.Monthly:
         return 'bg-purple-100 text-purple-800';
-      case 'Term':
+      case ExamType.Term:
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';

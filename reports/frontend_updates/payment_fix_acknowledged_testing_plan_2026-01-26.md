@@ -452,7 +452,7 @@ Testing will be considered successful when:
 **Date:** January 26, 2026  
 **Status:** ✅ Acknowledged - Testing in progress
 
-**Backend Team Lead:** Ahmed Hamdi  
+**Backend Team Lead:** FrontEnd Team  
 **Date:** January 26, 2026  
 **Status:** ✅ Fix deployed and ready for testing
 

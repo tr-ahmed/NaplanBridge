@@ -52,7 +52,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
     // Sort by date (newest first)
     return filtered.sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
     );
   });
 
@@ -75,11 +75,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     // Subscribe to real-time updates
     this.notificationService.notifications$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(notifications => this.notifications.set(notifications));
-
-    this.notificationService.stats$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(stats => this.stats.set(stats));
+      .subscribe((notifications: any[]) => this.notifications.set(notifications));
 
     // Subscribe to loading state
     this.loading.set(this.notificationService.loading());
@@ -104,9 +100,8 @@ export class NotificationsComponent implements OnInit, OnDestroy {
    * Load notification statistics
    */
   loadStats(): void {
-    this.notificationService.getNotificationStats()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe();
+    // Stats are calculated from notifications array
+    // No separate API call needed
   }
 
   /**
@@ -130,9 +125,9 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Delete notification
+   * Delete a notification
    */
-  deleteNotification(notificationId: string): void {
+  deleteNotification(notificationId: number): void {
     if (confirm('Are you sure you want to delete this notification?')) {
       this.notificationService.deleteNotification(notificationId)
         .pipe(takeUntil(this.destroy$))
@@ -146,8 +141,18 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   onNotificationClick(notification: Notification): void {
     this.markAsRead(notification);
 
-    if (notification.actionUrl) {
-      window.location.href = notification.actionUrl;
+    if (notification.relatedEntityType && notification.relatedEntityId) {
+      // Navigate based on entity type
+      const routes: {[key: string]: string} = {
+        'Order': `/orders/${notification.relatedEntityId}`,
+        'Lesson': `/lesson/${notification.relatedEntityId}`,
+        'Exam': `/exams/${notification.relatedEntityId}`,
+        'LessonDiscussion': `/discussions/${notification.relatedEntityId}`
+      };
+      const route = routes[notification.relatedEntityType];
+      if (route) {
+        window.location.href = route;
+      }
     }
   }
 
@@ -166,16 +171,37 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Get relative time from ISO date string
+   */
+  getRelativeTime(dateString: string): string {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+    const weeks = Math.floor(days / 7);
+    if (weeks < 4) return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months} month${months > 1 ? 's' : ''} ago`;
+    const years = Math.floor(days / 365);
+    return `${years} year${years > 1 ? 's' : ''} ago`;
+  }
+
+  /**
    * Get notification icon based on type
    */
   getNotificationIcon(type: string): string {
     const icons = {
-      course: 'fas fa-book',
-      success: 'fas fa-check-circle',
-      warning: 'fas fa-exclamation-triangle',
-      error: 'fas fa-times-circle',
-      info: 'fas fa-info-circle',
-      system: 'fas fa-cog'
+      Info: 'fas fa-info-circle',
+      Success: 'fas fa-check-circle',
+      Warning: 'fas fa-exclamation-triangle',
+      Error: 'fas fa-times-circle'
     };
     return icons[type as keyof typeof icons] || 'fas fa-bell';
   }
@@ -185,12 +211,10 @@ export class NotificationsComponent implements OnInit, OnDestroy {
    */
   getNotificationColor(type: string): string {
     const colors = {
-      course: 'text-blue-600',
-      success: 'text-green-600',
-      warning: 'text-yellow-600',
-      error: 'text-red-600',
-      info: 'text-blue-500',
-      system: 'text-gray-600'
+      Info: 'text-blue-600',
+      Success: 'text-green-600',
+      Warning: 'text-yellow-600',
+      Error: 'text-red-600'
     };
     return colors[type as keyof typeof colors] || 'text-gray-600';
   }
@@ -208,23 +232,6 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       system: 'bg-gray-50'
     };
     return colors[type as keyof typeof colors] || 'bg-gray-50';
-  }
-
-  /**
-   * Get relative time string
-   */
-  getRelativeTime(date: Date): string {
-    const now = new Date();
-    const diff = now.getTime() - new Date(date).getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-    return new Date(date).toLocaleDateString();
   }
 
   /**

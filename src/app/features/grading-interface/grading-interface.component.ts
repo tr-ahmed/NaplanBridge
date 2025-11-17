@@ -140,7 +140,7 @@ export class GradingInterfaceComponent implements OnInit {
           {
             id: 1,
             questionText: 'Solve for x: 2x + 5 = 15',
-            questionType: 'Text',
+            questionType: QuestionType.Text,
             marks: 10,
             order: 1,
             studentAnswer: 'x = 5',
@@ -152,7 +152,7 @@ export class GradingInterfaceComponent implements OnInit {
           {
             id: 2,
             questionText: 'Explain the concept of algebraic expressions in your own words.',
-            questionType: 'Text',
+            questionType: QuestionType.Text,
             marks: 15,
             order: 2,
             studentAnswer: 'An algebraic expression is a mathematical phrase that contains variables, numbers, and operators. It represents a value that can change depending on the variables used. For example, 2x + 3 is an algebraic expression where x is a variable.',
@@ -163,7 +163,7 @@ export class GradingInterfaceComponent implements OnInit {
           {
             id: 3,
             questionText: 'What is 2 + 2?',
-            questionType: 'MultipleChoice',
+            questionType: QuestionType.MultipleChoice,
             marks: 5,
             order: 3,
             studentAnswer: '4',
@@ -175,7 +175,7 @@ export class GradingInterfaceComponent implements OnInit {
           {
             id: 4,
             questionText: 'Simplify: 3(x + 2) - 2x',
-            questionType: 'Text',
+            questionType: QuestionType.Text,
             marks: 10,
             order: 4,
             studentAnswer: 'x + 6',
@@ -187,7 +187,7 @@ export class GradingInterfaceComponent implements OnInit {
           {
             id: 5,
             questionText: 'True or False: In algebra, variables can only be represented by the letter x.',
-            questionType: 'TrueFalse',
+            questionType: QuestionType.TrueFalse,
             marks: 5,
             order: 5,
             studentAnswer: 'False',
@@ -199,7 +199,7 @@ export class GradingInterfaceComponent implements OnInit {
           {
             id: 6,
             questionText: 'Write the steps to solve a linear equation.',
-            questionType: 'Text',
+            questionType: QuestionType.Text,
             marks: 5,
             order: 6,
             studentAnswer: '1. Simplify both sides\n2. Isolate the variable\n3. Solve for the variable',

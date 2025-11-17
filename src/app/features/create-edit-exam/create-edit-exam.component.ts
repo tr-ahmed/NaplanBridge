@@ -48,17 +48,31 @@ export class CreateEditExamComponent implements OnInit {
   teacherId: number = 0;
 
   // Enums for template
-  examTypes: ExamType[] = ['Lesson', 'Monthly', 'Term'];
-  questionTypes: QuestionType[] = ['Text', 'MultipleChoice', 'MultipleSelect', 'TrueFalse'];
+  examTypes: ExamType[] = [ExamType.Lesson, ExamType.Monthly, ExamType.Term];
+  questionTypes: QuestionType[] = [QuestionType.Text, QuestionType.MultipleChoice, QuestionType.MultipleSelect, QuestionType.TrueFalse];
 
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
-    if (currentUser && currentUser.role === 'Teacher') {
+
+    // ✅ Initialize form first regardless
+    this.initForm();
+
+    if (currentUser) {
       this.teacherId = currentUser.id;
-      this.initForm();
-      this.loadSubjects();
-      this.checkEditMode();
+
+      // ✅ Check if user has Teacher role (could be string or array)
+      const userRoles = Array.isArray(currentUser.role) ? currentUser.role : [currentUser.role];
+      const isTeacher = userRoles.includes('Teacher');
+
+      if (isTeacher) {
+        this.loadSubjects();
+        this.checkEditMode();
+      } else {
+        console.warn('⚠️ User is not a Teacher. Roles:', userRoles);
+        this.router.navigate(['/login']);
+      }
     } else {
+      console.error('❌ No user found');
       this.router.navigate(['/login']);
     }
   }
@@ -73,6 +87,7 @@ export class CreateEditExamComponent implements OnInit {
       description: [''],
       examType: ['Lesson', Validators.required],
       subjectId: [null, Validators.required],
+      yearId: [null, Validators.required],  // ✅ NEW: Year is required
       termId: [null],
       weekId: [null],
       lessonId: [null],
@@ -141,8 +156,9 @@ export class CreateEditExamComponent implements OnInit {
         id: examId,
         title: 'Math Week 3 - Algebra Quiz',
         description: 'Test your knowledge of basic algebra',
-        examType: 'Lesson' as ExamType,
+        examType: ExamType.Lesson,
         subjectId: 1,
+        yearId: 1,  // ✅ NEW: Year 1
         termId: 1,
         weekId: 3,
         lessonId: 15,
@@ -160,14 +176,14 @@ export class CreateEditExamComponent implements OnInit {
         questions: [
           {
             questionText: 'Solve for x: 2x + 5 = 15',
-            questionType: 'Text' as QuestionType,
+            questionType: QuestionType.Text,
             marks: 10,
             order: 1,
             options: []
           },
           {
             questionText: 'What is 2 + 2?',
-            questionType: 'MCQ' as QuestionType,
+            questionType: QuestionType.MultipleChoice,
             marks: 5,
             order: 2,
             options: [
@@ -194,6 +210,7 @@ export class CreateEditExamComponent implements OnInit {
       description: exam.description,
       examType: exam.examType,
       subjectId: exam.subjectId,
+      yearId: exam.yearId,  // ✅ NEW: Load yearId from exam data
       termId: exam.termId,
       weekId: exam.weekId,
       lessonId: exam.lessonId,
@@ -224,12 +241,26 @@ export class CreateEditExamComponent implements OnInit {
       // Add options
       const optionsArray = questionGroup.get('options') as FormArray;
       optionsArray.clear();
-      q.options.forEach((opt: any) => {
+
+      // If TrueFalse and no options, add default True/False
+      if (q.questionType === 'TrueFalse' && (!q.options || q.options.length === 0)) {
         optionsArray.push(this.fb.group({
-          optionText: [opt.optionText, Validators.required],
-          isCorrect: [opt.isCorrect]
+          optionText: ['True', Validators.required],
+          isCorrect: [false]
         }));
-      });
+        optionsArray.push(this.fb.group({
+          optionText: ['False', Validators.required],
+          isCorrect: [false]
+        }));
+      } else {
+        // Load existing options
+        q.options?.forEach((opt: any) => {
+          optionsArray.push(this.fb.group({
+            optionText: [opt.optionText, Validators.required],
+            isCorrect: [opt.isCorrect]
+          }));
+        });
+      }
 
       this.questions.push(questionGroup);
     });
@@ -269,11 +300,24 @@ export class CreateEditExamComponent implements OnInit {
     const questionGroup = this.createQuestionGroup();
     this.questions.push(questionGroup);
 
-    // Add default options for MCQ
+    // Add default options for MCQ, MultiSelect, and TrueFalse
     const questionType = questionGroup.get('questionType')?.value;
+    const questionIndex = this.questions.length - 1;
+
     if (questionType === 'MultipleChoice' || questionType === 'MultipleSelect') {
-      this.addOption(this.questions.length - 1);
-      this.addOption(this.questions.length - 1);
+      this.addOption(questionIndex);
+      this.addOption(questionIndex);
+    } else if (questionType === 'TrueFalse') {
+      // Add True and False options for TrueFalse questions
+      const options = this.getOptions(questionIndex);
+      options.push(this.fb.group({
+        optionText: ['True'],
+        isCorrect: [false]
+      }));
+      options.push(this.fb.group({
+        optionText: ['False'],
+        isCorrect: [false]
+      }));
     }
   }
 
@@ -333,12 +377,12 @@ export class CreateEditExamComponent implements OnInit {
     // Clear and setup options based on type
     options.clear();
 
-    if (newType === 'MultipleChoice' || newType === 'MultipleSelect') {
+    if (newType === QuestionType.MultipleChoice || newType === QuestionType.MultipleSelect) {
       // Add 4 default options
       for (let i = 0; i < 4; i++) {
         this.addOption(questionIndex);
       }
-    } else if (newType === 'TrueFalse') {
+    } else if (newType === QuestionType.TrueFalse) {
       // Add True/False options
       options.push(this.fb.group({
         optionText: ['True', Validators.required],
@@ -404,7 +448,26 @@ export class CreateEditExamComponent implements OnInit {
 
     let isValid = true;
     this.questions.controls.forEach((question, index) => {
+      const questionFormGroup = question as FormGroup;
+
+      console.log(`🔍 Validating Question ${index + 1}:`, {
+        questionText: question.get('questionText')?.value,
+        questionType: question.get('questionType')?.value,
+        invalid: question.invalid,
+        errors: question.errors
+      });
+
       if (question.invalid) {
+        console.warn(`⚠️ Question ${index + 1} is INVALID - Errors:`, question.errors);
+
+        // Log each control's errors
+        Object.keys(questionFormGroup.controls).forEach(key => {
+          const control = questionFormGroup.get(key);
+          if (control?.invalid) {
+            console.warn(`  ❌ ${key}: invalid=${control.invalid}, errors=`, control.errors);
+          }
+        });
+
         question.markAllAsTouched();
         isValid = false;
       }
@@ -412,11 +475,21 @@ export class CreateEditExamComponent implements OnInit {
       const questionType = question.get('questionType')?.value;
       if (questionType !== 'Text') {
         const options = this.getOptions(index);
+        console.log(`📝 Question ${index + 1} Options:`,
+          options.controls.map(opt => ({
+            text: opt.get('optionText')?.value,
+            isCorrect: opt.get('isCorrect')?.value
+          }))
+        );
+
         const hasCorrectAnswer = options.controls.some(opt => opt.get('isCorrect')?.value);
 
         if (!hasCorrectAnswer) {
+          console.error(`❌ Question ${index + 1} has NO correct answer!`);
           this.toastService.showError(`Question ${index + 1} must have at least one correct answer`);
           isValid = false;
+        } else {
+          console.log(`✅ Question ${index + 1} has correct answer!`);
         }
       }
     });
@@ -454,17 +527,45 @@ export class CreateEditExamComponent implements OnInit {
     this.saving.set(true);
     this.examForm.patchValue({ isPublished: publish });
 
-    const examData: any = this.examForm.value;
-    examData.teacherId = this.teacherId;
+    const examData: CreateExamDto = {
+      ...this.examForm.value,
+      teacherId: this.teacherId,
+      isPublished: publish
+    };
 
-    // Mock save
-    setTimeout(() => {
-      this.saving.set(false);
-      const action = this.isEditMode() ? 'updated' : 'created';
-      const status = publish ? 'and published' : 'as draft';
-      this.toastService.showSuccess(`Exam ${action} ${status} successfully!`);
-      this.router.navigate(['/teacher/exams']);
-    }, 1000);
+    console.log('💾 Saving Exam Data:', examData);
+
+    if (this.isEditMode() && this.examId) {
+      // ✅ UPDATE exam
+      this.examService.updateExam(this.examId, examData).subscribe({
+        next: (response) => {
+          console.log('✅ Exam updated successfully:', response);
+          this.saving.set(false);
+          this.toastService.showSuccess('Exam updated and published successfully!');
+          this.router.navigate(['/teacher/exams']);
+        },
+        error: (error) => {
+          console.error('❌ Error updating exam:', error);
+          this.saving.set(false);
+          this.toastService.showError('Failed to update exam');
+        }
+      });
+    } else {
+      // ✅ CREATE new exam
+      this.examService.createExam(examData).subscribe({
+        next: (response) => {
+          console.log('✅ Exam created successfully:', response);
+          this.saving.set(false);
+          this.toastService.showSuccess('Exam created and published successfully!');
+          this.router.navigate(['/teacher/exams']);
+        },
+        error: (error) => {
+          console.error('❌ Error creating exam:', error);
+          this.saving.set(false);
+          this.toastService.showError('Failed to create exam');
+        }
+      });
+    }
   }
 
   /**
@@ -480,6 +581,9 @@ export class CreateEditExamComponent implements OnInit {
    * Check if field has error
    */
   hasError(fieldName: string): boolean {
+    if (!this.examForm) {
+      return false;
+    }
     const control = this.examForm.get(fieldName);
     return !!(control && control.invalid && control.touched);
   }
@@ -488,6 +592,9 @@ export class CreateEditExamComponent implements OnInit {
    * Get error message
    */
   getErrorMessage(fieldName: string): string {
+    if (!this.examForm) {
+      return '';
+    }
     const control = this.examForm.get(fieldName);
     if (!control || !control.errors) return '';
 

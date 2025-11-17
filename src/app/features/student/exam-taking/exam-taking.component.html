@@ -1,0 +1,205 @@
+<div class="exam-taking-container">
+  @if (loading()) {
+    <div class="loading-state">
+      <i class="fas fa-spinner fa-spin fa-3x"></i>
+      <p>جاري تحميل الامتحان...</p>
+    </div>
+  } @else {
+    @if (exam(); as ex) {
+    <!-- Header with Timer -->
+    <div class="exam-header">
+      <div class="exam-info">
+        <h1>{{ ex.title }}</h1>
+        <p class="subject">{{ ex.subjectName }}</p>
+      </div>
+
+      <div class="timer" [class.warning]="timeRemaining() < 300" [class.critical]="timeRemaining() < 60">
+        <i class="fas fa-clock"></i>
+        <span class="time">{{ getFormattedTime() }}</span>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-section">
+      <div class="progress-info">
+        <span>التقدم: {{ answers().size }} / {{ ex.questions?.length || 0 }}</span>
+        <span>{{ getProgress() }}%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="getProgress()"></div>
+      </div>
+    </div>
+
+    <!-- Questions Navigation -->
+    <div class="questions-nav">
+      <h3>الأسئلة</h3>
+      <div class="nav-grid">
+        @for (question of ex.questions; track question.id; let i = $index) {
+          <button
+            class="nav-btn"
+            [class.active]="currentQuestionIndex() === i"
+            [class.answered]="isAnswered(question.id)"
+            (click)="goToQuestion(i)">
+            {{ i + 1 }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Current Question -->
+    @if (getCurrentQuestion(); as question) {
+      <div class="question-section">
+        <div class="question-header">
+          <div class="question-number">
+            <span>السؤال {{ currentQuestionIndex() + 1 }} من {{ ex.questions?.length || 0 }}</span>
+            <span class="question-type">
+              <i class="fas" [ngClass]="getQuestionTypeIcon(question.questionType)"></i>
+              {{ getQuestionTypeLabel(question.questionType) }}
+            </span>
+          </div>
+          <div class="question-marks">
+            <i class="fas fa-star"></i>
+            {{ question.marks }} درجة
+          </div>
+        </div>
+
+        <div class="question-text">{{ question.questionText }}</div>
+
+        <!-- Text Answer -->
+        @if (question.questionType === QuestionType.Text) {
+          <div class="answer-input text-answer">
+            <textarea
+              [value]="answers().get(question.id)?.answerText || ''"
+              (input)="handleTextAnswer(question.id, $any($event.target).value, question.questionType)"
+              placeholder="اكتب إجابتك هنا..."
+              rows="8"></textarea>
+          </div>
+        }
+
+        <!-- Multiple Choice -->
+        @if (question.questionType === QuestionType.MultipleChoice) {
+          <div class="answer-options">
+            @for (option of question.options; track option.id) {
+              <label class="option-label">
+                <input
+                  type="radio"
+                  [name]="'question-' + question.id"
+                  [checked]="answers().get(question.id)?.selectedOptionId === option.id"
+                  (change)="handleMCQAnswer(question.id, option.id, question.questionType)">
+                <span class="option-text">{{ option.optionText }}</span>
+              </label>
+            }
+          </div>
+        }
+
+        <!-- Multiple Select -->
+        @if (question.questionType === QuestionType.MultipleSelect) {
+          <div class="answer-options">
+            <p class="hint">اختر جميع الإجابات الصحيحة</p>
+            @for (option of question.options; track option.id) {
+              <label class="option-label">
+                <input
+                  type="checkbox"
+                  [checked]="answers().get(question.id)?.selectedOptionIds?.includes(option.id)"
+                  (change)="handleMultipleSelectAnswer(question.id, option.id, question.questionType)">
+                <span class="option-text">{{ option.optionText }}</span>
+              </label>
+            }
+          </div>
+        }
+
+        <!-- True/False -->
+        @if (question.questionType === QuestionType.TrueFalse) {
+          <div class="answer-options tf-options">
+            @for (option of question.options; track option.id) {
+              <label class="option-label tf-label">
+                <input
+                  type="radio"
+                  [name]="'question-' + question.id"
+                  [checked]="answers().get(question.id)?.selectedOptionId === option.id"
+                  (change)="handleMCQAnswer(question.id, option.id, question.questionType)">
+                <span class="option-text">{{ option.optionText }}</span>
+              </label>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="question-navigation">
+        <button
+          class="nav-btn-action prev"
+          [disabled]="currentQuestionIndex() === 0"
+          (click)="previousQuestion()">
+          <i class="fas fa-chevron-right"></i>
+          السابق
+        </button>
+
+        @if (currentQuestionIndex() < (ex.questions?.length || 0) - 1) {
+          <button
+            class="nav-btn-action next"
+            (click)="nextQuestion()">
+            التالي
+            <i class="fas fa-chevron-left"></i>
+          </button>
+        } @else {
+          <button
+            class="nav-btn-action submit"
+            (click)="confirmSubmit()">
+            <i class="fas fa-paper-plane"></i>
+            إرسال الإجابات
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Submit Confirmation Dialog -->
+    @if (showConfirmDialog()) {
+      <div class="modal-overlay" (click)="cancelSubmit()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>تأكيد الإرسال</h3>
+            <button class="close-btn" (click)="cancelSubmit()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <i class="fas fa-question-circle fa-3x"></i>
+            <p>هل أنت متأكد من إرسال إجاباتك؟</p>
+            <p class="warning">لن تتمكن من التعديل بعد الإرسال!</p>
+
+            <div class="stats">
+              <div class="stat-item">
+                <span class="stat-label">الأسئلة المجابة:</span>
+                <span class="stat-value">{{ answers().size }} / {{ ex.questions?.length || 0 }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn-cancel" (click)="cancelSubmit()">
+              <i class="fas fa-times"></i>
+              إلغاء
+            </button>
+            <button
+              class="btn-confirm"
+              [disabled]="submitting()"
+              (click)="submitExam()">
+              @if (submitting()) {
+                <i class="fas fa-spinner fa-spin"></i>
+                جاري الإرسال...
+              } @else {
+                <i class="fas fa-check"></i>
+                تأكيد الإرسال
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+    }
+  }
+</div>
+
+

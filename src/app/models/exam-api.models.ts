@@ -1,0 +1,412 @@
+/**
+ * Exam API Models - New Version
+ * Complete models matching the latest backend API
+ */
+
+import { ExamType, QuestionType } from './exam.models';
+
+// Re-export for convenience
+export { ExamType, QuestionType };
+
+// ============================================
+// EXAM DTOs
+// ============================================
+
+export interface ExamDto {
+  id: number;
+  title: string;
+  description?: string;
+  examType: ExamType;
+  subjectId: number;
+  subjectName?: string;
+  termId?: number | null;
+  lessonId?: number | null;
+  weekId?: number | null;
+  yearId?: number | null;
+  durationInMinutes: number;
+  totalMarks: number;
+  passingMarks: number;
+  startTime: string;
+  endTime: string;
+  isPublished: boolean;
+  createdAt?: string;
+  createdById?: number;
+  createdBy?: UserBasicInfo;
+  questions?: ExamQuestionDto[];
+}
+
+export interface UserBasicInfo {
+  id: number;
+  userName: string;
+  email: string;
+}
+
+export interface ExamQuestionDto {
+  id: number;
+  questionText: string;
+  questionType: QuestionType;
+  marks: number;
+  order: number;
+  isMultipleSelect: boolean;
+  options: QuestionOptionDto[];
+}
+
+export interface QuestionOptionDto {
+  id: number;
+  optionText: string;
+  isCorrect: boolean;
+  order: number;
+}
+
+// ============================================
+// CREATE/UPDATE DTOs
+// ============================================
+
+export interface CreateExamDto {
+  title: string;
+  description?: string;
+  examType: ExamType;
+  subjectId: number;
+  lessonId?: number | null;
+  termId?: number | null;
+  weekId?: number | null;
+  yearId?: number | null;
+  durationInMinutes: number;
+  totalMarks: number;
+  passingMarks: number;
+  startTime: string;
+  endTime: string;
+  isPublished: boolean;
+  questions: CreateQuestionDto[];
+}
+
+export interface CreateQuestionDto {
+  questionText: string;
+  questionType: QuestionType;
+  marks: number;
+  order: number;
+  isMultipleSelect: boolean;
+  options: CreateOptionDto[];
+}
+
+export interface CreateOptionDto {
+  optionText: string;
+  isCorrect: boolean;
+  order: number;
+}
+
+export interface UpdateExamDto {
+  title?: string;
+  description?: string;
+  durationInMinutes?: number;
+  totalMarks?: number;
+  passingMarks?: number;
+  startTime?: string;
+  endTime?: string;
+  isPublished?: boolean;
+}
+
+export interface UpdateQuestionDto {
+  questionText?: string;
+  marks?: number;
+  order?: number;
+}
+
+// ============================================
+// TEACHER DTOs
+// ============================================
+
+export interface TeacherExamDto {
+  id: number;
+  examId?: number; // Legacy support
+  title: string;
+  description?: string;
+  subjectName: string;
+  examType: ExamType;
+  durationInMinutes: number;
+  totalMarks: number;
+  passingMarks: number;
+  startTime: string;
+  endTime: string;
+  isPublished: boolean;
+  totalSubmissions: number;
+  gradedCount: number;
+  pendingGradingCount: number;
+  averageScore: number;
+  passRate: number;
+}
+
+export interface ExamSubmissionDto {
+  studentExamId: number;
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  startedAt: string;
+  submittedAt: string;
+  isCompleted: boolean;
+  isGraded: boolean;
+  totalScore?: number | null;
+  totalMarks: number;
+  autoGradedScore?: number;
+  scorePercentage?: number;
+  isPassed?: boolean;
+  pendingManualGrading: boolean;
+}
+
+export interface SubmissionDetailDto {
+  studentExamId: number;
+  examId: number;
+  examTitle: string;
+  studentId: number;
+  studentName: string;
+  startedAt: string;
+  submittedAt: string;
+  totalMarks: number;
+  currentScore: number;
+  passingMarks: number;
+  isGraded: boolean;
+  questions: SubmissionQuestionDto[];
+  generalFeedback?: string | null;
+}
+
+export interface SubmissionQuestionDto {
+  questionId: number;
+  questionText: string;
+  questionType: QuestionType;
+  marks: number;
+  studentAnswer?: string;
+  correctAnswer?: string;
+  studentSelectedOptions?: string[];
+  correctOptions?: string[];
+  isCorrect?: boolean | null;
+  earnedScore: number;
+  teacherFeedback?: string | null;
+  requiresManualGrading: boolean;
+}
+
+export interface GradeSubmissionDto {
+  questionGrades: QuestionGradeDto[];
+  generalFeedback?: string;
+}
+
+export interface QuestionGradeDto {
+  questionId: number;
+  score: number;
+  feedback?: string;
+}
+
+// ============================================
+// STUDENT DTOs
+// ============================================
+
+export interface UpcomingExamDto {
+  id: number;
+  title: string;
+  startDate: string;
+  endDate: string;
+  subject: string;
+  durationInMinutes: number;
+  totalMarks: number;
+  examType: ExamType;
+  isAvailableNow: boolean;
+  remainingTime: string;
+}
+
+export interface ExamHistoryDto {
+  studentExamId: number;
+  examId: number;
+  examTitle: string;
+  subjectName: string;
+  examType: ExamType;
+  startedAt: string;
+  submittedAt: string;
+  isCompleted: boolean;
+  isGraded: boolean;
+  totalScore?: number;
+  totalMarks: number;
+  scorePercentage?: number;
+  passingMarks: number;
+  isPassed?: boolean;
+  grade?: string;
+  teacherFeedback?: string;
+}
+
+export interface StartExamResponseDto {
+  studentExamId: number;
+  examId: number;
+  examTitle: string;
+  startedAt: string;
+  durationInMinutes: number;
+  endTime: string;
+  totalMarks: number;
+  totalQuestions: number;
+  message: string;
+}
+
+export interface SubmitExamDto {
+  studentExamId: number;
+  answers: ExamAnswerDto[];
+}
+
+export interface ExamAnswerDto {
+  examQuestionId: number;
+  questionType: QuestionType;
+  selectedOptionId?: number;
+  selectedOptionIds?: number[];
+  answerText?: string;
+}
+
+export interface SubmitExamResponseDto {
+  studentExamId: number;
+  examTitle: string;
+  submittedAt: string;
+  totalScore?: number;
+  totalMarks: number;
+  scorePercentage?: number;
+  passingMarks: number;
+  isPassed?: boolean;
+  isAutoGraded: boolean;
+  pendingManualGrading: boolean;
+  message: string;
+  autoGradedQuestions: number;
+  manualGradingRequired: number;
+}
+
+export interface ExamResultDto {
+  studentExamId: number;
+  examId: number;
+  examTitle: string;
+  subjectName: string;
+  submittedAt: string;
+  gradedAt?: string;
+  totalScore: number;
+  totalMarks: number;
+  scorePercentage: number;
+  passingMarks: number;
+  isPassed: boolean;
+  grade?: string;
+  correctAnswersCount: number;
+  wrongAnswersCount: number;
+  generalFeedback?: string;
+  questionResults: QuestionResultDto[];
+}
+
+export interface QuestionResultDto {
+  questionId: number;
+  questionText: string;
+  questionType: QuestionType;
+  marks: number;
+  earnedScore: number;
+  studentAnswer?: string;
+  correctAnswer?: string;
+  isCorrect?: boolean | null;
+  feedback?: string;
+}
+
+// ============================================
+// API RESPONSE WRAPPERS
+// ============================================
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+export interface UpcomingExamsResponse {
+  upcomingCount: number;
+  exams: UpcomingExamDto[];
+}
+
+// ============================================
+// UI HELPERS
+// ============================================
+
+export const EXAM_TYPE_LABELS: { [key: number]: string } = {
+  1: 'امتحان درس',
+  2: 'امتحان شهري',
+  3: 'امتحان ترم',
+  4: 'امتحان سنوي'
+};
+
+export const QUESTION_TYPE_LABELS: { [key: number]: string } = {
+  1: 'سؤال نصي',
+  2: 'اختيار من متعدد',
+  3: 'اختيار متعدد',
+  4: 'صح/خطأ'
+};
+
+export const EXAM_TYPE_ICONS: { [key: number]: string } = {
+  1: 'fa-book-open',
+  2: 'fa-calendar-week',
+  3: 'fa-calendar-alt',
+  4: 'fa-graduation-cap'
+};
+
+export const QUESTION_TYPE_ICONS: { [key: number]: string } = {
+  1: 'fa-align-left',
+  2: 'fa-check-circle',
+  3: 'fa-check-square',
+  4: 'fa-toggle-on'
+};
+
+export function getGradeFromPercentage(percentage: number): string {
+  if (percentage >= 90) return 'A';
+  if (percentage >= 80) return 'B+';
+  if (percentage >= 70) return 'B';
+  if (percentage >= 60) return 'C+';
+  if (percentage >= 50) return 'C';
+  return 'F';
+}
+
+export function getGradeColor(grade?: string): string {
+  switch (grade) {
+    case 'A': return '#10b981';
+    case 'B+': return '#3b82f6';
+    case 'B': return '#6366f1';
+    case 'C+': return '#f59e0b';
+    case 'C': return '#f97316';
+    case 'F': return '#ef4444';
+    default: return '#6b7280';
+  }
+}
+
+export function getExamTypeLabel(type: ExamType): string {
+  const labels: Record<string, string> = {
+    [ExamType.Lesson]: 'امتحان درس',
+    [ExamType.Monthly]: 'امتحان شهري',
+    [ExamType.Term]: 'امتحان فصلي',
+    [ExamType.Year]: 'امتحان سنوي'
+  };
+  return labels[type as string] || 'امتحان';
+}
+
+export function getQuestionTypeLabel(type: QuestionType): string {
+  const labels: Record<string, string> = {
+    [QuestionType.Text]: 'سؤال مقالي',
+    [QuestionType.MultipleChoice]: 'اختيار من متعدد',
+    [QuestionType.MultipleSelect]: 'اختيارات متعددة',
+    [QuestionType.TrueFalse]: 'صح أو خطأ'
+  };
+  return labels[type as string] || 'سؤال';
+}
+
+export function getExamTypeIcon(type: ExamType): string {
+  const icons: Record<string, string> = {
+    [ExamType.Lesson]: 'fa-book',
+    [ExamType.Monthly]: 'fa-calendar-alt',
+    [ExamType.Term]: 'fa-graduation-cap',
+    [ExamType.Year]: 'fa-trophy'
+  };
+  return icons[type as string] || 'fa-file-alt';
+}
+
+export function getQuestionTypeIcon(type: QuestionType): string {
+  const icons: Record<string, string> = {
+    [QuestionType.Text]: 'fa-align-left',
+    [QuestionType.MultipleChoice]: 'fa-list-ul',
+    [QuestionType.MultipleSelect]: 'fa-check-square',
+    [QuestionType.TrueFalse]: 'fa-question-circle'
+  };
+  return icons[type as string] || 'fa-question';
+}

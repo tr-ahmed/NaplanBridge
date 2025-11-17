@@ -1,5 +1,4 @@
 import { Course, CourseCategory } from '../../models/course.models';
-import { Notification, NotificationStats, NotificationSettings } from '../../models/notification.models';
 
 /**
  * API Nodes specification for courses
@@ -236,161 +235,19 @@ export const ApiNodes = {
     }
   },
 
-  // ===== NOTIFICATIONS API =====
+  // ===== NOTIFICATIONS API (Updated to match Backend) =====
 
-  // Get all notifications for user
-  getNotifications: {
-    url: '\/notifications',
-    method: 'GET' as const,
-    mockData: [
-      {
-        id: '1',
-        title: 'New Course Available!',
-        message: 'Advanced Mathematics course is now available for enrollment.',
-        type: 'course' as const,
-        isRead: false,
-        createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-        priority: 'medium' as const,
-        actionUrl: '/subjects/123',
-        actionText: 'View Course',
-        imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-        metadata: { courseId: 123 }
-      },
-      {
-        id: '2',
-        title: 'Assignment Due Tomorrow',
-        message: 'Your Mathematics assignment is due tomorrow at 11:59 PM.',
-        type: 'warning' as const,
-        isRead: false,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-        priority: 'high' as const,
-        actionUrl: '/student/assignments/456',
-        actionText: 'View Assignment'
-      },
-      {
-        id: '3',
-        title: 'Course Completed!',
-        message: 'Congratulations! You have successfully completed English Language Skills.',
-        type: 'success' as const,
-        isRead: true,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-        priority: 'medium' as const,
-        actionUrl: '/student/certificates/789',
-        actionText: 'Download Certificate'
-      },
-      {
-        id: '4',
-        title: 'System Maintenance',
-        message: 'Scheduled maintenance on Sunday 2-4 AM. Services may be unavailable.',
-        type: 'info' as const,
-        isRead: true,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
-        priority: 'low' as const
-      },
-      {
-        id: '5',
-        title: 'Payment Successful',
-        message: 'Your payment of $55 for Science Exploration course has been processed.',
-        type: 'success' as const,
-        isRead: false,
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72), // 3 days ago
-        priority: 'medium' as const,
-        actionUrl: '/student/orders/order-123',
-        actionText: 'View Receipt'
-      }
-    ] as Notification[]
-  },
-
-  // Get notification statistics
-  getNotificationStats: {
-    url: '\/notifications/stats',
-    method: 'GET' as const,
-    mockData: {
-      totalCount: 25,
-      unreadCount: 8,
-      todayCount: 3,
-      weekCount: 12,
-      typeBreakdown: {
-        course: 8,
-        system: 4,
-        success: 6,
-        warning: 4,
-        info: 2,
-        error: 1
-      }
-    } as NotificationStats
-  },
-
-  // Mark notification as read
-  markNotificationAsRead: {
-    url: '\/notifications/:id/read',
-    method: 'PUT' as const,
-    mockData: {
-      success: true,
-      message: 'Notification marked as read'
-    }
-  },
-
-  // Mark all notifications as read
-  markAllNotificationsAsRead: {
-    url: '\/notifications/read-all',
-    method: 'PUT' as const,
-    mockData: {
-      success: true,
-      message: 'All notifications marked as read'
-    }
-  },
-
-  // Delete notification
-  deleteNotification: {
-    url: '\/notifications/:id',
-    method: 'DELETE' as const,
-    mockData: {
-      success: true,
-      message: 'Notification deleted successfully'
-    }
-  },
-
-  // Get notification settings
-  getNotificationSettings: {
-    url: '\/notifications/settings',
-    method: 'GET' as const,
-    mockData: {
-      userId: 'user-123',
-      emailNotifications: true,
-      pushNotifications: true,
-      smsNotifications: false,
-      courseUpdates: true,
-      systemAlerts: true,
-      marketingEmails: false,
-      quietHours: {
-        enabled: true,
-        startTime: '22:00',
-        endTime: '08:00'
-      }
-    } as NotificationSettings
-  },
-
-  // Update notification settings
-  updateNotificationSettings: {
-    url: '\/notifications/settings',
-    method: 'PUT' as const,
-    mockData: {
-      success: true,
-      message: 'Notification settings updated successfully'
-    }
-  },
-
-  // Create new notification (admin only)
-  createNotification: {
-    url: '\/notifications',
-    method: 'POST' as const,
-    mockData: {
-      success: true,
-      message: 'Notification created successfully',
-      notificationId: 'new-notification-id'
-    }
-  },
+  // Note: Notification endpoints have been moved to NotificationService
+  // The service directly calls the API endpoints without mock data
+  // For reference, the endpoints are:
+  // - GET /api/Notifications (with query params)
+  // - GET /api/Notifications/unread-count
+  // - PUT /api/Notifications/{id}/read
+  // - PUT /api/Notifications/mark-all-read
+  // - DELETE /api/Notifications/{id}
+  // - GET /api/Notifications/preferences
+  // - PUT /api/Notifications/preferences
+  // - POST /api/Orders/{orderId}/request-refund
 
   // ===== LESSONS API =====
 
@@ -401,115 +258,81 @@ export const ApiNodes = {
     mockData: [] as any[]
   },
 
-  // ✅ NEW: Get lessons by subject with progress (optional studentId for guest mode)
-  getLessonsBySubjectWithProgress: {
-    url: '/Lessons/subject/:subjectId/with-progress/:studentId?',
-    method: 'GET' as const,
-    mockData: [] as any[]
-  },
-
-  // ✅ NEW: Get lessons by term with progress (optional studentId for guest mode)
-  getLessonsByTermWithProgress: {
-    url: '/Lessons/term/:termId/with-progress/:studentId?',
-    method: 'GET' as const,
-    mockData: [] as any[]
-  },
-
-  // ✅ NEW: Get lessons by term number with progress (optional studentId for guest mode)
-  getLessonsByTermNumberWithProgress: {
-    url: '/Lessons/subject/:subjectId/term-number/:termNumber/with-progress/:studentId?',
-    method: 'GET' as const,
-    mockData: [] as any[]
-  },
-
   // Get all lessons
   getAllLessons: {
-    url: '\/lessons',
+    url: '/Lessons',
     method: 'GET' as const,
-    mockData: [] as any[] // Will be populated by the service
+    mockData: [] as any[]
   },
 
   // Get lesson by ID
   getLessonById: {
-    url: '\/lessons/:id',
+    url: '/Lessons/:id',
     method: 'GET' as const,
-    mockData: {} as any // Will be populated by the service
+    mockData: {} as any
   },
 
-  // Get lessons by course ID
-  getLessonsByCourse: {
-    url: '\/subjects/:courseId/lessons',
-    method: 'GET' as const,
-    mockData: [] as any[]
-  },
-
-  // Get student lessons with progress
+  // Get student lessons
   getStudentLessons: {
-    url: '/Lessons/student-lessons/:studentId',
+    url: '/Lessons/student/:studentId',
     method: 'GET' as const,
     mockData: [] as any[]
   },
 
-  // Create lesson progress
-  // POST /api/Progress/students/{studentId}/lessons/{lessonId}
-  createLessonProgress: {
-    url: '\/Progress/students/:studentId/lessons/:lessonId',
-    method: 'POST' as const,
-    mockData: {
-      success: true,
-      message: 'Progress created successfully'
-    }
+  // Get lessons by subject with progress
+  getLessonsBySubjectWithProgress: {
+    url: '/Lessons/subject/:subjectId/with-progress',
+    method: 'GET' as const,
+    mockData: [] as any[]
+  },
+
+  // Get lessons by term with progress
+  getLessonsByTermWithProgress: {
+    url: '/Lessons/term/:termId/with-progress',
+    method: 'GET' as const,
+    mockData: [] as any[]
+  },
+
+  // Get lessons by term number with progress
+  getLessonsByTermNumberWithProgress: {
+    url: '/Lessons/subject/:subjectId/term-number/:termNumber/with-progress',
+    method: 'GET' as const,
+    mockData: [] as any[]
   },
 
   // Update lesson progress
-  // ✅ FIXED: Using correct Progress controller endpoint
   updateLessonProgress: {
-    url: '\/Progress/students/:studentId/lessons/:lessonId',
-    method: 'PUT' as const,
-    mockData: {
-      success: true,
-      message: 'Progress updated successfully'
-    }
-  },
-
-  // Rate a lesson
-  ratLesson: {
-    url: '\/lessons/:id/rate',
+    url: '/Progress',
     method: 'POST' as const,
-    mockData: {
-      success: true,
-      message: 'Lesson rated successfully'
-    }
+    mockData: { success: true }
   },
 
-  // Get lesson statistics for student
+  // Rate lesson
+  rateLesson: {
+    url: '/Lessons/:id/rate',
+    method: 'POST' as const,
+    mockData: { success: true }
+  },
+
+  // Get student lesson stats
   getStudentLessonStats: {
-    url: '\/students/:studentId/lessons/stats',
+    url: '/Lessons/student/:studentId/stats',
     method: 'GET' as const,
-    mockData: {
-      completedLessons: 0,
-      totalLessons: 0,
-      completionRate: 0,
-      totalTimeSpent: 0,
-      averageRating: 0,
-      currentStreak: 0
-    }
+    mockData: {} as any
   },
 
-  // Check course enrollment status
+  // Check enrollment
   checkEnrollment: {
-    url: '\/subjects/:id/enrollment',
+    url: '/Enrollments/check',
     method: 'GET' as const,
-    mockData: {
-      enrolled: false
-    }
+    mockData: { enrolled: false }
   },
 
-  // Get user's enrolled courses
+  // Get enrolled courses
   getEnrolledCourses: {
-    url: '\/user/enrolled-courses',
+    url: '/Enrollments/courses',
     method: 'GET' as const,
-    mockData: []
+    mockData: [] as any[]
   }
 };
 

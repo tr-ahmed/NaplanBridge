@@ -1,0 +1,207 @@
+<div class="teacher-exams-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <i class="fas fa-graduation-cap"></i>
+        My Exams
+      </h1>
+      <p>Manage your exams and grading efficiently</p>
+    </div>
+
+    <button class="btn-primary" (click)="createExam()">
+      <i class="fas fa-plus-circle"></i>
+      Create New Exam
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Search exams by title or subject..."
+        [(ngModel)]="searchQuery"
+        (input)="onFilterChange()">
+    </div>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="selectedType"
+      (change)="onFilterChange()">
+      <option value="">All Types</option>
+      <option [value]="'Lesson'">Lesson Exam</option>
+      <option [value]="'Monthly'">Monthly Exam</option>
+      <option [value]="'Term'">Term Exam</option>
+      <option [value]="'Year'">Year Exam</option>
+    </select>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="selectedStatus"
+      (change)="onFilterChange()">
+      <option value="all">All Status</option>
+      <option value="published">Published</option>
+      <option value="draft">Draft</option>
+    </select>
+
+    <button class="refresh-btn" (click)="loadMyExams()" [disabled]="loading()">
+      <i class="fas fa-sync-alt" [class.fa-spin]="loading()"></i>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading your exams...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-state">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h3>Something went wrong</h3>
+      <p>{{ error() }}</p>
+      <button class="retry-btn" (click)="loadMyExams()">
+        <i class="fas fa-redo"></i> Try Again
+      </button>
+    </div>
+  }
+
+  <!-- Exams Grid -->
+  @if (!loading() && !error()) {
+    <div class="exams-grid">
+      @for (exam of filteredExams(); track exam.id) {
+        <div class="exam-card" [class.published]="exam.isPublished" [class.draft]="!exam.isPublished">
+          <!-- Card Header -->
+          <div class="card-header">
+            <div class="exam-info">
+              <div class="type-badge" [class]="'type-' + exam.examType">
+                <i class="fas" [ngClass]="getExamTypeIcon(exam.examType)"></i>
+                <span>{{ getExamTypeLabel(exam.examType) }}</span>
+              </div>
+              <span class="status-badge" [class.published]="exam.isPublished" [class.draft]="!exam.isPublished">
+                @if (!exam.isPublished) {
+                  <i class="fas fa-file-alt"></i> Draft
+                } @else {
+                  <i class="fas fa-check-circle"></i> Published
+                }
+              </span>
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="card-body">
+            <h3 class="exam-title">{{ exam.title }}</h3>
+            <p class="exam-subject">
+              <i class="fas fa-book"></i>
+              {{ exam.subjectName }}
+            </p>
+
+            @if (exam.description) {
+              <p class="exam-description">{{ exam.description }}</p>
+            }
+
+            <!-- Exam Meta -->
+            <div class="exam-meta">
+              <div class="meta-item">
+                <i class="fas fa-clock"></i>
+                <span>{{ exam.durationInMinutes }} min</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-award"></i>
+                <span>{{ exam.totalMarks }} pts</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-check-double"></i>
+                <span>Pass: {{ exam.passingMarks }}</span>
+              </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="exam-stats">
+              <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <div class="stat-content">
+                  <span class="stat-value">{{ exam.totalSubmissions }}</span>
+                  <span class="stat-label">Submissions</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <i class="fas fa-chart-line"></i>
+                <div class="stat-content">
+                  <span class="stat-value">{{ exam.averageScore | number:'1.1-1' }}</span>
+                  <span class="stat-label">Average</span>
+                </div>
+              </div>
+              <div class="stat-card success">
+                <i class="fas fa-percentage"></i>
+                <div class="stat-content">
+                  <span class="stat-value">{{ exam.passRate | number:'1.0-0' }}%</span>
+                  <span class="stat-label">Pass Rate</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grading Progress -->
+            @if (exam.totalSubmissions > 0) {
+              <div class="grading-section">
+                <div class="grading-header">
+                  <span class="grading-title">
+                    <i class="fas fa-tasks"></i>
+                    Grading Progress
+                  </span>
+                  <span class="grading-count">{{ exam.gradedCount }} / {{ exam.totalSubmissions }}</span>
+                </div>
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill"
+                    [style.width.%]="getGradingProgress(exam)"
+                    [class.complete]="getGradingProgress(exam) === 100"></div>
+                </div>
+                @if (exam.pendingGradingCount > 0) {
+                  <div class="pending-alert">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ exam.pendingGradingCount }} submission{{ exam.pendingGradingCount > 1 ? 's' : '' }} need{{ exam.pendingGradingCount === 1 ? 's' : '' }} manual grading</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Card Actions -->
+          <div class="card-footer">
+            <button class="btn-action primary" (click)="viewSubmissions(exam.id)" [disabled]="exam.totalSubmissions === 0">
+              <i class="fas fa-clipboard-list"></i>
+              <span>View Submissions</span>
+            </button>
+            <button class="btn-action secondary" (click)="editExam(exam.id)">
+              <i class="fas fa-edit"></i>
+              <span>Edit</span>
+            </button>
+            <button class="btn-action danger" (click)="deleteExam(exam.id, exam.title)">
+              <i class="fas fa-trash-alt"></i>
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-clipboard-list"></i>
+          </div>
+          <h3>No Exams Yet</h3>
+          <p>Create your first exam to get started with assessments</p>
+          <button class="btn-create" (click)="createExam()">
+            <i class="fas fa-plus-circle"></i>
+            Create Your First Exam
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

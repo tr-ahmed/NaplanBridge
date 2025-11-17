@@ -86,7 +86,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Subscribe to notification changes
     this.subscriptions.add(
       this.notificationService.getUnreadCount().subscribe(count => {
-        this.unreadNotificationsCount = count;
+        this.unreadNotificationsCount = count.count || 0;
       })
     );
 
@@ -95,7 +95,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.notificationService.notifications$.subscribe(notifications => {
         // Get the 5 most recent notifications for dropdown preview
         this.recentNotifications = notifications
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .sort((a: any, b: any) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
           .slice(0, 5);
       })
     );

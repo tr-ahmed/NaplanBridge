@@ -1,0 +1,108 @@
+<div class="notification-settings-container">
+  <div class="page-header">
+    <h1>
+      <i class="fas fa-bell"></i>
+      Notification Settings
+    </h1>
+    <p>Choose how you want to receive notifications</p>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading" *ngIf="isLoading">
+    <i class="fas fa-spinner fa-spin fa-3x"></i>
+    <p>Loading preferences...</p>
+  </div>
+
+  <!-- Settings -->
+  <div class="settings-content" *ngIf="!isLoading">
+    <!-- Category Sections -->
+    <div
+      *ngFor="let category of getCategories()"
+      class="category-section">
+
+      <!-- Category Header -->
+      <div class="category-header">
+        <i class="fas" [ngClass]="getCategoryIcon(category)"></i>
+        <h2>{{ category }}</h2>
+      </div>
+
+      <!-- Preferences Table -->
+      <div class="preferences-table">
+        <div class="table-header">
+          <div class="event-column">Event</div>
+          <div class="channel-column">
+            <i class="fas fa-envelope" title="Email"></i>
+          </div>
+          <div class="channel-column">
+            <i class="fas fa-bell" title="In-App"></i>
+          </div>
+          <div class="channel-column">
+            <i class="fas fa-sms" title="SMS"></i>
+          </div>
+          <div class="channel-column">
+            <i class="fas fa-mobile-alt" title="Push"></i>
+          </div>
+        </div>
+
+        <!-- Preference Rows -->
+        <div
+          *ngFor="let pref of categorizedPreferences.get(category)"
+          class="preference-row">
+
+          <div class="event-info">
+            <h3>{{ pref.eventName }}</h3>
+            <p>{{ pref.description }}</p>
+          </div>
+
+          <!-- Email Toggle -->
+          <div class="channel-toggle">
+            <label class="switch">
+              <input
+                type="checkbox"
+                [checked]="pref.enableEmail"
+                (change)="updatePreference(pref, 'email')"
+                [disabled]="isSaving">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- In-App Toggle (Always enabled) -->
+          <div class="channel-toggle">
+            <label class="switch">
+              <input
+                type="checkbox"
+                [checked]="pref.enableInApp"
+                disabled
+                title="In-app notifications are always enabled">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- SMS Toggle -->
+          <div class="channel-toggle">
+            <label class="switch">
+              <input
+                type="checkbox"
+                [checked]="pref.enableSMS"
+                (change)="updatePreference(pref, 'sms')"
+                [disabled]="isSaving">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Push Toggle -->
+          <div class="channel-toggle">
+            <label class="switch">
+              <input
+                type="checkbox"
+                [checked]="pref.enablePush"
+                (change)="updatePreference(pref, 'push')"
+                [disabled]="isSaving">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

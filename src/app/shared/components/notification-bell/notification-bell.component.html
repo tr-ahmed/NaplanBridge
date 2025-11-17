@@ -1,0 +1,85 @@
+<div class="notification-bell-container">
+  <!-- Bell Icon -->
+  <button
+    class="bell-button"
+    (click)="toggleDropdown()"
+    [class.has-notifications]="unreadCount > 0">
+
+    <i class="fas fa-bell"></i>
+
+    <!-- Badge -->
+    <span class="badge" *ngIf="unreadCount > 0">
+      {{ unreadCount > 99 ? '99+' : unreadCount }}
+    </span>
+  </button>
+
+  <!-- Dropdown -->
+  <div class="notification-dropdown" *ngIf="isDropdownOpen">
+    <!-- Header -->
+    <div class="dropdown-header">
+      <h3>Notifications</h3>
+      <button
+        class="mark-all-btn"
+        (click)="markAllAsRead()"
+        [disabled]="isLoading || unreadCount === 0">
+        Mark all as read
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" *ngIf="isLoading">
+      <i class="fas fa-spinner fa-spin"></i>
+      Loading...
+    </div>
+
+    <!-- Notifications List -->
+    <div class="notifications-list" *ngIf="!isLoading">
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="notifications.length === 0">
+        <i class="fas fa-bell-slash"></i>
+        <p>No notifications</p>
+      </div>
+
+      <!-- Notification Items -->
+      <div
+        *ngFor="let notification of notifications"
+        class="notification-item"
+        [class.unread]="!notification.isRead"
+        [class.type-info]="notification.type === 'Info'"
+        [class.type-success]="notification.type === 'Success'"
+        [class.type-warning]="notification.type === 'Warning'"
+        [class.type-error]="notification.type === 'Error'"
+        (click)="markAsRead(notification, $event)">
+
+        <!-- Icon based on type -->
+        <div class="notification-icon">
+          <i class="fas" [ngClass]="getNotificationIcon(notification.type)"></i>
+        </div>
+
+        <!-- Content -->
+        <div class="notification-content">
+          <h4>{{ notification.title }}</h4>
+          <p>{{ notification.message }}</p>
+          <span class="time">{{ notification.sentAt | timeAgo }}</span>
+        </div>
+
+        <!-- Delete Button -->
+        <button
+          class="delete-btn"
+          (click)="deleteNotification(notification, $event)"
+          title="Delete">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="dropdown-footer">
+      <button
+        class="view-all-btn"
+        (click)="viewAllNotifications()">
+        View all notifications
+      </button>
+    </div>
+  </div>
+</div>

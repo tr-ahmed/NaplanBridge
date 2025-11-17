@@ -4,7 +4,7 @@
 
 ## GitHub Copilot Instructions for the Real Angular 17 Project
 
-### Project Path: D:\Private\Ahmed Hamdi\angular
+### Project Path: D:\Private\FrontEnd Team\angular
 
 **Goal:**
 Develop a real-world Angular 17 frontend for the **NaplanBridge Educational System**, integrated with a Laravel backend API.

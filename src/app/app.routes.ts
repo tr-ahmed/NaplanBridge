@@ -233,12 +233,38 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
     data: { hideHeader: true, hideFooter: true }
   },
+  {
+    path: 'admin/templates',
+    loadComponent: () => import('./admin/template-list/template-list.component').then(m => m.TemplateListComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'admin/templates/edit/:id',
+    loadComponent: () => import('./admin/template-editor/template-editor.component').then(m => m.TemplateEditorComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: true, hideFooter: true }
+  },
 
   // Teacher Dashboard
   {
     path: 'teacher/dashboard',
     loadComponent: () => import('./features/teacher-dashboard/teacher-dashboard.component').then(m => m.TeacherDashboardComponent),
     canActivate: [authGuard]
+  },
+
+  // Teacher Exams
+  {
+    path: 'teacher/exams',
+    loadComponent: () => import('./features/teacher/teacher-exams/teacher-exams.component').then(m => m.TeacherExamsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'teacher/exams/:id/submissions',
+    loadComponent: () => import('./features/teacher/exam-grading/exam-grading.component').then(m => m.ExamGradingComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    data: { hideHeader: true, hideFooter: true }
   },
 
   // Teacher Content Management
@@ -248,7 +274,27 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
-  // Teacher Exam Management
+  // Student Exams
+  {
+    path: 'student/exams',
+    loadComponent: () => import('./features/student/student-exams/student-exams.component').then(m => m.StudentExamsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'student/exam/:id',
+    loadComponent: () => import('./features/student/exam-taking/exam-taking.component').then(m => m.ExamTakingComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'student/exam-result/:id',
+    loadComponent: () => import('./features/student/exam-result/exam-result.component').then(m => m.ExamResultComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+
+  // Legacy - Teacher Exam Management (keep for backward compatibility)
   {
     path: 'teacher/exams',
     loadComponent: () => import('./features/exam-management/exam-management.component').then(m => m.ExamManagementComponent),

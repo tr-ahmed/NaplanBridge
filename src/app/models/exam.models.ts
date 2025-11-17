@@ -1,28 +1,43 @@
 /**
- * Exam and Assessment Models
- * Based on Backend API Documentation - PAYMENT_EXAMS_UPDATE_REPORT.md
+ * Exam System Models
+ * Complete models for Admin, Teacher, and Student exam system
+ * Based on API Documentation
  */
 
 // ============================================
-// Exam Types and Question Types
+// ENUMS
 // ============================================
 
-export type ExamType = 'Lesson' | 'Monthly' | 'Term' | 'Year';
+export enum ExamType {
+  Lesson = 'Lesson',    // امتحان درس
+  Monthly = 'Monthly',   // امتحان شهري
+  Term = 'Term',         // امتحان Term
+  Year = 'Year'          // امتحان سنوي
+}
+
+export enum QuestionType {
+  Text = 'Text',                     // سؤال نصي
+  MultipleChoice = 'MultipleChoice', // اختيار من متعدد
+  MultipleSelect = 'MultipleSelect', // اختيار متعدد
+  TrueFalse = 'TrueFalse'           // صح/خطأ
+}
+
+// Legacy support
+export type ExamTypeString = 'Lesson' | 'Monthly' | 'Term' | 'Year';
+export type QuestionTypeString = 'Text' | 'MultipleChoice' | 'MultipleSelect' | 'TrueFalse';
 
 export const ExamTypes = {
-  LESSON: 'Lesson' as ExamType,    // Quiz after a specific lesson
-  MONTHLY: 'Monthly' as ExamType,  // Monthly assessment
-  TERM: 'Term' as ExamType,        // Final exam for a term
-  YEAR: 'Year' as ExamType         // Annual exam
+  LESSON: 'Lesson' as ExamTypeString,
+  MONTHLY: 'Monthly' as ExamTypeString,
+  TERM: 'Term' as ExamTypeString,
+  YEAR: 'Year' as ExamTypeString
 };
 
-export type QuestionType = 'Text' | 'MultipleChoice' | 'MultipleSelect' | 'TrueFalse';
-
 export const QuestionTypes = {
-  TEXT: 'Text' as QuestionType,
-  MULTIPLE_CHOICE: 'MultipleChoice' as QuestionType,
-  MULTIPLE_SELECT: 'MultipleSelect' as QuestionType,
-  TRUE_FALSE: 'TrueFalse' as QuestionType
+  TEXT: 'Text' as QuestionTypeString,
+  MULTIPLE_CHOICE: 'MultipleChoice' as QuestionTypeString,
+  MULTIPLE_SELECT: 'MultipleSelect' as QuestionTypeString,
+  TRUE_FALSE: 'TrueFalse' as QuestionTypeString
 };
 
 // ============================================

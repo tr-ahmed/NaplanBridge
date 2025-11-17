@@ -188,6 +188,28 @@
               }
             </div>
 
+            <!-- Year -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Academic Year <span class="text-red-500">*</span>
+              </label>
+              <select
+                formControlName="yearId"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                [class.border-red-500]="hasError('yearId')">
+                <option [value]="null">Select Year</option>
+                <option [value]="1">Year 1</option>
+                <option [value]="2">Year 2</option>
+                <option [value]="3">Year 3</option>
+                <option [value]="4">Year 4</option>
+                <option [value]="5">Year 5</option>
+                <option [value]="6">Year 6</option>
+              </select>
+              @if (hasError('yearId')) {
+                <p class="mt-1 text-sm text-red-500">Academic Year is required</p>
+              }
+            </div>
+
             <!-- Duration -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">

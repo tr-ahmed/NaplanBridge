@@ -353,7 +353,7 @@ export class LessonsService {
    * Rate a lesson
    */
   rateLesson(lessonId: number, rating: number, comment?: string): Observable<boolean> {
-    const endpoint = ApiNodes.ratLesson;
+    const endpoint = ApiNodes.rateLesson;
     const url = `${this.baseUrl}${endpoint.url.replace(':id', lessonId.toString())}`;
 
     const ratingData = {

@@ -24,9 +24,18 @@ export class RegisterComponent {
 
   // Reactive form for parent registration
   registerForm: FormGroup = this.fb.group({
-    userName: ['', [Validators.required, Validators.minLength(3)]],
+    userName: ['', [
+      Validators.required,
+      Validators.minLength(3),
+      Validators.pattern(/^[a-zA-Z0-9]+$/) // Only letters and digits, no spaces or special chars
+    ]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(8)]],
+    password: ['', [
+      Validators.required,
+      Validators.minLength(4),
+      Validators.maxLength(8),
+      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z]).{4,8}$/) // Must contain uppercase and lowercase
+    ]],
     confirmPassword: ['', [Validators.required]],
     phoneNumber: ['', [Validators.required, Validators.pattern(/^01[0-9]{9}$/)]],
     age: ['', [Validators.required, Validators.min(18), Validators.max(100)]],
@@ -91,7 +100,38 @@ export class RegisterComponent {
         error: (error) => {
           this.isLoading.set(false);
           console.error('Registration error:', error);
-          this.toastService.showError('Registration failed. Please try again.');
+
+          // Handle validation errors from backend
+          if (error.status === 400 && error.error) {
+            // Check if error.error is an array of validation errors
+            if (Array.isArray(error.error)) {
+              // Process each error
+              error.error.forEach((err: any, index: number) => {
+                if (err.description) {
+                  // Show each error message in a separate toast with a small delay
+                  setTimeout(() => {
+                    this.toastService.showError(err.description);
+                  }, index * 100); // Delay each toast by 100ms
+
+                  // Map errors to specific form fields
+                  const fieldName = this.mapErrorCodeToField(err.code);
+                  if (fieldName) {
+                    const control = this.registerForm.get(fieldName);
+                    if (control) {
+                      control.setErrors({ serverError: err.description });
+                      control.markAsTouched();
+                    }
+                  }
+                }
+              });
+            } else if (typeof error.error === 'string') {
+              this.toastService.showError(error.error);
+            } else {
+              this.toastService.showError('Registration failed. Please check your input and try again.');
+            }
+          } else {
+            this.toastService.showError('Registration failed. Please try again.');
+          }
         }
       });
     } else {
@@ -138,6 +178,25 @@ export class RegisterComponent {
   }
 
   /**
+   * Map error codes from backend to form field names
+   */
+  private mapErrorCodeToField(errorCode: string): string | null {
+    const codeMap: { [key: string]: string } = {
+      'PasswordRequiresLower': 'password',
+      'PasswordRequiresUpper': 'password',
+      'PasswordRequiresDigit': 'password',
+      'PasswordRequiresNonAlphanumeric': 'password',
+      'PasswordTooShort': 'password',
+      'InvalidUserName': 'userName',
+      'DuplicateUserName': 'userName',
+      'InvalidEmail': 'email',
+      'DuplicateEmail': 'email'
+    };
+
+    return codeMap[errorCode] || null;
+  }
+
+  /**
    * Mark all form fields as touched to show validation errors
    */
   private markFormGroupTouched(): void {
@@ -167,7 +226,13 @@ export class RegisterComponent {
         return `${this.getFieldDisplayName(fieldName)} must be no more than ${control.errors['maxlength'].requiredLength} characters`;
       }
       if (control.errors['pattern']) {
-        return 'Please enter a valid  phone number ';
+        if (fieldName === 'password') {
+          return 'Password must contain uppercase and lowercase letters';
+        }
+        if (fieldName === 'userName') {
+          return 'Username can only contain letters and digits (no spaces or special characters)';
+        }
+        return 'Please enter a valid phone number';
       }
       if (control.errors['min']) {
         return `Age must be at least ${control.errors['min'].min}`;

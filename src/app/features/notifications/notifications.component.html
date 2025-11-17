@@ -130,47 +130,14 @@
                       </h3>
                       <p class="text-gray-600 mb-3 line-clamp-2">{{ notification.message }}</p>
 
-                      <!-- Meta Information -->
                       <div class="flex items-center gap-4 text-sm text-gray-500">
                         <span class="flex items-center gap-1">
                           <i class="fas fa-clock"></i>
-                          {{ getRelativeTime(notification.createdAt) }}
+                          {{ getRelativeTime(notification.sentAt) }}
                         </span>
-
-                        @if (notification.priority !== 'low') {
-                          <span [class]="'px-2 py-1 rounded-full text-xs font-medium ' + getPriorityBadgeClass(notification.priority)">
-                            {{ notification.priority }}
-                          </span>
-                        }
-
-                        @if (notification.category) {
-                          <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
-                            {{ notification.category }}
-                          </span>
-                        }
                       </div>
                     </div>
-
-                    <!-- Notification Image -->
-                    @if (notification.imageUrl) {
-                      <div class="flex-shrink-0 bg-gray-200 rounded-lg">
-                        <img [src]="notification.imageUrl"
-                             [alt]="notification.title"
-                             (error)="$event.target.style.display='none'"
-                             class="w-16 h-16 rounded-lg object-cover">
-                      </div>
-                    }
                   </div>
-
-                  <!-- Action Button -->
-                  @if (notification.actionText && notification.actionUrl) {
-                    <div class="mt-4 pt-4 border-t border-gray-200">
-                      <button class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1">
-                        {{ notification.actionText }}
-                        <i class="fas fa-external-link-alt"></i>
-                      </button>
-                    </div>
-                  }
                 </div>
 
                 <!-- Actions Menu -->
