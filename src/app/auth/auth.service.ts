@@ -161,7 +161,7 @@ export class AuthService {
     if (roles.includes('Admin')) {
       this.router.navigate(['/admin/dashboard']);
     } else if (roles.includes('Teacher')) {
-      this.router.navigate(['/teacher/dashboard']);
+      this.router.navigate(['/teacher/content-management']);
     } else if (roles.includes('Parent')) {
       this.router.navigate(['/parent/dashboard']);
     } else {

@@ -140,7 +140,7 @@ export class ProfileManagementComponent implements OnInit {
       'Authorization': `Bearer ${token}`
     });
 
-    this.http.get<UserProfile>(`${environment.apiBaseUrl}/api/user/profile`, { headers })
+    this.http.get<UserProfile>(`${environment.apiBaseUrl}/user/profile`, { headers })
       .subscribe({
         next: (profile) => {
           this.profile.set(profile);

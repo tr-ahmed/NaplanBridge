@@ -306,7 +306,7 @@ export class AuthService {
         this.router.navigate(['/admin/users']);
         break;
       case 'teacher':
-        this.router.navigate(['/teacher/dashboard']);
+        this.router.navigate(['/teacher/content-management']);
         break;
       case 'parent':
         this.router.navigate(['/parent/dashboard']);

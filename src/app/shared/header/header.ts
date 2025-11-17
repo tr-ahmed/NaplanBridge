@@ -250,7 +250,7 @@ isAdminDashboard(): boolean {
  * Navigate to Teacher Dashboard
  */
 navigateToTeacherDashboard(): void {
-  this.router.navigate(['/teacher/dashboard']);
+  this.router.navigate(['/teacher/content-management']);
 }
 
 }

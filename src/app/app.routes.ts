@@ -253,10 +253,22 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
-  // Teacher Exams
+  // Teacher Exams Management
   {
     path: 'teacher/exams',
     loadComponent: () => import('./features/teacher/teacher-exams/teacher-exams.component').then(m => m.TeacherExamsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'teacher/exam/create',
+    loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'teacher/exam/edit/:id',
+    loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
     data: { hideHeader: true, hideFooter: true }
   },
@@ -271,7 +283,8 @@ export const routes: Routes = [
   {
     path: 'teacher/content-management',
     loadComponent: () => import('./features/teacher/content-management/teacher-content-management.component').then(m => m.TeacherContentManagementComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    data: { hideHeader: true, hideFooter: true }
   },
 
   // Student Exams
@@ -294,22 +307,7 @@ export const routes: Routes = [
     data: { hideHeader: true, hideFooter: true }
   },
 
-  // Legacy - Teacher Exam Management (keep for backward compatibility)
-  {
-    path: 'teacher/exams',
-    loadComponent: () => import('./features/exam-management/exam-management.component').then(m => m.ExamManagementComponent),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'teacher/exam/create',
-    loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'teacher/exam/edit/:id',
-    loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
-    canActivate: [authGuard]
-  },
+
 
   // Teacher Management Routes (Placeholder - To be implemented)
   {

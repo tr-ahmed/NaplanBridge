@@ -11,7 +11,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 // Interfaces
 interface AcademicYear {
@@ -80,7 +80,7 @@ export class AddStudentComponent implements OnInit {
       userName: ['', [Validators.required, Validators.minLength(3)]],
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]], // Required for login
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(8)]], // API requires 4-8 chars
       confirmPassword: ['', [Validators.required]],
       age: ['', [Validators.required, Validators.min(5), Validators.max(18)]],
       yearId: ['', [Validators.required]],
@@ -115,25 +115,31 @@ export class AddStudentComponent implements OnInit {
     this.loading.set(true);
     const formData = this.addStudentForm.value;
 
-    // Get current user (parent) info
-    const currentUser = this.authService.getCurrentUser();
-    const parentId = currentUser?.id;
+    // Get current user (parent) info from AuthService signal
+    const currentUser = this.authService.currentUser();
+    const parentId = currentUser?.userId;
 
-    // Prepare payload
-    const payload: StudentFormData = {
+    // Prepare payload according to API schema (StudentRegisterDto)
+    const payload: any = {
       userName: formData.userName,
       firstName: formData.firstName,
-      email: formData.email, // Required for login
+      email: formData.email,
       password: formData.password,
       age: parseInt(formData.age),
-      yearId: parseInt(formData.yearId),
-      parentId: parentId
+      year: parseInt(formData.yearId)
     };
 
     // Add optional fields
     if (formData.phoneNumber) {
       payload.phoneNumber = formData.phoneNumber;
     }
+
+    // Add parentId only if it exists and is a valid number
+    if (parentId && typeof parentId === 'number') {
+      payload.parentId = parentId;
+    }
+
+    console.log('Final payload (StudentRegisterDto):', payload);
 
     // Check if using mock mode
     if (environment.useMock) {
@@ -148,19 +154,23 @@ export class AddStudentComponent implements OnInit {
   /**
    * Register student via API
    */
-  private registerStudentAPI(payload: StudentFormData): void {
+  private registerStudentAPI(payload: any): void {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
 
+    console.log('Sending student registration payload:', payload);
+    console.log('API URL:', `${environment.apiBaseUrl}/account/register-student`);
+
     this.http.post(
-      `${environment.apiBaseUrl}/api/account/register-student`,
+      `${environment.apiBaseUrl}/account/register-student`,
       payload,
       { headers }
     ).subscribe({
       next: (response: any) => {
+        console.log('Registration successful:', response);
         this.handleSuccess(payload.userName);
       },
       error: (err) => {
@@ -208,9 +218,24 @@ export class AddStudentComponent implements OnInit {
    * Handle registration error
    */
   private handleError(err: any): void {
-    const errorMessage = err?.error?.message
-      || err?.error?.title
-      || 'Failed to add student. Please try again.';
+    console.error('Full error object:', err);
+    console.error('Error details:', err?.error);
+    console.error('Validation errors:', err?.error?.errors);
+
+    let errorMessage = 'Failed to add student. Please try again.';
+    
+    // Extract validation errors if available
+    if (err?.error?.errors) {
+      const validationErrors = err.error.errors;
+      const errorMessages = Object.keys(validationErrors)
+        .map(key => `${key}: ${validationErrors[key].join(', ')}`)
+        .join('\n');
+      errorMessage = `Validation errors:\n${errorMessages}`;
+    } else if (err?.error?.title) {
+      errorMessage = err.error.title;
+    } else if (err?.error?.message) {
+      errorMessage = err.error.message;
+    }
 
     this.error.set(errorMessage);
     this.loading.set(false);
@@ -218,7 +243,7 @@ export class AddStudentComponent implements OnInit {
     Swal.fire({
       icon: 'error',
       title: 'Registration Failed',
-      text: errorMessage,
+      html: errorMessage.replace(/\n/g, '<br>'),
       confirmButtonText: 'Try Again'
     });
   }
@@ -248,7 +273,10 @@ export class AddStudentComponent implements OnInit {
       errors.push('Password is required');
     }
     if (this.addStudentForm.get('password')?.hasError('minlength')) {
-      errors.push('Password must be at least 6 characters');
+      errors.push('Password must be at least 4 characters');
+    }
+    if (this.addStudentForm.get('password')?.hasError('maxlength')) {
+      errors.push('Password must not exceed 8 characters');
     }
     if (this.addStudentForm.hasError('passwordMismatch')) {
       errors.push('Passwords do not match');
