@@ -288,4 +288,13 @@ export class ExamService {
       `exam/session/${studentExamId}/time-remaining`
     );
   }
+
+  /**
+   * Add new question to existing exam
+   * Endpoint: POST /api/exam/{examId}/questions
+   * Roles: Teacher, Admin
+   */
+  addQuestion(examId: number, questionData: any): Observable<any> {
+    return this.api.post<any>(`exam/${examId}/questions`, questionData);
+  }
 }

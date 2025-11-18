@@ -121,11 +121,25 @@ export class TeacherContentManagementService {
    * Get teacher's authorized subjects
    */
   getMySubjects(): Observable<TeacherSubject[]> {
-    return this.http.get<ApiResponse<TeacherSubject[]>>(`${this.apiUrl}/my-subjects`)
+    const endpoint = `${this.apiUrl}/my-subjects`;
+    console.log(`🔗 API Endpoint: ${endpoint}`);
+    console.log('📡 Calling API to fetch teacher subjects...');
+    
+    return this.http.get<ApiResponse<TeacherSubject[]>>(endpoint)
       .pipe(
-        map(response => response.data),
+        map(response => {
+          console.log('✅ API Response received:', response);
+          console.log(`📦 Data payload: ${response.data.length} subjects`);
+          return response.data;
+        }),
         catchError(error => {
-          console.error('Error fetching authorized subjects:', error);
+          console.error('❌ API Error - Failed to fetch authorized subjects:', error);
+          console.error('🔍 Error details:', {
+            status: error?.status,
+            statusText: error?.statusText,
+            message: error?.message,
+            url: error?.url
+          });
           return of([]);
         })
       );
@@ -202,12 +216,39 @@ export class TeacherContentManagementService {
 
   /**
    * Create new lesson (shortcut)
+   * Supports multipart/form-data with files
    */
   createLesson(lessonData: any): Observable<any> {
-    return this.http.post<any>(`${this.baseApiUrl}/Lessons`, lessonData)
+    console.log('📝 Creating lesson:', lessonData);
+    
+    // Create FormData for multipart/form-data
+    const formData = new FormData();
+    
+    // Add required query parameters as form fields
+    if (lessonData.title) {
+      formData.append('Title', lessonData.title);
+    }
+    if (lessonData.description) {
+      formData.append('Description', lessonData.description);
+    }
+    
+    // Add optional query parameters
+    if (lessonData.weekId) {
+      formData.append('WeekId', lessonData.weekId.toString());
+    }
+    
+    // Add file attachments
+    if (lessonData.posterFile) {
+      formData.append('PosterFile', lessonData.posterFile);
+    }
+    if (lessonData.videoFile) {
+      formData.append('VideoFile', lessonData.videoFile);
+    }
+    
+    return this.http.post<any>(`${this.baseApiUrl}/Lessons`, formData)
       .pipe(
         catchError(error => {
-          console.error('Error creating lesson:', error);
+          console.error('❌ Error creating lesson:', error);
           throw error;
         })
       );
@@ -230,12 +271,37 @@ export class TeacherContentManagementService {
 
   /**
    * Update lesson (shortcut)
+   * Supports multipart/form-data with optional files
    */
   updateLesson(lessonId: number, lessonData: any): Observable<any> {
-    return this.http.put<any>(`${this.baseApiUrl}/Lessons/${lessonId}`, lessonData)
+    console.log('✏️ Updating lesson:', { lessonId, data: lessonData });
+    
+    // Create FormData for multipart/form-data
+    const formData = new FormData();
+    
+    // Add optional query parameters as form fields
+    if (lessonData.title) {
+      formData.append('Title', lessonData.title);
+    }
+    if (lessonData.description) {
+      formData.append('Description', lessonData.description);
+    }
+    if (lessonData.weekId) {
+      formData.append('WeekId', lessonData.weekId.toString());
+    }
+    
+    // Add optional file attachments
+    if (lessonData.posterFile) {
+      formData.append('PosterFile', lessonData.posterFile);
+    }
+    if (lessonData.videoFile) {
+      formData.append('VideoFile', lessonData.videoFile);
+    }
+    
+    return this.http.put<any>(`${this.baseApiUrl}/Lessons/${lessonId}`, formData)
       .pipe(
         catchError(error => {
-          console.error('Error updating lesson:', error);
+          console.error('❌ Error updating lesson:', error);
           throw error;
         })
       );
@@ -356,14 +422,74 @@ export class TeacherContentManagementService {
 
   /**
    * Create a new subject
+   * ⚠️ Note: User must have Admin role or create_subject permission
+   * Supports multipart/form-data with required PosterFile
    */
-  createSubject(subjectData: any): Observable<TeacherSubject> {
-    return this.http.post<ApiResponse<TeacherSubject>>(`${this.baseApiUrl}/Subjects`, subjectData)
+  createSubject(subjectData: any): Observable<any> {
+    console.log('📝 Creating subject:', subjectData);
+    
+    // Create FormData for multipart/form-data
+    const formData = new FormData();
+    
+    // Add required query parameters
+    if (subjectData.yearId) {
+      formData.append('YearId', subjectData.yearId.toString());
+    }
+    if (subjectData.subjectNameId) {
+      formData.append('SubjectNameId', subjectData.subjectNameId.toString());
+    }
+    
+    // Add optional query parameters
+    if (subjectData.originalPrice !== undefined && subjectData.originalPrice !== null) {
+      formData.append('OriginalPrice', subjectData.originalPrice.toString());
+    }
+    if (subjectData.discountPercentage !== undefined && subjectData.discountPercentage !== null) {
+      formData.append('DiscountPercentage', subjectData.discountPercentage.toString());
+    }
+    if (subjectData.level) {
+      formData.append('Level', subjectData.level);
+    }
+    if (subjectData.duration !== undefined && subjectData.duration !== null) {
+      formData.append('Duration', subjectData.duration.toString());
+    }
+    if (subjectData.teacherId) {
+      formData.append('TeacherId', subjectData.teacherId.toString());
+    }
+    if (subjectData.startDate) {
+      formData.append('StartDate', subjectData.startDate);
+    }
+    
+    // Add required file (PosterFile)
+    if (subjectData.posterFile) {
+      formData.append('PosterFile', subjectData.posterFile);
+    }
+    
+    return this.http.post<ApiResponse<any>>(`${this.baseApiUrl}/Subjects`, formData)
       .pipe(
-        map(response => response.data),
+        map(response => {
+          console.log('✅ Subject created successfully:', response.data);
+          return response.data;
+        }),
         catchError(error => {
-          console.error('Error creating subject:', error);
-          throw error;
+          console.error('❌ Error creating subject:', {
+            status: error.status,
+            message: error.message,
+            error: error.error
+          });
+          
+          // Better error message based on status code
+          let errorMessage = 'Failed to create subject';
+          if (error.status === 403) {
+            errorMessage = '🔒 Permission Denied: Only Admin users or teachers with special permission can create subjects. Please contact your administrator to grant you the "create_subject" permission.';
+          } else if (error.status === 400) {
+            errorMessage = '⚠️ Invalid subject data. Please check your inputs and ensure PosterFile is provided.';
+          } else if (error.status === 401) {
+            errorMessage = '🔐 Your session has expired. Please log in again.';
+          } else if (error.status === 409) {
+            errorMessage = '⚠️ A subject with this name already exists.';
+          }
+          
+          throw new Error(errorMessage);
         })
       );
   }

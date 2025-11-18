@@ -246,7 +246,7 @@ export class ExamManagementComponent implements OnInit {
    * Create new exam
    */
   createExam(): void {
-    this.router.navigate(['/teacher/exam/create']);
+    this.router.navigate(['/admin/exam/create']);
   }
 
   /**
@@ -261,7 +261,7 @@ export class ExamManagementComponent implements OnInit {
    */
   editExam(examId: number, event?: Event): void {
     event?.stopPropagation();
-    this.router.navigate(['/teacher/exam/edit', examId]);
+    this.router.navigate(['/admin/exam/edit', examId]);
   }
 
   /**

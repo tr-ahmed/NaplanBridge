@@ -39,6 +39,8 @@ export class CreateEditExamComponent implements OnInit {
   currentStep = signal<FormStep>('basic');
   isEditMode = signal<boolean>(false);
   examId: number | null = null;
+  isAdminRoute: boolean = false;  // Track if accessing from admin or teacher route
+  originalQuestionsCount: number = 0;  // Track original questions count when editing
 
   // Forms
   examForm!: FormGroup;
@@ -60,15 +62,15 @@ export class CreateEditExamComponent implements OnInit {
     if (currentUser) {
       this.teacherId = currentUser.id;
 
-      // ✅ Check if user has Teacher role (could be string or array)
+      // ✅ Check if user has Teacher or Admin role (could be string or array)
       const userRoles = Array.isArray(currentUser.role) ? currentUser.role : [currentUser.role];
-      const isTeacher = userRoles.includes('Teacher');
+      const isTeacherOrAdmin = userRoles.includes('Teacher') || userRoles.includes('admin');
 
-      if (isTeacher) {
+      if (isTeacherOrAdmin) {
         this.loadSubjects();
         this.checkEditMode();
       } else {
-        console.warn('⚠️ User is not a Teacher. Roles:', userRoles);
+        console.warn('⚠️ User is not a Teacher or Admin. Roles:', userRoles);
         this.router.navigate(['/login']);
       }
     } else {
@@ -116,7 +118,7 @@ export class CreateEditExamComponent implements OnInit {
   }
 
   /**
-   * Check if we're in edit mode
+   * Check if we're in edit mode and which route we're on
    */
   private checkEditMode(): void {
     this.route.params.subscribe(params => {
@@ -126,6 +128,13 @@ export class CreateEditExamComponent implements OnInit {
         this.isEditMode.set(true);
         this.loadExamData(this.examId);
       }
+    });
+
+    // Detect if we're on admin or teacher route
+    this.route.url.subscribe(urlSegments => {
+      const fullPath = urlSegments.map(s => s.path).join('/');
+      this.isAdminRoute = fullPath.includes('admin');
+      console.log('📍 Route detected:', fullPath, 'Is Admin:', this.isAdminRoute);
     });
   }
 
@@ -205,6 +214,9 @@ export class CreateEditExamComponent implements OnInit {
    * Patch form with exam data
    */
   private patchFormData(exam: any): void {
+    // Track original questions count for detecting new questions in edit mode
+    this.originalQuestionsCount = exam.questions?.length || 0;
+
     this.examForm.patchValue({
       title: exam.title,
       description: exam.description,
@@ -540,9 +552,15 @@ export class CreateEditExamComponent implements OnInit {
       this.examService.updateExam(this.examId, examData).subscribe({
         next: (response) => {
           console.log('✅ Exam updated successfully:', response);
-          this.saving.set(false);
-          this.toastService.showSuccess('Exam updated and published successfully!');
-          this.router.navigate(['/teacher/exams']);
+          
+          // Check if there are new questions to add
+          const currentQuestionsCount = this.questions.length;
+          if (currentQuestionsCount > this.originalQuestionsCount) {
+            console.log(`📌 Found ${currentQuestionsCount - this.originalQuestionsCount} new questions to add`);
+            this.addNewQuestions();
+          } else {
+            this.completeExamSave();
+          }
         },
         error: (error) => {
           console.error('❌ Error updating exam:', error);
@@ -555,9 +573,7 @@ export class CreateEditExamComponent implements OnInit {
       this.examService.createExam(examData).subscribe({
         next: (response) => {
           console.log('✅ Exam created successfully:', response);
-          this.saving.set(false);
-          this.toastService.showSuccess('Exam created and published successfully!');
-          this.router.navigate(['/teacher/exams']);
+          this.completeExamSave();
         },
         error: (error) => {
           console.error('❌ Error creating exam:', error);
@@ -573,7 +589,8 @@ export class CreateEditExamComponent implements OnInit {
    */
   cancel(): void {
     if (confirm('Are you sure? Any unsaved changes will be lost.')) {
-      this.router.navigate(['/teacher/exams']);
+      const redirectPath = this.isAdminRoute ? '/admin/exams' : '/teacher/exams';
+      this.router.navigate([redirectPath]);
     }
   }
 
@@ -603,5 +620,64 @@ export class CreateEditExamComponent implements OnInit {
     if (control.errors['min']) return `Minimum value is ${control.errors['min'].min}`;
 
     return 'Invalid value';
+  }
+
+  /**
+   * Add new questions to exam (for edit mode)
+   */
+  private addNewQuestions(): void {
+    const newQuestionsToAdd = this.questions.controls.slice(this.originalQuestionsCount);
+    let addedCount = 0;
+    const totalToAdd = newQuestionsToAdd.length;
+
+    if (totalToAdd === 0) {
+      this.completeExamSave();
+      return;
+    }
+
+    newQuestionsToAdd.forEach((questionControl: any, index: number) => {
+      const questionValue = (questionControl as FormGroup).value;
+      const questionData = {
+        questionText: questionValue.questionText,
+        questionType: questionValue.questionType,
+        marks: questionValue.marks,
+        order: this.originalQuestionsCount + index + 1,
+        options: questionValue.options || []
+      };
+
+      console.log(`➕ Adding new question ${index + 1}:`, questionData);
+
+      this.examService.addQuestion(this.examId!, questionData).subscribe({
+        next: (response: any) => {
+          console.log(`✅ Question ${index + 1} added successfully`, response);
+          addedCount++;
+          
+          // If all questions added, complete the save
+          if (addedCount === totalToAdd) {
+            console.log('✅ All new questions added successfully');
+            this.completeExamSave();
+          }
+        },
+        error: (error: any) => {
+          console.error(`❌ Error adding question ${index + 1}:`, error);
+          this.saving.set(false);
+          this.toastService.showError(`Failed to add question ${index + 1}`);
+        }
+      });
+    });
+  }
+
+  /**
+   * Complete exam save and navigate
+   */
+  private completeExamSave(): void {
+    this.saving.set(false);
+    this.toastService.showSuccess('Exam saved successfully!');
+    
+    // Wait a moment then navigate to reload the list
+    const redirectPath = this.isAdminRoute ? '/admin/exams' : '/teacher/exams';
+    setTimeout(() => {
+      this.router.navigate([redirectPath]);
+    }, 500);
   }
 }

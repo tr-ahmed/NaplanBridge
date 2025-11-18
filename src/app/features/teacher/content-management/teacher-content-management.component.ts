@@ -15,7 +15,6 @@ import { TeacherDashboardComponent } from './teacher-dashboard/teacher-dashboard
 import { MyContentListComponent } from './my-content-list/my-content-list.component';
 import { ContentCreationWizardComponent } from './content-creation-wizard/content-creation-wizard.component';
 import { ApprovalHistoryComponent } from './approval-history/approval-history.component';
-import { SubjectCreationModalComponent } from './subject-creation-modal/subject-creation-modal.component';
 
 interface TeacherTab {
   id: string;
@@ -34,8 +33,7 @@ interface TeacherTab {
     TeacherDashboardComponent,
     MyContentListComponent,
     ContentCreationWizardComponent,
-    ApprovalHistoryComponent,
-    SubjectCreationModalComponent
+    ApprovalHistoryComponent
   ],
   templateUrl: './teacher-content-management.component.html',
   styleUrls: ['./teacher-content-management.component.scss']
@@ -78,7 +76,6 @@ export class TeacherContentManagementComponent implements OnInit, OnDestroy {
   showCreateModal = signal(false);
   selectedContentForHistory = signal<ContentItem | null>(null);
   showHistoryModal = signal(false);
-  showCreateSubjectModal = signal(false);
 
   ngOnInit(): void {
     this.loadAuthorizedSubjects();
@@ -295,19 +292,5 @@ export class TeacherContentManagementComponent implements OnInit, OnDestroy {
     return statusIcons[status] || '❓';
   }
 
-  /**
-   * Handle subject creation
-   */
-  onSubjectCreated(subject: TeacherSubject): void {
-    this.toastService.showSuccess('Subject created successfully!');
-    this.showCreateSubjectModal.set(false);
-    this.loadAuthorizedSubjects();
-  }
-
-  /**
-   * Close subject creation modal
-   */
-  closeCreateSubjectModal(): void {
-    this.showCreateSubjectModal.set(false);
-  }
 }
+

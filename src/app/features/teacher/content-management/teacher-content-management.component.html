@@ -19,11 +19,6 @@
             🔄 Refresh
           </button>
 
-          <button (click)="showCreateSubjectModal.set(true)"
-                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-            🎓 New Subject
-          </button>
-
           <button (click)="switchTab('create')"
                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
             ➕ Create
@@ -115,11 +110,4 @@
     [content]="selectedContentForHistory"
     (onClose)="closeHistoryModal()">
   </app-approval-history>
-
-  <!-- Subject Creation Modal -->
-  <app-subject-creation-modal
-    [isOpen]="showCreateSubjectModal"
-    (onClose)="closeCreateSubjectModal()"
-    (onSubmit)="onSubjectCreated($event)">
-  </app-subject-creation-modal>
 </div>
