@@ -8,14 +8,16 @@
     @if (result(); as res) {
     <!-- Header -->
     <div class="result-header">
-      <button class="back-btn" (click)="backToExams()">
-        <i class="fas fa-arrow-left"></i>
-        Back
-      </button>
+      <div class="header-wrapper">
+        <button class="back-btn" (click)="backToExams()">
+          <i class="fas fa-arrow-left"></i>
+          Back to Exams
+        </button>
 
-      <div class="header-content">
-        <h1>{{ res.examTitle || 'Exam Result' }}</h1>
-        <p class="subject">{{ res.subjectName || 'Subject' }}</p>
+        <div class="header-content">
+          <h1>{{ res.examTitle || 'Exam Result' }}</h1>
+          <p class="subject">{{ res.subjectName || 'Subject' }}</p>
+        </div>
       </div>
     </div>
 

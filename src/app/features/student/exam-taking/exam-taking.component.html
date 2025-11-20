@@ -86,15 +86,22 @@
         <!-- Multiple Choice -->
         @if (question.questionType === QuestionType.MultipleChoice) {
           <div class="answer-options">
-            @for (option of question.options; track option.id) {
-              <label class="option-label">
-                <input
-                  type="radio"
-                  [name]="'question-' + question.id"
-                  [checked]="answers().get(question.id)?.selectedOptionId === option.id"
-                  (change)="handleMCQAnswer(question.id, option.id, question.questionType)">
-                <span class="option-text">{{ option.optionText }}</span>
-              </label>
+            @if (question.options && question.options.length > 0) {
+              @for (option of question.options; track option.id) {
+                <label class="option-label">
+                  <input
+                    type="radio"
+                    [name]="'question-' + question.id"
+                    [checked]="answers().get(question.id)?.selectedOptionId === option.id"
+                    (change)="handleMCQAnswer(question.id, option.id, question.questionType)">
+                  <span class="option-text">{{ option.optionText }}</span>
+                </label>
+              }
+            } @else {
+              <div class="no-options-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>No options available for this question. Please contact your teacher.</p>
+              </div>
             }
           </div>
         }
@@ -102,15 +109,22 @@
         <!-- Multiple Select -->
         @if (question.questionType === QuestionType.MultipleSelect) {
           <div class="answer-options">
-            <p class="hint">Select all correct answers</p>
-            @for (option of question.options; track option.id) {
-              <label class="option-label">
-                <input
-                  type="checkbox"
-                  [checked]="answers().get(question.id)?.selectedOptionIds?.includes(option.id)"
-                  (change)="handleMultipleSelectAnswer(question.id, option.id, question.questionType)">
-                <span class="option-text">{{ option.optionText }}</span>
-              </label>
+            @if (question.options && question.options.length > 0) {
+              <p class="hint">Select all correct answers</p>
+              @for (option of question.options; track option.id) {
+                <label class="option-label">
+                  <input
+                    type="checkbox"
+                    [checked]="answers().get(question.id)?.selectedOptionIds?.includes(option.id)"
+                    (change)="handleMultipleSelectAnswer(question.id, option.id, question.questionType)">
+                  <span class="option-text">{{ option.optionText }}</span>
+                </label>
+              }
+            } @else {
+              <div class="no-options-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>No options available for this question. Please contact your teacher.</p>
+              </div>
             }
           </div>
         }
@@ -118,15 +132,22 @@
         <!-- True/False -->
         @if (question.questionType === QuestionType.TrueFalse) {
           <div class="answer-options tf-options">
-            @for (option of question.options; track option.id) {
-              <label class="option-label tf-label">
-                <input
-                  type="radio"
-                  [name]="'question-' + question.id"
-                  [checked]="answers().get(question.id)?.selectedOptionId === option.id"
-                  (change)="handleMCQAnswer(question.id, option.id, question.questionType)">
-                <span class="option-text">{{ option.optionText }}</span>
-              </label>
+            @if (question.options && question.options.length > 0) {
+              @for (option of question.options; track option.id) {
+                <label class="option-label tf-label">
+                  <input
+                    type="radio"
+                    [name]="'question-' + question.id"
+                    [checked]="answers().get(question.id)?.selectedOptionId === option.id"
+                    (change)="handleMCQAnswer(question.id, option.id, question.questionType)">
+                  <span class="option-text">{{ option.optionText }}</span>
+                </label>
+              }
+            } @else {
+              <div class="no-options-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>No options available for this question. Please contact your teacher.</p>
+              </div>
             }
           </div>
         }

@@ -91,12 +91,21 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // In a real scenario, you would get the exam ID from the start exam response
-    // For now, we'll simulate it
-    const examId = 1; // This should come from the start exam response
+    // Use the student exam ID to get the exam data
+    const studentExamId = this.studentExamId();
 
-    this.examApi.getExamById(examId).subscribe({
+    this.examApi.getExamForTaking(studentExamId).subscribe({
       next: (exam) => {
+        console.log('📚 Exam loaded for taking:', exam);
+        console.log('📝 Questions with options:', exam.questions);
+
+        // Verify that options are present
+        if (exam.questions && exam.questions.length > 0) {
+          exam.questions.forEach((q: any, i: number) => {
+            console.log(`Question ${i + 1} options:`, q.options);
+          });
+        }
+
         this.exam.set(exam);
         this.examStartTime.set(new Date());
         this.timeRemaining.set(exam.durationInMinutes * 60); // Convert to seconds

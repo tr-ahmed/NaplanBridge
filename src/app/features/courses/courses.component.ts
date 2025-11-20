@@ -15,6 +15,7 @@ import { AuthService } from '../../auth/auth.service';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { ToastService } from '../../core/services/toast.service';
 import { LoggerService } from '../../core/services/logger.service';
+import { CategoryService } from '../../core/services/category.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -68,12 +69,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
   pendingPlanId = signal<number | null>(null);
   pendingCourse = signal<Course | null>(null);
 
-  // Available years for filtering
-  availableYears = signal<Array<{id: number, name: string}>>([
-    { id: 1, name: 'Year 7' },
-    { id: 2, name: 'Year 8' },
-    { id: 3, name: 'Year 9' }
-  ]);
+  // Available years for filtering - loaded from database
+  availableYears = signal<Array<{id: number, name: string}>>([]);
   selectedYearId = signal<number | null>(null);
 
   // Computed values
@@ -101,6 +98,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   private hasFullYearSubscription = false;
   private toastService = inject(ToastService);
   private logger = inject(LoggerService);
+  private categoryService = inject(CategoryService);
 
   constructor(
     private coursesService: CoursesService,
@@ -112,12 +110,41 @@ export class CoursesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.loadAvailableYears(); // Load years from database first
     this.loadUserInfo();
     this.loadStudentSubscriptions(); // Load enrollment status
     this.subscribeToCart();
     this.subscribeToPlanModal();
     this.handleQueryParameters();
     this.loadCourses();
+  }
+
+  /**
+   * Load available years from database
+   */
+  private loadAvailableYears(): void {
+    this.categoryService.getYears().subscribe({
+      next: (years) => {
+        const formattedYears = years.map(year => ({
+          id: year.id,
+          name: `Year ${year.yearNumber}`
+        }));
+        this.availableYears.set(formattedYears);
+        this.logger.log('✅ Loaded years from database:', formattedYears);
+      },
+      error: (err) => {
+        console.error('❌ Failed to load years:', err);
+        // Fallback to default years
+        this.availableYears.set([
+          { id: 1, name: 'Year 7' },
+          { id: 2, name: 'Year 8' },
+          { id: 3, name: 'Year 9' },
+          { id: 4, name: 'Year 10' },
+          { id: 5, name: 'Year 11' },
+          { id: 6, name: 'Year 12' }
+        ]);
+      }
+    });
   }
 
   /**
@@ -132,17 +159,18 @@ export class CoursesComponent implements OnInit, OnDestroy {
     if (user) {
       // ✅ Normalize user object to handle both localStorage and token formats
       const userId = user.id || user.userId;
-      const userRoles = user.role || user.roles;
-      const rolesArray = Array.isArray(userRoles) ? userRoles : [userRoles];
+      const userRoles = user.role || user.roles || user.Role || user.Roles;
+      const rolesArray = Array.isArray(userRoles) ? userRoles : (userRoles ? [userRoles] : []);
       const isStudent = rolesArray.some((r: string) => r?.toLowerCase() === 'student');
 
       const normalizedUser = {
         id: userId,
         // ✅ Use studentId from JWT token (decoded in AuthService)
         studentId: user.studentId,  // Now properly populated from JWT token
-        userName: user.userName || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        userName: user.userName || user.username || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
         email: user.email,
-        role: userRoles,
+        role: rolesArray.length > 0 ? (rolesArray.length === 1 ? rolesArray[0] : rolesArray) : 'Guest',
+        roles: rolesArray,
         yearId: user.yearId
       };
 
@@ -157,7 +185,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
         studentId: normalizedUser.studentId,
         userName: normalizedUser.userName,
         email: normalizedUser.email,
-        role: rolesArray,
+        role: normalizedUser.role,
+        roles: rolesArray,
         isStudent: isStudentRole,
         yearId: normalizedUser.yearId,
         yearIdType: typeof normalizedUser.yearId,
@@ -618,19 +647,27 @@ export class CoursesComponent implements OnInit, OnDestroy {
       const user = this.currentUser();
       let studentId: number | undefined;
 
+      // ✅ Extract roles array for checking
+      const rolesArray = user?.roles || (Array.isArray(user?.role) ? user.role : (user?.role ? [user.role] : []));
+      const isStudent = rolesArray.some((r: string) => r?.toLowerCase() === 'student');
+      const isParent = rolesArray.some((r: string) => r?.toLowerCase() === 'parent');
+
       this.logger.log('🎯 onPlanSelected called:', {
         planId,
         courseName: course.name,
         userRole: user?.role,
+        userRoles: rolesArray,
+        isStudent,
+        isParent,
         userStudentId: user?.studentId,
         userId: user?.id
       });
 
-      if (user?.role === 'Student' || (Array.isArray(user?.role) && user.role.includes('Student'))) {
+      if (isStudent) {
         // Direct student access - use token studentId OR user.id as fallback
         studentId = user.studentId || user.id;
         this.logger.log('✅ Student role - using studentId:', studentId, 'from:', user.studentId ? 'token.studentId' : 'user.id');
-      } else if (user?.role === 'Parent' || (Array.isArray(user?.role) && user.role.includes('Parent'))) {
+      } else if (isParent) {
         // Parent access - use selected student ID
         studentId = this.selectedStudentId() || undefined;
 
@@ -668,6 +705,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       } else {
         // ❌ User is not Student or Parent - cannot add to cart
         this.logger.log('❌ Cannot add to cart - User role is not Student or Parent');
+        this.logger.log('🔍 User details:', { user, rolesArray, isStudent, isParent });
         this.toastService.showError('Only students and parents can add items to cart');
         return;
       }

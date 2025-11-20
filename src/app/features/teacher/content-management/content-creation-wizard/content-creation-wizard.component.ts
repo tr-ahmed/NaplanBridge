@@ -282,15 +282,15 @@ export class ContentCreationWizardComponent implements OnInit {
 
   contentForm: FormGroup = this.fb.group({
     itemType: ['', Validators.required],
-    title: ['', Validators.required],
-    description: [''],
-    subjectId: [''],
+    title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(500)]],
+    description: ['', Validators.maxLength(2000)],
+    subjectId: ['', Validators.required],
     duration: [''],
     weekId: [''],
     posterFile: [null],
     videoFile: [null],
     questionCount: [''],
-    objectives: ['']
+    objectives: ['', Validators.maxLength(1000)]
   });
 
   constructor() {
@@ -440,9 +440,46 @@ export class ContentCreationWizardComponent implements OnInit {
       }
     }
 
+    // Validate required fields
+    const title = this.contentForm.get('title')?.value;
+    const subjectId = this.contentForm.get('subjectId')?.value;
+
+    if (!title || title.length < 3) {
+      this.toastService.showError('❌ Title must be at least 3 characters');
+      return;
+    }
+
+    if (!subjectId) {
+      this.toastService.showError('❌ Please select a subject');
+      return;
+    }
+
     this.loading.set(true);
 
-    this.contentService.createContent(this.contentForm.value)
+    // Prepare clean payload matching API requirements
+    const formValue = this.contentForm.value;
+    const payload: any = {
+      itemType: formValue.itemType,
+      title: formValue.title,
+      subjectId: parseInt(formValue.subjectId, 10), // Convert to number
+    };
+
+    // Add optional fields only if they have values
+    if (formValue.description) payload.description = formValue.description;
+    if (formValue.duration) payload.duration = parseInt(formValue.duration, 10);
+    if (formValue.weekId) payload.weekId = parseInt(formValue.weekId, 10);
+    if (formValue.objectives) payload.objectives = formValue.objectives;
+    if (formValue.questionCount) payload.questionCount = parseInt(formValue.questionCount, 10);
+
+    console.log('📤 Sending payload to API:', payload);
+    console.log('📋 Payload type check:', {
+      itemType: typeof payload.itemType,
+      title: typeof payload.title,
+      subjectId: typeof payload.subjectId,
+      subjectIdValue: payload.subjectId
+    });
+
+    this.contentService.createContent(payload)
       .subscribe({
         next: (content: ContentItem) => {
           console.log('✅ Content created successfully:', content);
@@ -454,7 +491,28 @@ export class ContentCreationWizardComponent implements OnInit {
         },
         error: (error: any) => {
           console.error('❌ Error creating content:', error);
-          const errorMessage = error?.message || 'Failed to create content. Please try again.';
+          console.error('🔍 Error details:', {
+            status: error?.status,
+            statusText: error?.statusText,
+            message: error?.error?.message,
+            errors: error?.error?.errors,
+            title: error?.error?.title
+          });
+
+          let errorMessage = 'Failed to create content. Please try again.';
+
+          // Extract validation errors if available
+          if (error?.error?.errors) {
+            const errors = Object.entries(error.error.errors)
+              .map(([field, msgs]: [string, any]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+              .join(' | ');
+            errorMessage = `Validation errors: ${errors}`;
+          } else if (error?.error?.title) {
+            errorMessage = error.error.title;
+          } else if (error?.message) {
+            errorMessage = error.message;
+          }
+
           this.toastService.showError(errorMessage);
           this.loading.set(false);
         }

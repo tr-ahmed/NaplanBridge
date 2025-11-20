@@ -266,6 +266,27 @@
         margin-bottom: 8px;
       }
 
+      .no-options-warning {
+        background: #fef3c7;
+        border: 2px solid #f59e0b;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        color: #92400e;
+
+        i {
+          font-size: 48px;
+          margin-bottom: 15px;
+          color: #f59e0b;
+        }
+
+        p {
+          font-size: 16px;
+          margin: 0;
+          font-weight: 500;
+        }
+      }
+
       .option-label {
         padding: 15px 20px;
         background: #f9fafb;
