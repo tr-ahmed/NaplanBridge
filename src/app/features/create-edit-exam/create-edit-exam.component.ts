@@ -553,7 +553,7 @@ export class CreateEditExamComponent implements OnInit {
     this.examForm.patchValue({ isPublished: publish });
 
     const formValue = this.examForm.value;
-
+    
     // Transform form data to match CreateExamDto structure
     const examData: CreateExamDto = {
       title: formValue.title,
@@ -567,8 +567,9 @@ export class CreateEditExamComponent implements OnInit {
       durationInMinutes: formValue.durationInMinutes,
       totalMarks: formValue.totalMarks,
       passingMarks: formValue.passingMarks,
-      startTime: formValue.startTime,
-      endTime: formValue.endTime,
+      // Convert datetime-local to ISO 8601 format or set to empty string
+      startTime: formValue.startTime ? new Date(formValue.startTime).toISOString() : '',
+      endTime: formValue.endTime ? new Date(formValue.endTime).toISOString() : '',
       isPublished: publish,
       questions: formValue.questions.map((q: any, index: number) => ({
         questionText: q.questionText,
@@ -582,9 +583,7 @@ export class CreateEditExamComponent implements OnInit {
           order: optIndex + 1
         })) || []
       }))
-    };
-
-    console.log('💾 Saving Exam Data:', examData);
+    };    console.log('💾 Saving Exam Data:', examData);
 
     if (this.isEditMode() && this.examId) {
       // ✅ UPDATE exam
