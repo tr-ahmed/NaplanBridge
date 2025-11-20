@@ -110,6 +110,7 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.error.set(null);
 
+    // Try to get profile from API
     this.profileService.getProfile()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -120,7 +121,26 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
           console.log('✅ Profile loaded successfully:', profile);
         },
         error: (err) => {
-          console.error('❌ Error loading profile:', err);
+          console.error('❌ Error loading profile from API:', err);
+
+          // Try to load profile from localStorage as fallback
+          const storedProfile = this.createProfileFromLocalStorage();
+          if (storedProfile) {
+            console.log('✅ Using profile from localStorage:', storedProfile);
+            this.profile.set(storedProfile);
+            this.populateForm(storedProfile);
+            this.loading.set(false);
+
+            (Swal.fire as any)({
+              icon: 'info',
+              title: 'Using Cached Data',
+              text: 'Profile loaded from cache. Some data might not be up-to-date.',
+              confirmButtonColor: '#667eea'
+            });
+            return;
+          }
+
+          // If no fallback data available, show error
           this.loading.set(false);
 
           if (err.status === 401) {
@@ -128,18 +148,46 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
             this.router.navigate(['/login']);
           } else if (err.status === 404) {
             this.error.set('Profile not found');
+          } else if (err.status === 0) {
+            this.error.set('Unable to connect to server. Please check your internet connection.');
           } else {
             this.error.set('Failed to load profile. Please try again.');
           }
 
-          Swal.fire({
+          (Swal.fire as any)({
             icon: 'error',
             title: 'Error Loading Profile',
-            text: this.error(),
+            text: this.error() || 'Failed to load profile. Please try again.',
             confirmButtonColor: '#667eea'
           });
         }
       });
+  }
+
+  /**
+   * Create profile from localStorage as fallback
+   */
+  private createProfileFromLocalStorage(): UserProfile | null {
+    const userName = localStorage.getItem('userName');
+    const email = localStorage.getItem('email');
+    const firstName = localStorage.getItem('firstName');
+    const userId = localStorage.getItem('userId');
+
+    if (!userName || !email) {
+      return null;
+    }
+
+    return {
+      userId: parseInt(userId || '0'),
+      userName: userName,
+      firstName: firstName,
+      email: email,
+      age: 0,
+      phoneNumber: null,
+      createdAt: new Date().toISOString(),
+      roles: [localStorage.getItem('userRole') || 'Parent'],
+      studentData: null
+    };
   }
 
   /**
@@ -335,10 +383,13 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
         // Update profile
         const currentProfile = this.profile();
         if (currentProfile) {
-          this.profile.set({
-            ...currentProfile,
-            twoFactorEnabled: enabled
-          });
+          const updated = {
+            ...currentProfile
+          } as any;
+          if (enabled) {
+            updated.twoFactorEnabled = enabled;
+          }
+          this.profile.set(updated);
         }
 
         Swal.fire({
@@ -385,8 +436,7 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
         const currentProfile = this.profile();
         if (currentProfile) {
           this.profile.set({
-            ...currentProfile,
-            phoneNumberConfirmed: true
+            ...currentProfile
           });
         }
 

@@ -52,14 +52,9 @@ export class AddStudentComponent implements OnInit {
   error = signal<string | null>(null);
   success = signal(false);
 
-  // Academic years data
+  // Academic years data - NAPLAN Year Levels
+  // Important: IDs must match actual year levels (7-12 for NAPLAN students)
   academicYears: AcademicYear[] = [
-    { id: 1, name: 'Year 1' },
-    { id: 2, name: 'Year 2' },
-    { id: 3, name: 'Year 3' },
-    { id: 4, name: 'Year 4' },
-    { id: 5, name: 'Year 5' },
-    { id: 6, name: 'Year 6' },
     { id: 7, name: 'Year 7' },
     { id: 8, name: 'Year 8' },
     { id: 9, name: 'Year 9' },
@@ -120,21 +115,24 @@ export class AddStudentComponent implements OnInit {
     const parentId = currentUser?.userId;
 
     // Prepare payload according to API schema (StudentRegisterDto)
+    // Only send fields that the backend expects
     const payload: any = {
       userName: formData.userName,
-      firstName: formData.firstName,
-      email: formData.email,
       password: formData.password,
       age: parseInt(formData.age),
-      year: parseInt(formData.yearId)
+      year: parseInt(formData.yearId)  // Now will be 7-12 for NAPLAN years
     };
 
-    // Add optional fields
+    // Add optional fields if present (these might be stored separately or ignored by backend)
+    if (formData.firstName) {
+      payload.firstName = formData.firstName;
+    }
+    if (formData.email) {
+      payload.email = formData.email;
+    }
     if (formData.phoneNumber) {
       payload.phoneNumber = formData.phoneNumber;
     }
-
-    // Add parentId only if it exists and is a valid number
     if (parentId && typeof parentId === 'number') {
       payload.parentId = parentId;
     }
@@ -223,7 +221,7 @@ export class AddStudentComponent implements OnInit {
     console.error('Validation errors:', err?.error?.errors);
 
     let errorMessage = 'Failed to add student. Please try again.';
-    
+
     // Extract validation errors if available
     if (err?.error?.errors) {
       const validationErrors = err.error.errors;

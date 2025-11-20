@@ -15,6 +15,11 @@ export interface UserProfile {
   createdAt: string;
   roles: string[];
   studentData: StudentProfileData | null;
+  avatar?: string;
+  role?: string;
+  emailConfirmed?: boolean;
+  phoneNumberConfirmed?: boolean;
+  twoFactorEnabled?: boolean;
 }
 
 export interface StudentProfileData {
