@@ -3,29 +3,17 @@
  * Complete profile management with photo upload, password change, and settings
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
+import { ProfileService, UserProfile } from '../../core/services/profile.service';
 import Swal from 'sweetalert2';
-
-// Interfaces
-interface UserProfile {
-  id: number;
-  userName: string;
-  email: string;
-  phoneNumber?: string;
-  age: number;
-  avatar?: string;
-  emailConfirmed: boolean;
-  phoneNumberConfirmed: boolean;
-  twoFactorEnabled: boolean;
-  createdAt: Date;
-  role: string;
-}
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 interface PasswordChange {
   currentPassword: string;
@@ -40,16 +28,19 @@ interface PasswordChange {
   templateUrl: './profile-management.component.html',
   styleUrl: './profile-management.component.scss'
 })
-export class ProfileManagementComponent implements OnInit {
+export class ProfileManagementComponent implements OnInit, OnDestroy {
   // Services
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private profileService = inject(ProfileService);
+  private destroy$ = new Subject<void>();
 
   // State
   profile = signal<UserProfile | null>(null);
   loading = signal(true);
+  error = signal<string | null>(null);
   activeTab = signal<'profile' | 'password' | 'security' | 'privacy' | 'reset-password'>('profile');
   resetPasswordLoading = signal(false);
 
@@ -115,53 +106,37 @@ export class ProfileManagementComponent implements OnInit {
   /**
    * Load user profile
    */
-  private loadProfile(): void {
+  loadProfile(): void {
     this.loading.set(true);
+    this.error.set(null);
 
-    if (environment.useMock) {
-      // Mock data
-      setTimeout(() => {
-        const mockProfile: UserProfile = {
-          id: 1,
-          userName: 'john_doe',
-          email: 'john@example.com',
-          phoneNumber: '+1234567890',
-          age: 35,
-          avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=4F46E5&color=fff&size=200',
-          emailConfirmed: true,
-          phoneNumberConfirmed: false,
-          twoFactorEnabled: false,
-          createdAt: new Date('2024-01-15'),
-          role: 'Parent'
-        };
-
-        this.profile.set(mockProfile);
-        this.populateForm(mockProfile);
-        this.loading.set(false);
-      }, 500);
-      return;
-    }
-
-    // Real API call
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    this.http.get<UserProfile>(`${environment.apiBaseUrl}/user/profile`, { headers })
+    this.profileService.getProfile()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (profile) => {
           this.profile.set(profile);
           this.populateForm(profile);
           this.loading.set(false);
+          console.log('✅ Profile loaded successfully:', profile);
         },
         error: (err) => {
-          console.error('Error loading profile:', err);
+          console.error('❌ Error loading profile:', err);
           this.loading.set(false);
+
+          if (err.status === 401) {
+            this.error.set('Session expired. Please login again.');
+            this.router.navigate(['/login']);
+          } else if (err.status === 404) {
+            this.error.set('Profile not found');
+          } else {
+            this.error.set('Failed to load profile. Please try again.');
+          }
+
           Swal.fire({
             icon: 'error',
-            title: 'Error',
-            text: 'Failed to load profile'
+            title: 'Error Loading Profile',
+            text: this.error(),
+            confirmButtonColor: '#667eea'
           });
         }
       });
@@ -179,12 +154,56 @@ export class ProfileManagementComponent implements OnInit {
     });
 
     this.securityForm.patchValue({
-      twoFactorEnabled: profile.twoFactorEnabled
+      twoFactorEnabled: false
     });
+  }
 
-    if (profile.avatar) {
-      this.imagePreview = profile.avatar;
-    }
+  /**
+   * Cleanup on component destroy
+   */
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Helper: Check if user is student
+   */
+  isStudent(): boolean {
+    const profile = this.profile();
+    return profile ? this.profileService.isStudent(profile) : false;
+  }
+
+  /**
+   * Helper: Check if user is parent
+   */
+  isParent(): boolean {
+    const profile = this.profile();
+    return profile ? this.profileService.isParent(profile) : false;
+  }
+
+  /**
+   * Helper: Check if user is teacher
+   */
+  isTeacher(): boolean {
+    const profile = this.profile();
+    return profile ? this.profileService.isTeacher(profile) : false;
+  }
+
+  /**
+   * Helper: Check if user is admin
+   */
+  isAdmin(): boolean {
+    const profile = this.profile();
+    return profile ? this.profileService.isAdmin(profile) : false;
+  }
+
+  /**
+   * Get year label for students
+   */
+  getYearLabel(): string {
+    const profile = this.profile();
+    return profile ? this.profileService.getYearLabel(profile) : 'N/A';
   }
 
   /**
