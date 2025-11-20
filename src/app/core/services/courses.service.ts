@@ -66,16 +66,31 @@ export class CoursesService {
       );
     }
 
-    return this.http.get<any>(url).pipe(
+    // Build query params with pagination - request large page size to get all items
+    const params: any = {
+      Page: 1,
+      PageSize: 1000 // Get all subjects
+    };
+
+    // Add optional filters
+    if (filter?.category) {
+      params.categoryId = filter.category;
+    }
+    if (filter?.yearId) {
+      params.yearId = filter.yearId;
+    }
+
+    return this.http.get<any>(url, { params }).pipe(
       map(response => {
         // Handle both paginated response and direct array
-        const courses = response.items || response;
+        const courses = response.items || response.data || response;
         console.log('📦 API Response:', {
           type: response.items ? 'Paginated' : 'Direct Array',
           totalCount: response.totalCount || courses.length,
           receivedCount: courses.length,
           page: response.page,
-          pageSize: response.pageSize
+          pageSize: response.pageSize,
+          params: params
         });
         return this.filterCourses(courses, filter);
       }),

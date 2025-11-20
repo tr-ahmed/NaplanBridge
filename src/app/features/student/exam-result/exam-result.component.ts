@@ -48,6 +48,26 @@ export class ExamResultComponent implements OnInit {
 
     this.examApi.getExamResult(studentExamId).subscribe({
       next: (result) => {
+        console.log('📊 Exam Result Loaded:', result);
+        console.log('📝 Question Results:', result.questionResults);
+
+        // Debug: Print each question in detail
+        if (result.questionResults && result.questionResults.length > 0) {
+          result.questionResults.forEach((q: any, i: number) => {
+            console.log(`Question ${i + 1}:`, {
+              questionId: q.questionId,
+              questionText: q.questionText,
+              studentAnswer: q.studentAnswer,
+              correctAnswer: q.correctAnswer,
+              isCorrect: q.isCorrect,
+              earnedScore: q.earnedScore,
+              marks: q.marks
+            });
+          });
+        } else {
+          console.warn('⚠️ No questionResults found or empty array');
+        }
+
         this.result.set(result);
         this.loading.set(false);
       },

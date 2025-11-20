@@ -216,37 +216,55 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    */
   restoreExamState(state: any) {
     try {
-      this.exam.set(state.exam);
-      this.currentQuestionIndex.set(state.currentQuestionIndex || 0);
-      this.examStartTime.set(state.examStartTime ? new Date(state.examStartTime) : new Date());
+      // First, check if this exam was already submitted by calling the API
+      this.examApi.getExamById(state.exam.id).subscribe({
+        next: (exam) => {
+          // If exam is loaded successfully, continue with restoration
+          this.exam.set(state.exam);
+          this.currentQuestionIndex.set(state.currentQuestionIndex || 0);
+          this.examStartTime.set(state.examStartTime ? new Date(state.examStartTime) : new Date());
 
-      // Restore answers
-      const answersMap = new Map<number, ExamAnswerDto>();
-      if (state.answers && Array.isArray(state.answers)) {
-        state.answers.forEach(([key, value]: [number, ExamAnswerDto]) => {
-          answersMap.set(key, value);
-        });
-      }
-      this.answers.set(answersMap);
+          // Restore answers
+          const answersMap = new Map<number, ExamAnswerDto>();
+          if (state.answers && Array.isArray(state.answers)) {
+            state.answers.forEach(([key, value]: [number, ExamAnswerDto]) => {
+              answersMap.set(key, value);
+            });
+          }
+          this.answers.set(answersMap);
 
-      // Calculate actual time remaining based on elapsed time
-      const savedAt = new Date(state.savedAt);
-      const now = new Date();
-      const elapsedSeconds = Math.floor((now.getTime() - savedAt.getTime()) / 1000);
-      const adjustedTimeRemaining = Math.max(0, state.timeRemaining - elapsedSeconds);
+          // Calculate actual time remaining based on elapsed time
+          const savedAt = new Date(state.savedAt);
+          const now = new Date();
+          const elapsedSeconds = Math.floor((now.getTime() - savedAt.getTime()) / 1000);
+          const adjustedTimeRemaining = Math.max(0, state.timeRemaining - elapsedSeconds);
 
-      this.timeRemaining.set(adjustedTimeRemaining);
+          this.timeRemaining.set(adjustedTimeRemaining);
 
-      // If time has run out, auto-submit
-      if (adjustedTimeRemaining <= 0) {
-        this.loading.set(false);
-        this.autoSubmit();
-        return;
-      }
+          // If time has run out, auto-submit
+          if (adjustedTimeRemaining <= 0) {
+            this.loading.set(false);
+            this.autoSubmit();
+            return;
+          }
 
-      this.startTimer();
-      this.startAutoSave();
-      this.loading.set(false);
+          this.startTimer();
+          this.startAutoSave();
+          this.loading.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading exam:', error);
+          // If there's an error (maybe exam already submitted), clear state and redirect
+          if (error.status === 409 || error.status === 404) {
+            this.clearExamState();
+            this.router.navigate(['/student/exams']);
+            this.toast.showError('This exam is no longer available');
+          } else {
+            this.loading.set(false);
+            this.toast.showError('Failed to load exam');
+          }
+        }
+      });
 
       this.toast.showInfo('Previous exam state restored');
     } catch (error) {
@@ -424,6 +442,15 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => {
         console.error('Failed to submit exam:', error);
+
+        // Check if exam was already submitted (409 Conflict)
+        if (error.status === 409 && error.error?.studentExamId) {
+          console.log('Exam already submitted, redirecting to result...');
+          this.clearExamState();
+          this.router.navigate(['/student/exam-result', error.error.studentExamId]);
+          return;
+        }
+
         this.toast.showError('Failed to submit answers');
         this.submitting.set(false);
         this.startTimer();
@@ -436,11 +463,22 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    * Auto submit when time runs out
    */
   autoSubmit() {
+    // Check if exam already submitted
+    if (this.isSubmitted()) {
+      console.log('⚠️ Auto-submit aborted: Exam already submitted');
+      return;
+    }
+
     this.stopTimer();
     this.toast.showWarning("Time's up! Your answers will be submitted automatically");
 
     setTimeout(() => {
-      this.submitExam();
+      // Double-check before submitting
+      if (!this.isSubmitted()) {
+        this.submitExam();
+      } else {
+        console.log('⚠️ Auto-submit prevented: Exam was submitted during countdown');
+      }
     }, 2000);
   }
 
