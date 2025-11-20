@@ -3,7 +3,7 @@
  * هذا الملف يحتوي على أمثلة اختبار كاملة لنظام CRUD
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Injectable } from '@angular/core';
 import { SubscriptionPlansService } from '../core/services/subscription-plans.service';
 import { CreateSubscriptionPlanDto } from '../models/subscription.models';
 import { PlanType } from '../models/enums';
@@ -12,6 +12,7 @@ import { validateSubscriptionPlan } from '../utils/validation.helpers';
 /**
  * Component للاختبار - يمكن استخدامه كمرجع
  */
+@Injectable()
 export class SubscriptionPlansTestExamples implements OnInit {
 
   constructor(private plansService: SubscriptionPlansService) {}

@@ -39,6 +39,7 @@ export interface SubscriptionPlan {
   // Relations
   subjectId?: number;
   subjectName?: string;
+  termId?: number;
   yearId?: number;
 
   // Duration

@@ -27,6 +27,7 @@ interface SubscriptionPlan {
   termNumber?: number;
   yearId?: number;
   includedTermIds?: string;  // ✅ للـ MultiTerm plans
+  durationInDays?: number; // ✅ إضافة durationInDays
   isActive?: boolean;
 }
 
@@ -170,6 +171,8 @@ export class SubscriptionsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSubscriptionPlans();
+    this.loadYears();        // ✅ Load years from API
+    this.loadSubjects();     // ✅ Load subjects from API
     this.loadOrders();
     this.loadAnalytics();
   }
@@ -213,9 +216,6 @@ export class SubscriptionsComponent implements OnInit {
           }
           console.log('Subjects loaded:', this.subjects);
           console.log('Subjects length:', this.subjects.length);
-
-          // Load years after subjects are loaded
-          this.loadYears();
         },
         error: (error) => {
           console.error('Error loading subjects:', error);
@@ -292,37 +292,57 @@ export class SubscriptionsComponent implements OnInit {
   }
 
   loadYears(): void {
-    console.log('loadYears() called');
-    // Extract unique years from subscription plans
-    const uniqueYearNumbers = new Set<number>();
+    console.log('🔍 loadYears() called');
 
-    this.subscriptionPlans.forEach(plan => {
-      // Only process valid plans with names
-      if (plan.name && plan.name.trim() !== '') {
-        // Extract year from plan name (e.g., "Algebra Year 7" -> 7)
-        const yearMatch = plan.name.match(/Year\s+(\d+)/);
-        if (yearMatch) {
-          const yearNum = parseInt(yearMatch[1], 10);
-          if (yearNum > 0) {
-            uniqueYearNumbers.add(yearNum);
+    // Load years from API
+    this.http.get<any>(`${environment.apiBaseUrl}/Years`)
+      .subscribe({
+        next: (data) => {
+          console.log('📦 Raw Years API response:', data);
+
+          let rawYears: any[] = [];
+
+          // Handle different response formats
+          if (Array.isArray(data)) {
+            rawYears = data;
+          } else if (data && data.items && Array.isArray(data.items)) {
+            // Paginated response
+            rawYears = data.items;
+          } else if (data && typeof data === 'object') {
+            rawYears = (data as any).data || Object.values(data) || [];
           }
+
+          console.log('📋 Extracted raw years:', rawYears);
+
+          // Map to Year interface
+          this.years = rawYears.map((year: any) => ({
+            id: year.id || year.yearId,
+            name: year.name || year.yearName || `Year ${year.yearNumber || year.id}`
+          }));
+
+          // Sort by id
+          this.years.sort((a, b) => a.id - b.id);
+
+          console.log('✅ Mapped years:', this.years);
+          console.log('   - Count:', this.years.length);
+        },
+        error: (error) => {
+          console.error('❌ Error loading years from API:', error);
+          console.log('⚠️ Falling back to hardcoded years');
+
+          // Fallback to hardcoded years if API fails
+          this.years = [
+            { id: 1, name: 'Year 7' },
+            { id: 2, name: 'Year 8' },
+            { id: 3, name: 'Year 9' },
+            { id: 4, name: 'Year 10' },
+            { id: 5, name: 'Year 11' },
+            { id: 6, name: 'Year 12' }
+          ];
+
+          console.log('   - Using fallback years:', this.years.length);
         }
-      }
-    });
-
-    // Create year objects with proper IDs
-    const yearMapping: { [key: number]: { id: number; name: string } } = {
-      7: { id: 1, name: 'Year 7' },
-      8: { id: 2, name: 'Year 8' },
-      9: { id: 3, name: 'Year 9' },
-      10: { id: 4, name: 'Year 10' }
-    };
-
-    this.years = Array.from(uniqueYearNumbers)
-      .map(yearNum => yearMapping[yearNum] || { id: yearNum, name: `Year ${yearNum}` })
-      .sort((a, b) => a.id - b.id);
-
-    console.log('Years extracted from plans:', this.years);
+      });
   }
 
   getSubjectName(subjectId?: number): string {
@@ -347,7 +367,27 @@ export class SubscriptionsComponent implements OnInit {
 
   // Validate plan has required data
   isValidPlan(plan: SubscriptionPlan): boolean {
-    return this.plansService.isValidPlan(plan);
+    // Convert local interface to model interface
+    if (!plan.id || !plan.name || !plan.price || plan.planType === undefined) {
+      return false;
+    }
+
+    const modelPlan: SubscriptionPlanModel = {
+      id: plan.id,
+      name: plan.name,
+      description: plan.description || '',
+      price: plan.price,
+      planType: plan.planType,
+      subjectId: plan.subjectId,
+      subjectName: plan.subjectName,
+      termId: plan.termId,
+      yearId: plan.yearId,
+      durationInDays: plan.durationInDays || 30,
+      includedTermIds: plan.includedTermIds,
+      isActive: plan.isActive ?? true
+    };
+
+    return this.plansService.isValidPlan(modelPlan);
   }
 
   // Get Plan Type label for display
@@ -428,10 +468,6 @@ export class SubscriptionsComponent implements OnInit {
 
           this.stats.totalPlans = this.subscriptionPlans.length;
           this.stats.activePlans = this.subscriptionPlans.filter(p => p.isActive).length;
-
-          // Load years and subjects after plans
-          this.loadYears();
-          this.loadSubjects();
 
           this.loading.set(false);
         },

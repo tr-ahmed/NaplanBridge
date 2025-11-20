@@ -314,10 +314,10 @@
             <label class="form-label small text-muted">Plan Type</label>
             <select class="form-select" [(ngModel)]="filters.planType" (ngModelChange)="applyFilters()">
               <option [ngValue]="null">All Types</option>
-              <option [ngValue]="PlanType.Basic">Basic</option>
-              <option [ngValue]="PlanType.Standard">Standard</option>
-              <option [ngValue]="PlanType.Premium">Premium</option>
-              <option [ngValue]="PlanType.Enterprise">Enterprise</option>
+              <option [ngValue]="PlanType.SingleTerm">Single Term</option>
+              <option [ngValue]="PlanType.MultiTerm">Multi Term</option>
+              <option [ngValue]="PlanType.FullYear">Full Year</option>
+              <option [ngValue]="PlanType.SubjectAnnual">Subject Annual</option>
             </select>
           </div>
           <div class="col-md-2">
@@ -585,10 +585,10 @@
             <div class="col-md-4">
               <label class="form-label">Plan Type *</label>
               <select class="form-select" [(ngModel)]="form.planType" name="planType" required>
-                <option [ngValue]="PlanType.Basic">Basic</option>
-                <option [ngValue]="PlanType.Standard">Standard</option>
-                <option [ngValue]="PlanType.Premium">Premium</option>
-                <option [ngValue]="PlanType.Enterprise">Enterprise</option>
+                <option [ngValue]="PlanType.SingleTerm">Single Term</option>
+                <option [ngValue]="PlanType.MultiTerm">Multi Term</option>
+                <option [ngValue]="PlanType.FullYear">Full Year</option>
+                <option [ngValue]="PlanType.SubjectAnnual">Subject Annual</option>
               </select>
             </div>
             <div class="col-12">
