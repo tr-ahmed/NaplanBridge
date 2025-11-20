@@ -553,7 +553,7 @@ export class CreateEditExamComponent implements OnInit {
     this.examForm.patchValue({ isPublished: publish });
 
     const formValue = this.examForm.value;
-    
+
     // Transform form data to match CreateExamDto structure
     const examData: CreateExamDto = {
       title: formValue.title,
