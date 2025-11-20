@@ -64,7 +64,7 @@ export class CreateEditExamComponent implements OnInit {
 
       // ✅ Check if user has Teacher or Admin role (could be string or array)
       const userRoles = Array.isArray(currentUser.role) ? currentUser.role : [currentUser.role];
-      const isTeacherOrAdmin = userRoles.includes('Teacher') || userRoles.includes('admin');
+      const isTeacherOrAdmin = userRoles.includes('Teacher') || userRoles.includes('Admin') || userRoles.includes('admin');
 
       if (isTeacherOrAdmin) {
         this.loadSubjects();

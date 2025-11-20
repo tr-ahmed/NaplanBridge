@@ -218,7 +218,7 @@ export class AuthService {
       try {
         const decoded = this.decodeToken(token);
         // Verify it's our application token, not Google OAuth token
-        if (decoded && decoded.userId && !decoded.iss?.includes('google')) {
+        if (decoded && decoded.id && !decoded.iss?.includes('google')) {
           return decoded;
         }
       } catch (e) {

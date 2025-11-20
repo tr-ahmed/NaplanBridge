@@ -140,10 +140,11 @@ export class ExamManagementComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUser = this.authService.currentUser();
-    if (currentUser?.userId) {
-      this.teacherId = currentUser.userId;
+    if (currentUser?.id) {
+      this.teacherId = currentUser.id;
       this.loadExams();
     } else {
+      console.warn('⚠️ No authenticated user found, redirecting to login');
       this.router.navigate(['/login']);
     }
   }

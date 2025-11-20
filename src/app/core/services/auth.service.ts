@@ -52,19 +52,45 @@ export class AuthService {
     const selectedRole = localStorage.getItem('selectedRole');
     const userId = localStorage.getItem('userId');
     const userProfile = localStorage.getItem('userProfile');
-    const yearId = localStorage.getItem('yearId');
-    const studentId = localStorage.getItem('studentId');  // ✅ Read studentId
+    let yearId = localStorage.getItem('yearId');
+    let studentId = localStorage.getItem('studentId');
 
     if (token && userName && roles && userId && userProfile) {
+      // ✅ Decode JWT token to extract studentId and yearId from claims
+      try {
+        const decoded = jwtDecode<JwtPayload>(token);
+
+        // ✅ Override with values from token (source of truth)
+        if (decoded.studentId) {
+          studentId = decoded.studentId;
+          localStorage.setItem('studentId', studentId);
+        }
+
+        if (decoded.yearId) {
+          yearId = decoded.yearId;
+          localStorage.setItem('yearId', yearId);
+        }
+
+        console.log('🔐 Decoded JWT Token:', {
+          userId: decoded.nameid,
+          userName: decoded.unique_name,
+          studentId: decoded.studentId,
+          yearId: decoded.yearId,
+          roles: decoded.role
+        });
+      } catch (error) {
+        console.error('❌ Failed to decode JWT token:', error);
+      }
+
       const user: AuthResponse = {
         userName,
-        firstName: firstName || '', // Default to empty string if not found
+        firstName: firstName || '',
         token,
         roles: JSON.parse(roles),
         userId: parseInt(userId),
         userProfile: JSON.parse(userProfile),
         yearId: yearId ? parseInt(yearId) : undefined,
-        studentId: studentId ? parseInt(studentId) : undefined  // ✅ Add studentId
+        studentId: studentId ? parseInt(studentId) : undefined
       };
 
       this.setCurrentUser(user);
@@ -261,6 +287,44 @@ export class AuthService {
     return roles.some(userRole =>
       userRole.toLowerCase() === role.toLowerCase()
     );
+  }
+
+  /**
+   * Get current user data (including decoded JWT claims)
+   * Returns user object with all available information
+   */
+  getCurrentUser(): AuthResponse | null {
+    // First, try from signal (most up-to-date)
+    const user = this.currentUser();
+    if (user) {
+      return user;
+    }
+
+    // Fallback: reconstruct from localStorage
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      const userRoles = localStorage.getItem('userRoles');
+      const userName = localStorage.getItem('userName');
+      const userId = localStorage.getItem('userId');
+
+      return {
+        token,
+        userName: decoded.unique_name || userName || '',
+        userId: parseInt(decoded.nameid || userId || '0'),
+        roles: userRoles ? JSON.parse(userRoles) : [],
+        studentId: decoded.studentId ? parseInt(decoded.studentId) : undefined,
+        yearId: decoded.yearId ? parseInt(decoded.yearId) : undefined,
+        userProfile: this.getUserProfile()
+      } as AuthResponse;
+    } catch (error) {
+      console.error('❌ Error reconstructing user from token:', error);
+      return null;
+    }
   }
 
   hasAnyRole(roles: string[]): boolean {
