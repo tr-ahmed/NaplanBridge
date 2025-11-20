@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -30,7 +30,9 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
 
   // Timer
   timeRemaining = signal<number>(0);
+  examStartTime = signal<Date | null>(null);
   private timerSubscription?: Subscription;
+  private autoSaveSubscription?: Subscription;
 
   // UI State
   loading = signal(false);
@@ -39,6 +41,11 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
 
   // Constants
   QuestionType = QuestionType;
+
+  // Storage keys
+  private get storageKey(): string {
+    return `exam_state_${this.studentExamId()}`;
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -55,6 +62,19 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopTimer();
+    this.stopAutoSave();
+    this.saveExamState(); // Save state before leaving
+  }
+
+  /**
+   * Warn user before leaving page
+   */
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any): void {
+    if (!this.submitting() && this.exam()) {
+      $event.returnValue = 'لديك امتحان قيد التنفيذ. هل أنت متأكد من الخروج؟';
+      this.saveExamState(); // Save before user potentially leaves
+    }
   }
 
   /**
@@ -63,6 +83,13 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   loadExamData() {
     this.loading.set(true);
 
+    // Try to restore previous state first
+    const savedState = this.loadExamState();
+    if (savedState) {
+      this.restoreExamState(savedState);
+      return;
+    }
+
     // In a real scenario, you would get the exam ID from the start exam response
     // For now, we'll simulate it
     const examId = 1; // This should come from the start exam response
@@ -70,8 +97,11 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
     this.examApi.getExamById(examId).subscribe({
       next: (exam) => {
         this.exam.set(exam);
+        this.examStartTime.set(new Date());
         this.timeRemaining.set(exam.durationInMinutes * 60); // Convert to seconds
         this.startTimer();
+        this.startAutoSave();
+        this.saveExamState(); // Save initial state
         this.loading.set(false);
       },
       error: (error: any) => {
@@ -86,10 +116,16 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    * Start timer
    */
   startTimer() {
+    this.stopTimer(); // Stop any existing timer
     this.timerSubscription = interval(1000).subscribe(() => {
       const remaining = this.timeRemaining();
       if (remaining > 0) {
         this.timeRemaining.set(remaining - 1);
+
+        // Save state every 10 seconds
+        if (remaining % 10 === 0) {
+          this.saveExamState();
+        }
       } else {
         this.autoSubmit();
       }
@@ -102,6 +138,132 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   stopTimer() {
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();
+      this.timerSubscription = undefined;
+    }
+  }
+
+  /**
+   * Start auto-save
+   */
+  startAutoSave() {
+    this.stopAutoSave(); // Stop any existing auto-save
+    // Auto-save every 30 seconds
+    this.autoSaveSubscription = interval(30000).subscribe(() => {
+      this.saveExamState();
+    });
+  }
+
+  /**
+   * Stop auto-save
+   */
+  stopAutoSave() {
+    if (this.autoSaveSubscription) {
+      this.autoSaveSubscription.unsubscribe();
+      this.autoSaveSubscription = undefined;
+    }
+  }
+
+  /**
+   * Save exam state to localStorage
+   */
+  saveExamState() {
+    try {
+      const state = {
+        studentExamId: this.studentExamId(),
+        exam: this.exam(),
+        currentQuestionIndex: this.currentQuestionIndex(),
+        answers: Array.from(this.answers().entries()),
+        timeRemaining: this.timeRemaining(),
+        examStartTime: this.examStartTime(),
+        savedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem(this.storageKey, JSON.stringify(state));
+    } catch (error) {
+      console.error('Failed to save exam state:', error);
+    }
+  }
+
+  /**
+   * Load exam state from localStorage
+   */
+  loadExamState(): any | null {
+    try {
+      const stateStr = localStorage.getItem(this.storageKey);
+      if (!stateStr) return null;
+
+      const state = JSON.parse(stateStr);
+
+      // Check if state is not too old (e.g., more than 24 hours)
+      const savedAt = new Date(state.savedAt);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - savedAt.getTime()) / (1000 * 60 * 60);
+
+      if (hoursDiff > 24) {
+        localStorage.removeItem(this.storageKey);
+        return null;
+      }
+
+      return state;
+    } catch (error) {
+      console.error('Failed to load exam state:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Restore exam state
+   */
+  restoreExamState(state: any) {
+    try {
+      this.exam.set(state.exam);
+      this.currentQuestionIndex.set(state.currentQuestionIndex || 0);
+      this.examStartTime.set(state.examStartTime ? new Date(state.examStartTime) : new Date());
+
+      // Restore answers
+      const answersMap = new Map<number, ExamAnswerDto>();
+      if (state.answers && Array.isArray(state.answers)) {
+        state.answers.forEach(([key, value]: [number, ExamAnswerDto]) => {
+          answersMap.set(key, value);
+        });
+      }
+      this.answers.set(answersMap);
+
+      // Calculate actual time remaining based on elapsed time
+      const savedAt = new Date(state.savedAt);
+      const now = new Date();
+      const elapsedSeconds = Math.floor((now.getTime() - savedAt.getTime()) / 1000);
+      const adjustedTimeRemaining = Math.max(0, state.timeRemaining - elapsedSeconds);
+
+      this.timeRemaining.set(adjustedTimeRemaining);
+
+      // If time has run out, auto-submit
+      if (adjustedTimeRemaining <= 0) {
+        this.loading.set(false);
+        this.autoSubmit();
+        return;
+      }
+
+      this.startTimer();
+      this.startAutoSave();
+      this.loading.set(false);
+
+      this.toast.showInfo('تم استعادة حالة الامتحان السابقة');
+    } catch (error) {
+      console.error('Failed to restore exam state:', error);
+      this.toast.showError('فشل استعادة حالة الامتحان');
+      this.router.navigate(['/student/exams']);
+    }
+  }
+
+  /**
+   * Clear exam state from localStorage
+   */
+  clearExamState() {
+    try {
+      localStorage.removeItem(this.storageKey);
+    } catch (error) {
+      console.error('Failed to clear exam state:', error);
     }
   }
 
@@ -154,6 +316,9 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
     const answers = this.answers();
     answers.set(questionId, answer);
     this.answers.set(new Map(answers));
+
+    // Auto-save state when answer changes
+    this.saveExamState();
   }
 
   /**
@@ -242,6 +407,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   submitExam() {
     this.submitting.set(true);
     this.stopTimer();
+    this.stopAutoSave();
 
     const answersArray: ExamAnswerDto[] = Array.from(this.answers().values());
 
@@ -252,6 +418,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
 
     this.examApi.submitExam(submission).subscribe({
       next: (response) => {
+        this.clearExamState(); // Clear saved state after successful submission
         this.toast.showSuccess(response.message);
         this.router.navigate(['/student/exam-result', response.studentExamId]);
       },
@@ -260,6 +427,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
         this.toast.showError('فشل إرسال الإجابات');
         this.submitting.set(false);
         this.startTimer();
+        this.startAutoSave();
       }
     });
   }

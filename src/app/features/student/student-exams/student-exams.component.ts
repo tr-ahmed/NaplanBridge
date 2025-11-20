@@ -88,8 +88,42 @@ export class StudentExamsComponent implements OnInit {
    * Start exam
    */
   startExam(examId: number, title: string) {
-    if (!confirm(`هل تريد بدء امتحان "${title}"؟\nلن تتمكن من الإيقاف بعد البدء.`)) {
-      return;
+    // Check if there's a saved state for this exam
+    const savedStateKey = `exam_state_`;
+    let hasExistingExam = false;
+
+    // Search for existing exam state in localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(savedStateKey)) {
+        try {
+          const state = JSON.parse(localStorage.getItem(key) || '{}');
+          if (state.exam?.id === examId) {
+            hasExistingExam = true;
+
+            // Ask if user wants to continue
+            if (confirm(`لديك امتحان "${title}" غير مكتمل.\nهل تريد المتابعة من حيث توقفت؟`)) {
+              // Navigate directly to exam with existing state
+              const studentExamId = state.studentExamId;
+              this.router.navigate(['/student/exam', studentExamId]);
+              return;
+            } else {
+              // Clear old state and start fresh
+              localStorage.removeItem(key);
+              break;
+            }
+          }
+        } catch (e) {
+          // Invalid state, ignore
+        }
+      }
+    }
+
+    // Start new exam
+    if (!hasExistingExam) {
+      if (!confirm(`هل تريد بدء امتحان "${title}"؟\nسيبدأ العد التنازلي فوراً.`)) {
+        return;
+      }
     }
 
     this.examApi.startExam(examId).subscribe({

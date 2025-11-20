@@ -126,6 +126,68 @@ If ANY of these is missing → NOT DONE.
 
 ---
 
+---
+
+### 🧩 VS Code Persistent Instructions (Important)
+
+To ensure these rules apply to every generation request inside VS Code:
+
+1. Open command palette:
+
+```
+Ctrl + Shift + P
+```
+
+2. Search and open:
+
+```
+Copilot: Open Workspace Settings / Instructions
+```
+
+3. Paste this persistent system instruction:
+
+```
+🧠 System Instruction (Persistent)
+
+Always follow the rules in the file `COPILOT.md` located in the project root.
+
+Before generating or modifying code, check if:
+- The code connects to the real API (not mock data)
+- It follows Angular 17 standalone structure and the rules defined in `COPILOT.md`
+- If backend API is missing, unclear, or failing → generate a Backend Report instead of continuing.
+
+Definition of "Done": Code compiles, renders UI correctly, works with the real API, tested CRUD, no console errors, and respects roles.
+
+If any of these conditions are missing → do NOT continue or mark as completed.
+```
+
+4. Make sure the file `COPILOT.md` stays in the project root.
+5. (Optional but recommended) Create:
+
+```
+.github/copilot-instructions.md
+```
+
+and copy the same text there.
+
+6. Optional VSCode reinforcement via `settings.json`:
+
+```json
+{
+  "copilot.workspaceInstructions": "Follow COPILOT.md in project root."
+}
+```
+
+When creating a new feature, test Copilot by asking for something like:
+
+```
+generate CRUD for courses
+```
+
+If it references the API first → instructions are working.
+
+---
+
 ### Final Rule
 
 > **"If it doesn't work with the real backend, it is NOT done — no matter how good the UI looks."**
