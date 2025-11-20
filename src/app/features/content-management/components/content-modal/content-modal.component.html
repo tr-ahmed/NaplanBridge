@@ -273,7 +273,7 @@
                       [class.input-valid]="isFieldValid('originalPrice')"
                       class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="Enter price">
-                    <span class="absolute right-3 top-2.5 text-gray-500 text-sm font-medium">SAR</span>
+                    <span class="absolute right-3 top-2.5 text-gray-500 text-sm font-medium">AUD</span>
                   </div>
                   @if (hasError('originalPrice')) {
                     <span class="error-message">
@@ -312,7 +312,7 @@
                   @if (formData.originalPrice && formData.discountPercentage) {
                     <p class="text-xs text-green-600 mt-1 font-medium">
                       <i class="fas fa-tag mr-1"></i>
-                      Final Price: {{ (formData.originalPrice * (1 - formData.discountPercentage / 100)).toFixed(2) }} SAR
+                      Final Price: {{ (formData.originalPrice * (1 - formData.discountPercentage / 100)).toFixed(2) }} AUD
                     </p>
                   }
                 </div>

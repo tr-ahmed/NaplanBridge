@@ -38,6 +38,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   loading = signal(false);
   submitting = signal(false);
   showConfirmDialog = signal(false);
+  isSubmitted = signal(false); // Track if exam has been submitted
 
   // Constants
   QuestionType = QuestionType;
@@ -118,6 +119,13 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   startTimer() {
     this.stopTimer(); // Stop any existing timer
     this.timerSubscription = interval(1000).subscribe(() => {
+      // Don't run timer if exam already submitted
+      if (this.isSubmitted()) {
+        console.log('⏹️ Timer stopped: Exam already submitted');
+        this.stopTimer();
+        return;
+      }
+
       const remaining = this.timeRemaining();
       if (remaining > 0) {
         this.timeRemaining.set(remaining - 1);
@@ -167,6 +175,11 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    * Save exam state to localStorage
    */
   saveExamState() {
+    // Don't save if exam already submitted
+    if (this.isSubmitted()) {
+      return;
+    }
+
     try {
       const state = {
         studentExamId: this.studentExamId(),
@@ -279,7 +292,17 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    */
   clearExamState() {
     try {
+      // Mark as submitted to prevent further actions
+      this.isSubmitted.set(true);
+
+      // Stop all timers
+      this.stopTimer();
+      this.stopAutoSave();
+
+      // Clear localStorage
       localStorage.removeItem(this.storageKey);
+
+      console.log('✅ Exam state cleared successfully');
     } catch (error) {
       console.error('Failed to clear exam state:', error);
     }
@@ -423,6 +446,17 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    * Submit exam
    */
   submitExam() {
+    // Prevent duplicate submissions
+    if (this.isSubmitted()) {
+      console.log('⚠️ Submit blocked: Exam already submitted');
+      return;
+    }
+
+    if (this.submitting()) {
+      console.log('⚠️ Submit blocked: Already submitting');
+      return;
+    }
+
     this.submitting.set(true);
     this.stopTimer();
     this.stopAutoSave();

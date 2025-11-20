@@ -14,32 +14,53 @@
       </button>
 
       <div class="header-content">
-        <h1>{{ res.examTitle }}</h1>
-        <p class="subject">{{ res.subjectName }}</p>
+        <h1>{{ res.examTitle || 'Exam Result' }}</h1>
+        <p class="subject">{{ res.subjectName || 'Subject' }}</p>
       </div>
     </div>
 
     <!-- Score Card -->
     <div class="score-card">
-      <div class="score-visual">
-        <div class="score-circle" [style.border-color]="getGradeColor(res.grade)">
-          <span class="percentage">{{ res.scorePercentage | number:'1.0-0' }}%</span>
-          <span class="grade" [style.color]="getGradeColor(res.grade)">{{ res.grade }}</span>
+      <div class="score-section">
+        <div class="score-visual">
+          <div class="score-circle" [style.border-color]="getGradeColor(res.grade)">
+            <div class="circle-content">
+              <span class="percentage">{{ res.scorePercentage || 0 | number:'1.0-0' }}%</span>
+              <span class="grade" [style.color]="getGradeColor(res.grade)">{{ res.grade || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-stats">
+          <div class="stat-box correct">
+            <i class="fas fa-check-circle"></i>
+            <div class="stat-content">
+              <span class="stat-value">{{ res.correctAnswersCount || 0 }}</span>
+              <span class="stat-label">Correct Answers</span>
+            </div>
+          </div>
+          <div class="stat-box incorrect">
+            <i class="fas fa-times-circle"></i>
+            <div class="stat-content">
+              <span class="stat-value">{{ res.wrongAnswersCount || 0 }}</span>
+              <span class="stat-label">Wrong Answers</span>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="score-details">
         <div class="detail-row">
           <span class="label">Score:</span>
-          <span class="value">{{ res.totalScore }} / {{ res.totalMarks }}</span>
+          <span class="value">{{ res.totalScore || 0 }} / {{ res.totalMarks || 20 }}</span>
         </div>
         <div class="detail-row">
           <span class="label">Percentage:</span>
-          <span class="value">{{ res.scorePercentage | number:'1.1-1' }}%</span>
+          <span class="value">{{ res.scorePercentage || 0 | number:'1.1-1' }}%</span>
         </div>
         <div class="detail-row">
           <span class="label">Passing Score:</span>
-          <span class="value">{{ res.passingMarks }}</span>
+          <span class="value">{{ res.passingMarks || 0 }}</span>
         </div>
         <div class="detail-row">
           <span class="label">Status:</span>
@@ -47,23 +68,6 @@
             <i class="fas" [ngClass]="res.isPassed ? 'fa-check-circle' : 'fa-times-circle'"></i>
             {{ res.isPassed ? 'Passed' : 'Failed' }}
           </span>
-        </div>
-      </div>
-
-      <div class="score-stats">
-        <div class="stat-box correct">
-          <i class="fas fa-check-circle"></i>
-          <div class="stat-content">
-            <span class="stat-value">{{ res.correctAnswersCount }}</span>
-            <span class="stat-label">Correct Answers</span>
-          </div>
-        </div>
-        <div class="stat-box incorrect">
-          <i class="fas fa-times-circle"></i>
-          <div class="stat-content">
-            <span class="stat-value">{{ res.wrongAnswersCount }}</span>
-            <span class="stat-label">Wrong Answers</span>
-          </div>
         </div>
       </div>
     </div>
