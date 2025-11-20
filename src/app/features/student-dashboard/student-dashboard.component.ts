@@ -813,9 +813,38 @@ export class StudentDashboardComponent implements OnInit {
       case 'LessonCompleted':
         return '✅';
       case 'SubscriptionActivated':
-        return '�';
+        return '🎉';
       default:
         return '📌';
+    }
+  }
+
+  /**
+   * View lessons for a specific subject
+   */
+  viewSubjectLessons(subjectId: number): void {
+    this.router.navigate(['/lessons'], { queryParams: { subjectId: subjectId } });
+  }
+
+  /**
+   * View exams for a specific subject
+   */
+  viewSubjectExams(subjectId: number): void {
+    this.router.navigate(['/student/exams'], { queryParams: { subjectId: subjectId } });
+  }
+
+  /**
+   * Resume a specific lesson
+   */
+  resumeLesson(lessonTitle: string): void {
+    // Find lesson by title and navigate to it
+    const lesson = this.recentActivities().find(a => a.title === lessonTitle && a.type === 'LessonProgress');
+    if (lesson) {
+      // Extract lesson ID from description or use a fallback approach
+      this.router.navigate(['/lessons']);
+      this.toastService.showSuccess(`Resuming: ${lessonTitle}`);
+    } else {
+      this.toastService.showInfo('Lesson details not available');
     }
   }
 }
