@@ -9,7 +9,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import Swal from 'sweetalert2';
 
 // Interfaces
@@ -464,7 +464,7 @@ export class ProfileManagementComponent implements OnInit {
     const email = this.resetPasswordForm.get('email')?.value;
 
     this.authService.requestPasswordReset(email).subscribe({
-      next: (result) => {
+      next: (result: { success: boolean; message?: string }) => {
         this.resetPasswordLoading.set(false);
         if (result.success) {
           Swal.fire({
@@ -484,7 +484,7 @@ export class ProfileManagementComponent implements OnInit {
           });
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.resetPasswordLoading.set(false);
         console.error('Password reset error:', error);
         Swal.fire({
