@@ -127,26 +127,7 @@ export const routes: Routes = [
   },
 
   // Student Exams
-  {
-    path: 'student/exams',
-    loadComponent: () => import('./features/student-exams/student-exams.component').then(m => m.StudentExamsComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
-  },
-  {
-    path: 'student/exam/:id',
-    loadComponent: () => import('./features/exam-detail/exam-detail.component').then(m => m.ExamDetailComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
-  },
-  {
-    path: 'student/exam/:id/start',
-    loadComponent: () => import('./features/take-exam/take-exam.component').then(m => m.TakeExamComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
-  },
-  {
-    path: 'student/exam/result/:studentExamId',
-    loadComponent: () => import('./features/exam-result/exam-result.component').then(m => m.ExamResultComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
-  },
+  // Removed - using newer student routes below
 
   // Student Subscriptions
   {
@@ -312,6 +293,12 @@ export const routes: Routes = [
   },
   {
     path: 'student/exam/:id',
+    loadComponent: () => import('./features/student/exam-taking/exam-taking.component').then(m => m.ExamTakingComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'student/exam/:id/start',
     loadComponent: () => import('./features/student/exam-taking/exam-taking.component').then(m => m.ExamTakingComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('student')],
     data: { hideHeader: true, hideFooter: true }

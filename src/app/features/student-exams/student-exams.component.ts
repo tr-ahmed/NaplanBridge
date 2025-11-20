@@ -30,6 +30,8 @@ export class StudentExamsComponent implements OnInit {
   upcomingExams = signal<any[]>([]);
   completedExams = signal<any[]>([]);
   availableExams = signal<any[]>([]);
+  selectedExam = signal<any>(null);
+  showExamModal = signal<boolean>(false);
 
   ngOnInit(): void {
     const studentId = this.authService.getStudentId();
@@ -84,11 +86,14 @@ export class StudentExamsComponent implements OnInit {
             this.completedExams.set(response.data);
           } else if (Array.isArray(response)) {
             this.completedExams.set(response);
+          } else {
+            this.completedExams.set([]);
           }
           resolve();
         },
         error: (err) => {
           console.error('Error loading exam history:', err);
+          this.completedExams.set([]);
           resolve();
         }
       });
@@ -96,15 +101,23 @@ export class StudentExamsComponent implements OnInit {
   }
 
   viewExam(examId: number): void {
-    this.router.navigate(['/student/exam', examId]);
+    const exam = this.upcomingExams().find(e => e.id === examId);
+    if (exam) {
+      this.selectedExam.set(exam);
+      this.showExamModal.set(true);
+    }
   }
 
-  startExam(examId: number): void {
-    this.router.navigate(['/student/exam', examId, 'start']);
+  closeExamModal(): void {
+    this.showExamModal.set(false);
+    this.selectedExam.set(null);
   }
 
-  viewResult(studentExamId: number): void {
-    this.router.navigate(['/student/exam/result', studentExamId]);
+  proceedToExam(): void {
+    if (this.selectedExam()) {
+      this.startExam(this.selectedExam().id);
+      this.closeExamModal();
+    }
   }
 
   formatDate(date: string | Date): string {

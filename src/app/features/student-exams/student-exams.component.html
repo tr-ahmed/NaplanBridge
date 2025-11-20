@@ -359,5 +359,138 @@
         }
       </div>
     }
+
+    <!-- Exam Details Modal -->
+    @if (showExamModal()) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <!-- Modal Header -->
+          <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex items-center justify-between">
+            <h2 class="text-2xl font-bold">Exam Details</h2>
+            <button
+              (click)="closeExamModal()"
+              class="p-2 hover:bg-white/20 rounded-lg transition-all duration-200">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Modal Content -->
+          @if (selectedExam()) {
+            <div class="p-8">
+              <!-- Title -->
+              <h3 class="text-3xl font-bold text-gray-900 mb-2">{{ selectedExam().title }}</h3>
+              <p class="text-lg text-gray-600 mb-6">{{ selectedExam().examType || 'Exam' }}</p>
+
+              <!-- Description -->
+              @if (selectedExam().description) {
+                <div class="mb-8">
+                  <h4 class="text-lg font-semibold text-gray-900 mb-2">Description</h4>
+                  <p class="text-gray-700 leading-relaxed">{{ selectedExam().description }}</p>
+                </div>
+              }
+
+              <!-- Exam Details Grid -->
+              <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Duration -->
+                  <div class="flex items-start">
+                    <div class="p-3 bg-blue-100 rounded-lg mr-4">
+                      <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-600 font-medium">Duration</p>
+                      <p class="text-2xl font-bold text-gray-900">{{ selectedExam().durationInMinutes }} <span class="text-lg text-gray-600">minutes</span></p>
+                    </div>
+                  </div>
+
+                  <!-- Questions -->
+                  @if (selectedExam().totalQuestions) {
+                    <div class="flex items-start">
+                      <div class="p-3 bg-indigo-100 rounded-lg mr-4">
+                        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="text-sm text-gray-600 font-medium">Total Questions</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ selectedExam().totalQuestions }}</p>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Total Marks -->
+                  @if (selectedExam().totalMarks) {
+                    <div class="flex items-start">
+                      <div class="p-3 bg-purple-100 rounded-lg mr-4">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="text-sm text-gray-600 font-medium">Total Marks</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ selectedExam().totalMarks }}</p>
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Start Date -->
+                  <div class="flex items-start">
+                    <div class="p-3 bg-green-100 rounded-lg mr-4">
+                      <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-sm text-gray-600 font-medium">Starts</p>
+                      <p class="text-lg font-bold text-gray-900">{{ formatDate(selectedExam().startTime) }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Instructions -->
+              <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8 rounded">
+                <div class="flex items-start">
+                  <svg class="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 4v2M3 7a6 6 0 1112 0v6a6 6 0 01-12 0V7z"></path>
+                  </svg>
+                  <div>
+                    <h4 class="font-semibold text-yellow-900 mb-2">Important Instructions</h4>
+                    <ul class="text-sm text-yellow-800 space-y-1">
+                      <li>• You must complete the exam within the allocated time</li>
+                      <li>• You cannot pause or resume the exam once started</li>
+                      <li>• All answers will be automatically saved</li>
+                      <li>• Do not refresh the page during the exam</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Modal Actions -->
+              <div class="flex gap-4 justify-end">
+                <button
+                  (click)="closeExamModal()"
+                  class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold transition-all duration-200">
+                  Cancel
+                </button>
+                <button
+                  (click)="proceedToExam()"
+                  class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-xl font-semibold transition-all duration-200 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Start Exam
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
   </div>
 </div>

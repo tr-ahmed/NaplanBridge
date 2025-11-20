@@ -223,44 +223,86 @@
           </div>
 
           <!-- Active Subscriptions -->
-          <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-semibold text-gray-900">Subscriptions</h2>
+          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <span class="text-2xl">💳</span>
+                  Active Plans
+                </h2>
+                <p class="text-xs text-gray-500 mt-1">{{ subscriptions().length }} subscription(s)</p>
+              </div>
               <button
                 (click)="goToSubscriptions()"
-                class="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                View All
+                class="px-3 py-1 bg-purple-100 text-purple-700 hover:bg-purple-200 text-xs font-semibold rounded-lg transition-colors">
+                Browse More
               </button>
             </div>
 
             @if (subscriptions().length === 0) {
-              <p class="text-center py-4 text-gray-500 text-sm">No subscriptions</p>
+              <div class="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <p class="text-gray-600 font-medium mb-2">No Active Subscriptions</p>
+                <p class="text-sm text-gray-500 mb-4">Subscribe to access lessons, exams, and exclusive content</p>
+                <button
+                  (click)="goToSubscriptions()"
+                  class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm">
+                  View Plans
+                </button>
+              </div>
             }
 
             @if (subscriptions().length > 0) {
               <div class="space-y-3">
                 @for (sub of subscriptions().slice(0, 3); track sub.id) {
-                  <div class="p-3 border border-gray-200 rounded-lg">
-                    <div class="flex items-center justify-between mb-2">
-                      <p class="font-medium text-gray-900 text-sm">{{ sub.planName }}</p>
+                  <div class="p-4 border-2 rounded-lg transition-all hover:border-purple-300"
+                       [class.border-green-300]="sub.status === 'Active'"
+                       [class.border-gray-200]="sub.status === 'Expired'"
+                       [class.bg-green-50]="sub.status === 'Active'"
+                       [class.bg-gray-50]="sub.status === 'Expired'">
+                    <div class="flex items-start justify-between mb-3">
+                      <div class="flex-1">
+                        <p class="font-bold text-gray-900">{{ sub.planName }}</p>
+                        <p class="text-xs text-gray-600 mt-1">{{ sub.planDescription || 'Premium Plan' }}</p>
+                      </div>
                       <span
-                        class="text-xs px-2 py-1 rounded"
-                        [class.bg-green-100]="sub.status === 'Active'"
+                        class="text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap ml-2"
+                        [class.bg-green-200]="sub.status === 'Active'"
                         [class.text-green-800]="sub.status === 'Active'"
-                        [class.bg-red-100]="sub.status === 'Expired'"
+                        [class.bg-red-200]="sub.status === 'Expired'"
                         [class.text-red-800]="sub.status === 'Expired'">
-                        {{ sub.status }}
+                        @if (sub.status === 'Active') {
+                          ✓ Active
+                        }
+                        @if (sub.status === 'Expired') {
+                          ✕ Expired
+                        }
                       </span>
                     </div>
-                    <p class="text-xs text-gray-600">
+                    <div class="flex items-center justify-between text-xs text-gray-600 pt-3 border-t border-gray-200">
+                      <div>
+                        @if (sub.status === 'Active') {
+                          <span class="font-medium text-green-700">Expires: {{ formatDate(sub.endDate) }}</span>
+                        }
+                        @if (sub.status === 'Expired') {
+                          <span class="font-medium text-red-700">Ended: {{ formatDate(sub.endDate) }}</span>
+                        }
+                      </div>
                       @if (sub.status === 'Active') {
-                        Expires: {{ formatDate(sub.endDate) }}
+                        <button
+                          (click)="goToSubscriptions()"
+                          class="text-purple-600 hover:text-purple-700 font-semibold">
+                          Renew →
+                        </button>
                       }
-                      @if (sub.status === 'Expired') {
-                        Expired: {{ formatDate(sub.endDate) }}
-                      }
-                    </p>
+                    </div>
                   </div>
+                }
+                @if (subscriptions().length > 3) {
+                  <button
+                    (click)="goToSubscriptions()"
+                    class="w-full py-2 text-purple-600 hover:text-purple-700 font-semibold text-sm border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
+                    View All {{ subscriptions().length }} Subscriptions
+                  </button>
                 }
               </div>
             }
@@ -303,28 +345,32 @@
           </div>
 
           <!-- Quick Actions -->
-          <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-sm p-6 text-white">
-            <h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
-            <div class="space-y-2">
+          <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg p-8 text-white">
+            <h2 class="text-2xl font-bold mb-6">Quick Actions</h2>
+            <div class="grid grid-cols-2 gap-3">
               <button
                 (click)="goToLessons()"
-                class="w-full px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg text-left transition-colors">
-                📚 Browse Lessons
+                class="flex flex-col items-center justify-center px-4 py-4 bg-white bg-opacity-15 hover:bg-opacity-25 rounded-lg transition-all duration-200 transform hover:scale-105 border border-white border-opacity-20">
+                <span class="text-3xl mb-2">📚</span>
+                <span class="text-sm font-semibold text-center">Browse<br>Lessons</span>
               </button>
               <button
                 (click)="goToExams()"
-                class="w-full px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg text-left transition-colors">
-                📝 Take an Exam
+                class="flex flex-col items-center justify-center px-4 py-4 bg-white bg-opacity-15 hover:bg-opacity-25 rounded-lg transition-all duration-200 transform hover:scale-105 border border-white border-opacity-20">
+                <span class="text-3xl mb-2">📝</span>
+                <span class="text-sm font-semibold text-center">Take an<br>Exam</span>
               </button>
               <button
                 (click)="goToSubscriptions()"
-                class="w-full px-4 py-2 bg-white bg-opacity-30 hover:bg-opacity-40 rounded-lg text-left font-medium transition-colors">
-                ⭐ My Subscriptions
+                class="flex flex-col items-center justify-center px-4 py-4 bg-white bg-opacity-25 hover:bg-opacity-35 rounded-lg transition-all duration-200 transform hover:scale-105 border-2 border-white col-span-1">
+                <span class="text-3xl mb-2">⭐</span>
+                <span class="text-sm font-bold text-center">My<br>Plans</span>
               </button>
               <a
                 routerLink="/sessions/student"
-                class="w-full px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg text-left transition-colors block">
-                🎓 My Private Sessions
+                class="flex flex-col items-center justify-center px-4 py-4 bg-white bg-opacity-15 hover:bg-opacity-25 rounded-lg transition-all duration-200 transform hover:scale-105 border border-white border-opacity-20">
+                <span class="text-3xl mb-2">🎓</span>
+                <span class="text-sm font-semibold text-center">My<br>Sessions</span>
               </a>
             </div>
           </div>
