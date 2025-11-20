@@ -137,14 +137,46 @@ export class TeacherPermissionsService {
    * Get available teachers (those with Teacher role)
    */
   getAvailableTeachers(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiBaseUrl}/User/get-teachers`);
+    return this.http.get<any>(`${environment.apiBaseUrl}/User/get-teachers`).pipe(
+      map(response => {
+        // Handle PagedResult format
+        if (response && response.items && Array.isArray(response.items)) {
+          return response.items;
+        }
+        // Handle direct array format
+        if (Array.isArray(response)) {
+          return response;
+        }
+        // Handle data property format
+        if (response && response.data && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      })
+    );
   }
 
   /**
    * Get available subjects
    */
   getAvailableSubjects(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiBaseUrl}/Subjects`);
+    return this.http.get<any>(`${environment.apiBaseUrl}/Subjects`).pipe(
+      map(response => {
+        // Handle PagedResult format
+        if (response && response.items && Array.isArray(response.items)) {
+          return response.items;
+        }
+        // Handle direct array format
+        if (Array.isArray(response)) {
+          return response;
+        }
+        // Handle data property format
+        if (response && response.data && Array.isArray(response.data)) {
+          return response.data;
+        }
+        return [];
+      })
+    );
   }
 
   /**

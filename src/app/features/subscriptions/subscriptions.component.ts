@@ -8,33 +8,33 @@ import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
 
 interface SubscriptionPlan {
-  planId?: number; // API returns planId
-  id?: number; // Fallback
-  name: string;
-  description: string;
+  planId?: number;
+  id?: number;
+  name?: string;
+  description?: string;
+  price?: number;
+  planType?: number;
   coverageDescription?: string;
-  price: number;
-  planType: number; // 1=SingleTerm, 2=MultiTerm, 3=FullYear, 4=SubjectAnnual
-  durationInDays?: number;
   subjectId?: number;
   subjectName?: string;
   termId?: number;
   termNumber?: number;
   yearId?: number;
-  isActive: boolean;
-  createdAt?: string;
+  isActive?: boolean;
 }
 
 interface Order {
-  id: number;
-  orderId: string;
-  userId: number;
+  id?: number;
+  orderId?: string;
+  userId?: number;
   userName?: string;
   studentId?: number;
   studentName?: string;
-  totalAmount: number;
-  status: string;
-  orderDate: string;
+  totalAmount?: number;
+  amount?: number;
+  status?: string;
+  orderDate?: string;
+  createdAt?: string;
   items?: OrderItem[];
 }
 
@@ -124,7 +124,11 @@ export class SubscriptionsComponent implements OnInit {
   
   // Pagination for Plans
   plansCurrentPage = 1;
-  plansPageSize = 10;
+  plansPageSize = 5;
+  
+  // Pagination for Orders
+  ordersCurrentPage = 1;
+  ordersPageSize = 5;
   
   // Modal State
   showPlanModal = false;
@@ -154,8 +158,6 @@ export class SubscriptionsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadSubjects();
-    this.loadYears();
     this.loadSubscriptionPlans();
     this.loadOrders();
     this.loadAnalytics();
@@ -253,28 +255,36 @@ export class SubscriptionsComponent implements OnInit {
 
   loadYears(): void {
     console.log('loadYears() called');
-    // Extract unique years from subjects
-    const uniqueYearIds = new Set<number>();
-    this.subjects.forEach(subject => {
-      if (subject.yearId) {
-        uniqueYearIds.add(subject.yearId);
+    // Extract unique years from subscription plans
+    const uniqueYearNumbers = new Set<number>();
+    
+    this.subscriptionPlans.forEach(plan => {
+      // Only process valid plans with names
+      if (plan.name && plan.name.trim() !== '') {
+        // Extract year from plan name (e.g., "Algebra Year 7" -> 7)
+        const yearMatch = plan.name.match(/Year\s+(\d+)/);
+        if (yearMatch) {
+          const yearNum = parseInt(yearMatch[1], 10);
+          if (yearNum > 0) {
+            uniqueYearNumbers.add(yearNum);
+          }
+        }
       }
     });
     
-    // Create year objects from subject data
-    const yearMap: { [key: number]: string } = {
-      1: 'Year 7',
-      2: 'Year 8',
-      3: 'Year 9',
-      4: 'Year 10'
+    // Create year objects with proper IDs
+    const yearMapping: { [key: number]: { id: number; name: string } } = {
+      7: { id: 1, name: 'Year 7' },
+      8: { id: 2, name: 'Year 8' },
+      9: { id: 3, name: 'Year 9' },
+      10: { id: 4, name: 'Year 10' }
     };
     
-    this.years = Array.from(uniqueYearIds).map(id => ({
-      id,
-      name: yearMap[id] || `Year ${id}`
-    })).sort((a, b) => a.id - b.id);
+    this.years = Array.from(uniqueYearNumbers)
+      .map(yearNum => yearMapping[yearNum] || { id: yearNum, name: `Year ${yearNum}` })
+      .sort((a, b) => a.id - b.id);
     
-    console.log('Years loaded:', this.years);
+    console.log('Years extracted from plans:', this.years);
   }
 
   getSubjectName(subjectId?: number): string {
@@ -297,24 +307,51 @@ export class SubscriptionsComponent implements OnInit {
     return true; // Default to active if property doesn't exist
   }
 
+  // Validate plan has required data
+  isValidPlan(plan: SubscriptionPlan): boolean {
+    return !!(plan.name && plan.name.trim() !== '' && plan.planType && plan.planType > 0);
+  }
+
   // ============================================
   // Subscription Plans CRUD
   // ============================================
   
   loadSubscriptionPlans(): void {
     this.loading.set(true);
-    this.http.get<SubscriptionPlan[]>(`${environment.apiBaseUrl}/SubscriptionPlans`)
+    this.http.get<any>(`${environment.apiBaseUrl}/SubscriptionPlans`)
       .subscribe({
-        next: (data) => {
-          console.log('API Response - Subscription Plans:', data);
-          if (data && data.length > 0) {
-            console.log('First plan object:', data[0]);
-            console.log('First plan properties:', Object.keys(data[0]));
+        next: (response) => {
+          console.log('API Response - Subscription Plans:', response);
+          
+          let plans: SubscriptionPlan[] = [];
+          
+          // API returns direct array
+          if (Array.isArray(response)) {
+            plans = response;
+          } else if (response && Array.isArray(response.value)) {
+            // Fallback for wrapped format
+            plans = response.value;
           }
-          this.subscriptionPlans = data;
-          this.stats.totalPlans = data.length;
-          // Since API doesn't return isActive property, consider all plans as active
-          this.stats.activePlans = data.length;
+          
+          // Filter out invalid/empty plans
+          // Keep only plans that have: valid name AND valid planType AND valid price
+          plans = plans.filter((plan: any) => {
+            const hasValidName = plan.name && plan.name.trim() !== '' && plan.name.toLowerCase() !== 'string';
+            const hasValidPlanType = plan.planType && plan.planType > 0;
+            const hasValidPrice = plan.price !== null && plan.price !== undefined && plan.price >= 0;
+            
+            return hasValidName && hasValidPlanType && hasValidPrice;
+          });
+          
+          console.log('Filtered plans:', plans);
+          this.subscriptionPlans = plans;
+          this.stats.totalPlans = plans.length;
+          this.stats.activePlans = plans.length;
+          
+          // Load years and subjects after plans
+          this.loadYears();
+          this.loadSubjects();
+          
           this.loading.set(false);
         },
         error: (error) => {
@@ -332,7 +369,7 @@ export class SubscriptionsComponent implements OnInit {
       name: '',
       description: '',
       price: 0,
-      planType: 1, // SingleTerm by default
+      planType: 1,
       isActive: true,
       subjectId: 0,
       termId: 0,
@@ -340,13 +377,16 @@ export class SubscriptionsComponent implements OnInit {
     };
     this.filteredTerms = [];
     
-    // Reload subjects if empty
+    // Reload subjects and years if empty
     console.log('Current subjects length:', this.subjects.length);
-    if (this.subjects.length === 0) {
-      console.log('Subjects empty, triggering loadSubjects()');
+    console.log('Current years length:', this.years.length);
+    
+    if (this.subjects.length === 0 || this.years.length === 0) {
+      console.log('Loading subjects and years');
       this.loadSubjects();
-    } else {
-      console.log('Subjects already loaded:', this.subjects);
+      if (this.years.length === 0) {
+        this.loadYears();
+      }
     }
     
     this.showPlanModal = true;
@@ -491,19 +531,59 @@ export class SubscriptionsComponent implements OnInit {
   // Orders Management
   // ============================================
   
+  getPlanNameFromOrder(order: Order): string {
+    if (order.items && order.items.length > 0) {
+      return order.items[0].planName;
+    }
+    return 'N/A';
+  }
+  
+  getOrderItemsCount(order: Order): number {
+    return order.items?.length ?? 0;
+  }
+  
   loadOrders(): void {
     this.loading.set(true);
-    this.http.get<Order[]>(`${environment.apiBaseUrl}/Orders`)
+    // Use parent summary endpoint for authenticated orders
+    this.http.get<any>(`${environment.apiBaseUrl}/Orders/parent/summary/paged?Page=1&PageSize=100`)
       .subscribe({
-        next: (data) => {
-          this.orders = data;
-          this.calculateOrderStats(data);
+        next: (response) => {
+          console.log('API Response - Orders:', response);
+          
+          // Handle response format - could be { items: [...], totalCount, etc. } or { value: [...] }
+          let orders: Order[] = [];
+          
+          if (response && Array.isArray(response.items)) {
+            orders = response.items;
+          } else if (response && Array.isArray(response.value)) {
+            orders = response.value;
+          } else if (Array.isArray(response)) {
+            orders = response;
+          } else {
+            orders = [];
+          }
+          
+          console.log('Parsed orders:', orders);
+          this.orders = orders;
+          this.calculateOrderStats(orders);
           this.loading.set(false);
         },
         error: (error) => {
           console.error('Error loading orders:', error);
-          Swal.fire('Error', 'Failed to load orders', 'error');
-          this.loading.set(false);
+          // If parent endpoint fails, try basic endpoint
+          this.http.get<any>(`${environment.apiBaseUrl}/Orders`)
+            .subscribe({
+              next: (data) => {
+                this.orders = Array.isArray(data) ? data : [];
+                this.calculateOrderStats(this.orders);
+                this.loading.set(false);
+              },
+              error: () => {
+                Swal.fire('Error', 'Failed to load orders', 'error');
+                this.orders = [];
+                this.loading.set(false);
+              }
+            });
         }
       });
   }
@@ -512,31 +592,41 @@ export class SubscriptionsComponent implements OnInit {
     this.stats.totalOrders = orders.length;
     this.stats.totalRevenue = orders
       .filter(o => o.status === 'Paid')
-      .reduce((sum, o) => sum + o.totalAmount, 0);
+      .reduce((sum, o) => sum + (o.totalAmount ?? o.amount ?? 0), 0);
     this.stats.pendingOrders = orders.filter(o => o.status === 'Pending').length;
     this.stats.paidOrders = orders.filter(o => o.status === 'Paid').length;
   }
 
-  viewOrderDetails(orderId: number): void {
-    this.http.get<Order>(`${environment.apiBaseUrl}/Orders/${orderId}`)
+  viewOrderDetails(orderId: number | string | undefined): void {
+    if (!orderId) {
+      Swal.fire('Error', 'Order ID is missing', 'error');
+      return;
+    }
+    
+    this.http.get<any>(`${environment.apiBaseUrl}/Orders/${orderId}`)
       .subscribe({
         next: (order) => {
-          const itemsHtml = order.items?.map(item => `
+          const orderData = order.value ? order.value : order;
+          const itemsHtml = orderData.items?.map((item: any) => `
             <div class="flex justify-between py-2 border-b">
-              <span>${item.planName}</span>
-              <span class="font-semibold">$${item.price}</span>
+              <span>${item.planName || item.name || 'Plan'}</span>
+              <span class="font-semibold">$${(item.price || 0).toFixed(2)}</span>
             </div>
-          `).join('') || '';
+          `).join('') || '<p class="text-gray-500">No items</p>';
+
+          const statusColor = orderData.status === 'Paid' ? 'success' : orderData.status === 'Pending' ? 'warning' : 'danger';
+          const orderDate = new Date(orderData.orderDate || orderData.createdAt || new Date()).toLocaleDateString();
+          const totalAmount = (orderData.totalAmount ?? orderData.amount ?? 0).toFixed(2);
 
           Swal.fire({
-            title: `Order #${order.orderId}`,
+            title: `Order #${orderData.orderId || orderId}`,
             html: `
               <div class="text-left">
-                <p><strong>Status:</strong> <span class="badge bg-${order.status === 'Paid' ? 'success' : order.status === 'Pending' ? 'warning' : 'danger'}">${order.status}</span></p>
-                <p><strong>Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</p>
-                <p><strong>Total:</strong> $${order.totalAmount}</p>
-                <div class="mt-3">
-                  <strong>Items:</strong>
+                <p class="mb-3"><strong>Status:</strong> <span class="px-3 py-1 rounded-full text-sm font-semibold bg-${statusColor}-100 text-${statusColor}-800">${orderData.status || 'Unknown'}</span></p>
+                <p class="mb-2"><strong>Date:</strong> ${orderDate}</p>
+                <p class="mb-3"><strong>Total:</strong> <span class="text-xl font-bold text-green-600">$${totalAmount}</span></p>
+                <div class="mt-3 pt-3 border-t">
+                  <strong class="block mb-2">Items:</strong>
                   ${itemsHtml}
                 </div>
               </div>
@@ -551,7 +641,12 @@ export class SubscriptionsComponent implements OnInit {
       });
   }
 
-  downloadInvoice(orderId: number): void {
+  downloadInvoice(orderId: number | string | undefined): void {
+    if (!orderId) {
+      Swal.fire('Error', 'Order ID is missing', 'error');
+      return;
+    }
+    
     this.http.get(`${environment.apiBaseUrl}/Orders/${orderId}/invoice`, { responseType: 'blob' })
       .subscribe({
         next: (blob) => {
@@ -561,6 +656,7 @@ export class SubscriptionsComponent implements OnInit {
           link.download = `invoice-${orderId}.pdf`;
           link.click();
           window.URL.revokeObjectURL(url);
+          Swal.fire('Success', 'Invoice downloaded successfully', 'success');
         },
         error: (error) => {
           console.error('Error downloading invoice:', error);
@@ -578,13 +674,33 @@ export class SubscriptionsComponent implements OnInit {
     if (this.dateRange.startDate) params.startDate = this.dateRange.startDate;
     if (this.dateRange.endDate) params.endDate = this.dateRange.endDate;
 
-    this.http.get<Analytics>(`${environment.apiBaseUrl}/Orders/parent/analytics`, { params })
+    this.http.get<any>(`${environment.apiBaseUrl}/Orders/parent/analytics`, { params })
       .subscribe({
         next: (data) => {
-          this.analytics = data;
+          console.log('API Response - Analytics:', data);
+          
+          // Handle multiple possible response formats
+          if (data) {
+            // Normalize the response to Analytics format
+            this.analytics = {
+              totalRevenue: data.totalRevenue ?? data.value?.totalRevenue ?? 0,
+              totalOrders: data.totalOrders ?? data.value?.totalOrders ?? 0,
+              averageOrderValue: data.averageOrderValue ?? data.value?.averageOrderValue ?? 0,
+              ordersByMonth: data.ordersByMonth ?? data.value?.ordersByMonth ?? [],
+              topPlans: data.topPlans ?? data.value?.topPlans ?? []
+            };
+          }
         },
         error: (error) => {
           console.error('Error loading analytics:', error);
+          // Set default analytics if endpoint fails
+          this.analytics = {
+            totalRevenue: 0,
+            totalOrders: 0,
+            averageOrderValue: 0,
+            ordersByMonth: [],
+            topPlans: []
+          };
         }
       });
   }
@@ -606,6 +722,11 @@ export class SubscriptionsComponent implements OnInit {
   
   get filteredPlans(): SubscriptionPlan[] {
     return this.subscriptionPlans.filter(plan => {
+      // Skip plans with no name and invalid planType
+      if (!plan.name || plan.name.trim() === '') {
+        return false;
+      }
+      
       const matchesSearch = !this.searchTerm || 
         plan.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         plan.description?.toLowerCase().includes(this.searchTerm.toLowerCase());
@@ -628,35 +749,41 @@ export class SubscriptionsComponent implements OnInit {
 
   get filteredOrders(): Order[] {
     return this.orders.filter(order => {
-      const matchesSearch = !this.searchTerm || 
-        order.orderId.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        order.userName?.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const searchText = this.searchTerm.toLowerCase();
+      const orderId = (order.orderId || '').toString().toLowerCase();
+      const userName = (order.userName || '').toLowerCase();
+      const studentName = (order.studentName || '').toLowerCase();
       
-      const matchesStatus = !this.statusFilter || order.status === this.statusFilter;
+      const matchesSearch = !this.searchTerm || 
+        orderId.includes(searchText) ||
+        userName.includes(searchText) ||
+        studentName.includes(searchText);
+      
+      const matchesStatus = !this.statusFilter || (order.status === this.statusFilter);
       
       return matchesSearch && matchesStatus;
     });
   }
 
   get pagedOrders(): Order[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
+    const start = (this.ordersCurrentPage - 1) * this.ordersPageSize;
+    const end = start + this.ordersPageSize;
     return this.filteredOrders.slice(start, end);
   }
 
-  goToPage(page: number): void {
-    if (page >= 1 && page <= Math.ceil(this.filteredOrders.length / this.pageSize)) {
-      this.currentPage = page;
+  goToOrdersPage(page: number): void {
+    if (page >= 1 && page <= Math.ceil(this.filteredOrders.length / this.ordersPageSize)) {
+      this.ordersCurrentPage = page;
     }
   }
 
   // Reset pagination when search/filter changes
   onSearchChange(): void {
     this.plansCurrentPage = 1;
-    this.currentPage = 1;
+    this.ordersCurrentPage = 1;
   }
 
   onStatusFilterChange(): void {
-    this.currentPage = 1;
+    this.ordersCurrentPage = 1;
   }
 }

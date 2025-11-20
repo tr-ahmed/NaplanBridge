@@ -2,78 +2,11 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
+import { TeacherPermissionsService, TeacherPermission, PendingApproval } from '../../../core/services/teacher-permissions.service';
 
-// Temporary interfaces
-export interface TeacherPermission {
-  id: number;
-  teacherId: number;
-  teacherName: string;
-  teacherEmail: string;
-  subjectId: number;
-  subjectName: string;
-  canCreate: boolean;
-  canEdit: boolean;
-  canDelete: boolean;
-  isActive: boolean;
-}
+// Temporary interfaces - Remove TeacherPermission and PendingApproval as they're imported
 
-export interface PendingApproval {
-  id: number;
-  type: string;
-  title: string;
-  subjectName: string;
-  createdBy: string;
-  createdByEmail: string;
-  createdAt: Date;
-  pendingDays: number;
-  weekNumber?: number;
-  termNumber?: number;
-}
-
-// Temporary service
-class MockTeacherPermissionsService {
-  getAllTeachersWithPermissions() {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next([]), 500);
-    }};
-  }
-
-  getPendingApprovals() {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next([]), 500);
-    }};
-  }
-
-  getAvailableTeachers() {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next([]), 500);
-    }};
-  }
-
-  getAvailableSubjects() {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next([]), 500);
-    }};
-  }
-
-  grantPermission(form: any) {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next({}), 500);
-    }};
-  }
-
-  revokePermission(id: any) {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next({}), 500);
-    }};
-  }
-
-  approveContent(action: any) {
-    return { subscribe: (callbacks: any) => {
-      setTimeout(() => callbacks.next({}), 500);
-    }};
-  }
-}
+// Temporary service - REMOVED, using real TeacherPermissionsService instead
 
 @Component({
   selector: 'app-teacher-permissions-admin',
@@ -84,7 +17,7 @@ class MockTeacherPermissionsService {
 })
 export class TeacherPermissionsAdminComponent implements OnInit {
   private toastService = inject(ToastService);
-  private permissionsService = new MockTeacherPermissionsService();
+  private permissionsService = inject(TeacherPermissionsService);
 
   loading = signal(false);
   activeTab = signal<'permissions' | 'approvals'>('permissions');
@@ -130,14 +63,29 @@ export class TeacherPermissionsAdminComponent implements OnInit {
     this.loading.set(true);
 
     this.permissionsService.getAllTeachersWithPermissions().subscribe({
-      next: (permissions: TeacherPermission[]) => {
+      next: (permissions: any) => {
+        console.log('✅ Raw Permissions Response:', permissions);
+        
+        // Handle different response formats
+        let permList = [];
+        if (Array.isArray(permissions)) {
+          permList = permissions;
+        } else if (permissions && permissions.data && Array.isArray(permissions.data)) {
+          permList = permissions.data;
+        } else if (permissions && permissions.items && Array.isArray(permissions.items)) {
+          permList = permissions.items;
+        }
+        
+        console.log('Processed Permissions:', permList);
+        
         // Group permissions by teacher
-        const grouped = this.groupPermissionsByTeacher(permissions);
+        const grouped = this.groupPermissionsByTeacher(permList);
+        console.log('Grouped by Teacher:', grouped);
         this.teachersWithPermissions.set(grouped);
         this.loading.set(false);
       },
       error: (error: any) => {
-        console.error('Error loading teachers:', error);
+        console.error('❌ Error loading teachers:', error);
         this.toastService.showError('Failed to load teachers permissions');
         this.loading.set(false);
       }
@@ -147,21 +95,36 @@ export class TeacherPermissionsAdminComponent implements OnInit {
   private groupPermissionsByTeacher(permissions: TeacherPermission[]): any[] {
     const grouped = new Map<number, any>();
 
-    permissions.forEach(perm => {
-      if (!grouped.has(perm.teacherId)) {
-        grouped.set(perm.teacherId, {
-          teacherId: perm.teacherId,
-          teacherName: perm.teacherName,
-          email: perm.teacherEmail,
+    permissions.forEach((perm: any) => {
+      // Log raw data for debugging
+      console.log('Raw permission object:', perm);
+      
+      // Handle different property names
+      const teacherId = perm.teacherId || perm.teacher_id || perm.id;
+      const teacherName = perm.teacherName || perm.teacher_name || perm.name || 'Unknown Teacher';
+      const teacherEmail = perm.teacherEmail || perm.teacher_email || perm.email || '';
+      
+      // Try multiple property names for subject name
+      const subjectName = perm.subjectName || perm.subject_name || perm.subjectTitle || perm.subject_title || 'Unknown Subject';
+      
+      console.log(`Processing permission - Teacher: ${teacherId} (${teacherName}), Subject: ${subjectName}`);
+      
+      if (!grouped.has(teacherId)) {
+        grouped.set(teacherId, {
+          teacherId: teacherId,
+          teacherName: teacherName,
+          email: teacherEmail,
           totalPermissions: 0,
           subjects: [],
           permissions: []
         });
       }
 
-      const teacher = grouped.get(perm.teacherId)!;
+      const teacher = grouped.get(teacherId)!;
       teacher.totalPermissions++;
-      teacher.subjects.push(perm.subjectName);
+      if (!teacher.subjects.includes(subjectName)) {
+        teacher.subjects.push(subjectName);
+      }
       teacher.permissions.push(perm);
     });
 
@@ -191,31 +154,169 @@ export class TeacherPermissionsAdminComponent implements OnInit {
 
   openGrantModal(): void {
     // Load teachers and subjects
-    this.loadAvailableTeachers();
-    this.loadAvailableSubjects();
+    this.loading.set(true);
     this.showGrantModal.set(true);
+    
+    // Load with improved error handling and timeout
+    const loader = Promise.all([
+      this.loadAvailableTeachersPromise(),
+      this.loadAvailableSubjectsPromise()
+    ]);
+    
+    loader.finally(() => {
+      this.loading.set(false);
+    });
+  }
+
+  private loadAvailableTeachersPromise(): Promise<void> {
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        console.warn('Teachers loading timeout - no data received after 5 seconds');
+        // Try fallback if API is down
+        if (this.availableTeachers().length === 0) {
+          console.log('Using fallback data for teachers');
+          this.availableTeachers.set([
+            { id: 1, name: 'Ahmed Hassan', email: 'ahmed@example.com' },
+            { id: 2, name: 'Fatima Ali', email: 'fatima@example.com' },
+            { id: 3, name: 'Mohammed Sultan', email: 'mohammed@example.com' }
+          ]);
+          this.toastService.showWarning('Using demo data - API not responding');
+        }
+        resolve();
+      }, 5000);
+
+      this.permissionsService.getAvailableTeachers().subscribe({
+        next: (teachers: any) => {
+          clearTimeout(timeout);
+          console.log('✅ Raw Teachers Response:', teachers);
+          
+          let teacherList = [];
+          if (Array.isArray(teachers)) {
+            teacherList = teachers;
+          } else if (teachers && teachers.data && Array.isArray(teachers.data)) {
+            teacherList = teachers.data;
+          } else if (teachers && typeof teachers === 'object') {
+            teacherList = Object.values(teachers).filter((t: any) => t && typeof t === 'object');
+          }
+          
+          // Log first teacher to debug property names
+          if (teacherList.length > 0) {
+            console.log('First teacher raw data:', teacherList[0]);
+          }
+          
+          // Normalize teacher data - detect actual property names
+          teacherList = teacherList.map((teacher: any) => {
+            // Try different property name combinations
+            const name = teacher.name || teacher.fullName || teacher.displayName || 
+                        teacher.userName || teacher.first_name || `${teacher.firstName || ''} ${teacher.lastName || ''}`.trim() ||
+                        teacher.email?.split('@')[0] || 'Unknown';
+            const email = teacher.email || teacher.emailAddress || teacher.email_address || '';
+            
+            console.log(`Teacher mapping: ${name} (${email})`, teacher);
+            
+            return {
+              id: teacher.id,
+              name: name,
+              email: email
+            };
+          });
+          
+          console.log('✅ Processed Teachers:', teacherList);
+          this.availableTeachers.set(teacherList);
+          
+          if (teacherList.length === 0) {
+            this.toastService.showWarning('No teachers available in the system');
+          }
+          resolve();
+        },
+        error: (error: any) => {
+          clearTimeout(timeout);
+          console.error('❌ Error loading teachers:', error);
+          this.toastService.showError(`Failed to load teachers: ${error?.status === 401 ? 'Unauthorized - Please login again' : error?.message || 'Unknown error'}`);
+          this.availableTeachers.set([]);
+          resolve();
+        }
+      });
+    });
+  }
+
+  private loadAvailableSubjectsPromise(): Promise<void> {
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        console.warn('Subjects loading timeout - no data received after 5 seconds');
+        // Try fallback if API is down
+        if (this.availableSubjects().length === 0) {
+          console.log('Using fallback data for subjects');
+          this.availableSubjects.set([
+            { id: 1, name: 'Mathematics', yearName: 'Grade 1' },
+            { id: 2, name: 'English', yearName: 'Grade 1' },
+            { id: 3, name: 'Science', yearName: 'Grade 1' }
+          ]);
+          this.toastService.showWarning('Using demo data - API not responding');
+        }
+        resolve();
+      }, 5000);
+
+      this.permissionsService.getAvailableSubjects().subscribe({
+        next: (subjects: any) => {
+          clearTimeout(timeout);
+          console.log('✅ Raw Subjects Response:', subjects);
+          
+          let subjectList = [];
+          if (Array.isArray(subjects)) {
+            subjectList = subjects;
+          } else if (subjects && subjects.data && Array.isArray(subjects.data)) {
+            subjectList = subjects.data;
+          } else if (subjects && typeof subjects === 'object') {
+            subjectList = Object.values(subjects).filter((s: any) => s && typeof s === 'object');
+          }
+          
+          // Log first subject to debug property names
+          if (subjectList.length > 0) {
+            console.log('First subject raw data:', subjectList[0]);
+          }
+          
+          // Normalize subject data - detect actual property names
+          subjectList = subjectList.map((subject: any) => {
+            const name = subject.name || subject.subjectName || subject.title || subject.subject_name || 'Unknown';
+            const yearName = subject.yearName || subject.year || subject.grade || subject.year_name || 'N/A';
+            
+            console.log(`Subject mapping: ${name} (${yearName})`, subject);
+            
+            return {
+              id: subject.id,
+              name: name,
+              yearName: yearName
+            };
+          });
+          
+          console.log('✅ Processed Subjects:', subjectList);
+          this.availableSubjects.set(subjectList);
+          
+          if (subjectList.length === 0) {
+            this.toastService.showWarning('No subjects available in the system');
+          }
+          resolve();
+        },
+        error: (error: any) => {
+          clearTimeout(timeout);
+          console.error('❌ Error loading subjects:', error);
+          this.toastService.showError(`Failed to load subjects: ${error?.status === 401 ? 'Unauthorized - Please login again' : error?.message || 'Unknown error'}`);
+          this.availableSubjects.set([]);
+          resolve();
+        }
+      });
+    });
   }
 
   loadAvailableTeachers(): void {
-    this.permissionsService.getAvailableTeachers().subscribe({
-      next: (teachers: any) => {
-        this.availableTeachers.set(teachers);
-      },
-      error: (error: any) => {
-        console.error('Error loading teachers:', error);
-      }
-    });
+    // Kept for backwards compatibility
+    this.loadAvailableTeachersPromise();
   }
 
   loadAvailableSubjects(): void {
-    this.permissionsService.getAvailableSubjects().subscribe({
-      next: (subjects: any) => {
-        this.availableSubjects.set(subjects);
-      },
-      error: (error: any) => {
-        console.error('Error loading subjects:', error);
-      }
-    });
+    // Kept for backwards compatibility
+    this.loadAvailableSubjectsPromise();
   }
 
   grantPermission(): void {

@@ -228,6 +228,18 @@ export const routes: Routes = [
     data: { hideHeader: true, hideFooter: true }
   },
   {
+    path: 'admin/teacher-permissions',
+    loadComponent: () => import('./features/admin/teacher-permissions/teacher-permissions-admin.component').then(m => m.TeacherPermissionsAdminComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'admin/assign-teacher',
+    loadComponent: () => import('./features/admin/assign-teacher/assign-teacher.component').then(m => m.AssignTeacherComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
     path: 'admin/video-settings',
     loadComponent: () => import('./admin/video-settings/video-settings.component').then(m => m.VideoSettingsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
