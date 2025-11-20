@@ -681,41 +681,62 @@
                   [(ngModel)]="currentPlan.termId"
                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   [disabled]="filteredTerms.length === 0">
-                  <option [value]="0">Select Term</option>
+                  <option [value]="0">
+                    {{ filteredTerms.length === 0 ? 'No terms available - Select a subject first' : 'Select Term' }}
+                  </option>
                   @for (term of filteredTerms; track term.id) {
-                    <option [value]="term.id">{{ term.name }}</option>
+                    <option [value]="term.id">
+                      {{ term.name }}{{ term.termNumber ? ' (Term ' + term.termNumber + ')' : '' }}
+                    </option>
                   }
                 </select>
+                @if (filteredTerms.length === 0 && currentPlan.subjectId) {
+                  <p class="mt-1 text-sm text-amber-600">⚠️ No terms found for this subject</p>
+                }
               </div>
             }
           </div>
         }
 
         <!-- Multi-Term: Select Multiple Terms -->
-        @if (currentPlan.planType === 2 && filteredTerms.length > 0) {
-          <div class="bg-gray-50 border-2 border-gray-300 rounded-lg p-4">
-            <label class="block text-sm font-bold text-gray-700 mb-3">
-              Select Terms <span class="text-red-600">*</span>
-              <span class="text-xs font-normal text-gray-500">(Select 2 or more)</span>
-            </label>
-            <div class="grid grid-cols-2 gap-3">
-              @for (term of filteredTerms; track term.id) {
-                <label class="flex items-center gap-2 cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors">
-                  <input
-                    type="checkbox"
-                    [checked]="isTermSelected(term.id)"
-                    (change)="onTermSelectionChange($event, term.id)"
-                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                  <span class="text-sm text-gray-700">{{ term.name }} (Term {{ term.termNumber }})</span>
-                </label>
+        @if (currentPlan.planType === 2) {
+          @if (filteredTerms.length > 0) {
+            <div class="bg-gray-50 border-2 border-gray-300 rounded-lg p-4">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Select Terms <span class="text-red-600">*</span>
+                <span class="text-xs font-normal text-gray-500">(Select 2 or more)</span>
+              </label>
+              <div class="grid grid-cols-2 gap-3">
+                @for (term of filteredTerms; track term.id) {
+                  <label class="flex items-center gap-2 cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors">
+                    <input
+                      type="checkbox"
+                      [checked]="isTermSelected(term.id)"
+                      (change)="onTermSelectionChange($event, term.id)"
+                      class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                    <span class="text-sm text-gray-700">
+                      {{ term.name }}{{ term.termNumber ? ' (Term ' + term.termNumber + ')' : '' }}
+                    </span>
+                  </label>
+                }
+              </div>
+              @if (selectedTerms.length > 0) {
+                <p class="mt-2 text-sm text-blue-600">
+                  ✓ Selected {{ selectedTerms.length }} term(s): {{ currentPlan.includedTermIds }}
+                </p>
+              } @else {
+                <p class="mt-2 text-sm text-amber-600">
+                  ⚠️ Please select at least 2 terms
+                </p>
               }
             </div>
-            @if (selectedTerms.length > 0) {
-              <p class="mt-2 text-sm text-blue-600">
-                ✓ Selected {{ selectedTerms.length }} term(s): {{ currentPlan.includedTermIds }}
+          } @else if (currentPlan.subjectId) {
+            <div class="bg-amber-50 border-2 border-amber-300 rounded-lg p-4">
+              <p class="text-sm text-amber-800">
+                ⚠️ No terms available for this subject. Please select a different subject.
               </p>
-            }
-          </div>
+            </div>
+          }
         }
 
         <!-- Year (for FullYear plan) -->

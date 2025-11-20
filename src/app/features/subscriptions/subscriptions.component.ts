@@ -226,30 +226,55 @@ export class SubscriptionsComponent implements OnInit {
   }
 
   onSubjectChange(subjectId: number): void {
+    console.log('🔍 onSubjectChange called with subjectId:', subjectId);
+
     if (subjectId && subjectId > 0) {
       // Load terms for the selected subject
-      this.http.get<Term[]>(`${environment.apiBaseUrl}/Terms/by-subject/${subjectId}`)
+      this.http.get<any>(`${environment.apiBaseUrl}/Terms/by-subject/${subjectId}`)
         .subscribe({
           next: (data) => {
-            // Ensure data is an array
+            console.log('📦 Raw Terms API response:', data);
+
+            let rawTerms: any[] = [];
+
+            // Handle different response formats
             if (Array.isArray(data)) {
-              this.filteredTerms = data;
+              rawTerms = data;
+            } else if (data && data.items && Array.isArray(data.items)) {
+              // Paginated response: { items: [...], page, pageSize, ... }
+              rawTerms = data.items;
             } else if (data && typeof data === 'object') {
-              this.filteredTerms = (data as any).data || Object.values(data) || [];
-            } else {
-              this.filteredTerms = [];
+              // Wrapped response
+              rawTerms = (data as any).data || Object.values(data) || [];
             }
 
-            console.log('Terms for subject', subjectId, ':', this.filteredTerms);
+            console.log('📋 Extracted raw terms:', rawTerms);
 
-            // Auto-fill first term if available
+            // Map to Term interface - handle different property names
+            this.filteredTerms = rawTerms.map((term: any) => ({
+              id: term.id || term.termId,
+              name: term.name || term.termName || `Term ${term.termNumber || term.id}`,
+              termNumber: term.termNumber || 0,
+              subjectId: term.subjectId || subjectId,
+              yearId: term.yearId
+            }));
+
+            console.log('✅ Mapped filteredTerms:', this.filteredTerms);
+            console.log('   - Count:', this.filteredTerms.length);
             if (this.filteredTerms.length > 0) {
+              console.log('   - First term:', this.filteredTerms[0]);
+            }
+
+            // Auto-fill first term if available (for SingleTerm only)
+            if (this.filteredTerms.length > 0 && this.currentPlan.planType === 1) {
               this.currentPlan.termId = this.filteredTerms[0].id;
+              console.log('   - Auto-selected termId:', this.currentPlan.termId);
             }
           },
           error: (error) => {
-            console.error('Error loading terms:', error);
+            console.error('❌ Error loading terms:', error);
             this.filteredTerms = [];
+            Swal.fire('Error', 'Failed to load terms for this subject', 'error');
           }
         });
 
@@ -257,8 +282,10 @@ export class SubscriptionsComponent implements OnInit {
       const selectedSubject = this.subjects.find(s => s.id === subjectId);
       if (selectedSubject) {
         this.currentPlan.subjectName = selectedSubject.subjectName || selectedSubject.name;
+        console.log('📝 Subject name:', this.currentPlan.subjectName);
       }
     } else {
+      console.log('⚠️ Invalid subjectId, clearing terms');
       this.filteredTerms = [];
       this.currentPlan.termId = 0;
     }

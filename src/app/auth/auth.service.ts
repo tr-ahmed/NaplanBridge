@@ -212,16 +212,36 @@ export class AuthService {
 
   // ✅ Get current user data
   getCurrentUser(): any {
-    const userData = localStorage.getItem('currentUser');
-    if (userData) {
-      return JSON.parse(userData);
-    }
-
-    // Fallback: decode token to get user data
+    // Always decode from JWT token first (most reliable source)
     const token = this.getToken();
     if (token) {
-      const decoded = this.decodeToken(token);
-      return decoded;
+      try {
+        const decoded = this.decodeToken(token);
+        // Verify it's our application token, not Google OAuth token
+        if (decoded && decoded.userId && !decoded.iss?.includes('google')) {
+          return decoded;
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to decode token:', e);
+      }
+    }
+
+    // Fallback: check localStorage currentUser
+    const userData = localStorage.getItem('currentUser');
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData);
+        // Ignore Google OAuth tokens stored incorrectly
+        if (parsed && !parsed.iss?.includes('google')) {
+          return parsed;
+        } else {
+          console.warn('⚠️ Google OAuth token found in currentUser, removing...');
+          localStorage.removeItem('currentUser');
+        }
+      } catch (e) {
+        console.error('❌ Failed to parse currentUser:', e);
+        localStorage.removeItem('currentUser');
+      }
     }
 
     return null;
