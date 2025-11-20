@@ -504,6 +504,22 @@ export class SubscriptionsComponent implements OnInit {
     this.loading.set(true);
     const planId = this.currentPlan.planId || this.currentPlan.id;
 
+    // ✅ تحويل القيم من string إلى number
+    const subjectId = this.currentPlan.subjectId ?
+      (typeof this.currentPlan.subjectId === 'string' ?
+        parseInt(this.currentPlan.subjectId, 10) :
+        this.currentPlan.subjectId) : undefined;
+
+    const termId = this.currentPlan.termId ?
+      (typeof this.currentPlan.termId === 'string' ?
+        parseInt(this.currentPlan.termId, 10) :
+        this.currentPlan.termId) : undefined;
+
+    const yearId = this.currentPlan.yearId ?
+      (typeof this.currentPlan.yearId === 'string' ?
+        parseInt(this.currentPlan.yearId, 10) :
+        this.currentPlan.yearId) : undefined;
+
     // ✅ بناء DTO بدون wrapper
     const planDto: CreateSubscriptionPlanDto = {
       name: this.currentPlan.name,
@@ -511,13 +527,16 @@ export class SubscriptionsComponent implements OnInit {
       planType: this.currentPlan.planType as PlanType,
       price: this.currentPlan.price,
       isActive: this.currentPlan.isActive ?? true,
-      subjectId: this.currentPlan.subjectId || undefined,
-      termId: this.currentPlan.termId || undefined,
-      yearId: this.currentPlan.yearId || undefined,
+      subjectId: subjectId,
+      termId: termId,
+      yearId: yearId,
       includedTermIds: this.currentPlan.includedTermIds || undefined
     };
 
     console.log('✅ Sending plan DTO:', planDto);
+    console.log('   - subjectId type:', typeof planDto.subjectId, '=', planDto.subjectId);
+    console.log('   - termId type:', typeof planDto.termId, '=', planDto.termId);
+    console.log('   - yearId type:', typeof planDto.yearId, '=', planDto.yearId);
 
     if (this.isEditMode && planId) {
       // Update existing plan

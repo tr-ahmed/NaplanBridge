@@ -666,9 +666,9 @@
                 [(ngModel)]="currentPlan.subjectId"
                 (ngModelChange)="onSubjectChange($event)"
                 class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                <option [value]="0">Select Subject</option>
+                <option [ngValue]="0">Select Subject</option>
                 @for (subject of subjects; track subject.id) {
-                  <option [value]="subject.id">{{ subject.subjectName || subject.name }}</option>
+                  <option [ngValue]="subject.id">{{ subject.subjectName || subject.name }}</option>
                 }
               </select>
             </div>
@@ -681,11 +681,11 @@
                   [(ngModel)]="currentPlan.termId"
                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   [disabled]="filteredTerms.length === 0">
-                  <option [value]="0">
+                  <option [ngValue]="0">
                     {{ filteredTerms.length === 0 ? 'No terms available - Select a subject first' : 'Select Term' }}
                   </option>
                   @for (term of filteredTerms; track term.id) {
-                    <option [value]="term.id">
+                    <option [ngValue]="term.id">
                       {{ term.name }}{{ term.termNumber ? ' (Term ' + term.termNumber + ')' : '' }}
                     </option>
                   }
@@ -746,9 +746,9 @@
             <select
               [(ngModel)]="currentPlan.yearId"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-              <option [value]="0">Select Year</option>
+              <option [ngValue]="0">Select Year</option>
               @for (year of years; track year.id) {
-                <option [value]="year.id">{{ year.name }}</option>
+                <option [ngValue]="year.id">{{ year.name }}</option>
               }
             </select>
           </div>
