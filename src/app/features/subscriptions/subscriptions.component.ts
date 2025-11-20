@@ -6,6 +6,12 @@ import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/adm
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
+import { SubscriptionPlansService } from '../../core/services/subscription-plans.service';
+import {
+  SubscriptionPlan as SubscriptionPlanModel,
+  CreateSubscriptionPlanDto
+} from '../../models/subscription.models';
+import { PlanType, getPlanTypeLabel } from '../../models/enums';
 
 interface SubscriptionPlan {
   planId?: number;
@@ -13,13 +19,14 @@ interface SubscriptionPlan {
   name?: string;
   description?: string;
   price?: number;
-  planType?: number;
+  planType?: PlanType;  // ✅ استخدام enum بدلاً من number
   coverageDescription?: string;
   subjectId?: number;
   subjectName?: string;
   termId?: number;
   termNumber?: number;
   yearId?: number;
+  includedTermIds?: string;  // ✅ للـ MultiTerm plans
   isActive?: boolean;
 }
 
@@ -99,7 +106,7 @@ export class SubscriptionsComponent implements OnInit {
   activeTab = signal<'plans' | 'orders' | 'analytics'>('plans');
   loading = signal(false);
   Math = Math;
-  
+
   // Data
   subscriptionPlans: SubscriptionPlan[] = [];
   orders: Order[] = [];
@@ -108,7 +115,7 @@ export class SubscriptionsComponent implements OnInit {
   subjects: Subject[] = [];
   filteredTerms: Term[] = [];
   years: Year[] = [];
-  
+
   // Filters
   searchTerm = '';
   statusFilter = '';
@@ -116,25 +123,26 @@ export class SubscriptionsComponent implements OnInit {
     startDate: '',
     endDate: ''
   };
-  
+
   // Pagination
   currentPage = 1;
   pageSize = 10;
   totalPages = 1;
-  
+
   // Pagination for Plans
   plansCurrentPage = 1;
   plansPageSize = 5;
-  
+
   // Pagination for Orders
   ordersCurrentPage = 1;
   ordersPageSize = 5;
-  
+
   // Modal State
   showPlanModal = false;
   isEditMode = false;
   currentPlan: Partial<SubscriptionPlan> = {};
-  
+  selectedTerms: number[] = [];  // ✅ لتتبع الـ terms في MultiTerm
+
   // Statistics
   stats = {
     totalPlans: 0,
@@ -145,7 +153,10 @@ export class SubscriptionsComponent implements OnInit {
     paidOrders: 0
   };
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private plansService: SubscriptionPlansService
+  ) {}
 
   // Helper method to create array of numbers for pagination
   createPageArray(length: number): number[] {
@@ -181,7 +192,7 @@ export class SubscriptionsComponent implements OnInit {
       .subscribe({
         next: (data) => {
           console.log('Raw API response:', data);
-          
+
           // API returns { items: [...], page, pageSize, ... }
           if (data && data.items && Array.isArray(data.items)) {
             // Map API response to Subject interface
@@ -202,7 +213,7 @@ export class SubscriptionsComponent implements OnInit {
           }
           console.log('Subjects loaded:', this.subjects);
           console.log('Subjects length:', this.subjects.length);
-          
+
           // Load years after subjects are loaded
           this.loadYears();
         },
@@ -228,9 +239,9 @@ export class SubscriptionsComponent implements OnInit {
             } else {
               this.filteredTerms = [];
             }
-            
+
             console.log('Terms for subject', subjectId, ':', this.filteredTerms);
-            
+
             // Auto-fill first term if available
             if (this.filteredTerms.length > 0) {
               this.currentPlan.termId = this.filteredTerms[0].id;
@@ -241,7 +252,7 @@ export class SubscriptionsComponent implements OnInit {
             this.filteredTerms = [];
           }
         });
-      
+
       // Get subject name
       const selectedSubject = this.subjects.find(s => s.id === subjectId);
       if (selectedSubject) {
@@ -257,7 +268,7 @@ export class SubscriptionsComponent implements OnInit {
     console.log('loadYears() called');
     // Extract unique years from subscription plans
     const uniqueYearNumbers = new Set<number>();
-    
+
     this.subscriptionPlans.forEach(plan => {
       // Only process valid plans with names
       if (plan.name && plan.name.trim() !== '') {
@@ -271,7 +282,7 @@ export class SubscriptionsComponent implements OnInit {
         }
       }
     });
-    
+
     // Create year objects with proper IDs
     const yearMapping: { [key: number]: { id: number; name: string } } = {
       7: { id: 1, name: 'Year 7' },
@@ -279,11 +290,11 @@ export class SubscriptionsComponent implements OnInit {
       9: { id: 3, name: 'Year 9' },
       10: { id: 4, name: 'Year 10' }
     };
-    
+
     this.years = Array.from(uniqueYearNumbers)
       .map(yearNum => yearMapping[yearNum] || { id: yearNum, name: `Year ${yearNum}` })
       .sort((a, b) => a.id - b.id);
-    
+
     console.log('Years extracted from plans:', this.years);
   }
 
@@ -309,54 +320,97 @@ export class SubscriptionsComponent implements OnInit {
 
   // Validate plan has required data
   isValidPlan(plan: SubscriptionPlan): boolean {
-    return !!(plan.name && plan.name.trim() !== '' && plan.planType && plan.planType > 0);
+    return this.plansService.isValidPlan(plan);
+  }
+
+  // Get Plan Type label for display
+  getPlanTypeLabel(planType: PlanType): string {
+    return getPlanTypeLabel(planType);
+  }
+
+  // Get all PlanType enum values for dropdown
+  get planTypes() {
+    return [
+      { value: PlanType.SingleTerm, label: 'Single Term' },
+      { value: PlanType.MultiTerm, label: 'Multi Term' },
+      { value: PlanType.FullYear, label: 'Full Year' },
+      { value: PlanType.SubjectAnnual, label: 'Subject Annual' }
+    ];
+  }
+
+  // Handle term selection for MultiTerm plans
+  onTermSelectionChange(event: any, termId: number): void {
+    if (event.target.checked) {
+      if (!this.selectedTerms.includes(termId)) {
+        this.selectedTerms.push(termId);
+      }
+    } else {
+      const index = this.selectedTerms.indexOf(termId);
+      if (index > -1) {
+        this.selectedTerms.splice(index, 1);
+      }
+    }
+
+    // Update includedTermIds in currentPlan
+    this.currentPlan.includedTermIds = this.selectedTerms.join(',');
+    console.log('✅ Selected terms:', this.selectedTerms, 'includedTermIds:', this.currentPlan.includedTermIds);
+  }
+
+  // Check if term is selected (for checkbox state)
+  isTermSelected(termId: number): boolean {
+    return this.selectedTerms.includes(termId);
+  }
+
+  // Handle plan type change
+  onPlanTypeChange(planType: PlanType): void {
+    this.currentPlan.planType = planType;
+
+    // Reset fields based on plan type
+    if (planType === PlanType.SingleTerm) {
+      this.selectedTerms = [];
+      this.currentPlan.includedTermIds = '';
+    } else if (planType === PlanType.MultiTerm) {
+      this.currentPlan.termId = undefined;
+    } else if (planType === PlanType.FullYear) {
+      this.currentPlan.subjectId = undefined;
+      this.currentPlan.termId = undefined;
+      this.selectedTerms = [];
+      this.currentPlan.includedTermIds = '';
+    } else if (planType === PlanType.SubjectAnnual) {
+      this.currentPlan.termId = undefined;
+      this.selectedTerms = [];
+      this.currentPlan.includedTermIds = '';
+    }
   }
 
   // ============================================
   // Subscription Plans CRUD
   // ============================================
-  
+
   loadSubscriptionPlans(): void {
     this.loading.set(true);
-    this.http.get<any>(`${environment.apiBaseUrl}/SubscriptionPlans`)
+    this.plansService.getAllPlans()
       .subscribe({
-        next: (response) => {
-          console.log('API Response - Subscription Plans:', response);
-          
-          let plans: SubscriptionPlan[] = [];
-          
-          // API returns direct array
-          if (Array.isArray(response)) {
-            plans = response;
-          } else if (response && Array.isArray(response.value)) {
-            // Fallback for wrapped format
-            plans = response.value;
-          }
-          
-          // Filter out invalid/empty plans
-          // Keep only plans that have: valid name AND valid planType AND valid price
-          plans = plans.filter((plan: any) => {
-            const hasValidName = plan.name && plan.name.trim() !== '' && plan.name.toLowerCase() !== 'string';
-            const hasValidPlanType = plan.planType && plan.planType > 0;
-            const hasValidPrice = plan.price !== null && plan.price !== undefined && plan.price >= 0;
-            
-            return hasValidName && hasValidPlanType && hasValidPrice;
-          });
-          
-          console.log('Filtered plans:', plans);
-          this.subscriptionPlans = plans;
-          this.stats.totalPlans = plans.length;
-          this.stats.activePlans = plans.length;
-          
+        next: (plans) => {
+          console.log('✅ Plans loaded from service:', plans.length);
+
+          // Filter valid plans
+          this.subscriptionPlans = plans.filter(plan =>
+            this.plansService.isValidPlan(plan)
+          );
+
+          this.stats.totalPlans = this.subscriptionPlans.length;
+          this.stats.activePlans = this.subscriptionPlans.filter(p => p.isActive).length;
+
           // Load years and subjects after plans
           this.loadYears();
           this.loadSubjects();
-          
+
           this.loading.set(false);
         },
         error: (error) => {
-          console.error('Error loading subscription plans:', error);
-          Swal.fire('Error', 'Failed to load subscription plans', 'error');
+          console.error('❌ Error loading subscription plans:', error);
+          Swal.fire('Error', error.message || 'Failed to load subscription plans', 'error');
           this.loading.set(false);
         }
       });
@@ -369,18 +423,16 @@ export class SubscriptionsComponent implements OnInit {
       name: '',
       description: '',
       price: 0,
-      planType: 1,
+      planType: PlanType.SingleTerm,  // ✅ استخدام enum
       isActive: true,
       subjectId: 0,
       termId: 0,
-      yearId: 0
+      yearId: 0,
+      includedTermIds: ''  // ✅ للـ MultiTerm
     };
     this.filteredTerms = [];
-    
+
     // Reload subjects and years if empty
-    console.log('Current subjects length:', this.subjects.length);
-    console.log('Current years length:', this.years.length);
-    
     if (this.subjects.length === 0 || this.years.length === 0) {
       console.log('Loading subjects and years');
       this.loadSubjects();
@@ -388,19 +440,19 @@ export class SubscriptionsComponent implements OnInit {
         this.loadYears();
       }
     }
-    
+
     this.showPlanModal = true;
   }
 
   openEditPlanModal(plan: SubscriptionPlan): void {
     this.isEditMode = true;
     this.currentPlan = { ...plan };
-    
+
     // Reload subjects if empty
     if (this.subjects.length === 0) {
       this.loadSubjects();
     }
-    
+
     // Load terms if editing a plan with a subject
     if (plan.subjectId && plan.subjectId > 0) {
       this.onSubjectChange(plan.subjectId);
@@ -416,88 +468,76 @@ export class SubscriptionsComponent implements OnInit {
   }
 
   savePlan(): void {
-    if (!this.currentPlan.name || !this.currentPlan.description || this.currentPlan.price === undefined || this.currentPlan.planType === undefined) {
+    if (!this.currentPlan.name || !this.currentPlan.description ||
+        this.currentPlan.price === undefined || this.currentPlan.planType === undefined) {
       Swal.fire('Validation Error', 'Please fill all required fields (Name, Description, Price, Plan Type)', 'warning');
       return;
     }
 
     this.loading.set(true);
     const planId = this.currentPlan.planId || this.currentPlan.id;
-    
-    // Convert planType to enum value (1, 2, 3, 4)
-    const planTypeValue = typeof this.currentPlan.planType === 'string' 
-      ? parseInt(this.currentPlan.planType, 10) 
-      : this.currentPlan.planType;
-    
-    // Prepare the data according to API schema
-    const planData = {
-      dto: {
-        name: this.currentPlan.name,
-        description: this.currentPlan.description,
-        planType: planTypeValue,
-        price: this.currentPlan.price,
-        isActive: this.currentPlan.isActive ?? true,
-        subjectId: this.currentPlan.subjectId || 0,
-        termId: this.currentPlan.termId || 0,
-        yearId: this.currentPlan.yearId || 0
-      }
+
+    // ✅ بناء DTO بدون wrapper
+    const planDto: CreateSubscriptionPlanDto = {
+      name: this.currentPlan.name,
+      description: this.currentPlan.description,
+      planType: this.currentPlan.planType as PlanType,
+      price: this.currentPlan.price,
+      isActive: this.currentPlan.isActive ?? true,
+      subjectId: this.currentPlan.subjectId || undefined,
+      termId: this.currentPlan.termId || undefined,
+      yearId: this.currentPlan.yearId || undefined,
+      includedTermIds: this.currentPlan.includedTermIds || undefined
     };
-    
-    console.log('Sending plan data:', planData);
-    
+
+    console.log('✅ Sending plan DTO:', planDto);
+
     if (this.isEditMode && planId) {
       // Update existing plan
-      this.http.put(`${environment.apiBaseUrl}/SubscriptionPlans/${planId}`, planData)
+      this.plansService.updatePlan(planId, planDto)
         .subscribe({
-          next: () => {
-            // Update the plan in local array without reloading
+          next: (updatedPlan) => {
+            // Update plan in local array
             const index = this.subscriptionPlans.findIndex(p => (p.planId || p.id) === planId);
             if (index !== -1) {
-              this.subscriptionPlans[index] = { ...this.currentPlan, planId } as SubscriptionPlan;
+              this.subscriptionPlans[index] = updatedPlan;
             }
             this.loading.set(false);
             this.closePlanModal();
             Swal.fire('Success', 'Subscription plan updated successfully', 'success');
           },
           error: (error) => {
-            console.error('Error updating plan:', error);
+            console.error('❌ Error updating plan:', error);
             this.loading.set(false);
-            Swal.fire('Error', 'Failed to update subscription plan', 'error');
+            Swal.fire('Error', error.message || 'Failed to update subscription plan', 'error');
           }
         });
     } else {
       // Create new plan
-      this.http.post(`${environment.apiBaseUrl}/SubscriptionPlans`, planData)
+      this.plansService.createPlan(planDto)
         .subscribe({
-          next: (newPlan: any) => {
-            // Add new plan to local array
+          next: (newPlan) => {
             this.subscriptionPlans.push(newPlan);
             this.stats.totalPlans = this.subscriptionPlans.length;
-            this.stats.activePlans = this.subscriptionPlans.length;
+            this.stats.activePlans = this.subscriptionPlans.filter(p => p.isActive).length;
             this.loading.set(false);
             this.closePlanModal();
             Swal.fire('Success', 'Subscription plan created successfully', 'success');
           },
           error: (error) => {
-            console.error('Error creating plan:', error);
+            console.error('❌ Error creating plan:', error);
             this.loading.set(false);
-            const errorMsg = error?.error?.errors ? JSON.stringify(error.error.errors) : error?.message || 'Unknown error';
-            Swal.fire('Error', `Failed to create subscription plan: ${errorMsg}`, 'error');
+            Swal.fire('Error', error.message || 'Failed to create subscription plan', 'error');
           }
         });
     }
   }
 
   deactivatePlan(plan: any): void {
-    console.log('deactivatePlan called with plan object:', plan);
-    
-    // Try different possible ID property names from the API
     const planId = plan?.planId || plan?.id || plan?.subscriptionPlanId;
-    
-    console.log('Extracted plan ID:', planId);
-    
+
     if (!planId) {
-      console.error('Plan ID is missing. Plan object:', plan);
+      console.error('❌ Plan ID is missing. Plan object:', plan);
       Swal.fire('Error', 'Plan ID is missing', 'error');
       return;
     }
@@ -512,15 +552,15 @@ export class SubscriptionsComponent implements OnInit {
       confirmButtonText: 'Yes, deactivate it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.http.post(`${environment.apiBaseUrl}/SubscriptionPlans/deactivate-plan/${planId}`, {})
+        this.plansService.deactivatePlan(planId)
           .subscribe({
             next: () => {
               Swal.fire('Deactivated!', 'The subscription plan has been deactivated.', 'success');
               this.loadSubscriptionPlans();
             },
             error: (error) => {
-              console.error('Error deactivating plan:', error);
-              Swal.fire('Error', 'Failed to deactivate subscription plan', 'error');
+              console.error('❌ Error deactivating plan:', error);
+              Swal.fire('Error', error.message || 'Failed to deactivate subscription plan', 'error');
             }
           });
       }
@@ -530,18 +570,18 @@ export class SubscriptionsComponent implements OnInit {
   // ============================================
   // Orders Management
   // ============================================
-  
+
   getPlanNameFromOrder(order: Order): string {
     if (order.items && order.items.length > 0) {
       return order.items[0].planName;
     }
     return 'N/A';
   }
-  
+
   getOrderItemsCount(order: Order): number {
     return order.items?.length ?? 0;
   }
-  
+
   loadOrders(): void {
     this.loading.set(true);
     // Use parent summary endpoint for authenticated orders
@@ -549,10 +589,10 @@ export class SubscriptionsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           console.log('API Response - Orders:', response);
-          
+
           // Handle response format - could be { items: [...], totalCount, etc. } or { value: [...] }
           let orders: Order[] = [];
-          
+
           if (response && Array.isArray(response.items)) {
             orders = response.items;
           } else if (response && Array.isArray(response.value)) {
@@ -562,7 +602,7 @@ export class SubscriptionsComponent implements OnInit {
           } else {
             orders = [];
           }
-          
+
           console.log('Parsed orders:', orders);
           this.orders = orders;
           this.calculateOrderStats(orders);
@@ -602,7 +642,7 @@ export class SubscriptionsComponent implements OnInit {
       Swal.fire('Error', 'Order ID is missing', 'error');
       return;
     }
-    
+
     this.http.get<any>(`${environment.apiBaseUrl}/Orders/${orderId}`)
       .subscribe({
         next: (order) => {
@@ -646,7 +686,7 @@ export class SubscriptionsComponent implements OnInit {
       Swal.fire('Error', 'Order ID is missing', 'error');
       return;
     }
-    
+
     this.http.get(`${environment.apiBaseUrl}/Orders/${orderId}/invoice`, { responseType: 'blob' })
       .subscribe({
         next: (blob) => {
@@ -668,7 +708,7 @@ export class SubscriptionsComponent implements OnInit {
   // ============================================
   // Analytics
   // ============================================
-  
+
   loadAnalytics(): void {
     const params: any = {};
     if (this.dateRange.startDate) params.startDate = this.dateRange.startDate;
@@ -678,7 +718,7 @@ export class SubscriptionsComponent implements OnInit {
       .subscribe({
         next: (data) => {
           console.log('API Response - Analytics:', data);
-          
+
           // Handle multiple possible response formats
           if (data) {
             // Normalize the response to Analytics format
@@ -719,18 +759,18 @@ export class SubscriptionsComponent implements OnInit {
   // ============================================
   // Filters & Search
   // ============================================
-  
+
   get filteredPlans(): SubscriptionPlan[] {
     return this.subscriptionPlans.filter(plan => {
       // Skip plans with no name and invalid planType
       if (!plan.name || plan.name.trim() === '') {
         return false;
       }
-      
-      const matchesSearch = !this.searchTerm || 
+
+      const matchesSearch = !this.searchTerm ||
         plan.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         plan.description?.toLowerCase().includes(this.searchTerm.toLowerCase());
-      
+
       return matchesSearch;
     });
   }
@@ -753,14 +793,14 @@ export class SubscriptionsComponent implements OnInit {
       const orderId = (order.orderId || '').toString().toLowerCase();
       const userName = (order.userName || '').toLowerCase();
       const studentName = (order.studentName || '').toLowerCase();
-      
-      const matchesSearch = !this.searchTerm || 
+
+      const matchesSearch = !this.searchTerm ||
         orderId.includes(searchText) ||
         userName.includes(searchText) ||
         studentName.includes(searchText);
-      
+
       const matchesStatus = !this.statusFilter || (order.status === this.statusFilter);
-      
+
       return matchesSearch && matchesStatus;
     });
   }

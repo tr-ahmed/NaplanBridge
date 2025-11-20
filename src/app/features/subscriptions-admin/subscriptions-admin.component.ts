@@ -7,47 +7,24 @@ import { forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { environment } from '../../../environments/environment';
+import { SubscriptionPlansService } from '../../core/services/subscription-plans.service';
+import {
+  SubscriptionPlan,
+  CreateSubscriptionPlanDto
+} from '../../models/subscription.models';
+import {
+  PlanType,
+  OrderStatus,
+  SubscriptionStatus,
+  getPlanTypeLabel,
+  getOrderStatusInfo
+} from '../../models/enums';
 
 // ==================== TYPE DEFINITIONS BASED ON SWAGGER API ====================
+// Enums are now imported from models/enums.ts
 
-// Enums
-enum OrderStatus {
-  Pending = 1,
-  Completed = 2,
-  Cancelled = 3,
-  Failed = 4
-}
-
-enum PlanType {
-  Basic = 1,
-  Standard = 2,
-  Premium = 3,
-  Enterprise = 4
-}
-
-enum SubscriptionStatus {
-  Active = 0,
-  Cancelled = 1,
-  Expired = 2,
-  Suspended = 3,
-  PendingPayment = 4
-}
-
-// Subscription Plan Interface (from Swagger)
-interface SubscriptionPlan {
-  id?: number;
-  name: string;
-  description: string;
-  planType: PlanType;
-  price: number;
-  durationInDays: number;
-  isActive: boolean;
-  stripePriceId?: string;
-  subjectId?: number;
-  termId?: number;
-  yearId?: number;
-  includedTermIds?: string;
-}
+// Subscription Plan Interface (from Swagger) - using imported SubscriptionPlan
+// Extended interface with UI properties
 
 // Order Interface (from Swagger)
 interface Order {
@@ -71,7 +48,6 @@ interface OrderItem {
   studentId: number;
 }
 
-// Extended interfaces with UI helper properties
 interface PlanWithStatus extends SubscriptionPlan {
   statusLabel: 'Active' | 'Inactive';
   planTypeLabel: string;
@@ -114,18 +90,7 @@ interface YearDto {
   name?: string;
 }
 
-// Create/Update DTOs
-interface CreateSubscriptionPlanDto {
-  name: string;
-  description: string;
-  planType: PlanType;
-  price: number;
-  durationInDays: number;
-  subjectId?: number;
-  termId?: number;
-  yearId?: number;
-  includedTermIds?: string;
-}
+// Create/Update DTOs are imported from models/subscription.models.ts
 
 // Stats interface
 interface DashboardStats {
@@ -248,7 +213,8 @@ export class SubscriptionManagementComponent implements OnInit {
 
   constructor(
     public authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private plansService: SubscriptionPlansService
   ) {}
 
   ngOnInit() {
@@ -320,11 +286,10 @@ export class SubscriptionManagementComponent implements OnInit {
   }
 
   private loadPlans() {
-    return this.http.get<SubscriptionPlan[]>(`${this.apiBaseUrl}/SubscriptionPlans`)
-      .pipe(
-        map(plans => (plans || []).map(plan => this.mapPlanWithStatus(plan))),
-        catchError(() => of([]))
-      );
+    return this.plansService.getAllPlans().pipe(
+      map(plans => (plans || []).map(plan => this.mapPlanWithStatus(plan))),
+      catchError(() => of([]))
+    );
   }
 
   private loadOrders() {
@@ -450,7 +415,7 @@ export class SubscriptionManagementComponent implements OnInit {
 
   createPlan(planData: CreateSubscriptionPlanDto) {
     this.isLoading = true;
-    this.http.post<SubscriptionPlan>(`${this.apiBaseUrl}/SubscriptionPlans`, planData)
+    this.plansService.createPlan(planData)
       .subscribe({
         next: (newPlan) => {
           this.plans.push(this.mapPlanWithStatus(newPlan));
@@ -461,8 +426,8 @@ export class SubscriptionManagementComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error creating plan:', error);
-          this.showError('Failed to create plan');
+          console.error('❌ Error creating plan:', error);
+          this.showError(error.message || 'Failed to create plan');
           this.isLoading = false;
         }
       });
@@ -470,7 +435,7 @@ export class SubscriptionManagementComponent implements OnInit {
 
   updatePlan(planId: number, planData: CreateSubscriptionPlanDto) {
     this.isLoading = true;
-    this.http.put<SubscriptionPlan>(`${this.apiBaseUrl}/SubscriptionPlans/${planId}`, planData)
+    this.plansService.updatePlan(planId, planData)
       .subscribe({
         next: (updatedPlan) => {
           const index = this.plans.findIndex(p => p.id === planId);
@@ -484,8 +449,8 @@ export class SubscriptionManagementComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error updating plan:', error);
-          this.showError('Failed to update plan');
+          console.error('❌ Error updating plan:', error);
+          this.showError(error.message || 'Failed to update plan');
           this.isLoading = false;
         }
       });
@@ -495,7 +460,7 @@ export class SubscriptionManagementComponent implements OnInit {
     if (!confirm('Are you sure you want to toggle this plan status?')) return;
 
     this.isLoading = true;
-    this.http.post(`${this.apiBaseUrl}/SubscriptionPlans/deactivate-plan/${planId}`, {})
+    this.plansService.deactivatePlan(planId)
       .subscribe({
         next: () => {
           const plan = this.plans.find(p => p.id === planId);
@@ -509,8 +474,8 @@ export class SubscriptionManagementComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error toggling plan status:', error);
-          this.showError('Failed to update plan status');
+          console.error('❌ Error toggling plan status:', error);
+          this.showError(error.message || 'Failed to update plan status');
           this.isLoading = false;
         }
       });
@@ -533,33 +498,16 @@ export class SubscriptionManagementComponent implements OnInit {
   // ==================== UI HELPERS ====================
 
   getPlanTypeLabel(planType: PlanType): string {
-    const labels: Record<PlanType, string> = {
-      [PlanType.Basic]: 'Basic',
-      [PlanType.Standard]: 'Standard',
-      [PlanType.Premium]: 'Premium',
-      [PlanType.Enterprise]: 'Enterprise'
-    };
-    return labels[planType] || `Type ${planType}`;
+    return getPlanTypeLabel(planType);
   }
 
   getOrderStatusLabel(status: OrderStatus): string {
-    const labels: Record<OrderStatus, string> = {
-      [OrderStatus.Pending]: 'Pending',
-      [OrderStatus.Completed]: 'Completed',
-      [OrderStatus.Cancelled]: 'Cancelled',
-      [OrderStatus.Failed]: 'Failed'
-    };
-    return labels[status] || 'Unknown';
+    return getOrderStatusInfo(status).label;
   }
 
   getOrderStatusClass(status: OrderStatus): string {
-    const classes: Record<OrderStatus, string> = {
-      [OrderStatus.Pending]: 'badge bg-warning text-dark',
-      [OrderStatus.Completed]: 'badge bg-success',
-      [OrderStatus.Cancelled]: 'badge bg-secondary',
-      [OrderStatus.Failed]: 'badge bg-danger'
-    };
-    return classes[status] || 'badge bg-secondary';
+    const color = getOrderStatusInfo(status).color;
+    return `badge bg-${color}${color === 'warning' ? ' text-dark' : ''}`;
   }
 
   getSubjectName(id?: number): string {
@@ -592,12 +540,14 @@ export class SubscriptionManagementComponent implements OnInit {
     this.form = {
       name: '',
       description: '',
-      planType: PlanType.Basic,
+      planType: PlanType.SingleTerm,  // ✅ استخدام enum
       price: 0,
-      durationInDays: 30,
+      durationInDays: 90,  // 3 months default
       subjectId: null,
       termId: null,
-      yearId: null
+      yearId: null,
+      includedTermIds: '',
+      isActive: true
     };
     this.isFormOpen = true;
   }

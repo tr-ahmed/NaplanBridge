@@ -3,18 +3,13 @@
  * Based on Backend API Documentation - PAYMENT_SUBSCRIPTION_GUIDE.md
  */
 
-// ============================================
-// Plan Types (from Backend)
-// ============================================
+import { PlanType, OrderStatus, SubscriptionStatus as SubscriptionStatusEnum } from './enums';
 
-export type PlanType = 'SingleTerm' | 'MultiTerm' | 'FullYear' | 'SubjectAnnual';
-
-export const PlanTypes = {
-  SINGLE_TERM: 'SingleTerm' as PlanType,      // Single term subscription
-  MULTI_TERM: 'MultiTerm' as PlanType,        // Multiple terms (e.g., Term 1 & 2)
-  FULL_YEAR: 'FullYear' as PlanType,          // All subjects for one year
-  SUBJECT_ANNUAL: 'SubjectAnnual' as PlanType // One subject for full year
-};
+// ============================================
+// Plan Types (imported from enums.ts)
+// ============================================
+// PlanType enum is now centralized in enums.ts
+// Values: SingleTerm = 1, MultiTerm = 2, FullYear = 3, SubjectAnnual = 4
 
 // ============================================
 // Subscription Status
@@ -165,16 +160,22 @@ export interface CreateSubscriptionPlanDto {
   price: number;
   planType: PlanType;
   subjectId?: number;
+  termId?: number;           // مطلوب للـ SingleTerm plans
   yearId?: number;
-  durationInDays: number;
-  includedTermIds?: string;
+  durationInDays?: number;   // اختياري - يُحسب تلقائياً إذا لم يُحدد
+  includedTermIds?: string;  // مطلوب للـ MultiTerm plans (e.g., "1,2")
   features?: string[];
+  isActive?: boolean;        // افتراضي true
 }
 
 export interface UpdateSubscriptionPlanDto {
   name?: string;
   description?: string;
   price?: number;
+  planType?: PlanType;
+  subjectId?: number;
+  termId?: number;
+  yearId?: number;
   durationInDays?: number;
   includedTermIds?: string;
   isActive?: boolean;
