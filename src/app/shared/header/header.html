@@ -181,7 +181,11 @@
             </div>
 
             @if (userName) {
-              <span class="user-welcome hidden lg:block text-gray-700 font-medium whitespace-nowrap truncate">Welcome, {{ userName }}</span>
+              <button
+                (click)="navigateToProfile()"
+                class="user-welcome hidden lg:block text-gray-700 font-medium whitespace-nowrap truncate hover:text-primary-500 transition-colors duration-200 cursor-pointer bg-transparent border-none px-2 py-1 rounded hover:bg-blue-50">
+                Welcome, {{ userName }}
+              </button>
             }
 
             <!-- Role-based dashboard buttons -->

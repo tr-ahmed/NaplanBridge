@@ -120,6 +120,20 @@ export class StudentExamsComponent implements OnInit {
     }
   }
 
+  /**
+   * Start exam - navigate to exam taking page
+   */
+  startExam(examId: number): void {
+    this.router.navigate(['/student/exam', examId]);
+  }
+
+  /**
+   * View exam result - navigate to results page
+   */
+  viewResult(studentExamId: number): void {
+    this.router.navigate(['/student/exam-result', studentExamId]);
+  }
+
   formatDate(date: string | Date): string {
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',

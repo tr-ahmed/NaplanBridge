@@ -82,7 +82,7 @@ export class RegisterTeacherComponent {
     <input type="password" formControlName="password" 
            class="w-full border rounded px-3 py-2">
     @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-      <small class="text-red-500">Password must be at least 6 characters</small>
+      <small class="text-red-500">Password must be at least 8 characters</small>
     }
   </div>
 

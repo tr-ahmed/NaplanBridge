@@ -86,12 +86,12 @@
               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               [class.border-red-500]="hasError('password', 'required') || hasError('password', 'minlength')"
               [class.border-gray-300]="!hasError('password', 'required') && !hasError('password', 'minlength')"
-              placeholder="Min 6 characters" />
+              placeholder="Min 8 characters" />
             @if (hasError('password', 'required')) {
               <p class="mt-1 text-sm text-red-500">Password is required</p>
             }
             @if (hasError('password', 'minlength')) {
-              <p class="mt-1 text-sm text-red-500">Password must be at least 6 characters</p>
+              <p class="mt-1 text-sm text-red-500">Password must be at least 8 characters</p>
             }
           </div>
 

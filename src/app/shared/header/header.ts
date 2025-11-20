@@ -253,4 +253,11 @@ navigateToTeacherDashboard(): void {
   this.router.navigate(['/teacher/content-management']);
 }
 
+/**
+ * Navigate to Profile Page
+ */
+navigateToProfile(): void {
+  this.router.navigate(['/profile']);
+}
+
 }
