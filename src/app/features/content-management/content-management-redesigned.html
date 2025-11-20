@@ -36,7 +36,7 @@
           </svg>
           <span class="hidden sm:inline">Dashboard</span>
         </a>
-        
+
         <!-- Analytics Buttons -->
         <a
           routerLink="/admin/analytics"
@@ -54,10 +54,10 @@
           </svg>
           <span class="hidden sm:inline">Advanced Analytics</span>
         </a>
-        
+
         <!-- Divider -->
         <div class="hidden md:block w-px h-8 bg-gray-300"></div>
-        
+
         <!-- Existing Buttons -->
         <a
           routerLink="/admin/exams"
@@ -87,6 +87,15 @@
         </button>
         <button
           type="button"
+          (click)="openAdd('subjectName')"
+          class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-medium flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span class="hidden lg:inline">Add Subject Name</span>
+        </button>
+        <button
+          type="button"
           (click)="openAdd('lesson')"
           class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium flex items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,11 +103,13 @@
           </svg>
           <span class="hidden lg:inline">Add Lesson</span>
         </button>
+
+
       </div>
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 md:gap-6 mb-8">
       <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center">
           <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
@@ -119,6 +130,18 @@
           <div>
             <p class="text-gray-600 text-sm mb-1">Categories</p>
             <p class="text-3xl font-bold text-gray-900">{{ totalCounts.categories }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-3 rounded-full bg-teal-100 text-teal-600 mr-4">
+            <i class="fas fa-tag text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-600 text-sm mb-1">Subject Names</p>
+            <p class="text-3xl font-bold text-gray-900">{{ totalCounts.subjectNames }}</p>
           </div>
         </div>
       </div>
@@ -256,12 +279,12 @@
 
     <!-- Filters -->
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Year Filter -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
             <i class="fas fa-filter text-gray-400 mr-1"></i>
-            Year
+            Filter by Year
           </label>
           <select
             [(ngModel)]="filters.yearId"
@@ -272,74 +295,14 @@
           </select>
         </div>
 
-        <!-- Category Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            <i class="fas fa-filter text-gray-400 mr-1"></i>
-            Category
-          </label>
-          <select
-            [(ngModel)]="filters.categoryId"
-            (change)="onFilterChange()"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option [value]="null">All Categories</option>
-            <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
-          </select>
-        </div>
-
-        <!-- Subject Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            <i class="fas fa-filter text-gray-400 mr-1"></i>
-            Subject
-          </label>
-          <select
-            [(ngModel)]="filters.subjectId"
-            (change)="onFilterChange()"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option [value]="null">All Subjects</option>
-            <option *ngFor="let subj of filteredSubjects" [value]="subj.id">{{ subj.subjectName }}</option>
-          </select>
-        </div>
-
-        <!-- Term Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            <i class="fas fa-filter text-gray-400 mr-1"></i>
-            Term
-          </label>
-          <select
-            [(ngModel)]="filters.termId"
-            (change)="onFilterChange()"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option [value]="null">All Terms</option>
-            <option *ngFor="let term of filteredTerms" [value]="term.id">Term {{ term.termNumber }} - {{ nameSubject(term.subjectId) }}</option>
-          </select>
-        </div>
-
-        <!-- Week Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            <i class="fas fa-filter text-gray-400 mr-1"></i>
-            Week
-          </label>
-          <select
-            [(ngModel)]="filters.weekId"
-            (change)="onFilterChange()"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option [value]="null">All Weeks</option>
-            <option *ngFor="let week of filteredWeeks" [value]="week.id">Week {{ week.weekNumber }}</option>
-          </select>
-        </div>
-
         <!-- Clear Filters -->
         <div class="flex items-end">
           <button
             type="button"
-            class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
+            class="w-full px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 font-medium transition-all duration-200 shadow-sm hover:shadow-md"
             (click)="clearFilters()">
             <i class="fas fa-times mr-2"></i>
-            Clear All
+            Clear Filter
           </button>
         </div>
       </div>
@@ -398,6 +361,23 @@
                [class.text-gray-400]="activeTab !== 'categories'"
                [class.group-hover:text-blue-700]="activeTab !== 'categories'"></i>
             Categories
+          </button>
+
+          <button
+            type="button"
+            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            [class.border-blue-500]="activeTab === 'subjectNames'"
+            [class.border-transparent]="activeTab !== 'subjectNames'"
+            [class.text-blue-600]="activeTab === 'subjectNames'"
+            [class.text-gray-500]="activeTab !== 'subjectNames'"
+            [class.hover:text-blue-700]="activeTab !== 'subjectNames'"
+            [class.hover:border-gray-300]="activeTab !== 'subjectNames'"
+            (click)="setActiveTab('subjectNames')">
+            <i class="fas fa-tag mr-2 text-lg"
+               [class.text-blue-500]="activeTab === 'subjectNames'"
+               [class.text-gray-400]="activeTab !== 'subjectNames'"
+               [class.group-hover:text-blue-700]="activeTab !== 'subjectNames'"></i>
+            Subject Names
           </button>
 
           <button
@@ -510,6 +490,158 @@
               (delete)="confirmDelete('category', $event)"
               (add)="openAdd('category')">
             </app-categories-table>
+          }
+
+          <!-- Subject Names Tab -->
+          @if (activeTab === 'subjectNames') {
+            <div class="subject-names-table">
+              <div class="flex justify-between items-center mb-6">
+                <h4 class="text-xl font-bold text-gray-900">
+                  <i class="fas fa-tag mr-2 text-teal-600"></i>
+                  Subject Names Management
+                </h4>
+                <button
+                  type="button"
+                  (click)="openAdd('subjectName')"
+                  class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-medium flex items-center gap-2">
+                  <i class="fas fa-plus mr-1"></i>
+                  Add Subject Name
+                </button>
+              </div>
+
+              <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    @for (sn of pagedSubjectNames; track sn.id; let i = $index) {
+                      <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {{ (subjectNamePage - 1) * pageSize + i + 1 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="text-sm font-medium text-gray-900">{{ sn.name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            {{ nameCategory(sn.categoryId) }}
+                          </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            type="button"
+                            (click)="openEdit('subjectName', sn)"
+                            class="text-indigo-600 hover:text-indigo-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button
+                            type="button"
+                            (click)="confirmDelete('subjectName', sn)"
+                            class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash-alt"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="4" class="px-6 py-12 text-center">
+                          <div class="flex flex-col items-center justify-center">
+                            <i class="fas fa-tag text-gray-300 text-5xl mb-4"></i>
+                            <p class="text-gray-500 text-lg font-medium">No subject names found</p>
+                            <p class="text-gray-400 text-sm mt-1">Create your first subject name to get started</p>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+
+                <!-- Pagination -->
+                @if (filteredSubjectNames.length > 0) {
+                  <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                      <button
+                        [disabled]="subjectNamePage === 1"
+                        (click)="goSubjectNamePage(subjectNamePage - 1)"
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Previous
+                      </button>
+                      <button
+                        [disabled]="subjectNamePage === subjectNameTotalPages"
+                        (click)="goSubjectNamePage(subjectNamePage + 1)"
+                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Next
+                      </button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                      <div>
+                        <p class="text-sm text-gray-700">
+                          Showing
+                          <span class="font-medium">{{ snStart }}</span>
+                          to
+                          <span class="font-medium">{{ snEnd }}</span>
+                          of
+                          <span class="font-medium">{{ filteredSubjectNames.length }}</span>
+                          results
+                        </p>
+                      </div>
+                      <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                          <button
+                            [disabled]="subjectNamePage === 1"
+                            (click)="goSubjectNamePage(1)"
+                            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-angle-double-left"></i>
+                          </button>
+                          <button
+                            [disabled]="subjectNamePage === 1"
+                            (click)="goSubjectNamePage(subjectNamePage - 1)"
+                            class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-chevron-left"></i>
+                          </button>
+                          @for (p of [].constructor(subjectNameTotalPages); track $index; let j = $index) {
+                            @if (j + 1 === 1 || j + 1 === subjectNameTotalPages || (j + 1 >= subjectNamePage - 1 && j + 1 <= subjectNamePage + 1)) {
+                              <button
+                                (click)="goSubjectNamePage(j + 1)"
+                                [class.bg-blue-50]="subjectNamePage === j + 1"
+                                [class.border-blue-500]="subjectNamePage === j + 1"
+                                [class.text-blue-600]="subjectNamePage === j + 1"
+                                [class.bg-white]="subjectNamePage !== j + 1"
+                                [class.text-gray-500]="subjectNamePage !== j + 1"
+                                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium hover:bg-gray-50">
+                                {{ j + 1 }}
+                              </button>
+                            } @else if (j + 1 === subjectNamePage - 2 || j + 1 === subjectNamePage + 2) {
+                              <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                ...
+                              </span>
+                            }
+                          }
+                          <button
+                            [disabled]="subjectNamePage === subjectNameTotalPages"
+                            (click)="goSubjectNamePage(subjectNamePage + 1)"
+                            class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-chevron-right"></i>
+                          </button>
+                          <button
+                            [disabled]="subjectNamePage === subjectNameTotalPages"
+                            (click)="goSubjectNamePage(subjectNameTotalPages)"
+                            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-angle-double-right"></i>
+                          </button>
+                        </nav>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
           }
 
           <!-- Subjects Tab -->

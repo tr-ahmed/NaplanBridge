@@ -96,6 +96,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
 
   pagedYears: Year[] = [];
   pagedCategories: Category[] = [];
+  pagedSubjectNames: SubjectName[] = [];
   pagedSubjects: Subject[] = [];
   pagedTerms: Term[] = [];
   pagedWeeks: Week[] = [];
@@ -118,6 +119,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   pageSize = 10;
   yearPage = 1;
   categoryPage = 1;
+  subjectNamePage = 1;
   subjectPage = 1;
   termPage = 1;
   weekPage = 1;
@@ -128,6 +130,9 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   }
   get categoryTotalPages() {
     return Math.max(1, Math.ceil(this.filteredCategories.length / this.pageSize));
+  }
+  get subjectNameTotalPages() {
+    return Math.max(1, Math.ceil(this.filteredSubjectNames.length / this.pageSize));
   }
   get subjectTotalPages() {
     return Math.max(1, Math.ceil(this.filteredSubjects.length / this.pageSize));
@@ -142,12 +147,21 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     return Math.max(1, Math.ceil(this.filteredLessons.length / this.pageSize));
   }
 
+  // Pagination display helpers
+  get snStart() {
+    return Math.min((this.subjectNamePage - 1) * this.pageSize + 1, this.filteredSubjectNames.length);
+  }
+  get snEnd() {
+    return Math.min(this.subjectNamePage * this.pageSize, this.filteredSubjectNames.length);
+  }
+
   // ============================================
   // Statistics
   // ============================================
   totalCounts = {
     years: 0,
     categories: 0,
+    subjectNames: 0,
     subjects: 0,
     terms: 0,
     weeks: 0,
@@ -545,6 +559,13 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       !q || c.name.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q)
     );
 
+    // Filter Subject Names
+    this.filteredSubjectNames = this.subjectNames.filter(sn => {
+      const matchesSearch = !q || sn.name?.toLowerCase().includes(q);
+      const matchesCategory = !categoryIdNum || sn.categoryId === categoryIdNum;
+      return matchesSearch && matchesCategory;
+    });
+
     // Filter Subjects
     const subjectsArr = Array.isArray(this.subjects) ? this.subjects : [];
     this.filteredSubjects = subjectsArr.filter((s: Subject) => {
@@ -589,6 +610,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   updatePaged(): void {
     this.pagedYears = this.slicePage(this.filteredYears, this.yearPage);
     this.pagedCategories = this.slicePage(this.filteredCategories, this.categoryPage);
+    this.pagedSubjectNames = this.slicePage(this.filteredSubjectNames, this.subjectNamePage);
     this.pagedSubjects = this.slicePage(this.filteredSubjects, this.subjectPage);
     this.pagedTerms = this.slicePage(this.filteredTerms, this.termPage);
     this.pagedWeeks = this.slicePage(this.filteredWeeks, this.weekPage);
@@ -604,6 +626,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.totalCounts = {
       years: this.years.length,
       categories: this.categories.length,
+      subjectNames: this.subjectNames.length,
       subjects: this.subjects.length,
       terms: this.terms.length,
       weeks: this.weeks.length,
@@ -618,6 +641,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.totalCounts = {
       years: this.years.length,
       categories: this.categories.length,
+      subjectNames: this.subjectNames.length,
       subjects: this.apiTotalCounts.subjects || this.subjects.length,
       terms: this.terms.length,
       weeks: this.weeks.length,
@@ -628,6 +652,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   resetPaging(): void {
     this.yearPage = 1;
     this.categoryPage = 1;
+    this.subjectNamePage = 1;
     this.subjectPage = 1;
     this.termPage = 1;
     this.weekPage = 1;
@@ -649,6 +674,13 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   goCategoryPage(p: number): void {
     if (p >= 1 && p <= this.categoryTotalPages) {
       this.categoryPage = p;
+      this.updatePaged();
+    }
+  }
+
+  goSubjectNamePage(p: number): void {
+    if (p >= 1 && p <= this.subjectNameTotalPages) {
+      this.subjectNamePage = p;
       this.updatePaged();
     }
   }
@@ -704,6 +736,10 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
 
   nameSubject(id: Id | undefined | null): string {
     return this.subjects.find(s => s.id === id)?.subjectName || '';
+  }
+
+  nameCategory(id: Id | undefined | null): string {
+    return this.categories.find(c => c.id === id)?.name || '';
   }
 
   // ============================================

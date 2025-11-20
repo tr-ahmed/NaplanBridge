@@ -54,7 +54,60 @@ export class StudentExamsComponent implements OnInit {
 
     this.examApi.getUpcomingExams(studentId).subscribe({
       next: (response: any) => {
-        this.upcomingExams.set(response.data.exams);
+        console.log('📚 Upcoming Exams Data:', response.data.exams);
+
+        // Process exams and calculate availability
+        const processedExams = response.data.exams?.map((exam: any) => {
+          const now = new Date();
+          const startDate = new Date(exam.startDate);
+          const endDate = new Date(exam.endDate);
+
+          // Calculate if available now
+          const isAvailableNow = now >= startDate && now <= endDate;
+
+          // Calculate remaining time
+          let remainingTime = '';
+          if (now < startDate) {
+            // Exam hasn't started yet
+            const diffMs = startDate.getTime() - now.getTime();
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+            if (diffDays > 0) {
+              remainingTime = `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+            } else if (diffHours > 0) {
+              remainingTime = `${diffHours} hour${diffHours > 1 ? 's' : ''}`;
+            } else {
+              remainingTime = `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
+            }
+          } else if (isAvailableNow) {
+            // Exam is running
+            const diffMs = endDate.getTime() - now.getTime();
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+            if (diffHours > 0) {
+              remainingTime = `${diffHours} hour${diffHours > 1 ? 's' : ''}`;
+            } else {
+              remainingTime = `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
+            }
+          }
+
+          console.log(`Exam: ${exam.title}`);
+          console.log(`  Start: ${exam.startDate}`);
+          console.log(`  End: ${exam.endDate}`);
+          console.log(`  Available Now: ${isAvailableNow}`);
+          console.log(`  Remaining Time: ${remainingTime}`);
+
+          return {
+            ...exam,
+            isAvailableNow,
+            remainingTime
+          };
+        });
+
+        this.upcomingExams.set(processedExams || []);
         this.loading.set(false);
       },
       error: (error: any) => {
@@ -182,7 +235,8 @@ export class StudentExamsComponent implements OnInit {
    * Check if exam is available now
    */
   isExamAvailable(exam: UpcomingExamDto): boolean {
-    return exam.isAvailableNow;
+    // The exam object now has isAvailableNow calculated in loadUpcomingExams
+    return exam.isAvailableNow === true;
   }
 
   /**
