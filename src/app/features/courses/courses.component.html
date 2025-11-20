@@ -111,37 +111,7 @@
           </div>
         </div>
 
-        <!-- Filter Dropdowns -->
-        <div class="flex flex-wrap gap-4">
-          <!-- Level Filter -->
-          <select
-            [value]="selectedLevel()"
-            (change)="onLevelChange($any($event.target).value)"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-            <option value="">All Levels</option>
-            @for (level of levels; track level) {
-              <option [value]="level">{{ level }}</option>
-            }
-          </select>
 
-          <!-- Category Filter -->
-          <select
-            [value]="selectedCategory()"
-            (change)="onCategoryChange($any($event.target).value)"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-            <option value="">All Categories</option>
-            @for (category of categories; track category) {
-              <option [value]="category">{{ category }}</option>
-            }
-          </select>
-
-          <!-- Clear Filters -->
-          <button
-            (click)="clearFilters()"
-            class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200">
-            Clear Filters
-          </button>
-        </div>
       </div>
     </div>
   </div>
