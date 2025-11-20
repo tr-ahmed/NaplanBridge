@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -171,6 +171,7 @@ export class SubscriptionManagementComponent implements OnInit {
   currencyCode = 'USD';
   userName = 'Admin';
   sidebarCollapsed = false;
+  profileHovered = signal(false);
   currentYear = new Date().getFullYear();
   isLoading = false;
   errorMessage = '';
@@ -283,7 +284,7 @@ export class SubscriptionManagementComponent implements OnInit {
         this.years = results.years || [];
         this.plans = results.plans || [];
         this.orders = results.orders || [];
-        
+
         this.calculateStats();
         this.applyFilters();
         this.isLoading = false;
@@ -349,7 +350,7 @@ export class SubscriptionManagementComponent implements OnInit {
 
   private mapOrderWithDetails(order: Order): OrderWithDetails {
     const user = this.users.find(u => u.id === order.userId);
-    
+
     return {
       ...order,
       userName: user?.fullName || user?.userName || 'Unknown User',
@@ -401,7 +402,7 @@ export class SubscriptionManagementComponent implements OnInit {
       if (this.filters.yearId && p.yearId !== this.filters.yearId) return false;
       if (this.filters.searchTerm) {
         const term = this.filters.searchTerm.toLowerCase();
-        return p.name.toLowerCase().includes(term) || 
+        return p.name.toLowerCase().includes(term) ||
                p.description.toLowerCase().includes(term);
       }
       return true;
@@ -414,7 +415,7 @@ export class SubscriptionManagementComponent implements OnInit {
       if (this.filters.dateTo && new Date(o.createdAt) > new Date(this.filters.dateTo)) return false;
       if (this.filters.searchTerm) {
         const term = this.filters.searchTerm.toLowerCase();
-        return (o.userName?.toLowerCase().includes(term) || false) || 
+        return (o.userName?.toLowerCase().includes(term) || false) ||
                (o.userEmail?.toLowerCase().includes(term) || false);
       }
       return true;
@@ -426,7 +427,7 @@ export class SubscriptionManagementComponent implements OnInit {
   updatePagination() {
     this.currentPages.plans = Math.min(this.currentPages.plans, this.getTotalPages('plans'));
     this.currentPages.orders = Math.min(this.currentPages.orders, this.getTotalPages('orders'));
-    
+
     this.paged.plans = this.paginate(this.filtered.plans, this.currentPages.plans);
     this.paged.orders = this.paginate(this.filtered.orders, this.currentPages.orders);
   }
@@ -492,7 +493,7 @@ export class SubscriptionManagementComponent implements OnInit {
 
   togglePlanStatus(planId: number) {
     if (!confirm('Are you sure you want to toggle this plan status?')) return;
-    
+
     this.isLoading = true;
     this.http.post(`${this.apiBaseUrl}/SubscriptionPlans/deactivate-plan/${planId}`, {})
       .subscribe({
@@ -652,6 +653,10 @@ export class SubscriptionManagementComponent implements OnInit {
 
   handleLogout() {
     this.authService.logout();
+  }
+
+  navigateToProfile() {
+    window.location.href = '/profile';
   }
 
   // ==================== UTILITIES ====================

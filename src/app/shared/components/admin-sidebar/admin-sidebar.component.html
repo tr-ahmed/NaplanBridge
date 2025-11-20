@@ -133,9 +133,9 @@
     </a>
   </nav>
   <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
-    <div class="d-flex align-items-center gap-3">
+    <div class="d-flex align-items-center gap-3 cursor-pointer" (click)="navigateToProfile()" style="transition: opacity 0.2s; cursor: pointer;" [style.opacity]="profileHovered() ? '0.8' : '1'" (mouseenter)="profileHovered.set(true)" (mouseleave)="profileHovered.set(false)">
       <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
-      <div>
+      <div style="cursor: pointer;">
         <div class="fw-medium text-white">Admin</div>
         <small class="text-white-50">Super Admin</small>
       </div>

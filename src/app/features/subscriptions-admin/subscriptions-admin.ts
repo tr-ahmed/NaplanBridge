@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CurrencyPipe, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -95,6 +95,7 @@ export class SubscriptionManagementComponent implements OnInit {
   currencyCode = 'USD';
   userName: string = 'Admin';
   sidebarCollapsed = false;
+  profileHovered = signal(false);
   currentYear = new Date().getFullYear();
 
   // API base URL
@@ -801,5 +802,9 @@ export class SubscriptionManagementComponent implements OnInit {
     if (confirm('Are you sure you want to logout?')) {
       this.authService.logout();
     }
+  }
+
+  navigateToProfile(): void {
+    window.location.href = '/profile';
   }
 }

@@ -58,9 +58,9 @@
       </a>
     </nav>
     <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
-      <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-3 cursor-pointer" (click)="navigateToProfile()" style="transition: opacity 0.2s; cursor: pointer;" [style.opacity]="profileHovered() ? '0.8' : '1'" (mouseenter)="profileHovered.set(true)" (mouseleave)="profileHovered.set(false)">
         <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
-        <div>
+        <div style="cursor: pointer;">
           <div class="fw-medium text-white">{{ userName }}</div>
           <small class="text-white-50">Super Admin</small>
         </div>
@@ -351,9 +351,9 @@
                     <td>{{ o.amount | currency:currencyCode }}</td>
                     <td>{{ o.createdAt | date:'mediumDate' }}</td>
                     <td>
-                      <span class="badge rounded-pill" 
+                      <span class="badge rounded-pill"
                         [class.bg-success]="o.status==='Active' || o.status==='Trialing'"
-                        [class.bg-warning]="o.status==='Past Due'" 
+                        [class.bg-warning]="o.status==='Past Due'"
                         [class.bg-secondary]="o.status==='Canceled'">
                         {{ o.status }}
                       </span>
@@ -752,7 +752,7 @@
           <div *ngIf="preview.type==='plan'">
             <div class="mb-2"><strong>Description:</strong> {{ preview.description }}</div>
             <div class="mb-2"><strong>Price:</strong> {{ preview.price | currency:currencyCode }}</div>
-            <div class="mb-2"><strong>Plan Type:</strong> 
+            <div class="mb-2"><strong>Plan Type:</strong>
               <span *ngIf="preview.planType === 1">Basic</span>
               <span *ngIf="preview.planType === 2">Pro</span>
               <span *ngIf="preview.planType === 3">Premium</span>

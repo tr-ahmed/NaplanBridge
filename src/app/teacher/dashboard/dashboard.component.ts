@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
+import { signal } from '@angular/core';
 
 import Swal from 'sweetalert2';
 
@@ -37,6 +38,7 @@ type Id = number;
 export class ContentManagementComponent implements OnInit {
   sidebarCollapsed = false;
   userName = 'Admin User';
+  profileHovered = signal(false);
 
   toggleSidebar() {
     this.sidebarCollapsed = !this.sidebarCollapsed;
@@ -474,6 +476,10 @@ nameTeacher(id: Id | undefined | null) {
     if (confirm('Are you sure you want to logout?')) {
       this.authService.logout();
     }
+  }
+
+  navigateToProfile(): void {
+    window.location.href = '/profile';
   }
 
   applyFilters() {

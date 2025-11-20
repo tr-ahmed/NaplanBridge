@@ -893,8 +893,8 @@
         <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="48" height="48">
         <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-2 border-white rounded-circle" style="width:14px;height:14px;"></span>
       </div>
-      <div class="flex-grow-1 text-truncate">
-        <div class="fw-semibold text-white mb-0 text-truncate">{{ userName }}</div>
+      <div class="flex-grow-1 text-truncate cursor-pointer" routerLink="/profile" style="min-height: 48px; display: flex; align-items: center;">
+        <div class="fw-semibold text-white mb-0 text-truncate" style="cursor: pointer; transition: opacity 0.2s;">{{ userName }}</div>
         <small class="text-white-50">Super Admin</small>
       </div>
       <div class="dropdown">
@@ -902,8 +902,8 @@
           <i class="fas fa-ellipsis-v"></i>
         </button>
         <ul class="dropdown-menu dropdown-menu-end shadow">
-          <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
-          <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+          <li><a class="dropdown-item" routerLink="/profile"><i class="fas fa-user me-2"></i> Profile</a></li>
+          <li><a class="dropdown-item" routerLink="/profile"><i class="fas fa-cog me-2"></i> Settings</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item text-danger" (click)="handleLogout()"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
         </ul>

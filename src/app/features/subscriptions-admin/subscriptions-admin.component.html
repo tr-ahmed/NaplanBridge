@@ -18,7 +18,7 @@
   <nav class="sidebar-nav flex-grow-1 p-3">
     <ul class="nav flex-column">
       <li class="nav-item">
-        <a class="nav-link text-white rounded-3 mb-2" 
+        <a class="nav-link text-white rounded-3 mb-2"
            [ngClass]="{ 'active bg-white bg-opacity-15': activeTab === 'dashboard' }"
            (click)="setActiveTab('dashboard')">
           <i class="fas fa-chart-line me-2"></i>
@@ -48,26 +48,26 @@
 
   <!-- User Profile -->
   <div class="sidebar-profile p-3 border-top border-light border-opacity-10">
-    <div class="d-flex align-items-center position-relative">
+    <div class="d-flex align-items-center position-relative cursor-pointer" (click)="navigateToProfile()" style="transition: opacity 0.2s; cursor: pointer;" [style.opacity]="profileHovered() ? '0.8' : '1'" (mouseenter)="profileHovered.set(true)" (mouseleave)="profileHovered.set(false)">
       <div class="flex-shrink-0">
-        <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center" 
+        <div class="bg-white bg-opacity-20 rounded-circle d-flex align-items-center justify-content-center"
              style="width: 40px; height: 40px;">
           <i class="fas fa-user text-white"></i>
         </div>
       </div>
-      <div class="flex-grow-1 ms-3">
+      <div class="flex-grow-1 ms-3" style="cursor: pointer;">
         <h6 class="mb-0 text-white">{{ userName }}</h6>
         <small class="text-white-50">Administrator</small>
       </div>
       <button class="btn btn-sm btn-link text-white p-0" (click)="toggleUserMenu()">
         <i class="fas fa-ellipsis-v"></i>
       </button>
-      
+
       <!-- User Menu Dropdown -->
-      <div class="dropdown-menu dropdown-menu-end" [ngClass]="{ 'show': isUserMenuOpen }" 
+      <div class="dropdown-menu dropdown-menu-end" [ngClass]="{ 'show': isUserMenuOpen }"
            style="position: absolute; bottom: 50px; right: 10px;">
-        <a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a>
+        <a class="dropdown-item" routerLink="/profile"><i class="fas fa-user me-2"></i>Profile</a>
+        <a class="dropdown-item" routerLink="/profile"><i class="fas fa-cog me-2"></i>Settings</a>
         <hr class="dropdown-divider">
         <a class="dropdown-item text-danger" (click)="handleLogout()">
           <i class="fas fa-sign-out-alt me-2"></i>Logout
@@ -217,7 +217,7 @@
             <div class="progress mb-3" style="height: 10px;">
               <div class="progress-bar bg-success" [style.width.%]="(stats.completedOrders / stats.totalOrders) * 100"></div>
             </div>
-            
+
             <div class="d-flex justify-content-between align-items-center mb-3">
               <span class="text-muted">Pending</span>
               <span class="badge bg-warning text-dark">{{ stats.pendingOrders }}</span>
@@ -249,7 +249,7 @@
                 <strong class="text-success">{{ formatCurrency(stats.revenue7d) }}</strong>
               </div>
               <div class="progress" style="height: 15px;">
-                <div class="progress-bar bg-gradient-success" 
+                <div class="progress-bar bg-gradient-success"
                      [style.width.%]="(stats.revenue7d / stats.revenue30d) * 100"></div>
               </div>
             </div>
@@ -260,7 +260,7 @@
                 <strong class="text-primary">{{ formatCurrency(stats.revenue30d) }}</strong>
               </div>
               <div class="progress" style="height: 15px;">
-                <div class="progress-bar bg-gradient-primary" 
+                <div class="progress-bar bg-gradient-primary"
                      [style.width.%]="(stats.revenue30d / stats.totalRevenue) * 100"></div>
               </div>
             </div>
@@ -299,7 +299,7 @@
         <div class="row g-3">
           <div class="col-md-3">
             <label class="form-label small text-muted">Search</label>
-            <input type="text" class="form-control" [(ngModel)]="filters.searchTerm" 
+            <input type="text" class="form-control" [(ngModel)]="filters.searchTerm"
                    (ngModelChange)="applyFilters()" placeholder="Search plans...">
           </div>
           <div class="col-md-2">
@@ -390,7 +390,7 @@
                   <button class="btn btn-outline-warning" (click)="openEditPlan(plan)" title="Edit">
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button class="btn btn-outline-info" (click)="togglePlanStatus(plan.id!)" 
+                  <button class="btn btn-outline-info" (click)="togglePlanStatus(plan.id!)"
                           [title]="plan.isActive ? 'Deactivate' : 'Activate'">
                     <i class="fas" [ngClass]="plan.isActive ? 'fa-toggle-on' : 'fa-toggle-off'"></i>
                   </button>
@@ -411,8 +411,8 @@
       <div class="card-footer bg-white border-top" *ngIf="filtered.plans.length > pageSize">
         <div class="d-flex justify-content-between align-items-center">
           <small class="text-muted">
-            Showing {{ (currentPages.plans - 1) * pageSize + 1 }} to 
-            {{ Math.min(currentPages.plans * pageSize, filtered.plans.length) }} of 
+            Showing {{ (currentPages.plans - 1) * pageSize + 1 }} to
+            {{ Math.min(currentPages.plans * pageSize, filtered.plans.length) }} of
             {{ filtered.plans.length }} plans
           </small>
           <nav>
@@ -453,7 +453,7 @@
         <div class="row g-3">
           <div class="col-md-4">
             <label class="form-label small text-muted">Search</label>
-            <input type="text" class="form-control" [(ngModel)]="filters.searchTerm" 
+            <input type="text" class="form-control" [(ngModel)]="filters.searchTerm"
                    (ngModelChange)="applyFilters()" placeholder="Search by user...">
           </div>
           <div class="col-md-2">
@@ -542,8 +542,8 @@
       <div class="card-footer bg-white border-top" *ngIf="filtered.orders.length > pageSize">
         <div class="d-flex justify-content-between align-items-center">
           <small class="text-muted">
-            Showing {{ (currentPages.orders - 1) * pageSize + 1 }} to 
-            {{ Math.min(currentPages.orders * pageSize, filtered.orders.length) }} of 
+            Showing {{ (currentPages.orders - 1) * pageSize + 1 }} to
+            {{ Math.min(currentPages.orders * pageSize, filtered.orders.length) }} of
             {{ filtered.orders.length }} orders
           </small>
           <nav>
@@ -567,7 +567,7 @@
 </div>
 
 <!-- Plan Form Modal -->
-<div class="modal fade" [class.show]="isFormOpen" [style.display]="isFormOpen ? 'block' : 'none'" 
+<div class="modal fade" [class.show]="isFormOpen" [style.display]="isFormOpen ? 'block' : 'none'"
      tabindex="-1" (click)="closeForm()">
   <div class="modal-dialog modal-lg modal-dialog-centered" (click)="$event.stopPropagation()">
     <div class="modal-content">
@@ -641,7 +641,7 @@
 </div>
 
 <!-- Preview Modal -->
-<div class="modal fade" [class.show]="previewOpen" [style.display]="previewOpen ? 'block' : 'none'" 
+<div class="modal fade" [class.show]="previewOpen" [style.display]="previewOpen ? 'block' : 'none'"
      tabindex="-1" (click)="closePreview()">
   <div class="modal-dialog modal-lg modal-dialog-centered" (click)="$event.stopPropagation()">
     <div class="modal-content">
@@ -667,7 +667,7 @@
               <strong>Type:</strong> <span class="badge bg-primary">{{ preview.planTypeLabel }}</span>
             </div>
             <div class="col-md-6">
-              <strong>Status:</strong> 
+              <strong>Status:</strong>
               <span class="badge" [ngClass]="preview.isActive ? 'bg-success' : 'bg-secondary'">
                 {{ preview.statusLabel }}
               </span>
@@ -699,7 +699,7 @@
               <strong>Amount:</strong> {{ formatCurrency(preview.totalAmount) }}
             </div>
             <div class="col-md-6">
-              <strong>Status:</strong> 
+              <strong>Status:</strong>
               <span [ngClass]="getOrderStatusClass(preview.orderStatus)">
                 {{ preview.statusLabel }}
               </span>
@@ -708,7 +708,7 @@
               <strong>Date:</strong> {{ formatDateTime(preview.createdAt) }}
             </div>
             <div class="col-12" *ngIf="preview.stripeSessionId">
-              <strong>Stripe Session:</strong> 
+              <strong>Stripe Session:</strong>
               <code class="small">{{ preview.stripeSessionId }}</code>
             </div>
           </div>
@@ -722,5 +722,5 @@
 </div>
 
 <!-- Modal Backdrop -->
-<div class="modal-backdrop fade" [class.show]="isFormOpen || previewOpen" 
+<div class="modal-backdrop fade" [class.show]="isFormOpen || previewOpen"
      *ngIf="isFormOpen || previewOpen"></div>

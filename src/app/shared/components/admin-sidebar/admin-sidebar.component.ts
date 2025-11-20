@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { signal } from '@angular/core';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -13,6 +14,7 @@ import Swal from 'sweetalert2';
 })
 export class AdminSidebarComponent {
   @Input() collapsed = false;
+  profileHovered = signal(false);
 
   constructor(
     private authService: AuthService,
@@ -35,5 +37,9 @@ export class AdminSidebarComponent {
         this.router.navigate(['/login']);
       }
     });
+  }
+
+  navigateToProfile(): void {
+    this.router.navigate(['/profile']);
   }
 }
