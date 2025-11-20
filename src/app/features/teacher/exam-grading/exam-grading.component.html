@@ -2,16 +2,16 @@
   <!-- Header -->
   <div class="page-header">
     <button class="back-btn" (click)="goBack()">
-      <i class="fas fa-arrow-right"></i>
-      رجوع
+      <i class="fas fa-arrow-left"></i>
+      Back
     </button>
 
     <div class="header-content">
       <h1>
         <i class="fas fa-clipboard-check"></i>
-        {{ examTitle() || 'تصحيح الامتحان' }}
+        {{ examTitle() || 'Exam Grading' }}
       </h1>
-      <p>إجابات الطلاب والتصحيح</p>
+      <p>Student Submissions and Grading</p>
     </div>
   </div>
 
@@ -21,25 +21,25 @@
       class="filter-btn"
       [class.active]="selectedFilter() === 'all'"
       (click)="selectedFilter.set('all')">
-      الكل ({{ submissions().length }})
+      All ({{ submissions().length }})
     </button>
     <button
       class="filter-btn"
       [class.active]="selectedFilter() === 'pending'"
       (click)="selectedFilter.set('pending')">
-        يحتاج تصحيح ({{ pendingGradingCount() }})
+        Needs Grading ({{ pendingGradingCount() }})
     </button>
     <button
       class="filter-btn"
       [class.active]="selectedFilter() === 'manual'"
       (click)="selectedFilter.set('manual')">
-        تصحيح يدوي ({{ manualGradingCount() }})
+        Manual Grading ({{ manualGradingCount() }})
     </button>
     <button
       class="filter-btn"
       [class.active]="selectedFilter() === 'graded'"
       (click)="selectedFilter.set('graded')">
-        تم التصحيح ({{ gradedCount() }})
+        Graded ({{ gradedCount() }})
     </button>
   </div>
 
@@ -72,21 +72,21 @@
               } @else if (submission.autoGradedScore !== undefined) {
                 <div class="score-badge auto">
                   {{ submission.autoGradedScore }} / {{ submission.totalMarks }}
-                  <span class="note">تلقائي</span>
+                  <span class="note">Auto</span>
                 </div>
               }
 
               @if (submission.pendingManualGrading) {
                 <span class="badge warning">
                   <i class="fas fa-exclamation-circle"></i>
-                  تحتاج تصحيح
+                  Needs Grading
                 </span>
               }
 
               @if (submission.isGraded) {
                 <span class="badge success">
                   <i class="fas fa-check-circle"></i>
-                  تم التصحيح
+                  Graded
                 </span>
               }
             </div>
@@ -96,7 +96,7 @@
         } @empty {
           <div class="empty-state">
             <i class="fas fa-inbox fa-3x"></i>
-            <p>لا توجد إجابات</p>
+            <p>No submissions found</p>
           </div>
         }
       </div>
@@ -114,12 +114,12 @@
             <h2>{{ submission.studentName }}</h2>
             <div class="submission-info">
               <span><i class="fas fa-calendar"></i> {{ submission.submittedAt | date:'medium' }}</span>
-              <span><i class="fas fa-star"></i> {{ submission.totalMarks }} درجة</span>
+              <span><i class="fas fa-star"></i> {{ submission.totalMarks }} points</span>
             </div>
           </div>
 
           <div class="current-score">
-            <span class="label">الدرجة الحالية:</span>
+            <span class="label">Current Score:</span>
             <span class="score">{{ getTotalScore() }} / {{ submission.totalMarks }}</span>
           </div>
         </div>
@@ -129,16 +129,16 @@
           @for (question of submission.questions; track question.questionId) {
             <div class="question-card" [class.requires-grading]="question.requiresManualGrading">
               <div class="question-header">
-                <span class="question-number">السؤال {{ $index + 1 }}</span>
+                <span class="question-number">Question {{ $index + 1 }}</span>
                 <span class="question-type">{{ getQuestionTypeLabel(question.questionType) }}</span>
-                <span class="marks">{{ question.marks }} درجة</span>
+                <span class="marks">{{ question.marks }} points</span>
               </div>
 
               <div class="question-text">{{ question.questionText }}</div>
 
               <!-- Student Answer -->
               <div class="answer-section">
-                <label>إجابة الطالب:</label>
+                <label>Student Answer:</label>
                 @if (question.questionType === QuestionType.Text) {
                   <div class="text-answer">{{ question.studentAnswer }}</div>
                 } @else {
@@ -161,7 +161,7 @@
                 <div class="correct-answer">
                   <label>
                     <i class="fas" [ngClass]="question.isCorrect ? 'fa-check-circle success' : 'fa-times-circle error'"></i>
-                    الإجابة الصحيحة:
+                    Correct Answer:
                   </label>
                   @if (question.correctOptions && question.correctOptions.length > 0) {
                     <div class="correct-options">
@@ -179,7 +179,7 @@
               @if (question.requiresManualGrading) {
                 <div class="grading-section">
                   <div class="score-input">
-                    <label>الدرجة:</label>
+                    <label>Score:</label>
                     <input
                       type="number"
                       [max]="question.marks"
@@ -190,18 +190,18 @@
                   </div>
 
                   <div class="feedback-input">
-                    <label>ملاحظات:</label>
+                    <label>Feedback:</label>
                     <textarea
                       [value]="questionGrades().get(question.questionId)?.feedback || ''"
                       (input)="updateQuestionFeedback(question.questionId, $any($event.target).value)"
-                      placeholder="أضف ملاحظات للطالب..."
+                      placeholder="Add feedback for the student..."
                       rows="3"></textarea>
                   </div>
                 </div>
               } @else {
                 <div class="auto-graded">
                   <i class="fas fa-robot"></i>
-                  تم التصحيح تلقائياً: {{ question.earnedScore }} / {{ question.marks }}
+                  Auto-graded: {{ question.earnedScore }} / {{ question.marks }}
                 </div>
               }
             </div>
@@ -210,10 +210,10 @@
 
         <!-- General Feedback -->
         <div class="general-feedback">
-          <label>ملاحظات عامة:</label>
+          <label>General Feedback:</label>
           <textarea
             [(ngModel)]="generalFeedback"
-            placeholder="أضف ملاحظات عامة للطالب..."
+            placeholder="Add general feedback for the student..."
             rows="4"></textarea>
         </div>
 
@@ -225,10 +225,10 @@
             [disabled]="grading()">
             @if (grading()) {
               <i class="fas fa-spinner fa-spin"></i>
-              جاري الحفظ...
+              Saving...
             } @else {
               <i class="fas fa-check"></i>
-              حفظ التصحيح
+              Save Grading
             }
           </button>
         </div>

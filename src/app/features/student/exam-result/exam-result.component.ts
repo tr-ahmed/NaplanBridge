@@ -53,7 +53,7 @@ export class ExamResultComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Failed to load result:', error);
-        this.toast.showError('فشل تحميل النتيجة');
+        this.toast.showError('Failed to load result');
         this.router.navigate(['/student/exams']);
       }
     });

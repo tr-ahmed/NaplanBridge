@@ -2,15 +2,15 @@
   @if (loading()) {
     <div class="loading-state">
       <i class="fas fa-spinner fa-spin fa-3x"></i>
-      <p>جاري تحميل النتيجة...</p>
+      <p>Loading result...</p>
     </div>
   } @else {
     @if (result(); as res) {
     <!-- Header -->
     <div class="result-header">
       <button class="back-btn" (click)="backToExams()">
-        <i class="fas fa-arrow-right"></i>
-        رجوع
+        <i class="fas fa-arrow-left"></i>
+        Back
       </button>
 
       <div class="header-content">
@@ -30,22 +30,22 @@
 
       <div class="score-details">
         <div class="detail-row">
-          <span class="label">الدرجة:</span>
+          <span class="label">Score:</span>
           <span class="value">{{ res.totalScore }} / {{ res.totalMarks }}</span>
         </div>
         <div class="detail-row">
-          <span class="label">النسبة:</span>
+          <span class="label">Percentage:</span>
           <span class="value">{{ res.scorePercentage | number:'1.1-1' }}%</span>
         </div>
         <div class="detail-row">
-          <span class="label">درجة النجاح:</span>
+          <span class="label">Passing Score:</span>
           <span class="value">{{ res.passingMarks }}</span>
         </div>
         <div class="detail-row">
-          <span class="label">الحالة:</span>
+          <span class="label">Status:</span>
           <span class="status" [class.passed]="res.isPassed" [class.failed]="!res.isPassed">
             <i class="fas" [ngClass]="res.isPassed ? 'fa-check-circle' : 'fa-times-circle'"></i>
-            {{ res.isPassed ? 'ناجح' : 'راسب' }}
+            {{ res.isPassed ? 'Passed' : 'Failed' }}
           </span>
         </div>
       </div>
@@ -55,14 +55,14 @@
           <i class="fas fa-check-circle"></i>
           <div class="stat-content">
             <span class="stat-value">{{ res.correctAnswersCount }}</span>
-            <span class="stat-label">إجابة صحيحة</span>
+            <span class="stat-label">Correct Answers</span>
           </div>
         </div>
         <div class="stat-box incorrect">
           <i class="fas fa-times-circle"></i>
           <div class="stat-content">
             <span class="stat-value">{{ res.wrongAnswersCount }}</span>
-            <span class="stat-label">إجابة خاطئة</span>
+            <span class="stat-label">Wrong Answers</span>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@
       <div class="date-item">
         <i class="fas fa-calendar-check"></i>
         <div>
-          <span class="date-label">تاريخ الإرسال:</span>
+          <span class="date-label">Submitted:</span>
           <span class="date-value">{{ res.submittedAt | date:'medium' }}</span>
         </div>
       </div>
@@ -81,7 +81,7 @@
         <div class="date-item">
           <i class="fas fa-calendar-alt"></i>
           <div>
-            <span class="date-label">تاريخ التصحيح:</span>
+            <span class="date-label">Graded:</span>
             <span class="date-value">{{ res.gradedAt | date:'medium' }}</span>
           </div>
         </div>
@@ -93,7 +93,7 @@
       <div class="feedback-section">
         <h3>
           <i class="fas fa-comment-dots"></i>
-          ملاحظات المعلم
+          Teacher's Feedback
         </h3>
         <div class="feedback-content">
           {{ res.generalFeedback }}
@@ -105,7 +105,7 @@
     <div class="answers-toggle">
       <button class="toggle-btn" (click)="toggleAnswers()">
         <i class="fas" [ngClass]="showAnswers() ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-        {{ showAnswers() ? 'إخفاء' : 'عرض' }} الإجابات التفصيلية
+        {{ showAnswers() ? 'Hide' : 'Show' }} Detailed Answers
       </button>
     </div>
 
@@ -114,7 +114,7 @@
       <div class="answers-section">
         <h3>
           <i class="fas fa-list-alt"></i>
-          الإجابات التفصيلية
+          Detailed Answers
         </h3>
 
         <div class="questions-list">
@@ -123,7 +123,7 @@
               <div class="question-header">
                 <div class="question-number">
                   <i class="fas" [ngClass]="getQuestionIconClass(question.isCorrect)"></i>
-                  <span>السؤال {{ $index + 1 }}</span>
+                  <span>Question {{ $index + 1 }}</span>
                 </div>
                 <div class="question-score">
                   {{ question.earnedScore }} / {{ question.marks }}
@@ -134,13 +134,13 @@
 
               <div class="answer-section">
                 <div class="answer-row">
-                  <span class="answer-label">إجابتك:</span>
-                  <span class="answer-value student">{{ question.studentAnswer || 'لم يتم الإجابة' }}</span>
+                  <span class="answer-label">Your Answer:</span>
+                  <span class="answer-value student">{{ question.studentAnswer || 'Not Answered' }}</span>
                 </div>
 
                 @if (question.correctAnswer && question.isCorrect !== null) {
                   <div class="answer-row">
-                    <span class="answer-label">الإجابة الصحيحة:</span>
+                    <span class="answer-label">Correct Answer:</span>
                     <span class="answer-value correct">{{ question.correctAnswer }}</span>
                   </div>
                 }
@@ -162,7 +162,7 @@
     <div class="actions-section">
       <button class="btn-primary" (click)="backToExams()">
         <i class="fas fa-list"></i>
-        رجوع للامتحانات
+        Back to Exams
       </button>
     </div>
     }

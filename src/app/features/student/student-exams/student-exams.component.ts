@@ -59,7 +59,7 @@ export class StudentExamsComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Failed to load upcoming exams:', error);
-        this.toast.showError('فشل تحميل الامتحانات القادمة');
+        this.toast.showError('Failed to load upcoming exams');
         this.loading.set(false);
       }
     });
@@ -78,7 +78,7 @@ export class StudentExamsComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Failed to load exam history:', error);
-        this.toast.showError('فشل تحميل سجل الامتحانات');
+        this.toast.showError('Failed to load exam history');
         this.historyLoading.set(false);
       }
     });
@@ -102,7 +102,7 @@ export class StudentExamsComponent implements OnInit {
             hasExistingExam = true;
 
             // Ask if user wants to continue
-            if (confirm(`لديك امتحان "${title}" غير مكتمل.\nهل تريد المتابعة من حيث توقفت؟`)) {
+            if (confirm(`You have an incomplete exam "${title}".\nDo you want to continue from where you left off?`)) {
               // Navigate directly to exam with existing state
               const studentExamId = state.studentExamId;
               this.router.navigate(['/student/exam', studentExamId]);
@@ -121,14 +121,14 @@ export class StudentExamsComponent implements OnInit {
 
     // Start new exam
     if (!hasExistingExam) {
-      if (!confirm(`هل تريد بدء امتحان "${title}"؟\nسيبدأ العد التنازلي فوراً.`)) {
+      if (!confirm(`Do you want to start the exam "${title}"?\nThe timer will start immediately.`)) {
         return;
       }
     }
 
     this.examApi.startExam(examId).subscribe({
       next: (response: any) => {
-        this.toast.showSuccess('تم بدء الامتحان بنجاح');
+        this.toast.showSuccess('Exam started successfully');
         this.router.navigate(['/student/exam', response.studentExamId]);
       },
       error: (error: any) => {
@@ -137,7 +137,7 @@ export class StudentExamsComponent implements OnInit {
           // Already started, navigate to it
           this.router.navigate(['/student/exam', error.error.existingStudentExamId]);
         } else {
-          this.toast.showError('فشل بدء الامتحان');
+          this.toast.showError('Failed to start exam');
         }
       }
     });

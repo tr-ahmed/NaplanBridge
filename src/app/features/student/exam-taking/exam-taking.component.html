@@ -2,7 +2,7 @@
   @if (loading()) {
     <div class="loading-state">
       <i class="fas fa-spinner fa-spin fa-3x"></i>
-      <p>جاري تحميل الامتحان...</p>
+      <p>Loading exam...</p>
     </div>
   } @else {
     @if (exam(); as ex) {
@@ -13,7 +13,7 @@
         <p class="subject">{{ ex.subjectName }}</p>
         <span class="auto-save-indicator">
           <i class="fas fa-save"></i>
-          الحفظ التلقائي مفعّل
+          Auto-save enabled
         </span>
       </div>
 
@@ -21,7 +21,7 @@
         <i class="fas fa-clock"></i>
         <span class="time">{{ getFormattedTime() }}</span>
         @if (timeRemaining() < 300) {
-          <span class="timer-warning">الوقت ينفد!</span>
+          <span class="timer-warning">Time running out!</span>
         }
       </div>
     </div>
@@ -29,7 +29,7 @@
     <!-- Progress Bar -->
     <div class="progress-section">
       <div class="progress-info">
-        <span>التقدم: {{ answers().size }} / {{ ex.questions?.length || 0 }}</span>
+        <span>Progress: {{ answers().size }} / {{ ex.questions?.length || 0 }}</span>
         <span>{{ getProgress() }}%</span>
       </div>
       <div class="progress-bar">
@@ -39,7 +39,7 @@
 
     <!-- Questions Navigation -->
     <div class="questions-nav">
-      <h3>الأسئلة</h3>
+      <h3>Questions</h3>
       <div class="nav-grid">
         @for (question of ex.questions; track question.id; let i = $index) {
           <button
@@ -58,7 +58,7 @@
       <div class="question-section">
         <div class="question-header">
           <div class="question-number">
-            <span>السؤال {{ currentQuestionIndex() + 1 }} من {{ ex.questions?.length || 0 }}</span>
+            <span>Question {{ currentQuestionIndex() + 1 }} of {{ ex.questions?.length || 0 }}</span>
             <span class="question-type">
               <i class="fas" [ngClass]="getQuestionTypeIcon(question.questionType)"></i>
               {{ getQuestionTypeLabel(question.questionType) }}
@@ -66,7 +66,7 @@
           </div>
           <div class="question-marks">
             <i class="fas fa-star"></i>
-            {{ question.marks }} درجة
+            {{ question.marks }} points
           </div>
         </div>
 
@@ -78,7 +78,7 @@
             <textarea
               [value]="answers().get(question.id)?.answerText || ''"
               (input)="handleTextAnswer(question.id, $any($event.target).value, question.questionType)"
-              placeholder="اكتب إجابتك هنا..."
+              placeholder="Write your answer here..."
               rows="8"></textarea>
           </div>
         }
@@ -102,7 +102,7 @@
         <!-- Multiple Select -->
         @if (question.questionType === QuestionType.MultipleSelect) {
           <div class="answer-options">
-            <p class="hint">اختر جميع الإجابات الصحيحة</p>
+            <p class="hint">Select all correct answers</p>
             @for (option of question.options; track option.id) {
               <label class="option-label">
                 <input
@@ -138,23 +138,23 @@
           class="nav-btn-action prev"
           [disabled]="currentQuestionIndex() === 0"
           (click)="previousQuestion()">
-          <i class="fas fa-chevron-right"></i>
-          السابق
+          <i class="fas fa-chevron-left"></i>
+          Previous
         </button>
 
         @if (currentQuestionIndex() < (ex.questions?.length || 0) - 1) {
           <button
             class="nav-btn-action next"
             (click)="nextQuestion()">
-            التالي
-            <i class="fas fa-chevron-left"></i>
+            Next
+            <i class="fas fa-chevron-right"></i>
           </button>
         } @else {
           <button
             class="nav-btn-action submit"
             (click)="confirmSubmit()">
             <i class="fas fa-paper-plane"></i>
-            إرسال الإجابات
+            Submit Answers
           </button>
         }
       </div>
@@ -165,7 +165,7 @@
       <div class="modal-overlay" (click)="cancelSubmit()">
         <div class="modal-content" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h3>تأكيد الإرسال</h3>
+            <h3>Confirm Submission</h3>
             <button class="close-btn" (click)="cancelSubmit()">
               <i class="fas fa-times"></i>
             </button>
@@ -173,12 +173,12 @@
 
           <div class="modal-body">
             <i class="fas fa-question-circle fa-3x"></i>
-            <p>هل أنت متأكد من إرسال إجاباتك؟</p>
-            <p class="warning">لن تتمكن من التعديل بعد الإرسال!</p>
+            <p>Are you sure you want to submit your answers?</p>
+            <p class="warning">You won't be able to edit after submission!</p>
 
             <div class="stats">
               <div class="stat-item">
-                <span class="stat-label">الأسئلة المجابة:</span>
+                <span class="stat-label">Answered Questions:</span>
                 <span class="stat-value">{{ answers().size }} / {{ ex.questions?.length || 0 }}</span>
               </div>
             </div>
@@ -187,7 +187,7 @@
           <div class="modal-actions">
             <button class="btn-cancel" (click)="cancelSubmit()">
               <i class="fas fa-times"></i>
-              إلغاء
+              Cancel
             </button>
             <button
               class="btn-confirm"
@@ -195,10 +195,10 @@
               (click)="submitExam()">
               @if (submitting()) {
                 <i class="fas fa-spinner fa-spin"></i>
-                جاري الإرسال...
+                Submitting...
               } @else {
                 <i class="fas fa-check"></i>
-                تأكيد الإرسال
+                Confirm Submission
               }
             </button>
           </div>

@@ -72,7 +72,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification($event: any): void {
     if (!this.submitting() && this.exam()) {
-      $event.returnValue = 'لديك امتحان قيد التنفيذ. هل أنت متأكد من الخروج؟';
+      $event.returnValue = 'You have an exam in progress. Are you sure you want to leave?';
       this.saveExamState(); // Save before user potentially leaves
     }
   }
@@ -106,7 +106,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => {
         console.error('Failed to load exam:', error);
-        this.toast.showError('فشل تحميل الامتحان');
+        this.toast.showError('Failed to load exam');
         this.router.navigate(['/student/exams']);
       }
     });
@@ -248,10 +248,10 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       this.startAutoSave();
       this.loading.set(false);
 
-      this.toast.showInfo('تم استعادة حالة الامتحان السابقة');
+      this.toast.showInfo('Previous exam state restored');
     } catch (error) {
       console.error('Failed to restore exam state:', error);
-      this.toast.showError('فشل استعادة حالة الامتحان');
+      this.toast.showError('Failed to restore exam state');
       this.router.navigate(['/student/exams']);
     }
   }
@@ -393,7 +393,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
     const answeredCount = this.answers().size;
 
     if (answeredCount < totalQuestions) {
-      if (!confirm(`لقد أجبت على ${answeredCount} من ${totalQuestions} سؤال.\nهل تريد الإرسال؟`)) {
+      if (!confirm(`You have answered ${answeredCount} out of ${totalQuestions} questions.\nDo you want to submit?`)) {
         return;
       }
     }
@@ -424,7 +424,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => {
         console.error('Failed to submit exam:', error);
-        this.toast.showError('فشل إرسال الإجابات');
+        this.toast.showError('Failed to submit answers');
         this.submitting.set(false);
         this.startTimer();
         this.startAutoSave();
@@ -437,7 +437,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    */
   autoSubmit() {
     this.stopTimer();
-    this.toast.showWarning('انتهى الوقت! سيتم إرسال إجاباتك تلقائياً');
+    this.toast.showWarning("Time's up! Your answers will be submitted automatically");
 
     setTimeout(() => {
       this.submitExam();

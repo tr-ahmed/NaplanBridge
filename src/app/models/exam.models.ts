@@ -9,17 +9,17 @@
 // ============================================
 
 export enum ExamType {
-  Lesson = 'Lesson',    // امتحان درس
-  Monthly = 'Monthly',   // امتحان شهري
-  Term = 'Term',         // امتحان Term
-  Year = 'Year'          // امتحان سنوي
+  Lesson = 'Lesson',    // Lesson Exam
+  Monthly = 'Monthly',   // Monthly Exam
+  Term = 'Term',         // Term Exam
+  Year = 'Year'          // Annual Exam
 }
 
 export enum QuestionType {
-  Text = 'Text',                     // سؤال نصي
-  MultipleChoice = 'MultipleChoice', // اختيار من متعدد
-  MultipleSelect = 'MultipleSelect', // اختيار متعدد
-  TrueFalse = 'TrueFalse'           // صح/خطأ
+  Text = 'Text',                     // Text Question
+  MultipleChoice = 'MultipleChoice', // Multiple Choice
+  MultipleSelect = 'MultipleSelect', // Multiple Select
+  TrueFalse = 'TrueFalse'           // True/False
 }
 
 // Legacy support

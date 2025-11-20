@@ -161,14 +161,14 @@ export class ExamManagementComponent implements OnInit {
           id: exam.id,
           title: exam.title,
           examType: exam.examType,
-          subjectName: exam.subjectName || 'غير محدد',
+          subjectName: exam.subjectName || 'Not Specified',
           className: undefined,
           totalMarks: exam.totalMarks,
           durationInMinutes: exam.durationInMinutes,
           startTime: exam.startTime ? new Date(exam.startTime) : undefined,
           endTime: exam.endTime ? new Date(exam.endTime) : undefined,
           isPublished: exam.isPublished,
-          totalSubmissions: 0, // يمكن إضافتها من API منفصل إذا لزم الأمر
+          totalSubmissions: 0, // Can be added from separate API if needed
           pendingGrading: 0,
           averageScore: undefined,
           createdAt: exam.createdAt ? new Date(exam.createdAt) : new Date()
@@ -179,8 +179,8 @@ export class ExamManagementComponent implements OnInit {
       },
       error: (error) => {
         console.error('Failed to load exams:', error);
-        this.error.set('فشل تحميل الامتحانات');
-        this.toastService.showError('فشل تحميل الامتحانات');
+        this.error.set('Failed to load exams');
+        this.toastService.showError('Failed to load exams');
         this.loading.set(false);
       }
     });
@@ -273,18 +273,18 @@ export class ExamManagementComponent implements OnInit {
     const exam = this.allExams().find(e => e.id === examId);
     if (!exam) return;
 
-    if (!confirm(`هل أنت متأكد من حذف "${exam.title}"؟`)) {
+    if (!confirm(`Are you sure you want to delete "${exam.title}"?`)) {
       return;
     }
 
     this.examApi.deleteExam(examId).subscribe({
       next: () => {
         this.allExams.update(exams => exams.filter(e => e.id !== examId));
-        this.toastService.showSuccess('تم حذف الامتحان بنجاح');
+        this.toastService.showSuccess('Exam deleted successfully');
       },
       error: (error) => {
         console.error('Failed to delete exam:', error);
-        this.toastService.showError('فشل حذف الامتحان');
+        this.toastService.showError('Failed to delete exam');
       }
     });
   }
@@ -358,12 +358,12 @@ export class ExamManagementComponent implements OnInit {
           exams.map(e => e.id === examId ? { ...e, isPublished: !e.isPublished } : e)
         );
 
-        const action = updatedExam.isPublished ? 'نشر' : 'إلغاء نشر';
-        this.toastService.showSuccess(`تم ${action} الامتحان بنجاح`);
+        const action = updatedExam.isPublished ? 'published' : 'unpublished';
+        this.toastService.showSuccess(`Exam ${action} successfully`);
       },
       error: (error) => {
         console.error('Failed to update exam:', error);
-        this.toastService.showError('فشل تحديث الامتحان');
+        this.toastService.showError('Failed to update exam');
       }
     });
   }

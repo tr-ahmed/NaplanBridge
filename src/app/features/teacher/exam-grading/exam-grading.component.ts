@@ -77,7 +77,7 @@ export class ExamGradingComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Failed to load submissions:', error);
-        this.toast.showError('فشل تحميل إجابات الطلاب');
+        this.toast.showError('Failed to load student submissions');
         this.loading.set(false);
       }
     });
@@ -109,8 +109,8 @@ export class ExamGradingComponent implements OnInit {
         this.loading.set(false);
       },
       error: (error: any) => {
-        console.error('Failed to load submission:', error);
-        this.toast.showError('فشل تحميل تفاصيل الإجابة');
+        console.error('Failed to load submission details:', error);
+        this.toast.showError('Failed to load submission details');
         this.loading.set(false);
       }
     });
@@ -161,14 +161,14 @@ export class ExamGradingComponent implements OnInit {
 
     this.examApi.gradeSubmission(submission.studentExamId, grading).subscribe({
       next: () => {
-        this.toast.showSuccess('تم التصحيح بنجاح!');
+        this.toast.showSuccess('Grading saved successfully!');
         this.selectedSubmission.set(null);
         this.loadSubmissions();
         this.grading.set(false);
       },
       error: (error: any) => {
         console.error('Failed to grade submission:', error);
-        this.toast.showError('فشل في حفظ التصحيح');
+        this.toast.showError('Failed to save grading');
         this.grading.set(false);
       }
     });

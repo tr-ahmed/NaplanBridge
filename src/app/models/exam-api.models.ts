@@ -323,17 +323,17 @@ export interface UpcomingExamsResponse {
 // ============================================
 
 export const EXAM_TYPE_LABELS: { [key: number]: string } = {
-  1: 'امتحان درس',
-  2: 'امتحان شهري',
-  3: 'امتحان ترم',
-  4: 'امتحان سنوي'
+  1: 'Lesson Exam',
+  2: 'Monthly Exam',
+  3: 'Term Exam',
+  4: 'Annual Exam'
 };
 
 export const QUESTION_TYPE_LABELS: { [key: number]: string } = {
-  1: 'سؤال نصي',
-  2: 'اختيار من متعدد',
-  3: 'اختيار متعدد',
-  4: 'صح/خطأ'
+  1: 'Text Question',
+  2: 'Multiple Choice',
+  3: 'Multiple Select',
+  4: 'True/False'
 };
 
 export const EXAM_TYPE_ICONS: { [key: number]: string } = {
@@ -373,22 +373,22 @@ export function getGradeColor(grade?: string): string {
 
 export function getExamTypeLabel(type: ExamType): string {
   const labels: Record<string, string> = {
-    [ExamType.Lesson]: 'امتحان درس',
-    [ExamType.Monthly]: 'امتحان شهري',
-    [ExamType.Term]: 'امتحان فصلي',
-    [ExamType.Year]: 'امتحان سنوي'
+    [ExamType.Lesson]: 'Lesson Exam',
+    [ExamType.Monthly]: 'Monthly Exam',
+    [ExamType.Term]: 'Term Exam',
+    [ExamType.Year]: 'Annual Exam'
   };
-  return labels[type as string] || 'امتحان';
+  return labels[type as string] || 'Exam';
 }
 
 export function getQuestionTypeLabel(type: QuestionType): string {
   const labels: Record<string, string> = {
-    [QuestionType.Text]: 'سؤال مقالي',
-    [QuestionType.MultipleChoice]: 'اختيار من متعدد',
-    [QuestionType.MultipleSelect]: 'اختيارات متعددة',
-    [QuestionType.TrueFalse]: 'صح أو خطأ'
+    [QuestionType.Text]: 'Essay Question',
+    [QuestionType.MultipleChoice]: 'Multiple Choice',
+    [QuestionType.MultipleSelect]: 'Multiple Select',
+    [QuestionType.TrueFalse]: 'True/False'
   };
-  return labels[type as string] || 'سؤال';
+  return labels[type as string] || 'Question';
 }
 
 export function getExamTypeIcon(type: ExamType): string {
