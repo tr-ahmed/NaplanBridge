@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../core/services/auth.service';
+import { CategoryService } from '../../core/services/category.service';
 
 // Interfaces
 interface AcademicYear {
@@ -43,6 +44,7 @@ export class AddStudentComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private categoryService = inject(CategoryService);
 
   // Form
   addStudentForm!: FormGroup;
@@ -51,20 +53,46 @@ export class AddStudentComponent implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
   success = signal(false);
+  yearsLoading = signal(true); // Track loading state for years
 
-  // Academic years data - NAPLAN Year Levels
-  // Important: IDs must match actual year levels (7-12 for NAPLAN students)
-  academicYears: AcademicYear[] = [
-    { id: 7, name: 'Year 7' },
-    { id: 8, name: 'Year 8' },
-    { id: 9, name: 'Year 9' },
-    { id: 10, name: 'Year 10' },
-    { id: 11, name: 'Year 11' },
-    { id: 12, name: 'Year 12' }
-  ];
+  // Academic years data - Now loaded from API
+  academicYears: AcademicYear[] = [];
 
   ngOnInit(): void {
     this.initializeForm();
+    this.loadAcademicYears();
+  }
+
+  /**
+   * Load academic years from database
+   */
+  private loadAcademicYears(): void {
+    this.yearsLoading.set(true);
+    this.categoryService.getYears().subscribe({
+      next: (years) => {
+        console.log('✅ Loaded academic years from database:', years);
+        // Convert Year to AcademicYear format
+        this.academicYears = years.map(year => ({
+          id: year.id,
+          name: `Year ${year.yearNumber}`,
+          nameAr: `السنة ${year.yearNumber}`
+        }));
+        this.yearsLoading.set(false);
+      },
+      error: (err) => {
+        console.error('❌ Failed to load academic years:', err);
+        // Fallback to default years if API fails
+        this.academicYears = [
+          { id: 7, name: 'Year 7', nameAr: 'السنة 7' },
+          { id: 8, name: 'Year 8', nameAr: 'السنة 8' },
+          { id: 9, name: 'Year 9', nameAr: 'السنة 9' },
+          { id: 10, name: 'Year 10', nameAr: 'السنة 10' },
+          { id: 11, name: 'Year 11', nameAr: 'السنة 11' },
+          { id: 12, name: 'Year 12', nameAr: 'السنة 12' }
+        ];
+        this.yearsLoading.set(false);
+      }
+    });
   }
 
   /**

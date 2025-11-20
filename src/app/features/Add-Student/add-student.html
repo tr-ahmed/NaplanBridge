@@ -142,18 +142,24 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Academic Year <span class="text-red-500">*</span>
             </label>
-            <select
-              formControlName="yearId"
-              class="w-full px-4 py-3 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              [class.border-red-500]="hasError('yearId', 'required')"
-              [class.border-gray-300]="!hasError('yearId', 'required')">
-              <option value="" disabled selected>Select year</option>
-              @for (year of academicYears; track year.id) {
-                <option [value]="year.id">{{ year.name }} - {{ year.nameAr }}</option>
+            @if (yearsLoading()) {
+              <div class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                Loading years from database...
+              </div>
+            } @else {
+              <select
+                formControlName="yearId"
+                class="w-full px-4 py-3 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                [class.border-red-500]="hasError('yearId', 'required')"
+                [class.border-gray-300]="!hasError('yearId', 'required')">
+                <option value="" disabled selected>Select year</option>
+                @for (year of academicYears; track year.id) {
+                  <option [value]="year.id">{{ year.name }} - {{ year.nameAr }}</option>
+                }
+              </select>
+              @if (hasError('yearId', 'required')) {
+                <p class="mt-1 text-sm text-red-500">Academic year is required</p>
               }
-            </select>
-            @if (hasError('yearId', 'required')) {
-              <p class="mt-1 text-sm text-red-500">Academic year is required</p>
             }
           </div>
         </div>
