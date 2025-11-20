@@ -27,6 +27,10 @@ export const routes: Routes = [
     path: 'auth/register',
     loadComponent: () => import('./auth/register/register.component').then(m => m.RegisterComponent)
   },
+  {
+    path: 'auth/reset-password',
+    loadComponent: () => import('./auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
 
   // Role selection route (important: place before other protected routes)
   {
