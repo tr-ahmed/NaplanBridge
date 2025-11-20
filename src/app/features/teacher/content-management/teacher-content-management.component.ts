@@ -11,6 +11,7 @@ import {
   ContentItem,
   ContentFilterDto
 } from '../services/teacher-content-management.service';
+import { TeacherPermissionService, TeacherPermissionDto } from '../services/teacher-permission.service';
 import { TeacherDashboardComponent } from './teacher-dashboard/teacher-dashboard.component';
 import { MyContentListComponent } from './my-content-list/my-content-list.component';
 import { ContentCreationWizardComponent } from './content-creation-wizard/content-creation-wizard.component';
@@ -40,6 +41,7 @@ interface TeacherTab {
 })
 export class TeacherContentManagementComponent implements OnInit, OnDestroy {
   private contentService = inject(TeacherContentManagementService);
+  private permissionService = inject(TeacherPermissionService);
   private toastService = inject(ToastService);
   private destroy$ = new Subject<void>();
 
@@ -53,6 +55,7 @@ export class TeacherContentManagementComponent implements OnInit, OnDestroy {
   authorizedSubjects = signal<TeacherSubject[]>([]);
   selectedSubject = signal<TeacherSubject | null>(null);
   allContent = signal<ContentItem[]>([]);
+  myPermissions = signal<TeacherPermissionDto[]>([]);
 
   // ===== Statistics =====
   stats = signal({
@@ -81,11 +84,43 @@ export class TeacherContentManagementComponent implements OnInit, OnDestroy {
     this.loadAuthorizedSubjects();
     this.loadDashboardStats();
     this.loadAllContent();
+    this.loadMyPermissions();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Load teacher's permissions
+   */
+  private loadMyPermissions(): void {
+    const currentUser = this.getCurrentUserId();
+    if (!currentUser) {
+      console.warn('No user ID found');
+      return;
+    }
+
+    this.permissionService.getTeacherPermissions(currentUser)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.myPermissions.set(response.data);
+          console.log('✅ Permissions loaded:', response.data.length);
+        },
+        error: (error: any) => {
+          console.error('Error loading permissions:', error);
+        }
+      });
+  }
+
+  /**
+   * Get current user ID (from localStorage or service)
+   */
+  private getCurrentUserId(): number {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user?.id || 0;
   }
 
   /**
@@ -292,5 +327,37 @@ export class TeacherContentManagementComponent implements OnInit, OnDestroy {
     return statusIcons[status] || '❓';
   }
 
+  /**
+   * Check if teacher has permission to perform action on subject
+   */
+  hasPermission(subjectId: number, action: 'create' | 'edit' | 'delete'): boolean {
+    const permission = this.myPermissions().find(p => p.subjectId === subjectId);
+    if (!permission) return false;
+
+    switch (action) {
+      case 'create':
+        return permission.canCreate;
+      case 'edit':
+        return permission.canEdit;
+      case 'delete':
+        return permission.canDelete;
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Get permission details for subject
+   */
+  getSubjectPermission(subjectId: number): TeacherPermissionDto | undefined {
+    return this.myPermissions().find(p => p.subjectId === subjectId);
+  }
+
+  /**
+   * Check if teacher can access content management
+   */
+  canAccessContentManagement(): boolean {
+    return this.myPermissions().length > 0;
+  }
 }
 

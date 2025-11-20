@@ -118,37 +118,38 @@
     @if (activeTab() === 'plans') {
     <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
       <!-- Filters -->
-      <div class="p-6 border-b border-gray-200">
-        <div class="flex items-center justify-between mb-4">
-          <div class="relative flex-grow max-w-md">
+      <div class="p-6 border-b border-gray-300 bg-gradient-to-r from-blue-50 to-white">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+          <div class="relative flex-grow w-full sm:max-w-md">
             <input
               type="text"
               [(ngModel)]="searchTerm"
               (ngModelChange)="onSearchChange()"
-              placeholder="Search plans..."
-              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+              placeholder="Search plans by name or description..."
+              class="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+            <i class="fas fa-search absolute left-3 top-3.5 text-gray-400 text-lg"></i>
           </div>
           <button
-            (click)="openAddPlanModal()"
-            class="ml-4 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2 shadow-md">
+            (click)="isEditMode = false; currentPlan = {}; showPlanModal = true; loadSubjects()"
+            class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2">
             <i class="fas fa-plus"></i>
             Add Plan
           </button>
         </div>
-        <div class="flex items-center gap-2 text-sm text-gray-600">
-          <label for="plansPageSize">Items per page:</label>
+        <div class="flex items-center gap-3 text-sm text-gray-700">
+          <label for="plansPageSize" class="font-medium">Show:</label>
           <select
             id="plansPageSize"
             [(ngModel)]="plansPageSize"
             (ngModelChange)="onSearchChange()"
-            class="px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="25">25</option>
-            <option [value]="50">50</option>
-            <option [value]="100">100</option>
+            class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-white hover:border-blue-300 transition-all">
+            <option [value]="5">5 per page</option>
+            <option [value]="10">10 per page</option>
+            <option [value]="25">25 per page</option>
+            <option [value]="50">50 per page</option>
+            <option [value]="100">100 per page</option>
           </select>
+          <span class="text-gray-600 font-semibold ml-auto">{{ filteredPlans.length }} plans found</span>
         </div>
       </div>
 
@@ -166,49 +167,68 @@
       @if (!loading()) {
       <div class="overflow-x-auto">
         <table class="w-full">
-          <thead class="bg-gray-50">
+          <thead class="bg-gradient-to-r from-blue-50 to-blue-100 border-b-2 border-blue-300">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Plan Name</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Description</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Price</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-4 text-left text-sm font-bold text-blue-900 uppercase tracking-wide">Plan Name</th>
+              <th class="px-6 py-4 text-left text-sm font-bold text-blue-900 uppercase tracking-wide">Description</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-blue-900 uppercase tracking-wide">Price</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-blue-900 uppercase tracking-wide">Type</th>
+              <th class="px-6 py-4 text-left text-sm font-bold text-blue-900 uppercase tracking-wide">Coverage</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-blue-900 uppercase tracking-wide">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
-            @for (plan of pagedPlans; track plan.planId || plan.id) {
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 font-medium text-gray-900">{{ plan.name }}</td>
-              <td class="px-6 py-4 text-gray-600">{{ plan.description }}</td>
-              <td class="px-6 py-4 text-gray-900 font-semibold">\${{ plan.price }}</td>
-              <td class="px-6 py-4">
-                <span [class]="isPlanActive(plan) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                      class="px-2 py-1 text-xs font-semibold rounded-full">
-                  {{ isPlanActive(plan) ? 'Active' : 'Inactive' }}
+            @for (plan of pagedPlans; track plan.planId) {
+            <tr class="hover:bg-blue-50 transition-all duration-150 border-l-4 border-l-transparent hover:border-l-blue-500">
+              <td class="px-6 py-4 font-semibold text-gray-900">{{ plan.name }}</td>
+              <td class="px-6 py-4 text-gray-600 text-sm max-w-xs truncate">{{ plan.description }}</td>
+              <td class="px-6 py-4 text-center font-bold text-green-600">${{ plan.price | number:'1.2-2' }}</td>
+              <td class="px-6 py-4 text-center">
+                <span [ngSwitch]="plan.planType" 
+                      class="px-3 py-1 rounded-full text-xs font-bold inline-block"
+                      [class]="plan.planType === 1 ? 'bg-blue-100 text-blue-900' :
+                               plan.planType === 2 ? 'bg-purple-100 text-purple-900' :
+                               plan.planType === 3 ? 'bg-green-100 text-green-900' :
+                               plan.planType === 4 ? 'bg-orange-100 text-orange-900' :
+                               'bg-gray-100 text-gray-900'">
+                  @switch (plan.planType) {
+                    @case (1) { Single }
+                    @case (2) { Multi-Term }
+                    @case (3) { Full Year }
+                    @case (4) { Annual }
+                    @default { - }
+                  }
                 </span>
               </td>
-              <td class="px-6 py-4">
-                <div class="flex justify-end gap-2">
+              <td class="px-6 py-4 text-center text-sm text-gray-600">{{ plan.coverageDescription }}</td>
+              <td class="px-6 py-4 text-center">
+                <div class="flex justify-center gap-2">
                   <button
                     (click)="openEditPlanModal(plan)"
-                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Edit">
+                    class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium flex items-center gap-1"
+                    title="Edit Plan">
                     <i class="fas fa-edit"></i>
+                    Edit
                   </button>
                   <button
                     (click)="deactivatePlan(plan)"
-                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Deactivate">
-                    <i class="fas fa-ban"></i>
+                    class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium flex items-center gap-1"
+                    title="Delete Plan">
+                    <i class="fas fa-trash"></i>
+                    Delete
                   </button>
                 </div>
               </td>
             </tr>
             }
-            @if (filteredPlans.length === 0) {
+            @if (pagedPlans.length === 0) {
             <tr>
-              <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                No subscription plans found
+              <td colspan="6" class="px-6 py-16 text-center">
+                <div class="text-gray-500">
+                  <i class="fas fa-inbox text-4xl mb-4 block opacity-50"></i>
+                  <p class="text-lg font-medium">No subscription plans found</p>
+                  <p class="text-sm mt-1">Try adjusting your search or filters</p>
+                </div>
               </td>
             </tr>
             }
@@ -218,31 +238,31 @@
 
       <!-- Pagination for Plans -->
       @if (filteredPlans.length > plansPageSize) {
-      <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50">
-        <div class="text-sm text-gray-700">
-          Showing <span class="font-semibold">{{ (plansCurrentPage - 1) * plansPageSize + 1 }}</span> to
-          <span class="font-semibold">{{ Math.min(plansCurrentPage * plansPageSize, filteredPlans.length) }}</span> of
-          <span class="font-semibold">{{ filteredPlans.length }}</span> plans
+      <div class="border-t border-gray-300 px-6 py-4 flex flex-col sm:flex-row items-center justify-between bg-gradient-to-r from-gray-50 to-gray-100 gap-4">
+        <div class="text-sm text-gray-700 font-medium">
+          Showing <span class="font-bold text-blue-600">{{ (plansCurrentPage - 1) * plansPageSize + 1 }}-{{ Math.min(plansCurrentPage * plansPageSize, filteredPlans.length) }}</span> 
+          of <span class="font-bold text-blue-600">{{ filteredPlans.length }}</span> plans
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2 items-center">
           <button
             (click)="goToPlansPage(plansCurrentPage - 1)"
             [disabled]="plansCurrentPage === 1"
-            class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-gray-700">
             <i class="fas fa-chevron-left mr-2"></i>Previous
           </button>
           
           <!-- Page Numbers -->
-          <div class="hidden md:flex gap-2">
-            @for (page of [].constructor(Math.ceil(filteredPlans.length / plansPageSize)); track $index) {
+          <div class="hidden md:flex gap-1">
+            @for (page of createPageArray(Math.ceil(filteredPlans.length / plansPageSize)); track $index) {
               @if ($index + 1 === 1 || $index + 1 === Math.ceil(filteredPlans.length / plansPageSize) || Math.abs($index + 1 - plansCurrentPage) <= 1) {
                 <button
                   (click)="goToPlansPage($index + 1)"
-                  [class]="plansCurrentPage === $index + 1 ? 'px-4 py-2 bg-blue-600 text-white border border-blue-600 rounded-lg font-semibold' : 'px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50'">
+                  [class]="plansCurrentPage === $index + 1 ? 'px-3 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-md' : 'px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-400 text-gray-700 font-medium'"
+                  class="transition-all">
                   {{ $index + 1 }}
                 </button>
               } @else if (Math.abs($index + 1 - plansCurrentPage) === 2) {
-                <span class="px-2 py-2 text-gray-500">...</span>
+                <span class="px-2 py-2 text-gray-400">•••</span>
               }
             }
           </div>
@@ -250,7 +270,7 @@
           <button
             (click)="goToPlansPage(plansCurrentPage + 1)"
             [disabled]="plansCurrentPage * plansPageSize >= filteredPlans.length"
-            class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-gray-700">
             Next<i class="fas fa-chevron-right ml-2"></i>
           </button>
         </div>
@@ -264,103 +284,81 @@
     @if (activeTab() === 'orders') {
     <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
       <!-- Filters -->
-      <div class="p-6 border-b border-gray-200">
-        <div class="flex flex-col md:flex-row gap-4 mb-4">
-          <div class="relative flex-grow">
+      <div class="p-6 border-b border-gray-300 bg-gradient-to-r from-blue-50 to-white">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+          <div class="relative flex-grow w-full sm:max-w-md">
             <input
               type="text"
               [(ngModel)]="searchTerm"
               (ngModelChange)="onSearchChange()"
               placeholder="Search orders..."
-              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+              class="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+            <i class="fas fa-search absolute left-3 top-3.5 text-gray-400 text-lg"></i>
           </div>
           <select
             [(ngModel)]="statusFilter"
             (ngModelChange)="onStatusFilterChange()"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            class="px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-white hover:border-blue-300 transition-all">
             <option value="">All Status</option>
             <option value="Pending">Pending</option>
             <option value="Paid">Paid</option>
             <option value="Failed">Failed</option>
           </select>
         </div>
-        <div class="flex items-center gap-2 text-sm text-gray-600">
-          <label for="ordersPageSize">Items per page:</label>
+        <div class="flex items-center gap-3 text-sm text-gray-700">
+          <label for="ordersPageSize" class="font-medium">Show:</label>
           <select
             id="ordersPageSize"
-            [(ngModel)]="pageSize"
+            [(ngModel)]="ordersPageSize"
             (ngModelChange)="onStatusFilterChange()"
-            class="px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="25">25</option>
-            <option [value]="50">50</option>
-            <option [value]="100">100</option>
+            class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium bg-white hover:border-blue-300 transition-all">
+            <option [value]="5">5 per page</option>
+            <option [value]="10">10 per page</option>
+            <option [value]="25">25 per page</option>
+            <option [value]="50">50 per page</option>
+            <option [value]="100">100 per page</option>
           </select>
+          <span class="text-gray-600 font-semibold ml-auto">{{ filteredOrders.length }} orders</span>
         </div>
       </div>
-
-      <!-- Loading State -->
-      @if (loading()) {
-      <div class="p-12 flex items-center justify-center">
-        <div class="text-center">
-          <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
-          <p class="mt-4 text-gray-600">Loading orders...</p>
-        </div>
-      </div>
-      }
 
       <!-- Orders Table -->
       @if (!loading()) {
       <div class="overflow-x-auto">
         <table class="w-full">
-          <thead class="bg-gray-50">
+          <thead class="bg-gradient-to-r from-blue-50 to-blue-100 border-b-2 border-blue-300">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Order ID</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">User</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Amount</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-4 text-left text-sm font-bold text-blue-900 uppercase tracking-wide">Order ID</th>
+              <th class="px-6 py-4 text-left text-sm font-bold text-blue-900 uppercase tracking-wide">Student</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-blue-900 uppercase tracking-wide">Amount</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-blue-900 uppercase tracking-wide">Status</th>
+              <th class="px-6 py-4 text-center text-sm font-bold text-blue-900 uppercase tracking-wide">Date</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
             @for (order of pagedOrders; track order.id) {
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 font-medium text-gray-900">#{{ order.orderId }}</td>
-              <td class="px-6 py-4 text-gray-600">{{ order.userName || 'N/A' }}</td>
-              <td class="px-6 py-4 text-gray-900 font-semibold">\${{ order.totalAmount }}</td>
-              <td class="px-6 py-4">
+            <tr class="hover:bg-blue-50 transition-all duration-150 border-l-4 border-l-transparent hover:border-l-blue-500">
+              <td class="px-6 py-4 font-semibold text-gray-900">#{{ order.orderId || 'N/A' }}</td>
+              <td class="px-6 py-4 text-gray-700">{{ order.studentName || order.userName || 'N/A' }}</td>
+              <td class="px-6 py-4 text-center font-bold text-green-600">${{ (order.totalAmount || order.amount || 0) | number:'1.2-2' }}</td>
+              <td class="px-6 py-4 text-center">
                 <span
-                  [class]="order.status === 'Paid' ? 'bg-green-100 text-green-800' : order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'"
-                  class="px-2 py-1 text-xs font-semibold rounded-full">
-                  {{ order.status }}
+                  [class]="order.status === 'Paid' ? 'bg-green-100 text-green-900' : order.status === 'Pending' ? 'bg-yellow-100 text-yellow-900' : 'bg-red-100 text-red-900'"
+                  class="px-3 py-1 text-xs font-bold rounded-full inline-block">
+                  {{ order.status || 'Unknown' }}
                 </span>
               </td>
-              <td class="px-6 py-4 text-gray-600">{{ order.orderDate | date:'short' }}</td>
-              <td class="px-6 py-4">
-                <div class="flex justify-end gap-2">
-                  <button
-                    (click)="viewOrderDetails(order.id)"
-                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="View Details">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                  <button
-                    (click)="downloadInvoice(order.id)"
-                    class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                    title="Download Invoice">
-                    <i class="fas fa-download"></i>
-                  </button>
-                </div>
-              </td>
+              <td class="px-6 py-4 text-center text-sm text-gray-600">{{ (order.orderDate || order.createdAt) | date:'short' }}</td>
             </tr>
             }
-            @if (filteredOrders.length === 0) {
+            @if (pagedOrders.length === 0) {
             <tr>
-              <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                No orders found
+              <td colspan="5" class="px-6 py-16 text-center">
+                <div class="text-gray-500">
+                  <i class="fas fa-receipt text-4xl mb-4 block opacity-50"></i>
+                  <p class="text-lg font-medium">No orders found</p>
+                  <p class="text-sm mt-1">Try adjusting your filters</p>
+                </div>
               </td>
             </tr>
             }
@@ -369,39 +367,39 @@
       </div>
 
       <!-- Pagination for Orders -->
-      @if (filteredOrders.length > pageSize) {
+      @if (filteredOrders.length > ordersPageSize) {
       <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50">
         <div class="text-sm text-gray-700">
-          Showing <span class="font-semibold">{{ (currentPage - 1) * pageSize + 1 }}</span> to
-          <span class="font-semibold">{{ Math.min(currentPage * pageSize, filteredOrders.length) }}</span> of
+          Showing <span class="font-semibold">{{ (ordersCurrentPage - 1) * ordersPageSize + 1 }}</span> to
+          <span class="font-semibold">{{ Math.min(ordersCurrentPage * ordersPageSize, filteredOrders.length) }}</span> of
           <span class="font-semibold">{{ filteredOrders.length }}</span> orders
         </div>
         <div class="flex gap-2">
           <button
-            (click)="goToPage(currentPage - 1)"
-            [disabled]="currentPage === 1"
+            (click)="goToOrdersPage(ordersCurrentPage - 1)"
+            [disabled]="ordersCurrentPage === 1"
             class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
             <i class="fas fa-chevron-left mr-2"></i>Previous
           </button>
           
           <!-- Page Numbers -->
           <div class="hidden md:flex gap-2">
-            @for (page of [].constructor(Math.ceil(filteredOrders.length / pageSize)); track $index) {
-              @if ($index + 1 === 1 || $index + 1 === Math.ceil(filteredOrders.length / pageSize) || Math.abs($index + 1 - currentPage) <= 1) {
+            @for (page of createPageArray(Math.ceil(filteredOrders.length / ordersPageSize)); track $index) {
+              @if ($index + 1 === 1 || $index + 1 === Math.ceil(filteredOrders.length / ordersPageSize) || Math.abs($index + 1 - ordersCurrentPage) <= 1) {
                 <button
-                  (click)="goToPage($index + 1)"
-                  [class]="currentPage === $index + 1 ? 'px-4 py-2 bg-blue-600 text-white border border-blue-600 rounded-lg font-semibold' : 'px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50'">
+                  (click)="goToOrdersPage($index + 1)"
+                  [class]="ordersCurrentPage === $index + 1 ? 'px-4 py-2 bg-blue-600 text-white border border-blue-600 rounded-lg font-semibold' : 'px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50'">
                   {{ $index + 1 }}
                 </button>
-              } @else if (Math.abs($index + 1 - currentPage) === 2) {
+              } @else if (Math.abs($index + 1 - ordersCurrentPage) === 2) {
                 <span class="px-2 py-2 text-gray-500">...</span>
               }
             }
           </div>
 
           <button
-            (click)="goToPage(currentPage + 1)"
-            [disabled]="currentPage * pageSize >= filteredOrders.length"
+            (click)="goToOrdersPage(ordersCurrentPage + 1)"
+            [disabled]="ordersCurrentPage * ordersPageSize >= filteredOrders.length"
             class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
             Next<i class="fas fa-chevron-right ml-2"></i>
           </button>
@@ -451,171 +449,252 @@
       <!-- Analytics Cards -->
       @if (analytics) {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-gray-600 text-sm mb-1">Total Revenue</p>
-              <p class="text-3xl font-bold text-gray-900">\${{ analytics.totalRevenue | number:'1.0-0' }}</p>
+              <p class="text-gray-600 text-sm font-medium mb-1">Total Revenue</p>
+              <p class="text-4xl font-bold text-gray-900">${{ analytics.totalRevenue | number:'1.2-2' }}</p>
+              <p class="text-green-600 text-xs mt-2"><i class="fas fa-arrow-up mr-1"></i>From all paid orders</p>
             </div>
             <div class="p-3 bg-green-100 rounded-full">
-              <i class="fas fa-dollar-sign text-2xl text-green-600"></i>
+              <i class="fas fa-dollar-sign text-3xl text-green-600"></i>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-gray-600 text-sm mb-1">Total Orders</p>
-              <p class="text-3xl font-bold text-gray-900">{{ analytics.totalOrders }}</p>
+              <p class="text-gray-600 text-sm font-medium mb-1">Total Orders</p>
+              <p class="text-4xl font-bold text-gray-900">{{ analytics.totalOrders }}</p>
+              <p class="text-blue-600 text-xs mt-2"><i class="fas fa-shopping-cart mr-1"></i>All order statuses</p>
             </div>
             <div class="p-3 bg-blue-100 rounded-full">
-              <i class="fas fa-shopping-cart text-2xl text-blue-600"></i>
+              <i class="fas fa-shopping-cart text-3xl text-blue-600"></i>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-gray-600 text-sm mb-1">Avg Order Value</p>
-              <p class="text-3xl font-bold text-gray-900">\${{ analytics.averageOrderValue | number:'1.0-0' }}</p>
+              <p class="text-gray-600 text-sm font-medium mb-1">Avg Order Value</p>
+              <p class="text-4xl font-bold text-gray-900">${{ analytics.averageOrderValue | number:'1.2-2' }}</p>
+              <p class="text-purple-600 text-xs mt-2"><i class="fas fa-chart-line mr-1"></i>Per order average</p>
             </div>
             <div class="p-3 bg-purple-100 rounded-full">
-              <i class="fas fa-chart-line text-2xl text-purple-600"></i>
+              <i class="fas fa-chart-line text-3xl text-purple-600"></i>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Top Plans Section -->
+      @if (analytics.topPlans && analytics.topPlans.length > 0) {
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Performing Plans</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Plan Name</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Orders</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Revenue</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              @for (plan of analytics.topPlans; track plan.planName) {
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-gray-900 font-medium">{{ plan.planName }}</td>
+                <td class="px-4 py-3 text-gray-600"><span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">{{ plan.count }}</span></td>
+                <td class="px-4 py-3 text-gray-900 font-semibold text-green-600">${{ plan.revenue | number:'1.2-2' }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
         </div>
       </div>
       }
 
+      <!-- Orders by Month Section -->
+      @if (analytics.ordersByMonth && analytics.ordersByMonth.length > 0) {
       <div class="bg-white rounded-lg shadow-md p-6">
-        <p class="text-center text-gray-500 py-12">
-          <i class="fas fa-chart-bar text-4xl text-gray-400 mb-4"></i><br>
-          Advanced analytics charts will be displayed here
-        </p>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Orders by Month</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Month</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Order Count</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Revenue</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              @for (monthData of analytics.ordersByMonth; track monthData.month) {
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-gray-900 font-medium">{{ monthData.month }}</td>
+                <td class="px-4 py-3 text-gray-600"><span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">{{ monthData.count }}</span></td>
+                <td class="px-4 py-3 text-gray-900 font-semibold text-green-600">${{ monthData.revenue | number:'1.2-2' }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
+      }
+      } @else {
+      <div class="bg-white rounded-lg shadow-md p-12 text-center">
+        <i class="fas fa-chart-bar text-4xl text-gray-400 mb-4"></i>
+        <p class="text-gray-500">No analytics data available. Please check back later or adjust your date range.</p>
+      </div>
+      }
     </div>
     }
   </div>
-</main>
 
-<!-- Add/Edit Plan Modal -->
-@if (showPlanModal) {
-<div class="fixed inset-0 z-50 overflow-y-auto">
-  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" (click)="closePlanModal()"></div>
+  <!-- Add/Edit Plan Modal -->
+  @if (showPlanModal) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <!-- Modal Header -->
+      <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 flex items-center justify-between border-b-2 border-blue-800">
+        <h2 class="text-2xl font-bold text-white">
+          @if (isEditMode) {
+            Edit Subscription Plan
+          } @else {
+            Add New Subscription Plan
+          }
+        </h2>
+        <button
+          (click)="closePlanModal()"
+          class="text-white hover:bg-blue-600 rounded-lg p-2 transition-colors">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
 
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">
-          {{ isEditMode ? 'Edit Subscription Plan' : 'Add Subscription Plan' }}
-        </h3>
+      <!-- Modal Body -->
+      <div class="p-6 space-y-5">
+        <!-- Plan Name -->
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Plan Name <span class="text-red-600">*</span></label>
+          <input
+            type="text"
+            [(ngModel)]="currentPlan.name"
+            placeholder="e.g., Algebra Year 7 - Term 1"
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+        </div>
 
-        <div class="space-y-4">
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Description <span class="text-red-600">*</span></label>
+          <textarea
+            [(ngModel)]="currentPlan.description"
+            placeholder="Describe the subscription plan..."
+            rows="3"
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"></textarea>
+        </div>
+
+        <!-- Price and Plan Type -->
+        <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Plan Name *</label>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Price ($) <span class="text-red-600">*</span></label>
             <input
-              type="text"
-              [(ngModel)]="currentPlan.name"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter plan name"
-              required />
+              type="number"
+              [(ngModel)]="currentPlan.price"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
           </div>
-
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
-            <textarea
-              [(ngModel)]="currentPlan.description"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter plan description"
-              required></textarea>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Plan Type <span class="text-red-600">*</span></label>
+            <select
+              [(ngModel)]="currentPlan.planType"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+              <option value="">Select Type</option>
+              <option [value]="1">Single Term</option>
+              <option [value]="2">Multi-Term</option>
+              <option [value]="3">Full Year</option>
+              <option [value]="4">Annual</option>
+            </select>
           </div>
+        </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Plan Type *</label>
-              <select
-                [(ngModel)]="currentPlan.planType"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option [value]="1">Single Term</option>
-                <option [value]="2">Multi-Term</option>
-                <option [value]="3">Full Year</option>
-                <option [value]="4">Subject Annual</option>
-              </select>
-            </div>
+        <!-- Coverage Description -->
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Coverage Description</label>
+          <input
+            type="text"
+            [(ngModel)]="currentPlan.coverageDescription"
+            placeholder="e.g., Subject - Term 1"
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+        </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Price ($) *</label>
-              <input
-                type="number"
-                [(ngModel)]="currentPlan.price"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="0.00"
-                min="0"
-                step="0.01"
-                required />
-            </div>
-          </div>
-
-          <div class="grid grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Subject ID</label>
-              <input
-                type="number"
-                [(ngModel)]="currentPlan.subjectId"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="0"
-                min="0" />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Term ID</label>
-              <input
-                type="number"
-                [(ngModel)]="currentPlan.termId"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="0"
-                min="0" />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Year ID</label>
-              <input
-                type="number"
-                [(ngModel)]="currentPlan.yearId"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="0"
-                min="0" />
-            </div>
-          </div>
-
+        <!-- Subject & Term (optional) -->
+        <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="flex items-center">
-              <input
-                type="checkbox"
-                [(ngModel)]="currentPlan.isActive"
-                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-              <span class="ml-2 text-sm text-gray-700">Active Plan</span>
-            </label>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Subject (Optional)</label>
+            <select
+              [(ngModel)]="currentPlan.subjectId"
+              (ngModelChange)="onSubjectChange($event)"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+              <option value="">Select Subject</option>
+              @for (subject of subjects; track subject.id) {
+                <option [value]="subject.id">{{ subject.subjectName || subject.name }}</option>
+              }
+            </select>
           </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Term (Optional)</label>
+            <select
+              [(ngModel)]="currentPlan.termId"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              [disabled]="filteredTerms.length === 0">
+              <option value="">Select Term</option>
+              @for (term of filteredTerms; track term.id) {
+                <option [value]="term.id">{{ term.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Year (optional) -->
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Year (Optional)</label>
+          <select
+            [(ngModel)]="currentPlan.yearId"
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+            <option value="">Select Year</option>
+            @for (year of years; track year.id) {
+              <option [value]="year.id">{{ year.name }}</option>
+            }
+          </select>
         </div>
       </div>
 
-      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
-        <button
-          (click)="savePlan()"
-          class="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
-          {{ isEditMode ? 'Update' : 'Create' }}
-        </button>
+      <!-- Modal Footer -->
+      <div class="bg-gray-50 px-6 py-4 border-t-2 border-gray-200 flex gap-3 justify-end sticky bottom-0">
         <button
           (click)="closePlanModal()"
-          class="w-full sm:w-auto px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
+          class="px-6 py-2.5 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors font-medium">
           Cancel
+        </button>
+        <button
+          (click)="savePlan()"
+          [disabled]="loading()"
+          class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+          @if (loading()) {
+            <span class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+            Saving...
+          } @else {
+            <i class="fas fa-save"></i>
+            @if (isEditMode) { Update } @else { Create }
+          }
         </button>
       </div>
     </div>
   </div>
-</div>
-}
+  }
+</main>
+
+

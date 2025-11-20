@@ -182,6 +182,20 @@ export class AdminDashboardComponent implements OnInit {
       route: '/admin/finance'
     },
     {
+      title: 'Teacher Permissions',
+      description: 'Manage teacher permissions',
+      icon: 'shield-check',
+      color: 'emerald',
+      route: '/admin/teacher-permissions'
+    },
+    {
+      title: 'Assign Teachers',
+      description: 'Assign teachers to subjects',
+      icon: 'users-plus',
+      color: 'cyan',
+      route: '/admin/assign-teacher'
+    },
+    {
       title: 'System Settings',
       description: 'Configure system',
       icon: 'settings',

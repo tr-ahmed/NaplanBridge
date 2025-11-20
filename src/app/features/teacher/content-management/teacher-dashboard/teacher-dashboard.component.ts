@@ -91,20 +91,20 @@ import { TeacherSubject, ContentItem } from '../../services/teacher-content-mana
 
             <div class="grid grid-cols-2 gap-2 text-sm">
               <div class="bg-gray-100 rounded px-2 py-1">
-                <span class="text-gray-600">{{ subject.stats.total }}</span>
-                <span class="text-gray-500 text-xs">Total</span>
+                <span class="text-gray-600">{{ subject.lessonsCount }}</span>
+                <span class="text-gray-500 text-xs">Lessons</span>
               </div>
               <div class="bg-green-100 rounded px-2 py-1">
-                <span class="text-green-700">{{ subject.stats.approved }}</span>
-                <span class="text-green-600 text-xs">Approved</span>
+                <span class="text-green-700">{{ subject.termsCount }}</span>
+                <span class="text-green-600 text-xs">Terms</span>
               </div>
               <div class="bg-yellow-100 rounded px-2 py-1">
-                <span class="text-yellow-700">{{ subject.stats.pending }}</span>
+                <span class="text-yellow-700">{{ subject.pendingCount }}</span>
                 <span class="text-yellow-600 text-xs">Pending</span>
               </div>
-              <div class="bg-red-100 rounded px-2 py-1">
-                <span class="text-red-700">{{ subject.stats.rejected }}</span>
-                <span class="text-red-600 text-xs">Rejected</span>
+              <div class="bg-blue-100 rounded px-2 py-1">
+                <span class="text-blue-700">{{ subject.subjectId }}</span>
+                <span class="text-blue-600 text-xs">ID</span>
               </div>
             </div>
 

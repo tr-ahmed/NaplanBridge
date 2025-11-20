@@ -67,29 +67,38 @@
               <div class="teacher-card border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                 <div class="flex items-start justify-between">
                   <div class="flex-1">
-                    <div class="flex items-center space-x-3 mb-2">
-                      <h3 class="text-xl font-bold text-gray-900">{{ teacher.teacherName }}</h3>
-                      <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                        {{ teacher.totalPermissions }} Subject{{ teacher.totalPermissions !== 1 ? 's' : '' }}
+                    <div class="flex items-center space-x-3 mb-3">
+                      <div>
+                        <h3 class="text-lg font-bold text-gray-900">👨‍🏫 {{ teacher.teacherName || 'Unknown' }}</h3>
+                        <p class="text-gray-500 text-xs">{{ teacher.email || 'No email' }}</p>
+                      </div>
+                      <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap">
+                        {{ teacher.totalPermissions || 0 }} Subject{{ (teacher.totalPermissions || 0) !== 1 ? 's' : '' }}
                       </span>
                     </div>
-                    <p class="text-gray-600 text-sm mb-4">{{ teacher.email }}</p>
 
                     <!-- Subjects List -->
-                    <div class="flex flex-wrap gap-2">
-                      @for (subject of teacher.subjects; track subject) {
-                        <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm">
-                          📚 {{ subject }}
-                        </span>
-                      }
-                    </div>
+                    @if (teacher.subjects && teacher.subjects.length > 0) {
+                      <div class="flex flex-wrap gap-2 mt-4">
+                        @for (subject of teacher.subjects; track $index) {
+                          <span class="bg-green-50 text-green-800 px-3 py-1 rounded-lg text-sm border border-green-200">
+                            📚 {{ subject || 'Unknown Subject' }}
+                          </span>
+                        }
+                      </div>
+                    } @else {
+                      <p class="text-gray-400 text-sm mt-4">No subjects assigned</p>
+                    }
                   </div>
 
-                  <button
-                    (click)="revokePermission(teacher.teacherId)"
-                    class="text-red-600 hover:text-red-700 px-4 py-2 rounded hover:bg-red-50 transition-colors">
-                    Revoke All
-                  </button>
+                  <div class="flex gap-2 ml-4">
+                    <button
+                      (click)="revokePermission(teacher.teacherId)"
+                      title="Revoke all permissions for this teacher"
+                      class="text-red-600 hover:text-red-700 px-4 py-2 rounded hover:bg-red-50 transition-colors border border-red-200">
+                      🗑️ Revoke All
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -186,26 +195,48 @@
         <div class="p-6 space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Teacher *</label>
-            <select
-              [(ngModel)]="grantForm.teacherId"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option [value]="null">Select a teacher</option>
-              @for (teacher of availableTeachers(); track teacher.id) {
-                <option [value]="teacher.id">{{ teacher.name }} ({{ teacher.email }})</option>
-              }
-            </select>
+            @if (loading()) {
+              <div class="w-full border border-blue-300 rounded-lg px-4 py-2 bg-blue-50 text-blue-600 text-sm flex items-center">
+                <div class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-r-transparent mr-2"></div>
+                Loading teachers...
+              </div>
+            } @else if (availableTeachers().length > 0) {
+              <select
+                [(ngModel)]="grantForm.teacherId"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option [value]="null">👇 Select a teacher</option>
+                @for (teacher of availableTeachers(); track teacher.id) {
+                  <option [value]="teacher.id">👨‍🏫 {{ teacher.name }} ({{ teacher.email }})</option>
+                }
+              </select>
+            } @else {
+              <div class="w-full border border-red-300 rounded-lg px-4 py-2 bg-red-50 text-red-600 text-sm">
+                ⚠️ No teachers available. Check your API connection.
+              </div>
+            }
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
-            <select
-              [(ngModel)]="grantForm.subjectId"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-              <option [value]="null">Select a subject</option>
-              @for (subject of availableSubjects(); track subject.id) {
-                <option [value]="subject.id">{{ subject.name }} - {{ subject.yearName }}</option>
-              }
-            </select>
+            @if (loading()) {
+              <div class="w-full border border-blue-300 rounded-lg px-4 py-2 bg-blue-50 text-blue-600 text-sm flex items-center">
+                <div class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-r-transparent mr-2"></div>
+                Loading subjects...
+              </div>
+            } @else if (availableSubjects().length > 0) {
+              <select
+                [(ngModel)]="grantForm.subjectId"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option [value]="null">👇 Select a subject</option>
+                @for (subject of availableSubjects(); track subject.id) {
+                  <option [value]="subject.id">📚 {{ subject.name }} ({{ subject.yearName }})</option>
+                }
+              </select>
+            } @else {
+              <div class="w-full border border-red-300 rounded-lg px-4 py-2 bg-red-50 text-red-600 text-sm">
+                ⚠️ No subjects available. Check your API connection.
+              </div>
+            }
           </div>
 
           <div class="border-t border-gray-200 pt-4">

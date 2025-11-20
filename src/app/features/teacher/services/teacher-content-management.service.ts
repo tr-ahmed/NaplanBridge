@@ -10,6 +10,16 @@ import { environment } from '../../../../environments/environment';
  * Handles all operations related to teacher content creation, editing, and approval tracking
  */
 
+// ===== Enums =====
+export enum ApprovalStatus {
+  Created = 0,
+  Pending = 1,
+  Approved = 2,
+  Published = 3,
+  Rejected = 4,
+  RevisionRequested = 5
+}
+
 // API Response wrapper
 export interface ApiResponse<T> {
   success: boolean;
@@ -26,13 +36,9 @@ export interface TeacherSubject {
   canCreate: boolean;
   canEdit: boolean;
   canDelete: boolean;
-  stats: {
-    total: number;
-    approved: number;
-    pending: number;
-    rejected: number;
-    revisionRequested: number;
-  };
+  termsCount: number;
+  lessonsCount: number;
+  pendingCount: number;
 }
 
 export interface SubjectPermissions {
