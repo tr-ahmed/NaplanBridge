@@ -41,14 +41,11 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
   profile = signal<UserProfile | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
-  activeTab = signal<'profile' | 'password' | 'security' | 'privacy' | 'reset-password'>('profile');
-  resetPasswordLoading = signal(false);
+  activeTab = signal<'profile' | 'password' | 'privacy'>('profile');
 
   // Forms
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
-  securityForm!: FormGroup;
-  resetPasswordForm!: FormGroup;
 
   // File upload
   selectedFile: File | null = null;
@@ -74,23 +71,10 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
     // Password Form
     this.passwordForm = this.fb.group({
       currentPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      newPassword: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]]
     }, {
       validators: this.passwordMatchValidator
-    });
-
-    // Security Form
-    this.securityForm = this.fb.group({
-      twoFactorEnabled: [false],
-      emailNotifications: [true],
-      smsNotifications: [false]
-    });
-
-    // Reset Password Form
-    this.resetPasswordForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      currentPassword: ['', [Validators.required]]
     });
   }
 
@@ -200,10 +184,6 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
       phoneNumber: profile.phoneNumber || '',
       age: profile.age
     });
-
-    this.securityForm.patchValue({
-      twoFactorEnabled: false
-    });
   }
 
   /**
@@ -301,38 +281,65 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
 
     this.loading.set(true);
 
-    const formData = new FormData();
-    formData.append('userName', this.profileForm.value.userName);
-    formData.append('email', this.profileForm.value.email);
-    formData.append('age', this.profileForm.value.age);
+    const updateData = {
+      userName: this.profileForm.value.userName,
+      email: this.profileForm.value.email,
+      age: this.profileForm.value.age,
+      phoneNumber: this.profileForm.value.phoneNumber || null
+    };
 
-    if (this.profileForm.value.phoneNumber) {
-      formData.append('phoneNumber', this.profileForm.value.phoneNumber);
-    }
+    // Call API to update profile
+    this.http.put(`${environment.apiBaseUrl}/api/Account/update-profile`, updateData, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      })
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (response: any) => {
+        this.loading.set(false);
 
-    if (this.selectedFile) {
-      formData.append('avatar', this.selectedFile);
-    }
+        // Update local profile
+        const currentProfile = this.profile();
+        if (currentProfile) {
+          this.profile.set({
+            ...currentProfile,
+            ...updateData
+          });
+        }
 
-    // Mock or real API
-    setTimeout(() => {
-      this.loading.set(false);
-      Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: 'Profile updated successfully',
-        timer: 2000
-      });
+        // Update localStorage
+        localStorage.setItem('userName', updateData.userName);
+        localStorage.setItem('email', updateData.email);
 
-      // Update local profile
-      const currentProfile = this.profile();
-      if (currentProfile) {
-        this.profile.set({
-          ...currentProfile,
-          ...this.profileForm.value
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Profile updated successfully',
+          confirmButtonColor: '#667eea',
+          timer: 2000
+        });
+      },
+      error: (err) => {
+        this.loading.set(false);
+        console.error('Error updating profile:', err);
+
+        let errorMessage = 'Failed to update profile. Please try again.';
+        if (err.status === 400) {
+          errorMessage = err.error?.message || 'Invalid profile data';
+        } else if (err.status === 401) {
+          errorMessage = 'Session expired. Please login again.';
+          this.router.navigate(['/auth/login']);
+          return;
+        }
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          confirmButtonColor: '#667eea'
         });
       }
-    }, 1000);
+    });
   }
 
   /**
@@ -351,100 +358,43 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
       newPassword: this.passwordForm.value.newPassword
     };
 
-    setTimeout(() => {
-      this.loading.set(false);
-      this.passwordForm.reset();
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Password Changed!',
-        text: 'Your password has been updated successfully',
-        timer: 2000
-      });
-    }, 1000);
-  }
-
-  /**
-   * Toggle 2FA
-   */
-  toggle2FA(): void {
-    const enabled = this.securityForm.value.twoFactorEnabled;
-
-    Swal.fire({
-      icon: 'info',
-      title: enabled ? 'Enable 2FA' : 'Disable 2FA',
-      text: enabled
-        ? 'Two-factor authentication adds an extra layer of security'
-        : 'Are you sure you want to disable two-factor authentication?',
-      showCancelButton: true,
-      confirmButtonText: enabled ? 'Enable' : 'Disable'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Update profile
-        const currentProfile = this.profile();
-        if (currentProfile) {
-          const updated = {
-            ...currentProfile
-          } as any;
-          if (enabled) {
-            updated.twoFactorEnabled = enabled;
-          }
-          this.profile.set(updated);
-        }
+    // Call API to change password
+    this.http.post(`${environment.apiBaseUrl}/api/Account/change-password`, passwordData, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      })
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (response: any) => {
+        this.loading.set(false);
+        this.passwordForm.reset();
 
         Swal.fire({
           icon: 'success',
-          title: 'Updated!',
-          text: `Two-factor authentication ${enabled ? 'enabled' : 'disabled'}`,
+          title: 'Password Changed!',
+          text: 'Your password has been updated successfully',
+          confirmButtonColor: '#667eea',
           timer: 2000
         });
-      } else {
-        // Revert toggle
-        this.securityForm.patchValue({
-          twoFactorEnabled: !enabled
-        });
-      }
-    });
-  }
+      },
+      error: (err) => {
+        this.loading.set(false);
+        console.error('Error changing password:', err);
 
-  /**
-   * Verify email
-   */
-  verifyEmail(): void {
-    Swal.fire({
-      icon: 'info',
-      title: 'Verify Email',
-      text: 'A verification link has been sent to your email address',
-      confirmButtonText: 'OK'
-    });
-  }
-
-  /**
-   * Verify phone
-   */
-  verifyPhone(): void {
-    Swal.fire({
-      icon: 'info',
-      title: 'Verify Phone',
-      text: 'A verification code has been sent to your phone',
-      input: 'text',
-      inputPlaceholder: 'Enter verification code',
-      showCancelButton: true,
-      confirmButtonText: 'Verify'
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        const currentProfile = this.profile();
-        if (currentProfile) {
-          this.profile.set({
-            ...currentProfile
-          });
+        let errorMessage = 'Failed to change password. Please try again.';
+        if (err.status === 400) {
+          errorMessage = err.error?.message || 'Invalid password data';
+        } else if (err.status === 401) {
+          errorMessage = 'Session expired. Please login again.';
+          this.router.navigate(['/auth/login']);
+          return;
         }
 
         Swal.fire({
-          icon: 'success',
-          title: 'Verified!',
-          text: 'Phone number verified successfully',
-          timer: 2000
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          confirmButtonColor: '#667eea'
         });
       }
     });
@@ -466,14 +416,58 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
       cancelButtonText: 'Cancel'
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Account Deleted',
-          text: 'Your account has been deleted',
-          timer: 2000
-        }).then(() => {
-          this.authService.logout();
-          this.router.navigate(['/']);
+        this.loading.set(true);
+
+        const deleteData = {
+          currentPassword: result.value
+        };
+
+        // Call API to delete account
+        this.http.post(`${environment.apiBaseUrl}/api/Account/delete-account`, deleteData, {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          })
+        }).pipe(takeUntil(this.destroy$)).subscribe({
+          next: (response: any) => {
+            this.loading.set(false);
+
+            // Clear auth data
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('email');
+            localStorage.removeItem('userRole');
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Account Deleted',
+              text: 'Your account has been deleted successfully',
+              confirmButtonColor: '#667eea'
+            }).then(() => {
+              this.router.navigate(['/']);
+            });
+          },
+          error: (err) => {
+            this.loading.set(false);
+            console.error('Error deleting account:', err);
+
+            let errorMessage = 'Failed to delete account. Please try again.';
+            if (err.status === 400) {
+              errorMessage = err.error?.message || 'Invalid password';
+            } else if (err.status === 401) {
+              errorMessage = 'Session expired. Please login again.';
+              this.router.navigate(['/auth/login']);
+              return;
+            }
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: errorMessage,
+              confirmButtonColor: '#667eea'
+            });
+          }
         });
       }
     });
@@ -482,7 +476,7 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
   /**
    * Switch tab
    */
-  switchTab(tab: 'profile' | 'password' | 'security' | 'privacy' | 'reset-password'): void {
+  switchTab(tab: 'profile' | 'password' | 'privacy'): void {
     this.activeTab.set(tab);
   }
 
@@ -519,49 +513,5 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
    */
   cancel(): void {
     this.router.navigate(['/parent/dashboard']);
-  }
-
-  /**
-   * Initiate password reset - sends reset link to email
-   */
-  initiatePasswordReset(): void {
-    if (this.resetPasswordForm.invalid) {
-      return;
-    }
-
-    this.resetPasswordLoading.set(true);
-    const email = this.resetPasswordForm.get('email')?.value;
-
-    this.authService.requestPasswordReset(email).subscribe({
-      next: (result: { success: boolean; message?: string }) => {
-        this.resetPasswordLoading.set(false);
-        if (result.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Reset Link Sent',
-            text: 'Check your email for the password reset link. The link will be valid for 24 hours.',
-            confirmButtonText: 'OK'
-          }).then(() => {
-            this.resetPasswordForm.reset({ email: this.profile()?.email });
-            this.switchTab('password');
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: result.message || 'Failed to send reset link'
-          });
-        }
-      },
-      error: (error: any) => {
-        this.resetPasswordLoading.set(false);
-        console.error('Password reset error:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to send reset link. Please try again.'
-        });
-      }
-    });
   }
 }

@@ -557,12 +557,12 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     const cart = this.coursesService.getCartValue();
 
-    this.logger.log('🔍 isInCart called:', {
-      courseId: course.id,
-      courseName: course.name || course.subjectName,
-      courseYearId: course.yearId,
-      cartItemsCount: cart.items.length
-    });
+    // this.logger.log('🔍 isInCart called:', {
+    //   courseId: course.id,
+    //   courseName: course.name || course.subjectName,
+    //   courseYearId: course.yearId,
+    //   cartItemsCount: cart.items.length
+    // });
 
     // Check using exact subjectId and yearId from enhanced cart items
     const inCart = cart.items.some((item: any) => {
@@ -597,7 +597,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       return this.coursesService.isInCart(courseId);
     });
 
-    this.logger.log('🎯 Final isInCart result:', inCart);
+    // this.logger.log('🎯 Final isInCart result:', inCart);
     return inCart;
   }
 

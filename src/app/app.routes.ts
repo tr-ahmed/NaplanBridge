@@ -114,6 +114,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'profile/edit',
+    loadComponent: () => import('./features/profile-edit/profile-edit.component').then(m => m.ProfileEditComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'analytics',
     loadComponent: () => import('./features/advanced-analytics/advanced-analytics.component').then(m => m.AdvancedAnalyticsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]

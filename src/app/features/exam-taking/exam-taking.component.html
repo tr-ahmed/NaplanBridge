@@ -331,9 +331,9 @@
             <!-- Submit Button -->
             <button
               (click)="submitExam()"
-              [disabled]="submitting()"
+              [disabled]="submitting() || submissionInProgress()"
               class="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold shadow-lg">
-              @if (submitting()) {
+              @if (submitting() || submissionInProgress()) {
                 <span>Submitting...</span>
               } @else {
                 <span>Submit Exam</span>

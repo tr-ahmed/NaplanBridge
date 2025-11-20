@@ -707,6 +707,112 @@
         }
       }
     },
+    "/api/Account/forgot-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Request password reset via email",
+        "requestBody": {
+          "description": "Email address for password reset",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ForgotPasswordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ForgotPasswordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reset instructions sent",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email format"
+          }
+        }
+      }
+    },
+    "/api/Account/reset-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Reset password using token from email",
+        "requestBody": {
+          "description": "Reset password request with email, new password, and token",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ResetPasswordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ResetPasswordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or expired token"
+          }
+        }
+      }
+    },
     "/api/Achievements": {
       "get": {
         "tags": [
@@ -3344,6 +3450,84 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/GoogleCalendarTest/check-config": {
+      "get": {
+        "tags": [
+          "GoogleCalendarTest"
+        ],
+        "summary": "Test 1: Check Google Calendar Configuration",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/GoogleCalendarTest/test-create-meeting": {
+      "post": {
+        "tags": [
+          "GoogleCalendarTest"
+        ],
+        "summary": "Test 2: Create Test Session and Generate Google Meet Link",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/GoogleCalendarTest/test-sessions": {
+      "get": {
+        "tags": [
+          "GoogleCalendarTest"
+        ],
+        "summary": "Test 3: List Recent Test Sessions",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/GoogleCalendarTest/cleanup-test-sessions": {
+      "delete": {
+        "tags": [
+          "GoogleCalendarTest"
+        ],
+        "summary": "Test 4: Cleanup Test Sessions",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/GoogleCalendarTest/verify-google-access": {
+      "get": {
+        "tags": [
+          "GoogleCalendarTest"
+        ],
+        "summary": "Test 5: Verify Google Calendar API Access",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/GoogleCalendarTest/full-integration-test": {
+      "post": {
+        "tags": [
+          "GoogleCalendarTest"
+        ],
+        "summary": "Test 6: Full Integration Test",
         "responses": {
           "200": {
             "description": "OK"
@@ -6893,6 +7077,45 @@
         }
       }
     },
+    "/api/Seed/seed-all": {
+      "post": {
+        "tags": [
+          "Seed"
+        ],
+        "summary": "Seed all data (CAUTION: Only use in development or after database reset)",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Seed/seed-notifications": {
+      "post": {
+        "tags": [
+          "Seed"
+        ],
+        "summary": "Seed only notification system events",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Seed/status": {
+      "get": {
+        "tags": [
+          "Seed"
+        ],
+        "summary": "Check seeding status",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Sessions/teacher/settings": {
       "get": {
         "tags": [
@@ -9019,24 +9242,24 @@
         "tags": [
           "TeacherContent"
         ],
-        "summary": "Get teacher's authorized subjects (Teacher only)",
+        "summary": "Get teacher's authorized subjects with full details (Teacher only)",
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.TeacherContent.TeacherSubjectSummaryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.TeacherContent.TeacherSubjectSummaryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.TeacherContent.TeacherSubjectSummaryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
                 }
               }
             }
@@ -9368,7 +9591,10 @@
               "enum": [
                 0,
                 1,
-                2
+                2,
+                3,
+                4,
+                5
               ],
               "type": "integer",
               "format": "int32"
@@ -9465,6 +9691,55 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TeacherContent/create": {
+      "post": {
+        "tags": [
+          "TeacherContent"
+        ],
+        "summary": "Create new content (Teacher only)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.TeacherContent.CreateContentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.TeacherContent.CreateContentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.TeacherContent.CreateContentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentItemDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentItemDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentItemDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
                 }
               }
             }
@@ -9978,6 +10253,369 @@
         }
       }
     },
+    "/api/Terminology/active": {
+      "get": {
+        "tags": [
+          "Terminology"
+        ],
+        "summary": "Get the currently active terminology configuration (Public - No Auth Required)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Terminology": {
+      "get": {
+        "tags": [
+          "Terminology"
+        ],
+        "summary": "Get all terminology configurations (Admin only)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Terminology"
+        ],
+        "summary": "Create a new terminology configuration (Admin only)",
+        "requestBody": {
+          "description": "Configuration data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Terminology.CreateTerminologyConfigDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Terminology.CreateTerminologyConfigDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Terminology.CreateTerminologyConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Terminology/{id}": {
+      "get": {
+        "tags": [
+          "Terminology"
+        ],
+        "summary": "Get a specific terminology configuration by ID (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Configuration ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Terminology"
+        ],
+        "summary": "Update an existing terminology configuration (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Configuration ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated configuration data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Terminology.UpdateTerminologyConfigDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Terminology.UpdateTerminologyConfigDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Terminology.UpdateTerminologyConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Terminology"
+        ],
+        "summary": "Delete a terminology configuration (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Configuration ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Terminology/{id}/activate": {
+      "post": {
+        "tags": [
+          "Terminology"
+        ],
+        "summary": "Activate a specific configuration (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Configuration ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Terminology/presets": {
+      "get": {
+        "tags": [
+          "Terminology"
+        ],
+        "summary": "Get available presets (Admin only)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.Terminology.TerminologyPresetDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.Terminology.TerminologyPresetDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.Terminology.TerminologyPresetDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Terminology/presets/{presetName}/apply": {
+      "post": {
+        "tags": [
+          "Terminology"
+        ],
+        "summary": "Apply a preset configuration (Admin only)",
+        "parameters": [
+          {
+            "name": "presetName",
+            "in": "path",
+            "description": "Name of the preset to apply",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Terms": {
       "get": {
         "tags": [
@@ -10222,6 +10860,36 @@
                   "items": {
                     "$ref": "#/components/schemas/API.Entities.User"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/User/profile": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get authenticated user's profile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
                 }
               }
             }
@@ -12156,6 +12824,32 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentItemDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/API.DTOs.TeacherContent.ContentItemDto"
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentPreviewDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
         "required": [
           "message"
@@ -12204,6 +12898,32 @@
           },
           "data": {
             "$ref": "#/components/schemas/API.DTOs.TeacherPermission.TeacherPermissionDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ApiResponse`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/API.DTOs.Terminology.TerminologyConfigDto"
           }
         },
         "additionalProperties": false
@@ -12737,6 +13457,36 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.TeacherContent.TeacherSubjectSummaryDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.TeacherContent.TeacherSubjectSummaryDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.TeacherPermission.TeacherPermissionDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
         "required": [
           "message"
@@ -12767,7 +13517,7 @@
         },
         "additionalProperties": false
       },
-      "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
+      "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.Terminology.TerminologyConfigDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
         "required": [
           "message"
         ],
@@ -12790,8 +13540,37 @@
           "data": {
             "type": "array",
             "items": {
-              "type": "integer",
-              "format": "int32"
+              "$ref": "#/components/schemas/API.DTOs.Terminology.TerminologyConfigDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[API.DTOs.Terminology.TerminologyPresetDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.Terminology.TerminologyPresetDto"
             },
             "nullable": true
           }
@@ -14202,6 +14981,26 @@
           "isPublished": {
             "type": "boolean",
             "nullable": true
+          },
+          "totalMarks": {
+            "type": "number",
+            "format": "float",
+            "nullable": true
+          },
+          "passingMarks": {
+            "type": "number",
+            "format": "float",
+            "nullable": true
+          },
+          "lessonId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "weekId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -14249,6 +15048,22 @@
           }
         },
         "additionalProperties": false
+      },
+      "API.DTOs.ForgotPasswordDto": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "description": "User's email address for password reset",
+            "format": "email"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for forgot password"
       },
       "API.DTOs.Lesson.LessonWithProgressDto": {
         "required": [
@@ -15222,8 +16037,8 @@
             "nullable": true
           },
           "password": {
-            "maxLength": 8,
-            "minLength": 4,
+            "maxLength": 100,
+            "minLength": 8,
             "type": "string",
             "nullable": true
           },
@@ -16142,6 +16957,35 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ResetPasswordDto": {
+        "required": [
+          "email",
+          "password",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "description": "User's email address",
+            "format": "email"
+          },
+          "password": {
+            "maxLength": 100,
+            "minLength": 6,
+            "type": "string",
+            "description": "New password for the account"
+          },
+          "token": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Reset token from email link"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for reset password"
+      },
       "API.DTOs.ResourceManagement.LessonResourceDetailsDto": {
         "required": [
           "fileUrl",
@@ -16498,6 +17342,34 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.StudentProfileData": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "yearId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "yearNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "parentName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Student-specific profile data"
+      },
       "API.DTOs.StudentRegisterDto": {
         "required": [
           "email",
@@ -16526,8 +17398,8 @@
             "nullable": true
           },
           "password": {
-            "maxLength": 8,
-            "minLength": 4,
+            "maxLength": 100,
+            "minLength": 8,
             "type": "string"
           },
           "year": {
@@ -16750,7 +17622,7 @@
               4
             ],
             "type": "integer",
-            "description": "????? ??? ????????",
+            "description": "Subscription plan types",
             "format": "int32"
           },
           "price": {
@@ -16997,7 +17869,7 @@
               4
             ],
             "type": "integer",
-            "description": "????? ??? ????????",
+            "description": "Subscription plan types",
             "format": "int32"
           },
           "price": {
@@ -17121,6 +17993,111 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.TeacherContent.ContentItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Internal ID for tracking (subject ID + item ID combined)",
+            "format": "int32"
+          },
+          "itemId": {
+            "type": "integer",
+            "description": "ID of the actual created item",
+            "format": "int32"
+          },
+          "itemType": {
+            "type": "string",
+            "description": "Type of item created: Lesson, Exam, Question, Resource, Certificate",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "description": "Content title",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Content description",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "type": "integer",
+            "description": "Current approval status",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When the content was created",
+            "format": "date-time"
+          },
+          "subjectId": {
+            "type": "integer",
+            "description": "Subject ID",
+            "format": "int32"
+          },
+          "subjectName": {
+            "type": "string",
+            "description": "Subject name",
+            "nullable": true
+          },
+          "weekId": {
+            "type": "integer",
+            "description": "Week ID (if applicable)",
+            "format": "int32",
+            "nullable": true
+          },
+          "termId": {
+            "type": "integer",
+            "description": "Term ID (if applicable)",
+            "format": "int32",
+            "nullable": true
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Duration in minutes (if applicable)",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalMarks": {
+            "type": "number",
+            "description": "Total marks (for exams)",
+            "format": "float",
+            "nullable": true
+          },
+          "passingMarks": {
+            "type": "number",
+            "description": "Passing marks (for exams)",
+            "format": "float",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "integer",
+            "description": "Created by teacher ID",
+            "format": "int32"
+          },
+          "createdByName": {
+            "type": "string",
+            "description": "Creator (teacher) name",
+            "nullable": true
+          },
+          "statusMessage": {
+            "type": "string",
+            "description": "Approval status message",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for content creation response"
+      },
       "API.DTOs.TeacherContent.ContentPreviewDto": {
         "type": "object",
         "properties": {
@@ -17160,7 +18137,10 @@
             "enum": [
               0,
               1,
-              2
+              2,
+              3,
+              4,
+              5
             ],
             "type": "integer",
             "description": "Approval status for content created by teachers",
@@ -17172,6 +18152,115 @@
           }
         },
         "additionalProperties": false
+      },
+      "API.DTOs.TeacherContent.CreateContentDto": {
+        "required": [
+          "itemType",
+          "subjectId",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "itemType": {
+            "minLength": 1,
+            "pattern": "Lesson|Exam|Question|Resource|Certificate",
+            "type": "string",
+            "description": "Type of content: Lesson, Exam, Question, Resource, Certificate"
+          },
+          "title": {
+            "maxLength": 500,
+            "minLength": 3,
+            "type": "string",
+            "description": "Content title"
+          },
+          "description": {
+            "maxLength": 2000,
+            "minLength": 0,
+            "type": "string",
+            "description": "Content description",
+            "nullable": true
+          },
+          "subjectId": {
+            "type": "integer",
+            "description": "Subject ID - required for all content types",
+            "format": "int32"
+          },
+          "weekId": {
+            "type": "integer",
+            "description": "Week ID - for lesson-based content",
+            "format": "int32",
+            "nullable": true
+          },
+          "termId": {
+            "type": "integer",
+            "description": "Term ID - for term-based content",
+            "format": "int32",
+            "nullable": true
+          },
+          "lessonId": {
+            "type": "integer",
+            "description": "Lesson ID - for lesson questions",
+            "format": "int32",
+            "nullable": true
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Duration in minutes - for lessons or exams",
+            "format": "int32",
+            "nullable": true
+          },
+          "objectives": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "description": "Learning objectives - for lessons",
+            "nullable": true
+          },
+          "totalMarks": {
+            "type": "number",
+            "description": "Total marks - for exams",
+            "format": "float",
+            "nullable": true
+          },
+          "passingMarks": {
+            "type": "number",
+            "description": "Passing marks - for exams",
+            "format": "float",
+            "nullable": true
+          },
+          "examType": {
+            "type": "integer",
+            "description": "Exam type - for exams (Lesson, Monthly, Term, Year)",
+            "format": "int32",
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string",
+            "description": "Start time - for exams",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endTime": {
+            "type": "string",
+            "description": "End time - for exams",
+            "format": "date-time",
+            "nullable": true
+          },
+          "resourceUrl": {
+            "type": "string",
+            "description": "For resources - file path or URL",
+            "nullable": true
+          },
+          "notes": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "description": "Additional metadata or notes",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for creating teacher content (lessons, exams, questions, resources, certificates)"
       },
       "API.DTOs.TeacherContent.PendingApprovalDto": {
         "type": "object",
@@ -17222,7 +18311,10 @@
             "enum": [
               0,
               1,
-              2
+              2,
+              3,
+              4,
+              5
             ],
             "type": "integer",
             "description": "Approval status for content created by teachers",
@@ -17231,6 +18323,50 @@
         },
         "additionalProperties": false,
         "description": "DTO for displaying pending content awaiting approval"
+      },
+      "API.DTOs.TeacherContent.TeacherSubjectSummaryDto": {
+        "type": "object",
+        "properties": {
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectName": {
+            "type": "string",
+            "nullable": true
+          },
+          "yearId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "yearName": {
+            "type": "string",
+            "nullable": true
+          },
+          "canCreate": {
+            "type": "boolean"
+          },
+          "canEdit": {
+            "type": "boolean"
+          },
+          "canDelete": {
+            "type": "boolean"
+          },
+          "termsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lessonsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for teacher's authorized subjects summary"
       },
       "API.DTOs.TeacherDetailsDto": {
         "required": [
@@ -17397,8 +18533,8 @@
             "nullable": true
           },
           "password": {
-            "maxLength": 8,
-            "minLength": 4,
+            "maxLength": 100,
+            "minLength": 8,
             "type": "string",
             "nullable": true
           },
@@ -17497,6 +18633,174 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.Terminology.CreateTerminologyConfigDto": {
+        "required": [
+          "termLabelPlural",
+          "termLabelSingular",
+          "weekLabelPlural",
+          "weekLabelSingular"
+        ],
+        "type": "object",
+        "properties": {
+          "termLabelSingular": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          },
+          "termLabelPlural": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          },
+          "weekLabelSingular": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          },
+          "weekLabelPlural": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          },
+          "presetName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for creating a new terminology configuration"
+      },
+      "API.DTOs.Terminology.TerminologyConfigDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "termLabelSingular": {
+            "type": "string",
+            "nullable": true
+          },
+          "termLabelPlural": {
+            "type": "string",
+            "nullable": true
+          },
+          "weekLabelSingular": {
+            "type": "string",
+            "nullable": true
+          },
+          "weekLabelPlural": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "presetName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for returning terminology configuration"
+      },
+      "API.DTOs.Terminology.TerminologyPresetDto": {
+        "type": "object",
+        "properties": {
+          "presetName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "termLabelSingular": {
+            "type": "string",
+            "nullable": true
+          },
+          "termLabelPlural": {
+            "type": "string",
+            "nullable": true
+          },
+          "weekLabelSingular": {
+            "type": "string",
+            "nullable": true
+          },
+          "weekLabelPlural": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for preset terminology configurations"
+      },
+      "API.DTOs.Terminology.UpdateTerminologyConfigDto": {
+        "required": [
+          "termLabelPlural",
+          "termLabelSingular",
+          "weekLabelPlural",
+          "weekLabelSingular"
+        ],
+        "type": "object",
+        "properties": {
+          "termLabelSingular": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          },
+          "termLabelPlural": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          },
+          "weekLabelSingular": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          },
+          "weekLabelPlural": {
+            "maxLength": 50,
+            "minLength": 2,
+            "type": "string"
+          },
+          "presetName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for updating an existing terminology configuration"
+      },
       "API.DTOs.UserDetailsDto": {
         "required": [
           "age",
@@ -17582,6 +18886,55 @@
           }
         },
         "additionalProperties": false
+      },
+      "API.DTOs.UserProfileResponseDto": {
+        "required": [
+          "email",
+          "userName"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "studentData": {
+            "$ref": "#/components/schemas/API.DTOs.StudentProfileData"
+          }
+        },
+        "additionalProperties": false,
+        "description": "User profile response DTO\r\nUsed for displaying user profile information"
       },
       "API.DTOs.VideoChapter.CreateVideoChapterDto": {
         "required": [
@@ -18467,7 +19820,10 @@
             "enum": [
               0,
               1,
-              2
+              2,
+              3,
+              4,
+              5
             ],
             "type": "integer",
             "description": "Approval status for teacher-created content",
@@ -19141,7 +20497,10 @@
             "enum": [
               0,
               1,
-              2
+              2,
+              3,
+              4,
+              5
             ],
             "type": "integer",
             "description": "Approval status for teacher-created content",
@@ -19698,7 +21057,7 @@
               4
             ],
             "type": "integer",
-            "description": "????? ??? ????????",
+            "description": "Subscription plan types",
             "format": "int32"
           },
           "price": {
@@ -20051,7 +21410,10 @@
             "enum": [
               0,
               1,
-              2
+              2,
+              3,
+              4,
+              5
             ],
             "type": "integer",
             "description": "Approval status for teacher-created content",
@@ -20463,7 +21825,10 @@
             "enum": [
               0,
               1,
-              2
+              2,
+              3,
+              4,
+              5
             ],
             "type": "integer",
             "description": "Approval status for teacher-created content",

@@ -253,16 +253,17 @@ export class SessionService {
    */
   formatSessionDateTime(dateTime: string): { date: string; time: string; dayOfWeek: string } {
     const dt = new Date(dateTime);
-    const date = dt.toLocaleDateString('ar-EG', {
+    const date = dt.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
-    const time = dt.toLocaleTimeString('ar-EG', {
+    const time = dt.toLocaleTimeString('en-US', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: true
     });
-    const dayOfWeek = dt.toLocaleDateString('ar-EG', { weekday: 'long' });
+    const dayOfWeek = dt.toLocaleDateString('en-US', { weekday: 'long' });
 
     return { date, time, dayOfWeek };
   }

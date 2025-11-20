@@ -174,7 +174,7 @@ export class BookSessionComponent implements OnInit {
    * Format date display
    */
   formatDateDisplay(date: Date): string {
-    return date.toLocaleDateString('ar-EG', {
+    return date.toLocaleDateString('en-US', {
       weekday: 'short',
       day: 'numeric',
       month: 'short'
@@ -186,9 +186,10 @@ export class BookSessionComponent implements OnInit {
    */
   formatTime(dateTime: string): string {
     const date = new Date(dateTime);
-    return date.toLocaleTimeString('ar-EG', {
+    return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: true
     });
   }
 

@@ -4,9 +4,9 @@
     <div class="header-content">
       <h1>
         <i class="fas fa-graduation-cap"></i>
-        امتحاناتي
+        My Exams
       </h1>
-      <p>الامتحانات القادمة والنتائج السابقة</p>
+      <p>Upcoming exams and past results</p>
     </div>
   </div>
 
@@ -17,7 +17,7 @@
       [class.active]="activeTab() === 'upcoming'"
       (click)="switchTab('upcoming')">
       <i class="fas fa-calendar-alt"></i>
-      الامتحانات القادمة
+      Upcoming Exams
       <span class="count">{{ upcomingExams().length }}</span>
     </button>
     <button
@@ -25,7 +25,7 @@
       [class.active]="activeTab() === 'history'"
       (click)="switchTab('history')">
       <i class="fas fa-history"></i>
-      السجل
+      History
       <span class="count">{{ examHistory().length }}</span>
     </button>
   </div>
@@ -36,7 +36,7 @@
       @if (loading()) {
         <div class="loading-state">
           <i class="fas fa-spinner fa-spin fa-3x"></i>
-          <p>جاري التحميل...</p>
+          <p>Loading...</p>
         </div>
       } @else {
         <div class="exams-grid">
@@ -57,11 +57,11 @@
                 <div class="exam-details">
                   <div class="detail-item">
                     <i class="fas fa-clock"></i>
-                    <span>{{ exam.durationInMinutes }} دقيقة</span>
+                    <span>{{ exam.durationInMinutes }} minutes</span>
                   </div>
                   <div class="detail-item">
                     <i class="fas fa-star"></i>
-                    <span>{{ exam.totalMarks }} درجة</span>
+                    <span>{{ exam.totalMarks }} points</span>
                   </div>
                 </div>
 
@@ -69,14 +69,14 @@
                   <div class="schedule-item">
                     <i class="fas fa-calendar-day"></i>
                     <div class="schedule-info">
-                      <span class="label">يبدأ:</span>
+                      <span class="label">Starts:</span>
                       <span class="value">{{ exam.startDate | date:'medium' }}</span>
                     </div>
                   </div>
                   <div class="schedule-item">
                     <i class="fas fa-calendar-times"></i>
                     <div class="schedule-info">
-                      <span class="label">ينتهي:</span>
+                      <span class="label">Ends:</span>
                       <span class="value">{{ exam.endDate | date:'medium' }}</span>
                     </div>
                   </div>
@@ -85,12 +85,12 @@
                 @if (isExamAvailable(exam)) {
                   <div class="available-badge">
                     <i class="fas fa-check-circle"></i>
-                    متاح الآن - الوقت المتبقي: {{ exam.remainingTime }}
+                    Available Now - Time Remaining: {{ exam.remainingTime }}
                   </div>
                 } @else {
                   <div class="not-available-badge">
                     <i class="fas fa-clock"></i>
-                    يبدأ بعد: {{ exam.remainingTime }}
+                    Starts in: {{ exam.remainingTime }}
                   </div>
                 }
               </div>
@@ -99,12 +99,12 @@
                 @if (isExamAvailable(exam)) {
                   <button class="btn-start" (click)="startExam(exam.id, exam.title)">
                     <i class="fas fa-play"></i>
-                    ابدأ الامتحان
+                    Start Exam
                   </button>
                 } @else {
                   <button class="btn-disabled" disabled>
                     <i class="fas fa-lock"></i>
-                    غير متاح بعد
+                    Not Available Yet
                   </button>
                 }
               </div>
@@ -112,8 +112,8 @@
           } @empty {
             <div class="empty-state">
               <i class="fas fa-calendar-check fa-3x"></i>
-              <h3>لا توجد امتحانات قادمة</h3>
-              <p>ليس لديك امتحانات مجدولة حالياً</p>
+              <h3>No Upcoming Exams</h3>
+              <p>You don't have any scheduled exams at the moment</p>
             </div>
           }
         </div>
@@ -127,7 +127,7 @@
       @if (historyLoading()) {
         <div class="loading-state">
           <i class="fas fa-spinner fa-spin fa-3x"></i>
-          <p>جاري التحميل...</p>
+          <p>Loading...</p>
         </div>
       } @else {
         <div class="history-list">
@@ -169,7 +169,7 @@
 
                   <button class="btn-view-result" (click)="viewResult(exam.studentExamId)">
                     <i class="fas fa-eye"></i>
-                    عرض النتيجة
+                    View Result
                   </button>
                 } @else if (exam.isCompleted) {
                   <div class="pending-section">
@@ -179,7 +179,7 @@
                 } @else {
                   <div class="incomplete-section">
                     <i class="fas fa-exclamation-triangle fa-2x"></i>
-                    <p>لم يكتمل</p>
+                    <p>Incomplete</p>
                   </div>
                 }
               </div>
@@ -187,8 +187,8 @@
           } @empty {
             <div class="empty-state">
               <i class="fas fa-clipboard-list fa-3x"></i>
-              <h3>لا يوجد سجل</h3>
-              <p>لم تقم بأي امتحانات بعد</p>
+              <h3>No History</h3>
+              <p>You haven't taken any exams yet</p>
             </div>
           }
         </div>

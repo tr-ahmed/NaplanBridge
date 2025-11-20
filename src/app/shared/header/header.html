@@ -181,11 +181,28 @@
             </div>
 
             @if (userName) {
-              <button
-                (click)="navigateToProfile()"
-                class="user-welcome hidden lg:block text-gray-700 font-medium whitespace-nowrap truncate hover:text-primary-500 transition-colors duration-200 cursor-pointer bg-transparent border-none px-2 py-1 rounded hover:bg-blue-50">
-                Welcome, {{ userName }}
-              </button>
+              <div class="relative group">
+                <button
+                  class="user-welcome hidden lg:block text-gray-700 font-medium whitespace-nowrap truncate hover:text-primary-500 transition-colors duration-200 cursor-pointer bg-transparent border-none px-2 py-1 rounded hover:bg-blue-50">
+                  <i class="fas fa-user-circle me-1"></i> Welcome, {{ userName }}
+                </button>
+
+                <!-- User Profile Dropdown Menu -->
+                <ul class="absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <li><a (click)="navigateToProfile()" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 text-sm">
+                    <i class="fas fa-user text-blue-600"></i>
+                    View Profile
+                  </a></li>
+                  <li><a routerLink="/profile/edit" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 text-sm">
+                    <i class="fas fa-edit text-green-600"></i>
+                    Edit Profile
+                  </a></li>
+                  <li><a (click)="navigateToNotifications()" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 text-sm border-t border-gray-100 mt-1 pt-2">
+                    <i class="fas fa-cog text-gray-600"></i>
+                    Settings
+                  </a></li>
+                </ul>
+              </div>
             }
 
             <!-- Role-based dashboard buttons -->
@@ -320,6 +337,14 @@
                     Admin Panel
                   </a>
                 }
+
+                <!-- Profile Edit Link (Mobile) -->
+                <a
+                  routerLink="/profile/edit"
+                  class="block w-full text-center border border-blue-500 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap"
+                  (click)="toggleMobileMenu()">
+                  <i class="fas fa-edit me-1"></i> Edit Profile
+                </a>
                 @if (userRole === 'Teacher') {
                   <button
                     (click)="navigateToTeacherDashboard(); toggleMobileMenu()"

@@ -16,10 +16,46 @@ export interface UserProfile {
   roles: string[];
   studentData: StudentProfileData | null;
   avatar?: string;
+  avatarUrl?: string;
   role?: string;
   emailConfirmed?: boolean;
   phoneNumberConfirmed?: boolean;
   twoFactorEnabled?: boolean;
+}
+
+/**
+ * Profile Update DTO
+ */
+export interface UpdateProfileRequest {
+  userName?: string;
+  email?: string;
+  age?: number;
+  phoneNumber?: string;
+  avatarUrl?: string;
+}
+
+/**
+ * Profile Update Response
+ */
+export interface UpdateProfileResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    userName: string;
+    email: string;
+    age: number;
+    phoneNumber: string;
+    avatarUrl?: string;
+  };
+}
+
+/**
+ * Media Upload Response
+ */
+export interface MediaUploadResponse {
+  url: string;
+  storagePath: string;
+  success: boolean;
 }
 
 export interface StudentProfileData {
@@ -39,6 +75,8 @@ export interface StudentProfileData {
 })
 export class ProfileService {
   private apiUrl = 'https://naplan2.runasp.net/api/user';
+  private accountApiUrl = 'https://naplan2.runasp.net/api/account';
+  private mediaApiUrl = 'https://naplan2.runasp.net/api/media';
 
   constructor(private http: HttpClient) {}
 
@@ -48,6 +86,35 @@ export class ProfileService {
    */
   getProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.apiUrl}/profile`);
+  }
+
+  /**
+   * Update user profile with new information
+   * @param profileData UpdateProfileRequest
+   * @returns Observable<UpdateProfileResponse>
+   */
+  updateProfile(profileData: UpdateProfileRequest): Observable<UpdateProfileResponse> {
+    return this.http.put<UpdateProfileResponse>(
+      `${this.accountApiUrl}/update-profile`,
+      profileData
+    );
+  }
+
+  /**
+   * Upload avatar/profile picture
+   * @param file File to upload
+   * @param folder Destination folder (default: 'profiles')
+   * @returns Observable<MediaUploadResponse>
+   */
+  uploadAvatar(file: File, folder: string = 'profiles'): Observable<MediaUploadResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', folder);
+
+    return this.http.post<MediaUploadResponse>(
+      `${this.mediaApiUrl}/upload-image`,
+      formData
+    );
   }
 
   /**

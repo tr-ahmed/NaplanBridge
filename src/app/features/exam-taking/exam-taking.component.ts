@@ -52,9 +52,16 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   examStarted = signal<boolean>(false);
   examCompleted = signal<boolean>(false);
 
-  // Timer
+  // ✅ CRITICAL: Prevent double submission
+  private submissionAttempted = false;
+  private autoSubmitInProgress = false;
+  private timerAutoSubmitTriggered = false;
+
+  // Timer - persistent
   timeRemaining = signal<number>(0); // in seconds
   timerSubscription?: Subscription;
+  private examEndTime: Date | null = null;
+  private readonly EXAM_END_TIME_KEY = 'exam_end_time_';
 
   // Computed values
   currentQuestion = computed(() => {
@@ -85,6 +92,9 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
     const totalSeconds = examData.durationInMinutes * 60;
     return seconds <= totalSeconds * 0.1; // Warning when 10% time left
   });
+
+  // ✅ Computed for template access
+  submissionInProgress = computed(() => this.submissionAttempted || this.autoSubmitInProgress);
 
   // Question Types for template access
   readonly QuestionTypeEnum = {
@@ -158,10 +168,26 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
         this.examStarted.set(true);
         this.loading.set(false);
 
-        // Initialize timer
+        // Initialize timer with persistence
         const examData = this.exam();
         if (examData) {
-          this.timeRemaining.set(examData.durationInMinutes * 60);
+          // Check if exam was already started (retrieve from localStorage)
+          const savedEndTime = this.getSavedExamEndTime();
+
+          if (savedEndTime) {
+            // Exam was already started, calculate remaining time
+            const now = new Date();
+            const remaining = Math.max(0, Math.floor((savedEndTime.getTime() - now.getTime()) / 1000));
+            this.timeRemaining.set(remaining);
+            console.log('✅ Restored exam timer - Remaining:', remaining, 'seconds');
+          } else {
+            // Fresh start - calculate end time and save it
+            const endTime = new Date(Date.now() + examData.durationInMinutes * 60 * 1000);
+            this.saveExamEndTime(endTime);
+            this.timeRemaining.set(examData.durationInMinutes * 60);
+            console.log('✅ Started new exam timer -', examData.durationInMinutes, 'minutes');
+          }
+
           this.startTimer();
         }
 
@@ -176,30 +202,80 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Start countdown timer
+   * Save exam end time to localStorage
+   */
+  private saveExamEndTime(endTime: Date): void {
+    const key = this.EXAM_END_TIME_KEY + this.examId;
+    sessionStorage.setItem(key, endTime.toISOString());
+  }
+
+  /**
+   * Get saved exam end time from localStorage
+   */
+  private getSavedExamEndTime(): Date | null {
+    const key = this.EXAM_END_TIME_KEY + this.examId;
+    const saved = sessionStorage.getItem(key);
+    if (saved) {
+      const endTime = new Date(saved);
+      const now = new Date();
+      // Only restore if exam hasn't ended yet
+      if (endTime > now) {
+        return endTime;
+      } else {
+        // Exam time has expired, clean up
+        sessionStorage.removeItem(key);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Start countdown timer with real-time calculation
    */
   private startTimer(): void {
     this.timerSubscription = interval(1000).subscribe(() => {
-      const remaining = this.timeRemaining();
+      // Calculate remaining time based on saved end time
+      const savedEndTime = this.getSavedExamEndTime();
 
-      if (remaining <= 0) {
-        // Time's up! Auto-submit
+      if (savedEndTime) {
+        const now = new Date();
+        const remaining = Math.max(0, Math.floor((savedEndTime.getTime() - now.getTime()) / 1000));
+        this.timeRemaining.set(remaining);
+
+        if (remaining <= 0) {
+          // ✅ Time's up! Auto-submit only once
+          if (!this.timerAutoSubmitTriggered) {
+            this.timerAutoSubmitTriggered = true;
+            this.autoSubmitExam();
+          }
+          this.timerSubscription?.unsubscribe();
+          this.clearExamTimer();
+        } else {
+          // Warning at 5 minutes
+          if (remaining === 300) {
+            this.toastService.showWarning('5 minutes remaining!');
+          }
+
+          // Warning at 1 minute
+          if (remaining === 60) {
+            this.toastService.showWarning('1 minute remaining!');
+          }
+        }
+      } else {
+        // End time not found or expired, auto-submit
         this.autoSubmitExam();
         this.timerSubscription?.unsubscribe();
-      } else {
-        this.timeRemaining.set(remaining - 1);
-
-        // Warning at 5 minutes
-        if (remaining === 300) {
-          this.toastService.showWarning('5 minutes remaining!');
-        }
-
-        // Warning at 1 minute
-        if (remaining === 60) {
-          this.toastService.showWarning('1 minute remaining!');
-        }
       }
     });
+  }
+
+  /**
+   * Clear exam timer from storage
+   */
+  private clearExamTimer(): void {
+    const key = this.EXAM_END_TIME_KEY + this.examId;
+    sessionStorage.removeItem(key);
   }
 
   /**
@@ -334,6 +410,12 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    * Submit exam
    */
   submitExam(): void {
+    // ✅ Prevent double-click
+    if (this.submissionAttempted) {
+      console.warn('⚠️ Submission already attempted');
+      return;
+    }
+
     // Confirm submission
     if (!confirm('Are you sure you want to submit the exam? You cannot change your answers after submission.')) {
       return;
@@ -346,6 +428,13 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    * Auto-submit when time runs out
    */
   private autoSubmitExam(): void {
+    // ✅ Check if already submitted
+    if (this.submissionAttempted || this.autoSubmitInProgress) {
+      console.warn('⚠️ Auto-submit already in progress');
+      return;
+    }
+
+    this.autoSubmitInProgress = true;
     this.toastService.showWarning("Time's up! Submitting your exam...");
     this.performSubmission();
   }
@@ -354,11 +443,19 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    * Perform exam submission
    */
   private performSubmission(): void {
+    // ✅ Double-check to prevent submission
+    if (this.submissionAttempted) {
+      console.warn('⚠️ Submission already attempted');
+      return;
+    }
+
     const examData = this.exam();
     const sessionData = this.examSession();
 
     if (!examData || !sessionData) return;
 
+    // ✅ Mark as attempted immediately to prevent race conditions
+    this.submissionAttempted = true;
     this.submitting.set(true);
 
     // Convert answers Map to array
@@ -368,6 +465,11 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       studentExamId: sessionData.studentExamId,
       answers: answersArray
     };
+
+    console.log('🚀 Submitting exam:', {
+      studentExamId: sessionData.studentExamId,
+      answersCount: answersArray.length
+    });
 
     this.examService.submitExam(this.examId, submission).subscribe({
       next: (result) => {
@@ -388,8 +490,22 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.submitting.set(false);
-        this.toastService.showError('Failed to submit exam. Please try again.');
-        console.error('Error submitting exam:', err);
+
+        // ✅ Handle 409 Conflict (Already Submitted) as success!
+        if (err?.status === 409) {
+          console.warn('⚠️ Exam already submitted - showing results');
+          this.toastService.showInfo('Exam already submitted. Showing results...');
+
+          const studentExamId = err?.error?.studentExamId || sessionData?.studentExamId;
+          setTimeout(() => {
+            this.router.navigate(['/exam/result', studentExamId]);
+          }, 2000);
+        } else {
+          this.toastService.showError('Failed to submit exam. Please try again.');
+          console.error('Error submitting exam:', err);
+          // Reset flag to allow retry on other errors
+          this.submissionAttempted = false;
+        }
       }
     });
   }
