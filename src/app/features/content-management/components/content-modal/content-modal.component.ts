@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TerminologyService } from '../../../../core/services/terminology.service';
 
 interface ValidationError {
   [key: string]: string;
@@ -15,15 +16,15 @@ interface ValidationError {
     :host {
       display: contents;
     }
-    
+
     .error-message {
       @apply text-red-600 text-sm mt-1 block;
     }
-    
+
     .input-error {
       @apply border-red-500 focus:ring-red-500;
     }
-    
+
     .input-valid {
       @apply border-green-500 focus:ring-green-500;
     }
@@ -45,6 +46,9 @@ export class ContentModalComponent implements OnChanges, OnInit {
   @Output() isOpenChange = new EventEmitter<boolean>();
   @Output() cancel = new EventEmitter<void>();
   @Output() save = new EventEmitter<any>();
+
+  // Inject terminology service
+  terminologyService = inject(TerminologyService);
 
   // Validation state
   validationErrors: ValidationError = {};
@@ -127,7 +131,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
       this.filteredTerms = this.terms.filter(
         t => t.subjectId === Number(this.formData.subjectId)
       );
-      
+
       // Auto-fill term count
       if (this.entityType === 'term' && this.mode === 'add') {
         const maxTermNumber = this.filteredTerms.reduce((max, t) => Math.max(max, t.termNumber || 0), 0);
@@ -142,7 +146,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
       this.filteredWeeks = this.weeks.filter(
         w => w.termId === Number(this.formData.termId)
       );
-      
+
       // Auto-fill week count
       if (this.entityType === 'week' && this.mode === 'add') {
         const maxWeekNumber = this.filteredWeeks.reduce((max, w) => Math.max(max, w.weekNumber || 0), 0);
@@ -276,7 +280,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
       'year': ['yearNumber'],
       'category': ['name'],
       'subjectName': ['name', 'categoryId'],
-      'subject': this.mode === 'add' 
+      'subject': this.mode === 'add'
         ? ['yearId', 'subjectNameId', 'originalPrice', 'level', 'teacherId', 'startDate']
         : ['originalPrice', 'level', 'teacherId'],
       'term': ['subjectId', 'termNumber', 'startDate'],
@@ -428,7 +432,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
     const yearText = year ? `Year ${year.yearNumber}` : '';
     const categoryText = subject.categoryName || '';
     const subjectText = subject.subjectName || '';
-    
+
     return [yearText, categoryText, subjectText].filter(Boolean).join(' - ');
   }
 
@@ -438,12 +442,12 @@ export class ContentModalComponent implements OnChanges, OnInit {
   getTermDisplay(term: any): string {
     const subject = this.subjects.find(s => s.id === term.subjectId);
     if (!subject) return `Term ${term.termNumber}`;
-    
+
     const year = this.years.find(y => y.id === subject.yearId);
     const yearText = year ? `Year ${year.yearNumber}` : '';
     const subjectText = subject.subjectName || '';
     const termText = `Term ${term.termNumber}`;
-    
+
     return [yearText, subjectText, termText].filter(Boolean).join(' - ');
   }
 
@@ -453,16 +457,16 @@ export class ContentModalComponent implements OnChanges, OnInit {
   getWeekDisplay(week: any): string {
     const term = this.terms.find(t => t.id === week.termId);
     if (!term) return `Week ${week.weekNumber}`;
-    
+
     const subject = this.subjects.find(s => s.id === term.subjectId);
     if (!subject) return `Week ${week.weekNumber}`;
-    
+
     const year = this.years.find(y => y.id === subject.yearId);
     const yearText = year ? `Year ${year.yearNumber}` : '';
     const subjectText = subject.subjectName || '';
     const termText = `Term ${term.termNumber}`;
     const weekText = `Week ${week.weekNumber}`;
-    
+
     return [yearText, subjectText, termText, weekText].filter(Boolean).join(' - ');
   }
 }

@@ -1,0 +1,272 @@
+<div class="container-fluid px-4 py-5">
+  <!-- Header -->
+  <div class="mb-5">
+    <h1 class="h2 mb-2">
+      <i class="fas fa-sliders-h me-2"></i>
+      Terminology Settings
+    </h1>
+    <p class="text-muted">
+      Customize terminology labels for Terms and Weeks throughout the application (e.g., "Parts", "Sessions", "Modules", etc.)
+    </p>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="alert alert-info">
+      <i class="fas fa-spinner fa-spin me-2"></i>
+      Loading terminology settings...
+    </div>
+  } @else {
+    <div class="row g-4">
+      <!-- Quick Presets -->
+      <div class="col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-header bg-light">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-star me-2"></i>
+              Quick Presets
+            </h5>
+          </div>
+          <div class="card-body">
+            <p class="small text-muted mb-3">Select a preset configuration:</p>
+
+            @for (preset of presetOptions; track preset.key) {
+              <button
+                type="button"
+                class="btn btn-outline-primary w-100 mb-2 text-start"
+                (click)="applyPreset(preset.value)"
+                [disabled]="saving">
+                <small>{{ preset.label }}</small>
+              </button>
+            }
+
+            <hr class="my-3" />
+
+            <div class="bg-light p-3 rounded">
+              <h6 class="mb-2">Preview:</h6>
+              <div class="small">
+                <div class="mb-1">
+                  <strong>Format 1:</strong> {{ getTermPreview() }}
+                </div>
+                <div class="mb-1">
+                  <strong>Format 2:</strong> {{ getWeekPreview() }}
+                </div>
+                <div>
+                  <strong>Format 3:</strong> {{ getTermWeekPreview() }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Configuration -->
+      <div class="col-lg-8 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-light">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-cogs me-2"></i>
+              Custom Configuration
+            </h5>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="saveTerminology()">
+              <!-- Term Settings -->
+              <div class="mb-4">
+                <h6 class="text-uppercase text-muted small">Term Settings</h6>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="termLabel" class="form-label">Term Label</label>
+                    <input
+                      type="text"
+                      id="termLabel"
+                      class="form-control"
+                      [(ngModel)]="formData.termLabel"
+                      (change)="onFormChange()"
+                      name="termLabel"
+                      placeholder="e.g., Term, Part, Module, Unit"
+                      required />
+                    <small class="text-muted">Display name (singular)</small>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="termNumberLabel" class="form-label">Term Number Label</label>
+                    <input
+                      type="text"
+                      id="termNumberLabel"
+                      class="form-control"
+                      [(ngModel)]="formData.termNumberLabel"
+                      (change)="onFormChange()"
+                      name="termNumberLabel"
+                      placeholder="e.g., Term Number, Part Number"
+                      required />
+                    <small class="text-muted">Used in forms and fields</small>
+                  </div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                  <div class="col-md-6">
+                    <label for="termSingular" class="form-label">Term (Singular)</label>
+                    <input
+                      type="text"
+                      id="termSingular"
+                      class="form-control"
+                      [(ngModel)]="formData.termSingular"
+                      (change)="onFormChange()"
+                      name="termSingular"
+                      placeholder="e.g., term, part, module"
+                      required />
+                    <small class="text-muted">Used in messages</small>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="termPlural" class="form-label">Term (Plural)</label>
+                    <input
+                      type="text"
+                      id="termPlural"
+                      class="form-control"
+                      [(ngModel)]="formData.termPlural"
+                      (change)="onFormChange()"
+                      name="termPlural"
+                      placeholder="e.g., terms, parts, modules"
+                      required />
+                    <small class="text-muted">Used in lists</small>
+                  </div>
+                </div>
+              </div>
+
+              <hr />
+
+              <!-- Week Settings -->
+              <div class="mb-4">
+                <h6 class="text-uppercase text-muted small">Week Settings</h6>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="weekLabel" class="form-label">Week Label</label>
+                    <input
+                      type="text"
+                      id="weekLabel"
+                      class="form-control"
+                      [(ngModel)]="formData.weekLabel"
+                      (change)="onFormChange()"
+                      name="weekLabel"
+                      placeholder="e.g., Week, Session, Chapter, Lesson"
+                      required />
+                    <small class="text-muted">Display name (singular)</small>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="weekNumberLabel" class="form-label">Week Number Label</label>
+                    <input
+                      type="text"
+                      id="weekNumberLabel"
+                      class="form-control"
+                      [(ngModel)]="formData.weekNumberLabel"
+                      (change)="onFormChange()"
+                      name="weekNumberLabel"
+                      placeholder="e.g., Week Number, Session Number"
+                      required />
+                    <small class="text-muted">Used in forms and fields</small>
+                  </div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                  <div class="col-md-6">
+                    <label for="weekSingular" class="form-label">Week (Singular)</label>
+                    <input
+                      type="text"
+                      id="weekSingular"
+                      class="form-control"
+                      [(ngModel)]="formData.weekSingular"
+                      (change)="onFormChange()"
+                      name="weekSingular"
+                      placeholder="e.g., week, session, chapter"
+                      required />
+                    <small class="text-muted">Used in messages</small>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="weekPlural" class="form-label">Week (Plural)</label>
+                    <input
+                      type="text"
+                      id="weekPlural"
+                      class="form-control"
+                      [(ngModel)]="formData.weekPlural"
+                      (change)="onFormChange()"
+                      name="weekPlural"
+                      placeholder="e.g., weeks, sessions, chapters"
+                      required />
+                    <small class="text-muted">Used in lists</small>
+                  </div>
+                </div>
+              </div>
+
+              <hr />
+
+              <!-- Live Preview -->
+              <div class="bg-light p-3 rounded mb-4">
+                <h6 class="mb-2">Live Preview:</h6>
+                <div class="row g-2 small">
+                  <div class="col-md-4">
+                    <div><strong>{{ formData.termLabel }}:</strong> {{ getTermPreview() }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div><strong>{{ formData.weekLabel }}:</strong> {{ getWeekPreview() }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div><strong>Combined:</strong> {{ getTermWeekPreview() }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="d-flex gap-2">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="saving || !hasChanges"
+                  *ngIf="hasChanges">
+                  <i class="fas fa-save me-2"></i>
+                  Save Changes
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  (click)="discardChanges()"
+                  [disabled]="saving || !hasChanges"
+                  *ngIf="hasChanges">
+                  <i class="fas fa-times me-2"></i>
+                  Discard
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-outline-warning ms-auto"
+                  (click)="resetToDefaults()"
+                  [disabled]="saving">
+                  <i class="fas fa-undo me-2"></i>
+                  Reset to Defaults
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Alert -->
+    <div class="alert alert-info mt-4">
+      <h6 class="alert-heading">
+        <i class="fas fa-info-circle me-2"></i>
+        How It Works
+      </h6>
+      <ul class="mb-0 small">
+        <li>Changes to terminology will be reflected across the entire application</li>
+        <li>Use quick presets for common configurations, or customize each label</li>
+        <li>All changes are saved to the server and shared across all users</li>
+        <li>Preview shows how your labels will appear in the application</li>
+      </ul>
+    </div>
+  }
+</div>

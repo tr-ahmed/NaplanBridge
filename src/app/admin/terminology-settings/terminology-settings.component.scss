@@ -1,0 +1,115 @@
+// Terminology Settings Component Styles
+
+.card {
+  border: none;
+  border-radius: 0.5rem;
+
+  &:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  background-color: #f8f9fa;
+  padding: 1rem;
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+.btn {
+  transition: all 0.3s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.form-control,
+.form-select {
+  border-radius: 0.25rem;
+  border: 1px solid #dee2e6;
+
+  &:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  &:valid {
+    border-color: #28a745;
+  }
+}
+
+.form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+  border: 1px solid #dee2e6;
+}
+
+.text-muted {
+  color: #6c757d;
+}
+
+.alert {
+  border-radius: 0.25rem;
+
+  &.alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+
+    .alert-heading {
+      color: #0c5460;
+    }
+  }
+}
+
+// Preview Box
+.bg-light.p-3 {
+  border-radius: 0.25rem;
+
+  h6 {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .small {
+    color: #555;
+    line-height: 1.6;
+
+    strong {
+      color: #333;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+
+    &.ms-auto {
+      margin-left: 0 !important;
+    }
+  }
+
+  .d-flex {
+    flex-direction: column;
+  }
+}

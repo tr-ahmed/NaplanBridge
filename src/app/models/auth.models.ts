@@ -71,3 +71,19 @@ export type ApiResult<T> = {
   error: string;
   validationErrors?: ValidationError[];
 };
+
+/**
+ * Interface for password reset request
+ */
+export interface PasswordResetRequest {
+  email: string;
+}
+
+/**
+ * Interface for password reset confirmation
+ */
+export interface PasswordResetConfirmation {
+  email: string;
+  password: string;
+  token: string;
+}

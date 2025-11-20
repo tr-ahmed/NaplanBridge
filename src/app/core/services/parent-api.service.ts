@@ -8,7 +8,9 @@ import {
   AuthResponse,
   ApiResult,
   ApiErrorResponse,
-  ValidationError
+  ValidationError,
+  PasswordResetRequest,
+  PasswordResetConfirmation
 } from '../../models/auth.models';
 
 /**
@@ -141,5 +143,73 @@ export class ParentApiService {
       isValid: errors.length === 0,
       errors
     };
+  }
+
+  /**
+   * Request password reset - sends reset instructions to user's email
+   * @param email User's email address
+   * @returns Observable with API result
+   */
+  requestPasswordReset(email: string): Observable<ApiResult<any>> {
+    const url = `${this.baseUrl}/Account/forgot-password`;
+    const payload: PasswordResetRequest = { email };
+
+    console.log('🔍 Password Reset Request - Email:', email);
+
+    return this.http.post<any>(url, payload).pipe(
+      map((response: any) => {
+        console.log('✅ Password Reset Email Sent');
+        return {
+          success: true as const,
+          data: response
+        };
+      }),
+      catchError((error) => {
+        console.error('❌ Password Reset Request Error:', error);
+        const errorResult = this.parseErrorResponse(error.error);
+        return of({
+          success: false as const,
+          error: errorResult.message,
+          validationErrors: errorResult.validationErrors
+        });
+      })
+    );
+  }
+
+  /**
+   * Reset password with token and new password
+   * @param email User's email
+   * @param newPassword New password
+   * @param token Reset token from email link
+   * @returns Observable with API result
+   */
+  resetPassword(email: string, newPassword: string, token: string): Observable<ApiResult<any>> {
+    const url = `${this.baseUrl}/Account/reset-password`;
+    const payload: PasswordResetConfirmation = {
+      email,
+      password: newPassword,
+      token
+    };
+
+    console.log('🔍 Password Reset Confirmation - Email:', email);
+
+    return this.http.post<any>(url, payload).pipe(
+      map((response: any) => {
+        console.log('✅ Password Reset Successful');
+        return {
+          success: true as const,
+          data: response
+        };
+      }),
+      catchError((error) => {
+        console.error('❌ Password Reset Error:', error);
+        const errorResult = this.parseErrorResponse(error.error);
+        return of({
+          success: false as const,
+          error: errorResult.message,
+          validationErrors: errorResult.validationErrors
+        });
+      })
+    );
   }
 }

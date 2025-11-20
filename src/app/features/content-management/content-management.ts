@@ -8,6 +8,7 @@ import { finalize } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 import { AuthService } from '../../core/services/auth.service';
+import { TerminologyService } from '../../core/services/terminology.service';
 import {
   ContentService,
   Year,
@@ -248,13 +249,14 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   constructor(
     private sanitizer: DomSanitizer,
     private authService: AuthService,
-    private contentService: ContentService
+    private contentService: ContentService,
+    public terminologyService: TerminologyService
   ) {}
 
   ngOnInit(): void {
     this.checkScreenSize();
     this.loadAllFromAPI();
-    
+
     // Listen for window resize events
     this.resizeListener = () => {
       this.checkScreenSize();
@@ -275,46 +277,46 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
    */
   private extractEnglishError(error: any): string {
     console.error('Full error object:', error);
-    
+
     // Check for validation errors from .NET API (ModelState)
     if (error.error?.errors) {
       const validationErrors = error.error.errors;
       const messages: string[] = [];
-      
+
       for (const field in validationErrors) {
         if (Array.isArray(validationErrors[field])) {
           messages.push(...validationErrors[field]);
         }
       }
-      
+
       if (messages.length > 0) {
         return messages.join('. ');
       }
     }
-    
+
     // Check for direct error message from .NET API
     if (error.error?.title && typeof error.error.title === 'string') {
       return error.error.title;
     }
-    
+
     if (error.error?.detail && typeof error.error.detail === 'string') {
       return error.error.detail;
     }
-    
+
     // Check for string error message
     if (error.error && typeof error.error === 'string') {
       return error.error;
     }
-    
+
     // Check for message property
     if (error.error?.message && typeof error.error.message === 'string') {
       return error.error.message;
     }
-    
+
     if (error.message && typeof error.message === 'string') {
       return error.message;
     }
-    
+
     // Handle specific HTTP status codes
     if (error.status) {
       switch (error.status) {
@@ -334,7 +336,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           return `HTTP ${error.status}: ${error.statusText || 'Unknown error'}`;
       }
     }
-    
+
     return 'An unexpected error occurred. Please try again.';
   }
 
@@ -390,7 +392,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
 async loadTeachers(): Promise<void> {
   try {
     const users = (await this.contentService.getTeachers().toPromise()) || [];
-    
+
     // Filter users with Teacher role
     this.teachers = users
       .filter(user => user.roles && user.roles.includes('Teacher'))
@@ -401,7 +403,7 @@ async loadTeachers(): Promise<void> {
         name: user.userName, // Use userName as name
         roles: user.roles
       }));
-      
+
   } catch (error) {
     console.error('Error loading teachers:', error);
     throw error;
@@ -467,7 +469,7 @@ async loadTeachers(): Promise<void> {
   async loadLessons(): Promise<void> {
     try {
       const result = await this.contentService.getLessons().toPromise();
-      
+
       // Handle both paginated and non-paginated responses
       if (result && 'items' in result) {
         // Paginated response
@@ -527,27 +529,27 @@ async loadTeachers(): Promise<void> {
   numberYear(id: Id | undefined | null) {
     return this.years.find((y) => y.id === id)?.yearNumber || 0;
   }
-  
+
   nameSubject(id: Id | undefined | null) {
     return this.subjects.find((s) => s.id === id)?.subjectName || '';
   }
-  
+
   nameSubjectName(id: Id | undefined | null) {
     return this.subjectNames.find((s) => s.id === id)?.name || '';
   }
-  
+
   numberTerm(id: Id | undefined | null) {
     return this.terms.find((t) => t.id === id)?.termNumber || 0;
   }
-  
+
   numberWeek(id: Id | undefined | null) {
     return this.weeks.find((w) => w.id === id)?.weekNumber || 0;
   }
-  
+
   nameCategory(id: Id | undefined | null) {
     return this.categories.find((c) => c.id === id)?.name || '';
   }
-  
+
 nameTeacher(id: Id | undefined | null) {
   const teacher = this.teachers.find((t) => t.id === id);
   return teacher ? teacher.name || teacher.userName : '';
@@ -595,7 +597,7 @@ nameTeacher(id: Id | undefined | null) {
     } else if (this.filters.subjectId) {
       await this.loadLessonsBySubject(this.filters.subjectId);
     }
-    
+
     this.resetPaging();
   }
 
@@ -967,7 +969,7 @@ nameTeacher(id: Id | undefined | null) {
           startDate,
           posterFile
         ).toPromise();
-        
+
         if (newSubject) this.subjects.push(newSubject);
         break;
       }
@@ -1033,11 +1035,11 @@ nameTeacher(id: Id | undefined | null) {
 
         const newLesson = await this.contentService
           .addLesson(
-            title.trim(), 
-            description.trim(), 
+            title.trim(),
+            description.trim(),
             weekId,
             subjectId,
-            posterFile, 
+            posterFile,
             videoFile,
             duration,
             orderIndex
@@ -1058,17 +1060,17 @@ nameTeacher(id: Id | undefined | null) {
         this.years = this.years.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'category':
-        await this.contentService.updateCategory(this.form.id, { 
-          name: this.form.name, 
-          description: this.form.description, 
-          color: this.form.color 
+        await this.contentService.updateCategory(this.form.id, {
+          name: this.form.name,
+          description: this.form.description,
+          color: this.form.color
         }).toPromise();
         this.categories = this.categories.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'subjectName':
-        await this.contentService.updateSubjectName(this.form.id, { 
-          name: this.form.name, 
-          categoryId: this.form.categoryId 
+        await this.contentService.updateSubjectName(this.form.id, {
+          name: this.form.name,
+          categoryId: this.form.categoryId
         }).toPromise();
         this.subjectNames = this.subjectNames.map(x => x.id === this.form.id ? this.form : x);
         break;
@@ -1085,17 +1087,17 @@ nameTeacher(id: Id | undefined | null) {
         this.subjects = this.subjects.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'term':
-        await this.contentService.updateTerm(this.form.id, { 
-          subjectId: this.form.subjectId, 
-          termNumber: this.form.termNumber, 
-          startDate: this.form.startDate 
+        await this.contentService.updateTerm(this.form.id, {
+          subjectId: this.form.subjectId,
+          termNumber: this.form.termNumber,
+          startDate: this.form.startDate
         }).toPromise();
         this.terms = this.terms.map(x => x.id === this.form.id ? this.form : x);
         break;
       case 'week':
-        await this.contentService.updateWeek(this.form.id, { 
-          termId: this.form.termId, 
-          weekNumber: this.form.weekNumber 
+        await this.contentService.updateWeek(this.form.id, {
+          termId: this.form.termId,
+          weekNumber: this.form.weekNumber
         }).toPromise();
         this.weeks = this.weeks.map(x => x.id === this.form.id ? this.form : x);
         break;
@@ -1210,9 +1212,9 @@ nameTeacher(id: Id | undefined | null) {
           startDate: new Date().toISOString().split('T')[0],
         };
       case 'week':
-        return { 
-          termId: this.terms.length > 0 ? this.terms[0].id : null, 
-          weekNumber: 1 
+        return {
+          termId: this.terms.length > 0 ? this.terms[0].id : null,
+          weekNumber: 1
         };
       case 'lesson':
         return {
@@ -1281,7 +1283,7 @@ nameTeacher(id: Id | undefined | null) {
         this.resourceForm.lessonId,
         this.resourceForm.file
       ).toPromise();
-      
+
       if (newResource) this.lessonResources.push(newResource);
 
       this.closeResourceForm();
@@ -1401,7 +1403,7 @@ nameTeacher(id: Id | undefined | null) {
   // Validate form on input change
   validateField(fieldName: string, value: any) {
     this.formErrors[fieldName] = '';
-    
+
     switch (this.entityType) {
       case 'year':
         if (fieldName === 'yearNumber' && (value == null || value <= 0)) {
@@ -1484,7 +1486,7 @@ getSubjectDisplayName(subject: Subject): string {
 getYearIdFromTermId(termId: Id): Id | null {
   const term = this.terms.find(t => t.id === termId);
   if (!term) return null;
-  
+
   const subject = this.subjects.find(s => s.id === term.subjectId);
   return subject ? subject.yearId : null;
 }

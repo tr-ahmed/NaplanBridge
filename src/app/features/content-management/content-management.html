@@ -31,7 +31,7 @@
       background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
       box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     }
-    
+
     .is-valid {
       border-color: #10b981 !important;
       background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2310b981' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
@@ -40,7 +40,7 @@
       background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
       box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
     }
-    
+
     .invalid-feedback, .valid-feedback {
       display: block;
       font-size: 0.875rem;
@@ -58,7 +58,7 @@
         transform: translateY(0);
       }
     }
-    
+
     /* Enhanced Form Controls */
     .form-control, .form-select {
       border-radius: 0.5rem;
@@ -72,11 +72,11 @@
       box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
       transform: translateY(-1px);
     }
-    
+
     .form-control.is-invalid:focus, .form-select.is-invalid:focus {
       box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
     }
-    
+
     .form-control.is-valid:focus, .form-select.is-valid:focus {
       box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
     }
@@ -88,7 +88,7 @@
       font-size: 0.875rem;
       letter-spacing: 0.025em;
     }
-    
+
     /* Modern Buttons */
     .btn {
       border-radius: 0.5rem;
@@ -116,17 +116,17 @@
     .btn-primary:hover {
       background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     }
-    
+
     .btn-gradient {
       background: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
       color: white;
     }
-    
+
     .btn-gradient:hover {
       background: linear-gradient(135deg, #2563eb 0%, #1e293b 100%);
       box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
     }
-    
+
     /* Modern Cards */
     .card {
       border: none;
@@ -153,7 +153,7 @@
       background: #fafafa;
       border-top: 1px solid #e5e7eb;
     }
-    
+
     /* Modern Tables */
     .table {
       border-collapse: separate;
@@ -186,7 +186,7 @@
       vertical-align: middle;
       border-bottom: 1px solid #f1f5f9;
     }
-    
+
     /* Modern Sidebar - Always Fixed */
     .sidebar {
       width: 280px;
@@ -298,7 +298,7 @@
       background: rgba(255, 255, 255, 0.15);
       font-weight: 600;
     }
-    
+
     .main-content {
       margin-left: 280px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -485,7 +485,7 @@
       background: #f9fafb;
       padding-left: 1.5rem;
     }
-    
+
     .resource-item:last-child {
       border-bottom: none;
     }
@@ -818,7 +818,7 @@
   class="position-fixed top-0 bottom-0 start-0 sidebar"
   [class.mobile-active]="sidebarMobileOpen"
   style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);min-height:100vh;z-index:1040;overflow-y:auto;overflow-x:hidden;width:280px;">
-  
+
   <!-- Logo Section -->
   <div class="d-flex align-items-center justify-content-center py-4 px-3" style="min-height:80px;">
     <div class="rounded-circle d-flex align-items-center justify-content-center shadow-lg me-3"
@@ -835,7 +835,7 @@
   <nav class="px-3 mt-4">
     <div class="mb-2">
       <small class="text-white-50 text-uppercase px-3 d-block mb-2" style="font-size:0.7rem;letter-spacing:0.1em;">Management</small>
-      
+
       <a [routerLink]="'/admin/users'"
          routerLinkActive="active"
          (click)="closeMobileSidebar()"
@@ -844,7 +844,7 @@
         <span class="flex-grow-1">User Management</span>
         <i class="fas fa-chevron-right fa-xs opacity-50"></i>
       </a>
-      
+
       <a [routerLink]="'/admin/content'"
          routerLinkActive="active"
          (click)="closeMobileSidebar()"
@@ -853,7 +853,7 @@
         <span class="flex-grow-1">Content Management</span>
         <i class="fas fa-chevron-right fa-xs opacity-50"></i>
       </a>
-      
+
       <a [routerLink]="'/admin/subscriptions'"
          routerLinkActive="active"
          (click)="closeMobileSidebar()"
@@ -920,11 +920,11 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <!-- Search -->
       <div class="position-relative" style="max-width:520px;width:100%;">
-        <input 
-          type="text" 
-          class="form-control search-input ps-5 shadow-sm" 
-          placeholder="🔍 Search content..." 
-          [(ngModel)]="searchTerm" 
+        <input
+          type="text"
+          class="form-control search-input ps-5 shadow-sm"
+          placeholder="🔍 Search content..."
+          [(ngModel)]="searchTerm"
           (input)="onFilterChange()">
         <i class="fas fa-search position-absolute text-muted" style="left:1.25rem;top:50%;transform:translateY(-50%);"></i>
       </div>
@@ -1112,37 +1112,37 @@
     <!-- Tabs -->
     <div class="card border-0 shadow-sm mb-4 p-2">
       <div class="d-flex flex-wrap justify-content-center gap-2">
-        <button (click)="activeTab='years'; resetPaging()" 
+        <button (click)="activeTab='years'; resetPaging()"
                 [class]="activeTab==='years' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
                 class="hover-lift">
           <i class="fas fa-calendar-alt me-2"></i> Years
         </button>
-        <button (click)="activeTab='categories'; resetPaging()" 
+        <button (click)="activeTab='categories'; resetPaging()"
                 [class]="activeTab==='categories' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
                 class="hover-lift">
           <i class="fas fa-chalkboard me-2"></i> Categories
         </button>
-        <button (click)="activeTab='subjectNames'; resetPaging()" 
+        <button (click)="activeTab='subjectNames'; resetPaging()"
                 [class]="activeTab==='subjectNames' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
                 class="hover-lift">
           <i class="fas fa-book me-2"></i> Subject Names
         </button>
-        <button (click)="activeTab='subjects'; resetPaging()" 
+        <button (click)="activeTab='subjects'; resetPaging()"
                 [class]="activeTab==='subjects' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
                 class="hover-lift">
           <i class="fas fa-book-open me-2"></i> Subjects
         </button>
-        <button (click)="activeTab='terms'; resetPaging()" 
+        <button (click)="activeTab='terms'; resetPaging()"
                 [class]="activeTab==='terms' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
                 class="hover-lift">
           <i class="fas fa-layer-group me-2"></i> Terms
         </button>
-        <button (click)="activeTab='weeks'; resetPaging()" 
+        <button (click)="activeTab='weeks'; resetPaging()"
                 [class]="activeTab==='weeks' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
                 class="hover-lift">
           <i class="fas fa-calendar-week me-2"></i> Weeks
         </button>
-        <button (click)="activeTab='lessons'; resetPaging()" 
+        <button (click)="activeTab='lessons'; resetPaging()"
                 [class]="activeTab==='lessons' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
                 class="hover-lift">
           <i class="fas fa-video me-2"></i> Lessons
@@ -1844,17 +1844,17 @@
             <div class="row g-3">
               <div class="col-12">
                 <label class="form-label fw-semibold">Year Number <span class="text-danger">*</span></label>
-                <input 
-                  type="number" 
-                  class="form-control" 
+                <input
+                  type="number"
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('yearNumber')"
                   [class.is-valid]="formTouched['yearNumber'] && !formErrors['yearNumber']"
-                  [(ngModel)]="form.yearNumber" 
+                  [(ngModel)]="form.yearNumber"
                   (blur)="markFieldTouched('yearNumber')"
                   (ngModelChange)="validateField('yearNumber', $event)"
-                  placeholder="Enter year number (e.g., 7, 8, 9...)" 
-                  min="1" 
-                  max="12" 
+                  placeholder="Enter year number (e.g., 7, 8, 9...)"
+                  min="1"
+                  max="12"
                   required>
                 @if (hasFieldError('yearNumber')) {
                   <div class="invalid-feedback">{{ getFieldError('yearNumber') }}</div>
@@ -1869,8 +1869,8 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
-                <input 
-                  class="form-control" 
+                <input
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('name')"
                   [class.is-valid]="formTouched['name'] && !formErrors['name']"
                   [(ngModel)]="form.name"
@@ -1896,11 +1896,11 @@
               </div>
               <div class="col-12">
                 <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
-                <textarea 
-                  class="form-control" 
+                <textarea
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('description')"
                   [class.is-valid]="formTouched['description'] && !formErrors['description']"
-                  rows="4" 
+                  rows="4"
                   [(ngModel)]="form.description"
                   (blur)="markFieldTouched('description')"
                   (ngModelChange)="validateField('description', $event)"
@@ -1918,8 +1918,8 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
-                <input 
-                  class="form-control" 
+                <input
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('name')"
                   [class.is-valid]="formTouched['name'] && !formErrors['name']"
                   [(ngModel)]="form.name"
@@ -1933,8 +1933,8 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
-                <select 
-                  class="form-select" 
+                <select
+                  class="form-select"
                   [class.is-invalid]="hasFieldError('categoryId')"
                   [class.is-valid]="formTouched['categoryId'] && !formErrors['categoryId']"
                   [(ngModel)]="form.categoryId"
@@ -1976,16 +1976,16 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Original Price ($) <span class="text-danger">*</span></label>
-                <input 
-                  type="number" 
-                  class="form-control" 
+                <input
+                  type="number"
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('originalPrice')"
                   [class.is-valid]="formTouched['originalPrice'] && !formErrors['originalPrice']"
                   [(ngModel)]="form.originalPrice"
                   (blur)="markFieldTouched('originalPrice')"
                   (ngModelChange)="validateField('originalPrice', $event)"
-                  min="0" 
-                  step="0.01" 
+                  min="0"
+                  step="0.01"
                   placeholder="0.00"
                   required>
                 @if (hasFieldError('originalPrice')) {
@@ -1994,15 +1994,15 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Discount (%)</label>
-                <input 
-                  type="number" 
-                  class="form-control" 
+                <input
+                  type="number"
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('discountPercentage')"
                   [class.is-valid]="formTouched['discountPercentage'] && !formErrors['discountPercentage']"
                   [(ngModel)]="form.discountPercentage"
                   (blur)="markFieldTouched('discountPercentage')"
                   (ngModelChange)="validateField('discountPercentage', $event)"
-                  min="0" 
+                  min="0"
                   max="100"
                   placeholder="0">
                 @if (hasFieldError('discountPercentage')) {
@@ -2012,8 +2012,8 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Level <span class="text-danger">*</span></label>
-                <select 
-                  class="form-select" 
+                <select
+                  class="form-select"
                   [class.is-invalid]="hasFieldError('level')"
                   [class.is-valid]="formTouched['level'] && !formErrors['level']"
                   [(ngModel)]="form.level"
@@ -2031,15 +2031,15 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Duration (hours) <span class="text-danger">*</span></label>
-                <input 
-                  type="number" 
-                  class="form-control" 
+                <input
+                  type="number"
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('duration')"
                   [class.is-valid]="formTouched['duration'] && !formErrors['duration']"
                   [(ngModel)]="form.duration"
                   (blur)="markFieldTouched('duration')"
                   (ngModelChange)="validateField('duration', $event)"
-                  min="0" 
+                  min="0"
                   step="0.5"
                   placeholder="10"
                   required>
@@ -2088,23 +2088,23 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">Term Number <span class="text-danger">*</span></label>
-                <input 
-                  type="number" 
-                  class="form-control" 
+                <label class="form-label fw-semibold">{{ terminologyService.getTermNumberLabel() }} <span class="text-danger">*</span></label>
+                <input
+                  type="number"
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('termNumber')"
                   [class.is-valid]="formTouched['termNumber'] && !formErrors['termNumber']"
                   [(ngModel)]="form.termNumber"
                   (blur)="markFieldTouched('termNumber')"
                   (ngModelChange)="validateField('termNumber', $event)"
-                  min="1" 
+                  min="1"
                   max="4"
-                  placeholder="1-4"
+                  [placeholder]="terminologyService.getPlaceholder('term')"
                   required>
                 @if (hasFieldError('termNumber')) {
                   <div class="invalid-feedback">{{ getFieldError('termNumber') }}</div>
                 }
-                <small class="text-muted">Typically 1-4</small>
+                <small class="text-muted">{{ 'Typically 1-4' }}</small>
               </div>
               <div class="col-12">
                 <label class="form-label fw-semibold">Start Date <span class="text-danger">*</span></label>
@@ -2126,23 +2126,23 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">Week Number <span class="text-danger">*</span></label>
-                <input 
-                  type="number" 
-                  class="form-control" 
+                <label class="form-label fw-semibold">{{ terminologyService.getWeekNumberLabel() }} <span class="text-danger">*</span></label>
+                <input
+                  type="number"
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('weekNumber')"
                   [class.is-valid]="formTouched['weekNumber'] && !formErrors['weekNumber']"
                   [(ngModel)]="form.weekNumber"
                   (blur)="markFieldTouched('weekNumber')"
                   (ngModelChange)="validateField('weekNumber', $event)"
-                  min="1" 
+                  min="1"
                   max="52"
-                  placeholder="1-52"
+                  [placeholder]="terminologyService.getPlaceholder('week')"
                   required>
                 @if (hasFieldError('weekNumber')) {
                   <div class="invalid-feedback">{{ getFieldError('weekNumber') }}</div>
                 }
-                <small class="text-muted">Week number within the term</small>
+                <small class="text-muted">{{ terminologyService.getWeekLabel() }} number within the {{ terminologyService.getTermLabel().toLowerCase() }}</small>
               </div>
             </div>
           }
@@ -2152,8 +2152,8 @@
             <div class="row g-3">
               <div class="col-12">
                 <label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
-                <input 
-                  class="form-control" 
+                <input
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('title')"
                   [class.is-valid]="formTouched['title'] && !formErrors['title']"
                   [(ngModel)]="form.title"
@@ -2167,11 +2167,11 @@
               </div>
               <div class="col-12">
                 <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
-                <textarea 
-                  class="form-control" 
+                <textarea
+                  class="form-control"
                   [class.is-invalid]="hasFieldError('description')"
                   [class.is-valid]="formTouched['description'] && !formErrors['description']"
-                  rows="4" 
+                  rows="4"
                   [(ngModel)]="form.description"
                   (blur)="markFieldTouched('description')"
                   (ngModelChange)="validateField('description', $event)"
@@ -2202,22 +2202,22 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-semibold">Duration (minutes)</label>
-                <input 
-                  type="number" 
-                  class="form-control" 
+                <input
+                  type="number"
+                  class="form-control"
                   [(ngModel)]="form.duration"
-                  min="0" 
+                  min="0"
                   step="5"
                   placeholder="45">
                 <small class="text-muted">Lesson duration in minutes</small>
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-semibold">Order Index</label>
-                <input 
-                  type="number" 
-                  class="form-control" 
+                <input
+                  type="number"
+                  class="form-control"
                   [(ngModel)]="form.orderIndex"
-                  min="0" 
+                  min="0"
                   step="1"
                   placeholder="1">
                 <small class="text-muted">Order within the week</small>

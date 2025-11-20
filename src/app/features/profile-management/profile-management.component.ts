@@ -50,12 +50,14 @@ export class ProfileManagementComponent implements OnInit {
   // State
   profile = signal<UserProfile | null>(null);
   loading = signal(true);
-  activeTab = signal<'profile' | 'password' | 'security' | 'privacy'>('profile');
+  activeTab = signal<'profile' | 'password' | 'security' | 'privacy' | 'reset-password'>('profile');
+  resetPasswordLoading = signal(false);
 
   // Forms
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
   securityForm!: FormGroup;
+  resetPasswordForm!: FormGroup;
 
   // File upload
   selectedFile: File | null = null;
@@ -92,6 +94,12 @@ export class ProfileManagementComponent implements OnInit {
       twoFactorEnabled: [false],
       emailNotifications: [true],
       smsNotifications: [false]
+    });
+
+    // Reset Password Form
+    this.resetPasswordForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      currentPassword: ['', [Validators.required]]
     });
   }
 
@@ -405,7 +413,7 @@ export class ProfileManagementComponent implements OnInit {
   /**
    * Switch tab
    */
-  switchTab(tab: 'profile' | 'password' | 'security' | 'privacy'): void {
+  switchTab(tab: 'profile' | 'password' | 'security' | 'privacy' | 'reset-password'): void {
     this.activeTab.set(tab);
   }
 
@@ -442,5 +450,49 @@ export class ProfileManagementComponent implements OnInit {
    */
   cancel(): void {
     this.router.navigate(['/parent/dashboard']);
+  }
+
+  /**
+   * Initiate password reset - sends reset link to email
+   */
+  initiatePasswordReset(): void {
+    if (this.resetPasswordForm.invalid) {
+      return;
+    }
+
+    this.resetPasswordLoading.set(true);
+    const email = this.resetPasswordForm.get('email')?.value;
+
+    this.authService.requestPasswordReset(email).subscribe({
+      next: (result) => {
+        this.resetPasswordLoading.set(false);
+        if (result.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Reset Link Sent',
+            text: 'Check your email for the password reset link. The link will be valid for 24 hours.',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            this.resetPasswordForm.reset({ email: this.profile()?.email });
+            this.switchTab('password');
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: result.message || 'Failed to send reset link'
+          });
+        }
+      },
+      error: (error) => {
+        this.resetPasswordLoading.set(false);
+        console.error('Password reset error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to send reset link. Please try again.'
+        });
+      }
+    });
   }
 }

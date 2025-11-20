@@ -61,6 +61,16 @@
               <span class="text-xl">🔐</span>
               <span>Privacy</span>
             </button>
+
+            <button
+              (click)="switchTab('reset-password')"
+              [class.bg-indigo-50]="activeTab() === 'reset-password'"
+              [class.text-indigo-700]="activeTab() === 'reset-password'"
+              [class.text-gray-700]="activeTab() !== 'reset-password'"
+              class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center gap-3">
+              <span class="text-xl">🔑</span>
+              <span>Reset Password</span>
+            </button>
           </div>
         </div>
 
@@ -383,6 +393,92 @@
                     Delete My Account
                   </button>
                 </div>
+              </div>
+            </div>
+          }
+
+          <!-- Reset Password Tab -->
+          @if (activeTab() === 'reset-password') {
+            <div class="bg-white rounded-lg shadow p-6">
+              <h2 class="text-xl font-bold text-gray-900 mb-6">Reset Password</h2>
+
+              <div class="space-y-6">
+                <p class="text-sm text-gray-600">
+                  For security purposes, we can send you a password reset link via email. Click the button below to start the reset process.
+                </p>
+
+                <!-- Reset Password Form -->
+                <form [formGroup]="resetPasswordForm" (ngSubmit)="initiatePasswordReset()" class="space-y-6">
+
+                  <!-- Email Confirmation -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      formControlName="email"
+                      class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      [value]="profile()?.email"
+                      readonly
+                      placeholder="your.email@example.com"
+                    />
+                    <p class="text-xs text-gray-500 mt-2">A reset link will be sent to this email address</p>
+                  </div>
+
+                  <!-- Current Password Verification -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Current Password (for verification) <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      formControlName="currentPassword"
+                      class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      [class.border-red-500]="hasError(resetPasswordForm, 'currentPassword', 'required')"
+                      placeholder="Enter your current password"
+                    />
+                    @if (hasError(resetPasswordForm, 'currentPassword', 'required')) {
+                      <p class="mt-1 text-sm text-red-500">Current password is required</p>
+                    }
+                  </div>
+
+                  <!-- Info Box -->
+                  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-800">
+                      <span class="font-semibold">ℹ️ What happens next:</span>
+                    </p>
+                    <ul class="text-sm text-blue-700 mt-2 space-y-1 ml-4 list-disc">
+                      <li>We'll send a password reset link to your email</li>
+                      <li>The link will be valid for 24 hours</li>
+                      <li>Click the link to create a new password</li>
+                    </ul>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="flex gap-4 pt-4">
+                    <button
+                      type="button"
+                      (click)="switchTab('password')"
+                      class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      [disabled]="resetPasswordForm.invalid || resetPasswordLoading()"
+                      class="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2">
+                      @if (resetPasswordLoading()) {
+                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Sending...</span>
+                      } @else {
+                        <span>Send Reset Link</span>
+                      }
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           }

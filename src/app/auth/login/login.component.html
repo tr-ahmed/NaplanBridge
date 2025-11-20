@@ -45,15 +45,20 @@
       }
       <div class="mb-4"></div>
 
-      <!-- Remember Me -->
-      <div class="flex items-center mb-6">
-        <input
-          type="checkbox"
-          id="rememberMe"
-          formControlName="rememberMe"
-          class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-        />
-        <label for="rememberMe" class="text-sm text-gray-700">Remember me</label>
+      <!-- Remember Me and Forgot Password -->
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="rememberMe"
+            formControlName="rememberMe"
+            class="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          />
+          <label for="rememberMe" class="text-sm text-gray-700">Remember me</label>
+        </div>
+        <a routerLink="/auth/reset-password" class="text-sm text-blue-900 hover:underline font-medium">
+          Forgot password?
+        </a>
       </div>
 
       <!-- Login Button -->

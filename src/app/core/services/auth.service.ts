@@ -354,4 +354,38 @@ navigateToUserDashboard(): void {
       return true;
     }
   }
+
+  /**
+   * Request password reset - sends reset instructions to user's email
+   * @param email User's email address
+   */
+  requestPasswordReset(email: string): Observable<{ success: boolean; message?: string }> {
+    return this.parentApiService.requestPasswordReset(email).pipe(
+      map(result => {
+        if (result.success) {
+          return { success: true, message: 'Reset instructions sent to your email' };
+        } else {
+          return { success: false, message: result.error };
+        }
+      })
+    );
+  }
+
+  /**
+   * Reset password with token and new password
+   * @param email User's email
+   * @param newPassword New password to set
+   * @param token Reset token from email link
+   */
+  resetPassword(email: string, newPassword: string, token: string): Observable<{ success: boolean; message?: string }> {
+    return this.parentApiService.resetPassword(email, newPassword, token).pipe(
+      map(result => {
+        if (result.success) {
+          return { success: true, message: 'Password reset successfully' };
+        } else {
+          return { success: false, message: result.error };
+        }
+      })
+    );
+  }
 }
