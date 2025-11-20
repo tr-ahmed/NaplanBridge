@@ -65,6 +65,27 @@ interface Analytics {
   topPlans: { planName: string; count: number; revenue: number }[];
 }
 
+interface Subject {
+  id: number;
+  subjectName: string;  // API returns 'subjectName' not 'name'
+  categoryId?: number;
+  yearId?: number;
+  name?: string;  // Fallback for other components
+}
+
+interface Term {
+  id: number;
+  name: string;
+  termNumber: number;
+  subjectId: number;
+  yearId?: number;
+}
+
+interface Year {
+  id: number;
+  name: string;
+}
+
 @Component({
   selector: 'app-subscriptions',
   standalone: true,
@@ -84,6 +105,9 @@ export class SubscriptionsComponent implements OnInit {
   orders: Order[] = [];
   analytics: Analytics | null = null;
   orderSummary: OrderSummary | null = null;
+  subjects: Subject[] = [];
+  filteredTerms: Term[] = [];
+  years: Year[] = [];
   
   // Filters
   searchTerm = '';
@@ -119,7 +143,19 @@ export class SubscriptionsComponent implements OnInit {
 
   constructor(private http: HttpClient) {}
 
+  // Helper method to create array of numbers for pagination
+  createPageArray(length: number): number[] {
+    return Array.from({ length }, (_, i) => i);
+  }
+
+  // Helper method to ensure safe iteration over arrays with proper typing
+  toArray<T>(value: T[] | null | undefined): T[] {
+    return Array.isArray(value) ? value : [];
+  }
+
   ngOnInit(): void {
+    this.loadSubjects();
+    this.loadYears();
     this.loadSubscriptionPlans();
     this.loadOrders();
     this.loadAnalytics();
@@ -131,6 +167,126 @@ export class SubscriptionsComponent implements OnInit {
 
   changeTab(tab: 'plans' | 'orders' | 'analytics'): void {
     this.activeTab.set(tab);
+  }
+
+  // ============================================
+  // Subject & Term Management
+  // ============================================
+
+  loadSubjects(): void {
+    console.log('loadSubjects() called');
+    this.http.get<any>(`${environment.apiBaseUrl}/Subjects`)
+      .subscribe({
+        next: (data) => {
+          console.log('Raw API response:', data);
+          
+          // API returns { items: [...], page, pageSize, ... }
+          if (data && data.items && Array.isArray(data.items)) {
+            // Map API response to Subject interface
+            this.subjects = data.items.map((item: any) => ({
+              id: item.id,
+              subjectName: item.subjectName,
+              name: item.subjectName,  // For compatibility
+              categoryId: item.categoryId,
+              yearId: item.yearId
+            }));
+            console.log('Subjects extracted from items:', this.subjects);
+          } else if (Array.isArray(data)) {
+            // Fallback for direct array response
+            this.subjects = data;
+          } else {
+            console.log('Unexpected response format');
+            this.subjects = [];
+          }
+          console.log('Subjects loaded:', this.subjects);
+          console.log('Subjects length:', this.subjects.length);
+          
+          // Load years after subjects are loaded
+          this.loadYears();
+        },
+        error: (error) => {
+          console.error('Error loading subjects:', error);
+          Swal.fire('Error', 'Failed to load subjects', 'error');
+          this.subjects = [];
+        }
+      });
+  }
+
+  onSubjectChange(subjectId: number): void {
+    if (subjectId && subjectId > 0) {
+      // Load terms for the selected subject
+      this.http.get<Term[]>(`${environment.apiBaseUrl}/Terms/by-subject/${subjectId}`)
+        .subscribe({
+          next: (data) => {
+            // Ensure data is an array
+            if (Array.isArray(data)) {
+              this.filteredTerms = data;
+            } else if (data && typeof data === 'object') {
+              this.filteredTerms = (data as any).data || Object.values(data) || [];
+            } else {
+              this.filteredTerms = [];
+            }
+            
+            console.log('Terms for subject', subjectId, ':', this.filteredTerms);
+            
+            // Auto-fill first term if available
+            if (this.filteredTerms.length > 0) {
+              this.currentPlan.termId = this.filteredTerms[0].id;
+            }
+          },
+          error: (error) => {
+            console.error('Error loading terms:', error);
+            this.filteredTerms = [];
+          }
+        });
+      
+      // Get subject name
+      const selectedSubject = this.subjects.find(s => s.id === subjectId);
+      if (selectedSubject) {
+        this.currentPlan.subjectName = selectedSubject.subjectName || selectedSubject.name;
+      }
+    } else {
+      this.filteredTerms = [];
+      this.currentPlan.termId = 0;
+    }
+  }
+
+  loadYears(): void {
+    console.log('loadYears() called');
+    // Extract unique years from subjects
+    const uniqueYearIds = new Set<number>();
+    this.subjects.forEach(subject => {
+      if (subject.yearId) {
+        uniqueYearIds.add(subject.yearId);
+      }
+    });
+    
+    // Create year objects from subject data
+    const yearMap: { [key: number]: string } = {
+      1: 'Year 7',
+      2: 'Year 8',
+      3: 'Year 9',
+      4: 'Year 10'
+    };
+    
+    this.years = Array.from(uniqueYearIds).map(id => ({
+      id,
+      name: yearMap[id] || `Year ${id}`
+    })).sort((a, b) => a.id - b.id);
+    
+    console.log('Years loaded:', this.years);
+  }
+
+  getSubjectName(subjectId?: number): string {
+    if (!subjectId) return 'Select Subject';
+    const subject = this.subjects.find(s => s.id === subjectId);
+    return subject ? (subject.subjectName || subject.name || `Subject #${subjectId}`) : `Subject #${subjectId}`;
+  }
+
+  getTermName(termId?: number): string {
+    if (!termId) return 'Select Term';
+    const term = this.filteredTerms.find(t => t.id === termId);
+    return term ? `${term.name} (Term ${term.termNumber})` : `Term #${termId}`;
   }
 
   isPlanActive(plan: any): boolean {
@@ -170,6 +326,7 @@ export class SubscriptionsComponent implements OnInit {
   }
 
   openAddPlanModal(): void {
+    console.log('openAddPlanModal() called');
     this.isEditMode = false;
     this.currentPlan = {
       name: '',
@@ -181,12 +338,35 @@ export class SubscriptionsComponent implements OnInit {
       termId: 0,
       yearId: 0
     };
+    this.filteredTerms = [];
+    
+    // Reload subjects if empty
+    console.log('Current subjects length:', this.subjects.length);
+    if (this.subjects.length === 0) {
+      console.log('Subjects empty, triggering loadSubjects()');
+      this.loadSubjects();
+    } else {
+      console.log('Subjects already loaded:', this.subjects);
+    }
+    
     this.showPlanModal = true;
   }
 
   openEditPlanModal(plan: SubscriptionPlan): void {
     this.isEditMode = true;
     this.currentPlan = { ...plan };
+    
+    // Reload subjects if empty
+    if (this.subjects.length === 0) {
+      this.loadSubjects();
+    }
+    
+    // Load terms if editing a plan with a subject
+    if (plan.subjectId && plan.subjectId > 0) {
+      this.onSubjectChange(plan.subjectId);
+    } else {
+      this.filteredTerms = [];
+    }
     this.showPlanModal = true;
   }
 
@@ -204,17 +384,26 @@ export class SubscriptionsComponent implements OnInit {
     this.loading.set(true);
     const planId = this.currentPlan.planId || this.currentPlan.id;
     
+    // Convert planType to enum value (1, 2, 3, 4)
+    const planTypeValue = typeof this.currentPlan.planType === 'string' 
+      ? parseInt(this.currentPlan.planType, 10) 
+      : this.currentPlan.planType;
+    
     // Prepare the data according to API schema
     const planData = {
-      name: this.currentPlan.name,
-      description: this.currentPlan.description,
-      planType: this.currentPlan.planType,
-      price: this.currentPlan.price,
-      isActive: this.currentPlan.isActive ?? true,
-      subjectId: this.currentPlan.subjectId || 0,
-      termId: this.currentPlan.termId || 0,
-      yearId: this.currentPlan.yearId || 0
+      dto: {
+        name: this.currentPlan.name,
+        description: this.currentPlan.description,
+        planType: planTypeValue,
+        price: this.currentPlan.price,
+        isActive: this.currentPlan.isActive ?? true,
+        subjectId: this.currentPlan.subjectId || 0,
+        termId: this.currentPlan.termId || 0,
+        yearId: this.currentPlan.yearId || 0
+      }
     };
+    
+    console.log('Sending plan data:', planData);
     
     if (this.isEditMode && planId) {
       // Update existing plan
@@ -252,7 +441,8 @@ export class SubscriptionsComponent implements OnInit {
           error: (error) => {
             console.error('Error creating plan:', error);
             this.loading.set(false);
-            Swal.fire('Error', 'Failed to create subscription plan', 'error');
+            const errorMsg = error?.error?.errors ? JSON.stringify(error.error.errors) : error?.message || 'Unknown error';
+            Swal.fire('Error', `Failed to create subscription plan: ${errorMsg}`, 'error');
           }
         });
     }
