@@ -231,6 +231,27 @@ body {
 
 .modal-body {
   padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+
+    &:hover {
+      background: #555;
+    }
+  }
 }
 
 .modal-footer {
@@ -245,6 +266,41 @@ body {
 
 .modal-backdrop.show {
   opacity: 0.5;
+}
+
+// Enhanced form controls
+.form-control-lg, .form-select-lg {
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.form-check-lg {
+  .form-check-input {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-top: 0.125rem;
+  }
+
+  .form-check-label {
+    font-size: 1rem;
+    margin-left: 0.5rem;
+  }
+}
+
+// Card enhancements for form sections
+.card {
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.badge {
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+  font-size: 0.875em;
 }
 
 /* ==================== PAGINATION ==================== */

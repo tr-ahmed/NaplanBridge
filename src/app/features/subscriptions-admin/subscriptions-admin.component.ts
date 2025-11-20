@@ -156,6 +156,9 @@ export class SubscriptionManagementComponent implements OnInit {
   terms: TermDto[] = [];
   years: YearDto[] = [];
 
+  // Selected terms for MultiTerm plans
+  private selectedTermIds: number[] = [];
+
   // Stats
   stats: DashboardStats = {
     totalPlans: 0,
@@ -515,11 +518,6 @@ export class SubscriptionManagementComponent implements OnInit {
     return this.subjects.find(s => s.id === id)?.name || `Subject ${id}`;
   }
 
-  getTermName(id?: number): string {
-    if (!id) return 'N/A';
-    return this.terms.find(t => t.id === id)?.name || `Term ${id}`;
-  }
-
   getYearName(id?: number): string {
     if (!id) return 'N/A';
     const year = this.years.find(y => y.id === id);
@@ -537,6 +535,7 @@ export class SubscriptionManagementComponent implements OnInit {
     this.formMode = 'add';
     this.formEntity = 'plan';
     this.formTitle = 'Add New Subscription Plan';
+    this.selectedTermIds = []; // Reset selected terms
     this.form = {
       name: '',
       description: '',
@@ -557,10 +556,97 @@ export class SubscriptionManagementComponent implements OnInit {
     this.formEntity = 'plan';
     this.formTitle = 'Edit Subscription Plan';
     this.form = { ...plan };
+
+    // Load selected terms for MultiTerm plans
+    if (plan.planType === PlanType.MultiTerm && plan.includedTermIds) {
+      this.selectedTermIds = plan.includedTermIds.split(',').map(id => parseInt(id.trim()));
+    } else {
+      this.selectedTermIds = [];
+    }
+
     this.isFormOpen = true;
   }
 
+  // Handle plan type change
+  onPlanTypeChange() {
+    // Reset relevant fields when plan type changes
+    if (this.form.planType === PlanType.FullYear) {
+      this.form.subjectId = null;
+      this.form.termId = null;
+      this.selectedTermIds = [];
+      this.form.includedTermIds = '';
+    } else if (this.form.planType === PlanType.SingleTerm) {
+      this.selectedTermIds = [];
+      this.form.includedTermIds = '';
+    } else if (this.form.planType === PlanType.MultiTerm) {
+      this.form.termId = null;
+      this.selectedTermIds = [];
+      this.form.includedTermIds = '';
+    } else if (this.form.planType === PlanType.SubjectAnnual) {
+      this.form.termId = null;
+      this.selectedTermIds = [];
+      this.form.includedTermIds = '';
+    }
+  }
+
+  // Toggle term selection for MultiTerm plans
+  toggleTermSelection(termId: number) {
+    const index = this.selectedTermIds.indexOf(termId);
+    if (index > -1) {
+      this.selectedTermIds.splice(index, 1);
+    } else {
+      this.selectedTermIds.push(termId);
+    }
+
+    // Update form.includedTermIds
+    this.form.includedTermIds = this.selectedTermIds.sort((a, b) => a - b).join(',');
+  }
+
+  // Check if term is selected
+  isTermSelected(termId: number): boolean {
+    return this.selectedTermIds.includes(termId);
+  }
+
+  // Get selected terms
+  getSelectedTerms(): number[] {
+    return this.selectedTermIds;
+  }
+
+  // Get term name by ID (unified implementation)
+  getTermName(termId?: number): string {
+    if (!termId) return 'N/A';
+    const term = this.terms.find(t => t.id === termId);
+    return term?.name || `Term ${termId}`;
+  }
+
   submitForm() {
+    // Validation
+    if (!this.form.name || !this.form.description || !this.form.planType ||
+        this.form.price === undefined || !this.form.durationInDays) {
+      this.errorMessage = 'Please fill in all required fields';
+      return;
+    }
+
+    // Validate based on plan type
+    if (this.form.planType === PlanType.SingleTerm && !this.form.termId) {
+      this.errorMessage = 'Please select a term for Single Term plan';
+      return;
+    }
+
+    if (this.form.planType === PlanType.MultiTerm) {
+      if (this.selectedTermIds.length < 2) {
+        this.errorMessage = 'Please select at least 2 terms for Multi Term plan';
+        return;
+      }
+      this.form.includedTermIds = this.selectedTermIds.sort((a, b) => a - b).join(',');
+    }
+
+    if (this.form.planType === PlanType.SubjectAnnual && !this.form.subjectId) {
+      this.errorMessage = 'Please select a subject for Subject Annual plan';
+      return;
+    }
+
+    // Submit
     if (this.formMode === 'add') {
       this.createPlan(this.form);
     } else if (this.formMode === 'edit' && this.form.id) {

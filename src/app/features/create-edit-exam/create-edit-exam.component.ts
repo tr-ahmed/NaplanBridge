@@ -7,11 +7,11 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ExamService } from '../../core/services/exam.service';
+import { ExamApiService } from '../../core/services/exam-api.service';
 import { SubjectService } from '../../core/services/subject.service';
 import { AuthService } from '../../auth/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { ExamType, QuestionType, CreateExamDto, ExamQuestion } from '../../models/exam.models';
+import { ExamType, QuestionType, CreateExamDto, CreateQuestionDto } from '../../models/exam-api.models';
 import { Subject } from '../../models/subject.models';
 
 type FormStep = 'basic' | 'questions' | 'settings' | 'preview';
@@ -26,7 +26,7 @@ type FormStep = 'basic' | 'questions' | 'settings' | 'preview';
 export class CreateEditExamComponent implements OnInit {
   // Services
   private fb = inject(FormBuilder);
-  private examService = inject(ExamService);
+  private examApi = inject(ExamApiService);
   private subjectService = inject(SubjectService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
@@ -159,7 +159,19 @@ export class CreateEditExamComponent implements OnInit {
   private loadExamData(examId: number): void {
     this.loading.set(true);
 
-    // Mock data for now
+    this.examApi.getExamById(examId).subscribe({
+      next: (exam) => {
+        this.patchFormData(exam);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load exam:', err);
+        this.toastService.showError('Failed to load exam data');
+        this.loading.set(false);
+      }
+    });
+
+    /* OLD MOCK CODE - Now using real API
     setTimeout(() => {
       const mockExam = {
         id: examId,
@@ -208,6 +220,7 @@ export class CreateEditExamComponent implements OnInit {
       this.patchFormData(mockExam);
       this.loading.set(false);
     }, 500);
+    */
   }
 
   /**
@@ -539,20 +552,46 @@ export class CreateEditExamComponent implements OnInit {
     this.saving.set(true);
     this.examForm.patchValue({ isPublished: publish });
 
+    const formValue = this.examForm.value;
+
+    // Transform form data to match CreateExamDto structure
     const examData: CreateExamDto = {
-      ...this.examForm.value,
-      teacherId: this.teacherId,
-      isPublished: publish
+      title: formValue.title,
+      description: formValue.description || '',
+      examType: formValue.examType,
+      subjectId: formValue.subjectId,
+      termId: formValue.termId || null,
+      lessonId: formValue.lessonId || null,
+      weekId: formValue.weekId || null,
+      yearId: formValue.yearId || null,
+      durationInMinutes: formValue.durationInMinutes,
+      totalMarks: formValue.totalMarks,
+      passingMarks: formValue.passingMarks,
+      startTime: formValue.startTime,
+      endTime: formValue.endTime,
+      isPublished: publish,
+      questions: formValue.questions.map((q: any, index: number) => ({
+        questionText: q.questionText,
+        questionType: q.questionType,
+        marks: q.marks,
+        order: index + 1,
+        isMultipleSelect: q.questionType === 'MultipleSelect',
+        options: q.options?.map((opt: any, optIndex: number) => ({
+          optionText: opt.optionText,
+          isCorrect: opt.isCorrect,
+          order: optIndex + 1
+        })) || []
+      }))
     };
 
     console.log('💾 Saving Exam Data:', examData);
 
     if (this.isEditMode() && this.examId) {
       // ✅ UPDATE exam
-      this.examService.updateExam(this.examId, examData).subscribe({
+      this.examApi.updateExam(this.examId, examData).subscribe({
         next: (response) => {
           console.log('✅ Exam updated successfully:', response);
-          
+
           // Check if there are new questions to add
           const currentQuestionsCount = this.questions.length;
           if (currentQuestionsCount > this.originalQuestionsCount) {
@@ -570,9 +609,10 @@ export class CreateEditExamComponent implements OnInit {
       });
     } else {
       // ✅ CREATE new exam
-      this.examService.createExam(examData).subscribe({
+      this.examApi.createExam(examData).subscribe({
         next: (response) => {
           console.log('✅ Exam created successfully:', response);
+          this.examId = response.id; // Store the created exam ID
           this.completeExamSave();
         },
         error: (error) => {
@@ -642,16 +682,17 @@ export class CreateEditExamComponent implements OnInit {
         questionType: questionValue.questionType,
         marks: questionValue.marks,
         order: this.originalQuestionsCount + index + 1,
+        isMultipleSelect: questionValue.questionType === 'MultipleSelect',
         options: questionValue.options || []
       };
 
       console.log(`➕ Adding new question ${index + 1}:`, questionData);
 
-      this.examService.addQuestion(this.examId!, questionData).subscribe({
+      this.examApi.addQuestion(this.examId!, questionData).subscribe({
         next: (response: any) => {
           console.log(`✅ Question ${index + 1} added successfully`, response);
           addedCount++;
-          
+
           // If all questions added, complete the save
           if (addedCount === totalToAdd) {
             console.log('✅ All new questions added successfully');
@@ -673,7 +714,7 @@ export class CreateEditExamComponent implements OnInit {
   private completeExamSave(): void {
     this.saving.set(false);
     this.toastService.showSuccess('Exam saved successfully!');
-    
+
     // Wait a moment then navigate to reload the list
     const redirectPath = this.isAdminRoute ? '/admin/exams' : '/teacher/exams';
     setTimeout(() => {
