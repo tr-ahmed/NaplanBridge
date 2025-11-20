@@ -65,12 +65,19 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
 
   // Computed values
   currentQuestion = computed(() => {
+    // Try examSession first (after start), then fall back to exam
+    const session = this.examSession();
     const examData = this.exam();
+    const questions = session?.questions || examData?.questions;
     const index = this.currentQuestionIndex();
-    return examData?.questions?.[index] || null;
+    return questions?.[index] || null;
   });
 
-  totalQuestions = computed(() => this.exam()?.questions?.length || 0);
+  totalQuestions = computed(() => {
+    const session = this.examSession();
+    const examData = this.exam();
+    return (session?.questions?.length || examData?.questions?.length) || 0;
+  });
   answeredCount = computed(() => this.answers.size);
   progressPercentage = computed(() => {
     const total = this.totalQuestions();
