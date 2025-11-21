@@ -98,22 +98,10 @@ nav {
   border-radius: 0.5rem;
   overflow: hidden;
 
-  // Fullscreen mode styling
-  &:fullscreen,
-  &:-webkit-full-screen,
-  &:-moz-full-screen,
-  &:-ms-fullscreen {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    video {
-      width: 100% !important;
-      height: 100% !important;
-      max-width: 100vw !important;
-      max-height: 100vh !important;
-      object-fit: contain !important;
-    }
+  video {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 }
 

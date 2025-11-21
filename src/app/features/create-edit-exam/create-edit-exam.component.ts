@@ -228,7 +228,8 @@ export class CreateEditExamComponent implements OnInit {
    */
   private loadSubjects(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.subjectService.getSubjects().subscribe({
+      // Use getAllSubjects to get all subjects without pagination (for dropdown)
+      this.subjectService.getAllSubjects().subscribe({
         next: (response) => {
           this.subjects.set(response.items);
           console.log('✅ Subjects loaded:', response.items.length);

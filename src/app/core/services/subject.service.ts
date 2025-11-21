@@ -91,10 +91,10 @@ export class SubjectService {
       return of(mockResult as any).pipe(delay(500));
     }
 
-    // API call with pageSize=-1 to get all items
+    // API call with pageSize=1000 to get all items (safer than -1)
     const paginationParams = {
       page: 1,
-      pageSize: -1
+      pageSize: 1000
     };
 
     const additionalParams: any = {};
