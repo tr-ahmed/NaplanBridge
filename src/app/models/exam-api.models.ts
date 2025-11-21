@@ -101,8 +101,8 @@ export interface UpdateExamDto {
   durationInMinutes?: number;
   totalMarks?: number;
   passingMarks?: number;
-  startTime?: string;
-  endTime?: string;
+  startTime?: string | null;  // ✅ Can be null or undefined
+  endTime?: string | null;    // ✅ Can be null or undefined
   isPublished?: boolean;
 }
 
