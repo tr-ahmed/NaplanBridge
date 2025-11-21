@@ -1130,12 +1130,90 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.resourceFormOpen = false;
   }
 
-  async saveResource(): Promise<void> {
-    // Implementation here
+  async saveResource(data: { title: string; file: File }): Promise<void> {
+    if (!this.selectedLesson?.id) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No lesson selected',
+      });
+      return;
+    }
+
+    try {
+      Swal.fire({
+        title: 'Uploading Resource...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      await this.contentService.addResource(
+        data.title,
+        this.selectedLesson.id,
+        data.file
+      ).toPromise();
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Resource Uploaded',
+        text: 'Resource has been uploaded successfully.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+
+      this.closeResourceForm();
+      if (this.selectedLesson?.id) {
+        await this.loadLessonResources(this.selectedLesson.id);
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Upload Failed',
+        text: this.extractErrorMessage(error),
+      });
+    }
   }
 
   async deleteResource(resource: Resource): Promise<void> {
-    // Implementation here
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: `Delete resource "${resource.title}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        Swal.fire({
+          title: 'Deleting...',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        await this.contentService.deleteResource(resource.id).toPromise();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Resource has been deleted.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+
+        if (this.selectedLesson?.id) {
+          await this.loadLessonResources(this.selectedLesson.id);
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Delete Failed',
+          text: this.extractErrorMessage(error),
+        });
+      }
+    }
   }
 
   // ============================================

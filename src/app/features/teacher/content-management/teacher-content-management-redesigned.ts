@@ -1180,31 +1180,57 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   // Resource Management Helpers
   // ============================================
 
-  async saveResource(): Promise<void> {
+  async saveResource(data: { title: string; file: File }): Promise<void> {
+    if (!this.selectedLesson?.id) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No lesson selected',
+      });
+      return;
+    }
+
+    // Check if teacher has create permission for this lesson's subject
+    if (this.selectedLesson && !this.canCreateForSubject(this.selectedLesson.subjectId)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Permission Denied',
+        text: 'You do not have permission to add resources for this subject.',
+      });
+      return;
+    }
+
     try {
       Swal.fire({
-        title: 'Saving Resource...',
+        title: 'Uploading Resource...',
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
       });
 
-      // Implementation would call the appropriate service method
-      // This is a placeholder for the actual implementation
+      // capture id before awaiting so TypeScript knows it's a number
+      const lessonId = this.selectedLesson.id;
+
+      await this.contentService.addResource(
+        data.title,
+        lessonId,
+        data.file
+      ).toPromise();
       
       Swal.fire({
         icon: 'success',
-        title: 'Resource Saved',
-        text: 'Resource has been saved successfully.',
+        title: 'Resource Uploaded',
+        text: 'Resource has been uploaded successfully.',
+        timer: 2000,
+        showConfirmButton: false
       });
 
       this.closeResourceForm();
-      if (this.selectedLesson) {
-        await this.loadLessonResources(this.selectedLesson.id!);
-      }
+      // use captured lessonId to avoid narrowing loss across awaits
+      await this.loadLessonResources(lessonId);
     } catch (error) {
       Swal.fire({
         icon: 'error',
-        title: 'Save Failed',
+        title: 'Upload Failed',
         text: this.extractErrorMessage(error),
       });
     }
@@ -1223,7 +1249,7 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
 
     const result = await Swal.fire({
       title: 'Are you sure?',
-      text: 'This will delete the resource permanently',
+      text: `Delete resource "${resource.title}"?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -1233,17 +1259,24 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
 
     if (result.isConfirmed) {
       try {
-        // Implementation would call the appropriate service method
-        // This is a placeholder for the actual implementation
+        Swal.fire({
+          title: 'Deleting...',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        await this.contentService.deleteResource(resource.id).toPromise();
         
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
           text: 'Resource has been deleted.',
+          timer: 2000,
+          showConfirmButton: false
         });
 
-        if (this.selectedLesson) {
-          await this.loadLessonResources(this.selectedLesson.id!);
+        if (this.selectedLesson?.id) {
+          await this.loadLessonResources(this.selectedLesson.id);
         }
       } catch (error) {
         Swal.fire({
