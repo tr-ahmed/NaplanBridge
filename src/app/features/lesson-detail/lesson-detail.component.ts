@@ -557,6 +557,18 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   setActiveTab(tab: 'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker' | 'qa'): void {
     this.activeTab.set(tab);
+
+    // Re-initialize video player when switching back to video tab
+    if (tab === 'video') {
+      // Wait for Angular to render the video element
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        if (this.videoPlayerRef?.nativeElement) {
+          console.log('🔄 Re-initializing video player after tab switch');
+          this.initializeVideoPlayer();
+        }
+      }, 100);
+    }
   }
 
   /**
