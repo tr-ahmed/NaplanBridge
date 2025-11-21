@@ -279,7 +279,8 @@
                 @if (lesson()!.videoUrl) {
                   <video
                     #videoPlayer
-                    class="w-full aspect-video"
+                    class="w-full h-auto"
+                    style="max-height: 70vh; object-fit: contain;"
                     [poster]="getVideoPosterUrl()">
                   </video>
 
