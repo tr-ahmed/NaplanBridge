@@ -344,6 +344,20 @@ export class TeacherContentManagementService {
   }
 
   /**
+   * Delete lesson (shortcut)
+   */
+  deleteLesson(lessonId: number): Observable<void> {
+    console.log('🗑️ Deleting lesson:', lessonId);
+    return this.http.delete<void>(`${this.baseApiUrl}/Lessons/${lessonId}`)
+      .pipe(
+        catchError(error => {
+          console.error('❌ Error deleting lesson:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
    * Get approval history for a content item
    */
   getApprovalHistory(itemType: string, itemId: number): Observable<ApprovalHistoryDto[]> {
