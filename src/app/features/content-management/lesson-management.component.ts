@@ -172,7 +172,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.videoService.cleanup();
+    this.videoService.destroyPlayer();
   }
 
   // ============================================
