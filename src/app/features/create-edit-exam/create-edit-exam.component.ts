@@ -9,10 +9,12 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ExamApiService } from '../../core/services/exam-api.service';
 import { SubjectService } from '../../core/services/subject.service';
+import { CategoryService } from '../../core/services/category.service';
 import { AuthService } from '../../auth/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ExamType, QuestionType, CreateExamDto, CreateQuestionDto } from '../../models/exam-api.models';
 import { Subject } from '../../models/subject.models';
+import { Year } from '../../models/category.models';
 
 type FormStep = 'basic' | 'questions' | 'settings' | 'preview';
 
@@ -28,6 +30,7 @@ export class CreateEditExamComponent implements OnInit {
   private fb = inject(FormBuilder);
   private examApi = inject(ExamApiService);
   private subjectService = inject(SubjectService);
+  private categoryService = inject(CategoryService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
@@ -47,6 +50,7 @@ export class CreateEditExamComponent implements OnInit {
 
   // Data
   subjects = signal<Subject[]>([]);
+  years = signal<Year[]>([]);
   teacherId: number = 0;
 
   // Enums for template
@@ -68,6 +72,7 @@ export class CreateEditExamComponent implements OnInit {
 
       if (isTeacherOrAdmin) {
         this.loadSubjects();
+        this.loadYears();
         this.checkEditMode();
       } else {
         console.warn('⚠️ User is not a Teacher or Admin. Roles:', userRoles);
@@ -149,6 +154,21 @@ export class CreateEditExamComponent implements OnInit {
       error: (err: any) => {
         console.error('Failed to load subjects:', err);
         this.toastService.showError('Failed to load subjects');
+      }
+    });
+  }
+
+  /**
+   * Load academic years
+   */
+  private loadYears(): void {
+    this.categoryService.getYears().subscribe({
+      next: (years) => {
+        this.years.set(years);
+      },
+      error: (err: any) => {
+        console.error('Failed to load years:', err);
+        this.toastService.showError('Failed to load years');
       }
     });
   }
@@ -549,32 +569,45 @@ export class CreateEditExamComponent implements OnInit {
       return;
     }
 
+    // ✅ Validate required IDs before submitting
+    const formValue = this.examForm.value;
+    if (!formValue.subjectId) {
+      this.toastService.showError('Please select a subject');
+      this.currentStep.set('basic');
+      return;
+    }
+
+    if (!formValue.yearId) {
+      this.toastService.showError('Please select a year');
+      this.currentStep.set('basic');
+      return;
+    }
+
     this.saving.set(true);
     this.examForm.patchValue({ isPublished: publish });
 
-    const formValue = this.examForm.value;
-
     // Transform form data to match CreateExamDto structure
+    // ✅ Ensure all IDs are converted to numbers (handles both string and number inputs)
     const examData: CreateExamDto = {
       title: formValue.title,
       description: formValue.description || '',
       examType: formValue.examType,
-      subjectId: formValue.subjectId,
-      termId: formValue.termId || null,
-      lessonId: formValue.lessonId || null,
-      weekId: formValue.weekId || null,
-      yearId: formValue.yearId || null,
-      durationInMinutes: formValue.durationInMinutes,
-      totalMarks: formValue.totalMarks,
-      passingMarks: formValue.passingMarks,
-      // Convert datetime-local to ISO 8601 format or set to empty string
-      startTime: formValue.startTime ? new Date(formValue.startTime).toISOString() : '',
-      endTime: formValue.endTime ? new Date(formValue.endTime).toISOString() : '',
+      subjectId: Number(formValue.subjectId), // ✅ Convert to number
+      termId: formValue.termId ? Number(formValue.termId) : null,
+      lessonId: formValue.lessonId ? Number(formValue.lessonId) : null,
+      weekId: formValue.weekId ? Number(formValue.weekId) : null,
+      yearId: formValue.yearId ? Number(formValue.yearId) : null,
+      durationInMinutes: Number(formValue.durationInMinutes), // ✅ Convert to number
+      totalMarks: Number(formValue.totalMarks), // ✅ Convert to number
+      passingMarks: Number(formValue.passingMarks), // ✅ Convert to number
+      // ✅ Convert datetime-local to ISO 8601 format or set to null
+      startTime: formValue.startTime ? new Date(formValue.startTime).toISOString() : null,
+      endTime: formValue.endTime ? new Date(formValue.endTime).toISOString() : null,
       isPublished: publish,
       questions: formValue.questions.map((q: any, index: number) => ({
         questionText: q.questionText,
         questionType: q.questionType,
-        marks: q.marks,
+        marks: Number(q.marks), // ✅ Convert to number
         order: index + 1,
         isMultipleSelect: q.questionType === 'MultipleSelect',
         options: q.options?.map((opt: any, optIndex: number) => ({
@@ -583,7 +616,9 @@ export class CreateEditExamComponent implements OnInit {
           order: optIndex + 1
         })) || []
       }))
-    };    console.log('💾 Saving Exam Data:', examData);
+    };
+
+    console.log('💾 Saving Exam Data:', examData);
 
     if (this.isEditMode() && this.examId) {
       // ✅ UPDATE exam
@@ -603,7 +638,17 @@ export class CreateEditExamComponent implements OnInit {
         error: (error) => {
           console.error('❌ Error updating exam:', error);
           this.saving.set(false);
-          this.toastService.showError('Failed to update exam');
+
+          // ✅ Enhanced error handling
+          let errorMessage = 'Failed to update exam';
+
+          if (error.error?.message) {
+            errorMessage = error.error.message;
+          } else if (error.error?.error) {
+            errorMessage = error.error.error;
+          }
+
+          this.toastService.showError(errorMessage);
         }
       });
     } else {
@@ -617,7 +662,47 @@ export class CreateEditExamComponent implements OnInit {
         error: (error) => {
           console.error('❌ Error creating exam:', error);
           this.saving.set(false);
-          this.toastService.showError('Failed to create exam');
+
+          // ✅ Enhanced error handling with detailed messages
+          let errorMessage = 'Failed to create exam';
+
+          if (error.error) {
+            // Check for specific error messages from backend
+            if (error.error.message) {
+              errorMessage = error.error.message;
+            } else if (error.error.error) {
+              errorMessage = error.error.error;
+            } else if (typeof error.error === 'string') {
+              errorMessage = error.error;
+            }
+
+            // Handle validation errors
+            if (error.error.errors) {
+              const validationErrors = Object.values(error.error.errors).flat();
+              if (validationErrors.length > 0) {
+                errorMessage = validationErrors.join(', ');
+              }
+            }
+          }
+
+          // Show specific error messages
+          if (errorMessage.includes('Subject') && errorMessage.includes('does not exist')) {
+            this.toastService.showError('Invalid subject selected. Please choose a valid subject.');
+            this.currentStep.set('basic');
+          } else if (errorMessage.includes('Term') && errorMessage.includes('does not exist')) {
+            this.toastService.showError('Invalid term selected. Please choose a valid term or leave empty.');
+            this.currentStep.set('basic');
+          } else if (errorMessage.includes('Lesson') && errorMessage.includes('does not exist')) {
+            this.toastService.showError('Invalid lesson selected. Please choose a valid lesson or leave empty.');
+            this.currentStep.set('basic');
+          } else if (errorMessage.includes('DateTime')) {
+            this.toastService.showError('Invalid date/time format. Please check start and end times.');
+            this.currentStep.set('settings');
+          } else {
+            this.toastService.showError(errorMessage);
+          }
+
+          console.error('📋 Full error details:', error);
         }
       });
     }

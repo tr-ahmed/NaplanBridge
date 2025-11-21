@@ -74,8 +74,8 @@ export interface CreateExamDto {
   durationInMinutes: number;
   totalMarks: number;
   passingMarks: number;
-  startTime: string;
-  endTime: string;
+  startTime: string | null;  // ✅ Can be null for exams without time restrictions
+  endTime: string | null;    // ✅ Can be null for exams without time restrictions
   isPublished: boolean;
   questions: CreateQuestionDto[];
 }
