@@ -41,7 +41,7 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
   profile = signal<UserProfile | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
-  activeTab = signal<'profile' | 'password' | 'privacy'>('profile');
+  activeTab = signal<'profile' | 'password'>('profile');
 
   // Forms
   profileForm!: FormGroup;
@@ -273,73 +273,120 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
   /**
    * Update profile
    */
-  updateProfile(): void {
+  async updateProfile(): Promise<void> {
     if (this.profileForm.invalid) {
       this.profileForm.markAllAsTouched();
       return;
     }
 
     this.loading.set(true);
+    let avatarUrl: string | null = null;
 
-    const updateData = {
-      userName: this.profileForm.value.userName,
-      email: this.profileForm.value.email,
-      age: this.profileForm.value.age,
-      phoneNumber: this.profileForm.value.phoneNumber || null
-    };
-
-    // Call API to update profile
-    this.http.put(`${environment.apiBaseUrl}/Account/update-profile`, updateData, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      })
-    }).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (response: any) => {
-        this.loading.set(false);
-
-        // Update local profile
-        const currentProfile = this.profile();
-        if (currentProfile) {
-          this.profile.set({
-            ...currentProfile,
-            ...updateData
-          });
-        }
-
-        // Update localStorage
-        localStorage.setItem('userName', updateData.userName);
-        localStorage.setItem('email', updateData.email);
-
+    try {
+      // Step 1: Upload avatar if selected
+      if (this.selectedFile) {
         Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: 'Profile updated successfully',
-          confirmButtonColor: '#667eea',
-          timer: 2000
+          title: 'Uploading Image',
+          html: 'Please wait...',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
         });
-      },
-      error: (err) => {
-        this.loading.set(false);
-        console.error('Error updating profile:', err);
 
-        let errorMessage = 'Failed to update profile. Please try again.';
-        if (err.status === 400) {
-          errorMessage = err.error?.message || 'Invalid profile data';
-        } else if (err.status === 401) {
-          errorMessage = 'Session expired. Please login again.';
-          this.router.navigate(['/auth/login']);
-          return;
+        const formData = new FormData();
+        formData.append('file', this.selectedFile);
+        formData.append('folder', 'profiles');
+
+        const uploadResponse: any = await this.http.post(
+          `${environment.apiBaseUrl}/Media/upload-image`,
+          formData,
+          {
+            headers: new HttpHeaders({
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            })
+          }
+        ).toPromise();
+
+        if (uploadResponse?.url) {
+          avatarUrl = uploadResponse.url;
         }
 
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: errorMessage,
-          confirmButtonColor: '#667eea'
+        Swal.close();
+      }
+
+      // Step 2: Update profile with avatar URL
+      const updateData: any = {
+        userName: this.profileForm.value.userName,
+        email: this.profileForm.value.email,
+        age: this.profileForm.value.age,
+        phoneNumber: this.profileForm.value.phoneNumber || null
+      };
+
+      // Add avatar URL if available
+      if (avatarUrl) {
+        updateData.avatarUrl = avatarUrl;
+      }
+
+      const response: any = await this.http.put(
+        `${environment.apiBaseUrl}/Account/update-profile`,
+        updateData,
+        {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          })
+        }
+      ).toPromise();
+
+      this.loading.set(false);
+
+      // Update local profile
+      const currentProfile = this.profile();
+      if (currentProfile) {
+        this.profile.set({
+          ...currentProfile,
+          ...updateData,
+          avatar: avatarUrl || currentProfile.avatar
         });
       }
-    });
+
+      // Update localStorage
+      localStorage.setItem('userName', updateData.userName);
+      localStorage.setItem('email', updateData.email);
+
+      // Clear selected file and preview
+      this.selectedFile = null;
+      this.imagePreview = null;
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Profile updated successfully',
+        confirmButtonColor: '#667eea',
+        timer: 2000
+      });
+
+    } catch (err: any) {
+      this.loading.set(false);
+      console.error('Error updating profile:', err);
+
+      let errorMessage = 'Failed to update profile. Please try again.';
+      if (err.status === 400) {
+        errorMessage = err.error?.message || 'Invalid profile data';
+      } else if (err.status === 401) {
+        errorMessage = 'Session expired. Please login again.';
+        this.router.navigate(['/auth/login']);
+        return;
+      }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMessage,
+        confirmButtonColor: '#667eea'
+      });
+    }
   }
 
   /**
@@ -401,82 +448,9 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Delete account
-   */
-  deleteAccount(): void {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Delete Account',
-      text: 'Are you sure? This action cannot be undone!',
-      input: 'password',
-      inputPlaceholder: 'Enter your password to confirm',
-      showCancelButton: true,
-      confirmButtonText: 'Delete Account',
-      confirmButtonColor: '#dc2626',
-      cancelButtonText: 'Cancel'
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        this.loading.set(true);
-
-        const deleteData = {
-          currentPassword: result.value
-        };
-
-        // Call API to delete account
-        this.http.post(`${environment.apiBaseUrl}/api/Account/delete-account`, deleteData, {
-          headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          })
-        }).pipe(takeUntil(this.destroy$)).subscribe({
-          next: (response: any) => {
-            this.loading.set(false);
-
-            // Clear auth data
-            localStorage.removeItem('token');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('userName');
-            localStorage.removeItem('email');
-            localStorage.removeItem('userRole');
-
-            Swal.fire({
-              icon: 'success',
-              title: 'Account Deleted',
-              text: 'Your account has been deleted successfully',
-              confirmButtonColor: '#667eea'
-            }).then(() => {
-              this.router.navigate(['/']);
-            });
-          },
-          error: (err) => {
-            this.loading.set(false);
-            console.error('Error deleting account:', err);
-
-            let errorMessage = 'Failed to delete account. Please try again.';
-            if (err.status === 400) {
-              errorMessage = err.error?.message || 'Invalid password';
-            } else if (err.status === 401) {
-              errorMessage = 'Session expired. Please login again.';
-              this.router.navigate(['/auth/login']);
-              return;
-            }
-
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: errorMessage,
-              confirmButtonColor: '#667eea'
-            });
-          }
-        });
-      }
-    });
-  }
-
-  /**
    * Switch tab
    */
-  switchTab(tab: 'profile' | 'password' | 'privacy'): void {
+  switchTab(tab: 'profile' | 'password'): void {
     this.activeTab.set(tab);
   }
 
