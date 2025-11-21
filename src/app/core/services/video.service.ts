@@ -68,7 +68,7 @@ export class VideoService {
       this.initializeStandardPlayer(config);
     }
 
-    this.setupEventListeners();
+    // ✅ Event listeners are now set up inside initializePlyr() after player creation
   }
 
   /**
@@ -235,6 +235,8 @@ export class VideoService {
   private initializePlyr(config: VideoPlayerConfig): void {
     if (!this.videoElement) return;
 
+    console.log('🎥 Initializing Plyr player...');
+
     const controls = config.controls || [
       'play-large',
       'play',
@@ -261,10 +263,18 @@ export class VideoService {
       speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
     });
 
+    console.log('✅ Plyr player created, setting up event listeners...');
+
+    // ✅ Setup event listeners AFTER player is created
+    this.setupEventListeners();
+
     // Resume from last watched position
     if (config.startTime && config.startTime > 0 && this.player) {
       this.player.currentTime = config.startTime;
+      console.log('⏯️ Resuming from:', config.startTime, 'seconds');
     }
+
+    console.log('✅ Video player fully initialized!');
   }
 
   // ============================================
