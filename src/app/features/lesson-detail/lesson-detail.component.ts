@@ -588,7 +588,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       provider: provider,
       videoUrl: lessonData.videoUrl,
       isHLS: lessonData.videoUrl?.includes('.m3u8'),
-      config: playerConfig
+      config: playerConfig,
+      videoPlayerRef: this.videoPlayerRef,
+      nativeElement: this.videoPlayerRef.nativeElement
     });
 
     this.videoService.initializePlayer(
