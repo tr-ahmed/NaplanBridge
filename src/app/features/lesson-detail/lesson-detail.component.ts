@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal, computed }
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ToastService } from '../../core/services/toast.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -163,7 +164,8 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     private contentService: ContentService,
     private authService: AuthService,
     private videoService: VideoService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private toastService: ToastService
   ) {
     this.noteForm = this.fb.group({
       content: ['', [Validators.required, Validators.minLength(10)]]
@@ -552,7 +554,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   private initializeVideoPlayer(): void {
     const lessonData = this.lesson();
     if (!lessonData || !lessonData.videoUrl || !this.videoPlayerRef) {
-      console.log('Video player not ready:', { lesson: lessonData, hasRef: !!this.videoPlayerRef });
+      console.log('❌ Video player not ready:', { lesson: lessonData, hasRef: !!this.videoPlayerRef });
       return;
     }
 
@@ -560,17 +562,26 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     const startTime = studentLessonData?.progress?.currentPosition || 0;
     const currentUser = this.authService.getCurrentUser();
 
+    // ✅ Force BunnyStream provider for HLS support
+    const provider = lessonData.videoProvider || 'BunnyStream';
+
     // Build player configuration
     const playerConfig: any = {
       videoUrl: lessonData.videoUrl,
       posterUrl: lessonData.posterUrl,
-      provider: lessonData.videoProvider || 'BunnyStream',
+      provider: provider,
       startTime: startTime,
       autoplay: false,
       muted: false
     };
 
-    console.log('🎬 Initializing video player:', playerConfig);
+    console.log('🎬 Initializing video player with HLS support:', {
+      lessonId: lessonData.id,
+      provider: provider,
+      videoUrl: lessonData.videoUrl,
+      isHLS: lessonData.videoUrl?.includes('.m3u8'),
+      config: playerConfig
+    });
 
     this.videoService.initializePlayer(
       playerConfig,
@@ -676,7 +687,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       console.log('Saving lesson settings:', currentLesson);
 
       // Show success message (you can replace with a proper toast service)
-      alert('Lesson settings saved successfully!');
+      this.toastService.showSuccess('Lesson settings saved successfully!');
     }
   }
 
@@ -888,7 +899,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       this.isAskingQuestion.set(false);
 
       // Show success message
-      alert('Your question has been sent to the teacher. You will be notified when they respond.');
+      this.toastService.showSuccess('Your question has been sent to the teacher. You will be notified when they respond.');
     }
   }
 
@@ -1012,7 +1023,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       this.videoChapters.set([...currentChapters, newChapter].sort((a, b) => a.startTime - b.startTime));
 
       this.chapterForm.reset();
-      alert('Chapter added successfully!');
+      this.toastService.showSuccess('Chapter added successfully!');
     }
   }
 
@@ -1035,10 +1046,10 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
    * Delete video chapter
    */
   deleteChapter(chapterId: number): void {
-    if (this.canEditContent() && confirm('Are you sure you want to delete this chapter?')) {
+    if (this.canEditContent()) {
       const currentChapters = this.videoChapters();
       this.videoChapters.set(currentChapters.filter(chapter => chapter.id !== chapterId));
-      alert('Chapter deleted successfully!');
+      this.toastService.showSuccess('Chapter deleted successfully!');
     }
   }
 
@@ -1146,7 +1157,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       }
 
       this.cancelQuizCreation();
-      alert('Quiz saved successfully!');
+      this.toastService.showSuccess('Quiz saved successfully!');
     }
   }
 
@@ -1172,10 +1183,10 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
    * Delete quiz
    */
   deleteQuiz(quizId: number): void {
-    if (this.canEditContent() && confirm('Are you sure you want to delete this quiz?')) {
+    if (this.canEditContent()) {
       const currentQuizzes = this.quizMakers();
       this.quizMakers.set(currentQuizzes.filter(q => q.id !== quizId));
-      alert('Quiz deleted successfully!');
+      this.toastService.showSuccess('Quiz deleted successfully!');
     }
   }
 

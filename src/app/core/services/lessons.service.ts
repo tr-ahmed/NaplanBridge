@@ -316,21 +316,19 @@ export class LessonsService {
     this.error.set(null);
 
     const endpoint = ApiNodes.getLessonsByTermNumberWithProgress;
-    let url = `${this.baseUrl}${endpoint.url
-      .replace(':subjectId', subjectId.toString())
-      .replace(':termNumber', termNumber.toString())}`;
 
-    // ✅ Add studentId to URL only if provided
-    if (studentId) {
-      url = url.replace(':studentId?', studentId.toString());
-    } else {
-      url = url.replace('/:studentId?', '');
-    }
+    // ✅ Build URL with required studentId parameter
+    // Note: Backend requires studentId in path, even for preview mode
+    const finalStudentId = studentId || 0; // Use 0 for guest/preview mode
+
+    const url = `${this.baseUrl}${endpoint.url
+      .replace(':subjectId', subjectId.toString())
+      .replace(':termNumber', termNumber.toString())}/${finalStudentId}`;
 
     console.log('📚 Fetching term number lessons with progress:', {
       subjectId,
       termNumber,
-      studentId,
+      studentId: finalStudentId,
       isGuest: !studentId,
       url
     });

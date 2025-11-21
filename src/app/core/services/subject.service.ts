@@ -69,6 +69,48 @@ export class SubjectService {
   }
 
   /**
+   * Get all subjects without pagination (for dropdowns, forms, etc.)
+   * Endpoint: GET /api/subjects?pageSize=-1
+   * Use this when you need all subjects at once
+   */
+  getAllSubjects(params?: { categoryId?: number; yearId?: number; searchTerm?: string }): Observable<PagedResult<Subject>> {
+    // Mock data
+    const mockSubjects = this.mockData.getMockSubjects();
+    const mockResult: PagedResult<any> = {
+      items: mockSubjects as any,
+      totalCount: mockSubjects.length,
+      page: 1,
+      pageSize: -1,
+      totalPages: 1,
+      hasPrevious: false,
+      hasNext: false
+    };
+
+    // If mock mode enabled
+    if (environment.useMock) {
+      return of(mockResult as any).pipe(delay(500));
+    }
+
+    // API call with pageSize=-1 to get all items
+    const paginationParams = {
+      page: 1,
+      pageSize: -1
+    };
+
+    const additionalParams: any = {};
+    if (params?.categoryId) additionalParams.categoryId = params.categoryId;
+    if (params?.yearId) additionalParams.yearId = params.yearId;
+    if (params?.searchTerm) additionalParams.searchTerm = params.searchTerm;
+
+    return this.mockData.withMockFallback(
+      this.api.getPaginated<Subject>('subjects', paginationParams, additionalParams).pipe(
+        timeout(environment.apiTimeout || 10000)
+      ),
+      mockResult
+    );
+  }
+
+  /**
    * Get subject by ID
    * Endpoint: GET /api/subjects/{id}
    */

@@ -50,11 +50,21 @@ export class VideoService {
     this.currentLessonId = lessonId;
     this.destroyPlayer(); // Clean up existing player
 
+    console.log('🎥 VideoService: Initializing player', {
+      provider: config.provider,
+      videoUrl: config.videoUrl,
+      isHLS: config.videoUrl?.includes('.m3u8'),
+      lessonId
+    });
+
     if (config.provider === 'Mux') {
+      console.log('🎥 Using Mux player');
       this.initializeMuxPlayer(config);
     } else if (config.provider === 'BunnyStream') {
+      console.log('🎥 Using BunnyStream player (HLS)');
       this.initializeBunnyStreamPlayer(config);
     } else {
+      console.log('🎥 Using standard player');
       this.initializeStandardPlayer(config);
     }
 
@@ -145,8 +155,16 @@ export class VideoService {
   private initializeBunnyStreamPlayer(config: VideoPlayerConfig): void {
     if (!this.videoElement) return;
 
+    console.log('🎥 BunnyStream: Checking HLS support...', {
+      'HLS.isSupported()': Hls.isSupported(),
+      'Native HLS support': this.videoElement.canPlayType('application/vnd.apple.mpegurl'),
+      'Video URL': config.videoUrl
+    });
+
     if (Hls.isSupported()) {
       // HLS.js for browsers that don't natively support HLS
+      console.log('✅ HLS.js is supported, initializing...');
+
       this.hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
@@ -157,22 +175,31 @@ export class VideoService {
       this.hls.attachMedia(this.videoElement);
 
       this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        console.log('✅ HLS manifest parsed successfully');
         this.initializePlyr(config);
       });
 
       this.hls.on(Hls.Events.ERROR, (event, data) => {
+        console.error('❌ HLS Error:', {
+          type: data.type,
+          details: data.details,
+          fatal: data.fatal,
+          event,
+          data
+        });
+
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              console.error('Network error, trying to recover');
+              console.error('❌ Network error, trying to recover');
               this.hls?.startLoad();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              console.error('Media error, trying to recover');
+              console.error('❌ Media error, trying to recover');
               this.hls?.recoverMediaError();
               break;
             default:
-              console.error('Fatal error, cannot recover');
+              console.error('❌ Fatal error, cannot recover');
               this.destroyPlayer();
               break;
           }
@@ -180,8 +207,11 @@ export class VideoService {
       });
     } else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
       // Native HLS support (Safari)
+      console.log('✅ Native HLS support detected (Safari)');
       this.videoElement.src = config.videoUrl;
       this.initializePlyr(config);
+    } else {
+      console.error('❌ No HLS support available!');
     }
   }
 

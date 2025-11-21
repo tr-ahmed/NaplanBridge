@@ -28,13 +28,13 @@ export class FooterComponent {
     rightColumn: [
       { label: 'FAQs', route: '/faq' },
       { label: 'Contact Us', route: '/contact' },
-      { label: 'Privacy Policy', route: '/privacy' },
-      { label: 'Terms of Use', route: '/terms' },
-      { label: 'Cookie Policy', route: '/cookies' }
+      { label: 'Privacy Policy', route: '/privacy-policy' },
+      { label: 'Terms of Use', route: '/terms-of-use' },
+      { label: 'Cookie Policy', route: '/cookie-policy' }
     ]
   };
 
-  
+
   constructor(
     public router: Router,
   ) {}
@@ -50,13 +50,13 @@ export class FooterComponent {
   ];
 
 isAdminDashboard(): boolean {
-  return this.router.url.startsWith('/admin/users') 
+  return this.router.url.startsWith('/admin/users')
       || this.router.url.startsWith('/admin/content')
 
        || this.router.url.startsWith('/admin/subscriptions');
-      
+
 }
 
 
-  
+
 }
