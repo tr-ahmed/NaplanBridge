@@ -11,6 +11,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 import { ProfileService, UserProfile } from '../../core/services/profile.service';
+import { ChangePasswordDto } from '../../models/user.models';
 import Swal from 'sweetalert2';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -496,9 +497,10 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
 
     this.loading.set(true);
 
-    const passwordData = {
+    const passwordData: ChangePasswordDto = {
       currentPassword: this.passwordForm.value.currentPassword,
-      newPassword: this.passwordForm.value.newPassword
+      newPassword: this.passwordForm.value.newPassword,
+      confirmPassword: this.passwordForm.value.confirmPassword
     };
 
     // Call API to change password
