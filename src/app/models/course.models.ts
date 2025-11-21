@@ -64,6 +64,11 @@ export interface CourseFilter {
   categoryId?: number;
   termIds?: number[];
   weekIds?: number[];
+  // Pagination
+  page?: number;
+  pageSize?: number;
+  // Search
+  search?: string;
 }
 
 /**

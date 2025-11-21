@@ -274,7 +274,7 @@ export class SubscriptionManagementComponent implements OnInit {
   }
 
   private loadSubjects() {
-    return this.http.get<SubjectDto[]>(`${this.apiBaseUrl}/Subjects`)
+    return this.http.get<SubjectDto[]>(`${this.apiBaseUrl}/Subjects?pageSize=-1`)
       .pipe(catchError(() => of([])));
   }
 

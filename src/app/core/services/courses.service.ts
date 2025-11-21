@@ -8,6 +8,13 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
 import { ToastService } from './toast.service';
 
+export interface CoursesResponse {
+  courses: Course[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -53,7 +60,7 @@ export class CoursesService {
   /**
    * Get all courses with optional filtering
    */
-  getCourses(filter?: CourseFilter): Observable<Course[]> {
+  getCourses(filter?: CourseFilter): Observable<CoursesResponse> {
     this.loading.set(true);
     this.error.set(null);
 
@@ -61,15 +68,21 @@ export class CoursesService {
     const url = `${this.baseUrl}${endpoint.url}`;
 
     if (this.useMock) {
-      return of(this.filterCourses(endpoint.mockData, filter)).pipe(
+      const filteredCourses = this.filterCourses(endpoint.mockData, filter);
+      return of({
+        courses: filteredCourses,
+        totalCount: filteredCourses.length,
+        page: 1,
+        pageSize: 15
+      }).pipe(
         tap(() => this.loading.set(false))
       );
     }
 
-    // Build query params with pagination - request large page size to get all items
+    // Build query params with pagination
     const params: any = {
-      Page: 1,
-      PageSize: 1000 // Get all subjects
+      Page: filter?.page || 1,
+      PageSize: filter?.pageSize || 15
     };
 
     // Add optional filters
@@ -79,27 +92,42 @@ export class CoursesService {
     if (filter?.yearId) {
       params.yearId = filter.yearId;
     }
+    if (filter?.search && filter.search.trim()) {
+      params.search = filter.search.trim();
+    }
 
     return this.http.get<any>(url, { params }).pipe(
       map(response => {
         // Handle both paginated response and direct array
         const courses = response.items || response.data || response;
+        const totalCount = response.totalCount || courses.length;
         console.log('📦 API Response:', {
           type: response.items ? 'Paginated' : 'Direct Array',
-          totalCount: response.totalCount || courses.length,
+          totalCount: totalCount,
           receivedCount: courses.length,
-          page: response.page,
-          pageSize: response.pageSize,
+          page: response.page || params.Page,
+          pageSize: response.pageSize || params.PageSize,
           params: params
         });
-        return this.filterCourses(courses, filter);
+        return {
+          courses: this.filterCourses(courses, filter),
+          totalCount: totalCount,
+          page: response.page || params.Page,
+          pageSize: response.pageSize || params.PageSize
+        };
       }),
       tap(() => this.loading.set(false)),
       catchError((error: HttpErrorResponse) => {
         console.warn('API call failed, using mock data:', error);
         this.error.set('Failed to load courses, showing offline data');
         this.loading.set(false);
-        return of(this.filterCourses(endpoint.mockData, filter));
+        const filteredCourses = this.filterCourses(endpoint.mockData, filter);
+        return of({
+          courses: filteredCourses,
+          totalCount: filteredCourses.length,
+          page: 1,
+          pageSize: 15
+        });
       })
     );
   }
@@ -137,7 +165,9 @@ export class CoursesService {
    * Get courses by category
    */
   getCoursesByCategory(category: string): Observable<Course[]> {
-    return this.getCourses({ category });
+    return this.getCourses({ category }).pipe(
+      map(response => response.courses)
+    );
   }
 
   /**

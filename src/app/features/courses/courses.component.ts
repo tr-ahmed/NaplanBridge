@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, debounceTime } from 'rxjs/operators';
 
 import { Course, CourseFilter, Cart } from '../../models/course.models';
 import { CoursesService, LessonWithProgress } from '../../core/services/courses.service';
@@ -27,6 +27,7 @@ import { environment } from '../../../environments/environment';
 })
 export class CoursesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private searchSubject$ = new Subject<string>();
 
   // State signals
   courses = signal<Course[]>([]);
@@ -48,7 +49,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
   selectedCategory = signal<string>('');
   searchQuery = signal<string>('');
   currentPage = signal<number>(1);
-  itemsPerPage = 9;
+  itemsPerPage = 15; // Match API pageSize
+  totalCount = signal<number>(0); // Total count from API
 
   // Filter and pagination options
   terms = [0, 1, 2, 3, 4]; // 0 = All Terms
@@ -75,14 +77,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   // Computed values
   totalPages = computed(() =>
-    Math.ceil(this.filteredCourses().length / this.itemsPerPage)
+    Math.ceil(this.totalCount() / this.itemsPerPage)
   );
 
-  paginatedCourses = computed(() => {
-    const start = (this.currentPage() - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    return this.filteredCourses().slice(start, end);
-  });
+  // Since API handles pagination, paginatedCourses is same as filteredCourses
+  paginatedCourses = computed(() => this.filteredCourses());
 
   cartItemCount = computed(() => this.cart().totalItems);
 
@@ -115,6 +114,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
     this.loadStudentSubscriptions(); // Load enrollment status
     this.subscribeToCart();
     this.subscribeToPlanModal();
+    this.subscribeToSearch(); // Subscribe to search with debounce
     this.handleQueryParameters();
     this.loadCourses();
   }
@@ -295,6 +295,21 @@ export class CoursesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Subscribe to search with debounce
+   */
+  private subscribeToSearch(): void {
+    this.searchSubject$
+      .pipe(
+        debounceTime(500), // Wait 500ms after user stops typing
+        takeUntil(this.destroy$)
+      )
+      .subscribe(query => {
+        this.currentPage.set(1); // Reset to first page when searching
+        this.loadCourses(); // Reload from API with search query
+      });
+  }
+
+  /**
    * Handle query parameters for filtering
    */
   private handleQueryParameters(): void {
@@ -357,16 +372,20 @@ export class CoursesComponent implements OnInit, OnDestroy {
       term: this.selectedTerm() > 0 ? this.selectedTerm() : undefined,
       subject: this.selectedSubject() || undefined,
       level: this.selectedLevel() || undefined,
-      category: this.selectedCategory() || undefined
+      category: this.selectedCategory() || undefined,
+      page: this.currentPage(),
+      pageSize: this.itemsPerPage,
+      search: this.searchQuery() || undefined
     };
 
     this.logger.log('🔍 Loading courses with filter:', filter);
 
     this.coursesService.getCourses(filter)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(courses => {
-        this.logger.log('📚 Received courses from API:', courses.length, courses);
-        this.courses.set(courses);
+      .subscribe(response => {
+        this.logger.log('📚 Received courses from API:', response.courses.length, response);
+        this.courses.set(response.courses);
+        this.totalCount.set(response.totalCount);
         this.applyFilters();
       });
   }
@@ -402,25 +421,13 @@ export class CoursesComponent implements OnInit, OnDestroy {
       this.logger.log('📅 After year filter:', filtered.length, 'courses for Year ID:', this.selectedYearId());
     }
 
-    // Apply search filter
-    if (this.searchQuery().trim()) {
-      const query = this.searchQuery().toLowerCase().trim();
-      filtered = filtered.filter(course =>
-        (course.name || course.subjectName)?.toLowerCase().includes(query) ||
-        (course.description || '')?.toLowerCase().includes(query) ||
-        (course.instructor || '')?.toLowerCase().includes(query) ||
-        (course.tags || []).some(tag => tag?.toLowerCase().includes(query)) ||
-        course.subjectName?.toLowerCase().includes(query) ||
-        course.categoryName?.toLowerCase().includes(query)
-      );
-      this.logger.log('🔍 After search filter:', filtered.length);
-    }
+    // Note: Search is now handled by API, not frontend filtering
 
     this.logger.log('✅ Final filtered courses:', filtered.length);
     this.logger.log('📄 Current page:', this.currentPage(), '| Items per page:', this.itemsPerPage);
 
     this.filteredCourses.set(filtered);
-    this.currentPage.set(1); // Reset to first page when filters change
+    // Don't reset page here as it's handled in specific filter methods
   }
 
   /**
@@ -455,8 +462,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
   }
 
   onSearchChange(query: string): void {
-    this.searchQuery.set(query);
-    this.applyFilters();
+    // Trim the query to handle spaces
+    const trimmedQuery = query.trim();
+    this.searchQuery.set(trimmedQuery);
+    // Trigger the debounced search
+    this.searchSubject$.next(trimmedQuery);
   }
 
   /**
@@ -477,18 +487,21 @@ export class CoursesComponent implements OnInit, OnDestroy {
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages()) {
       this.currentPage.set(page);
+      this.loadCourses(); // Reload courses from API with new page
     }
   }
 
   previousPage(): void {
     if (this.currentPage() > 1) {
       this.currentPage.set(this.currentPage() - 1);
+      this.loadCourses(); // Reload courses from API with new page
     }
   }
 
   nextPage(): void {
     if (this.currentPage() < this.totalPages()) {
       this.currentPage.set(this.currentPage() + 1);
+      this.loadCourses(); // Reload courses from API with new page
     }
   }
 
@@ -672,35 +685,19 @@ export class CoursesComponent implements OnInit, OnDestroy {
         studentId = this.selectedStudentId() || undefined;
 
         if (!studentId) {
-          // Try auto-select if only one student in same year
-          const courseYearId = course.yearId;
+          // ✅ ALWAYS ask parent to select student (even if only one available)
           const allParentStudents = this.parentStudents();
 
-          // ✅ Map yearId (database ID) to actual year number
-          // yearId: 1 → Year 7, yearId: 2 → Year 8, yearId: 3 → Year 9
-          const courseYearNumber = courseYearId + 6; // 1→7, 2→8, 3→9
-
-          // ✅ Compare using yearNumber instead of yearId
-          const studentsInSameYear = allParentStudents.filter(s => s.yearId === courseYearNumber);
-
-          if (studentsInSameYear.length === 1) {
-            // ✅ Only one student in same year - auto-select
-            studentId = studentsInSameYear[0].id;
-            this.selectedStudentId.set(studentId || null);
-            this.logger.log('✅ Auto-selected student for cart:', studentsInSameYear[0].name);
-          } else if (studentsInSameYear.length > 1) {
-            // ⚠️ Multiple students in same year - ask parent to select
-            this.logger.log('⚠️ Multiple students in same year, need manual selection');
-            this.showStudentSelectionModal(studentsInSameYear, planId, course);
-            return;  // Exit early - will continue after selection
-          } else if (studentsInSameYear.length === 0) {
-            // Use any available student
-            const allStudents = this.parentStudents();
-            if (allStudents.length > 0) {
-              studentId = allStudents[0].id;
-              this.logger.log('✅ Using first available student for cart:', allStudents[0].name);
-            }
+          if (allParentStudents.length === 0) {
+            this.logger.log('❌ No students found for parent');
+            this.toastService.showError('No students found. Please add a student first.');
+            return;
           }
+
+          // ✅ Show student selector modal for parent to choose
+          this.logger.log('👨‍👩‍👧‍👦 Parent has', allParentStudents.length, 'student(s) - showing selector');
+          this.showStudentSelectionModal(allParentStudents, planId, course);
+          return;  // Exit early - will continue after selection
         }
       } else {
         // ❌ User is not Student or Parent - cannot add to cart

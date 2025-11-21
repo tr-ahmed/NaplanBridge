@@ -356,7 +356,7 @@
   }
 
   <!-- Pagination -->
-  @if (!loading() && filteredCourses().length > itemsPerPage) {
+  @if (!loading() && totalCount() > itemsPerPage) {
     <div class="flex items-center justify-center gap-2 mt-8 mb-4">
       <!-- Previous Button -->
       <button
