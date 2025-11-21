@@ -498,7 +498,7 @@
 <app-resource-form-modal
   [(isOpen)]="resourceFormOpen"
   [formData]="resourceForm"
-  (save)="saveResource()"
+  (save)="saveResource($event)"
   (cancel)="closeResourceForm()">
 </app-resource-form-modal>
 
