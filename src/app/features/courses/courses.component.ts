@@ -375,7 +375,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
       category: this.selectedCategory() || undefined,
       page: this.currentPage(),
       pageSize: this.itemsPerPage,
-      search: this.searchQuery() || undefined
+      search: this.searchQuery() || undefined, // ✅ Backend now supports searchTerm
+      yearId: this.selectedYearId() || undefined
     };
 
     this.logger.log('🔍 Loading courses with filter:', filter);
@@ -401,12 +402,19 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   /**
    * Apply filters to courses
+   *
+   * ✅ UPDATE (Nov 21, 2025): Backend now supports searchTerm parameter
+   * - Search is now handled server-side by the API
+   * - yearId, categoryId, and searchTerm are all API-filtered
+   * - This method now just assigns API results to filteredCourses
    */
   applyFilters(): void {
-    let filtered = [...this.courses()];
+    // Since API handles all filtering (search, yearId, categoryId),
+    // we just use the courses as-is from the API response
+    const filtered = [...this.courses()];
 
-    this.logger.log('🔎 Applying filters to', filtered.length, 'courses');
-    this.logger.log('📊 Current filters:', {
+    this.logger.log('✅ Using API-filtered courses:', filtered.length);
+    this.logger.log('📊 Active filters:', {
       term: this.selectedTerm(),
       subject: this.selectedSubject(),
       level: this.selectedLevel(),
@@ -415,19 +423,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       yearId: this.selectedYearId()
     });
 
-    // Apply year filter (important for students)
-    if (this.selectedYearId()) {
-      filtered = filtered.filter(course => course.yearId === this.selectedYearId());
-      this.logger.log('📅 After year filter:', filtered.length, 'courses for Year ID:', this.selectedYearId());
-    }
-
-    // Note: Search is now handled by API, not frontend filtering
-
-    this.logger.log('✅ Final filtered courses:', filtered.length);
-    this.logger.log('📄 Current page:', this.currentPage(), '| Items per page:', this.itemsPerPage);
-
     this.filteredCourses.set(filtered);
-    // Don't reset page here as it's handled in specific filter methods
   }
 
   /**
@@ -435,7 +431,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
    */
   onYearChange(yearId: number | null): void {
     this.selectedYearId.set(yearId);
-    this.applyFilters();
+    this.currentPage.set(1); // Reset to first page
+    this.loadCourses(); // Reload from API with new year filter
   }
 
   /**
@@ -464,9 +461,24 @@ export class CoursesComponent implements OnInit, OnDestroy {
   onSearchChange(query: string): void {
     // Trim the query to handle spaces
     const trimmedQuery = query.trim();
+
+    this.logger.log('🔍 Search input changed:', {
+      originalQuery: query,
+      trimmedQuery: trimmedQuery,
+      isEmpty: trimmedQuery === ''
+    });
+
     this.searchQuery.set(trimmedQuery);
-    // Trigger the debounced search
-    this.searchSubject$.next(trimmedQuery);
+
+    // ✅ Using server-side search with debounce
+    // If empty, reload immediately; otherwise use debounced search
+    if (trimmedQuery === '') {
+      this.currentPage.set(1);
+      this.loadCourses();
+    } else {
+      // Use debounced search for non-empty queries
+      this.searchSubject$.next(trimmedQuery);
+    }
   }
 
   /**
@@ -478,6 +490,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
     this.selectedLevel.set('');
     this.selectedCategory.set('');
     this.searchQuery.set('');
+    // Don't reset yearId if user is a student (their year is fixed)
+    if (!this.isStudent()) {
+      this.selectedYearId.set(null);
+    }
+    this.currentPage.set(1);
     this.loadCourses();
   }
 

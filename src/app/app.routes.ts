@@ -46,6 +46,23 @@ export const routes: Routes = [
     loadComponent: () => import('./features/terms/terms.component').then(m => m.TermsComponent)
   },
   {
+    path: 'privacy-policy',
+    loadComponent: () => import('./pages/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent)
+  },
+  {
+    path: 'terms-of-use',
+    loadComponent: () => import('./pages/terms-of-use/terms-of-use.component').then(m => m.TermsOfUseComponent)
+  },
+  {
+    path: 'cookie-policy',
+    loadComponent: () => import('./pages/cookie-policy/cookie-policy.component').then(m => m.CookiePolicyComponent)
+  },
+  {
+    path: 'terms-of-service',
+    redirectTo: 'terms-of-use',
+    pathMatch: 'full'
+  },
+  {
     path: 'courses',
     loadComponent: () => import('./features/courses/courses.component').then(m => m.CoursesComponent)
   },
@@ -263,10 +280,10 @@ export const routes: Routes = [
     data: { hideHeader: false, hideFooter: false }
   },
 
-  // Teacher Exams Management
+  // Teacher Exams Management (Full Management like Admin)
   {
     path: 'teacher/exams',
-    loadComponent: () => import('./features/teacher/teacher-exams/teacher-exams.component').then(m => m.TeacherExamsComponent),
+    loadComponent: () => import('./features/teacher/teacher-exam-management/teacher-exam-management.component').then(m => m.TeacherExamManagementComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
     data: { hideHeader: true, hideFooter: true }
   },

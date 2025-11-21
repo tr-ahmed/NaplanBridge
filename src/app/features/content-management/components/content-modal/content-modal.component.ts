@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnIni
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TerminologyService } from '../../../../core/services/terminology.service';
+import { ChapterManagerComponent } from '../chapter-manager/chapter-manager.component';
 
 interface ValidationError {
   [key: string]: string;
@@ -10,7 +11,7 @@ interface ValidationError {
 @Component({
   selector: 'app-content-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ChapterManagerComponent],
   templateUrl: './content-modal.component.html',
   styles: [`
     :host {

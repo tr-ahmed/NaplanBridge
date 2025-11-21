@@ -26,6 +26,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.routerEventsSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
+        // ✅ Scroll to top on navigation
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         this.checkCurrentRoute();
       });
 

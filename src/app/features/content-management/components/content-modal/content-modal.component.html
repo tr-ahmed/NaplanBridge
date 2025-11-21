@@ -758,6 +758,13 @@
                   MP4 format is recommended for best compatibility
                 </p>
               </div>
+
+              <!-- Chapter Manager (Only in Edit Mode) -->
+              @if (mode === 'edit' && formData.id) {
+                <div class="border-t border-gray-200 pt-4 mt-4">
+                  <app-chapter-manager [lessonId]="formData.id"></app-chapter-manager>
+                </div>
+              }
             </div>
           }
 

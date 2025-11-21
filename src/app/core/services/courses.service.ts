@@ -92,9 +92,12 @@ export class CoursesService {
     if (filter?.yearId) {
       params.yearId = filter.yearId;
     }
+    // ✅ Backend now supports searchTerm parameter (Nov 21, 2025)
     if (filter?.search && filter.search.trim()) {
-      params.search = filter.search.trim();
+      params.searchTerm = filter.search.trim();
     }
+
+    console.log('🔍 [CoursesService] getCourses - Request params:', params);
 
     return this.http.get<any>(url, { params }).pipe(
       map(response => {

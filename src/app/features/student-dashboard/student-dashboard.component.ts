@@ -280,21 +280,33 @@ export class StudentDashboardComponent implements OnInit {
    */
   private safeLoadRecentActivities(): Promise<any> {
     return new Promise((resolve) => {
+      console.log('🔄 Loading recent activities for studentId:', this.studentId);
       this.dashboardService.getStudentRecentActivities(this.studentId).subscribe({
         next: (response) => {
+          console.log('📥 Recent activities response:', response);
           if (response && response.data) {
             this.recentActivities.set(response.data);
             console.log('✅ Recent activities loaded:', response.data.length, 'activities');
+            console.log('📊 Activities breakdown:', {
+              total: response.data.length,
+              lessons: response.data.filter((a: any) => a.type === 'LessonProgress' || a.type === 'LessonCompleted').length,
+              exams: response.data.filter((a: any) => a.type === 'ExamTaken').length,
+              achievements: response.data.filter((a: any) => a.type === 'AchievementUnlocked').length,
+              certificates: response.data.filter((a: any) => a.type === 'CertificateEarned').length
+            });
             resolve(response.data);
           } else {
+            console.warn('⚠️ Recent activities response is empty or invalid');
             this.recentActivities.set([]);
             resolve([]);
           }
         },
         error: (err) => {
           if (err.status === 500) {
-            console.error('❌ Backend 500 Error: Recent activities endpoint not fixed yet');
-            console.error('📋 Check: /reports/backend_changes/backend_change_dashboard_500_errors_fixed_2025-11-01.md');
+            console.error('❌ Backend 500 Error: Recent activities endpoint failed');
+            console.error('📋 Error details:', err.error || err.message);
+          } else if (err.status === 404) {
+            console.error('❌ 404: Recent activities endpoint not found');
           } else {
             console.warn('⚠️ Recent activities endpoint failed:', err);
           }
@@ -842,6 +854,15 @@ export class StudentDashboardComponent implements OnInit {
    */
   viewSubjectExams(subjectId: number): void {
     this.router.navigate(['/student/exams'], { queryParams: { subjectId: subjectId } });
+  }
+
+  /**
+   * Get recent lessons from activities (filter by lesson type)
+   */
+  getRecentLessons(): RecentActivity[] {
+    return this.recentActivities().filter(
+      a => a.type === 'LessonProgress' || a.type === 'LessonCompleted'
+    );
   }
 
   /**

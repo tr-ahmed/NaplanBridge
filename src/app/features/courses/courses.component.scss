@@ -48,6 +48,31 @@
   }
 }
 
+/* Enhanced Search Input Animation */
+input[type="text"] {
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &::placeholder {
+    transition: color 0.2s ease;
+  }
+
+  &:focus::placeholder {
+    color: #9CA3AF;
+  }
+}
+
+/* Loading dots animation */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 /* Loading animation */
 .loading-spinner {
   animation: spin 1s linear infinite;

@@ -3,7 +3,7 @@
  * Multi-step form for creating or editing exams with questions
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -12,6 +12,7 @@ import { SubjectService } from '../../core/services/subject.service';
 import { CategoryService } from '../../core/services/category.service';
 import { AuthService } from '../../auth/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { TeacherPermissionService } from '../teacher/services/teacher-permission.service';
 import { ExamType, QuestionType, CreateExamDto, CreateQuestionDto } from '../../models/exam-api.models';
 import { Subject } from '../../models/subject.models';
 import { Year } from '../../models/category.models';
@@ -31,6 +32,7 @@ export class CreateEditExamComponent implements OnInit {
   private examApi = inject(ExamApiService);
   private subjectService = inject(SubjectService);
   private categoryService = inject(CategoryService);
+  private teacherPermissionService = inject(TeacherPermissionService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
@@ -50,6 +52,12 @@ export class CreateEditExamComponent implements OnInit {
 
   // Data
   subjects = signal<Subject[]>([]);
+  // Keep full subject list, then apply permission filter
+  allSubjects = signal<Subject[]>([]);
+  // Teacher permissions and authorized subjects
+  teacherPermissions = signal<any[]>([]);
+  authorizedSubjectIds = signal<number[]>([]);
+  canCreateAny = computed(() => this.teacherPermissions().some((p: any) => p.canCreate && p.isActive));
   years = signal<Year[]>([]);
   teacherId: number = 0;
 
@@ -87,17 +95,73 @@ export class CreateEditExamComponent implements OnInit {
    * Load initial data (subjects & years) before loading exam data
    */
   private loadInitialData(): void {
-    // Use Promise.all to wait for both subjects and years to load
+    // Use Promise.all to wait for subjects, years and teacher permissions to load
     Promise.all([
       this.loadSubjects(),
-      this.loadYears()
+      this.loadYears(),
+      this.loadTeacherPermissions()
     ]).then(() => {
-      // After dropdowns are populated, check if we're in edit mode
+      // After dropdowns & permissions are populated, apply filter then check edit mode
+      this.applySubjectPermissionsFilter();
       this.checkEditMode();
     }).catch(err => {
       console.error('Failed to load initial data:', err);
       this.toastService.showError('Failed to load form data');
     });
+  }
+
+  /**
+   * Load teacher permissions for current teacher
+   */
+  private loadTeacherPermissions(): Promise<void> {
+    return new Promise((resolve) => {
+      // If user is admin route we may not need teacher permissions, but still attempt
+      if (!this.teacherId) {
+        this.teacherPermissions.set([]);
+        this.authorizedSubjectIds.set([]);
+        resolve();
+        return;
+      }
+
+      this.teacherPermissionService.getTeacherPermissions(this.teacherId).subscribe({
+        next: (response: any) => {
+          const perms = response?.data || [];
+          this.teacherPermissions.set(perms);
+          const subjectIds = perms.filter((p: any) => p.isActive).map((p: any) => p.subjectId);
+          this.authorizedSubjectIds.set(subjectIds);
+          resolve();
+        },
+        error: (err: any) => {
+          console.error('Failed to load teacher permissions:', err);
+          // Fallback: no permissions
+          this.teacherPermissions.set([]);
+          this.authorizedSubjectIds.set([]);
+          resolve();
+        }
+      });
+    });
+  }
+
+  /**
+   * Apply permissions filter to subjects dropdown
+   */
+  private applySubjectPermissionsFilter(): void {
+    const perms = this.teacherPermissions();
+    // If admin route, do not filter subjects
+    if (this.isAdminRoute) {
+      this.subjects.set(this.allSubjects());
+      return;
+    }
+
+    // If no permissions, show empty subjects so teacher cannot pick unauthorized subject
+    if (!perms || perms.length === 0) {
+      this.subjects.set([]);
+      return;
+    }
+
+    const allowedIds = this.authorizedSubjectIds();
+    const filtered = this.allSubjects().filter(s => allowedIds.includes(s.id));
+    this.subjects.set(filtered);
   }
 
   /**
@@ -629,6 +693,23 @@ export class CreateEditExamComponent implements OnInit {
       this.toastService.showError('Please select a year');
       this.currentStep.set('basic');
       return;
+    }
+
+    // Permission check: ensure teacher is allowed to create/edit exams for selected subject
+    const selectedSubjectId = Number(formValue.subjectId);
+    if (!this.isAdminRoute) {
+      const permission = this.teacherPermissions().find((p: any) => p.subjectId === selectedSubjectId && p.isActive);
+      if (this.isEditMode()) {
+        if (!permission || !permission.canEdit) {
+          this.toastService.showError('You do not have permission to edit exams for the selected subject');
+          return;
+        }
+      } else {
+        if (!permission || !permission.canCreate) {
+          this.toastService.showError('You do not have permission to create exams for the selected subject');
+          return;
+        }
+      }
     }
 
     this.saving.set(true);

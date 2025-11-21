@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,7 +7,9 @@ import { takeUntil } from 'rxjs/operators';
 
 import { Lesson, LessonResource, StudentLesson, LessonProgress } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
+import { ContentService } from '../../core/services/content.service';
 import { AuthService } from '../../core/services/auth.service';
+import { VideoService } from '../../core/services/video.service';
 import { LessonQaComponent } from './lesson-qa/lesson-qa.component';
 
 interface Quiz {
@@ -74,6 +76,8 @@ interface TeacherQuestion {
   styleUrls: ['./lesson-detail.component.scss']
 })
 export class LessonDetailComponent implements OnInit, OnDestroy {
+  @ViewChild('videoPlayer', { static: false }) videoPlayerRef!: ElementRef<HTMLVideoElement>;
+
   private destroy$ = new Subject<void>();
 
   // State signals
@@ -156,7 +160,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private lessonsService: LessonsService,
+    private contentService: ContentService,
     private authService: AuthService,
+    private videoService: VideoService,
     private fb: FormBuilder
   ) {
     this.noteForm = this.fb.group({
@@ -209,6 +215,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.videoService.destroyPlayer();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -246,6 +253,9 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
             if (this.authService.isAuthenticated()) {
               this.loadStudentProgress(lessonId);
             }
+
+            // Initialize video player after view is ready
+            setTimeout(() => this.initializeVideoPlayer(), 100);
           } else {
             this.error.set('Lesson not found');
           }
@@ -435,42 +445,43 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
    * Load video chapters for the lesson
    */
   private loadVideoChapters(lessonId: number): void {
-    // Mock video chapters data
-    const mockChapters: VideoChapter[] = [
-      {
-        id: 1,
-        title: 'Introduction',
-        startTime: 0,
-        endTime: 120,
-        description: 'Welcome and lesson overview'
-      },
-      {
-        id: 2,
-        title: 'Main Content',
-        startTime: 120,
-        endTime: 1800,
-        description: 'Core learning material'
-      },
-      {
-        id: 3,
-        title: 'Practice Examples',
-        startTime: 1800,
-        endTime: 2400,
-        description: 'Worked examples and practice'
-      },
-      {
-        id: 4,
-        title: 'Summary',
-        startTime: 2400,
-        endTime: 2700,
-        description: 'Lesson recap and next steps'
-      }
-    ];
+    // Load chapters from API
+    this.contentService.getLessonChapters(lessonId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (chapters) => {
+          // Map API response to VideoChapter interface
+          const videoChapters: VideoChapter[] = chapters.map((ch: any) => ({
+            id: ch.id,
+            title: ch.title,
+            startTime: this.parseTimeToSeconds(ch.startTime),
+            endTime: this.parseTimeToSeconds(ch.endTime),
+            description: ch.description || ''
+          }));
 
-    this.videoChapters.set(mockChapters);
+          this.videoChapters.set(videoChapters);
+          this.updateCurrentChapter();
+        },
+        error: (error) => {
+          console.error('❌ Error loading chapters:', error);
+          // Set empty array on error
+          this.videoChapters.set([]);
+        }
+      });
+  }
 
-    // Set current chapter based on video time
-    this.updateCurrentChapter();
+  /**
+   * Parse time string (mm:ss) to seconds
+   */
+  private parseTimeToSeconds(timeStr: string): number {
+    if (!timeStr) return 0;
+    const parts = timeStr.split(':');
+    if (parts.length === 2) {
+      const minutes = parseInt(parts[0], 10) || 0;
+      const seconds = parseInt(parts[1], 10) || 0;
+      return minutes * 60 + seconds;
+    }
+    return 0;
   }
 
   /**
@@ -536,44 +547,85 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Initialize video player with HLS.js support
+   */
+  private initializeVideoPlayer(): void {
+    const lessonData = this.lesson();
+    if (!lessonData || !lessonData.videoUrl || !this.videoPlayerRef) {
+      console.log('Video player not ready:', { lesson: lessonData, hasRef: !!this.videoPlayerRef });
+      return;
+    }
+
+    const studentLessonData = this.studentLesson();
+    const startTime = studentLessonData?.progress?.currentPosition || 0;
+    const currentUser = this.authService.getCurrentUser();
+
+    // Build player configuration
+    const playerConfig: any = {
+      videoUrl: lessonData.videoUrl,
+      posterUrl: lessonData.posterUrl,
+      provider: lessonData.videoProvider || 'BunnyStream',
+      startTime: startTime,
+      autoplay: false,
+      muted: false
+    };
+
+    console.log('🎬 Initializing video player:', playerConfig);
+
+    this.videoService.initializePlayer(
+      playerConfig,
+      this.videoPlayerRef.nativeElement,
+      lessonData.id
+    );
+
+    // Listen to video events
+    this.videoService.onVideoPlaying.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.isVideoPlaying.set(true);
+    });
+
+    this.videoService.onVideoPaused.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.isVideoPlaying.set(false);
+    });
+
+    this.videoService.onVideoProgress.pipe(takeUntil(this.destroy$)).subscribe(({ currentTime, duration }) => {
+      this.videoCurrentTime.set(currentTime);
+      this.videoDuration.set(duration);
+      this.videoProgress.set(duration > 0 ? (currentTime / duration) * 100 : 0);
+      this.updateCurrentChapter();
+      this.updateLessonProgress(currentTime, duration);
+    });
+
+    this.videoService.onVideoEnded.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.isVideoPlaying.set(false);
+      console.log('✅ Video ended');
+    });
+  }
+
+  /**
    * Video player methods
    */
   onVideoTimeUpdate(event: any): void {
-    const currentTime = event.target.currentTime;
-    const duration = event.target.duration;
-    this.videoCurrentTime.set(currentTime);
-    this.videoDuration.set(duration);
-    this.videoProgress.set(duration > 0 ? (currentTime / duration) * 100 : 0);
-
-    // Update current chapter
-    this.updateCurrentChapter();
-
-    // Update lesson progress
-    this.updateLessonProgress(currentTime, duration);
+    // Handled by VideoService now
   }
 
   onVideoPlay(): void {
-    this.isVideoPlaying.set(true);
+    // Handled by VideoService now
   }
 
   onVideoPause(): void {
-    this.isVideoPlaying.set(false);
+    // Handled by VideoService now
   }
 
   onVideoLoadedMetadata(event: any): void {
-    const duration = event.target.duration;
-    this.videoDuration.set(duration);
-    console.log('Video loaded with duration:', duration);
+    // Handled by VideoService now
   }
 
   onVideoError(event: any): void {
     console.error('Video playback error:', event);
-    // You can add user notification here
   }
 
   onVideoClick(event: any): void {
-    // Handle video click events if needed
-    console.log('Video clicked');
+    // Handled by VideoService now
   }
 
   playVideo(): void {

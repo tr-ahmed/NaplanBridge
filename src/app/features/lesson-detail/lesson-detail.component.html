@@ -145,7 +145,7 @@
               }
               <option value="notes">📝 Notes ({{ notes().length }})</option>
               <option value="teacher">👨‍🏫 Ask Teacher ({{ teacherQuestions().length }})</option>
-              @if (hasChapters()) {
+              @if (canEditContent() && hasChapters()) {
                 <option value="chapters">📋 Chapters ({{ videoChapters().length }})</option>
               }
               @if (canEditContent()) {
@@ -234,7 +234,7 @@
                   <span class="ml-1 md:ml-2 bg-purple-100 text-purple-800 text-xs font-medium px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">{{ teacherQuestions().length }}</span>
                 }
               </button>
-              @if (hasChapters()) {
+              @if (canEditContent() && hasChapters()) {
                 <button
                   (click)="setActiveTab('chapters')"
                   [class.border-blue-500]="activeTab() === 'chapters'"
@@ -280,22 +280,7 @@
                   <video
                     #videoPlayer
                     class="w-full aspect-video"
-                    controls
-                    [poster]="getVideoPosterUrl()"
-                    preload="metadata"
-                    (timeupdate)="onVideoTimeUpdate($event)"
-                    (play)="onVideoPlay()"
-                    (pause)="onVideoPause()"
-                    (loadedmetadata)="onVideoLoadedMetadata($event)"
-                    (error)="onVideoError($event)"
-                    (click)="onVideoClick($event)">
-                    <source [src]="lesson()!.videoUrl" type="video/mp4">
-                    <p class="text-white p-4">
-                      Your browser does not support the video tag.
-                      <a [href]="lesson()!.videoUrl" class="text-blue-400 underline" download>
-                        Download the video
-                      </a>
-                    </p>
+                    [poster]="getVideoPosterUrl()">
                   </video>
 
                   <!-- Custom Play Button Overlay -->

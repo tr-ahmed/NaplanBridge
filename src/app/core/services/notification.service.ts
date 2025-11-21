@@ -39,7 +39,7 @@ export class NotificationService {
   /**
    * Get notifications with pagination and filters
    */
-  getNotifications(params?: NotificationQueryParams): Observable<PaginatedNotifications> {
+  getNotifications(params?: NotificationQueryParams): Observable<any> {
     this.loading.set(true);
     this.error.set(null);
 
@@ -60,22 +60,29 @@ export class NotificationService {
       }
     }
 
-    return this.http.get<PaginatedNotifications>(this.apiUrl, { params: httpParams }).pipe(
+    return this.http.get<any>(this.apiUrl, { params: httpParams }).pipe(
       tap(response => {
-        this.notifications$.next(response.data);
-        this.loading.set(false);
+        console.log('🔔 Service received:', response);
+        // Handle both array and paginated response
+        if (Array.isArray(response)) {
+          // Direct array response
+          this.notifications$.next(response);
+          this.loading.set(false);
+        } else if (response && response.data) {
+          // Paginated response
+          this.notifications$.next(response.data);
+          this.loading.set(false);
+        } else {
+          this.notifications$.next([]);
+          this.loading.set(false);
+        }
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('Failed to load notifications:', error);
         this.error.set('Failed to load notifications');
         this.loading.set(false);
-        return of({
-          data: [],
-          pageNumber: 1,
-          pageSize: 10,
-          totalCount: 0,
-          totalPages: 0
-        });
+        this.notifications$.next([]);
+        return of([]);
       })
     );
   }

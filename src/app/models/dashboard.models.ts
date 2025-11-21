@@ -15,7 +15,7 @@ export interface ExamHistory {
 }
 
 export interface RecentActivity {
-  type: 'ExamTaken' | 'LessonProgress' | 'CertificateEarned' | 'AchievementUnlocked';
+  type: 'ExamTaken' | 'LessonProgress' | 'LessonCompleted' | 'CertificateEarned' | 'AchievementUnlocked' | 'SubscriptionActivated';
   title: string;
   date: string;
   description: string;

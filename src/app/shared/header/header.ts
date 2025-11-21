@@ -87,22 +87,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.notificationService.getUnreadCount().subscribe(count => {
         this.unreadNotificationsCount = count.count || 0;
+        console.log('🔔 Header - Unread count:', count.count);
       })
     );
 
     // Subscribe to notifications for dropdown preview
     this.subscriptions.add(
       this.notificationService.notifications$.subscribe(notifications => {
+        console.log('🔔 Header - Notifications received:', notifications);
         // Get the 5 most recent notifications for dropdown preview
-        this.recentNotifications = notifications
-          .sort((a: any, b: any) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
-          .slice(0, 5);
+        if (notifications && Array.isArray(notifications)) {
+          this.recentNotifications = notifications
+            .sort((a: any, b: any) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
+            .slice(0, 5);
+          console.log('🔔 Header - Recent notifications:', this.recentNotifications);
+        } else {
+          this.recentNotifications = [];
+        }
       })
     );
 
-    // Load initial data
-    // this.notificationService.getNotifications().subscribe();
-    // this.notificationService.getNotificationStats().subscribe();
+    // Load initial notifications data
+    this.notificationService.getNotifications().subscribe({
+      next: (data) => console.log('🔔 Header - Initial load:', data),
+      error: (err) => console.error('❌ Header - Load error:', err)
+    });
   }
 
   ngOnDestroy(): void {

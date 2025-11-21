@@ -40,9 +40,9 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
     let filtered = notifications;
 
-    // Filter by type
+    // Filter by type (case-insensitive comparison)
     if (filter !== 'all') {
-      filtered = filtered.filter(n => n.type === filter);
+      filtered = filtered.filter(n => n.type.toLowerCase() === filter.toLowerCase());
     }
 
     // Filter by read status
@@ -75,11 +75,16 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     // Subscribe to real-time updates
     this.notificationService.notifications$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((notifications: any[]) => this.notifications.set(notifications));
-
-    // Subscribe to loading state
-    this.loading.set(this.notificationService.loading());
-    this.error.set(this.notificationService.error());
+      .subscribe((notifications: any[]) => {
+        console.log('🔔 Notifications$ updated:', notifications);
+        if (notifications && Array.isArray(notifications)) {
+          this.notifications.set(notifications);
+          this.calculateStats(notifications);
+          this.loading.set(false); // ← Stop loading when data arrives
+          console.log('📊 Stats calculated:', this.stats());
+          console.log('📋 Filtered notifications:', this.filteredNotifications());
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -91,9 +96,34 @@ export class NotificationsComponent implements OnInit, OnDestroy {
    * Load notifications
    */
   loadNotifications(): void {
+    this.loading.set(true); // Start loading
     this.notificationService.getNotifications()
       .pipe(takeUntil(this.destroy$))
-      .subscribe();
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Notifications loaded:', response);
+          // Check if response is array directly or has data property
+          let notificationsArray: Notification[] = [];
+
+          if (Array.isArray(response)) {
+            // Response is array directly
+            notificationsArray = response;
+          } else if (response && response.data && Array.isArray(response.data)) {
+            // Response has data property
+            notificationsArray = response.data;
+          }
+
+          console.log('📦 Notifications array:', notificationsArray);
+          this.notifications.set(notificationsArray);
+          this.calculateStats(notificationsArray);
+          this.loading.set(false); // Stop loading
+        },
+        error: (err) => {
+          console.error('❌ Error loading notifications:', err);
+          this.error.set('Failed to load notifications');
+          this.loading.set(false); // Stop loading on error
+        }
+      });
   }
 
   /**
@@ -102,6 +132,43 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   loadStats(): void {
     // Stats are calculated from notifications array
     // No separate API call needed
+  }
+
+  /**
+   * Calculate statistics from notifications
+   */
+  private calculateStats(notifications: Notification[]): void {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const typeBreakdown: {[key: string]: number} = {};
+
+    let unreadCount = 0;
+    let todayCount = 0;
+    let weekCount = 0;
+
+    notifications.forEach(n => {
+      // Count unread
+      if (!n.isRead) unreadCount++;
+
+      // Count by type
+      const typeLower = n.type.toLowerCase();
+      typeBreakdown[typeLower] = (typeBreakdown[typeLower] || 0) + 1;
+
+      // Count by date
+      const sentDate = new Date(n.sentAt);
+      if (sentDate >= today) todayCount++;
+      if (sentDate >= weekAgo) weekCount++;
+    });
+
+    this.stats.set({
+      totalCount: notifications.length,
+      unreadCount,
+      todayCount,
+      weekCount,
+      typeBreakdown
+    });
   }
 
   /**
@@ -223,15 +290,16 @@ export class NotificationsComponent implements OnInit, OnDestroy {
    * Get notification background color based on type
    */
   getNotificationBgColor(type: string): string {
-    const colors = {
-      course: 'bg-blue-50',
+    const typeLower = type.toLowerCase();
+    const colors: {[key: string]: string} = {
+      info: 'bg-blue-50',
       success: 'bg-green-50',
       warning: 'bg-yellow-50',
       error: 'bg-red-50',
-      info: 'bg-blue-50',
+      course: 'bg-blue-50',
       system: 'bg-gray-50'
     };
-    return colors[type as keyof typeof colors] || 'bg-gray-50';
+    return colors[typeLower] || 'bg-gray-50';
   }
 
   /**

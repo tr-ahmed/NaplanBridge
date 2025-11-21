@@ -707,113 +707,6 @@
         }
       }
     },
-    "/api/Account/forgot-password": {
-      "post": {
-        "tags": [
-          "Account"
-        ],
-        "summary": "Request password reset via email",
-        "requestBody": {
-          "description": "Email address for password reset",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.ForgotPasswordDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.ForgotPasswordDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.ForgotPasswordDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Reset instructions sent",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid email format"
-          }
-        }
-      }
-    },
-    "/api/Account/reset-password": {
-      "post": {
-        "tags": [
-          "Account"
-        ],
-        "summary": "Reset password using token from email",
-        "description": "## Important: Password Reset Flow\r\n\r\n**Step 1: Call forgot-password**\r\n- Email: user's email address\r\n- Response: \"Check your email for reset instructions\"\r\n\r\n**Step 2: User receives email with reset token**\r\n- Email contains a link with the reset token\r\n- Example link: http://localhost:4200/auth/reset-password?token=abc123xyz\r\n- The token is a GUID (Universally Unique Identifier), NOT a JWT token\r\n\r\n**Step 3: Call reset-password**\r\n- Email: user's email address\r\n- Password: new password (must be strong)\r\n- Token: the token from the email (the GUID, not JWT)\r\n\r\n⚠️ Common Mistake:\r\n- ❌ DON'T use your authentication JWT token\r\n- ❌ DON'T use the bearer token from login\r\n- ✅ DO use the token from the email sent by forgot-password\r\n\r\nExample curl request:\r\n```\r\ncurl -X POST 'https://naplan2.runasp.net/api/Account/reset-password' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n    \"email\": \"moataztarekm@gmail.com\",\r\n    \"password\": \"NewPassword@123\",\r\n    \"token\": \"a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6\"\r\n  }'\r\n```",
-        "requestBody": {
-          "description": "Reset password request with email, new password, and token",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.ResetPasswordDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.ResetPasswordDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.ResetPasswordDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Password reset successfully",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request or expired token"
-          }
-        }
-      }
-    },
     "/api/Achievements": {
       "get": {
         "tags": [
@@ -2621,14 +2514,6 @@
               "type": "integer",
               "format": "int32"
             }
-          },
-          {
-            "name": "IsDisabled",
-            "in": "query",
-            "description": "Check if pagination should be disabled (return all records)",
-            "schema": {
-              "type": "boolean"
-            }
           }
         ],
         "responses": {
@@ -2810,14 +2695,6 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "name": "IsDisabled",
-            "in": "query",
-            "description": "Check if pagination should be disabled (return all records)",
-            "schema": {
-              "type": "boolean"
             }
           }
         ],
@@ -3973,14 +3850,6 @@
             }
           },
           {
-            "name": "IsDisabled",
-            "in": "query",
-            "description": "Check if pagination should be disabled (return all records)",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
             "name": "searchTerm",
             "in": "query",
             "description": "Search in title and description (optional)",
@@ -4361,12 +4230,12 @@
         }
       }
     },
-    "/api/Lessons/subject/{subjectId}/with-progress": {
+    "/api/Lessons/subject/{subjectId}/with-progress/{studentId}": {
       "get": {
         "tags": [
           "Lessons"
         ],
-        "summary": "Get all lessons for a subject with student progress embedded\r\n? GUEST MODE: When studentId is not provided, returns lesson previews with default values\r\n? FIXED: Only shows approved lessons",
+        "summary": "Get all lessons for a subject with student progress embedded\r\n✅ GUEST MODE: When studentId is not provided, returns lesson previews with default values",
         "parameters": [
           {
             "name": "subjectId",
@@ -4380,8 +4249,9 @@
           },
           {
             "name": "studentId",
-            "in": "query",
+            "in": "path",
             "description": "Student ID (optional - omit for guest preview)",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -4421,12 +4291,12 @@
         }
       }
     },
-    "/api/Lessons/subject/{subjectId}/term-number/{termNumber}/with-progress": {
+    "/api/Lessons/subject/{subjectId}/term-number/{termNumber}/with-progress/{studentId}": {
       "get": {
         "tags": [
           "Lessons"
         ],
-        "summary": "? NEW: Get lessons by term NUMBER (not ID) with student progress\r\nThis handles cross-subject navigation where different subjects have different term IDs for the same term number\r\n? PREVIEW MODE: Returns lesson previews for non-subscribed students or guests",
+        "summary": "✅ NEW: Get lessons by term NUMBER (not ID) with student progress\r\nThis handles cross-subject navigation where different subjects have different term IDs for the same term number\r\n✅ PREVIEW MODE: Returns lesson previews for non-subscribed students or guests",
         "parameters": [
           {
             "name": "subjectId",
@@ -4450,8 +4320,9 @@
           },
           {
             "name": "studentId",
-            "in": "query",
+            "in": "path",
             "description": "Student ID (optional - omit for guest preview)",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -4491,12 +4362,12 @@
         }
       }
     },
-    "/api/Lessons/term/{termId}/with-progress": {
+    "/api/Lessons/term/{termId}/with-progress/{studentId}": {
       "get": {
         "tags": [
           "Lessons"
         ],
-        "summary": "Get all lessons for a term with student progress embedded\r\n? GUEST MODE: When studentId is not provided, returns lesson previews with default values\r\n? FIXED: Only shows approved lessons",
+        "summary": "Get all lessons for a term with student progress embedded\r\n✅ GUEST MODE: When studentId is not provided, returns lesson previews with default values",
         "parameters": [
           {
             "name": "termId",
@@ -4510,8 +4381,9 @@
           },
           {
             "name": "studentId",
-            "in": "query",
+            "in": "path",
             "description": "Student ID (optional - omit for guest preview)",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -7161,6 +7033,121 @@
         }
       }
     },
+    "/api/ServerTime/current": {
+      "get": {
+        "tags": [
+          "ServerTime"
+        ],
+        "summary": "Get current server time (real and override if set)",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ServerTime/override": {
+      "post": {
+        "tags": [
+          "ServerTime"
+        ],
+        "summary": "Set server time override (Admin only - for testing)\r\n⚠️ WARNING: This affects ALL time-based operations!",
+        "requestBody": {
+          "description": "Time override settings",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.SetTimeOverrideDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.SetTimeOverrideDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.SetTimeOverrideDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ServerTime/clear": {
+      "post": {
+        "tags": [
+          "ServerTime"
+        ],
+        "summary": "Clear time override and return to system time",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ServerTime/fast-forward": {
+      "post": {
+        "tags": [
+          "ServerTime"
+        ],
+        "summary": "Fast forward time by specified minutes",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.FastForwardDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.FastForwardDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.Controllers.FastForwardDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ServerTime/set-to-exam-start/{examId}": {
+      "post": {
+        "tags": [
+          "ServerTime"
+        ],
+        "summary": "Set time to exam start time (for testing)",
+        "parameters": [
+          {
+            "name": "examId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Sessions/teacher/settings": {
       "get": {
         "tags": [
@@ -7771,6 +7758,462 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentQuestions": {
+      "post": {
+        "tags": [
+          "StudentQuestions"
+        ],
+        "summary": "POST /api/StudentQuestions - Student submits a question about a lesson",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StudentQuestion.CreateStudentQuestionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StudentQuestion.CreateStudentQuestionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StudentQuestion.CreateStudentQuestionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/StudentQuestions/{id}": {
+      "get": {
+        "tags": [
+          "StudentQuestions"
+        ],
+        "summary": "GET /api/StudentQuestions/{id} - Get a specific question by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "StudentQuestions"
+        ],
+        "summary": "PUT /api/StudentQuestions/{id} - Student can edit their question (only if not answered yet)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StudentQuestion.UpdateStudentQuestionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StudentQuestion.UpdateStudentQuestionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StudentQuestion.UpdateStudentQuestionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "StudentQuestions"
+        ],
+        "summary": "DELETE /api/StudentQuestions/{id} - Student can delete their question (only if not answered), or Admin can delete any",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentQuestions/lesson/{lessonId}": {
+      "get": {
+        "tags": [
+          "StudentQuestions"
+        ],
+        "summary": "GET /api/StudentQuestions/lesson/{lessonId} - Get all questions for a specific lesson",
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "includeAnswered",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/StudentQuestions/my-questions": {
+      "get": {
+        "tags": [
+          "StudentQuestions"
+        ],
+        "summary": "GET /api/StudentQuestions/my-questions - Get all questions submitted by the current student",
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "isAnswered",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/StudentQuestions/teacher/pending": {
+      "get": {
+        "tags": [
+          "StudentQuestions"
+        ],
+        "summary": "GET /api/StudentQuestions/teacher/pending - Get all unanswered questions for teacher's lessons",
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "subjectId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "termId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/StudentQuestions/teacher/all": {
+      "get": {
+        "tags": [
+          "StudentQuestions"
+        ],
+        "summary": "GET /api/StudentQuestions/teacher/all - Get all questions (answered and unanswered) for teacher's lessons",
+        "parameters": [
+          {
+            "name": "isAnswered",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "lessonId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "subjectId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "termId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/StudentQuestions/{id}/answer": {
+      "post": {
+        "tags": [
+          "StudentQuestions"
+        ],
+        "summary": "POST /api/StudentQuestions/{id}/answer - Teacher provides an answer to a student's question",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StudentQuestion.AnswerStudentQuestionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StudentQuestion.AnswerStudentQuestionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.StudentQuestion.AnswerStudentQuestionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.StudentQuestion.StudentQuestionDto"
+                }
+              }
+            }
           }
         }
       }
@@ -8466,14 +8909,6 @@
             }
           },
           {
-            "name": "IsDisabled",
-            "in": "query",
-            "description": "Check if pagination should be disabled (return all records)",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
             "name": "categoryId",
             "in": "query",
             "description": "Filter by category (optional)",
@@ -8489,14 +8924,6 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "description": "Search term to filter by subject name or category name (optional)",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -9758,55 +10185,6 @@
         }
       }
     },
-    "/api/TeacherContent/create": {
-      "post": {
-        "tags": [
-          "TeacherContent"
-        ],
-        "summary": "Create new content (Teacher only)",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.TeacherContent.CreateContentDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.TeacherContent.CreateContentDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.TeacherContent.CreateContentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentItemDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentItemDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentItemDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/TeacherPermissions/grant": {
       "post": {
         "tags": [
@@ -10927,83 +11305,6 @@
         }
       }
     },
-    "/api/User/profile": {
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Get authenticated user's profile",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Update authenticated user's profile information",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.UpdateProfileDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.UpdateProfileDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/API.DTOs.UpdateProfileDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/User/{id}": {
       "get": {
         "tags": [
@@ -11251,111 +11552,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/User/profile/avatar": {
-      "post": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Upload or update user's profile picture",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "description": "Image file (jpg, jpeg, png - max 5MB)",
-                    "format": "binary"
-                  }
-                }
-              },
-              "encoding": {
-                "file": {
-                  "style": "form"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.AvatarUploadResponseDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.AvatarUploadResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/API.DTOs.AvatarUploadResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Delete user's profile picture (reset to default)",
         "responses": {
           "200": {
             "description": "OK"
@@ -12221,6 +12417,36 @@
   },
   "components": {
     "schemas": {
+      "API.Controllers.FastForwardDto": {
+        "required": [
+          "minutes"
+        ],
+        "type": "object",
+        "properties": {
+          "minutes": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for fast-forwarding time"
+      },
+      "API.Controllers.SetTimeOverrideDto": {
+        "required": [
+          "overrideTime"
+        ],
+        "type": "object",
+        "properties": {
+          "overrideTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for setting time override"
+      },
       "API.Controllers.ToggleEventDto": {
         "type": "object",
         "properties": {
@@ -13030,32 +13256,6 @@
           },
           "data": {
             "$ref": "#/components/schemas/API.DTOs.Session.TeacherSessionSettingsDto"
-          }
-        },
-        "additionalProperties": false
-      },
-      "API.DTOs.ApiResponse`1[[API.DTOs.TeacherContent.ContentItemDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
-        "required": [
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "data": {
-            "$ref": "#/components/schemas/API.DTOs.TeacherContent.ContentItemDto"
           }
         },
         "additionalProperties": false
@@ -13897,24 +14097,6 @@
         },
         "additionalProperties": false
       },
-      "API.DTOs.AvatarUploadResponseDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "avatarUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "Response after uploading profile picture\r\nاستجابة بعد رفع صورة البروفايل"
-      },
       "API.DTOs.Bookmark.CreateBookmarkDto": {
         "type": "object",
         "properties": {
@@ -14185,6 +14367,7 @@
       },
       "API.DTOs.ChangePasswordDto": {
         "required": [
+          "confirmPassword",
           "currentPassword",
           "newPassword"
         ],
@@ -14200,9 +14383,8 @@
             "type": "string"
           },
           "confirmPassword": {
-            "type": "string",
-            "description": "✅ FIXED: Make ConfirmPassword optional (frontend doesn't send it)\r\nValidation will be done in controller if provided",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -15022,11 +15204,6 @@
           "phoneNumber": {
             "type": "string",
             "nullable": true
-          },
-          "avatarUrl": {
-            "type": "string",
-            "description": "User's profile picture/avatar URL\r\nCan be from Bunny CDN or Cloudinary",
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -15366,22 +15543,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "API.DTOs.ForgotPasswordDto": {
-        "required": [
-          "email"
-        ],
-        "type": "object",
-        "properties": {
-          "email": {
-            "minLength": 1,
-            "type": "string",
-            "description": "User's email address for password reset",
-            "format": "email"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Request model for forgot password"
       },
       "API.DTOs.Lesson.LessonWithProgressDto": {
         "required": [
@@ -16354,8 +16515,8 @@
             "nullable": true
           },
           "password": {
-            "maxLength": 100,
-            "minLength": 8,
+            "maxLength": 8,
+            "minLength": 4,
             "type": "string",
             "nullable": true
           },
@@ -17274,35 +17435,6 @@
         },
         "additionalProperties": false
       },
-      "API.DTOs.ResetPasswordDto": {
-        "required": [
-          "email",
-          "password",
-          "token"
-        ],
-        "type": "object",
-        "properties": {
-          "email": {
-            "minLength": 1,
-            "type": "string",
-            "description": "User's email address",
-            "format": "email"
-          },
-          "password": {
-            "maxLength": 100,
-            "minLength": 6,
-            "type": "string",
-            "description": "New password for the account"
-          },
-          "token": {
-            "minLength": 1,
-            "type": "string",
-            "description": "Reset token from email link"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Request model for reset password"
-      },
       "API.DTOs.ResourceManagement.LessonResourceDetailsDto": {
         "required": [
           "fileUrl",
@@ -17656,33 +17788,107 @@
         },
         "additionalProperties": false
       },
-      "API.DTOs.StudentProfileData": {
+      "API.DTOs.StudentQuestion.AnswerStudentQuestionDto": {
+        "required": [
+          "answerText"
+        ],
         "type": "object",
         "properties": {
+          "answerText": {
+            "maxLength": 5000,
+            "minLength": 5,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.StudentQuestion.CreateStudentQuestionDto": {
+        "required": [
+          "lessonId",
+          "questionText"
+        ],
+        "type": "object",
+        "properties": {
+          "lessonId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionText": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.StudentQuestion.StudentQuestionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lessonId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lessonTitle": {
+            "type": "string",
+            "nullable": true
+          },
           "studentId": {
             "type": "integer",
             "format": "int32"
           },
-          "yearId": {
-            "type": "integer",
-            "format": "int32"
+          "studentName": {
+            "type": "string",
+            "nullable": true
           },
-          "yearNumber": {
-            "type": "integer",
-            "format": "int32"
+          "questionText": {
+            "type": "string",
+            "nullable": true
           },
-          "parentId": {
+          "answerText": {
+            "type": "string",
+            "nullable": true
+          },
+          "answeredByTeacherId": {
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
-          "parentName": {
+          "answeredByTeacherName": {
             "type": "string",
             "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "answeredAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isAnswered": {
+            "type": "boolean"
           }
         },
-        "additionalProperties": false,
-        "description": "Student-specific profile data"
+        "additionalProperties": false
+      },
+      "API.DTOs.StudentQuestion.UpdateStudentQuestionDto": {
+        "required": [
+          "questionText"
+        ],
+        "type": "object",
+        "properties": {
+          "questionText": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
       },
       "API.DTOs.StudentRegisterDto": {
         "required": [
@@ -17712,8 +17918,8 @@
             "nullable": true
           },
           "password": {
-            "maxLength": 100,
-            "minLength": 8,
+            "maxLength": 8,
+            "minLength": 4,
             "type": "string"
           },
           "year": {
@@ -18305,110 +18511,6 @@
         },
         "additionalProperties": false
       },
-      "API.DTOs.TeacherContent.ContentItemDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "Internal ID for tracking (subject ID + item ID combined)",
-            "format": "int32"
-          },
-          "itemId": {
-            "type": "integer",
-            "description": "ID of the actual created item",
-            "format": "int32"
-          },
-          "itemType": {
-            "type": "string",
-            "description": "Type of item created: Lesson, Exam, Question, Resource, Certificate",
-            "nullable": true
-          },
-          "title": {
-            "type": "string",
-            "description": "Content title",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "description": "Content description",
-            "nullable": true
-          },
-          "status": {
-            "enum": [
-              "Created",
-              "Pending",
-              "Approved",
-              "Published",
-              "Rejected",
-              "RevisionRequested"
-            ],
-            "type": "string",
-            "description": "Current approval status"
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "When the content was created",
-            "format": "date-time"
-          },
-          "subjectId": {
-            "type": "integer",
-            "description": "Subject ID",
-            "format": "int32"
-          },
-          "subjectName": {
-            "type": "string",
-            "description": "Subject name",
-            "nullable": true
-          },
-          "weekId": {
-            "type": "integer",
-            "description": "Week ID (if applicable)",
-            "format": "int32",
-            "nullable": true
-          },
-          "termId": {
-            "type": "integer",
-            "description": "Term ID (if applicable)",
-            "format": "int32",
-            "nullable": true
-          },
-          "duration": {
-            "type": "integer",
-            "description": "Duration in minutes (if applicable)",
-            "format": "int32",
-            "nullable": true
-          },
-          "totalMarks": {
-            "type": "number",
-            "description": "Total marks (for exams)",
-            "format": "float",
-            "nullable": true
-          },
-          "passingMarks": {
-            "type": "number",
-            "description": "Passing marks (for exams)",
-            "format": "float",
-            "nullable": true
-          },
-          "createdBy": {
-            "type": "integer",
-            "description": "Created by teacher ID",
-            "format": "int32"
-          },
-          "createdByName": {
-            "type": "string",
-            "description": "Creator (teacher) name",
-            "nullable": true
-          },
-          "statusMessage": {
-            "type": "string",
-            "description": "Approval status message",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "DTO for content creation response"
-      },
       "API.DTOs.TeacherContent.ContentPreviewDto": {
         "type": "object",
         "properties": {
@@ -18462,115 +18564,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "API.DTOs.TeacherContent.CreateContentDto": {
-        "required": [
-          "itemType",
-          "subjectId",
-          "title"
-        ],
-        "type": "object",
-        "properties": {
-          "itemType": {
-            "minLength": 1,
-            "pattern": "Lesson|Exam|Question|Resource|Certificate",
-            "type": "string",
-            "description": "Type of content: Lesson, Exam, Question, Resource, Certificate"
-          },
-          "title": {
-            "maxLength": 500,
-            "minLength": 3,
-            "type": "string",
-            "description": "Content title"
-          },
-          "description": {
-            "maxLength": 2000,
-            "minLength": 0,
-            "type": "string",
-            "description": "Content description",
-            "nullable": true
-          },
-          "subjectId": {
-            "type": "integer",
-            "description": "Subject ID - required for all content types",
-            "format": "int32"
-          },
-          "weekId": {
-            "type": "integer",
-            "description": "Week ID - for lesson-based content",
-            "format": "int32",
-            "nullable": true
-          },
-          "termId": {
-            "type": "integer",
-            "description": "Term ID - for term-based content",
-            "format": "int32",
-            "nullable": true
-          },
-          "lessonId": {
-            "type": "integer",
-            "description": "Lesson ID - for lesson questions",
-            "format": "int32",
-            "nullable": true
-          },
-          "duration": {
-            "type": "integer",
-            "description": "Duration in minutes - for lessons or exams",
-            "format": "int32",
-            "nullable": true
-          },
-          "objectives": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "description": "Learning objectives - for lessons",
-            "nullable": true
-          },
-          "totalMarks": {
-            "type": "number",
-            "description": "Total marks - for exams",
-            "format": "float",
-            "nullable": true
-          },
-          "passingMarks": {
-            "type": "number",
-            "description": "Passing marks - for exams",
-            "format": "float",
-            "nullable": true
-          },
-          "examType": {
-            "type": "integer",
-            "description": "Exam type - for exams (Lesson, Monthly, Term, Year)",
-            "format": "int32",
-            "nullable": true
-          },
-          "startTime": {
-            "type": "string",
-            "description": "Start time - for exams",
-            "format": "date-time",
-            "nullable": true
-          },
-          "endTime": {
-            "type": "string",
-            "description": "End time - for exams",
-            "format": "date-time",
-            "nullable": true
-          },
-          "resourceUrl": {
-            "type": "string",
-            "description": "For resources - file path or URL",
-            "nullable": true
-          },
-          "notes": {
-            "maxLength": 1000,
-            "minLength": 0,
-            "type": "string",
-            "description": "Additional metadata or notes",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "DTO for creating teacher content (lessons, exams, questions, resources, certificates)"
       },
       "API.DTOs.TeacherContent.PendingApprovalDto": {
         "type": "object",
@@ -18842,8 +18835,8 @@
             "nullable": true
           },
           "password": {
-            "maxLength": 100,
-            "minLength": 8,
+            "maxLength": 8,
+            "minLength": 4,
             "type": "string",
             "nullable": true
           },
@@ -19110,34 +19103,6 @@
         "additionalProperties": false,
         "description": "DTO for updating an existing terminology configuration"
       },
-      "API.DTOs.UpdateProfileDto": {
-        "type": "object",
-        "properties": {
-          "firstName": {
-            "maxLength": 100,
-            "minLength": 0,
-            "type": "string",
-            "description": "User's first name",
-            "nullable": true
-          },
-          "phoneNumber": {
-            "type": "string",
-            "description": "User's phone number",
-            "format": "tel",
-            "nullable": true
-          },
-          "age": {
-            "maximum": 150,
-            "minimum": 1,
-            "type": "integer",
-            "description": "User's age",
-            "format": "int32",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "DTO for updating user profile"
-      },
       "API.DTOs.UserDetailsDto": {
         "required": [
           "age",
@@ -19161,11 +19126,6 @@
           },
           "phoneNumber": {
             "type": "string",
-            "nullable": true
-          },
-          "avatarUrl": {
-            "type": "string",
-            "description": "User's profile picture/avatar URL",
             "nullable": true
           }
         },
@@ -19225,68 +19185,9 @@
           "phoneNumber": {
             "type": "string",
             "nullable": true
-          },
-          "avatarUrl": {
-            "type": "string",
-            "description": "User's profile picture/avatar URL",
-            "nullable": true
           }
         },
         "additionalProperties": false
-      },
-      "API.DTOs.UserProfileResponseDto": {
-        "required": [
-          "email",
-          "userName"
-        ],
-        "type": "object",
-        "properties": {
-          "userId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "userName": {
-            "type": "string",
-            "nullable": true
-          },
-          "firstName": {
-            "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "age": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "phoneNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "avatarUrl": {
-            "type": "string",
-            "description": "User's profile picture URL (from Bunny CDN)\r\nرابط صورة البروفايل (من Bunny CDN)",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "studentData": {
-            "$ref": "#/components/schemas/API.DTOs.StudentProfileData"
-          }
-        },
-        "additionalProperties": false,
-        "description": "User profile response DTO\r\nUsed for displaying user profile information"
       },
       "API.DTOs.VideoChapter.CreateVideoChapterDto": {
         "required": [
@@ -19906,6 +19807,11 @@
             "type": "string",
             "format": "date-time"
           },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
           "subjectId": {
             "type": "integer",
             "format": "int32"
@@ -19975,11 +19881,6 @@
           },
           "isCorrect": {
             "type": "boolean"
-          },
-          "order": {
-            "type": "integer",
-            "description": "Display order of the option",
-            "format": "int32"
           },
           "examQuestionId": {
             "type": "integer",
@@ -21896,11 +21797,6 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "avatarUrl": {
-            "type": "string",
-            "description": "User's profile picture/avatar URL\r\nStored from Bunny CDN or Cloudinary",
-            "nullable": true
           },
           "student": {
             "$ref": "#/components/schemas/API.Entities.Student"
