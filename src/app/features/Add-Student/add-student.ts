@@ -75,7 +75,7 @@ export class AddStudentComponent implements OnInit {
         this.academicYears = years.map(year => ({
           id: year.id,
           name: `Year ${year.yearNumber}`,
-          nameAr: `السنة ${year.yearNumber}`
+          nameAr: `${year.yearNumber}`
         }));
         this.yearsLoading.set(false);
       },
@@ -83,12 +83,12 @@ export class AddStudentComponent implements OnInit {
         console.error('❌ Failed to load academic years:', err);
         // Fallback to default years if API fails
         this.academicYears = [
-          { id: 7, name: 'Year 7', nameAr: 'السنة 7' },
-          { id: 8, name: 'Year 8', nameAr: 'السنة 8' },
-          { id: 9, name: 'Year 9', nameAr: 'السنة 9' },
-          { id: 10, name: 'Year 10', nameAr: 'السنة 10' },
-          { id: 11, name: 'Year 11', nameAr: 'السنة 11' },
-          { id: 12, name: 'Year 12', nameAr: 'السنة 12' }
+          { id: 7, name: 'Year 7', nameAr: '7' },
+          { id: 8, name: 'Year 8', nameAr: '8' },
+          { id: 9, name: 'Year 9', nameAr: '9' },
+          { id: 10, name: 'Year 10', nameAr: '10' },
+          { id: 11, name: 'Year 11', nameAr: '11' },
+          { id: 12, name: 'Year 12', nameAr: '12' }
         ];
         this.yearsLoading.set(false);
       }
