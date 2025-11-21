@@ -289,7 +289,7 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
     };
 
     // Call API to update profile
-    this.http.put(`${environment.apiBaseUrl}/api/Account/update-profile`, updateData, {
+    this.http.put(`${environment.apiBaseUrl}/Account/update-profile`, updateData, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
