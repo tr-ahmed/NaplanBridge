@@ -107,6 +107,7 @@ export class SubscriptionsComponent implements OnInit {
   activeTab = signal<'plans' | 'orders' | 'analytics'>('plans');
   loading = signal(false);
   Math = Math;
+  typeof = (val: any) => typeof val;  // ✅ للاستخدام في template
 
   // Data
   subscriptionPlans: SubscriptionPlan[] = [];
@@ -433,24 +434,42 @@ export class SubscriptionsComponent implements OnInit {
 
   // Handle plan type change
   onPlanTypeChange(planType: PlanType): void {
-    this.currentPlan.planType = planType;
+    console.log('🔄 onPlanTypeChange called with:', planType, 'Type:', typeof planType);
+
+    // ✅ تحويل إلى number إذا كان string
+    const planTypeNumber = typeof planType === 'string' ? parseInt(planType as any, 10) : planType;
+    console.log('   Converted to:', planTypeNumber, 'Type:', typeof planTypeNumber);
+
+    this.currentPlan.planType = planTypeNumber;
 
     // Reset fields based on plan type
-    if (planType === PlanType.SingleTerm) {
+    if (planTypeNumber === PlanType.SingleTerm) {
+      console.log('   → Single Term selected - clearing multi-term fields');
       this.selectedTerms = [];
       this.currentPlan.includedTermIds = '';
-    } else if (planType === PlanType.MultiTerm) {
+    } else if (planTypeNumber === PlanType.MultiTerm) {
+      console.log('   → Multi Term selected - clearing single term field');
       this.currentPlan.termId = undefined;
-    } else if (planType === PlanType.FullYear) {
+      this.selectedTerms = [];  // ✅ Reset selections
+    } else if (planTypeNumber === PlanType.FullYear) {
+      console.log('   → Full Year selected - clearing subject/term fields');
       this.currentPlan.subjectId = undefined;
       this.currentPlan.termId = undefined;
       this.selectedTerms = [];
       this.currentPlan.includedTermIds = '';
-    } else if (planType === PlanType.SubjectAnnual) {
+    } else if (planTypeNumber === PlanType.SubjectAnnual) {
+      console.log('   → Subject Annual selected - clearing term fields');
       this.currentPlan.termId = undefined;
       this.selectedTerms = [];
       this.currentPlan.includedTermIds = '';
     }
+
+    console.log('   Final state:', {
+      planType: this.currentPlan.planType,
+      subjectId: this.currentPlan.subjectId,
+      selectedTerms: this.selectedTerms,
+      filteredTerms: this.filteredTerms.length
+    });
   }
 
   // ============================================

@@ -612,11 +612,15 @@
               [(ngModel)]="currentPlan.planType"
               (ngModelChange)="onPlanTypeChange($event)"
               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-              <option [value]="undefined">Select Type</option>
+              <option [ngValue]="undefined">Select Type</option>
               @for (type of planTypes; track type.value) {
-                <option [value]="type.value">{{ type.label }}</option>
+                <option [ngValue]="type.value">{{ type.label }}</option>
               }
             </select>
+            <!-- Debug Info -->
+            <p class="mt-1 text-xs text-gray-500">
+              Current planType: {{ currentPlan.planType }} ({{ typeof currentPlan.planType }})
+            </p>
           </div>
         </div>
 
@@ -699,8 +703,14 @@
         }
 
         <!-- Multi-Term: Select Multiple Terms -->
+        <!-- Debug: planType = {{ currentPlan.planType }}, filteredTerms = {{ filteredTerms.length }}, subjectId = {{ currentPlan.subjectId }} -->
         @if (currentPlan.planType === 2) {
-          <div class="mt-4">
+          <div class="mt-4 border-2 border-dashed border-purple-300 p-4 rounded-lg bg-purple-50">
+            <p class="text-xs text-purple-600 mb-2">
+              DEBUG: planType={{currentPlan.planType}} ({{typeof(currentPlan.planType)}}),
+              subjectId={{currentPlan.subjectId}},
+              filteredTerms={{filteredTerms.length}}
+            </p>
             @if (filteredTerms.length > 0) {
               <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
                 <label class="block text-sm font-bold text-gray-800 mb-3">
@@ -755,6 +765,17 @@
             }
           </div>
         }
+
+        <!-- Additional Debug for ALL conditions -->
+        <div class="mt-4 p-3 bg-yellow-50 border border-yellow-300 rounded text-xs">
+          <strong>Debug Info:</strong><br>
+          planType: {{ currentPlan.planType }} ({{ typeof(currentPlan.planType) }})<br>
+          subjectId: {{ currentPlan.subjectId }}<br>
+          filteredTerms.length: {{ filteredTerms.length }}<br>
+          selectedTerms: {{ selectedTerms }}<br>
+          Condition (planType === 2): {{ currentPlan.planType === 2 }}<br>
+          Condition (planType == 2): {{ currentPlan.planType == 2 }}
+        </div>
 
         <!-- Year (for FullYear plan) -->
         @if (currentPlan.planType === 3) {
