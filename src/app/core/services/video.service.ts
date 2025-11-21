@@ -153,7 +153,10 @@ export class VideoService {
    * Initialize Bunny Stream player (HLS)
    */
   private initializeBunnyStreamPlayer(config: VideoPlayerConfig): void {
-    if (!this.videoElement) return;
+    if (!this.videoElement) {
+      console.error('❌ BunnyStream: Video element is null!');
+      return;
+    }
 
     console.log('🎥 BunnyStream: Checking HLS support...', {
       'HLS.isSupported()': Hls.isSupported(),

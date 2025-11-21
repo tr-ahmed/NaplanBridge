@@ -553,10 +553,18 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
    */
   private initializeVideoPlayer(): void {
     const lessonData = this.lesson();
-    if (!lessonData || !lessonData.videoUrl || !this.videoPlayerRef) {
-      console.log('❌ Video player not ready:', { lesson: lessonData, hasRef: !!this.videoPlayerRef });
+    if (!lessonData || !lessonData.videoUrl) {
+      console.log('❌ Video player not ready: No lesson or videoUrl');
       return;
     }
+
+    if (!this.videoPlayerRef) {
+      console.log('⏳ Video player element not ready yet, retrying in 200ms...');
+      setTimeout(() => this.initializeVideoPlayer(), 200);
+      return;
+    }
+
+    console.log('✅ Video player element ready, initializing...');
 
     const studentLessonData = this.studentLesson();
     const startTime = studentLessonData?.progress?.currentPosition || 0;
