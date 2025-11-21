@@ -177,7 +177,7 @@ export class SubscriptionsComponent implements OnInit {
 
   loadSubjects(): void {
     console.log('🔍 loadSubjects() called');
-    this.http.get<any>(`${environment.apiBaseUrl}/Subjects`)
+    this.http.get<any>(`${environment.apiBaseUrl}/Subjects?pageSize=-1`)
       .subscribe({
         next: (data) => {
           console.log('📦 Raw Subjects API response:', data);
