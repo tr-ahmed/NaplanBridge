@@ -281,9 +281,17 @@ export const routes: Routes = [
     data: { hideHeader: true, hideFooter: true }
   },
 
-  // Teacher Content Management
+  // Teacher Content Management - Redesigned
   {
     path: 'teacher/content-management',
+    loadComponent: () => import('./features/teacher/content-management/teacher-content-management-redesigned').then(m => m.TeacherContentManagementRedesignedComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+
+  // Teacher Content Management - Old (redirect to new)
+  {
+    path: 'teacher/content-management-old',
     loadComponent: () => import('./features/teacher/content-management/teacher-content-management.component').then(m => m.TeacherContentManagementComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
     data: { hideHeader: true, hideFooter: true }
