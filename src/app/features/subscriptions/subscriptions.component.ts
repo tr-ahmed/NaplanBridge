@@ -190,11 +190,11 @@ export class SubscriptionsComponent implements OnInit {
   // ============================================
 
   loadSubjects(): void {
-    console.log('loadSubjects() called');
+    console.log('🔍 loadSubjects() called');
     this.http.get<any>(`${environment.apiBaseUrl}/Subjects`)
       .subscribe({
         next: (data) => {
-          console.log('Raw API response:', data);
+          console.log('📦 Raw Subjects API response:', data);
 
           // API returns { items: [...], page, pageSize, ... }
           if (data && data.items && Array.isArray(data.items)) {
@@ -206,19 +206,22 @@ export class SubscriptionsComponent implements OnInit {
               categoryId: item.categoryId,
               yearId: item.yearId
             }));
-            console.log('Subjects extracted from items:', this.subjects);
+            console.log('✅ Subjects extracted from items:', this.subjects.length);
           } else if (Array.isArray(data)) {
             // Fallback for direct array response
             this.subjects = data;
+            console.log('✅ Subjects loaded as array:', this.subjects.length);
           } else {
-            console.log('Unexpected response format');
+            console.error('❌ Unexpected response format');
             this.subjects = [];
           }
-          console.log('Subjects loaded:', this.subjects);
-          console.log('Subjects length:', this.subjects.length);
+          console.log('📊 Total subjects loaded:', this.subjects.length);
+          if (this.subjects.length > 0) {
+            console.log('   First subject:', this.subjects[0]);
+          }
         },
         error: (error) => {
-          console.error('Error loading subjects:', error);
+          console.error('❌ Error loading subjects:', error);
           Swal.fire('Error', 'Failed to load subjects', 'error');
           this.subjects = [];
         }
@@ -480,7 +483,7 @@ export class SubscriptionsComponent implements OnInit {
   }
 
   openAddPlanModal(): void {
-    console.log('openAddPlanModal() called');
+    console.log('✅ openAddPlanModal() called');
     this.isEditMode = false;
     this.currentPlan = {
       name: '',
@@ -494,34 +497,59 @@ export class SubscriptionsComponent implements OnInit {
       includedTermIds: ''  // ✅ للـ MultiTerm
     };
     this.filteredTerms = [];
+    this.selectedTerms = [];  // ✅ Reset selected terms
 
-    // Reload subjects and years if empty
-    if (this.subjects.length === 0 || this.years.length === 0) {
-      console.log('Loading subjects and years');
+    // ✅ Always ensure subjects and years are loaded
+    console.log('📊 Current state - Subjects:', this.subjects.length, 'Years:', this.years.length);
+
+    if (this.subjects.length === 0) {
+      console.log('🔄 Loading subjects...');
       this.loadSubjects();
-      if (this.years.length === 0) {
-        this.loadYears();
-      }
+    } else {
+      console.log('✓ Subjects already loaded:', this.subjects.length);
+    }
+
+    if (this.years.length === 0) {
+      console.log('🔄 Loading years...');
+      this.loadYears();
+    } else {
+      console.log('✓ Years already loaded:', this.years.length);
     }
 
     this.showPlanModal = true;
   }
 
   openEditPlanModal(plan: SubscriptionPlan): void {
+    console.log('✅ openEditPlanModal() called for plan:', plan.name);
     this.isEditMode = true;
     this.currentPlan = { ...plan };
 
-    // Reload subjects if empty
+    // ✅ Reset selections
+    this.selectedTerms = [];
+    if (plan.includedTermIds) {
+      this.selectedTerms = plan.includedTermIds.split(',').map(id => parseInt(id, 10));
+    }
+
+    // ✅ Ensure subjects are loaded
     if (this.subjects.length === 0) {
+      console.log('🔄 Loading subjects for edit...');
       this.loadSubjects();
     }
 
-    // Load terms if editing a plan with a subject
+    // ✅ Ensure years are loaded
+    if (this.years.length === 0) {
+      console.log('🔄 Loading years for edit...');
+      this.loadYears();
+    }
+
+    // ✅ Load terms if editing a plan with a subject
     if (plan.subjectId && plan.subjectId > 0) {
+      console.log('🔄 Loading terms for subjectId:', plan.subjectId);
       this.onSubjectChange(plan.subjectId);
     } else {
       this.filteredTerms = [];
     }
+
     this.showPlanModal = true;
   }
 
