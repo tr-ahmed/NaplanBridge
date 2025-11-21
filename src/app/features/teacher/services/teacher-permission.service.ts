@@ -74,8 +74,8 @@ export interface SubjectDto {
 export class TeacherPermissionService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiBaseUrl}/teacherpermissions`;
-  private usersUrl = `${environment.apiBaseUrl}/users`;
-  private subjectsUrl = `${environment.apiBaseUrl}/content/subjects`;
+  private teachersUrl = `${environment.apiBaseUrl}/user/get-teachers`;
+  private subjectsUrl = `${environment.apiBaseUrl}/subjects`;
 
   /**
    * Grant permission to a teacher for a subject
@@ -216,19 +216,10 @@ export class TeacherPermissionService {
    */
   getTeachers(): Observable<TeacherDto[]> {
     console.log('👨‍🏫 Fetching teachers list');
-    // Get all users and filter by Teacher role
-    return this.http.get<ApiResponse<any[]>>(`${this.usersUrl}`)
+    return this.http.get<ApiResponse<TeacherDto[]>>(`${this.teachersUrl}`)
       .pipe(
         map(response => {
-          // Filter users with Teacher role
-          const teachers = (response.data || [])
-            .filter((user: any) => user.roles?.includes('Teacher'))
-            .map((user: any) => ({
-              id: user.id,
-              name: user.userName || user.name || 'Unknown',
-              email: user.email || '',
-              roles: user.roles || []
-            }));
+          const teachers = response.data || [];
           console.log(`✅ Retrieved ${teachers.length} teachers`);
           return teachers;
         }),

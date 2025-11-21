@@ -1,7 +1,7 @@
 <!-- Comprehensive Lesson Management - Full Page Design -->
 <div class="lesson-management-container min-h-screen bg-gray-50 py-8">
   <div class="container mx-auto px-4">
-    
+
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
       <div class="flex items-center gap-4">
@@ -36,7 +36,7 @@
 
     <!-- Main Content -->
     <div *ngIf="!isLoading && lesson">
-      
+
       <!-- Lesson Overview Card -->
       <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -66,7 +66,7 @@
               </div>
               <div *ngIf="lesson.videoUrl">
                 <label class="text-sm font-medium text-gray-500">Video</label>
-                <video [src]="lesson.videoUrl" controls class="w-full h-48 rounded-lg mt-2"></video>
+                <video #videoPlayer controls class="w-full h-48 rounded-lg mt-2"></video>
               </div>
             </div>
           </div>
@@ -266,7 +266,7 @@
 
         <!-- Tab Content -->
         <div class="p-6">
-          
+
           <!-- Overview Tab -->
           <div *ngIf="activeTab === 'overview'">
             <div class="text-center py-12">
@@ -684,7 +684,7 @@
         </svg>
       </button>
     </div>
-    
+
     <form (ngSubmit)="saveResource()">
       <div class="space-y-4">
         <div>
@@ -692,13 +692,13 @@
           <input type="text" [(ngModel)]="resourceForm.title" name="title" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea [(ngModel)]="resourceForm.description" name="description" rows="3"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Resource Type</label>
           <select [(ngModel)]="resourceForm.resourceType" name="resourceType"
@@ -710,7 +710,7 @@
             <option value="other">Other</option>
           </select>
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">File {{ editingResource ? '(optional)' : '*' }}</label>
           <input type="file" (change)="onFileChange($event, 'resource')" #resourceFileInput
@@ -718,7 +718,7 @@
           <p *ngIf="getFileName('resource')" class="text-sm text-gray-600 mt-1">Selected: {{ getFileName('resource') }}</p>
         </div>
       </div>
-      
+
       <div class="flex justify-end gap-3 mt-6">
         <button type="button" (click)="closeResourceForm()"
           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
@@ -744,7 +744,7 @@
         </svg>
       </button>
     </div>
-    
+
     <form (ngSubmit)="saveNote()">
       <div class="space-y-4">
         <div>
@@ -752,14 +752,14 @@
           <input type="text" [(ngModel)]="noteForm.title" name="title" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Content *</label>
           <textarea [(ngModel)]="noteForm.content" name="content" rows="6" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
         </div>
       </div>
-      
+
       <div class="flex justify-end gap-3 mt-6">
         <button type="button" (click)="closeNoteForm()"
           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
@@ -785,7 +785,7 @@
         </svg>
       </button>
     </div>
-    
+
     <form (ngSubmit)="saveQuestion()">
       <div class="space-y-4">
         <div>
@@ -793,7 +793,7 @@
           <textarea [(ngModel)]="questionForm.questionText" name="questionText" rows="3" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
         </div>
-        
+
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Question Type</label>
@@ -804,14 +804,14 @@
               <option value="ShortAnswer">Short Answer</option>
             </select>
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Points</label>
             <input type="number" [(ngModel)]="questionForm.points" name="points" min="1"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
           </div>
         </div>
-        
+
         <div *ngIf="questionForm.questionType === 'MultipleChoice'">
           <div class="flex items-center justify-between mb-2">
             <label class="block text-sm font-medium text-gray-700">Options</label>
@@ -820,17 +820,17 @@
               + Add Option
             </button>
           </div>
-          
+
           <div class="space-y-2">
             <div *ngFor="let option of questionForm.options; let i = index" class="flex items-center gap-2">
               <input type="text" [(ngModel)]="option.optionText" [name]="'option' + i" placeholder="Option text"
                 class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-              
+
               <label class="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
                 <input type="checkbox" [(ngModel)]="option.isCorrect" [name]="'correct' + i" class="rounded">
                 <span class="text-sm">Correct</span>
               </label>
-              
+
               <button type="button" (click)="removeOption(i)" *ngIf="questionForm.options.length > 2"
                 class="p-2 text-red-600 hover:bg-red-50 rounded">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -841,7 +841,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="flex justify-end gap-3 mt-6">
         <button type="button" (click)="closeQuestionForm()"
           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
@@ -867,7 +867,7 @@
         </svg>
       </button>
     </div>
-    
+
     <form (ngSubmit)="saveDiscussion()">
       <div class="space-y-4">
         <div>
@@ -875,14 +875,14 @@
           <input type="text" [(ngModel)]="discussionForm.question" name="question" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
           <textarea [(ngModel)]="discussionForm.details" name="details" rows="4"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"></textarea>
         </div>
       </div>
-      
+
       <div class="flex justify-end gap-3 mt-6">
         <button type="button" (click)="closeDiscussionForm()"
           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
@@ -908,7 +908,7 @@
         </svg>
       </button>
     </div>
-    
+
     <form (ngSubmit)="saveExam()">
       <div class="space-y-4">
         <div>
@@ -916,34 +916,34 @@
           <input type="text" [(ngModel)]="examForm.title" name="title" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea [(ngModel)]="examForm.description" name="description" rows="3"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
         </div>
-        
+
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
             <input type="number" [(ngModel)]="examForm.duration" name="duration" min="1"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Exam Date</label>
             <input type="date" [(ngModel)]="examForm.examDate" name="examDate"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
           </div>
         </div>
-        
+
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Total Marks</label>
             <input type="number" [(ngModel)]="examForm.totalMarks" name="totalMarks" min="1"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Passing Marks</label>
             <input type="number" [(ngModel)]="examForm.passingMarks" name="passingMarks" min="1"
@@ -951,7 +951,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="flex justify-end gap-3 mt-6">
         <button type="button" (click)="closeExamForm()"
           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
@@ -977,7 +977,7 @@
         </svg>
       </button>
     </div>
-    
+
     <form (ngSubmit)="saveChapter()">
       <div class="space-y-4">
         <div>
@@ -985,13 +985,13 @@
           <input type="text" [(ngModel)]="chapterForm.title" name="title" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea [(ngModel)]="chapterForm.description" name="description" rows="3"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
         </div>
-        
+
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Timestamp (HH:MM:SS) *</label>
@@ -999,7 +999,7 @@
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
             <p class="text-xs text-gray-500 mt-1">Time in video when chapter starts</p>
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Order *</label>
             <input type="number" [(ngModel)]="chapterForm.orderIndex" name="orderIndex" min="0" required
@@ -1008,7 +1008,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="flex justify-end gap-3 mt-6">
         <button type="button" (click)="closeChapterForm()"
           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
@@ -1034,7 +1034,7 @@
         </svg>
       </button>
     </div>
-    
+
     <form (ngSubmit)="saveLessonEdit()">
       <div class="space-y-4">
         <div>
@@ -1042,20 +1042,20 @@
           <input type="text" [(ngModel)]="lessonEditForm.title" name="title" required
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea [(ngModel)]="lessonEditForm.description" name="description" rows="4"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Poster Image (optional)</label>
           <input type="file" (change)="onFileChange($event, 'posterFile')" accept="image/*"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           <p *ngIf="getFileName('posterFile')" class="text-sm text-gray-600 mt-1">Selected: {{ getFileName('posterFile') }}</p>
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Video File (optional)</label>
           <input type="file" (change)="onFileChange($event, 'videoFile')" accept="video/*"
@@ -1063,7 +1063,7 @@
           <p *ngIf="getFileName('videoFile')" class="text-sm text-gray-600 mt-1">Selected: {{ getFileName('videoFile') }}</p>
         </div>
       </div>
-      
+
       <div class="flex justify-end gap-3 mt-6">
         <button type="button" (click)="closeLessonEdit()"
           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">

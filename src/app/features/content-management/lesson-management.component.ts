@@ -1,9 +1,11 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ContentService } from '../../core/services/content.service';
 import { AuthService } from '../../core/services/auth.service';
+import { VideoService } from '../../core/services/video.service';
+import { Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
 
 /**
@@ -25,15 +27,18 @@ import Swal from 'sweetalert2';
   styleUrls: ['./lesson-management.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class LessonManagementComponent implements OnInit, OnDestroy {
+export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('videoPlayer', { static: false }) videoPlayerRef!: ElementRef<HTMLVideoElement>;
+  private destroy$ = new Subject<void>();
+
   lessonId!: number;
   lesson: any = null;
-  
+
   // ============================================
   // Active Tab Management
   // ============================================
   activeTab: 'overview' | 'resources' | 'notes' | 'questions' | 'discussions' | 'exams' | 'chapters' = 'overview';
-  
+
   // ============================================
   // Loading States
   // ============================================
@@ -44,7 +49,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   isLoadingDiscussions = false;
   isLoadingExams = false;
   isLoadingChapters = false;
-  
+
   // ============================================
   // Resources Management
   // ============================================
@@ -57,7 +62,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   };
   isResourceFormOpen = false;
   editingResource: any = null;
-  
+
   // ============================================
   // Notes Management
   // ============================================
@@ -69,7 +74,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   };
   isNoteFormOpen = false;
   editingNote: any = null;
-  
+
   // ============================================
   // Questions/Quiz Management
   // ============================================
@@ -87,7 +92,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   };
   isQuestionFormOpen = false;
   editingQuestion: any = null;
-  
+
   // ============================================
   // Discussions Management
   // ============================================
@@ -98,7 +103,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   };
   isDiscussionFormOpen = false;
   editingDiscussion: any = null;
-  
+
   // ============================================
   // Exams Management
   // ============================================
@@ -113,7 +118,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   };
   isExamFormOpen = false;
   editingExam: any = null;
-  
+
   // ============================================
   // Chapters Management (Lesson Segments/Timestamps)
   // ============================================
@@ -127,7 +132,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   };
   isChapterFormOpen = false;
   editingChapter: any = null;
-  
+
   // ============================================
   // Lesson Edit Form
   // ============================================
@@ -144,7 +149,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private contentService: ContentService,
-    private authService: AuthService
+    private authService: AuthService,
+    private videoService: VideoService
   ) {}
 
   ngOnInit(): void {
@@ -156,14 +162,23 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+    // Initialize video player after view is ready
+    if (this.lesson && this.lesson.videoUrl) {
+      setTimeout(() => this.initializeVideoPlayer(), 100);
+    }
+  }
+
   ngOnDestroy(): void {
-    // Cleanup if needed
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.videoService.cleanup();
   }
 
   // ============================================
   // Data Loading
   // ============================================
-  
+
   async loadAllData(): Promise<void> {
     await this.loadLesson();
     await Promise.all([
@@ -180,6 +195,10 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
     try {
       this.isLoading = true;
       this.lesson = await this.contentService.getLesson(this.lessonId).toPromise();
+      // Initialize video player after lesson is loaded
+      if (this.lesson && this.lesson.videoUrl) {
+        setTimeout(() => this.initializeVideoPlayer(), 100);
+      }
     } catch (error: any) {
       console.error('Error loading lesson:', error);
       Swal.fire('Error', 'Failed to load lesson details', 'error');
@@ -270,15 +289,72 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // Tab Navigation
   // ============================================
-  
+
   setActiveTab(tab: typeof this.activeTab): void {
     this.activeTab = tab;
   }
 
   // ============================================
+  // Video Player Initialization
+  // ============================================
+
+  private initializeVideoPlayer(): void {
+    if (!this.lesson || !this.lesson.videoUrl) {
+      console.log('❌ Video player not ready: No lesson or videoUrl');
+      return;
+    }
+
+    if (!this.videoPlayerRef || !this.videoPlayerRef.nativeElement) {
+      console.log('⏳ Video player element not ready yet');
+      return;
+    }
+
+    console.log('✅ Video player element ready, initializing...');
+
+    const provider = this.lesson.videoProvider || 'BunnyStream';
+
+    // Build player configuration
+    const playerConfig: any = {
+      videoUrl: this.lesson.videoUrl,
+      posterUrl: this.lesson.posterUrl,
+      provider: provider,
+      startTime: 0,
+      autoplay: false,
+      muted: false
+    };
+
+    console.log('🎬 Initializing video player with HLS support:', {
+      lessonId: this.lesson.id,
+      provider: provider,
+      videoUrl: this.lesson.videoUrl,
+      isHLS: this.lesson.videoUrl?.includes('.m3u8'),
+      config: playerConfig
+    });
+
+    this.videoService.initializePlayer(
+      playerConfig,
+      this.videoPlayerRef.nativeElement,
+      this.lesson.id
+    );
+
+    // Listen to video events
+    this.videoService.onVideoPlaying.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      console.log('✅ Video playing');
+    });
+
+    this.videoService.onVideoPaused.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      console.log('⏸️ Video paused');
+    });
+
+    this.videoService.onVideoEnded.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      console.log('✅ Video ended');
+    });
+  }
+
+  // ============================================
   // Lesson Details Management
   // ============================================
-  
+
   openLessonEdit(): void {
     if (this.lesson) {
       this.lessonEditForm = {
@@ -345,7 +421,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // Resources Management
   // ============================================
-  
+
   openAddResource(): void {
     this.editingResource = null;
     this.resourceForm = {
@@ -428,7 +504,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
       });
     } catch (error: any) {
       const errorMessage = this.extractErrorMessage(error);
-      
+
       // Check if it's the known backend 500 error
       if (error.status === 500 && error.error?.statusCode === 500) {
         Swal.fire({
@@ -491,7 +567,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // Notes Management
   // ============================================
-  
+
   openAddNote(): void {
     this.editingNote = null;
     this.noteForm = {
@@ -613,7 +689,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // Questions Management
   // ============================================
-  
+
   openAddQuestion(): void {
     this.editingQuestion = null;
     this.questionForm = {
@@ -632,14 +708,14 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
 
   openEditQuestion(question: any): void {
     console.log('📝 Opening edit for question:', question);
-    
+
     this.editingQuestion = question;
-    
+
     // Map API response to form structure
     // API returns: { questionText, isMultipleChoice, videoMinute, options: [{ id, text }] }
     // Form needs: { questionText, questionType, points, options: [{ optionText, isCorrect }] }
-    
-    const mappedOptions = question.options && Array.isArray(question.options) 
+
+    const mappedOptions = question.options && Array.isArray(question.options)
       ? question.options.map((opt: any) => ({
           optionText: opt.text || opt.optionText || '',
           isCorrect: opt.isCorrect || false,
@@ -649,14 +725,14 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
           { optionText: '', isCorrect: false },
           { optionText: '', isCorrect: false }
         ];
-    
+
     this.questionForm = {
       questionText: question.questionText || '',
       questionType: question.isMultipleChoice ? 'MultipleChoice' : 'TrueFalse',
       points: 1, // Not stored in API, default to 1
       options: mappedOptions
     };
-    
+
     console.log('📝 Form populated with:', this.questionForm);
     this.isQuestionFormOpen = true;
   }
@@ -775,7 +851,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // Discussions Management
   // ============================================
-  
+
   openAddDiscussion(): void {
     this.editingDiscussion = null;
     this.discussionForm = {
@@ -864,7 +940,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // Exams Management
   // ============================================
-  
+
   openAddExam(): void {
     this.editingExam = null;
     this.examForm = {
@@ -986,7 +1062,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // Chapters Management
   // ============================================
-  
+
   openAddChapter(): void {
     this.editingChapter = null;
     this.chapterForm = {
@@ -1104,7 +1180,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // File Handling
   // ============================================
-  
+
   onFileChange(event: any, field: string): void {
     const file = event.target.files?.[0];
     if (file) {
@@ -1132,7 +1208,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // ============================================
   // Helper Methods
   // ============================================
-  
+
   goBack(): void {
     this.router.navigate(['/admin/content-management']);
   }
@@ -1140,11 +1216,11 @@ export class LessonManagementComponent implements OnInit, OnDestroy {
   // Format timestamp (seconds) to HH:MM:SS for display
   formatTimestamp(seconds: number): string {
     if (!seconds && seconds !== 0) return '00:00:00';
-    
+
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     return [hours, minutes, secs]
       .map(v => v.toString().padStart(2, '0'))
       .join(':');
