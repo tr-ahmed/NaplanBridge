@@ -35,7 +35,7 @@
       <span>My Exams</span>
     </a>
 
-    <!-- My Students -->
+    <!-- My Students - Hidden
     <a routerLink="/teacher/students"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{exact: false}"
@@ -43,8 +43,9 @@
       <i class="fas fa-user-graduate"></i>
       <span>My Students</span>
     </a>
+    -->
 
-    <!-- Reports Section -->
+    <!-- Reports Section - Hidden
     <div class="px-4 py-2 mt-3">
       <small class="text-white/50 fw-semibold">REPORTS</small>
     </div>
@@ -64,6 +65,7 @@
       <i class="fas fa-chart-bar"></i>
       <span>Student Reports</span>
     </a>
+    -->
   </nav>
   <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
     <div class="d-flex align-items-center gap-3 cursor-pointer" (click)="navigateToProfile()" style="transition: opacity 0.2s; cursor: pointer;" [style.opacity]="profileHovered() ? '0.8' : '1'" (mouseenter)="profileHovered.set(true)" (mouseleave)="profileHovered.set(false)">
