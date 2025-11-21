@@ -1,1 +1,64 @@
-// Empty styles - using Tailwind CSS
+// Custom styles for Subscription Plans Management
+
+// Discount badge animation
+.discount-badge {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
+  }
+}
+
+// Price display enhancements
+.original-price {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    background: currentColor;
+  }
+}
+
+// Plan card hover effects
+.plan-card {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Recommended badge pulse
+.recommended-badge {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+// Auto-fill button hover
+.auto-fill-btn {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  }
+}

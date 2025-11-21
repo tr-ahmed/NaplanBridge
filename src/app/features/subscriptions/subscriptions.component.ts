@@ -8,29 +8,12 @@ import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
 import { SubscriptionPlansService } from '../../core/services/subscription-plans.service';
 import {
-  SubscriptionPlan as SubscriptionPlanModel,
+  SubscriptionPlan,
   CreateSubscriptionPlanDto
 } from '../../models/subscription.models';
 import { PlanType, getPlanTypeLabel } from '../../models/enums';
 
-interface SubscriptionPlan {
-  planId?: number;
-  id?: number;
-  name?: string;
-  description?: string;
-  price?: number;
-  planType?: PlanType;  // ✅ استخدام enum بدلاً من number
-  coverageDescription?: string;
-  subjectId?: number;
-  subjectName?: string;
-  termId?: number;
-  termNumber?: number;
-  yearId?: number;
-  includedTermIds?: string;  // ✅ للـ MultiTerm plans
-  durationInDays?: number; // ✅ إضافة durationInDays
-  isActive?: boolean;
-}
-
+// Local interfaces for component-specific data
 interface Order {
   id?: number;
   orderId?: string;
@@ -288,6 +271,9 @@ export class SubscriptionsComponent implements OnInit {
         this.currentPlan.subjectName = selectedSubject.subjectName || selectedSubject.name;
         console.log('📝 Subject name:', this.currentPlan.subjectName);
       }
+
+      // ✅ Update plan name and price suggestions
+      this.updatePlanSuggestions();
     } else {
       console.log('⚠️ Invalid subjectId, clearing terms');
       this.filteredTerms = [];
@@ -361,6 +347,104 @@ export class SubscriptionsComponent implements OnInit {
     return term ? `${term.name} (Term ${term.termNumber})` : `Term #${termId}`;
   }
 
+  // ✅ Get year number from subject
+  getYearNumberFromSubject(subjectId?: number): number | null {
+    if (!subjectId) return null;
+    const subject = this.subjects.find(s => s.id === subjectId);
+    return subject?.yearId || null;
+  }
+
+  // ✅ Get year name
+  getYearName(yearId?: number): string {
+    if (!yearId) return '';
+    const year = this.years.find(y => y.id === yearId);
+    return year?.name || `Year ${yearId + 6}`;
+  }
+
+  // ✅ Auto-generate plan name based on selections
+  generatePlanName(): string {
+    const planType = this.currentPlan.planType;
+    const subjectName = this.getSubjectName(this.currentPlan.subjectId);
+    const termName = this.getTermName(this.currentPlan.termId);
+    
+    // Get year from subject
+    const yearId = this.getYearNumberFromSubject(this.currentPlan.subjectId);
+    const yearName = yearId ? this.getYearName(yearId) : '';
+
+    switch (planType) {
+      case PlanType.SingleTerm:
+        return yearName 
+          ? `${subjectName} ${termName} - ${yearName}`
+          : `${subjectName} ${termName}`;
+      
+      case PlanType.MultiTerm:
+        const numTerms = this.selectedTerms.length;
+        return yearName
+          ? `${subjectName} ${numTerms} Terms - ${yearName}`
+          : `${subjectName} Multiple Terms`;
+      
+      case PlanType.SubjectAnnual:
+        return yearName
+          ? `${subjectName} Full Year - ${yearName}`
+          : `${subjectName} Annual`;
+      
+      case PlanType.FullYear:
+        const year = this.getYearName(this.currentPlan.yearId);
+        return `Full Year Access - ${year}`;
+      
+      default:
+        return '';
+    }
+  }
+
+  // ✅ Get suggested price based on year and plan type
+  getSuggestedPrice(): number {
+    const yearId = this.getYearNumberFromSubject(this.currentPlan.subjectId) 
+                   || this.currentPlan.yearId;
+    if (!yearId) return 49.99;
+
+    // Base prices by year (Year 7 = yearId 1)
+    const yearNumber = yearId + 6; // Convert yearId to year number
+    const basePriceByYear: { [key: number]: number } = {
+      7: 49.99,
+      8: 54.99,
+      9: 59.99,
+      10: 64.99,
+      11: 69.99,
+      12: 79.99
+    };
+
+    const basePrice = basePriceByYear[yearNumber] || 49.99;
+
+    // Adjust price based on plan type
+    switch (this.currentPlan.planType) {
+      case PlanType.SingleTerm:
+        return basePrice;
+      
+      case PlanType.MultiTerm:
+        const numTerms = this.selectedTerms.length || 2;
+        // Apply 10% discount for multi-term
+        return Math.round((basePrice * numTerms * 0.9) * 100) / 100;
+      
+      case PlanType.SubjectAnnual:
+        // 4 terms with 25% discount
+        return Math.round((basePrice * 4 * 0.75) * 100) / 100;
+      
+      case PlanType.FullYear:
+        // Assume 6 subjects, 25% discount
+        return Math.round((basePrice * 6 * 0.75) * 100) / 100;
+      
+      default:
+        return basePrice;
+    }
+  }
+
+  // ✅ Apply suggested name and price
+  applySuggestions(): void {
+    this.currentPlan.name = this.generatePlanName();
+    this.currentPlan.price = this.getSuggestedPrice();
+  }
+
   isPlanActive(plan: any): boolean {
     // Check both camelCase and PascalCase property names
     // If isActive property doesn't exist, assume plan is active (default true)
@@ -371,27 +455,12 @@ export class SubscriptionsComponent implements OnInit {
 
   // Validate plan has required data
   isValidPlan(plan: SubscriptionPlan): boolean {
-    // Convert local interface to model interface
+    // Basic validation
     if (!plan.id || !plan.name || !plan.price || plan.planType === undefined) {
       return false;
     }
 
-    const modelPlan: SubscriptionPlanModel = {
-      id: plan.id,
-      name: plan.name,
-      description: plan.description || '',
-      price: plan.price,
-      planType: plan.planType,
-      subjectId: plan.subjectId,
-      subjectName: plan.subjectName,
-      termId: plan.termId,
-      yearId: plan.yearId,
-      durationInDays: plan.durationInDays || 30,
-      includedTermIds: plan.includedTermIds,
-      isActive: plan.isActive ?? true
-    };
-
-    return this.plansService.isValidPlan(modelPlan);
+    return this.plansService.isValidPlan(plan);
   }
 
   // Get Plan Type label for display
@@ -536,6 +605,28 @@ export class SubscriptionsComponent implements OnInit {
     }
 
     this.showPlanModal = true;
+  }
+
+  // ✅ Update suggestions when selections change
+  updatePlanSuggestions(): void {
+    if (this.currentPlan.subjectId && this.currentPlan.subjectId > 0) {
+      // Only auto-update if name is empty or looks auto-generated
+      if (!this.currentPlan.name || this.isAutoGeneratedName(this.currentPlan.name)) {
+        this.currentPlan.name = this.generatePlanName();
+      }
+      // Always update suggested price
+      const suggested = this.getSuggestedPrice();
+      if (!this.currentPlan.price || this.currentPlan.price === 0) {
+        this.currentPlan.price = suggested;
+      }
+    }
+  }
+
+  isAutoGeneratedName(name: string): boolean {
+    // Check if name follows auto-generation pattern
+    return name.includes(' - Year ') || 
+           name.includes('Full Year') ||
+           name.includes('Multiple Terms');
   }
 
   openEditPlanModal(plan: SubscriptionPlan): void {

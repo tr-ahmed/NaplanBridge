@@ -31,28 +31,43 @@ export const SubscriptionStatuses = {
 
 export interface SubscriptionPlan {
   id: number;
+  planId?: number;  // Alternative ID field
   name: string;
   description: string;
   price: number;
+  
+  // ✅ Discount fields (calculated by backend)
+  originalPrice?: number;           // Original price before discount
+  discountPercentage?: number;      // Discount percentage (e.g., 10 for 10%)
+  saveAmount?: number;              // Amount saved (originalPrice - price)
+  
   planType: PlanType;
 
   // Relations
   subjectId?: number;
   subjectName?: string;
   termId?: number;
-  yearId?: number;
+  termNumber?: number;
+  yearId?: number;                  // ✅ Optional for all plan types
 
   // Duration
-  durationInDays: number;
+  durationInDays?: number;
+  duration?: string;                // ✅ Human-readable (e.g., "3 months")
 
   // For MultiTerm plans
-  includedTermIds?: string; // e.g., "1,2" or "3,4"
+  includedTermIds?: string;         // e.g., "12,13" or "14,15"
+  coverageDescription?: string;     // ✅ Coverage description field
 
   // Status
   isActive: boolean;
+  isRecommended?: boolean;          // ✅ Highlight recommended plans
 
   // Features (optional)
   features?: string[];
+  
+  // Payment integration
+  stripePriceId?: string;
+  currency?: string;                // ✅ Currency code (e.g., "USD")
 
   // Metadata
   createdAt?: Date;
@@ -160,13 +175,13 @@ export interface CreateSubscriptionPlanDto {
   description: string;
   price: number;
   planType: PlanType;
-  subjectId?: number;
-  termId?: number;           // مطلوب للـ SingleTerm plans
-  yearId?: number;
-  durationInDays?: number;   // اختياري - يُحسب تلقائياً إذا لم يُحدد
-  includedTermIds?: string;  // مطلوب للـ MultiTerm plans (e.g., "1,2")
-  features?: string[];
   isActive?: boolean;        // افتراضي true
+  subjectId?: number;        // ✅ Required for SingleTerm, MultiTerm, SubjectAnnual
+  termId?: number;           // ✅ Required for SingleTerm only
+  yearId?: number;           // ✅ Optional - mainly for FullYear plans
+  includedTermIds?: string;  // ✅ Required for MultiTerm plans (e.g., "12,13")
+  durationInDays?: number;   // ✅ Optional - calculated by backend if not provided
+  features?: string[];       // ✅ Optional - plan features list
 }
 
 export interface UpdateSubscriptionPlanDto {
