@@ -254,10 +254,25 @@ export class TeacherAvailabilityComponent implements OnInit {
    * Returns true if conflict exists
    */
   private checkTimeSlotConflict(newSlot: CreateAvailabilityDto): boolean {
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
     const existingSlots = this.availabilities().filter(slot => {
-      // Compare day of week - newSlot.dayOfWeek is now a string like "Sunday"
-      // slot.dayOfWeek from backend is also a string
-      return slot.dayOfWeek.toString().toLowerCase() === newSlot.dayOfWeek.toLowerCase();
+      // Normalize both to day names for proper comparison
+      // Backend might return numeric (0-6) or string ("Sunday", "Monday", etc.)
+      let slotDayName: string;
+      if (typeof slot.dayOfWeek === 'number') {
+        slotDayName = dayNames[slot.dayOfWeek];
+      } else {
+        const parsedDay = parseInt(slot.dayOfWeek as any);
+        if (!isNaN(parsedDay) && parsedDay >= 0 && parsedDay <= 6) {
+          slotDayName = dayNames[parsedDay];
+        } else {
+          slotDayName = slot.dayOfWeek as string;
+        }
+      }
+
+      // newSlot.dayOfWeek is a string like "Sunday", "Monday", etc.
+      return slotDayName.toLowerCase() === newSlot.dayOfWeek.toLowerCase();
     });
 
     for (const existing of existingSlots) {
@@ -305,8 +320,19 @@ export class TeacherAvailabilityComponent implements OnInit {
    */
   deleteAvailability(availability: TeacherAvailabilityDto): void {
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const dayIndex = typeof availability.dayOfWeek === 'number' ? availability.dayOfWeek : parseInt(availability.dayOfWeek as any);
-    const dayName = dayNames[dayIndex] || `Day ${availability.dayOfWeek}`;
+
+    // Backend returns dayOfWeek as string ("Sunday", "Monday", etc.)
+    // But handle both cases for backwards compatibility
+    let dayName: string;
+
+    if (typeof availability.dayOfWeek === 'number') {
+      dayName = dayNames[availability.dayOfWeek];
+    } else if (!isNaN(parseInt(availability.dayOfWeek as any)) && parseInt(availability.dayOfWeek as any) >= 0 && parseInt(availability.dayOfWeek as any) <= 6) {
+      dayName = dayNames[parseInt(availability.dayOfWeek as any)];
+    } else {
+      dayName = availability.dayOfWeek as string;
+    }
+
     const timeSlot = `${this.formatTime(availability.startTime)} - ${this.formatTime(availability.endTime)}`;
 
     this.confirmDialog.confirmDelete(`${dayName} time slot (${timeSlot})`).subscribe(confirmed => {
@@ -345,9 +371,21 @@ export class TeacherAvailabilityComponent implements OnInit {
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     this.availabilities().forEach(availability => {
-      // Convert numeric day (0-6) to day name
-      const dayIndex = typeof availability.dayOfWeek === 'number' ? availability.dayOfWeek : parseInt(availability.dayOfWeek as any);
-      const dayName = dayNames[dayIndex] || `Day ${availability.dayOfWeek}`;
+      // Backend returns dayOfWeek as string ("Sunday", "Monday", etc.)
+      // But handle both cases for backwards compatibility
+      let dayName: string;
+
+      if (typeof availability.dayOfWeek === 'number') {
+        // Numeric format (0-6)
+        dayName = dayNames[availability.dayOfWeek];
+      } else if (!isNaN(parseInt(availability.dayOfWeek as any)) && parseInt(availability.dayOfWeek as any) >= 0 && parseInt(availability.dayOfWeek as any) <= 6) {
+        // String numeric format ("0", "1", etc.)
+        dayName = dayNames[parseInt(availability.dayOfWeek as any)];
+      } else {
+        // String day name format ("Sunday", "Monday", etc.) - this is the expected format
+        dayName = availability.dayOfWeek as string;
+      }
+
       if (!grouped[dayName]) {
         grouped[dayName] = [];
       }

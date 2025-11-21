@@ -312,71 +312,10 @@
                 }
               </div>
 
-              <!-- Video Progress -->
+              <!-- Chapter Progress Info -->
               @if (videoDuration() > 0) {
-                <div class="bg-gray-100 rounded-lg p-4">
-                  <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
-                    <span>{{ formatTime(videoCurrentTime()) }}</span>
-                    @if (currentChapter()) {
-                      <span class="text-blue-600 font-medium">{{ currentChapter()!.title }}</span>
-                    }
-                    <span>{{ formatTime(videoDuration()) }}</span>
-                  </div>
-
-                  <!-- Enhanced Progress Bar with Chapter Markers -->
-                  <div class="relative video-progress-bar">
-                    <!-- Main Progress Bar -->
-                    <div
-                      class="w-full bg-gray-300 rounded-full h-3 cursor-pointer hover:h-4 transition-all duration-200"
-                      (click)="onProgressBarClick($event)">
-
-                      <!-- Progress Fill -->
-                      <div
-                        class="progress-fill bg-blue-600 h-full rounded-full transition-all duration-200 relative"
-                        [style.width.%]="videoProgress()">
-                      </div>
-
-                      <!-- Chapter Markers -->
-                      @if (hasChapters()) {
-                        @for (chapter of videoChapters(); track chapter.id) {
-                          <div
-                            class="chapter-marker"
-                            [style.left.%]="getChapterPosition(chapter)"
-                            (click)="jumpToChapter(chapter); $event.stopPropagation()">
-
-                            <!-- Chapter Tooltip -->
-                            <div class="chapter-tooltip">
-                              <div class="font-medium">{{ chapter.title }}</div>
-                              <div class="text-gray-300">{{ formatSecondsToTime(chapter.startTime) }}</div>
-                            </div>
-                          </div>
-                        }
-                      }
-
-                      <!-- Current Time Indicator -->
-                      <div
-                        class="time-indicator"
-                        [style.left.%]="videoProgress()">
-                      </div>
-                    </div>
-
-                    <!-- Chapter Segments Background -->
-                    @if (hasChapters()) {
-                      <div class="absolute top-0 w-full h-3 rounded-full overflow-hidden -z-10">
-                        @for (chapter of videoChapters(); track chapter.id; let i = $index) {
-                          <div
-                            class="chapter-segment"
-                            [class]="'bg-' + getChapterColor(i)"
-                            [style.left.%]="getChapterPosition(chapter)"
-                            [style.width.%]="getChapterWidth(chapter)">
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-
-                  <!-- Chapter Progress Info -->
-                  @if (currentChapter()) {
+                @if (currentChapter()) {
+                  <div class="bg-gray-100 rounded-lg p-4">
                     <div class="mt-2 text-xs text-gray-600 flex items-center justify-between">
                       <span>Chapter {{ getCurrentChapterIndex() + 1 }} of {{ videoChapters().length }}</span>
                       <span>{{ formatSecondsToTime(currentChapter()!.startTime) }} - {{ formatSecondsToTime(currentChapter()!.endTime) }}</span>
