@@ -502,7 +502,7 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
     const authorizedYearIds = new Set(this.subjects
       .filter(s => authorizedSubjectIds.includes(s.id || 0))
       .map(s => s.yearId));
-    
+
     this.filteredYears = this.years.filter(y => {
       const matchesSearch = !q || y.yearNumber.toString().includes(q);
       const matchesYearFilter = !yearIdNum || y.id === yearIdNum;
@@ -514,7 +514,7 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
     const authorizedCategoryIds = new Set(this.subjects
       .filter(s => authorizedSubjectIds.includes(s.id || 0))
       .map(s => s.categoryId));
-    
+
     this.filteredCategories = this.categories.filter(c => {
       const matchesSearch = !q || c.name.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q);
       const isAuthorized = authorizedCategoryIds.has(c.id);
@@ -525,7 +525,7 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
     const authorizedSubjectNameIds = new Set(this.subjects
       .filter(s => authorizedSubjectIds.includes(s.id || 0))
       .map(s => s.subjectNameId));
-    
+
     this.filteredSubjectNames = this.subjectNames.filter(sn => {
       const matchesSearch = !q || sn.name?.toLowerCase().includes(q);
       const matchesCategory = !categoryIdNum || sn.categoryId === categoryIdNum;
@@ -559,7 +559,7 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
     const authorizedTermIds = new Set(this.terms
       .filter(t => authorizedSubjectIds.includes(t.subjectId || 0))
       .map(t => t.id));
-    
+
     this.filteredWeeks = this.weeks.filter(w => {
       const matchesSearch = !q || w.weekNumber.toString().includes(q);
       const matchesTerm = !termIdNum || w.termId === termIdNum;
@@ -1231,7 +1231,7 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
         lessonId,
         data.file
       ).toPromise();
-      
+
       Swal.fire({
         icon: 'success',
         title: 'Resource Uploaded',
@@ -1253,7 +1253,7 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
     }
   }
 
-  async deleteResource(resource: Resource): Promise<void> {
+  public async deleteResource(resource: Resource): Promise<void> {
     // Check if teacher has delete permission for this lesson's subject
     if (this.selectedLesson && !this.canDeleteForSubject(this.selectedLesson.subjectId)) {
       Swal.fire({
@@ -1283,7 +1283,7 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
         });
 
         await this.contentService.deleteResource(resource.id).toPromise();
-        
+
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
