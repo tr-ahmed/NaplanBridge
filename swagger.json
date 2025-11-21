@@ -766,6 +766,7 @@
           "Account"
         ],
         "summary": "Reset password using token from email",
+        "description": "## Important: Password Reset Flow\r\n\r\n**Step 1: Call forgot-password**\r\n- Email: user's email address\r\n- Response: \"Check your email for reset instructions\"\r\n\r\n**Step 2: User receives email with reset token**\r\n- Email contains a link with the reset token\r\n- Example link: http://localhost:4200/auth/reset-password?token=abc123xyz\r\n- The token is a GUID (Universally Unique Identifier), NOT a JWT token\r\n\r\n**Step 3: Call reset-password**\r\n- Email: user's email address\r\n- Password: new password (must be strong)\r\n- Token: the token from the email (the GUID, not JWT)\r\n\r\n⚠️ Common Mistake:\r\n- ❌ DON'T use your authentication JWT token\r\n- ❌ DON'T use the bearer token from login\r\n- ✅ DO use the token from the email sent by forgot-password\r\n\r\nExample curl request:\r\n```\r\ncurl -X POST 'https://naplan2.runasp.net/api/Account/reset-password' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n    \"email\": \"moataztarekm@gmail.com\",\r\n    \"password\": \"NewPassword@123\",\r\n    \"token\": \"a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6\"\r\n  }'\r\n```",
         "requestBody": {
           "description": "Reset password request with email, new password, and token",
           "content": {
@@ -2620,6 +2621,14 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "IsDisabled",
+            "in": "query",
+            "description": "Check if pagination should be disabled (return all records)",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -2801,6 +2810,14 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "IsDisabled",
+            "in": "query",
+            "description": "Check if pagination should be disabled (return all records)",
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -3031,6 +3048,29 @@
             "name": "studentId",
             "in": "path",
             "description": "Student ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Exam/student/{studentId}/all": {
+      "get": {
+        "tags": [
+          "Exam"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "integer",
@@ -3933,6 +3973,14 @@
             }
           },
           {
+            "name": "IsDisabled",
+            "in": "query",
+            "description": "Check if pagination should be disabled (return all records)",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "searchTerm",
             "in": "query",
             "description": "Search in title and description (optional)",
@@ -4313,12 +4361,12 @@
         }
       }
     },
-    "/api/Lessons/subject/{subjectId}/with-progress/{studentId}": {
+    "/api/Lessons/subject/{subjectId}/with-progress": {
       "get": {
         "tags": [
           "Lessons"
         ],
-        "summary": "Get all lessons for a subject with student progress embedded\r\n✅ GUEST MODE: When studentId is not provided, returns lesson previews with default values",
+        "summary": "Get all lessons for a subject with student progress embedded\r\n? GUEST MODE: When studentId is not provided, returns lesson previews with default values\r\n? FIXED: Only shows approved lessons",
         "parameters": [
           {
             "name": "subjectId",
@@ -4332,9 +4380,8 @@
           },
           {
             "name": "studentId",
-            "in": "path",
+            "in": "query",
             "description": "Student ID (optional - omit for guest preview)",
-            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -4374,12 +4421,12 @@
         }
       }
     },
-    "/api/Lessons/subject/{subjectId}/term-number/{termNumber}/with-progress/{studentId}": {
+    "/api/Lessons/subject/{subjectId}/term-number/{termNumber}/with-progress": {
       "get": {
         "tags": [
           "Lessons"
         ],
-        "summary": "✅ NEW: Get lessons by term NUMBER (not ID) with student progress\r\nThis handles cross-subject navigation where different subjects have different term IDs for the same term number\r\n✅ PREVIEW MODE: Returns lesson previews for non-subscribed students or guests",
+        "summary": "? NEW: Get lessons by term NUMBER (not ID) with student progress\r\nThis handles cross-subject navigation where different subjects have different term IDs for the same term number\r\n? PREVIEW MODE: Returns lesson previews for non-subscribed students or guests",
         "parameters": [
           {
             "name": "subjectId",
@@ -4403,9 +4450,8 @@
           },
           {
             "name": "studentId",
-            "in": "path",
+            "in": "query",
             "description": "Student ID (optional - omit for guest preview)",
-            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -4445,12 +4491,12 @@
         }
       }
     },
-    "/api/Lessons/term/{termId}/with-progress/{studentId}": {
+    "/api/Lessons/term/{termId}/with-progress": {
       "get": {
         "tags": [
           "Lessons"
         ],
-        "summary": "Get all lessons for a term with student progress embedded\r\n✅ GUEST MODE: When studentId is not provided, returns lesson previews with default values",
+        "summary": "Get all lessons for a term with student progress embedded\r\n? GUEST MODE: When studentId is not provided, returns lesson previews with default values\r\n? FIXED: Only shows approved lessons",
         "parameters": [
           {
             "name": "termId",
@@ -4464,9 +4510,8 @@
           },
           {
             "name": "studentId",
-            "in": "path",
+            "in": "query",
             "description": "Student ID (optional - omit for guest preview)",
-            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -8421,6 +8466,14 @@
             }
           },
           {
+            "name": "IsDisabled",
+            "in": "query",
+            "description": "Check if pagination should be disabled (return all records)",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "categoryId",
             "in": "query",
             "description": "Filter by category (optional)",
@@ -8436,6 +8489,14 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term to filter by subject name or category name (optional)",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -9589,15 +9650,14 @@
             "in": "query",
             "schema": {
               "enum": [
-                0,
-                1,
-                2,
-                3,
-                4,
-                5
+                "Created",
+                "Pending",
+                "Approved",
+                "Published",
+                "Rejected",
+                "RevisionRequested"
               ],
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
@@ -10895,6 +10955,53 @@
             }
           }
         }
+      },
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Update authenticated user's profile information",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.UpdateProfileDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.UpdateProfileDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/User/{id}": {
@@ -11144,6 +11251,111 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/User/profile/avatar": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Upload or update user's profile picture",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "Image file (jpg, jpeg, png - max 5MB)",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.AvatarUploadResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.AvatarUploadResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.AvatarUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete user's profile picture (reset to default)",
         "responses": {
           "200": {
             "description": "OK"
@@ -12165,16 +12377,15 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6
+              "LessonsCompleted",
+              "ExamsPassed",
+              "PerfectScores",
+              "SubjectsCompleted",
+              "ConsecutiveDays",
+              "TotalPoints",
+              "Special"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "iconUrl": {
             "type": "string",
@@ -12219,16 +12430,15 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6
+              "LessonsCompleted",
+              "ExamsPassed",
+              "PerfectScores",
+              "SubjectsCompleted",
+              "ConsecutiveDays",
+              "TotalPoints",
+              "Special"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "pointsRequired": {
             "type": "integer",
@@ -13687,6 +13897,24 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.AvatarUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response after uploading profile picture\r\nاستجابة بعد رفع صورة البروفايل"
+      },
       "API.DTOs.Bookmark.CreateBookmarkDto": {
         "type": "object",
         "properties": {
@@ -13850,15 +14078,14 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5
+              "SubjectCompletion",
+              "CourseCompletion",
+              "Achievement",
+              "ExcellenceAward",
+              "PerfectScore",
+              "YearCompletion"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "title": {
             "type": "string",
@@ -13917,15 +14144,14 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5
+              "SubjectCompletion",
+              "CourseCompletion",
+              "Achievement",
+              "ExcellenceAward",
+              "PerfectScore",
+              "YearCompletion"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "title": {
             "type": "string",
@@ -13959,7 +14185,6 @@
       },
       "API.DTOs.ChangePasswordDto": {
         "required": [
-          "confirmPassword",
           "currentPassword",
           "newPassword"
         ],
@@ -13975,8 +14200,9 @@
             "type": "string"
           },
           "confirmPassword": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "description": "✅ FIXED: Make ConfirmPassword optional (frontend doesn't send it)\r\nValidation will be done in controller if provided",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -14796,6 +15022,11 @@
           "phoneNumber": {
             "type": "string",
             "nullable": true
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "User's profile picture/avatar URL\r\nCan be from Bunny CDN or Cloudinary",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -14819,27 +15050,33 @@
         "additionalProperties": false
       },
       "API.DTOs.ExamDTOs.CreateExamDto": {
+        "required": [
+          "durationInMinutes",
+          "examType",
+          "passingMarks",
+          "subjectId",
+          "title",
+          "totalMarks"
+        ],
         "type": "object",
         "properties": {
           "title": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "description": {
             "type": "string",
             "nullable": true
           },
-          "startTime": {
+          "examType": {
+            "enum": [
+              "Lesson",
+              "Monthly",
+              "Term",
+              "Year"
+            ],
             "type": "string",
-            "format": "date-time"
-          },
-          "endTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "durationInMinutes": {
-            "type": "integer",
-            "format": "int32"
+            "description": "????? ??????????"
           },
           "subjectId": {
             "type": "integer",
@@ -14849,33 +15086,114 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "lessonId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "weekId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "yearId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "durationInMinutes": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalMarks": {
+            "minimum": 0,
+            "type": "number",
+            "format": "float"
+          },
+          "passingMarks": {
+            "minimum": 0,
+            "type": "number",
+            "format": "float"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isPublished": {
+            "type": "boolean"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.ExamDTOs.CreateQuestionDto"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
       },
       "API.DTOs.ExamDTOs.CreateOptionDto": {
+        "required": [
+          "optionText"
+        ],
         "type": "object",
         "properties": {
           "optionText": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "isCorrect": {
             "type": "boolean"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
       },
       "API.DTOs.ExamDTOs.CreateQuestionDto": {
+        "required": [
+          "marks",
+          "order",
+          "questionText",
+          "questionType"
+        ],
         "type": "object",
         "properties": {
           "questionText": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "questionType": {
+            "enum": [
+              "Text",
+              "MultipleChoice",
+              "MultipleSelect",
+              "TrueFalse"
+            ],
             "type": "string",
-            "nullable": true
+            "description": "أنواع الأسئلة"
           },
           "marks": {
+            "minimum": 0,
             "type": "number",
             "format": "float"
+          },
+          "order": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
           },
           "isMultipleSelect": {
             "type": "boolean"
@@ -15546,27 +15864,26 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17
+              "Course",
+              "System",
+              "Success",
+              "Warning",
+              "Info",
+              "Error",
+              "CertificateIssued",
+              "CertificateShared",
+              "ParentCertificateNotification",
+              "SessionBooked",
+              "SessionReminder24h",
+              "SessionReminder1h",
+              "SessionCancelled",
+              "SessionCompleted",
+              "SessionRescheduled",
+              "SessionPaymentReceived",
+              "NewQuestion",
+              "NewReply"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -17114,16 +17431,15 @@
         "properties": {
           "dayOfWeek": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "startTime": {
             "type": "string",
@@ -17181,14 +17497,13 @@
           },
           "status": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4
+              "PendingPayment",
+              "Confirmed",
+              "Completed",
+              "Cancelled",
+              "NoShow"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "googleMeetLink": {
             "type": "string",
@@ -17223,16 +17538,15 @@
           },
           "dayOfWeek": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "startTime": {
             "type": "string",
@@ -17616,14 +17930,13 @@
           },
           "planType": {
             "enum": [
-              1,
-              2,
-              3,
-              4
+              "SingleTerm",
+              "MultiTerm",
+              "FullYear",
+              "SubjectAnnual"
             ],
-            "type": "integer",
-            "description": "Subscription plan types",
-            "format": "int32"
+            "type": "string",
+            "description": "Subscription plan types"
           },
           "price": {
             "type": "number",
@@ -17863,14 +18176,13 @@
           },
           "planType": {
             "enum": [
-              1,
-              2,
-              3,
-              4
+              "SingleTerm",
+              "MultiTerm",
+              "FullYear",
+              "SubjectAnnual"
             ],
-            "type": "integer",
-            "description": "Subscription plan types",
-            "format": "int32"
+            "type": "string",
+            "description": "Subscription plan types"
           },
           "price": {
             "type": "number",
@@ -18023,16 +18335,15 @@
           },
           "status": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5
+              "Created",
+              "Pending",
+              "Approved",
+              "Published",
+              "Rejected",
+              "RevisionRequested"
             ],
-            "type": "integer",
-            "description": "Current approval status",
-            "format": "int32"
+            "type": "string",
+            "description": "Current approval status"
           },
           "createdAt": {
             "type": "string",
@@ -18135,16 +18446,15 @@
           },
           "status": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5
+              "Created",
+              "Pending",
+              "Approved",
+              "Published",
+              "Rejected",
+              "RevisionRequested"
             ],
-            "type": "integer",
-            "description": "Approval status for content created by teachers",
-            "format": "int32"
+            "type": "string",
+            "description": "Approval status for content created by teachers"
           },
           "rejectionReason": {
             "type": "string",
@@ -18309,16 +18619,15 @@
           },
           "status": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5
+              "Created",
+              "Pending",
+              "Approved",
+              "Published",
+              "Rejected",
+              "RevisionRequested"
             ],
-            "type": "integer",
-            "description": "Approval status for content created by teachers",
-            "format": "int32"
+            "type": "string",
+            "description": "Approval status for content created by teachers"
           }
         },
         "additionalProperties": false,
@@ -18801,6 +19110,34 @@
         "additionalProperties": false,
         "description": "DTO for updating an existing terminology configuration"
       },
+      "API.DTOs.UpdateProfileDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "User's first name",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "User's phone number",
+            "format": "tel",
+            "nullable": true
+          },
+          "age": {
+            "maximum": 150,
+            "minimum": 1,
+            "type": "integer",
+            "description": "User's age",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for updating user profile"
+      },
       "API.DTOs.UserDetailsDto": {
         "required": [
           "age",
@@ -18824,6 +19161,11 @@
           },
           "phoneNumber": {
             "type": "string",
+            "nullable": true
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "User's profile picture/avatar URL",
             "nullable": true
           }
         },
@@ -18883,6 +19225,11 @@
           "phoneNumber": {
             "type": "string",
             "nullable": true
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "User's profile picture/avatar URL",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -18916,6 +19263,11 @@
           },
           "phoneNumber": {
             "type": "string",
+            "nullable": true
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "User's profile picture URL (from Bunny CDN)\r\nرابط صورة البروفايل (من Bunny CDN)",
             "nullable": true
           },
           "createdAt": {
@@ -19281,16 +19633,15 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6
+              "LessonsCompleted",
+              "ExamsPassed",
+              "PerfectScores",
+              "SubjectsCompleted",
+              "ConsecutiveDays",
+              "TotalPoints",
+              "Special"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "iconUrl": {
             "type": "string",
@@ -19437,15 +19788,14 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5
+              "SubjectCompletion",
+              "CourseCompletion",
+              "Achievement",
+              "ExcellenceAward",
+              "PerfectScore",
+              "YearCompletion"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "title": {
             "type": "string",
@@ -19519,14 +19869,13 @@
           },
           "examType": {
             "enum": [
-              1,
-              2,
-              3,
-              4
+              "Lesson",
+              "Monthly",
+              "Term",
+              "Year"
             ],
-            "type": "integer",
-            "description": "??? ????????",
-            "format": "int32"
+            "type": "string",
+            "description": "??? ????????"
           },
           "startTime": {
             "type": "string",
@@ -19627,6 +19976,11 @@
           "isCorrect": {
             "type": "boolean"
           },
+          "order": {
+            "type": "integer",
+            "description": "Display order of the option",
+            "format": "int32"
+          },
           "examQuestionId": {
             "type": "integer",
             "format": "int32"
@@ -19651,14 +20005,13 @@
           },
           "questionType": {
             "enum": [
-              1,
-              2,
-              3,
-              4
+              "Text",
+              "MultipleChoice",
+              "MultipleSelect",
+              "TrueFalse"
             ],
-            "type": "integer",
-            "description": "نوع السؤال",
-            "format": "int32"
+            "type": "string",
+            "description": "نوع السؤال"
           },
           "marks": {
             "type": "number",
@@ -19818,16 +20171,15 @@
           },
           "approvalStatus": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5
+              "Created",
+              "Pending",
+              "Approved",
+              "Published",
+              "Rejected",
+              "RevisionRequested"
             ],
-            "type": "integer",
-            "description": "Approval status for teacher-created content",
-            "format": "int32"
+            "type": "string",
+            "description": "Approval status for teacher-created content"
           },
           "approvedBy": {
             "type": "integer",
@@ -19993,14 +20345,13 @@
           },
           "questionType": {
             "enum": [
-              1,
-              2,
-              3,
-              4
+              "Text",
+              "MultipleChoice",
+              "MultipleSelect",
+              "TrueFalse"
             ],
-            "type": "integer",
-            "description": "نوع السؤال",
-            "format": "int32"
+            "type": "string",
+            "description": "نوع السؤال"
           },
           "isMultipleChoice": {
             "type": "boolean",
@@ -20053,27 +20404,26 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17
+              "Course",
+              "System",
+              "Success",
+              "Warning",
+              "Info",
+              "Error",
+              "CertificateIssued",
+              "CertificateShared",
+              "ParentCertificateNotification",
+              "SessionBooked",
+              "SessionReminder24h",
+              "SessionReminder1h",
+              "SessionCancelled",
+              "SessionCompleted",
+              "SessionRescheduled",
+              "SessionPaymentReceived",
+              "NewQuestion",
+              "NewReply"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "userId": {
             "type": "integer",
@@ -20107,13 +20457,12 @@
           },
           "orderStatus": {
             "enum": [
-              1,
-              2,
-              3,
-              4
+              "Pending",
+              "Paid",
+              "Failed",
+              "Cancelled"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "stripePaymentIntentId": {
             "type": "string",
@@ -20230,13 +20579,12 @@
           },
           "status": {
             "enum": [
-              1,
-              2,
-              3,
-              4
+              "Pending",
+              "Success",
+              "Failed",
+              "Refunded"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "stripePaymentIntentId": {
             "type": "string",
@@ -20305,14 +20653,13 @@
           },
           "status": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4
+              "PendingPayment",
+              "Confirmed",
+              "Completed",
+              "Cancelled",
+              "NoShow"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "stripeSessionId": {
             "type": "string",
@@ -20425,11 +20772,10 @@
           },
           "reportType": {
             "enum": [
-              0,
-              1
+              "Weekly",
+              "Monthly"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "summary": {
             "type": "string",
@@ -20495,16 +20841,15 @@
           },
           "approvalStatus": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5
+              "Created",
+              "Pending",
+              "Approved",
+              "Published",
+              "Rejected",
+              "RevisionRequested"
             ],
-            "type": "integer",
-            "description": "Approval status for teacher-created content",
-            "format": "int32"
+            "type": "string",
+            "description": "Approval status for teacher-created content"
           },
           "approvedBy": {
             "type": "integer",
@@ -20957,14 +21302,13 @@
           },
           "paymentStatus": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4
+              "Pending",
+              "Failed",
+              "Active",
+              "Expired",
+              "Cancelled"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "stripePaymentIntentId": {
             "type": "string",
@@ -21051,14 +21395,13 @@
           },
           "planType": {
             "enum": [
-              1,
-              2,
-              3,
-              4
+              "SingleTerm",
+              "MultiTerm",
+              "FullYear",
+              "SubjectAnnual"
             ],
-            "type": "integer",
-            "description": "Subscription plan types",
-            "format": "int32"
+            "type": "string",
+            "description": "Subscription plan types"
           },
           "price": {
             "type": "number",
@@ -21129,16 +21472,15 @@
           },
           "dayOfWeek": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "startTime": {
             "type": "string",
@@ -21408,16 +21750,15 @@
           },
           "approvalStatus": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5
+              "Created",
+              "Pending",
+              "Approved",
+              "Published",
+              "Rejected",
+              "RevisionRequested"
             ],
-            "type": "integer",
-            "description": "Approval status for teacher-created content",
-            "format": "int32"
+            "type": "string",
+            "description": "Approval status for teacher-created content"
           },
           "approvedBy": {
             "type": "integer",
@@ -21555,6 +21896,11 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "User's profile picture/avatar URL\r\nStored from Bunny CDN or Cloudinary",
+            "nullable": true
           },
           "student": {
             "$ref": "#/components/schemas/API.Entities.Student"
@@ -21823,16 +22169,15 @@
           },
           "approvalStatus": {
             "enum": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5
+              "Created",
+              "Pending",
+              "Approved",
+              "Published",
+              "Rejected",
+              "RevisionRequested"
             ],
-            "type": "integer",
-            "description": "Approval status for teacher-created content",
-            "format": "int32"
+            "type": "string",
+            "description": "Approval status for teacher-created content"
           },
           "approvedBy": {
             "type": "integer",

@@ -308,10 +308,15 @@
                 class="w-full px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 text-left transition-colors font-medium block">
                 ➕ Create New Exam
               </a>
+              <a
+                routerLink="/teacher/questions"
+                class="w-full px-4 py-2 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 text-left transition-colors font-medium block">
+                💬 Student Questions
+              </a>
               <button
                 (click)="goToExamManagement()"
-                class="w-full px-4 py-2 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 text-left transition-colors font-medium">
-                ❓ Answer Questions
+                class="w-full px-4 py-2 bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 text-left transition-colors font-medium">
+                ❓ Answer Exam Questions
               </button>
               <button
                 (click)="viewStudents()"

@@ -71,9 +71,8 @@ export class CreateEditExamComponent implements OnInit {
       const isTeacherOrAdmin = userRoles.includes('Teacher') || userRoles.includes('Admin') || userRoles.includes('admin');
 
       if (isTeacherOrAdmin) {
-        this.loadSubjects();
-        this.loadYears();
-        this.checkEditMode();
+        // ✅ Load dropdown data first, then check for edit mode
+        this.loadInitialData();
       } else {
         console.warn('⚠️ User is not a Teacher or Admin. Roles:', userRoles);
         this.router.navigate(['/login']);
@@ -82,6 +81,23 @@ export class CreateEditExamComponent implements OnInit {
       console.error('❌ No user found');
       this.router.navigate(['/login']);
     }
+  }
+
+  /**
+   * Load initial data (subjects & years) before loading exam data
+   */
+  private loadInitialData(): void {
+    // Use Promise.all to wait for both subjects and years to load
+    Promise.all([
+      this.loadSubjects(),
+      this.loadYears()
+    ]).then(() => {
+      // After dropdowns are populated, check if we're in edit mode
+      this.checkEditMode();
+    }).catch(err => {
+      console.error('Failed to load initial data:', err);
+      this.toastService.showError('Failed to load form data');
+    });
   }
 
   /**
@@ -146,30 +162,40 @@ export class CreateEditExamComponent implements OnInit {
   /**
    * Load subjects
    */
-  private loadSubjects(): void {
-    this.subjectService.getSubjects().subscribe({
-      next: (response) => {
-        this.subjects.set(response.items);
-      },
-      error: (err: any) => {
-        console.error('Failed to load subjects:', err);
-        this.toastService.showError('Failed to load subjects');
-      }
+  private loadSubjects(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.subjectService.getSubjects().subscribe({
+        next: (response) => {
+          this.subjects.set(response.items);
+          console.log('✅ Subjects loaded:', response.items.length);
+          resolve();
+        },
+        error: (err: any) => {
+          console.error('Failed to load subjects:', err);
+          this.toastService.showError('Failed to load subjects');
+          reject(err);
+        }
+      });
     });
   }
 
   /**
    * Load academic years
    */
-  private loadYears(): void {
-    this.categoryService.getYears().subscribe({
-      next: (years) => {
-        this.years.set(years);
-      },
-      error: (err: any) => {
-        console.error('Failed to load years:', err);
-        this.toastService.showError('Failed to load years');
-      }
+  private loadYears(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.categoryService.getYears().subscribe({
+        next: (years) => {
+          this.years.set(years);
+          console.log('✅ Years loaded:', years.length);
+          resolve();
+        },
+        error: (err: any) => {
+          console.error('Failed to load years:', err);
+          this.toastService.showError('Failed to load years');
+          reject(err);
+        }
+      });
     });
   }
 
@@ -177,15 +203,17 @@ export class CreateEditExamComponent implements OnInit {
    * Load exam data for editing
    */
   private loadExamData(examId: number): void {
+    console.log('📥 Loading exam data for ID:', examId);
     this.loading.set(true);
 
     this.examApi.getExamById(examId).subscribe({
       next: (exam) => {
+        console.log('✅ Exam data loaded:', exam);
         this.patchFormData(exam);
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Failed to load exam:', err);
+        console.error('❌ Failed to load exam:', err);
         this.toastService.showError('Failed to load exam data');
         this.loading.set(false);
       }
@@ -250,15 +278,29 @@ export class CreateEditExamComponent implements OnInit {
     // Track original questions count for detecting new questions in edit mode
     this.originalQuestionsCount = exam.questions?.length || 0;
 
+    console.log('📝 Patching form with exam data:', {
+      title: exam.title,
+      examType: exam.examType,
+      subjectId: exam.subjectId,
+      yearId: exam.yearId
+    });
+
+    // ✅ Convert IDs to numbers to ensure proper type matching
+    const subjectId = exam.subjectId ? +exam.subjectId : null;
+    const yearId = exam.yearId ? +exam.yearId : null;
+    const termId = exam.termId ? +exam.termId : null;
+    const weekId = exam.weekId ? +exam.weekId : null;
+    const lessonId = exam.lessonId ? +exam.lessonId : null;
+
     this.examForm.patchValue({
       title: exam.title,
       description: exam.description,
       examType: exam.examType,
-      subjectId: exam.subjectId,
-      yearId: exam.yearId,  // ✅ NEW: Load yearId from exam data
-      termId: exam.termId,
-      weekId: exam.weekId,
-      lessonId: exam.lessonId,
+      subjectId: subjectId,
+      yearId: yearId,
+      termId: termId,
+      weekId: weekId,
+      lessonId: lessonId,
       durationInMinutes: exam.durationInMinutes,
       startTime: exam.startTime,
       endTime: exam.endTime,
@@ -270,6 +312,12 @@ export class CreateEditExamComponent implements OnInit {
       allowReview: exam.allowReview,
       maxAttempts: exam.maxAttempts,
       isPublished: exam.isPublished
+    });
+
+    console.log('✅ Form patched. Current values:', {
+      examType: this.examForm.get('examType')?.value,
+      subjectId: this.examForm.get('subjectId')?.value,
+      yearId: this.examForm.get('yearId')?.value
     });
 
     // Clear default questions and add loaded ones

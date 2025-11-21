@@ -8,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Lesson, LessonResource, StudentLesson, LessonProgress } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
 import { AuthService } from '../../core/services/auth.service';
+import { LessonQaComponent } from './lesson-qa/lesson-qa.component';
 
 interface Quiz {
   id: number;
@@ -68,7 +69,7 @@ interface TeacherQuestion {
 @Component({
   selector: 'app-lesson-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LessonQaComponent],
   templateUrl: './lesson-detail.component.html',
   styleUrls: ['./lesson-detail.component.scss']
 })
@@ -123,7 +124,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   isAskingQuestion = signal(false);
 
   // Active tab
-  activeTab = signal<'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker'>('video');
+  activeTab = signal<'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker' | 'qa'>('video');
 
   // Computed values
   currentQuiz = computed(() => {
@@ -516,7 +517,7 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
   /**
    * Set active tab
    */
-  setActiveTab(tab: 'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker'): void {
+  setActiveTab(tab: 'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker' | 'qa'): void {
     this.activeTab.set(tab);
   }
 

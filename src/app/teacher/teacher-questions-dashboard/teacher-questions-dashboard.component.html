@@ -1,0 +1,362 @@
+<div class="teacher-questions-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        Student Questions
+      </h1>
+      <p class="page-subtitle">Manage and answer student questions from your lessons</p>
+    </div>
+
+    @if (hasPendingQuestions()) {
+      <div class="pending-badge">
+        {{ pendingCount() }} Pending
+      </div>
+    }
+  </div>
+
+  <!-- Error Alert -->
+  @if (error()) {
+    <div class="alert alert-error">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>{{ error() }}</span>
+      <button (click)="error.set(null)" class="close-btn">&times;</button>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="subject-filter">Subject</label>
+      <select
+        id="subject-filter"
+        class="filter-select"
+        [value]="selectedSubjectId() || ''"
+        (change)="onSubjectFilterChange($any($event.target).value)"
+      >
+        <option value="">All Subjects</option>
+        @for (subject of subjects(); track subject.id) {
+          <option [value]="subject.id">{{ subject.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="term-filter">Term</label>
+      <select
+        id="term-filter"
+        class="filter-select"
+        [value]="selectedTermId() || ''"
+        (change)="onTermFilterChange($any($event.target).value)"
+      >
+        <option value="">All Terms</option>
+        @for (term of terms(); track term.id) {
+          <option [value]="term.id">{{ term.name }}</option>
+        }
+      </select>
+    </div>
+
+    @if (activeTab() === 'all') {
+      <div class="filter-group">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="showAnsweredOnly()"
+            (change)="toggleAnsweredFilter()"
+          >
+          <span>Answered only</span>
+        </label>
+      </div>
+    }
+
+    <button class="btn-refresh" (click)="refreshCurrentTab()" title="Refresh">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'pending'"
+      (click)="switchTab('pending')"
+    >
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      Pending
+      @if (pendingCount() > 0) {
+        <span class="count">{{ pendingCount() }}</span>
+      }
+    </button>
+
+    <button
+      class="tab"
+      [class.active]="activeTab() === 'all'"
+      (click)="switchTab('all')"
+    >
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="8" y1="6" x2="21" y2="6"></line>
+        <line x1="8" y1="12" x2="21" y2="12"></line>
+        <line x1="8" y1="18" x2="21" y2="18"></line>
+        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+      </svg>
+      All Questions
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner-large"></div>
+      <p>Loading questions...</p>
+    </div>
+  }
+
+  <!-- Pending Questions Tab -->
+  @if (activeTab() === 'pending' && !loading()) {
+    @if (hasPendingQuestions()) {
+      <div class="questions-list">
+        @for (question of pendingQuestions(); track question.id) {
+          <div class="question-card pending">
+            <div class="card-header">
+              <div class="student-info">
+                <div class="avatar">{{ question.studentName.charAt(0) }}</div>
+                <div class="info">
+                  <p class="student-name">{{ question.studentName }}</p>
+                  <p class="lesson-title">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    {{ question.lessonTitle }}
+                  </p>
+                </div>
+              </div>
+              <span class="timestamp">{{ formatDate(question.createdAt) }}</span>
+            </div>
+
+            <div class="card-body">
+              <div class="question-section">
+                <span class="q-label">Q:</span>
+                <p class="question-text">{{ question.questionText }}</p>
+              </div>
+
+              <div class="answer-section">
+                <span class="a-label">Your Answer:</span>
+                <form [formGroup]="answerForms[question.id]" (ngSubmit)="submitAnswer(question.id)">
+                  <textarea
+                    formControlName="answerText"
+                    placeholder="Type your answer here... (minimum 5 characters)"
+                    rows="4"
+                    class="answer-textarea"
+                    [class.invalid]="answerForms[question.id].get('answerText')?.invalid && answerForms[question.id].get('answerText')?.touched"
+                  ></textarea>
+
+                  @if (answerForms[question.id].get('answerText')?.errors && answerForms[question.id].get('answerText')?.touched) {
+                    <div class="error-messages">
+                      @if (answerForms[question.id].get('answerText')?.errors?.['required']) {
+                        <p class="error-text">Answer is required</p>
+                      }
+                      @if (answerForms[question.id].get('answerText')?.errors?.['minlength']) {
+                        <p class="error-text">Answer must be at least 5 characters</p>
+                      }
+                      @if (answerForms[question.id].get('answerText')?.errors?.['maxlength']) {
+                        <p class="error-text">Answer cannot exceed 5000 characters</p>
+                      }
+                    </div>
+                  }
+
+                  <div class="answer-actions">
+                    <span class="char-counter">
+                      {{ answerForms[question.id].get('answerText')?.value?.length || 0 }} / 5000
+                    </span>
+                    <button
+                      type="submit"
+                      class="btn btn-primary"
+                      [disabled]="!answerForms[question.id].valid || answeringQuestionId() === question.id"
+                    >
+                      @if (answeringQuestionId() === question.id) {
+                        <span class="spinner"></span>
+                        Submitting...
+                      } @else {
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Submit Answer
+                      }
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <h3>No Pending Questions</h3>
+        <p>All caught up! No questions waiting for your answer.</p>
+      </div>
+    }
+  }
+
+  <!-- All Questions Tab -->
+  @if (activeTab() === 'all' && !loading()) {
+    @if (allQuestions().length > 0) {
+      <div class="questions-list">
+        @for (question of allQuestions(); track question.id) {
+          <div class="question-card" [class.answered]="question.isAnswered">
+            <div class="card-header">
+              <div class="student-info">
+                <div class="avatar">{{ question.studentName.charAt(0) }}</div>
+                <div class="info">
+                  <p class="student-name">{{ question.studentName }}</p>
+                  <p class="lesson-title">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    {{ question.lessonTitle }}
+                  </p>
+                </div>
+              </div>
+              <div class="header-right">
+                <span class="timestamp">{{ formatDate(question.createdAt) }}</span>
+                <span class="status-badge" [class.answered]="question.isAnswered" [class.pending]="!question.isAnswered">
+                  @if (question.isAnswered) {
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Answered
+                  } @else {
+                    Pending
+                  }
+                </span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="question-section">
+                <span class="q-label">Q:</span>
+                <p class="question-text">{{ question.questionText }}</p>
+              </div>
+
+              @if (question.isAnswered) {
+                <div class="answered-section">
+                  <div class="answer-header">
+                    <span class="a-label">A:</span>
+                    <div class="answer-meta">
+                      <span class="teacher-name">{{ question.answeredByTeacherName }}</span>
+                      <span class="answer-timestamp">{{ formatDate(question.answeredAt!) }}</span>
+                    </div>
+                  </div>
+                  <p class="answer-text">{{ question.answerText }}</p>
+                </div>
+              } @else {
+                <div class="answer-section">
+                  <span class="a-label">Your Answer:</span>
+                  <form [formGroup]="answerForms[question.id]" (ngSubmit)="submitAnswer(question.id)">
+                    <textarea
+                      formControlName="answerText"
+                      placeholder="Type your answer..."
+                      rows="3"
+                      class="answer-textarea"
+                    ></textarea>
+
+                    <div class="answer-actions">
+                      <button
+                        type="submit"
+                        class="btn btn-primary btn-sm"
+                        [disabled]="!answerForms[question.id].valid || answeringQuestionId() === question.id"
+                      >
+                        @if (answeringQuestionId() === question.id) {
+                          <span class="spinner"></span>
+                          Submitting...
+                        } @else {
+                          Submit Answer
+                        }
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <button
+            class="page-btn"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Previous
+          </button>
+
+          <div class="page-numbers">
+            @for (page of getPageNumbers(); track $index) {
+              @if (page === -1) {
+                <span class="page-ellipsis">...</span>
+              } @else {
+                <button
+                  class="page-number"
+                  [class.active]="page === currentPage()"
+                  (click)="goToPage(page)"
+                >
+                  {{ page }}
+                </button>
+              }
+            }
+          </div>
+
+          <button
+            class="page-btn"
+            [disabled]="currentPage() === totalPages()"
+            (click)="goToPage(currentPage() + 1)"
+          >
+            Next
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <p class="pagination-info">
+          Showing {{ (currentPage() - 1) * pageSize() + 1 }} -
+          {{ Math.min(currentPage() * pageSize(), totalCount()) }}
+          of {{ totalCount() }} questions
+        </p>
+      }
+    } @else {
+      <div class="empty-state">
+        <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <h3>No Questions Found</h3>
+        <p>No questions match your current filters.</p>
+      </div>
+    }
+  }
+</div>

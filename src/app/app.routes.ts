@@ -255,6 +255,14 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+  // Teacher Questions Dashboard
+  {
+    path: 'teacher/questions',
+    loadComponent: () => import('./teacher/teacher-questions-dashboard/teacher-questions-dashboard.component').then(m => m.TeacherQuestionsDashboardComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasAnyRole(['teacher', 'admin'])],
+    data: { hideHeader: false, hideFooter: false }
+  },
+
   // Teacher Exams Management
   {
     path: 'teacher/exams',
