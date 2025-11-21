@@ -172,7 +172,9 @@ export class VideoService {
       this.hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
-        backBufferLength: 90
+        backBufferLength: 90,
+        maxBufferLength: 30,
+        maxMaxBufferLength: 600
       });
 
       this.hls.loadSource(config.videoUrl);
@@ -180,6 +182,7 @@ export class VideoService {
 
       this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
         console.log('✅ HLS manifest parsed successfully');
+        console.log('📊 Available quality levels:', this.hls?.levels.map(l => `${l.height}p`));
         this.initializePlyr(config);
       });
 
@@ -264,10 +267,45 @@ export class VideoService {
       clickToPlay: true,
       keyboard: { focused: true, global: false },
       tooltips: { controls: true, seek: true },
-      speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
+      speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
+      quality: {
+        default: 720,
+        options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240],
+        forced: true,
+        onChange: (quality: number) => {
+          console.log('🎬 Quality changed to:', quality);
+          if (this.hls) {
+            // Find the level with the selected quality
+            const levelIndex = this.hls.levels.findIndex(level => level.height === quality);
+            if (levelIndex !== -1) {
+              this.hls.currentLevel = levelIndex;
+              console.log('✅ HLS level changed to index:', levelIndex);
+            }
+          }
+        }
+      }
     });
 
     console.log('✅ Plyr player created, setting up event listeners...');
+
+    // ✅ Update quality options based on available HLS levels
+    if (this.hls && this.player) {
+      const availableQualities = this.hls.levels.map(level => level.height);
+      console.log('📊 Available HLS qualities:', availableQualities);
+
+      // Listen to Plyr quality change event and update HLS level
+      this.player.on('qualitychange' as any, (event: any) => {
+        const quality = event.detail.quality;
+        console.log('🎬 Quality changed to:', quality);
+        if (this.hls) {
+          const levelIndex = this.hls.levels.findIndex(level => level.height === quality);
+          if (levelIndex !== -1) {
+            this.hls.currentLevel = levelIndex;
+            console.log('✅ HLS level changed to index:', levelIndex);
+          }
+        }
+      });
+    }
 
     // ✅ Setup event listeners AFTER player is created
     this.setupEventListeners();
