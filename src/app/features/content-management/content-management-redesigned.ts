@@ -1140,12 +1140,26 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Validate data
+    if (!data || !data.title || !data.file) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please provide both title and file',
+      });
+      return;
+    }
+
+    console.log('📤 Resource data:', { title: data.title, fileName: data.file.name, fileSize: data.file.size });
+
     try {
       Swal.fire({
         title: 'Uploading Resource...',
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
       });
+
+      console.log('🚀 Calling addResource API:', { title: data.title, lessonId: this.selectedLesson.id, file: data.file });
 
       await this.contentService.addResource(
         data.title,
@@ -1166,6 +1180,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         await this.loadLessonResources(this.selectedLesson.id);
       }
     } catch (error) {
+      console.error('❌ Resource upload failed:', error);
       Swal.fire({
         icon: 'error',
         title: 'Upload Failed',

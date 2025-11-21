@@ -153,11 +153,13 @@ export class ResourceFormModalComponent {
 
   handleSave(): void {
     if (this.title && this.selectedFile()) {
+      const file = this.selectedFile()!;
+      console.log('🔵 Saving resource:', { title: this.title, fileName: file.name, fileSize: file.size });
       this.save.emit({
         title: this.title,
-        file: this.selectedFile()!
+        file: file
       });
-      this.resetForm();
+      // Don't reset immediately - let parent component reset after successful save
     }
   }
 

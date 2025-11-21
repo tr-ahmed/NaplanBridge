@@ -1190,6 +1190,18 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
       return;
     }
 
+    // Validate data
+    if (!data || !data.title || !data.file) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Please provide both title and file',
+      });
+      return;
+    }
+
+    console.log('📤 Resource data:', { title: data.title, fileName: data.file.name, fileSize: data.file.size });
+
     // Check if teacher has create permission for this lesson's subject
     if (this.selectedLesson && !this.canCreateForSubject(this.selectedLesson.subjectId)) {
       Swal.fire({
@@ -1210,6 +1222,8 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
       // capture id before awaiting so TypeScript knows it's a number
       const lessonId = this.selectedLesson.id;
 
+      console.log('🚀 Calling addResource API:', { title: data.title, lessonId, file: data.file });
+
       await this.contentService.addResource(
         data.title,
         lessonId,
@@ -1228,6 +1242,14 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
       // use captured lessonId to avoid narrowing loss across awaits
       await this.loadLessonResources(lessonId);
     } catch (error) {
+      console.error('❌ Resource upload failed:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Upload Failed',
+        text: this.extractErrorMessage(error),
+      });
+    }
+  }
       Swal.fire({
         icon: 'error',
         title: 'Upload Failed',
