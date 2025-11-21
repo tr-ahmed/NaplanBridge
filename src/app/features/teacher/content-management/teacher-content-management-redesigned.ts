@@ -34,7 +34,7 @@ import { ContentModalComponent } from '../../content-management/components/conte
 import { ResourceModalComponent } from '../../content-management/components/resource-modal/resource-modal.component';
 import { ResourceFormModalComponent } from '../../content-management/components/resource-form-modal/resource-form-modal.component';
 import { PreviewModalComponent } from '../../content-management/components/preview-modal/preview-modal.component';
-import { AdminSidebarComponent } from '../../../shared/components/admin-sidebar/admin-sidebar.component';
+import { TeacherSidebarComponent } from '../../../shared/components/teacher-sidebar/teacher-sidebar.component';
 
 type Id = number;
 type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson' | 'category';
@@ -60,7 +60,7 @@ type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson
     ResourceModalComponent,
     ResourceFormModalComponent,
     PreviewModalComponent,
-    AdminSidebarComponent,
+    TeacherSidebarComponent,
   ],
   templateUrl: './teacher-content-management-redesigned.html',
   styleUrls: ['./teacher-content-management-redesigned.scss'],
@@ -929,6 +929,15 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   }
 
   openAddResource(): void {
+    // Check if teacher has create permission for this lesson's subject
+    if (this.selectedLesson && !this.canCreateForSubject(this.selectedLesson.subjectId)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Permission Denied',
+        text: 'You do not have permission to add resources for this subject.',
+      });
+      return;
+    }
     this.resourceFormOpen = true;
   }
 
@@ -1202,6 +1211,16 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   }
 
   async deleteResource(resource: Resource): Promise<void> {
+    // Check if teacher has delete permission for this lesson's subject
+    if (this.selectedLesson && !this.canDeleteForSubject(this.selectedLesson.subjectId)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Permission Denied',
+        text: 'You do not have permission to delete resources for this subject.',
+      });
+      return;
+    }
+
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: 'This will delete the resource permanently',
