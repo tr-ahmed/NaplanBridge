@@ -502,7 +502,7 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
     };
 
     // Call API to change password
-    this.http.post(`${environment.apiBaseUrl}/api/Account/change-password`, passwordData, {
+    this.http.post(`${environment.apiBaseUrl}/Account/change-password`, passwordData, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
