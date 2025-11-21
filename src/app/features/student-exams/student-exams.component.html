@@ -43,8 +43,131 @@
 
     <!-- Main Content -->
     @if (!loading()) {
+      <!-- ✅ NEW: Enhanced Stats Overview Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <!-- Total Exams -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-blue-100 text-sm font-medium uppercase tracking-wide">Total Exams</p>
+              <p class="text-4xl font-bold mt-2">{{ totalCount() }}</p>
+              <p class="text-blue-100 text-xs mt-1">All published exams</p>
+            </div>
+            <div class="bg-white/20 rounded-xl p-3">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Exams -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-green-100 text-sm font-medium uppercase tracking-wide">Upcoming</p>
+              <p class="text-4xl font-bold mt-2">{{ upcomingCount() }}</p>
+              <p class="text-green-100 text-xs mt-1">Not started yet</p>
+            </div>
+            <div class="bg-white/20 rounded-xl p-3">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed Exams -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-purple-100 text-sm font-medium uppercase tracking-wide">Completed</p>
+              <p class="text-4xl font-bold mt-2">{{ completedExams().length }}</p>
+              <p class="text-purple-100 text-xs mt-1">Graded exams</p>
+            </div>
+            <div class="bg-white/20 rounded-xl p-3">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Average Score -->
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-orange-100 text-sm font-medium uppercase tracking-wide">Avg Score</p>
+              <p class="text-4xl font-bold mt-2">
+                {{ averageScore() }}%
+              </p>
+              <p class="text-orange-100 text-xs mt-1">Overall performance</p>
+            </div>
+            <div class="bg-white/20 rounded-xl p-3">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ NEW: Tabs for filtering exams -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div class="flex flex-wrap gap-3 border-b border-gray-200 pb-4">
+          <button
+            (click)="setActiveTab('upcoming')"
+            [class.active]="activeTab() === 'upcoming'"
+            class="px-6 py-3 rounded-xl font-medium transition-all duration-200"
+            [ngClass]="{
+              'bg-blue-600 text-white shadow-lg': activeTab() === 'upcoming',
+              'bg-gray-100 text-gray-600 hover:bg-gray-200': activeTab() !== 'upcoming'
+            }">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              Upcoming ({{ upcomingCount() }})
+            </div>
+          </button>
+
+          <button
+            (click)="setActiveTab('all')"
+            [class.active]="activeTab() === 'all'"
+            class="px-6 py-3 rounded-xl font-medium transition-all duration-200"
+            [ngClass]="{
+              'bg-blue-600 text-white shadow-lg': activeTab() === 'all',
+              'bg-gray-100 text-gray-600 hover:bg-gray-200': activeTab() !== 'all'
+            }">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+              </svg>
+              All Exams ({{ totalCount() }})
+            </div>
+          </button>
+
+          <button
+            (click)="setActiveTab('completed')"
+            [class.active]="activeTab() === 'completed'"
+            class="px-6 py-3 rounded-xl font-medium transition-all duration-200"
+            [ngClass]="{
+              'bg-blue-600 text-white shadow-lg': activeTab() === 'completed',
+              'bg-gray-100 text-gray-600 hover:bg-gray-200': activeTab() !== 'completed'
+            }">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Completed ({{ completedExams().length }})
+            </div>
+          </button>
+        </div>
+      </div>
+
       <!-- Stats Overview Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10" style="display: none;">
         <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
           <div class="flex items-center justify-between">
             <div>
@@ -149,11 +272,11 @@
                   </h3>
 
                   <!-- Description -->
-                  @if (exam.description) {
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[2.5rem]">{{ exam.description }}</p>
-                  } @else {
-                    <div class="mb-4 h-[2.5rem]"></div>
-                  }
+                  <div class="mb-4 h-[2.5rem]">
+                    <p class="text-gray-600 text-sm line-clamp-2">
+                      {{ exam.subject }} Exam - {{ exam.examType }}
+                    </p>
+                  </div>
 
                   <!-- Details -->
                   <div class="space-y-3 mb-5 bg-gray-50 rounded-xl p-4">
@@ -163,18 +286,24 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                       </div>
-                      <span class="font-medium">{{ formatDate(exam.startTime) }}</span>
+                      <span class="font-medium">{{ formatDate(exam.startDate) }}</span>
                     </div>
-                    @if (exam.totalQuestions) {
-                      <div class="flex items-center text-sm text-gray-700">
-                        <div class="p-2 bg-white rounded-lg mr-3 shadow-sm">
-                          <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                          </svg>
-                        </div>
-                        <span class="font-medium">{{ exam.totalQuestions }} Questions</span>
+                    <div class="flex items-center text-sm text-gray-700">
+                      <div class="p-2 bg-white rounded-lg mr-3 shadow-sm">
+                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                       </div>
-                    }
+                      <span class="font-medium">{{ exam.durationInMinutes }} Minutes</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-700">
+                      <div class="p-2 bg-white rounded-lg mr-3 shadow-sm">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                      </div>
+                      <span class="font-medium">{{ exam.totalMarks }} Marks</span>
+                    </div>
                   </div>
 
                   <!-- Action Buttons -->

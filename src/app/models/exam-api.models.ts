@@ -19,15 +19,18 @@ export interface ExamDto {
   examType: ExamType;
   subjectId: number;
   subjectName?: string;
+  subject?: string;  // ✅ NEW - Subject name in responses
   termId?: number | null;
   lessonId?: number | null;
   weekId?: number | null;
   yearId?: number | null;
   durationInMinutes: number;
-  totalMarks: number;
+  totalMarks: number;  // ✅ FIXED - Now returns correct value
   passingMarks: number;
-  startTime: string;
-  endTime: string;
+  startTime: string;  // ISO 8601 DateTime
+  endTime: string;    // ISO 8601 DateTime
+  startDate?: string;  // ✅ NEW - Alternative name from backend
+  endDate?: string;    // ✅ NEW - Alternative name from backend
   isPublished: boolean;
   createdAt?: string;
   createdById?: number;
@@ -316,6 +319,12 @@ export interface ApiResponse<T> {
 export interface UpcomingExamsResponse {
   upcomingCount: number;
   exams: UpcomingExamDto[];
+}
+
+// ✅ NEW: Response for /student/{studentId}/all endpoint
+export interface AllExamsResponse {
+  totalCount: number;
+  exams: UpcomingExamDto[];  // Same structure as upcoming exams
 }
 
 // ============================================

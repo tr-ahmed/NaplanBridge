@@ -20,7 +20,8 @@ import {
   SubmitExamResponseDto,
   ExamResultDto,
   ApiResponse,
-  UpcomingExamsResponse
+  UpcomingExamsResponse,
+  AllExamsResponse  // ✅ NEW import
 } from '../../models/exam-api.models';
 
 @Injectable({
@@ -150,7 +151,18 @@ export class ExamApiService {
   // ============================================
 
   /**
+   * Get ALL published exams for student (NEW ENDPOINT)
+   * GET /api/exam/student/{studentId}/all
+   * Returns all published exams regardless of time
+   */
+  getAllPublishedExams(studentId: number): Observable<ApiResponse<AllExamsResponse>> {
+    return this.http.get<ApiResponse<AllExamsResponse>>(`${this.apiUrl}/student/${studentId}/all`);
+  }
+
+  /**
    * Get upcoming exams for student
+   * GET /api/exam/student/{studentId}/upcoming
+   * Returns only future exams (StartTime > now)
    */
   getUpcomingExams(studentId: number): Observable<ApiResponse<UpcomingExamsResponse>> {
     return this.http.get<ApiResponse<UpcomingExamsResponse>>(`${this.apiUrl}/student/${studentId}/upcoming`);

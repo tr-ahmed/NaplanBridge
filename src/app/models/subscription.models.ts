@@ -35,12 +35,12 @@ export interface SubscriptionPlan {
   name: string;
   description: string;
   price: number;
-  
+
   // ✅ Discount fields (calculated by backend)
   originalPrice?: number;           // Original price before discount
   discountPercentage?: number;      // Discount percentage (e.g., 10 for 10%)
   saveAmount?: number;              // Amount saved (originalPrice - price)
-  
+
   planType: PlanType;
 
   // Relations
@@ -64,7 +64,7 @@ export interface SubscriptionPlan {
 
   // Features (optional)
   features?: string[];
-  
+
   // Payment integration
   stripePriceId?: string;
   currency?: string;                // ✅ Currency code (e.g., "USD")

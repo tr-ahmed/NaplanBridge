@@ -3,13 +3,14 @@
  * Displays available exams for the logged-in student
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { ExamService } from '../../core/services/exam.service';
+import { ExamApiService } from '../../core/services/exam-api.service';  // ✅ Updated import
 import { DashboardService } from '../../core/services/dashboard.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { UpcomingExamDto } from '../../models/exam-api.models';  // ✅ Added import
 
 @Component({
   selector: 'app-student-exams',
@@ -19,7 +20,7 @@ import { ToastService } from '../../core/services/toast.service';
   styleUrl: './student-exams.component.scss'
 })
 export class StudentExamsComponent implements OnInit {
-  private examService = inject(ExamService);
+  private examApi = inject(ExamApiService);  // ✅ Updated to ExamApiService
   private dashboardService = inject(DashboardService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
@@ -27,11 +28,43 @@ export class StudentExamsComponent implements OnInit {
 
   studentId: number = 0;
   loading = signal<boolean>(true);
-  upcomingExams = signal<any[]>([]);
+
+  // ✅ Updated data structure
+  allExams = signal<UpcomingExamDto[]>([]);
+  upcomingExams = signal<UpcomingExamDto[]>([]);
   completedExams = signal<any[]>([]);
-  availableExams = signal<any[]>([]);
+  totalCount = signal<number>(0);
+  upcomingCount = signal<number>(0);
+
   selectedExam = signal<any>(null);
   showExamModal = signal<boolean>(false);
+  activeTab = signal<'upcoming' | 'all' | 'completed'>('upcoming');
+
+  // ✅ Computed values for filtering
+  filteredExams = computed(() => {
+    const tab = this.activeTab();
+    const now = new Date();
+
+    switch (tab) {
+      case 'upcoming':
+        return this.upcomingExams();
+      case 'all':
+        return this.allExams();
+      case 'completed':
+        return this.completedExams();
+      default:
+        return this.upcomingExams();
+    }
+  });
+
+  // ✅ Computed average score
+  averageScore = computed(() => {
+    const completed = this.completedExams();
+    if (completed.length === 0) return '0.0';
+
+    const total = completed.reduce((sum, exam) => sum + (exam.scorePercentage || 0), 0);
+    return (total / completed.length).toFixed(1);
+  });
 
   ngOnInit(): void {
     const studentId = this.authService.getStudentId();
@@ -48,7 +81,8 @@ export class StudentExamsComponent implements OnInit {
     this.loading.set(true);
 
     Promise.all([
-      this.loadUpcomingExams(),
+      this.loadAllExams(),        // ✅ NEW: Load all exams
+      this.loadUpcomingExams(),   // ✅ Load upcoming exams
       this.loadExamHistory()
     ]).then(() => {
       this.loading.set(false);
@@ -59,19 +93,50 @@ export class StudentExamsComponent implements OnInit {
     });
   }
 
-  private loadUpcomingExams(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.examService.getUpcomingExams(this.studentId).subscribe({
-        next: (response: any) => {
-          if (Array.isArray(response)) {
-            this.upcomingExams.set(response);
-          } else if (response && response.data) {
-            this.upcomingExams.set(response.data);
+  /**
+   * ✅ NEW: Load all published exams using new endpoint
+   * GET /api/exam/student/{studentId}/all
+   */
+  private loadAllExams(): Promise<void> {
+    return new Promise((resolve) => {
+      this.examApi.getAllPublishedExams(this.studentId).subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            this.allExams.set(response.data.exams);
+            this.totalCount.set(response.data.totalCount);
+            console.log(`✅ Loaded ${response.data.totalCount} total exams`);
           }
           resolve();
         },
         error: (err) => {
-          console.error('Error loading upcoming exams:', err);
+          console.error('❌ Error loading all exams:', err);
+          this.allExams.set([]);
+          this.totalCount.set(0);
+          resolve();
+        }
+      });
+    });
+  }
+
+  /**
+   * ✅ UPDATED: Load upcoming exams using existing endpoint
+   * GET /api/exam/student/{studentId}/upcoming
+   */
+  private loadUpcomingExams(): Promise<void> {
+    return new Promise((resolve) => {
+      this.examApi.getUpcomingExams(this.studentId).subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            this.upcomingExams.set(response.data.exams);
+            this.upcomingCount.set(response.data.upcomingCount);
+            console.log(`✅ Loaded ${response.data.upcomingCount} upcoming exams`);
+          }
+          resolve();
+        },
+        error: (err) => {
+          console.error('❌ Error loading upcoming exams:', err);
+          this.upcomingExams.set([]);
+          this.upcomingCount.set(0);
           resolve();
         }
       });
@@ -101,11 +166,41 @@ export class StudentExamsComponent implements OnInit {
   }
 
   viewExam(examId: number): void {
-    const exam = this.upcomingExams().find(e => e.id === examId);
+    const exam = this.allExams().find(e => e.id === examId) ||
+                 this.upcomingExams().find(e => e.id === examId);
     if (exam) {
       this.selectedExam.set(exam);
       this.showExamModal.set(true);
     }
+  }
+
+  /**
+   * ✅ NEW: Switch between tabs
+   */
+  setActiveTab(tab: 'upcoming' | 'all' | 'completed'): void {
+    this.activeTab.set(tab);
+  }
+
+  /**
+   * ✅ NEW: Check if exam is past
+   */
+  isPast(exam: UpcomingExamDto): boolean {
+    return new Date(exam.endDate) < new Date();
+  }
+
+  /**
+   * ✅ NEW: Check if exam is in progress
+   */
+  isInProgress(exam: UpcomingExamDto): boolean {
+    const now = new Date();
+    return new Date(exam.startDate) <= now && new Date(exam.endDate) >= now;
+  }
+
+  /**
+   * ✅ NEW: Get exam type badge class
+   */
+  getTypeClass(examType: string): string {
+    return `badge-${examType.toLowerCase()}`;
   }
 
   closeExamModal(): void {
