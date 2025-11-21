@@ -135,38 +135,54 @@ export class ResourceFormModalComponent {
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
+    console.log('📎 File input changed:', input.files);
+    
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
+      console.log('📄 File selected:', { name: file.name, size: file.size, type: file.type });
       
       // Validate file size (max 50MB)
       const maxSize = 50 * 1024 * 1024; // 50MB
       if (file.size > maxSize) {
         this.fileError.set('File size must be less than 50MB');
         this.selectedFile.set(null);
+        console.warn('❌ File too large:', file.size);
         return;
       }
 
       this.fileError.set('');
       this.selectedFile.set(file);
+      console.log('✅ File set in signal:', this.selectedFile());
     }
   }
 
   handleSave(): void {
-    if (this.title && this.selectedFile()) {
-      const file = this.selectedFile()!;
+    const file = this.selectedFile();
+    console.log('💾 handleSave called:', { title: this.title, file: file ? { name: file.name, size: file.size } : null });
+    
+    if (this.title && file) {
       console.log('🔵 Saving resource:', { title: this.title, fileName: file.name, fileSize: file.size });
       this.save.emit({
         title: this.title,
         file: file
       });
       // Don't reset immediately - let parent component reset after successful save
+    } else {
+      console.warn('⚠️ Missing data:', { title: this.title, hasFile: !!file });
     }
   }
 
   resetForm(): void {
+    console.log('🔄 Resetting form');
     this.title = '';
     this.selectedFile.set(null);
     this.fileError.set('');
+    
+    // Reset file input
+    const fileInput = document.getElementById('resourceFile') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
   }
 
   getFileSize(bytes: number): string {

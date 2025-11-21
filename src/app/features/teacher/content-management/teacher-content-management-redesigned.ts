@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -943,6 +943,8 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
 
   closeResourceForm(): void {
     this.resourceFormOpen = false;
+    // Reset form data
+    this.resourceForm = {};
   }
 
   // ============================================
@@ -1243,13 +1245,6 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
       await this.loadLessonResources(lessonId);
     } catch (error) {
       console.error('❌ Resource upload failed:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Upload Failed',
-        text: this.extractErrorMessage(error),
-      });
-    }
-  }
       Swal.fire({
         icon: 'error',
         title: 'Upload Failed',

@@ -485,12 +485,20 @@ export class ContentService {
 
   // ===== Resources =====
   addResource(title: string, lessonId: number, file: File): Observable<Resource> {
+    console.log('🔵 addResource called with:', { title, lessonId, file: { name: file.name, size: file.size, type: file.type } });
+    
     const formData = new FormData();
-    formData.append('File', file);
+    formData.append('File', file, file.name);
 
     const params = new HttpParams()
       .set('Title', title)
       .set('LessonId', lessonId.toString());
+
+    console.log('📦 FormData entries:');
+    formData.forEach((value, key) => {
+      console.log(`  ${key}:`, value);
+    });
+    console.log('📦 Params:', params.toString());
 
     return this.http.post<Resource>(`${this.apiUrl}/Resources`, formData, { params });
   }
