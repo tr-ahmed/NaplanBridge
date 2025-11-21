@@ -48,7 +48,7 @@ export class TeacherContentManagementComponent implements OnInit, OnDestroy {
   // ===== State Management =====
   loading = signal(false);
   sidebarOpen = signal(true);
-  activeTab = signal<string>('dashboard');
+  activeTab = signal<string>('my-content'); // Changed from 'dashboard' to 'my-content'
   mobileMenuOpen = signal(false);
 
   // ===== Data =====
@@ -69,7 +69,7 @@ export class TeacherContentManagementComponent implements OnInit, OnDestroy {
 
   // ===== Tabs =====
   tabs: TeacherTab[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    // { id: 'dashboard', label: 'Dashboard', icon: '📊' }, // Hidden per request
     { id: 'my-content', label: 'My Content', icon: '📚' },
     { id: 'create', label: 'Create Content', icon: '➕' },
     { id: 'history', label: 'Approval History', icon: '📋' }
