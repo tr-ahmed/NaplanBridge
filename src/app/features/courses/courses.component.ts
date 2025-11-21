@@ -604,7 +604,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     this.coursesService.removeFromCart(itemId)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(success => {
+      .subscribe((success: any) => {
         if (success) {
           this.logger.log('✅ Removed course from cart');
         }
@@ -739,7 +739,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
       this.coursesService.onPlanSelected(planId, course, studentId)
         .pipe(takeUntil(this.destroy$))
-        .subscribe(success => {
+        .subscribe((success: any) => {
           if (success) {
             this.logger.log('Plan added to cart successfully');
           }
@@ -777,7 +777,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
     if (planId && course) {
       this.coursesService.onPlanSelected(planId, course, studentId)
         .pipe(takeUntil(this.destroy$))
-        .subscribe(success => {
+        .subscribe((success: any) => {
           if (success) {
             this.logger.log('Plan added to cart successfully for selected student');
           }
@@ -808,7 +808,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
     if (confirm(`Are you sure you want to enroll in "${course.name}" for $${course.price}?`)) {
       this.coursesService.enrollInCourse(course.id)
         .pipe(takeUntil(this.destroy$))
-        .subscribe(success => {
+        .subscribe((success: any) => {
           if (success) {
             this.toastService.showSuccess(`Successfully enrolled in ${course.name}!`);
           } else {
@@ -995,7 +995,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
     this.coursesService.getCurrentTermWeek(studentId, course.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (termWeek) => {
+        next: (termWeek: any) => {
           this.logger.log('✅ Term/Week info received:', {
             courseId: course.id,
             courseName: course.name || course.subjectName,
@@ -1036,7 +1036,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
             }, 500);
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('❌ Error fetching current term/week:', error);
 
           // ✅ Still navigate to lessons even on error (with defaults)

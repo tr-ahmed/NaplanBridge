@@ -2,7 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { catchError, map, tap, switchMap } from 'rxjs/operators';
-import { Course, CourseFilter, Cart, CartItem, CourseCategory, CurrentTermWeekDto } from '../../models/course.models';
+import { Course, CourseFilter, Cart, CartItem, CourseCategory, CurrentTermWeekDto, TermAccessStatusDto } from '../../models/course.models';
 import { ApiNodes } from '../api/api-nodes';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
@@ -431,25 +431,34 @@ export class CoursesService {
         }
 
         // Transform backend items to frontend CartItem structure
-        // Backend: { cartItemId, subscriptionPlanId, planName, price, quantity, studentId, subjectId, yearId, termId }
+        // Backend: { cartItemId, subscriptionPlanId, planName, price, quantity, studentId, subjectId, yearId, termId, posterUrl }
         // Frontend: CartItem with both legacy (course) and new (subjectId, yearId) fields
-        const items: CartItem[] = rawItems.map((backendItem: any) => ({
-          // Legacy course structure (for backward compatibility)
-          course: {
-            id: backendItem.subscriptionPlanId || backendItem.courseId,
-            subjectName: backendItem.planName || backendItem.courseName || 'Unknown Course',
-            name: backendItem.planName || backendItem.courseName || 'Unknown Course',
-            posterUrl: backendItem.imageUrl || backendItem.posterUrl || '',
-            description: backendItem.description || backendItem.planName || '',
-            categoryName: backendItem.categoryName || '',
-            teacherName: backendItem.teacherName || '',
-            instructor: backendItem.teacherName || backendItem.instructor,
-            duration: backendItem.duration,
-            price: backendItem.price,
-            originalPrice: backendItem.originalPrice,
-            level: backendItem.level,
-            tags: backendItem.tags || []
-          },
+        const items: CartItem[] = rawItems.map((backendItem: any) => {
+          // ✅ Extract poster URL from backend (enhanced API now provides this)
+          // Try multiple sources for backward compatibility
+          const posterUrl = backendItem.posterUrl ||
+                           backendItem.imageUrl ||
+                           backendItem.subjectPosterUrl ||
+                           backendItem.subject?.posterUrl ||
+                           null;  // ✅ Use null instead of empty string for better handling
+
+          return {
+            // Legacy course structure (for backward compatibility)
+            course: {
+              id: backendItem.subscriptionPlanId || backendItem.courseId,
+              subjectName: backendItem.planName || backendItem.courseName || 'Unknown Course',
+              name: backendItem.planName || backendItem.courseName || 'Unknown Course',
+              posterUrl: posterUrl,
+              description: backendItem.description || backendItem.planName || '',
+              categoryName: backendItem.categoryName || '',
+              teacherName: backendItem.teacherName || '',
+              instructor: backendItem.teacherName || backendItem.instructor,
+              duration: backendItem.duration,
+              price: backendItem.price,
+              originalPrice: backendItem.originalPrice,
+              level: backendItem.level,
+              tags: backendItem.tags || []
+            },
           quantity: backendItem.quantity || 1,
           selectedPlan: {
             id: backendItem.subscriptionPlanId,
@@ -460,6 +469,7 @@ export class CoursesService {
           },
 
           // ✅ NEW FIELDS from enhanced backend response
+          id: backendItem.cartItemId,  // Alias for easier access
           cartItemId: backendItem.cartItemId,
           subscriptionPlanId: backendItem.subscriptionPlanId,
           planName: backendItem.planName,
@@ -475,29 +485,19 @@ export class CoursesService {
           termNumber: backendItem.termNumber,
           planType: backendItem.planType,
 
+          // ✅ Subject poster URL from backend (can be null)
+          posterUrl: posterUrl,
+
           // Keep backend fields for reference
           _backendData: {
             cartItemId: backendItem.cartItemId,
             subscriptionPlanId: backendItem.subscriptionPlanId,
             studentId: backendItem.studentId
           }
-        } as any));
+        } as any;
+        });
 
-        console.log('✅ Transformed items:', items);
-
-        // Log first transformed item with new fields
-        if (items.length > 0) {
-          console.log('🔍 First transformed item:', {
-            subjectId: items[0].subjectId,
-            subjectName: items[0].subjectName,
-            yearId: items[0].yearId,
-            yearNumber: items[0].yearNumber,
-            termId: items[0].termId,
-            termNumber: items[0].termNumber,
-            planType: items[0].planType,
-            cartItemId: items[0].cartItemId
-          });
-        }
+        console.log('✅ Cart items transformed:', items.length, 'items');
 
         const cart: Cart = {
           items: items,
@@ -567,7 +567,7 @@ export class CoursesService {
    * Remove course from cart
    */
   removeFromCart(itemIdToRemove: number): Observable<boolean> {
-    console.log('🗑️ Removing itemId:', itemIdToRemove, 'from cart');
+    console.log('🗑️ Removing cart item ID:', itemIdToRemove);
 
     // Check if user is authenticated before making API call
     if (!this.authService.isAuthenticated()) {
@@ -575,36 +575,19 @@ export class CoursesService {
       return of(true);
     }
 
-    // ⚠️ CRITICAL: Find cart item by cartItemId directly
     const currentCart = this.cartSubject.value;
-    console.log('📦 Current cart items:', currentCart.items);
-
     const cartItem = currentCart.items.find((item: any) => {
-      // Try to get cartItemId from multiple possible locations
-      const itemCartId =
-        item.cartItemId ||                       // Direct field (new structure)
-        item._backendData?.cartItemId ||         // Backend data reference
-        item.id;                                 // Fallback
-
-      console.log('🔍 Checking item cartItemId:', itemCartId, 'against target:', itemIdToRemove);
-      return itemCartId === itemIdToRemove;
+      const itemId = item.id || item.cartItemId || item._backendData?.cartItemId;
+      return itemId === itemIdToRemove;
     });
 
     if (!cartItem) {
-      console.warn('⚠️ Cart item not found for cartItemId:', itemIdToRemove);
-      console.warn('📦 Available cart items:', currentCart.items.map((i: any) => ({
-        cartItemId: i.cartItemId || i._backendData?.cartItemId,
-        subjectId: i.subjectId,
-        subjectName: i.subjectName
-      })));
+      console.error('❌ Cart item not found:', itemIdToRemove);
       this.toastService.showError('Item not found in cart');
       return of(false);
     }
 
-    // Use the itemIdToRemove directly as cartItemId
-    const cartItemId = itemIdToRemove;
-
-    console.log('🗑️ Removing cartItemId:', cartItemId, 'from backend');
+    const cartItemId = itemIdToRemove;    console.log('🗑️ Removing cartItemId:', cartItemId, 'from backend');
 
     // Use correct backend endpoint: DELETE /api/Cart/items/{cartItemId}
     const url = `${this.baseUrl}/Cart/items/${cartItemId}`;
@@ -986,22 +969,22 @@ export class CoursesService {
    * @param subjectId - The subject ID
    * @returns Observable of term access status for all terms
    */
-  getTermAccessStatus(studentId: number, subjectId: number): Observable<import('../../models/course.models').TermAccessStatusDto> {
+  getTermAccessStatus(studentId: number, subjectId: number): Observable<TermAccessStatusDto> {
     const url = `${this.baseUrl}/StudentSubjects/student/${studentId}/subject/${subjectId}/term-access`;
 
     console.log('🔒 Fetching term access status:', { studentId, subjectId, url });
 
-    return this.http.get<import('../../models/course.models').TermAccessStatusDto>(url).pipe(
+    return this.http.get<TermAccessStatusDto>(url).pipe(
       tap(response => {
         console.log('✅ Term access status:', {
           subject: response.subjectName,
           currentTerm: response.currentTermNumber,
-          accessibleTerms: response.terms.filter(t => t.hasAccess).map(t => t.termNumber)
+          accessibleTerms: response.terms.filter((t: any) => t.hasAccess).map((t: any) => t.termNumber)
         });
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('❌ Error fetching term access status:', error);
-        this.toastService.showError('Unable to load subscription information');
+        this.toastService?.showError('Unable to load subscription information');
         throw error;
       })
     );
@@ -1080,7 +1063,7 @@ export class CoursesService {
           return this.http.get<any[]>(`${this.baseUrl}/Terms/by-subject/${subjectId}`).pipe(
             map(terms => {
               // Find the term with matching term number
-              const matchingTerm = terms.find(t => t.termNumber === termNumber);
+              const matchingTerm = terms.find((t: any) => t.termNumber === termNumber);
               if (matchingTerm) {
                 console.log(`🔄 Fallback: Found termId ${matchingTerm.id} for term ${termNumber}`);
                 return matchingTerm.id;

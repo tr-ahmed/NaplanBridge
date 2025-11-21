@@ -114,6 +114,7 @@ export interface CartItem {
   };
 
   // ✅ NEW FIELDS from backend (preferred structure)
+  id?: number;  // Alias for cartItemId (for backward compatibility)
   cartItemId?: number;
   subscriptionPlanId?: number;
   planName?: string;
@@ -128,6 +129,9 @@ export interface CartItem {
   termId?: number;
   termNumber?: number;
   planType?: string;
+
+  // ✅ Subject poster image URL (from Backend API)
+  posterUrl?: string | null;
 }
 
 /**

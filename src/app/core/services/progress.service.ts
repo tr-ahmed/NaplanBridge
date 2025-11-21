@@ -6,7 +6,7 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, switchMap } from 'rxjs/operators';
 import { ApiService } from './base-api.service';
 import {
   StudentProgress,
@@ -185,6 +185,33 @@ export class ProgressService {
   }
 
   /**
+   * Create new lesson progress
+   * ✅ Endpoint: POST /api/Progress/students/{studentId}/lessons/{lessonId}
+   * Backend expects: progressNumber, timeSpent, currentPosition (int)
+   */
+  createLessonProgress(dto: UpdateLessonProgressDto): Observable<LessonProgress> {
+    // Get studentId from auth service (from JWT token)
+    const studentId = this.getStudentIdFromToken();
+
+    if (!studentId) {
+      console.error('❌ No studentId found - cannot create progress');
+      return of({} as LessonProgress);
+    }
+
+    // ✅ Use correct endpoint structure for creation
+    const url = `Progress/students/${studentId}/lessons/${dto.lessonId}`;
+
+    // ✅ Transform DTO to match backend expectations
+    const payload = {
+      progressNumber: dto.progress || 0,
+      timeSpent: 0,
+      currentPosition: dto.lastWatchedPosition ? Math.floor(dto.lastWatchedPosition) : 0
+    };
+
+    return this.api.post<LessonProgress>(url, payload);
+  }
+
+  /**
    * Update lesson progress (video position, completion)
    * ✅ FIXED: Using correct endpoint PUT /api/Progress/students/{studentId}/lessons/{lessonId}
    * Backend expects: progressNumber, timeSpent, currentPosition (int)
@@ -209,6 +236,39 @@ export class ProgressService {
     };
 
     return this.api.put<LessonProgress>(url, payload);
+  }
+
+  /**
+   * Create or update lesson progress (automatically chooses POST or PUT)
+   * This is the recommended method to use for saving progress
+   */
+  saveOrUpdateLessonProgress(dto: UpdateLessonProgressDto): Observable<LessonProgress> {
+    const studentId = this.getStudentIdFromToken();
+
+    if (!studentId) {
+      console.error('❌ No studentId found - cannot save progress');
+      return of({} as LessonProgress);
+    }
+
+    // First try to get existing progress
+    return this.getLessonProgress(studentId, dto.lessonId).pipe(
+      switchMap((existingProgress: any) => {
+        // If progress exists, update it
+        if (existingProgress && existingProgress.progressNumber !== undefined) {
+          return this.updateLessonProgress(dto);
+        }
+        // Otherwise, create new progress
+        return this.createLessonProgress(dto);
+      }),
+      catchError((error: any) => {
+        // If GET fails (404), create new progress
+        if (error.status === 404) {
+          return this.createLessonProgress(dto);
+        }
+        // Otherwise, try update anyway
+        return this.updateLessonProgress(dto);
+      })
+    );
   }
 
   /**

@@ -302,7 +302,7 @@ export const ApiNodes = {
 
   // Update lesson progress
   updateLessonProgress: {
-    url: '/Progress',
+    url: '/Progress/students/:studentId/lessons/:lessonId',
     method: 'POST' as const,
     mockData: { success: true }
   },

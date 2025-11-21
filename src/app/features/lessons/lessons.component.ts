@@ -243,10 +243,10 @@ export class LessonsComponent implements OnInit, OnDestroy {
     this.coursesService.isEnrolledInCourse(courseId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (enrolled) => {
+        next: (enrolled: any) => {
           this.isEnrolledInSubject.set(enrolled);
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error checking enrollment:', error);
           this.isEnrolledInSubject.set(false);
         }
@@ -376,7 +376,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
       this.coursesService.enrollInCourse(courseId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: (success) => {
+          next: (success: any) => {
             if (success) {
               this.toastService.showSuccess(`Successfully enrolled in ${this.currentSubject()}!`);
               this.isEnrolledInSubject.set(true);
@@ -385,7 +385,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
               this.toastService.showError('Enrollment failed. Please try again.');
             }
           },
-          error: (error) => {
+          error: (error: any) => {
             console.error('Enrollment error:', error);
             this.toastService.showError('Enrollment failed. Please try again.');
           }
@@ -458,18 +458,18 @@ export class LessonsComponent implements OnInit, OnDestroy {
     this.coursesService.getTermAccessStatus(studentId, subjectId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (termAccessStatus) => {
+        next: (termAccessStatus: any) => {
           console.log('✅ Term access status loaded:', {
             subject: termAccessStatus.subjectName,
             currentTerm: termAccessStatus.currentTermNumber,
             totalTerms: termAccessStatus.terms.length,
-            accessibleTerms: termAccessStatus.terms.filter(t => t.hasAccess).map(t => t.termNumber),
-            lockedTerms: termAccessStatus.terms.filter(t => !t.hasAccess).map(t => t.termNumber)
+            accessibleTerms: termAccessStatus.terms.filter((t: any) => t.hasAccess).map((t: any) => t.termNumber),
+            lockedTerms: termAccessStatus.terms.filter((t: any) => !t.hasAccess).map((t: any) => t.termNumber)
           });
 
           // ✅ Backend now returns correct number of terms (4) filtered by current year
           // No client-side filtering needed
-          const terms: Term[] = termAccessStatus.terms.map((t, index) => ({
+          const terms: Term[] = termAccessStatus.terms.map((t: any, index: number) => ({
             id: t.termId || t.termNumber,  // ✅ FIX: Use termNumber if termId is 0
             termNumber: t.termNumber,
             name: t.termName,
@@ -514,7 +514,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
             selectedTermId: this.selectedTermId()
           });
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('❌ Error loading term access status:', error);
           this.toastService.showError('Unable to load subscription information. Please try again.');
         }

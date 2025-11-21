@@ -146,13 +146,16 @@ export class CartComponent implements OnInit, OnDestroy {
   /**
    * Remove item from cart
    */
-  removeItem(courseId: number): void {
-    this.coursesService.removeFromCart(courseId)
+  removeItem(cartItemId: number | undefined): void {
+    if (!cartItemId) {
+      console.error('❌ No cart item ID provided');
+      return;
+    }
+
+    this.coursesService.removeFromCart(cartItemId)
       .pipe(takeUntil(this.destroy$))
       .subscribe();
-  }
-
-  /**
+  }  /**
    * Clear entire cart
    */
   clearCart(): void {
@@ -242,6 +245,35 @@ export class CartComponent implements OnInit, OnDestroy {
     // Split by " Year " and take the first part
     const parts = fullName.split(/\s+Year\s+/i);
     return parts[0].trim();
+  }
+
+  /**
+   * Get poster URL with fallback to default image
+   * Handles null/undefined posterUrl from backend
+   */
+  getPosterUrl(item: CartItem): string {
+    // Try to get posterUrl from different sources
+    const posterUrl = (item as any).posterUrl ||
+                     item.course?.posterUrl ||
+                     (item as any).imageUrl ||
+                     (item as any).subjectPosterUrl ||
+                     '';
+
+    // If no posterUrl, return default image instead of placeholder
+    if (!posterUrl) {
+      return 'assets/images/default-subject.svg';
+    }
+
+    return posterUrl;
+  }
+
+  /**
+   * Handle image loading error
+   * Fallback to default image when poster fails to load
+   */
+  handleImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = 'assets/images/default-subject.svg';
   }  /**
    * Extract year and term info
    * Example: "Reading Comprehension Year 7 - Term 3" -> "Year 7 - Term 3"

@@ -162,43 +162,27 @@ export class LessonsService {
       .replace(':studentId', studentId.toString())
       .replace(':lessonId', lessonId.toString())}`;
 
-    console.log('📤 Updating progress:', {
+    console.log('📤 Updating progress (PUT):', {
       url,
+      method: 'PUT (direct)',
       studentId,
       lessonId,
-      data: progressData
+      data: progressData,
+      dataTypes: {
+        progressNumber: typeof progressData.progressNumber,
+        timeSpent: typeof progressData.timeSpent,
+        currentPosition: typeof progressData.currentPosition
+      }
     });
 
-    // Try UPDATE first (PUT)
+    // ✅ Use PUT directly - Backend creates if not exists, updates if exists
     return this.http.put<any>(url, progressData).pipe(
       map(() => {
-        console.log('✅ Progress updated successfully');
+        console.log('✅ Progress saved successfully');
         return true;
       }),
       catchError((error: HttpErrorResponse) => {
-        // If 404, the progress record doesn't exist yet - create it with POST
-        if (error.status === 404) {
-          console.log('📝 Progress record not found, creating new one...');
-          return this.http.post<any>(url, progressData).pipe(
-            map(() => {
-              console.log('✅ Progress created successfully');
-              return true;
-            }),
-            catchError((createError: HttpErrorResponse) => {
-              console.error('❌ Failed to create progress:', {
-                status: createError.status,
-                statusText: createError.statusText,
-                url: url,
-                error: createError.error,
-                message: createError.message
-              });
-              return of(false);
-            })
-          );
-        }
-
-        // Handle other errors
-        console.error('❌ Failed to update progress:', {
+        console.error('❌ Failed to save progress:', {
           status: error.status,
           statusText: error.statusText,
           url: url,

@@ -235,10 +235,41 @@ export class TeacherPermissionService {
    */
   getSubjects(): Observable<SubjectDto[]> {
     console.log('📚 Fetching subjects list');
-    return this.http.get<ApiResponse<SubjectDto[]>>(`${this.subjectsUrl}`)
+    // Use pageSize=1000 to get all subjects for dropdown
+    return this.http.get<any>(`${this.subjectsUrl}?pageSize=1000`)
       .pipe(
         map(response => {
-          const subjects = response.data || [];
+          console.log('📦 Raw Subjects API response:', response);
+
+          // Handle paginated response format: { items: [...], totalCount, page, pageSize }
+          let subjects: SubjectDto[] = [];
+
+          if (response && response.items && Array.isArray(response.items)) {
+            // Paginated response - map to our DTO format
+            subjects = response.items.map((item: any) => ({
+              id: item.id,
+              name: item.subjectName || item.name,
+              yearId: item.yearId,
+              yearName: item.yearName || 'Unknown'
+            }));
+          } else if (response && response.data && Array.isArray(response.data)) {
+            // ApiResponse format
+            subjects = response.data.map((item: any) => ({
+              id: item.id,
+              name: item.subjectName || item.name,
+              yearId: item.yearId,
+              yearName: item.yearName || 'Unknown'
+            }));
+          } else if (Array.isArray(response)) {
+            // Direct array response
+            subjects = response.map((item: any) => ({
+              id: item.id,
+              name: item.subjectName || item.name,
+              yearId: item.yearId,
+              yearName: item.yearName || 'Unknown'
+            }));
+          }
+
           console.log(`✅ Retrieved ${subjects.length} subjects`);
           return subjects;
         }),

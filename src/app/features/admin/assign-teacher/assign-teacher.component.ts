@@ -218,6 +218,16 @@ import {
                   </div>
                 </div>
 
+                @if (editingId()) {
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" formControlName="isActive">
+                      <span>Active Status</span>
+                    </label>
+                    <small class="form-hint">Uncheck to deactivate this teacher's access</small>
+                  </div>
+                }
+
                 <div class="form-group">
                   <label>Notes (Optional)</label>
                   <textarea
@@ -617,6 +627,14 @@ import {
       cursor: pointer;
     }
 
+    .form-hint {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: normal;
+    }
+
     .modal-footer {
       padding: 16px 24px;
       border-top: 1px solid #e5e7eb;
@@ -707,6 +725,7 @@ export class AssignTeacherComponent implements OnInit, OnDestroy {
       canCreate: [true, Validators.required],
       canEdit: [true, Validators.required],
       canDelete: [false, Validators.required],
+      isActive: [true],  // For editing only
       notes: ['']
     });
   }
@@ -781,7 +800,15 @@ export class AssignTeacherComponent implements OnInit, OnDestroy {
   openNewAssignment(): void {
     this.editingId.set(null);
     this.modalTitle.set('Assign New Teacher');
-    this.form.reset({ teacherId: null, subjectId: null, canCreate: true, canEdit: true, canDelete: false, notes: '' });
+    this.form.reset({
+      teacherId: null,
+      subjectId: null,
+      canCreate: true,
+      canEdit: true,
+      canDelete: false,
+      isActive: true,
+      notes: ''
+    });
     this.showModal.set(true);
   }
 
@@ -794,6 +821,7 @@ export class AssignTeacherComponent implements OnInit, OnDestroy {
       canCreate: permission.canCreate,
       canEdit: permission.canEdit,
       canDelete: permission.canDelete,
+      isActive: permission.isActive,
       notes: permission.notes || ''
     });
     this.showModal.set(true);
@@ -840,8 +868,8 @@ export class AssignTeacherComponent implements OnInit, OnDestroy {
       canCreate: this.form.get('canCreate')?.value,
       canEdit: this.form.get('canEdit')?.value,
       canDelete: this.form.get('canDelete')?.value,
-      notes: this.form.get('notes')?.value,
-      isActive: true
+      isActive: this.form.get('isActive')?.value ?? true,
+      notes: this.form.get('notes')?.value
     };
     this.permissionService.updatePermission(this.editingId()!, dto)
       .pipe(takeUntil(this.destroy$))
