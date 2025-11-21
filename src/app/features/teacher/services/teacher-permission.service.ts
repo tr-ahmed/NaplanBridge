@@ -74,8 +74,8 @@ export interface SubjectDto {
 export class TeacherPermissionService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiBaseUrl}/teacherpermissions`;
-  private teachersUrl = `${environment.apiBaseUrl}/teachers`;
-  private subjectsUrl = `${environment.apiBaseUrl}/subjects`;
+  private usersUrl = `${environment.apiBaseUrl}/users`;
+  private subjectsUrl = `${environment.apiBaseUrl}/content/subjects`;
 
   /**
    * Grant permission to a teacher for a subject
@@ -216,11 +216,21 @@ export class TeacherPermissionService {
    */
   getTeachers(): Observable<TeacherDto[]> {
     console.log('👨‍🏫 Fetching teachers list');
-    return this.http.get<ApiResponse<TeacherDto[]>>(`${this.teachersUrl}`)
+    // Get all users and filter by Teacher role
+    return this.http.get<ApiResponse<any[]>>(`${this.usersUrl}`)
       .pipe(
         map(response => {
-          console.log(`✅ Retrieved ${response.data.length} teachers`);
-          return response.data;
+          // Filter users with Teacher role
+          const teachers = (response.data || [])
+            .filter((user: any) => user.roles?.includes('Teacher'))
+            .map((user: any) => ({
+              id: user.id,
+              name: user.userName || user.name || 'Unknown',
+              email: user.email || '',
+              roles: user.roles || []
+            }));
+          console.log(`✅ Retrieved ${teachers.length} teachers`);
+          return teachers;
         }),
         catchError(error => {
           console.error('❌ Error fetching teachers:', error);
@@ -237,8 +247,9 @@ export class TeacherPermissionService {
     return this.http.get<ApiResponse<SubjectDto[]>>(`${this.subjectsUrl}`)
       .pipe(
         map(response => {
-          console.log(`✅ Retrieved ${response.data.length} subjects`);
-          return response.data;
+          const subjects = response.data || [];
+          console.log(`✅ Retrieved ${subjects.length} subjects`);
+          return subjects;
         }),
         catchError(error => {
           console.error('❌ Error fetching subjects:', error);

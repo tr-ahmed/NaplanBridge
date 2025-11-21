@@ -202,14 +202,18 @@ export class TeacherAvailabilityComponent implements OnInit {
 
     const formValue = this.availabilityForm.value;
 
+    // Convert day number to day name string
+    const dayNumber = parseInt(formValue.dayOfWeek);
+    const dayName = this.daysOfWeek.find(d => d.value === dayNumber)?.label || 'Sunday';
+
     const dto: CreateAvailabilityDto = {
-      dayOfWeek: parseInt(formValue.dayOfWeek), // Already numeric from select
-      startTime: formValue.startTime, // HH:mm format from input type="time"
-      endTime: formValue.endTime // HH:mm format from input type="time"
+      dayOfWeek: dayName, // Send as string: "Sunday", "Monday", etc.
+      startTime: formValue.startTime + ':00', // Convert HH:mm to HH:mm:ss (TimeSpan format)
+      endTime: formValue.endTime + ':00' // Convert HH:mm to HH:mm:ss (TimeSpan format)
     };
 
     // Validate start time is before end time
-    if (dto.startTime >= dto.endTime) {
+    if (formValue.startTime >= formValue.endTime) {
       this.toastService.showError('Start time must be before end time');
       return;
     }
@@ -251,9 +255,9 @@ export class TeacherAvailabilityComponent implements OnInit {
    */
   private checkTimeSlotConflict(newSlot: CreateAvailabilityDto): boolean {
     const existingSlots = this.availabilities().filter(slot => {
-      // Compare day of week (handle both string and number types)
-      const existingDay = typeof slot.dayOfWeek === 'number' ? slot.dayOfWeek : parseInt(slot.dayOfWeek);
-      return existingDay === newSlot.dayOfWeek;
+      // Compare day of week - newSlot.dayOfWeek is now a string like "Sunday"
+      // slot.dayOfWeek from backend is also a string
+      return slot.dayOfWeek.toString().toLowerCase() === newSlot.dayOfWeek.toLowerCase();
     });
 
     for (const existing of existingSlots) {

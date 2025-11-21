@@ -4,7 +4,7 @@
 .scrollbar-hide {
   -ms-overflow-style: none;  /* Internet Explorer 10+ */
   scrollbar-width: none;  /* Firefox */
-  
+
   &::-webkit-scrollbar {
     display: none;  /* Safari and Chrome */
   }
@@ -14,11 +14,11 @@
 nav {
   /* Ensure smooth scrolling on mobile */
   scroll-behavior: smooth;
-  
+
   /* Add scroll indicators on mobile */
   @media (max-width: 767px) {
     position: relative;
-    
+
     &::before,
     &::after {
       content: '';
@@ -29,12 +29,12 @@ nav {
       pointer-events: none;
       z-index: 10;
     }
-    
+
     &::before {
       left: 0;
       background: linear-gradient(to right, rgba(255, 255, 255, 1), transparent);
     }
-    
+
     &::after {
       right: 0;
       background: linear-gradient(to left, rgba(255, 255, 255, 1), transparent);
@@ -48,11 +48,11 @@ nav {
   @media (max-width: 640px) {
     padding: 1rem;
   }
-  
+
   @media (min-width: 641px) and (max-width: 1024px) {
     padding: 1.5rem;
   }
-  
+
   @media (min-width: 1025px) {
     padding: 2rem;
   }
@@ -62,11 +62,11 @@ nav {
 .form-grid {
   display: grid;
   gap: 1rem;
-  
+
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }
-  
+
   @media (min-width: 641px) {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -76,15 +76,15 @@ nav {
 .button-group {
   display: flex;
   gap: 0.5rem;
-  
+
   @media (max-width: 640px) {
     flex-direction: column;
-    
+
     button {
       width: 100%;
     }
   }
-  
+
   @media (min-width: 641px) {
     flex-direction: row;
     flex-wrap: wrap;
@@ -97,18 +97,31 @@ nav {
   background: #000;
   border-radius: 0.5rem;
   overflow: hidden;
+
+  // Fullscreen mode styling
+  &:fullscreen,
+  &:-webkit-full-screen,
+  &:-moz-full-screen,
+  &:-ms-fullscreen {
+    video {
+      width: 100vw !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      object-fit: contain !important;
+    }
+  }
 }
 
 video {
   width: 100%;
   height: auto;
   display: block;
-  
+
   /* Enhance video poster appearance */
   &::-webkit-media-controls-panel {
     background-color: rgba(0, 0, 0, 0.8);
   }
-  
+
   /* Custom poster styling when video is loading */
   &[poster] {
     object-fit: cover;
@@ -116,10 +129,10 @@ video {
     background-position: center;
     background-repeat: no-repeat;
   }
-  
+
   /* Smooth transition for poster to video */
   transition: opacity 0.3s ease;
-  
+
   /* Responsive video sizing */
   @media (max-width: 640px) {
     border-radius: 0.25rem;
@@ -145,11 +158,11 @@ video {
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
-  
+
   &.show {
     opacity: 1;
   }
-  
+
   .play-button {
     width: 80px;
     height: 80px;
@@ -163,12 +176,12 @@ video {
     transition: all 0.3s ease;
     cursor: pointer;
     pointer-events: all;
-    
+
     &:hover {
       background: rgba(255, 255, 255, 1);
       transform: scale(1.1);
     }
-    
+
     @media (max-width: 640px) {
       width: 60px;
       height: 60px;
@@ -192,7 +205,7 @@ video {
   color: white;
   font-size: 1.125rem;
   font-weight: 500;
-  
+
   i {
     font-size: 3rem;
     margin-bottom: 1rem;

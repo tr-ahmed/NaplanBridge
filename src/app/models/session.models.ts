@@ -93,9 +93,9 @@ export enum DayOfWeek {
  * Create Availability DTO
  */
 export interface CreateAvailabilityDto {
-  dayOfWeek: DayOfWeek | number; // 0 = Sunday, 1 = Monday, etc.
-  startTime: string; // Format: "HH:mm" or "HH:mm:ss"
-  endTime: string;   // Format: "HH:mm" or "HH:mm:ss"
+  dayOfWeek: string; // Day name: "Sunday", "Monday", etc.
+  startTime: string; // Format: "HH:mm:ss" (TimeSpan format)
+  endTime: string;   // Format: "HH:mm:ss" (TimeSpan format)
 }
 
 /**
