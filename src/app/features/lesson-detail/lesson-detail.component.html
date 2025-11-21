@@ -275,42 +275,29 @@
           @if (activeTab() === 'video') {
             <div class="space-y-6">
               <!-- Video Player -->
-              <div class="bg-black rounded-lg overflow-hidden video-container relative">
-                @if (lesson()!.videoUrl) {
+              @if (lesson()!.videoUrl) {
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                  <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ lesson()!.title }}</h3>
                   <video
                     #videoPlayer
-                    class="w-full h-auto"
                     controls
+                    class="w-full rounded-lg"
                     [poster]="getVideoPosterUrl()">
                   </video>
-
-                  <!-- Custom Play Button Overlay -->
-                  @if (!isVideoPlaying()) {
-                    <div class="video-overlay show" (click)="playVideo()">
-                      <div class="play-button">
-                        <i class="fas fa-play"></i>
-                      </div>
-                    </div>
-                  }
-
-                  <!-- Video Info Overlay -->
-                  <div class="absolute top-4 left-4 right-4 text-white">
-                    <div class="bg-black bg-opacity-50 rounded-lg p-3 backdrop-blur-sm">
-                      <h3 class="font-semibold text-lg mb-1">{{ lesson()!.title }}</h3>
-                      <p class="text-sm opacity-90">{{ lesson()!.duration }} minutes • {{ lesson()!.difficulty }}</p>
-                    </div>
+                  <div class="mt-4 text-sm text-gray-600">
+                    <p>{{ lesson()!.duration }} minutes • {{ lesson()!.difficulty }}</p>
                   </div>
-                } @else {
-                  <!-- No Video Available -->
-                  <div class="video-poster-fallback">
-                    <div class="text-center">
-                      <i class="fas fa-video block"></i>
-                      <p>Video not available</p>
-                      <p class="text-sm opacity-75 mt-2">This lesson doesn't have a video yet</p>
-                    </div>
-                  </div>
-                }
-              </div>
+                </div>
+              } @else {
+                <!-- No Video Available -->
+                <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+                  <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                  </svg>
+                  <p class="text-gray-600 text-lg">Video not available</p>
+                  <p class="text-sm text-gray-500 mt-2">This lesson doesn't have a video yet</p>
+                </div>
+              }
 
               <!-- Chapter Progress Info -->
               @if (videoDuration() > 0) {

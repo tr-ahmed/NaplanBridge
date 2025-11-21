@@ -91,125 +91,14 @@ nav {
   }
 }
 
-/* Video Player Enhancements */
-.video-container {
-  position: relative;
+/* Video Player - Simple and Clean */
+video {
+  width: 100%;
+  height: auto;
+  display: block;
   background: #000;
-  border-radius: 0.5rem;
-  overflow: hidden;
-
-  video {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-}
-
-video {
-  width: 100%;
-  height: auto;
-  display: block;
-
-  /* Enhance video poster appearance */
-  &::-webkit-media-controls-panel {
-    background-color: rgba(0, 0, 0, 0.8);
-  }
-
-  /* Custom poster styling when video is loading */
-  &[poster] {
-    object-fit: cover;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-
-  /* Smooth transition for poster to video */
-  transition: opacity 0.3s ease;
-
-  /* Responsive video sizing */
-  @media (max-width: 640px) {
-    border-radius: 0.25rem;
-  }
-}
-
-/* Video overlay styles */
-.video-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.3) 50%,
-    rgba(0, 0, 0, 0.7) 100%
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-
-  &.show {
-    opacity: 1;
-  }
-
-  .play-button {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: #333;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    pointer-events: all;
-
-    &:hover {
-      background: rgba(255, 255, 255, 1);
-      transform: scale(1.1);
-    }
-
-    @media (max-width: 640px) {
-      width: 60px;
-      height: 60px;
-      font-size: 1.5rem;
-    }
-  }
-}
-
-/* Video poster fallback */
-.video-poster-fallback {
-  width: 100%;
-  aspect-ratio: 16/9;
-  background: linear-gradient(
-    135deg,
-    #667eea 0%,
-    #764ba2 100%
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.125rem;
-  font-weight: 500;
-
-  i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.8;
-  }
-}
-
-video {
-  width: 100%;
-  height: auto;
-  display: block;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
 }
 
 /* Custom Video Controls (if needed) */
