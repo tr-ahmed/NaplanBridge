@@ -127,6 +127,8 @@ export class SubscriptionsComponent implements OnInit {
   isEditMode = false;
   currentPlan: Partial<SubscriptionPlan> = {};
   selectedTerms: number[] = [];  // ✅ لتتبع الـ terms في MultiTerm
+  selectedYearFilter: number = 0;  // ✅ Year filter for subjects
+  filteredSubjects: Subject[] = [];  // ✅ Filtered subjects by year
 
   // Statistics
   stats = {
@@ -541,6 +543,36 @@ export class SubscriptionsComponent implements OnInit {
     });
   }
 
+  // ✅ Year filter change handler
+  onYearFilterChange(yearId: number): void {
+    console.log('🔍 onYearFilterChange called with yearId:', yearId);
+
+    if (!yearId || yearId === 0) {
+      console.log('   → No year selected, clearing filtered subjects');
+      this.filteredSubjects = [];
+      this.currentPlan.subjectId = 0;
+      this.filteredTerms = [];
+      return;
+    }
+
+    // Filter subjects by selected year
+    this.filteredSubjects = this.subjects.filter(s => s.yearId === yearId);
+    console.log(`   → Filtered ${this.filteredSubjects.length} subjects for year ${yearId}`);
+    console.log('   → Filtered subjects:', this.filteredSubjects.map(s => ({
+      id: s.id,
+      name: s.subjectName || s.name,
+      yearId: s.yearId
+    })));
+
+    // Reset subject and term selections
+    this.currentPlan.subjectId = 0;
+    this.filteredTerms = [];
+    this.selectedTerms = [];
+
+    // Update plan name and price suggestions
+    this.updatePlanSuggestions();
+  }
+
   // ============================================
   // Subscription Plans CRUD
   // ============================================
@@ -586,6 +618,8 @@ export class SubscriptionsComponent implements OnInit {
     };
     this.filteredTerms = [];
     this.selectedTerms = [];  // ✅ Reset selected terms
+    this.selectedYearFilter = 0;  // ✅ Reset year filter
+    this.filteredSubjects = [];  // ✅ Reset filtered subjects
 
     // ✅ Always ensure subjects and years are loaded
     console.log('📊 Current state - Subjects:', this.subjects.length, 'Years:', this.years.length);

@@ -58,6 +58,15 @@ export interface MediaUploadResponse {
   success: boolean;
 }
 
+/**
+ * Avatar Upload Response (New API)
+ */
+export interface AvatarUploadResponse {
+  success: boolean;
+  avatarUrl?: string;
+  message: string;
+}
+
 export interface StudentProfileData {
   studentId: number;
   yearId: number;
@@ -101,12 +110,12 @@ export class ProfileService {
   }
 
   /**
-   * Upload avatar/profile picture
+   * Upload avatar/profile picture (Old method - deprecated)
    * @param file File to upload
    * @param folder Destination folder (default: 'profiles')
    * @returns Observable<MediaUploadResponse>
    */
-  uploadAvatar(file: File, folder: string = 'profiles'): Observable<MediaUploadResponse> {
+  uploadAvatarOld(file: File, folder: string = 'profiles'): Observable<MediaUploadResponse> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', folder);
@@ -115,6 +124,41 @@ export class ProfileService {
       `${this.mediaApiUrl}/upload-image`,
       formData
     );
+  }
+
+  /**
+   * Upload avatar using new backend API (Bunny.net CDN)
+   * Automatically replaces old avatar
+   * @param file Image file (JPG, PNG, GIF - max 5MB)
+   * @returns Observable<AvatarUploadResponse>
+   */
+  uploadAvatar(file: File): Observable<AvatarUploadResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<AvatarUploadResponse>(
+      `${this.apiUrl}/profile/avatar`,
+      formData
+    );
+  }
+
+  /**
+   * Delete user's profile picture
+   * @returns Observable with success message
+   */
+  deleteAvatar(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(
+      `${this.apiUrl}/profile/avatar`
+    );
+  }
+
+  /**
+   * Get avatar URL or default placeholder
+   * @param user UserProfile
+   * @returns Avatar URL or default
+   */
+  getAvatarUrl(user: UserProfile): string {
+    return user.avatarUrl || user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.userName) + '&size=200&background=667eea&color=fff';
   }
 
   /**

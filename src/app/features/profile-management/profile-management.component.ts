@@ -50,6 +50,7 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
   // File upload
   selectedFile: File | null = null;
   imagePreview: string | null = null;
+  uploadingAvatar = false;
 
   ngOnInit(): void {
     this.initializeForms();
@@ -240,156 +241,251 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
-      this.selectedFile = input.files[0];
+      const file = input.files[0];
 
-      // Validate file
-      if (!this.selectedFile.type.startsWith('image/')) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
         Swal.fire({
           icon: 'error',
-          title: 'Invalid File',
-          text: 'Please select an image file'
+          title: 'Invalid File Type',
+          text: 'Only JPG, PNG, and GIF images are allowed',
+          confirmButtonColor: '#667eea'
         });
         return;
       }
 
-      if (this.selectedFile.size > 5 * 1024 * 1024) { // 5MB
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
         Swal.fire({
           icon: 'error',
           title: 'File Too Large',
-          text: 'Image must be less than 5MB'
+          text: 'Image must be less than 5MB',
+          confirmButtonColor: '#667eea'
         });
         return;
       }
 
-      // Preview
+      this.selectedFile = file;
+
+      // Show preview
       const reader = new FileReader();
       reader.onload = (e) => {
         this.imagePreview = e.target?.result as string;
       };
-      reader.readAsDataURL(this.selectedFile);
+      reader.readAsDataURL(file);
+
+      // Auto-upload the avatar immediately
+      this.uploadAvatar();
     }
   }
 
   /**
-   * Update profile
+   * Upload avatar using new backend API
    */
-  async updateProfile(): Promise<void> {
+  uploadAvatar(): void {
+    if (!this.selectedFile) {
+      return;
+    }
+
+    this.uploadingAvatar = true;
+
+    this.profileService.uploadAvatar(this.selectedFile)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.uploadingAvatar = false;
+
+          if (response.success && response.avatarUrl) {
+            // Update profile with new avatar URL
+            const currentProfile = this.profile();
+            if (currentProfile) {
+              this.profile.set({
+                ...currentProfile,
+                avatarUrl: response.avatarUrl,
+                avatar: response.avatarUrl
+              });
+            }
+
+            // Clear selected file
+            this.selectedFile = null;
+            this.imagePreview = null;
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: response.message || 'Profile picture uploaded successfully',
+              confirmButtonColor: '#667eea',
+              timer: 2000
+            });
+          }
+        },
+        error: (err) => {
+          this.uploadingAvatar = false;
+          this.selectedFile = null;
+          this.imagePreview = null;
+
+          console.error('Error uploading avatar:', err);
+          const errorMessage = err.error?.message || 'Failed to upload avatar. Please try again.';
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Upload Failed',
+            text: errorMessage,
+            confirmButtonColor: '#667eea'
+          });
+        }
+      });
+  }
+
+  /**
+   * Delete avatar
+   */
+  deleteAvatar(): void {
+    const currentProfile = this.profile();
+    if (!currentProfile?.avatarUrl && !currentProfile?.avatar) {
+      Swal.fire({
+        icon: 'info',
+        title: 'No Avatar',
+        text: 'You don\'t have a profile picture to delete',
+        confirmButtonColor: '#667eea'
+      });
+      return;
+    }
+
+    Swal.fire({
+      icon: 'warning',
+      title: 'Delete Profile Picture',
+      text: 'Are you sure you want to delete your profile picture?',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#667eea'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading.set(true);
+
+        this.profileService.deleteAvatar()
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (response) => {
+              this.loading.set(false);
+
+              // Update profile to remove avatar
+              const currentProfile = this.profile();
+              if (currentProfile) {
+                this.profile.set({
+                  ...currentProfile,
+                  avatarUrl: undefined,
+                  avatar: undefined
+                });
+              }
+
+              Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: response.message || 'Profile picture deleted successfully',
+                confirmButtonColor: '#667eea',
+                timer: 2000
+              });
+            },
+            error: (err) => {
+              this.loading.set(false);
+              console.error('Error deleting avatar:', err);
+
+              const errorMessage = err.error?.message || 'Failed to delete avatar. Please try again.';
+              Swal.fire({
+                icon: 'error',
+                title: 'Delete Failed',
+                text: errorMessage,
+                confirmButtonColor: '#667eea'
+              });
+            }
+          });
+      }
+    });
+  }
+
+  /**
+   * Get avatar URL or default placeholder
+   */
+  getAvatarUrl(): string {
+    const profile = this.profile();
+    return profile ? this.profileService.getAvatarUrl(profile) : 'https://ui-avatars.com/api/?name=User&size=200&background=667eea&color=fff';
+  }
+
+  /**
+   * Update profile information (without avatar - avatar is uploaded separately)
+   */
+  updateProfile(): void {
     if (this.profileForm.invalid) {
       this.profileForm.markAllAsTouched();
       return;
     }
 
     this.loading.set(true);
-    let avatarUrl: string | null = null;
 
-    try {
-      // Step 1: Upload avatar if selected
-      if (this.selectedFile) {
+    const updateData = {
+      userName: this.profileForm.value.userName,
+      email: this.profileForm.value.email,
+      age: this.profileForm.value.age,
+      phoneNumber: this.profileForm.value.phoneNumber || null
+    };
+
+    // Call API to update profile
+    this.http.put(`${environment.apiBaseUrl}/Account/update-profile`, updateData, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      })
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (response: any) => {
+        this.loading.set(false);
+
+        // Update local profile
+        const currentProfile = this.profile();
+        if (currentProfile) {
+          this.profile.set({
+            ...currentProfile,
+            ...updateData
+          });
+        }
+
+        // Update localStorage
+        localStorage.setItem('userName', updateData.userName);
+        localStorage.setItem('email', updateData.email);
+
         Swal.fire({
-          title: 'Uploading Image',
-          html: 'Please wait...',
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
+          icon: 'success',
+          title: 'Success!',
+          text: 'Profile updated successfully',
+          confirmButtonColor: '#667eea',
+          timer: 2000
         });
+      },
+      error: (err) => {
+        this.loading.set(false);
+        console.error('Error updating profile:', err);
 
-        const formData = new FormData();
-        formData.append('file', this.selectedFile);
-        formData.append('folder', 'profiles');
-
-        const uploadResponse: any = await this.http.post(
-          `${environment.apiBaseUrl}/Media/upload-image`,
-          formData,
-          {
-            headers: new HttpHeaders({
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            })
-          }
-        ).toPromise();
-
-        if (uploadResponse?.url) {
-          avatarUrl = uploadResponse.url;
+        let errorMessage = 'Failed to update profile. Please try again.';
+        if (err.status === 400) {
+          errorMessage = err.error?.message || 'Invalid profile data';
+        } else if (err.status === 401) {
+          errorMessage = 'Session expired. Please login again.';
+          this.router.navigate(['/auth/login']);
+          return;
         }
 
-        Swal.close();
-      }
-
-      // Step 2: Update profile with avatar URL
-      const updateData: any = {
-        userName: this.profileForm.value.userName,
-        email: this.profileForm.value.email,
-        age: this.profileForm.value.age,
-        phoneNumber: this.profileForm.value.phoneNumber || null
-      };
-
-      // Add avatar URL if available
-      if (avatarUrl) {
-        updateData.avatarUrl = avatarUrl;
-      }
-
-      const response: any = await this.http.put(
-        `${environment.apiBaseUrl}/Account/update-profile`,
-        updateData,
-        {
-          headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          })
-        }
-      ).toPromise();
-
-      this.loading.set(false);
-
-      // Update local profile
-      const currentProfile = this.profile();
-      if (currentProfile) {
-        this.profile.set({
-          ...currentProfile,
-          ...updateData,
-          avatar: avatarUrl || currentProfile.avatar
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          confirmButtonColor: '#667eea'
         });
       }
-
-      // Update localStorage
-      localStorage.setItem('userName', updateData.userName);
-      localStorage.setItem('email', updateData.email);
-
-      // Clear selected file and preview
-      this.selectedFile = null;
-      this.imagePreview = null;
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: 'Profile updated successfully',
-        confirmButtonColor: '#667eea',
-        timer: 2000
-      });
-
-    } catch (err: any) {
-      this.loading.set(false);
-      console.error('Error updating profile:', err);
-
-      let errorMessage = 'Failed to update profile. Please try again.';
-      if (err.status === 400) {
-        errorMessage = err.error?.message || 'Invalid profile data';
-      } else if (err.status === 401) {
-        errorMessage = 'Session expired. Please login again.';
-        this.router.navigate(['/auth/login']);
-        return;
-      }
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: errorMessage,
-        confirmButtonColor: '#667eea'
-      });
-    }
-  }
-
-  /**
+    });
+  }  /**
    * Change password
    */
   changePassword(): void {

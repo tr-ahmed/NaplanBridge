@@ -182,7 +182,7 @@ export class ProfileEditComponent implements OnInit {
             throw new Error('Failed to upload image');
           }
 
-          avatarUrl = uploadResponse.url;
+          avatarUrl = uploadResponse.avatarUrl || null;
           Swal.close();
         } catch (error: any) {
           Swal.close();
