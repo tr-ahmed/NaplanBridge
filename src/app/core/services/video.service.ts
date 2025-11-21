@@ -46,9 +46,10 @@ export class VideoService {
    * Supports: Mux (recommended), BunnyStream, BunnyStorage, Cloudinary
    */
   initializePlayer(config: VideoPlayerConfig, videoElement: HTMLVideoElement, lessonId?: number): void {
+    this.destroyPlayer(); // Clean up existing player first
+
     this.videoElement = videoElement;
     this.currentLessonId = lessonId;
-    this.destroyPlayer(); // Clean up existing player
 
     console.log('🎥 VideoService: Initializing player', {
       provider: config.provider,

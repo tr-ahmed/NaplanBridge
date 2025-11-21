@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal, computed } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -76,7 +76,7 @@ interface TeacherQuestion {
   templateUrl: './lesson-detail.component.html',
   styleUrls: ['./lesson-detail.component.scss']
 })
-export class LessonDetailComponent implements OnInit, OnDestroy {
+export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('videoPlayer', { static: false }) videoPlayerRef!: ElementRef<HTMLVideoElement>;
 
   private destroy$ = new Subject<void>();
@@ -165,7 +165,8 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private videoService: VideoService,
     private fb: FormBuilder,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private cdr: ChangeDetectorRef
   ) {
     this.noteForm = this.fb.group({
       content: ['', [Validators.required, Validators.minLength(10)]]
@@ -216,6 +217,17 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  ngAfterViewInit(): void {
+    console.log('🎬 ngAfterViewInit: View initialized');
+    console.log('🎬 Video player ref:', this.videoPlayerRef);
+    console.log('🎬 Native element:', this.videoPlayerRef?.nativeElement);
+
+    // Initialize video player if lesson is already loaded
+    if (this.lesson() && this.videoPlayerRef?.nativeElement) {
+      this.initializeVideoPlayer();
+    }
+  }
+
   ngOnDestroy(): void {
     this.videoService.destroyPlayer();
     this.destroy$.next();
@@ -256,8 +268,21 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
               this.loadStudentProgress(lessonId);
             }
 
-            // Initialize video player after view is ready
-            setTimeout(() => this.initializeVideoPlayer(), 100);
+            // Initialize video player after Angular renders the video element
+            // Use setTimeout to wait for the next change detection cycle
+            this.cdr.detectChanges();
+            setTimeout(() => {
+              console.log('🔍 Checking for video element...');
+              console.log('🔍 videoPlayerRef:', this.videoPlayerRef);
+              console.log('🔍 nativeElement:', this.videoPlayerRef?.nativeElement);
+
+              if (this.videoPlayerRef?.nativeElement) {
+                console.log('✅ Video element found, initializing player...');
+                this.initializeVideoPlayer();
+              } else {
+                console.log('⏳ Video player element not rendered yet');
+              }
+            }, 100);
           } else {
             this.error.set('Lesson not found');
           }
@@ -558,9 +583,8 @@ export class LessonDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.videoPlayerRef) {
-      console.log('⏳ Video player element not ready yet, retrying in 200ms...');
-      setTimeout(() => this.initializeVideoPlayer(), 200);
+    if (!this.videoPlayerRef || !this.videoPlayerRef.nativeElement) {
+      console.log('⏳ Video player element not ready yet, will initialize in ngAfterViewInit');
       return;
     }
 
