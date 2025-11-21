@@ -70,6 +70,11 @@ export interface Lesson {
   orderIndex?: number;
   isPublished?: boolean;
   createdAt?: string;
+  status?: 'CREATED' | 'SUBMITTED' | 'PENDING' | 'APPROVED' | 'PUBLISHED' | 'REJECTED' | 'REVISION_REQUESTED';
+  createdBy?: string;
+  approvedBy?: string;
+  approvedAt?: Date;
+  rejectionReason?: string;
 }
 
 export interface LessonDetailsDto {

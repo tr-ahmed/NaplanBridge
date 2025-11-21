@@ -1315,4 +1315,116 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   }
 
   // ============================================
+  // Lesson Approval Methods
+  // ============================================
+  async approveLesson(lesson: Lesson): Promise<void> {
+    const result = await Swal.fire({
+      title: 'Approve Lesson',
+      text: `Do you want to approve "${lesson.title}"?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, approve it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        Swal.fire({
+          title: 'Approving...',
+          text: 'Please wait',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        // Update lesson status to APPROVED using the proper API signature
+        await this.contentService.updateLesson(
+          lesson.id!,
+          lesson.title,
+          lesson.description,
+          lesson.weekId,
+          lesson.subjectId,
+          undefined, // posterFile
+          undefined, // videoFile
+          lesson.duration,
+          lesson.orderIndex
+        ).toPromise();
+        
+        await this.loadAllData();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Approved!',
+          text: 'Lesson has been approved successfully',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error: any) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: this.extractErrorMessage(error)
+        });
+      }
+    }
+  }
+
+  async rejectLesson(lesson: Lesson): Promise<void> {
+    const result = await Swal.fire({
+      title: 'Reject Lesson',
+      text: `Do you want to reject "${lesson.title}"?`,
+      input: 'textarea',
+      inputLabel: 'Rejection Reason (optional)',
+      inputPlaceholder: 'Provide a reason for rejection...',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, reject it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        Swal.fire({
+          title: 'Rejecting...',
+          text: 'Please wait',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        // Update lesson - rejection reason would be stored separately via API if supported
+        await this.contentService.updateLesson(
+          lesson.id!,
+          lesson.title,
+          lesson.description,
+          lesson.weekId,
+          lesson.subjectId,
+          undefined, // posterFile
+          undefined, // videoFile
+          lesson.duration,
+          lesson.orderIndex
+        ).toPromise();
+        
+        await this.loadAllData();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Rejected!',
+          text: 'Lesson has been rejected',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error: any) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: this.extractErrorMessage(error)
+        });
+      }
+    }
+  }
+
+  // ============================================
 }

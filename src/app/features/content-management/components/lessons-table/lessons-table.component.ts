@@ -23,6 +23,8 @@ export class LessonsTableComponent {
   @Output() delete = new EventEmitter<Lesson>();
   @Output() manageResources = new EventEmitter<Lesson>();
   @Output() preview = new EventEmitter<Lesson>();
+  @Output() approve = new EventEmitter<Lesson>();
+  @Output() reject = new EventEmitter<Lesson>();
 
   getWeekName(weekId?: number): string {
     if (!weekId) return 'N/A';
@@ -48,5 +50,30 @@ export class LessonsTableComponent {
       pages.push(i);
     }
     return pages;
+  }
+
+  getStatusBadgeClass(status?: string): string {
+    const statusClasses: Record<string, string> = {
+      'CREATED': 'badge bg-secondary',
+      'SUBMITTED': 'badge bg-info',
+      'PENDING': 'badge bg-warning',
+      'APPROVED': 'badge bg-success',
+      'PUBLISHED': 'badge bg-primary',
+      'REJECTED': 'badge bg-danger',
+      'REVISION_REQUESTED': 'badge bg-warning'
+    };
+    return statusClasses[status || ''] || 'badge bg-secondary';
+  }
+
+  getStatusText(status?: string): string {
+    return status || 'CREATED';
+  }
+
+  canApprove(lesson: Lesson): boolean {
+    return lesson.status === 'PENDING' || lesson.status === 'SUBMITTED';
+  }
+
+  canReject(lesson: Lesson): boolean {
+    return lesson.status === 'PENDING' || lesson.status === 'SUBMITTED';
   }
 }

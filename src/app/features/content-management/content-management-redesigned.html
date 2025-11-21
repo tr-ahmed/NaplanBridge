@@ -675,7 +675,9 @@
               (delete)="confirmDelete('lesson', $event)"
               (add)="openAdd('lesson')"
               (manageResources)="manageResources($event)"
-              (preview)="openLessonPreview($event)">
+              (preview)="openLessonPreview($event)"
+              (approve)="approveLesson($event)"
+              (reject)="rejectLesson($event)">
             </app-lessons-table>
           }
 
