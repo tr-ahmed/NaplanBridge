@@ -146,13 +146,18 @@ export class CreateEditExamComponent implements OnInit {
    * Apply permissions filter to subjects dropdown
    */
   private applySubjectPermissionsFilter(): void {
-    const perms = this.teacherPermissions();
-    // If admin route, do not filter subjects
-    if (this.isAdminRoute) {
+    const currentUser = this.authService.getCurrentUser();
+    const userRoles = Array.isArray(currentUser?.role) ? currentUser.role : [currentUser?.role];
+    const isAdmin = userRoles.includes('Admin') || userRoles.includes('admin');
+
+    // If user is Admin, show all subjects
+    if (isAdmin) {
       this.subjects.set(this.allSubjects());
       return;
     }
 
+    // For teachers, filter by permissions
+    const perms = this.teacherPermissions();
     // If no permissions, show empty subjects so teacher cannot pick unauthorized subject
     if (!perms || perms.length === 0) {
       this.subjects.set([]);
@@ -231,6 +236,7 @@ export class CreateEditExamComponent implements OnInit {
       // Use getAllSubjects to get all subjects without pagination (for dropdown)
       this.subjectService.getAllSubjects().subscribe({
         next: (response) => {
+          this.allSubjects.set(response.items);
           this.subjects.set(response.items);
           console.log('✅ Subjects loaded:', response.items.length);
           resolve();
