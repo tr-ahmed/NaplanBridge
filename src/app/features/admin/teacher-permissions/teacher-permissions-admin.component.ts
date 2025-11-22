@@ -31,7 +31,9 @@ export class TeacherPermissionsAdminComponent implements OnInit {
   // Permissions data
   teachersWithPermissions = signal<any[]>([]);
   availableTeachers = signal<any[]>([]);
+  availableYears = signal<any[]>([]);
   availableSubjects = signal<any[]>([]);
+  filteredSubjects = signal<any[]>([]);
 
   // Approvals data
   pendingApprovals = signal<PendingApproval[]>([]);
@@ -44,6 +46,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
   // Grant permission form
   grantForm = {
     teacherId: null as number | null,
+    yearId: null as string | null,
     subjectId: null as number | null,
     canCreate: true,
     canEdit: true,
@@ -212,6 +215,11 @@ export class TeacherPermissionsAdminComponent implements OnInit {
     this.loading.set(true);
     this.showGrantModal.set(true);
 
+    // Reset form
+    this.grantForm.yearId = null;
+    this.grantForm.subjectId = null;
+    this.filteredSubjects.set([]);
+
     // Load with improved error handling and timeout
     const loader = Promise.all([
       this.loadAvailableTeachersPromise(),
@@ -295,6 +303,49 @@ export class TeacherPermissionsAdminComponent implements OnInit {
     });
   }
 
+  private loadAvailableYears(): void {
+    // Extract unique years from available subjects
+    const yearsSet = new Set<string>();
+    const yearsList: any[] = [];
+
+    this.availableSubjects().forEach((subject: any) => {
+      if (subject.yearName && !yearsSet.has(subject.yearName)) {
+        yearsSet.add(subject.yearName);
+        yearsList.push({
+          id: subject.id, // Use subject id as temporary year id
+          name: subject.yearName
+        });
+      }
+    });
+
+    // Remove duplicates by name
+    const yearMap = yearsList.reduce((map, year) => {
+      if (!map.has(year.name)) {
+        map.set(year.name, year);
+      }
+      return map;
+    }, new Map<string, any>());
+
+    const uniqueYears = Array.from(yearMap.values());
+
+    this.availableYears.set(uniqueYears);
+    console.log('✅ Available Years:', uniqueYears);
+  }
+
+  onYearSelected(yearName: string): void {
+    // Filter subjects by selected year
+    if (!yearName) {
+      this.filteredSubjects.set([]);
+      return;
+    }
+
+    const filtered = this.availableSubjects().filter(
+      (subject: any) => subject.yearName === yearName
+    );
+    this.filteredSubjects.set(filtered);
+    console.log(`✅ Filtered subjects for year "${yearName}":`, filtered);
+  }
+
   private loadAvailableSubjectsPromise(): Promise<void> {
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
@@ -348,6 +399,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
 
           console.log('✅ Processed Subjects:', subjectList);
           this.availableSubjects.set(subjectList);
+          this.loadAvailableYears();
 
           if (subjectList.length === 0) {
             this.toastService.showWarning('No subjects available in the system');
@@ -376,8 +428,8 @@ export class TeacherPermissionsAdminComponent implements OnInit {
   }
 
   grantPermission(): void {
-    if (!this.grantForm.teacherId || !this.grantForm.subjectId) {
-      this.toastService.showWarning('Please select teacher and subject');
+    if (!this.grantForm.teacherId || !this.grantForm.yearId || !this.grantForm.subjectId) {
+      this.toastService.showWarning('Please select teacher, year, and subject');
       return;
     }
 
@@ -485,11 +537,13 @@ export class TeacherPermissionsAdminComponent implements OnInit {
     this.showGrantModal.set(false);
     this.grantForm = {
       teacherId: null,
+      yearId: null,
       subjectId: null,
       canCreate: true,
       canEdit: true,
       canDelete: false
     };
+    this.filteredSubjects.set([]);
   }
 
   closeApprovalDetailModal(): void {
