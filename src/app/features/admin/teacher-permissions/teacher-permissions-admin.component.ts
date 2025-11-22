@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
 import { TeacherPermissionsService, TeacherPermission, PendingApproval } from '../../../core/services/teacher-permissions.service';
+import { SubjectService } from '../../../core/services/subject.service';
 
 // Temporary interfaces - Remove TeacherPermission and PendingApproval as they're imported
 
@@ -18,9 +19,13 @@ import { TeacherPermissionsService, TeacherPermission, PendingApproval } from '.
 export class TeacherPermissionsAdminComponent implements OnInit {
   private toastService = inject(ToastService);
   private permissionsService = inject(TeacherPermissionsService);
+  private subjectService = inject(SubjectService);
 
   loading = signal(false);
   activeTab = signal<'permissions' | 'approvals'>('permissions');
+
+  // Subject lookup map for resolving subject names
+  private subjectNamesMap = new Map<number, string>();
 
   // Permissions data
   teachersWithPermissions = signal<any[]>([]);
@@ -48,7 +53,31 @@ export class TeacherPermissionsAdminComponent implements OnInit {
   rejectionReason = '';
 
   ngOnInit(): void {
-    this.loadData();
+    // Load subjects first to populate the lookup map
+    this.loadSubjectsMap().then(() => {
+      this.loadData();
+    });
+  }
+
+  /**
+   * Load all subjects and create a lookup map
+   */
+  private async loadSubjectsMap(): Promise<void> {
+    return new Promise((resolve) => {
+      this.subjectService.getAllSubjects().subscribe({
+        next: (subjects) => {
+          subjects.forEach(subject => {
+            this.subjectNamesMap.set(subject.id, subject.name);
+          });
+          console.log('✅ Subject names map loaded:', this.subjectNamesMap.size, 'subjects');
+          resolve();
+        },
+        error: (err) => {
+          console.error('❌ Failed to load subjects map:', err);
+          resolve(); // Continue anyway
+        }
+      });
+    });
   }
 
   loadData(): void {
@@ -107,18 +136,21 @@ export class TeacherPermissionsAdminComponent implements OnInit {
       const teacherName = perm.teacherName || perm.teacher_name || perm.name || 'Unknown Teacher';
       const teacherEmail = perm.teacherEmail || perm.teacher_email || perm.email || '';
 
-      // Try ALL possible subject name variations
-      const subjectName =
-        perm.subjectName ||
-        perm.subject_name ||
-        perm.subjectTitle ||
-        perm.subject_title ||
-        perm.subject?.name ||
-        perm.subject?.title ||
-        perm.subjectId?.toString() ||
-        'Unknown Subject';
+      // First try to get subject name from our loaded map using subjectId
+      let subjectName = this.subjectNamesMap.get(perm.subjectId) || null;
 
-      console.log(`📚 Permission ${index + 1}:`, {
+      // If not found in map, try API response properties
+      if (!subjectName || subjectName === 'Unknown') {
+        subjectName =
+          perm.subjectName ||
+          perm.subject_name ||
+          perm.subjectTitle ||
+          perm.subject_title ||
+          perm.subject?.name ||
+          perm.subject?.title ||
+          `Subject #${perm.subjectId}` ||
+          'Unknown Subject';
+      }      console.log(`📚 Permission ${index + 1}:`, {
         teacherId,
         teacherName,
         subjectName,
