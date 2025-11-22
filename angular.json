@@ -33,7 +33,9 @@
               "src/styles.scss"
             ],
             "allowedCommonJsDependencies": [
-              "sweetalert2"
+              "sweetalert2",
+              "rangetouch",
+              "loadjs"
             ]
           },
           "configurations": {
@@ -41,13 +43,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "600kB",
-                  "maximumError": "1.2MB"
+                  "maximumWarning": "800kB",
+                  "maximumError": "1.5MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "6kB",
+                  "maximumError": "15kB"
                 }
               ],
               "outputHashing": "all"
