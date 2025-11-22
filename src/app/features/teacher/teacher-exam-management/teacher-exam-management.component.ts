@@ -13,6 +13,8 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { TeacherPermissionService, TeacherPermissionDto } from '../services/teacher-permission.service';
 import { ExamDto, ExamType, TeacherExamDto } from '../../../models/exam-api.models';
+import { SubjectService } from '../../../core/services/subject.service';
+import { Subject } from '../../../models/subject.models';
 
 interface ExamListItem {
   id: number;
@@ -55,6 +57,7 @@ export class TeacherExamManagementComponent implements OnInit {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private permissionService = inject(TeacherPermissionService);
+  private subjectService = inject(SubjectService);
   private router = inject(Router);
 
   // State
@@ -67,6 +70,7 @@ export class TeacherExamManagementComponent implements OnInit {
   selectedExams = signal<Set<number>>(new Set());
   teacherPermissions = signal<TeacherPermissionDto[]>([]);
   authorizedSubjects = signal<number[]>([]);
+  allSubjects = signal<Subject[]>([]); // Store all subjects for name lookup
 
   // Filters
   filters = signal<FilterOptions>({
@@ -155,10 +159,20 @@ export class TeacherExamManagementComponent implements OnInit {
   // Get unique subjects from permissions
   availableSubjects = computed(() => {
     const permissions = this.teacherPermissions();
+    const subjects = this.allSubjects();
     const subjectMap = new Map<number, string>();
+
     permissions.forEach(p => {
       if (!subjectMap.has(p.subjectId)) {
-        subjectMap.set(p.subjectId, p.subjectName);
+        // Try to get name from permission, fallback to subject list lookup
+        let name = p.subjectName;
+        if (!name || name === 'Unknown') {
+          const subject = subjects.find(s => s.id === p.subjectId);
+          if (subject) {
+            name = subject.subjectName;
+          }
+        }
+        subjectMap.set(p.subjectId, name || `Subject ${p.subjectId}`);
       }
     });
     return Array.from(subjectMap.entries()).map(([id, name]) => ({ id, name }));
@@ -195,32 +209,74 @@ export class TeacherExamManagementComponent implements OnInit {
   private loadTeacherPermissions(): void {
     console.log(`📋 Loading permissions for teacher ${this.teacherId}`);
 
-    this.permissionService.getTeacherPermissions(this.teacherId).subscribe({
+    // Load all subjects first to ensure we have names
+    this.subjectService.getAllSubjects().subscribe({
       next: (response) => {
-        if (response.success && response.data) {
-          const activePermissions = response.data.filter(p => p.isActive);
-          this.teacherPermissions.set(activePermissions);
+        this.allSubjects.set(response.items);
+        console.log(`✅ Loaded ${response.items.length} subjects for lookup`);
 
-          // Extract authorized subject IDs
-          const subjectIds = activePermissions.map(p => p.subjectId);
-          this.authorizedSubjects.set(subjectIds);
+        // Then load permissions
+        this.permissionService.getTeacherPermissions(this.teacherId).subscribe({
+          next: (response) => {
+            if (response.success && response.data) {
+              const activePermissions = response.data.filter(p => p.isActive);
 
-          console.log(`✅ Loaded ${activePermissions.length} active permissions`);
-          console.log(`✅ Authorized subjects:`, subjectIds);
+              // Populate missing subject names from loaded subjects
+              const subjects = this.allSubjects();
+              activePermissions.forEach(p => {
+                if (!p.subjectName || p.subjectName === 'Unknown') {
+                  const subject = subjects.find(s => s.id === p.subjectId);
+                  if (subject) {
+                    p.subjectName = subject.subjectName;
+                  }
+                }
+              });
 
-          // Now load exams
-          this.loadExams();
-        } else {
-          console.warn('⚠️ No permissions found for teacher');
-          this.toastService.showWarning('You have no subject permissions. Contact an administrator.');
-          this.loading.set(false);
-        }
+              this.teacherPermissions.set(activePermissions);
+
+              // Extract authorized subject IDs
+              const subjectIds = activePermissions.map(p => p.subjectId);
+              this.authorizedSubjects.set(subjectIds);
+
+              console.log(`✅ Loaded ${activePermissions.length} active permissions`);
+              console.log(`✅ Authorized subjects:`, subjectIds);
+
+              // Now load exams
+              this.loadExams();
+            } else {
+              console.warn('⚠️ No permissions found for teacher');
+              this.toastService.showWarning('You have no subject permissions. Contact an administrator.');
+              this.loading.set(false);
+            }
+          },
+          error: (error) => {
+            console.error('❌ Failed to load permissions:', error);
+            this.error.set('Failed to load permissions');
+            this.toastService.showError('Failed to load permissions');
+            this.loading.set(false);
+          }
+        });
       },
-      error: (error) => {
-        console.error('❌ Failed to load permissions:', error);
-        this.error.set('Failed to load permissions');
-        this.toastService.showError('Failed to load permissions');
-        this.loading.set(false);
+      error: (err) => {
+        console.error('❌ Failed to load subjects:', err);
+        // Continue loading permissions even if subjects fail (will show IDs or Unknown)
+        this.permissionService.getTeacherPermissions(this.teacherId).subscribe({
+          next: (response) => {
+            if (response.success && response.data) {
+              const activePermissions = response.data.filter(p => p.isActive);
+              this.teacherPermissions.set(activePermissions);
+              const subjectIds = activePermissions.map(p => p.subjectId);
+              this.authorizedSubjects.set(subjectIds);
+              this.loadExams();
+            } else {
+              this.loading.set(false);
+            }
+          },
+          error: (error) => {
+            this.error.set('Failed to load permissions');
+            this.loading.set(false);
+          }
+        });
       }
     });
   }
