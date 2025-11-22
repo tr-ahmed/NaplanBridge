@@ -312,18 +312,19 @@ export class TeacherPermissionsAdminComponent implements OnInit {
         resolve();
       }, 5000);
 
-      this.permissionsService.getAvailableSubjects().subscribe({
-        next: (subjects: any) => {
+      // Use SubjectService.getAllSubjects() which includes year information
+      this.subjectService.getAllSubjects().subscribe({
+        next: (response: any) => {
           clearTimeout(timeout);
-          console.log('✅ Raw Subjects Response:', subjects);
+          console.log('✅ Raw Subjects Response from SubjectService:', response);
 
           let subjectList = [];
-          if (Array.isArray(subjects)) {
-            subjectList = subjects;
-          } else if (subjects && subjects.data && Array.isArray(subjects.data)) {
-            subjectList = subjects.data;
-          } else if (subjects && typeof subjects === 'object') {
-            subjectList = Object.values(subjects).filter((s: any) => s && typeof s === 'object');
+          if (response && response.items && Array.isArray(response.items)) {
+            subjectList = response.items;
+          } else if (Array.isArray(response)) {
+            subjectList = response;
+          } else if (response && response.data && Array.isArray(response.data)) {
+            subjectList = response.data;
           }
 
           // Log first subject to debug property names
@@ -331,12 +332,12 @@ export class TeacherPermissionsAdminComponent implements OnInit {
             console.log('First subject raw data:', subjectList[0]);
           }
 
-          // Normalize subject data - detect actual property names
+          // Map subjects with year information
           subjectList = subjectList.map((subject: any) => {
-            const name = subject.name || subject.subjectName || subject.title || subject.subject_name || 'Unknown';
-            const yearName = subject.yearName || subject.year || subject.grade || subject.year_name || 'N/A';
+            const name = subject.subjectName || subject.name || subject.title || 'Unknown';
+            const yearName = subject.yearName || subject.year?.name || subject.grade || 'N/A';
 
-            console.log(`Subject mapping: ${name} (${yearName})`, subject);
+            console.log(`Subject mapping: ${name} (Year: ${yearName})`, subject);
 
             return {
               id: subject.id,
