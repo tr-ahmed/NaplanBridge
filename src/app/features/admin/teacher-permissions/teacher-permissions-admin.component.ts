@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
 import { TeacherPermissionsService, TeacherPermission, PendingApproval } from '../../../core/services/teacher-permissions.service';
 import { SubjectService } from '../../../core/services/subject.service';
+import { Subject } from '../../../models/subject.models';
 
 // Temporary interfaces - Remove TeacherPermission and PendingApproval as they're imported
 
@@ -66,8 +67,8 @@ export class TeacherPermissionsAdminComponent implements OnInit {
     return new Promise((resolve) => {
       this.subjectService.getAllSubjects().subscribe({
         next: (subjects) => {
-          subjects.forEach(subject => {
-            this.subjectNamesMap.set(subject.id, subject.name);
+          subjects.items.forEach((subject: Subject) => {
+            this.subjectNamesMap.set(subject.id, subject.subjectName);
           });
           console.log('✅ Subject names map loaded:', this.subjectNamesMap.size, 'subjects');
           resolve();
