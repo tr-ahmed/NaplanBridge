@@ -40,7 +40,7 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
   // Pagination
   pageSize = 5;
   currentPage = signal(1);
-window: any;
+  window: any;
 
   // The current user's name (fetched from the authentication service)
   userName: string = 'Admin User';
@@ -48,8 +48,8 @@ window: any;
   constructor(
     private http: HttpClient,
     private authService: AuthService
-    
-  ) {}
+
+  ) { }
 
   ngOnDestroy(): void {
   }
@@ -132,30 +132,30 @@ window: any;
     const current = this.currentPage();
     const total = this.totalPages;
     const range = 2;
-    
+
     if (total <= 5) {
       return Array.from({ length: total }, (_, i) => i + 1);
     }
-    
+
     let start = Math.max(1, current - range);
     let end = Math.min(total, current + range);
-    
+
     const pages = [];
-    
+
     if (start > 1) {
       pages.push(1);
       if (start > 2) pages.push(-1);
     }
-    
+
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
-    
+
     if (end < total) {
       if (end < total - 1) pages.push(-1);
       pages.push(total);
     }
-    
+
     return pages;
   }
 
@@ -182,7 +182,7 @@ window: any;
 
   async editUserRoles(user: any) {
     const availableRoles = ['Admin', 'Teacher', 'Parent', 'Student', 'Member'];
-    
+
     const { value: selectedRoles } = await Swal.fire({
       title: 'Edit User Roles',
       html: `
@@ -205,7 +205,7 @@ window: any;
       confirmButtonText: 'Update',
       preConfirm: () => {
         const roles = [...document.querySelectorAll('input[type="checkbox"]:checked')]
-                     .map((el: any) => el.value);
+          .map((el: any) => el.value);
         return roles.length ? roles : Swal.showValidationMessage('Select at least one role');
       }
     });
@@ -215,24 +215,24 @@ window: any;
     try {
       const authToken = localStorage.getItem('authToken') || '';
       const rolesQueryParam = selectedRoles.join(',');
-await this.http.put(
-  `${environment.apiBaseUrl}/Admin/edit-user-roles/${encodeURIComponent(user.userName)}?roles=${encodeURIComponent(rolesQueryParam)}`,
-  null,
-  {
-    headers: new HttpHeaders({
-      'accept': '*/*',
-      'Authorization': `Bearer ${authToken}`
-    })
-  }
-).toPromise()
+      await this.http.put(
+        `${environment.apiBaseUrl}/Admin/edit-user-roles/${encodeURIComponent(user.userName)}?roles=${encodeURIComponent(rolesQueryParam)}`,
+        null,
+        {
+          headers: new HttpHeaders({
+            'accept': '*/*',
+            'Authorization': `Bearer ${authToken}`
+          })
+        }
+      ).toPromise()
 
       user.roles = selectedRoles;
       Swal.fire('Success!', 'Roles updated successfully', 'success');
-      
+
     } catch (error: unknown) {
       console.error('API Error:', error);
       let errorMsg = 'Failed to update roles. Please try again.';
-      
+
       if (error instanceof HttpErrorResponse) {
         if (error.status === 401) {
           errorMsg = 'Session expired. Please login again.';
@@ -242,7 +242,7 @@ await this.http.put(
       } else if (error instanceof Error) {
         errorMsg = error.message;
       }
-      
+
       Swal.fire('Error!', errorMsg, 'error');
     }
   }
