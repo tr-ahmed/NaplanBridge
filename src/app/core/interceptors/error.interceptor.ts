@@ -50,6 +50,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
 
           case 404:
+            // Log to console only, don't show toast for 404
+            console.warn('404 Resource not found:', error.url);
             errorMessage = error.error?.message || 'Resource not found.';
             break;
 
@@ -76,8 +78,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      // Show error toast notification (except for 401/403 which are handled by auth interceptor)
-      if (error.status !== 401 && error.status !== 403) {
+      // Show error toast notification (except for 401/403/404)
+      if (error.status !== 401 && error.status !== 403 && error.status !== 404) {
         toastService.showError(errorMessage);
       }
 

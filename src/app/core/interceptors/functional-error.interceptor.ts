@@ -32,6 +32,8 @@ export const functionalErrorInterceptor: HttpInterceptorFn = (req, next) => {
           break;
 
         case 404:
+          // Log to console only, don't show SweetAlert for 404
+          console.warn('404 Resource not found:', error.url);
           errorMessage = 'Resource not found';
           break;
 
@@ -52,13 +54,15 @@ export const functionalErrorInterceptor: HttpInterceptorFn = (req, next) => {
           errorMessage = error.error?.message || `Error ${error.status}: ${error.statusText}`;
       }
 
-      // ✅ Show SweetAlert2 popup
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: errorMessage,
-        confirmButtonColor: '#d33'
-      });
+      // ✅ Show SweetAlert2 popup (except for 404)
+      if (error.status !== 404) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: errorMessage,
+          confirmButtonColor: '#d33'
+        });
+      }
 
       // Re-throw the error so components can handle it if needed
       return throwError(() => ({
