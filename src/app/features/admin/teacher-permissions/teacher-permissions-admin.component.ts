@@ -65,7 +65,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
     this.permissionsService.getAllTeachersWithPermissions().subscribe({
       next: (permissions: any) => {
         console.log('✅ Raw Permissions Response:', permissions);
-        
+
         // Handle different response formats
         let permList = [];
         if (Array.isArray(permissions)) {
@@ -75,9 +75,9 @@ export class TeacherPermissionsAdminComponent implements OnInit {
         } else if (permissions && permissions.items && Array.isArray(permissions.items)) {
           permList = permissions.items;
         }
-        
+
         console.log('Processed Permissions:', permList);
-        
+
         // Group permissions by teacher
         const grouped = this.groupPermissionsByTeacher(permList);
         console.log('Grouped by Teacher:', grouped);
@@ -101,23 +101,23 @@ export class TeacherPermissionsAdminComponent implements OnInit {
         console.log('🔍 FIRST PERMISSION OBJECT - ALL PROPERTIES:', JSON.stringify(perm, null, 2));
         console.log('🔍 Object.keys():', Object.keys(perm));
       }
-      
+
       // Handle different property names
       const teacherId = perm.teacherId || perm.teacher_id || perm.id;
       const teacherName = perm.teacherName || perm.teacher_name || perm.name || 'Unknown Teacher';
       const teacherEmail = perm.teacherEmail || perm.teacher_email || perm.email || '';
-      
+
       // Try ALL possible subject name variations
-      const subjectName = 
-        perm.subjectName || 
-        perm.subject_name || 
-        perm.subjectTitle || 
-        perm.subject_title || 
+      const subjectName =
+        perm.subjectName ||
+        perm.subject_name ||
+        perm.subjectTitle ||
+        perm.subject_title ||
         perm.subject?.name ||
         perm.subject?.title ||
         perm.subjectId?.toString() ||
         'Unknown Subject';
-      
+
       console.log(`📚 Permission ${index + 1}:`, {
         teacherId,
         teacherName,
@@ -130,7 +130,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
           subject: perm.subject
         }
       });
-      
+
       if (!grouped.has(teacherId)) {
         grouped.set(teacherId, {
           teacherId: teacherId,
@@ -178,13 +178,13 @@ export class TeacherPermissionsAdminComponent implements OnInit {
     // Load teachers and subjects
     this.loading.set(true);
     this.showGrantModal.set(true);
-    
+
     // Load with improved error handling and timeout
     const loader = Promise.all([
       this.loadAvailableTeachersPromise(),
       this.loadAvailableSubjectsPromise()
     ]);
-    
+
     loader.finally(() => {
       this.loading.set(false);
     });
@@ -211,7 +211,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
         next: (teachers: any) => {
           clearTimeout(timeout);
           console.log('✅ Raw Teachers Response:', teachers);
-          
+
           let teacherList = [];
           if (Array.isArray(teachers)) {
             teacherList = teachers;
@@ -220,32 +220,32 @@ export class TeacherPermissionsAdminComponent implements OnInit {
           } else if (teachers && typeof teachers === 'object') {
             teacherList = Object.values(teachers).filter((t: any) => t && typeof t === 'object');
           }
-          
+
           // Log first teacher to debug property names
           if (teacherList.length > 0) {
             console.log('First teacher raw data:', teacherList[0]);
           }
-          
+
           // Normalize teacher data - detect actual property names
           teacherList = teacherList.map((teacher: any) => {
             // Try different property name combinations
-            const name = teacher.name || teacher.fullName || teacher.displayName || 
+            const name = teacher.name || teacher.fullName || teacher.displayName ||
                         teacher.userName || teacher.first_name || `${teacher.firstName || ''} ${teacher.lastName || ''}`.trim() ||
                         teacher.email?.split('@')[0] || 'Unknown';
             const email = teacher.email || teacher.emailAddress || teacher.email_address || '';
-            
+
             console.log(`Teacher mapping: ${name} (${email})`, teacher);
-            
+
             return {
               id: teacher.id,
               name: name,
               email: email
             };
           });
-          
+
           console.log('✅ Processed Teachers:', teacherList);
           this.availableTeachers.set(teacherList);
-          
+
           if (teacherList.length === 0) {
             this.toastService.showWarning('No teachers available in the system');
           }
@@ -283,7 +283,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
         next: (subjects: any) => {
           clearTimeout(timeout);
           console.log('✅ Raw Subjects Response:', subjects);
-          
+
           let subjectList = [];
           if (Array.isArray(subjects)) {
             subjectList = subjects;
@@ -292,29 +292,29 @@ export class TeacherPermissionsAdminComponent implements OnInit {
           } else if (subjects && typeof subjects === 'object') {
             subjectList = Object.values(subjects).filter((s: any) => s && typeof s === 'object');
           }
-          
+
           // Log first subject to debug property names
           if (subjectList.length > 0) {
             console.log('First subject raw data:', subjectList[0]);
           }
-          
+
           // Normalize subject data - detect actual property names
           subjectList = subjectList.map((subject: any) => {
             const name = subject.name || subject.subjectName || subject.title || subject.subject_name || 'Unknown';
             const yearName = subject.yearName || subject.year || subject.grade || subject.year_name || 'N/A';
-            
+
             console.log(`Subject mapping: ${name} (${yearName})`, subject);
-            
+
             return {
               id: subject.id,
               name: name,
               yearName: yearName
             };
           });
-          
+
           console.log('✅ Processed Subjects:', subjectList);
           this.availableSubjects.set(subjectList);
-          
+
           if (subjectList.length === 0) {
             this.toastService.showWarning('No subjects available in the system');
           }
