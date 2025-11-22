@@ -17,6 +17,7 @@ import { CategoryService } from '../../core/services/category.service';
 // Interfaces
 interface AcademicYear {
   id: number;
+  yearNumber: number;
   name: string;
   nameAr?: string;
 }
@@ -74,6 +75,7 @@ export class AddStudentComponent implements OnInit {
         // Convert Year to AcademicYear format
         this.academicYears = years.map(year => ({
           id: year.id,
+          yearNumber: year.yearNumber,
           name: `Year ${year.yearNumber}`,
           nameAr: `${year.yearNumber}`
         }));
@@ -83,12 +85,12 @@ export class AddStudentComponent implements OnInit {
         console.error('❌ Failed to load academic years:', err);
         // Fallback to default years if API fails
         this.academicYears = [
-          { id: 7, name: 'Year 7', nameAr: '7' },
-          { id: 8, name: 'Year 8', nameAr: '8' },
-          { id: 9, name: 'Year 9', nameAr: '9' },
-          { id: 10, name: 'Year 10', nameAr: '10' },
-          { id: 11, name: 'Year 11', nameAr: '11' },
-          { id: 12, name: 'Year 12', nameAr: '12' }
+          { id: 7, yearNumber: 7, name: 'Year 7', nameAr: '7' },
+          { id: 8, yearNumber: 8, name: 'Year 8', nameAr: '8' },
+          { id: 9, yearNumber: 9, name: 'Year 9', nameAr: '9' },
+          { id: 10, yearNumber: 10, name: 'Year 10', nameAr: '10' },
+          { id: 11, yearNumber: 11, name: 'Year 11', nameAr: '11' },
+          { id: 12, yearNumber: 12, name: 'Year 12', nameAr: '12' }
         ];
         this.yearsLoading.set(false);
       }
@@ -144,11 +146,13 @@ export class AddStudentComponent implements OnInit {
 
     // Prepare payload according to API schema (StudentRegisterDto)
     // Only send fields that the backend expects
+    // Find the selected year to get its yearNumber
+    const selectedYear = this.academicYears.find(y => y.id === parseInt(formData.yearId));
     const payload: any = {
       userName: formData.userName,
       password: formData.password,
       age: parseInt(formData.age),
-      year: parseInt(formData.yearId)  // Now will be 7-12 for NAPLAN years
+      year: selectedYear?.yearNumber || parseInt(formData.yearId)  // Use yearNumber (7-12 for NAPLAN years)
     };
 
     // Add optional fields if present (these might be stored separately or ignored by backend)

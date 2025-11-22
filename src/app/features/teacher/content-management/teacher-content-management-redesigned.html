@@ -331,7 +331,11 @@
                     [terms]="filteredTerms"
                     [weeks]="filteredWeeks"
                     [lessons]="filteredLessons"
-                    [expandState]="hierarchyExpandedState">
+                    [expandState]="hierarchyExpandedState"
+                    (add)="openAdd($event.type)"
+                    (edit)="openEdit($event.type, $event.entity)"
+                    (delete)="confirmDelete($event.type, $event.entity)"
+                    (preview)="openLessonPreview($event)">
                 </app-hierarchy-node>
               </div>
             </div>

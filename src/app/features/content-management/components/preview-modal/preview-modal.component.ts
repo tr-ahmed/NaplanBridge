@@ -1,5 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import Hls from 'hls.js';
 
 @Component({
   selector: 'app-preview-modal',
@@ -8,40 +9,165 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="modal-backdrop" [class.show]="isOpen" (click)="close.emit()"></div>
     <div class="modal" [class.show]="isOpen" tabindex="-1">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              <i class="fas fa-eye me-2"></i>
-              Preview: {{ preview?.title || 'Content' }}
-            </h5>
-            <button type="button" class="btn-close" (click)="close.emit()"></button>
+      <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+          <!-- Header -->
+          <div class="modal-header border-bottom bg-gradient-to-r from-blue-50 to-indigo-50 py-4">
+            <div class="w-100">
+              <h5 class="modal-title text-2xl font-bold text-gray-900 mb-1">
+                <i class="fas fa-eye me-2 text-blue-600"></i>
+                {{ preview?.title || 'Lesson Preview' }}
+              </h5>
+              @if (preview?.status) {
+                <div class="mt-2">
+                  <span [ngClass]="getStatusBadgeClass(preview.status)" class="px-3 py-1 rounded-full text-xs font-semibold">
+                    {{ preview.status }}
+                  </span>
+                </div>
+              }
+            </div>
+            <button type="button" class="btn-close btn-close-black" (click)="close.emit()" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
+
+          <!-- Body -->
+          <div class="modal-body p-0">
             @if (preview) {
               <div class="preview-content">
-                <h4>{{ preview.title }}</h4>
-                @if (preview.description) {
-                  <p class="text-muted">{{ preview.description }}</p>
-                }
-                @if (preview.posterUrl) {
-                  <img [src]="preview.posterUrl" class="img-fluid mb-3" alt="Poster">
-                }
-                <div class="row">
+                <!-- Content Section with Poster on the Side -->
+                <div class="p-6 space-y-6">
+                  <!-- Header with Poster and Description -->
+                  <div class="flex gap-6 items-start">
+                    <!-- Poster Image (Left Side - Smaller) -->
+                    @if (preview.posterUrl) {
+                      <div class="flex-shrink-0 w-40 h-40 rounded-lg overflow-hidden shadow-lg bg-gray-200">
+                        <img
+                          [src]="preview.posterUrl"
+                          class="w-full h-full object-cover"
+                          alt="Lesson Poster">
+                      </div>
+                    }
+
+                    <!-- Description (Right Side) -->
+                    <div class="flex-grow">
+                      @if (preview.description) {
+                        <div class="border-l-4 border-blue-500 pl-4">
+                          <h6 class="text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Description</h6>
+                          <p class="text-gray-600 leading-relaxed line-clamp-6">{{ preview.description }}</p>
+                        </div>
+                      } @else {
+                        <div class="text-gray-400 text-sm">No description available</div>
+                      }
+                    </div>
+                  </div>                  <!-- Video Player Section -->
                   @if (preview.videoUrl) {
-                    <div class="col-12 mb-3">
-                      <video [src]="preview.videoUrl" controls class="w-100"></video>
+                    <div class="space-y-3">
+                      <div class="flex items-center gap-2">
+                        <i class="fas fa-play-circle text-red-500 text-lg"></i>
+                        <h6 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Lesson Video</h6>
+                      </div>
+                      <div class="bg-gray-900 rounded-lg overflow-hidden shadow-lg">
+                        <video
+                          #videoElement
+                          controls
+                          class="w-full h-auto"
+                          [poster]="preview.posterUrl"
+                          controlsList="nodownload">
+                          <source [src]="preview.videoUrl" type="application/x-mpegURL">
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="bg-gray-100 rounded-lg p-8 text-center">
+                      <i class="fas fa-video text-4xl text-gray-400 mb-3"></i>
+                      <p class="text-gray-500 font-medium">No video attached to this lesson</p>
+                    </div>
+                  }
+
+                  <!-- Resources Section -->
+                  @if (preview.resources && preview.resources.length > 0) {
+                    <div class="space-y-3 border-t pt-6">
+                      <div class="flex items-center gap-2">
+                        <i class="fas fa-paperclip text-green-500 text-lg"></i>
+                        <h6 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                          Attached Resources ({{ preview.resources.length }})
+                        </h6>
+                      </div>
+                      <div class="grid grid-cols-1 gap-3">
+                        @for (resource of preview.resources; track resource.id) {
+                          <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                            <div class="flex-shrink-0">
+                              <i [class]="getResourceIcon(resource.resourceType) + ' text-2xl'"></i>
+                            </div>
+                            <div class="flex-grow min-w-0">
+                              <h6 class="font-semibold text-gray-900 text-sm truncate">{{ resource.title }}</h6>
+                              @if (resource.description) {
+                                <p class="text-xs text-gray-500 truncate">{{ resource.description }}</p>
+                              }
+                              <span class="inline-block mt-2 px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded font-medium uppercase">
+                                {{ resource.resourceType }}
+                              </span>
+                            </div>
+                            @if (resource.resourceUrl) {
+                              <a
+                                [href]="resource.resourceUrl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="flex-shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm">
+                                <i class="fas fa-external-link-alt me-2"></i>
+                                Open
+                              </a>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                      <i class="fas fa-info-circle text-blue-500 text-lg mb-2"></i>
+                      <p class="text-blue-700 text-sm font-medium">No resources attached to this lesson</p>
+                    </div>
+                  }
+
+                  <!-- Additional Info -->
+                  @if (preview.weekId || preview.subjectId || preview.termId) {
+                    <div class="border-t pt-6 grid grid-cols-3 gap-4">
+                      @if (preview.weekId) {
+                        <div class="text-center">
+                          <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Week</p>
+                          <p class="text-lg font-bold text-gray-900">{{ preview.weekId }}</p>
+                        </div>
+                      }
+                      @if (preview.subjectId) {
+                        <div class="text-center">
+                          <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Subject</p>
+                          <p class="text-lg font-bold text-gray-900">{{ preview.subjectId }}</p>
+                        </div>
+                      }
+                      @if (preview.termId) {
+                        <div class="text-center">
+                          <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Term</p>
+                          <p class="text-lg font-bold text-gray-900">{{ preview.termId }}</p>
+                        </div>
+                      }
                     </div>
                   }
                 </div>
-                <pre class="bg-light p-3 rounded">{{ preview | json }}</pre>
               </div>
             } @else {
-              <p class="text-muted text-center py-4">No preview available</p>
+              <div class="p-12 text-center">
+                <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg font-medium">No preview available</p>
+              </div>
             }
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="close.emit()">Close</button>
+
+          <!-- Footer -->
+          <div class="modal-footer border-top bg-gray-50">
+            <button type="button" class="btn btn-secondary px-4" (click)="close.emit()">
+              <i class="fas fa-times me-2"></i>
+              Close
+            </button>
           </div>
         </div>
       </div>
@@ -57,7 +183,7 @@ import { CommonModule } from '@angular/common';
       height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
       z-index: 1040;
-      
+
       &.show {
         display: block;
       }
@@ -83,17 +209,199 @@ import { CommonModule } from '@angular/common';
     }
 
     .preview-content {
-      img {
-        max-height: 400px;
-        object-fit: cover;
+      /* Poster Image Styles */
+      .w-40 {
+        width: 10rem;
       }
+
+      .h-40 {
+        height: 10rem;
+      }
+
+      /* Description Styles */
+      .line-clamp-6 {
+        display: -webkit-box;
+        -webkit-line-clamp: 6;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* Layout Utilities */
+      .flex {
+        display: flex;
+      }
+
+      .flex-shrink-0 {
+        flex-shrink: 0;
+      }
+
+      .flex-grow {
+        flex-grow: 1;
+      }
+
+      .items-start {
+        align-items: flex-start;
+      }
+
+      .gap-6 {
+        gap: 1.5rem;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      video {
+        max-height: 500px;
+      }
+
+      h6 {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .list-group-item {
+        border-left: 3px solid #007bff;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background-color: #f8f9fa;
+          border-left-color: #0056b3;
+        }
+      }
+
+      details {
+        cursor: pointer;
+
+        summary {
+          user-select: none;
+
+          &:hover {
+            color: #007bff;
+          }
+        }
+      }
+    }
+
+    .cursor-pointer {
+      cursor: pointer;
     }
   `]
 })
-export class PreviewModalComponent {
+export class PreviewModalComponent implements AfterViewInit, OnDestroy, OnChanges {
+  @ViewChild('videoElement') videoElement!: ElementRef<HTMLVideoElement>;
+
   @Input() isOpen: boolean = false;
   @Input() preview: any = null;
 
   @Output() close = new EventEmitter<void>();
   @Output() isOpenChange = new EventEmitter<boolean>();
+
+  private hls?: Hls;
+
+  ngAfterViewInit(): void {
+    if (this.isOpen && this.preview?.videoUrl && this.videoElement) {
+      this.initializeVideo();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Re-initialize video when preview changes
+    if (changes['preview'] && !changes['preview'].firstChange) {
+      setTimeout(() => {
+        if (this.isOpen && this.preview?.videoUrl && this.videoElement) {
+          this.cleanupVideo();
+          this.initializeVideo();
+        }
+      }, 100);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.cleanupVideo();
+  }
+
+  /**
+   * Cleanup video player
+   */
+  private cleanupVideo(): void {
+    if (this.hls) {
+      this.hls.destroy();
+      this.hls = undefined;
+    }
+    if (this.videoElement?.nativeElement) {
+      this.videoElement.nativeElement.src = '';
+    }
+  }
+
+  /**
+   * Initialize video player with HLS support
+   */
+  private initializeVideo(): void {
+    const video = this.videoElement?.nativeElement;
+    if (!video) return;
+
+    const videoUrl = this.preview.videoUrl;
+
+    // Check if browser supports HLS natively (Safari)
+    if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = videoUrl;
+    } else if (Hls.isSupported()) {
+      // Use HLS.js for other browsers
+      this.hls = new Hls({
+        debug: false,
+        enableWorker: true,
+        lowLatencyMode: true,
+        backBufferLength: 90
+      });
+      this.hls.loadSource(videoUrl);
+      this.hls.attachMedia(video);
+
+      this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(err => console.warn('Auto-play prevented:', err));
+      });
+
+      this.hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          console.error('Fatal HLS error:', data);
+        }
+      });
+    } else {
+      console.warn('HLS not supported');
+      video.src = videoUrl;
+    }
+  }
+
+  /**
+   * Get icon class based on resource type
+   */
+  getResourceIcon(resourceType: string): string {
+    const icons: Record<string, string> = {
+      'pdf': 'fas fa-file-pdf text-danger',
+      'video': 'fas fa-file-video text-primary',
+      'image': 'fas fa-file-image text-success',
+      'audio': 'fas fa-file-audio text-warning',
+      'document': 'fas fa-file-word text-info',
+      'link': 'fas fa-link text-secondary',
+      'other': 'fas fa-file text-muted'
+    };
+    return icons[resourceType?.toLowerCase()] || icons['other'];
+  }
+
+  /**
+   * Get badge class based on status
+   */
+  getStatusBadgeClass(status: string): string {
+    const statusClasses: Record<string, string> = {
+      'CREATED': 'bg-gray-500',
+      'SUBMITTED': 'bg-blue-500',
+      'PENDING': 'bg-yellow-500',
+      'APPROVED': 'bg-green-500',
+      'PUBLISHED': 'bg-indigo-600',
+      'REJECTED': 'bg-red-600',
+      'REVISION_REQUESTED': 'bg-orange-500'
+    };
+    return statusClasses[status] || 'bg-gray-500';
+  }
 }

@@ -8,15 +8,6 @@
     <div class="fw-bold fs-5 text-white">NAPLAN<span class="text-warning">Bridge</span></div>
   </div>
   <nav class="sidebar-nav mt-4">
-    <!-- Dashboard -->
-    <a routerLink="/teacher/dashboard"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{exact: false}"
-      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-      <i class="fas fa-home"></i>
-      <span>Dashboard</span>
-    </a>
-
     <!-- Content Management -->
     <a routerLink="/teacher/content-management"
       routerLinkActive="active"
@@ -42,6 +33,24 @@
       class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
       <i class="fas fa-calendar-check"></i>
       <span>Session Management</span>
+    </a>
+
+    <!-- My Private Sessions -->
+    <a routerLink="/sessions/teacher"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-video"></i>
+      <span>My Private Sessions</span>
+    </a>
+
+    <!-- Student Questions -->
+    <a routerLink="/teacher/questions"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-comments"></i>
+      <span>Student Questions</span>
     </a>
 
     <!-- My Students - Hidden

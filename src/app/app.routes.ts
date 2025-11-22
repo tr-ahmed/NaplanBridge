@@ -287,8 +287,8 @@ export const routes: Routes = [
   // Teacher Questions Dashboard
   {
     path: 'teacher/questions',
-    loadComponent: () => import('./teacher/teacher-questions-dashboard/teacher-questions-dashboard.component').then(m => m.TeacherQuestionsDashboardComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasAnyRole(['teacher', 'admin'])],
+    loadComponent: () => import('./features/teacher/student-questions/student-questions.component').then(m => m.StudentQuestionsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
     data: { hideHeader: false, hideFooter: false }
   },
 
