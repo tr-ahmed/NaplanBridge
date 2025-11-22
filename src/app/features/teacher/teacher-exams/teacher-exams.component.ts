@@ -42,7 +42,7 @@ export class TeacherExamsComponent implements OnInit {
     private auth: AuthService,
     private router: Router,
     private toast: ToastService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadMyExams();
@@ -112,15 +112,18 @@ export class TeacherExamsComponent implements OnInit {
   /**
    * Navigate to create exam
    */
+  /**
+   * Navigate to create exam
+   */
   createExam() {
-    this.router.navigate(['/teacher/exams/create']);
+    this.router.navigate(['/teacher/exam/create']);
   }
 
   /**
    * Navigate to edit exam
    */
   editExam(examId: number) {
-    this.router.navigate(['/teacher/exams/edit', examId]);
+    this.router.navigate(['/teacher/exam/edit', examId]);
   }
 
   /**

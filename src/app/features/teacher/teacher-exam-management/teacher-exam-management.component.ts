@@ -383,15 +383,18 @@ export class TeacherExamManagementComponent implements OnInit {
   /**
    * View exam details
    */
+  /**
+   * View exam details (Redirects to edit since we don't have a details page yet)
+   */
   viewExam(examId: number): void {
-    this.router.navigate(['/teacher/exam', examId]);
+    this.router.navigate(['/teacher/exam/edit', examId]);
   }
 
   /**
    * View exam submissions
    */
   viewSubmissions(examId: number): void {
-    this.router.navigate(['/teacher/exam', examId, 'submissions']);
+    this.router.navigate(['/teacher/exams', examId, 'submissions']);
   }
 
   /**
