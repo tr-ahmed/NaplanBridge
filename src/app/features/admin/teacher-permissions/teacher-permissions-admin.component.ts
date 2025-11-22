@@ -95,19 +95,41 @@ export class TeacherPermissionsAdminComponent implements OnInit {
   private groupPermissionsByTeacher(permissions: TeacherPermission[]): any[] {
     const grouped = new Map<number, any>();
 
-    permissions.forEach((perm: any) => {
-      // Log raw data for debugging
-      console.log('Raw permission object:', perm);
+    permissions.forEach((perm: any, index: number) => {
+      // Enhanced logging - show first item completely
+      if (index === 0) {
+        console.log('🔍 FIRST PERMISSION OBJECT - ALL PROPERTIES:', JSON.stringify(perm, null, 2));
+        console.log('🔍 Object.keys():', Object.keys(perm));
+      }
       
       // Handle different property names
       const teacherId = perm.teacherId || perm.teacher_id || perm.id;
       const teacherName = perm.teacherName || perm.teacher_name || perm.name || 'Unknown Teacher';
       const teacherEmail = perm.teacherEmail || perm.teacher_email || perm.email || '';
       
-      // Try multiple property names for subject name
-      const subjectName = perm.subjectName || perm.subject_name || perm.subjectTitle || perm.subject_title || 'Unknown Subject';
+      // Try ALL possible subject name variations
+      const subjectName = 
+        perm.subjectName || 
+        perm.subject_name || 
+        perm.subjectTitle || 
+        perm.subject_title || 
+        perm.subject?.name ||
+        perm.subject?.title ||
+        perm.subjectId?.toString() ||
+        'Unknown Subject';
       
-      console.log(`Processing permission - Teacher: ${teacherId} (${teacherName}), Subject: ${subjectName}`);
+      console.log(`📚 Permission ${index + 1}:`, {
+        teacherId,
+        teacherName,
+        subjectName,
+        rawSubjectId: perm.subjectId,
+        allSubjectProps: {
+          subjectName: perm.subjectName,
+          subject_name: perm.subject_name,
+          subjectTitle: perm.subjectTitle,
+          subject: perm.subject
+        }
+      });
       
       if (!grouped.has(teacherId)) {
         grouped.set(teacherId, {
