@@ -36,14 +36,6 @@
       </div>
     </div>
 
-    <!-- Page Content -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <h1 class="h3 fw-bold">User Management</h1>
-          <p class="text-muted">Manage all platform users and their permissions</p>
-        </div>
-      </div>
-
     <!-- User Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg shadow-lg p-6 text-white">
@@ -101,13 +93,13 @@
         <!-- Role Filter -->
         <div class="flex items-center">
           <label for="roleFilter" class="font-semibold text-gray-700 mr-2 whitespace-nowrap">Filter by Role:</label>
-          <select id="roleFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+          <select id="roleFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   [(ngModel)]="selectedRole" (change)="onRoleFilterChange()">
             <option value="">All Roles</option>
             <option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option>
           </select>
         </div>
-        
+
         <!-- Search Box -->
         <div class="relative flex-grow">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -125,7 +117,7 @@
           </button>
         </div>
       </div>
-      
+
       <!-- Add User Button -->
       <button id="addUserBtn"
               class="px-6 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-medium flex items-center justify-center gap-2 shadow-md whitespace-nowrap transition-colors"
@@ -202,18 +194,18 @@
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-2">
-                    <button [routerLink]="['/user', user.id]" 
-                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                    <button [routerLink]="['/user', user.id]"
+                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="View Details">
                       <i class="fas fa-eye"></i>
                     </button>
-                    <button (click)="editUserRoles(user)" 
-                            class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" 
+                    <button (click)="editUserRoles(user)"
+                            class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                             title="Edit Roles">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button (click)="deleteUser(user)" 
-                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" 
+                    <button (click)="deleteUser(user)"
+                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete User">
                       <i class="fas fa-trash-alt"></i>
                     </button>
@@ -253,7 +245,7 @@
             @if (page === -1) {
             <span class="px-2 text-gray-500">...</span>
             } @else {
-            <button (click)="goToPage(page)" 
+            <button (click)="goToPage(page)"
                     [class.bg-blue-600]="page === currentPage()"
                     [class.text-white]="page === currentPage()"
                     [class.border-blue-600]="page === currentPage()"
