@@ -359,7 +359,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
     console.log('✅ Available Years:', uniqueYears);
   }
 
-  onYearSelected(yearName: string): void {
+  onYearSelected(yearName: string | null): void {
     // Filter subjects by selected year
     if (!yearName) {
       this.filteredSubjects.set([]);
