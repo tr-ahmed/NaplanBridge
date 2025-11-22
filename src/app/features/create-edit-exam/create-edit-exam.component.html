@@ -310,8 +310,19 @@
               <div class="space-y-2" formArrayName="options">
                 @for (option of getOptions(i).controls; track $index; let j = $index) {
                 <div [formGroupName]="j" class="flex items-center gap-3">
-                  <input type="checkbox" formControlName="isCorrect"
-                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <!-- Use radio for TrueFalse and MultipleChoice, checkbox for MultipleSelect -->
+                  @if (question.get('questionType')?.value === 'MultipleSelect') {
+                    <input type="checkbox"
+                      [checked]="option.get('isCorrect')?.value"
+                      (change)="toggleCorrectAnswer(i, j, $event)"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  } @else {
+                    <input type="radio"
+                      [name]="'correct_answer_' + i"
+                      [checked]="option.get('isCorrect')?.value"
+                      (change)="toggleCorrectAnswer(i, j, $event)"
+                      class="border-gray-300 text-blue-600 focus:ring-blue-500">
+                  }
                   <input type="text" formControlName="optionText"
                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Option text">
@@ -326,7 +337,13 @@
                 </div>
                 }
               </div>
-              <p class="text-xs text-gray-600 mt-2">Check the box to mark correct answer(s)</p>
+              <p class="text-xs text-gray-600 mt-2">
+                @if (question.get('questionType')?.value === 'MultipleSelect') {
+                  Check the box(es) to mark correct answer(s) - multiple selections allowed
+                } @else {
+                  Select the correct answer - only one answer allowed
+                }
+              </p>
             </div>
             }
           </div>

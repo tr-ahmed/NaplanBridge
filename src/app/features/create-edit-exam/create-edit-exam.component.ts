@@ -560,6 +560,34 @@ export class CreateEditExamComponent implements OnInit {
   }
 
   /**
+   * Toggle correct answer based on question type
+   * For TrueFalse and MultipleChoice: only one answer can be correct (radio behavior)
+   * For MultipleSelect: multiple answers can be correct (checkbox behavior)
+   */
+  toggleCorrectAnswer(questionIndex: number, optionIndex: number, event: Event): void {
+    const question = this.questions.at(questionIndex);
+    const questionType = question.get('questionType')?.value;
+    const options = this.getOptions(questionIndex);
+    const clickedOption = options.at(optionIndex);
+    const isChecked = (event.target as HTMLInputElement).checked;
+
+    // For TrueFalse and MultipleChoice: only one answer can be correct
+    if (questionType === QuestionType.TrueFalse || questionType === QuestionType.MultipleChoice) {
+      // Uncheck all other options
+      options.controls.forEach((opt, idx) => {
+        if (idx !== optionIndex) {
+          opt.get('isCorrect')?.setValue(false);
+        }
+      });
+      // Set the clicked option to the checked state
+      clickedOption.get('isCorrect')?.setValue(isChecked);
+    } else if (questionType === QuestionType.MultipleSelect) {
+      // For MultipleSelect: allow multiple correct answers
+      clickedOption.get('isCorrect')?.setValue(isChecked);
+    }
+  }
+
+  /**
    * Navigate to step
    */
   goToStep(step: FormStep): void {
