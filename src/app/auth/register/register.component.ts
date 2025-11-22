@@ -32,9 +32,8 @@ export class RegisterComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [
       Validators.required,
-      Validators.minLength(4),
-      Validators.maxLength(8),
-      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z]).{4,8}$/) // Must contain uppercase and lowercase
+      Validators.minLength(8),
+      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z]).{8,}$/) // Must contain uppercase and lowercase, min 8 chars
     ]],
     confirmPassword: ['', [Validators.required]],
     phoneNumber: ['', [Validators.required, Validators.pattern(/^01[0-9]{9}$/)]],
