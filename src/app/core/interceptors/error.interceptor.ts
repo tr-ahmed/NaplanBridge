@@ -78,8 +78,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      // Show error toast notification (except for 401/403/404)
-      if (error.status !== 401 && error.status !== 403 && error.status !== 404) {
+      // Show error toast notification (except for 401/403/404 and when explicitly skipped)
+      const skipToast = req.headers.has('X-Skip-Toast');
+      if (error.status !== 401 && error.status !== 403 && error.status !== 404 && !skipToast) {
         toastService.showError(errorMessage);
       }
 

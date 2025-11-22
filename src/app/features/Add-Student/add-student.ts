@@ -184,7 +184,8 @@ export class AddStudentComponent implements OnInit {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-Skip-Toast': 'true' // Handle errors manually in component
     });
 
     console.log('Sending student registration payload:', payload);
@@ -211,6 +212,17 @@ export class AddStudentComponent implements OnInit {
   private handleMockRegistration(payload: StudentFormData): void {
     // Simulate API delay
     setTimeout(() => {
+      // UNCOMMENT TO TEST ERROR HANDLING
+      // this.handleError({
+      //   error: {
+      //     errors: {
+      //       'UserName': ['Username is already taken'],
+      //       'Email': ['Email is already in use']
+      //     }
+      //   }
+      // });
+      // return;
+
       this.handleSuccess(payload.userName);
     }, 1000);
   }
@@ -243,33 +255,49 @@ export class AddStudentComponent implements OnInit {
   /**
    * Handle registration error
    */
+  /**
+   * Handle registration error
+   */
   private handleError(err: any): void {
     console.error('Full error object:', err);
     console.error('Error details:', err?.error);
-    console.error('Validation errors:', err?.error?.errors);
 
     let errorMessage = 'Failed to add student. Please try again.';
+    let errorTitle = 'Registration Failed';
 
-    // Extract validation errors if available
+    // 1. Handle validation errors (400 Bad Request with "errors" object)
     if (err?.error?.errors) {
       const validationErrors = err.error.errors;
       const errorMessages = Object.keys(validationErrors)
-        .map(key => `${key}: ${validationErrors[key].join(', ')}`)
-        .join('\n');
-      errorMessage = `Validation errors:\n${errorMessages}`;
-    } else if (err?.error?.title) {
-      errorMessage = err.error.title;
-    } else if (err?.error?.message) {
+        .map(key => `<li style="text-align: left">${validationErrors[key].join(', ')}</li>`)
+        .join('');
+      errorMessage = `<ul class="list-disc pl-5">${errorMessages}</ul>`;
+      errorTitle = 'Validation Error';
+    }
+    // 2. Handle specific error messages from backend (e.g. "User already exists")
+    else if (typeof err?.error === 'string') {
+      errorMessage = err.error;
+    }
+    // 3. Handle object with "message" property
+    else if (err?.error?.message) {
       errorMessage = err.error.message;
     }
+    // 4. Handle object with "title" property (often in ProblemDetails)
+    else if (err?.error?.title) {
+      errorMessage = err.error.title;
+    }
+    // 5. Handle status text if nothing else
+    else if (err?.statusText) {
+      errorMessage = `Error: ${err.statusText}`;
+    }
 
-    this.error.set(errorMessage);
+    this.error.set(errorMessage); // Set signal for inline display if needed
     this.loading.set(false);
 
     Swal.fire({
       icon: 'error',
-      title: 'Registration Failed',
-      html: errorMessage.replace(/\n/g, '<br>'),
+      title: errorTitle,
+      html: errorMessage, // Use html to render lists or line breaks
       confirmButtonText: 'Try Again'
     });
   }
@@ -319,8 +347,8 @@ export class AddStudentComponent implements OnInit {
         icon: 'warning',
         title: 'Please fix the following errors:',
         html: '<ul style="text-align: left;">' +
-              errors.map(e => `<li>${e}</li>`).join('') +
-              '</ul>',
+          errors.map(e => `<li>${e}</li>`).join('') +
+          '</ul>',
         confirmButtonText: 'OK'
       });
     }
