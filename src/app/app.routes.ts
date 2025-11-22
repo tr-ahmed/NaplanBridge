@@ -42,6 +42,18 @@ export const routes: Routes = [
 
   // Public routes
   {
+    path: 'about',
+    loadComponent: () => import('./pages/about/about.component').then(m => m.AboutComponent)
+  },
+  {
+    path: 'faq',
+    loadComponent: () => import('./pages/faqs/faqs.component').then(m => m.FaqsComponent)
+  },
+  {
+    path: 'contact',
+    loadComponent: () => import('./pages/contact/contact.component').then(m => m.ContactComponent)
+  },
+  {
     path: 'terms',
     loadComponent: () => import('./features/terms/terms.component').then(m => m.TermsComponent)
   },

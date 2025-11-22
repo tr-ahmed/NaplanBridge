@@ -1,14 +1,20 @@
+<!-- Page Header with Blue Background -->
+<div class="page-header-wrapper">
+  <div class="page-header-content">
+    <div class="header-icon">
+      <i class="fas fa-envelope-open-text"></i>
+    </div>
+    <div class="header-text">
+      <h1>Notification Templates</h1>
+      <p>Manage notification messages for all system events</p>
+    </div>
+  </div>
+</div>
+
 <div class="template-list-container">
-  <!-- Header -->
+  <!-- Header with Stats -->
   <div class="page-header">
     <div class="header-content">
-      <div class="title-section">
-        <h1>
-          <i class="fas fa-envelope-open-text"></i>
-          Notification Templates
-        </h1>
-        <p>Manage notification messages for all system events</p>
-      </div>
 
       <!-- Stats Cards -->
       @if (counts()) {
@@ -139,7 +145,7 @@
                 <i class="fas" [ngClass]="getCategoryIcon(template.eventCategory)"></i>
               </div>
               <div class="event-details">
-                <h3>{{ template.eventName }}</h3>
+                <h3>{{ translateText(template.eventName) }}</h3>
                 <span class="event-key">{{ template.eventKey }}</span>
               </div>
             </div>
@@ -161,13 +167,13 @@
             @if (template.eventCategory) {
               <span class="category-badge">
                 <i class="fas" [ngClass]="getCategoryIcon(template.eventCategory)"></i>
-                {{ template.eventCategory }}
+                {{ translateText(template.eventCategory) }}
               </span>
             }
 
             <!-- Description Preview -->
             @if (template.eventDescription) {
-              <p class="description">{{ template.eventDescription }}</p>
+              <p class="description">{{ translateText(template.eventDescription) }}</p>
             }
 
             <!-- Channels -->

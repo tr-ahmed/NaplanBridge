@@ -263,3 +263,64 @@ export const CHANNEL_ICONS = {
   InApp: { icon: 'fa-bell', color: '#8b5cf6' },
   Push: { icon: 'fa-mobile-alt', color: '#f59e0b' }
 };
+
+// ============================================
+// ARABIC TO ENGLISH TRANSLATION MAP
+// ============================================
+
+export const ARABIC_TO_ENGLISH_MAP = {
+  // Event Names
+  'تسجيل طالب جديد': 'Student Registered',
+  'إكمال درس': 'Lesson Completed',
+  'تقييم الامتحان': 'Exam Graded',
+  'تم تقييم امتحانك': 'Your Exam Has Been Graded',
+  'تم تقييم امتحان ابنك': 'Your Child\'s Exam Has Been Graded',
+  'درس جديد متاح': 'New Lesson Available',
+  'بدء الدرس': 'Lesson Started',
+  'بدء الامتحان': 'Exam Started',
+  'انتهاء الامتحان': 'Exam Ended',
+  'دفع ناجح': 'Payment Successful',
+  'استرجاع الأموال معالج': 'Refund Processed',
+  'تحديث الملف الشخصي': 'Profile Updated',
+  'تغيير كلمة المرور': 'Password Changed',
+  'رسالة جديدة': 'New Message',
+  'تعليق جديد': 'New Comment',
+  'إشعار النظام': 'System Notification',
+  'سؤال جديد من طالب': 'New Student Question',
+  'تمت الموافقة على المحتوى': 'Content Approved',
+  'تم رفض المحتوى': 'Content Rejected',
+  'المحتوى في الانتظار': 'Content Pending Review',
+  'محتوى جديد للمراجعة': 'New Content for Review',
+
+  // Event Categories
+  'الطلاب': 'Student',
+  'الطالب': 'Student',
+  'المناقشات': 'Discussion',
+  'المناقشة': 'Discussion',
+  'المحتوى': 'Content',
+  'التسجيل': 'Registration',
+  'الامتحانات': 'Exam',
+  'الامتحان': 'Exam',
+  'الدفع': 'Payment',
+  'المدفوعات': 'Payment',
+  'استرجاع الأموال': 'Refund',
+  'الاسترجاع': 'Refund',
+  'النظام': 'System',
+
+  // Other common terms
+  'جديد': 'New',
+  'نشط': 'Active',
+  'غير نشط': 'Inactive',
+  'معلق': 'Pending',
+  'مكتمل': 'Completed',
+  'مرفوض': 'Rejected',
+  'موافق': 'Approved',
+  'خطأ': 'Error',
+  'تنبيه': 'Alert',
+  'إخطار': 'Notification'
+};
+
+export function translateFromArabic(text: string): string {
+  if (!text) return text;
+  return ARABIC_TO_ENGLISH_MAP[text as keyof typeof ARABIC_TO_ENGLISH_MAP] || text;
+}

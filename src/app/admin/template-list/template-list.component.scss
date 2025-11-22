@@ -1,7 +1,55 @@
+// ============================================
+// PAGE HEADER WRAPPER (Blue Background)
+// ============================================
+
+.page-header-wrapper {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+  padding: 40px 20px;
+  margin: -16px -16px 0 -16px;
+  margin-bottom: 30px;
+
+  .page-header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: white;
+
+    .header-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-text {
+      h1 {
+        font-size: 36px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        color: white;
+      }
+
+      p {
+        font-size: 16px;
+        margin: 0;
+        opacity: 0.9;
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+  }
+}
+
 .template-list-container {
   padding: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  min-height: calc(100vh - 300px);
 
   // ============================================
   // HEADER
@@ -9,58 +57,49 @@
 
   .page-header {
     margin-bottom: 30px;
+    padding-bottom: 0;
 
     .header-content {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 30px;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 15px;
       flex-wrap: wrap;
-    }
-
-    .title-section {
-      h1 {
-        font-size: 32px;
-        color: #1f2937;
-        margin-bottom: 8px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-
-        i {
-          color: #3b82f6;
-        }
-      }
-
-      p {
-        color: #6b7280;
-        font-size: 16px;
-        margin: 0;
-      }
+      width: 100%;
     }
 
     .stats-cards {
       display: flex;
       gap: 15px;
+      flex-wrap: wrap;
+      width: 100%;
 
       .stat-card {
         background: white;
-        border-radius: 12px;
-        padding: 15px 20px;
+        border-radius: 14px;
+        padding: 18px 22px;
         display: flex;
         align-items: center;
-        gap: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        min-width: 150px;
+        gap: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+        flex: 1;
+        min-width: 160px;
+
+        &:hover {
+          box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+          transform: translateY(-2px);
+        }
 
         .stat-icon {
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
+          width: 52px;
+          height: 52px;
+          border-radius: 14px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 20px;
+          font-size: 22px;
+          flex-shrink: 0;
 
           &.total {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -81,16 +120,19 @@
         .stat-info {
           display: flex;
           flex-direction: column;
+          gap: 4px;
 
           .stat-value {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 26px;
+            font-weight: 700;
             color: #1f2937;
+            line-height: 1;
           }
 
           .stat-label {
             font-size: 13px;
             color: #6b7280;
+            font-weight: 500;
           }
         }
       }
@@ -103,10 +145,10 @@
 
   .filters-section {
     background: white;
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 14px;
+    padding: 22px;
     margin-bottom: 30px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 
     .filters-row {
       display: flex;
@@ -117,7 +159,7 @@
 
     .search-box {
       flex: 1;
-      min-width: 250px;
+      min-width: 300px;
       position: relative;
 
       i {
@@ -126,13 +168,14 @@
         top: 50%;
         transform: translateY(-50%);
         color: #9ca3af;
+        font-size: 16px;
       }
 
       input {
         width: 100%;
         padding: 12px 15px 12px 45px;
         border: 2px solid #e5e7eb;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 15px;
         transition: all 0.2s;
 
@@ -145,13 +188,16 @@
     }
 
     .filter-select {
+      min-width: 160px;
       padding: 12px 35px 12px 15px;
       border: 2px solid #e5e7eb;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 15px;
+      font-weight: 500;
       cursor: pointer;
       background: white;
       transition: all 0.2s;
+      color: #374151;
 
       &:hover {
         border-color: #d1d5db;
@@ -211,15 +257,17 @@
 
   .template-card {
     background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     cursor: pointer;
     transition: all 0.3s;
+    border: 1px solid rgba(229, 231, 235, 0.5);
 
     &:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+      border-color: rgba(59, 130, 246, 0.3);
     }
 
     .card-header {
@@ -437,6 +485,33 @@
 // ============================================
 
 @media (max-width: 768px) {
+  .page-header-wrapper {
+    padding: 30px 15px;
+    margin: -16px -16px 0 -16px;
+
+    .page-header-content {
+      flex-direction: column;
+      text-align: center;
+      gap: 15px;
+
+      .header-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 26px;
+      }
+
+      .header-text {
+        h1 {
+          font-size: 28px;
+        }
+
+        p {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
   .template-list-container {
     padding: 15px;
 
@@ -448,6 +523,11 @@
       .stats-cards {
         flex-wrap: wrap;
         width: 100%;
+
+        .stat-card {
+          flex: 1;
+          min-width: 140px;
+        }
       }
     }
 
@@ -464,6 +544,11 @@
 
       .filter-select {
         width: 100%;
+      }
+
+      .view-toggle {
+        width: 100%;
+        justify-content: center;
       }
     }
   }

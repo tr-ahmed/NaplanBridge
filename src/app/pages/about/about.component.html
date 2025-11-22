@@ -1,0 +1,127 @@
+<div class="about-page bg-gray-50 min-h-screen">
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-5xl font-bold mb-6">About NAPLAN Bridge</h1>
+        <p class="text-xl leading-relaxed opacity-90">
+          Empowering students to achieve excellence through innovative online learning solutions
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mission Section -->
+  <section class="py-16">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12">
+          <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Our Mission</h2>
+          <p class="text-lg text-gray-600 leading-relaxed mb-6">
+            At NAPLAN Bridge, we believe that quality education should be accessible to everyone. Our mission is to provide
+            comprehensive, engaging, and effective online learning experiences that help students excel in their NAPLAN assessments
+            and beyond.
+          </p>
+          <p class="text-lg text-gray-600 leading-relaxed">
+            We combine cutting-edge technology with proven teaching methodologies to create a learning environment where students
+            can thrive, build confidence, and achieve their academic goals.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-16 bg-blue-600 text-white">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        @for (stat of stats; track stat.label) {
+          <div class="text-center">
+            <div class="text-4xl font-bold mb-2">{{ stat.value }}</div>
+            <div class="text-lg opacity-90">{{ stat.label }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Values Section -->
+  <section class="py-16">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-gray-800 mb-12 text-center">Our Core Values</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        @for (value of values; track value.title) {
+          <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition-shadow">
+            <div class="text-4xl text-blue-600 mb-4">
+              <i [class]="value.icon"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-3">{{ value.title }}</h3>
+            <p class="text-gray-600">{{ value.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-gray-800 mb-12 text-center">Meet Our Team</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        @for (member of team; track member.name) {
+          <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+            <div class="h-64 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+              <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center">
+                <i class="fas fa-user text-6xl text-blue-600"></i>
+              </div>
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-bold text-gray-800 mb-1">{{ member.name }}</h3>
+              <p class="text-blue-600 font-semibold mb-3">{{ member.role }}</p>
+              <p class="text-gray-600 text-sm">{{ member.description }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Story Section -->
+  <section class="py-16">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12">
+          <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Our Story</h2>
+          <div class="space-y-4 text-gray-600 leading-relaxed">
+            <p>
+              NAPLAN Bridge was founded in 2020 with a simple yet powerful vision: to transform the way students prepare
+              for their NAPLAN assessments. Our founders, experienced educators and technologists, recognized the need for
+              a comprehensive, engaging, and accessible online learning platform.
+            </p>
+            <p>
+              What started as a small initiative to help a handful of students has grown into a thriving community of
+              thousands of learners across Australia. We've continuously evolved our platform, incorporating feedback from
+              students, parents, and educators to create the most effective learning experience possible.
+            </p>
+            <p>
+              Today, NAPLAN Bridge stands as a trusted partner in education, helping students build confidence, master
+              essential skills, and achieve their academic goals. Our commitment to innovation and excellence continues
+              to drive us forward as we expand our offerings and reach more students every day.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold mb-6">Ready to Start Your Learning Journey?</h2>
+      <p class="text-xl mb-8 opacity-90">Join thousands of students achieving excellence with NAPLAN Bridge</p>
+      <button class="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors">
+        Get Started Today
+      </button>
+    </div>
+  </section>
+</div>
