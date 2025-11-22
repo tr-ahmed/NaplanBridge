@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
 import { TeacherPermissionsService, TeacherPermission, PendingApproval } from '../../../core/services/teacher-permissions.service';
 import { SubjectService } from '../../../core/services/subject.service';
+import { CategoryService } from '../../../core/services/category.service';
 import { Subject } from '../../../models/subject.models';
 
 // Temporary interfaces - Remove TeacherPermission and PendingApproval as they're imported
@@ -21,12 +22,14 @@ export class TeacherPermissionsAdminComponent implements OnInit {
   private toastService = inject(ToastService);
   private permissionsService = inject(TeacherPermissionsService);
   private subjectService = inject(SubjectService);
+  private categoryService = inject(CategoryService);
 
   loading = signal(false);
   activeTab = signal<'permissions' | 'approvals'>('permissions');
 
   // Subject lookup map for resolving subject names
   private subjectNamesMap = new Map<number, string>();
+  private yearNamesMap = new Map<number, string>();
 
   // Permissions data
   teachersWithPermissions = signal<any[]>([]);
@@ -54,9 +57,33 @@ export class TeacherPermissionsAdminComponent implements OnInit {
   rejectionReason = '';
 
   ngOnInit(): void {
-    // Load subjects first to populate the lookup map
-    this.loadSubjectsMap().then(() => {
+    // Load years and subjects first to populate the lookup maps
+    Promise.all([
+      this.loadYearsMap(),
+      this.loadSubjectsMap()
+    ]).then(() => {
       this.loadData();
+    });
+  }
+
+  /**
+   * Load all years and create a lookup map
+   */
+  private async loadYearsMap(): Promise<void> {
+    return new Promise((resolve) => {
+      this.categoryService.getYears().subscribe({
+        next: (years) => {
+          years.forEach((year: any) => {
+            this.yearNamesMap.set(year.id, year.name || `Year ${year.yearNumber}`);
+          });
+          console.log('✅ Year names map loaded:', this.yearNamesMap.size, 'years');
+          resolve();
+        },
+        error: (err) => {
+          console.error('❌ Failed to load years map:', err);
+          resolve(); // Continue anyway
+        }
+      });
     });
   }
 
@@ -335,9 +362,10 @@ export class TeacherPermissionsAdminComponent implements OnInit {
           // Map subjects with year information
           subjectList = subjectList.map((subject: any) => {
             const name = subject.subjectName || subject.name || subject.title || 'Unknown';
-            const yearName = subject.yearName || subject.year?.name || subject.grade || 'N/A';
+            const yearId = subject.yearId;
+            const yearName = this.yearNamesMap.get(yearId) || subject.yearName || subject.year?.name || 'N/A';
 
-            console.log(`Subject mapping: ${name} (Year: ${yearName})`, subject);
+            console.log(`Subject mapping: ${name} (Year: ${yearName}, yearId: ${yearId})`, subject);
 
             return {
               id: subject.id,
