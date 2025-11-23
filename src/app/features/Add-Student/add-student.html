@@ -93,6 +93,9 @@
             @if (hasError('password', 'minlength')) {
               <p class="mt-1 text-sm text-red-500">Password must be at least 8 characters</p>
             }
+            @if (hasError('password', 'maxlength')) {
+              <p class="mt-1 text-sm text-red-500">Password must not exceed 100 characters</p>
+            }
           </div>
 
           <!-- Confirm Password -->

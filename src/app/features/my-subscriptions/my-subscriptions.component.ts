@@ -385,7 +385,7 @@ export class MySubscriptionsComponent implements OnInit {
   upgradeSubscription(subscription: SubscriptionWithDetails): void {
     console.log('⬆️ Upgrade Subscription:', subscription);
     // Navigate to available plans for this subject/term
-    this.router.navigate(['/subjects'], {
+    this.router.navigate(['/courses'], {
       queryParams: {
         studentId: subscription.studentId,
         upgrade: true
@@ -398,7 +398,7 @@ export class MySubscriptionsComponent implements OnInit {
    */
   browseNewPlans(): void {
     console.log('➕ Browse New Plans');
-    this.router.navigate(['/subjects']);
+    this.router.navigate(['/courses']);
   }
 
   /**

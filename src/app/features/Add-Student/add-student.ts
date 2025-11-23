@@ -105,7 +105,7 @@ export class AddStudentComponent implements OnInit {
       userName: ['', [Validators.required, Validators.minLength(3)]],
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]], // Required for login
-      password: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(8)]], // API requires 4-8 chars
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100)]], // Password must be 8-100 chars
       confirmPassword: ['', [Validators.required]],
       age: ['', [Validators.required, Validators.min(5), Validators.max(18)]],
       yearId: ['', [Validators.required]],
@@ -331,10 +331,10 @@ export class AddStudentComponent implements OnInit {
       errors.push('Password is required');
     }
     if (this.addStudentForm.get('password')?.hasError('minlength')) {
-      errors.push('Password must be at least 4 characters');
+      errors.push('Password must be at least 8 characters');
     }
     if (this.addStudentForm.get('password')?.hasError('maxlength')) {
-      errors.push('Password must not exceed 8 characters');
+      errors.push('Password must not exceed 100 characters');
     }
     if (this.addStudentForm.hasError('passwordMismatch')) {
       errors.push('Passwords do not match');
