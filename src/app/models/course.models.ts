@@ -59,7 +59,8 @@ export interface CourseFilter {
   };
   rating?: number;
   // New fields for API compatibility
-  yearId?: number;
+  yearId?: number;      // Single year (backward compatible)
+  yearIds?: number[];   // ✅ NEW (Jan 27, 2025): Multiple years
   subjectNameId?: number;
   categoryId?: number;
   termIds?: number[];

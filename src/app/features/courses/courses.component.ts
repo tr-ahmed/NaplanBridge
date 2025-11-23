@@ -62,6 +62,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   currentUser = signal<any>(null);
   userYear = signal<number | null>(null);
   isStudent = signal<boolean>(false);
+  isParent = signal<boolean>(false); // ✅ Track if user is parent
   selectedStudentId = signal<number | null>(null); // For parent - selected child
   parentStudents = signal<any[]>([]); // Parent's children list
 
@@ -72,7 +73,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   pendingCourse = signal<Course | null>(null);
 
   // Available years for filtering - loaded from database
-  availableYears = signal<Array<{id: number, name: string}>>([]);
+  availableYears = signal<Array<{id: number, yearNumber: number, name: string}>>([]);
   selectedYearId = signal<number | null>(null);
 
   // Computed values
@@ -80,10 +81,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
     Math.ceil(this.totalCount() / this.itemsPerPage)
   );
 
-  // Since API handles pagination, paginatedCourses is same as filteredCourses
-  paginatedCourses = computed(() => this.filteredCourses());
-
-  cartItemCount = computed(() => this.cart().totalItems);
+  // ✅ API handles pagination for all users (including parents with multiple years)
+  paginatedCourses = computed(() => this.filteredCourses());  cartItemCount = computed(() => this.cart().totalItems);
 
   // Display year name
   displayYearName = computed(() => {
@@ -110,13 +109,30 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadAvailableYears(); // Load years from database first
-    this.loadUserInfo();
+    this.loadUserInfo(); // This will load parent students and trigger loadCourses for parents
     this.loadStudentSubscriptions(); // Load enrollment status
     this.subscribeToCart();
     this.subscribeToPlanModal();
     this.subscribeToSearch(); // Subscribe to search with debounce
     this.handleQueryParameters();
-    this.loadCourses();
+
+    // ✅ Load courses will be called from filterYearsForParent for parents
+    // For non-parents, load courses now
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      const userRoles = user.role || user.roles || user.Role || user.Roles;
+      const rolesArray = Array.isArray(userRoles) ? userRoles : (userRoles ? [userRoles] : []);
+      const isParent = rolesArray.some((r: string) => r?.toLowerCase() === 'parent');
+      const isStudent = rolesArray.some((r: string) => r?.toLowerCase() === 'student');
+
+      // Only load courses immediately if not a parent (or if parent+student)
+      if (!isParent || isStudent) {
+        this.loadCourses();
+      }
+    } else {
+      // Guest user - load courses
+      this.loadCourses();
+    }
   }
 
   /**
@@ -127,6 +143,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       next: (years) => {
         const formattedYears = years.map(year => ({
           id: year.id,
+          yearNumber: year.yearNumber, // ✅ Store yearNumber for filtering
           name: `Year ${year.yearNumber}`
         }));
         this.availableYears.set(formattedYears);
@@ -136,15 +153,67 @@ export class CoursesComponent implements OnInit, OnDestroy {
         console.error('❌ Failed to load years:', err);
         // Fallback to default years
         this.availableYears.set([
-          { id: 1, name: 'Year 7' },
-          { id: 2, name: 'Year 8' },
-          { id: 3, name: 'Year 9' },
-          { id: 4, name: 'Year 10' },
-          { id: 5, name: 'Year 11' },
-          { id: 6, name: 'Year 12' }
+          { id: 1, yearNumber: 7, name: 'Year 7' },
+          { id: 2, yearNumber: 8, name: 'Year 8' },
+          { id: 3, yearNumber: 9, name: 'Year 9' },
+          { id: 4, yearNumber: 10, name: 'Year 10' },
+          { id: 5, yearNumber: 11, name: 'Year 11' },
+          { id: 6, yearNumber: 12, name: 'Year 12' }
         ]);
       }
     });
+  }
+
+  /**
+   * Filter available years for parents to show only their children's years
+   */
+  private filterYearsForParent(): void {
+    const user = this.currentUser();
+    if (!user) return;
+
+    const userRoles = user.roles || [];
+    const isParent = userRoles.some((r: string) => r?.toLowerCase() === 'parent');
+    const isStudent = userRoles.some((r: string) => r?.toLowerCase() === 'student');
+
+    // Only filter if user is parent (not student)
+    if (isParent && !isStudent) {
+      const students = this.parentStudents();
+
+      this.logger.log('👨‍👩‍👧‍👦 Filtering years for parent - students:', students);
+
+      if (students && students.length > 0) {
+        // Get unique year Numbers (not IDs!) from parent's children
+        // yearId from students is actually yearNumber (7, 9, etc.)
+        const childrenYearNumbers = [...new Set(students.map(s => s.yearId).filter(id => id))];
+
+        this.logger.log('👨‍👩‍👧‍👦 Children year Numbers:', childrenYearNumbers);
+
+        // Filter available years by yearNumber (not id)
+        const allYears = this.availableYears();
+        const filteredYears = allYears.filter(year => childrenYearNumbers.includes(year.yearNumber));
+
+        this.logger.log('✅ All years:', allYears);
+        this.logger.log('✅ Filtered years (by yearNumber):', filteredYears);
+
+        if (filteredYears.length > 0) {
+          this.availableYears.set(filteredYears);
+          this.logger.log('✅ Applied filtered years for parent:', filteredYears);
+
+          // ✅ Don't auto-select - keep null to show "All My Children"
+          if (!this.selectedYearId()) {
+            this.selectedYearId.set(null); // Show all children's subjects
+            this.logger.log('✅ Set to "All My Children" mode - showing all years:', filteredYears);
+          }
+
+          // ✅ Reload courses with filtered years
+          this.loadCourses();
+        }
+      } else {
+        // ✅ No students yet - show all years and load all courses
+        this.logger.log('⚠️ Parent has no students yet - showing all years');
+        this.loadCourses(); // Load courses without year filter
+      }
+    }
   }
 
   /**
@@ -179,6 +248,10 @@ export class CoursesComponent implements OnInit, OnDestroy {
       // Check if user is a student
       const isStudentRole = rolesArray.some((r: string) => r?.toLowerCase() === 'student');
       this.isStudent.set(isStudentRole);
+
+      // Check if user is a parent
+      const isParentRole = rolesArray.some((r: string) => r?.toLowerCase() === 'parent');
+      this.isParent.set(isParentRole && !isStudentRole); // ✅ Parent only if not also a student
 
       this.logger.log('👤 User Details:', {
         id: normalizedUser.id,
@@ -263,6 +336,9 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
           // Store in localStorage for quick access
           localStorage.setItem('parentStudents', JSON.stringify(mappedStudents));
+
+          // ✅ Filter available years based on children's years
+          this.filterYearsForParent();
         },
         error: (error: any) => {
           console.error('❌ Error loading parent students:', error);
@@ -274,6 +350,9 @@ export class CoursesComponent implements OnInit, OnDestroy {
               const students = JSON.parse(studentsData);
               this.parentStudents.set(students);
               this.logger.log('✅ Loaded parent students from localStorage:', students);
+
+              // ✅ Filter available years based on children's years
+              this.filterYearsForParent();
             } catch (e) {
               console.error('Failed to parse parent students data');
             }
@@ -366,8 +445,20 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   /**
    * Load courses from service
+   * ✅ NEW (Jan 27, 2025): Use yearIds for parents with multiple children
    */
   loadCourses(): void {
+    // ✅ Determine which years to filter
+    let yearsToFilter: number[] = [];
+
+    if (this.selectedYearId()) {
+      // ✅ If a specific year is selected (parent clicked on a year button), use only that year
+      yearsToFilter = [this.selectedYearId()!];
+    } else if (this.isParent() && this.availableYears().length > 0) {
+      // ✅ If no year selected and user is parent, show all children's years
+      yearsToFilter = this.availableYears().map(y => y.id);
+    }
+
     const filter: CourseFilter = {
       term: this.selectedTerm() > 0 ? this.selectedTerm() : undefined,
       subject: this.selectedSubject() || undefined,
@@ -375,8 +466,9 @@ export class CoursesComponent implements OnInit, OnDestroy {
       category: this.selectedCategory() || undefined,
       page: this.currentPage(),
       pageSize: this.itemsPerPage,
-      search: this.searchQuery() || undefined, // ✅ Backend now supports searchTerm
-      yearId: this.selectedYearId() || undefined
+      search: this.searchQuery() || undefined,
+      // ✅ Send yearIds if parent (single or multiple)
+      yearIds: yearsToFilter.length > 0 ? yearsToFilter : undefined
     };
 
     this.logger.log('🔍 Loading courses with filter:', filter);
@@ -389,9 +481,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.totalCount.set(response.totalCount);
         this.applyFilters();
       });
-  }
-
-  /**
+  }  /**
    * Subscribe to cart changes
    */
   private subscribeToCart(): void {
@@ -402,14 +492,10 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   /**
    * Apply filters to courses
-   *
-   * ✅ UPDATE (Nov 21, 2025): Backend now supports searchTerm parameter
-   * - Search is now handled server-side by the API
-   * - yearId, categoryId, and searchTerm are all API-filtered
-   * - This method now just assigns API results to filteredCourses
+   * ✅ UPDATE (Jan 27, 2025): API now handles year filtering - no need for frontend filtering
    */
   applyFilters(): void {
-    // Since API handles all filtering (search, yearId, categoryId),
+    // Since API handles all filtering (yearIds, search, categoryId),
     // we just use the courses as-is from the API response
     const filtered = [...this.courses()];
 
@@ -420,13 +506,13 @@ export class CoursesComponent implements OnInit, OnDestroy {
       level: this.selectedLevel(),
       category: this.selectedCategory(),
       search: this.searchQuery(),
-      yearId: this.selectedYearId()
+      yearId: this.selectedYearId(),
+      isParent: this.isParent(),
+      availableYears: this.availableYears().length
     });
 
     this.filteredCourses.set(filtered);
-  }
-
-  /**
+  }  /**
    * Handle year filter change
    */
   onYearChange(yearId: number | null): void {
@@ -698,11 +784,10 @@ export class CoursesComponent implements OnInit, OnDestroy {
         studentId = user.studentId || user.id;
         this.logger.log('✅ Student role - using studentId:', studentId, 'from:', user.studentId ? 'token.studentId' : 'user.id');
       } else if (isParent) {
-        // Parent access - use selected student ID
+        // Parent access - check if student selection is needed
         studentId = this.selectedStudentId() || undefined;
 
         if (!studentId) {
-          // ✅ ALWAYS ask parent to select student (even if only one available)
           const allParentStudents = this.parentStudents();
 
           if (allParentStudents.length === 0) {
@@ -711,10 +796,35 @@ export class CoursesComponent implements OnInit, OnDestroy {
             return;
           }
 
-          // ✅ Show student selector modal for parent to choose
-          this.logger.log('👨‍👩‍👧‍👦 Parent has', allParentStudents.length, 'student(s) - showing selector');
-          this.showStudentSelectionModal(allParentStudents, planId, course);
-          return;  // Exit early - will continue after selection
+          // ✅ FIX: Convert course.yearId (DB id) to yearNumber for comparison
+          // course.yearId is the ID from Years table (1, 2, 3...)
+          // student.yearId is the yearNumber (7, 8, 9...)
+          const courseYearId = course.yearId;
+          const yearInfo = this.availableYears().find(y => y.id === courseYearId);
+          const courseYearNumber = yearInfo?.yearNumber || courseYearId;
+
+          const studentsInSameYear = allParentStudents.filter(s => s.yearId === courseYearNumber);
+
+          this.logger.log('🔍 Course yearId (DB):', courseYearId);
+          this.logger.log('🔍 Course yearNumber:', courseYearNumber);
+          this.logger.log('👨‍👩‍👧‍👦 All students:', allParentStudents.map(s => ({ name: s.name, yearId: s.yearId })));
+          this.logger.log('👨‍👩‍👧‍👦 Students in same year:', studentsInSameYear.length);
+
+          if (studentsInSameYear.length === 0) {
+            this.logger.log('❌ No students found for this year');
+            this.toastService.showError('None of your children are enrolled in this year level.');
+            return;
+          } else if (studentsInSameYear.length === 1) {
+            // ✅ Only one student in this year - auto-select
+            studentId = studentsInSameYear[0].id;
+            this.selectedStudentId.set(studentId || null);
+            this.logger.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'for Year', courseYearNumber);
+          } else {
+            // ✅ Multiple students in same year - show selector
+            this.logger.log('👨‍👩‍👧‍👦 Multiple students in Year', courseYearNumber, '- showing selector');
+            this.showStudentSelectionModal(studentsInSameYear, planId, course);
+            return;  // Exit early - will continue after selection
+          }
         }
       } else {
         // ❌ User is not Student or Parent - cannot add to cart

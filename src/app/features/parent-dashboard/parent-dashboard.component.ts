@@ -396,30 +396,24 @@ export class ParentDashboardComponent implements OnInit {
   }
 
   /**
-   * Navigate to child settings/subscriptions
-   * TODO: Replace with /parent/student/{id}?tab=settings once backend ready
-   * See: BACKEND_REQUEST_STUDENT_DETAILS_FOR_PARENT.md
+   * Navigate to child settings
+   * ✅ Backend endpoint ready: /api/Parent/student/{id}/details
    */
   selectChild(child: Child): void {
     this.selectedChild.set(child);
-    // Temporary: Navigate to subscriptions page with student context
-    // This allows parent to manage child's subscriptions
-    this.router.navigate(['/parent/subscriptions'], {
-      queryParams: { studentId: child.id }
+    // Navigate to student details page with settings tab
+    this.router.navigate(['/parent/student', child.id], {
+      queryParams: { tab: 'settings' }
     });
   }
 
   /**
-   * Navigate to child's progress/analytics page
-   * TODO: Replace with /parent/student/{id} once backend implements the endpoint
-   * See: BACKEND_REQUEST_STUDENT_DETAILS_FOR_PARENT.md
+   * Navigate to child's details page
+   * ✅ Backend endpoint ready: /api/Parent/student/{id}/details
    */
   viewChildDashboard(childId: number): void {
-    // Temporary: Navigate to parent analytics with student filter
-    // This shows student progress and activities
-    this.router.navigate(['/parent/analytics'], {
-      queryParams: { studentId: childId }
-    });
+    // Navigate to dedicated student details page
+    this.router.navigate(['/parent/student', childId]);
   }
 
   /**

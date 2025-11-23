@@ -89,9 +89,23 @@ export class CoursesService {
     if (filter?.category) {
       params.categoryId = filter.category;
     }
-    if (filter?.yearId) {
+
+    // ✅ NEW (Jan 27, 2025): Support multiple years
+    if (filter?.yearIds && filter.yearIds.length > 0) {
+      // Send as multiple query params: yearIds=7&yearIds=9
+      filter.yearIds.forEach(yearId => {
+        params['yearIds'] = params['yearIds'] || [];
+        if (!Array.isArray(params['yearIds'])) {
+          params['yearIds'] = [params['yearIds']];
+        }
+        params['yearIds'].push(yearId);
+      });
+    }
+    // Backward compatible: single year
+    else if (filter?.yearId) {
       params.yearId = filter.yearId;
     }
+
     // ✅ Backend now supports searchTerm parameter (Nov 21, 2025)
     if (filter?.search && filter.search.trim()) {
       params.searchTerm = filter.search.trim();

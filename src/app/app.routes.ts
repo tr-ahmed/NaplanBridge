@@ -118,6 +118,11 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
   },
   {
+    path: 'parent/student/:id',
+    loadComponent: () => import('./features/student-details/student-details.component').then(m => m.StudentDetailsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+  },
+  {
     path: 'parent/orders',
     loadComponent: () => import('./features/order-history/order-history.component').then(m => m.OrderHistoryComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
