@@ -354,3 +354,28 @@ export interface RefundResponse {
   status: 'Pending' | 'Approved' | 'Rejected' | 'Processed';
   processedAt?: Date;
 }
+
+// ============================================
+// Subscription Management
+// ============================================
+
+export interface ActiveSubscription {
+  id: number;
+  planId: number;
+  planName: string;
+  planType: string;
+  subject: string;
+  subjectId?: number;
+  coverage: string;
+  expiresOn: string;
+  startedOn: string;
+  isActive: boolean;
+  daysRemaining?: number;
+}
+
+export interface ActiveSubscriptionsResponse {
+  success: boolean;
+  data: ActiveSubscription[];
+  count: number;
+}
+

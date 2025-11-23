@@ -1,0 +1,17 @@
+// Active Subscriptions Component Styles
+// Uses Tailwind CSS classes in the template
+// Additional custom styles if needed
+
+.active-subscriptions {
+  // Smooth animations
+  .subscription-item {
+    transition: all 0.2s ease-in-out;
+  }
+
+  // Mobile optimizations
+  @media (max-width: 640px) {
+    .grid-cols-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+}

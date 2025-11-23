@@ -13,6 +13,10 @@ import { ToastService } from '../../core/services/toast.service';
 import { SubscriptionPlansService, TermPlansResponse, SubjectPlansResponse, PlanOption } from '../../core/services/subscription-plans.service';
 import { PlanSelectionModalComponent } from '../../components/plan-selection-modal/plan-selection-modal.component';
 import { SubscriptionPlanSummary } from '../../models/subject.models';
+import {
+  SubscriptionErrorDialogComponent,
+  SubscriptionErrorAction
+} from '../../shared/components/subscription-error-dialog/subscription-error-dialog.component';
 
 interface Term {
   id: number;
@@ -25,7 +29,7 @@ interface Term {
 @Component({
   selector: 'app-lessons',
   standalone: true,
-  imports: [CommonModule, PlanSelectionModalComponent],
+  imports: [CommonModule, PlanSelectionModalComponent, SubscriptionErrorDialogComponent],
   templateUrl: './lessons.component.html',
   styleUrls: ['./lessons.component.scss']
 })
@@ -66,6 +70,12 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   // ✅ NEW: Tab management for lessons view
   activeTab = signal<string>('lessons');
+
+  // ✅ NEW: Subscription error handling
+  showSubscriptionErrorDialog = signal<boolean>(false);
+  subscriptionErrorMessage = signal<string>('');
+  subscriptionErrorAction = signal<SubscriptionErrorAction>('none');
+  subscriptionErrorActionButton = signal<string | undefined>(undefined);
 
   // ✅ NEW: Make Math available in template
   Math = Math;
@@ -864,9 +874,61 @@ export class LessonsComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('❌ Failed to add to cart:', error);
-          this.toastService.showError('Failed to add plan to cart. Please try again.');
+
+          // ✅ Handle subscription validation errors
+          if (error.status === 400 && error.message) {
+            this.handleSubscriptionError(error.message, studentId);
+          } else {
+            this.toastService.showError('Failed to add plan to cart. Please try again.');
+          }
         }
       });
+  }
+
+  /**
+   * Handle subscription validation errors
+   */
+  handleSubscriptionError(errorMessage: string, studentId: number): void {
+    // Close plan modal if open
+    this.onClosePlanModal();
+
+    // Determine action type and button text
+    const actionType = SubscriptionErrorDialogComponent.determineActionType(errorMessage);
+    const actionButton = SubscriptionErrorDialogComponent.getActionButtonText(actionType);
+
+    // Set error dialog state
+    this.subscriptionErrorMessage.set(errorMessage);
+    this.subscriptionErrorAction.set(actionType);
+    this.subscriptionErrorActionButton.set(actionButton);
+    this.showSubscriptionErrorDialog.set(true);
+  }
+
+  /**
+   * Handle subscription error dialog action
+   */
+  onSubscriptionErrorAction(action: SubscriptionErrorAction): void {
+    const currentUser = this.authService.getCurrentUser();
+    const studentId = this.selectedStudentId() || currentUser?.id;
+
+    switch (action) {
+      case 'view-cart':
+        this.router.navigate(['/cart']);
+        break;
+      case 'view-subscriptions':
+        if (studentId) {
+          this.router.navigate(['/subscriptions', studentId]);
+        }
+        break;
+    }
+
+    this.showSubscriptionErrorDialog.set(false);
+  }
+
+  /**
+   * Close subscription error dialog
+   */
+  onCloseSubscriptionErrorDialog(): void {
+    this.showSubscriptionErrorDialog.set(false);
   }
 
   /**

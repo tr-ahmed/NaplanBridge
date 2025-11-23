@@ -98,12 +98,20 @@ export class CartService {
         this.cartTotalAmount.set(response.totalAmount);
       }),
       catchError((error) => {
-        // Handle duplicate subject error (400 Bad Request)
-        if (error.status === 400 &&
-            error.error?.message?.includes('already has a subscription plan')) {
-          console.warn('🚫 Duplicate subject in cart:', error.error.message);
+        // ✅ Handle all subscription validation errors (400 Bad Request)
+        if (error.status === 400 && error.error?.message) {
+          console.warn('🚫 Subscription validation error:', error.error.message);
+
+          // Create a structured error object for components to handle
+          const validationError = {
+            status: 400,
+            message: error.error.message,
+            type: 'subscription-validation',
+            originalError: error
+          };
+
           // Re-throw the error to be handled by the calling component
-          throw error;
+          throw validationError;
         }
 
         // For other errors, fall back to mock

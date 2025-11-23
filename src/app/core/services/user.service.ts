@@ -7,6 +7,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './base-api.service';
+import { ActiveSubscription, ActiveSubscriptionsResponse } from '../../models/payment.models';
 
 export interface ChildDto {
   id: number;
@@ -69,5 +70,14 @@ export class UserService {
    */
   deleteStudent(studentId: number): Observable<void> {
     return this.api.delete<void>(`User/delete-student/${studentId}`);
+  }
+
+  /**
+   * Get student's active subscriptions
+   * Endpoint: GET /api/subscriptions/student/{studentId}/active
+   * Note: Backend needs to create this endpoint
+   */
+  getStudentActiveSubscriptions(studentId: number): Observable<ActiveSubscriptionsResponse> {
+    return this.api.get<ActiveSubscriptionsResponse>(`subscriptions/student/${studentId}/active`);
   }
 }

@@ -1,0 +1,31 @@
+// Subscription Error Dialog Styles
+// Uses Tailwind CSS classes in the template
+// Additional custom styles can be added here if needed
+
+// Mobile optimizations
+@media (max-width: 640px) {
+  .fixed.inset-0 {
+    padding: 1rem;
+  }
+
+  button {
+    min-height: 48px; // Touch-friendly
+    font-size: 16px; // Prevent zoom on iOS
+  }
+}
+
+// Animation classes
+.transition-opacity {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.transition-all {
+  transition: all 0.3s ease-in-out;
+}
+
+// Ensure long error messages are readable
+.whitespace-pre-wrap {
+  word-break: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+}

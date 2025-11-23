@@ -653,3 +653,13 @@
 
   </div>
 </div>
+
+<!-- ✅ Subscription Error Dialog -->
+<app-subscription-error-dialog
+  [isOpen]="showSubscriptionErrorDialog()"
+  [errorMessage]="subscriptionErrorMessage()"
+  [actionButton]="subscriptionErrorActionButton()"
+  [actionType]="subscriptionErrorAction()"
+  (actionClicked)="onSubscriptionErrorAction($event)"
+  (closed)="onCloseSubscriptionErrorDialog()">
+</app-subscription-error-dialog>
