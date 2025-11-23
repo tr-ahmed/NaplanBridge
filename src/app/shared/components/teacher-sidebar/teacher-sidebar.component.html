@@ -1,5 +1,35 @@
-<aside class="sidebar" [class.collapsed]="collapsed" id="sidebar"
-  style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);box-shadow:0 8px 32px rgba(31,38,135,.37);border-top-right-radius:2rem;border-bottom-right-radius:2rem;min-height:100vh;">
+<!-- Mobile Menu Button (Fixed) -->
+<button 
+  (click)="toggleSidebar()"
+  class="lg:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-3 rounded-lg shadow-lg hover:bg-blue-700 transition-all">
+  <i class="fas fa-bars text-xl"></i>
+</button>
+
+<!-- Overlay -->
+@if (isOpen()) {
+  <div 
+    class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+    (click)="closeSidebar()">
+  </div>
+}
+
+<!-- Sidebar -->
+<aside 
+  class="sidebar fixed lg:static top-0 left-0 h-full lg:h-screen w-72 transform transition-transform duration-300 ease-in-out z-50"
+  [class.collapsed]="collapsed"
+  [class.-translate-x-full]="!isOpen()"
+  [class.translate-x-0]="isOpen()"
+  [class.lg:translate-x-0]="true"
+  id="sidebar"
+  style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);box-shadow:0 8px 32px rgba(31,38,135,.37);border-top-right-radius:2rem;border-bottom-right-radius:2rem;">
+  
+  <!-- Close Button (Mobile Only) -->
+  <button 
+    (click)="closeSidebar()"
+    class="lg:hidden absolute top-4 right-4 text-white hover:text-gray-300 transition-colors">
+    <i class="fas fa-times text-2xl"></i>
+  </button>
+
   <div class="sidebar-logo d-flex align-items-center py-4 px-3">
     <div class="me-3" style="background:rgba(255,255,255,0.2);width:48px;height:48px;"
       class="rounded-circle d-flex align-items-center justify-content-center shadow">
@@ -11,6 +41,7 @@
     <!-- Content Management -->
     <a routerLink="/teacher/content-management"
       routerLinkActive="active"
+      (click)="closeSidebar()"
       [routerLinkActiveOptions]="{exact: false}"
       class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
       <i class="fas fa-book"></i>
@@ -20,6 +51,7 @@
     <!-- My Exams -->
     <a routerLink="/teacher/exams"
       routerLinkActive="active"
+      (click)="closeSidebar()"
       [routerLinkActiveOptions]="{exact: false}"
       class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
       <i class="fas fa-file-alt"></i>
@@ -29,6 +61,7 @@
     <!-- Session Management -->
     <a routerLink="/sessions/availability"
       routerLinkActive="active"
+      (click)="closeSidebar()"
       [routerLinkActiveOptions]="{exact: false}"
       class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
       <i class="fas fa-calendar-check"></i>
@@ -38,6 +71,7 @@
     <!-- My Private Sessions -->
     <a routerLink="/sessions/teacher"
       routerLinkActive="active"
+      (click)="closeSidebar()"
       [routerLinkActiveOptions]="{exact: false}"
       class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
       <i class="fas fa-video"></i>
@@ -47,53 +81,22 @@
     <!-- Student Questions -->
     <a routerLink="/teacher/questions"
       routerLinkActive="active"
+      (click)="closeSidebar()"
       [routerLinkActiveOptions]="{exact: false}"
       class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
       <i class="fas fa-comments"></i>
       <span>Student Questions</span>
     </a>
-
-    <!-- My Students - Hidden
-    <a routerLink="/teacher/students"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{exact: false}"
-      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-      <i class="fas fa-user-graduate"></i>
-      <span>My Students</span>
-    </a>
-    -->
-
-    <!-- Reports Section - Hidden
-    <div class="px-4 py-2 mt-3">
-      <small class="text-white/50 fw-semibold">REPORTS</small>
-    </div>
-
-    <a routerLink="/teacher/analytics"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{exact: false}"
-      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-      <i class="fas fa-chart-line"></i>
-      <span>Performance Analytics</span>
-    </a>
-
-    <a routerLink="/teacher/reports"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{exact: false}"
-      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-      <i class="fas fa-chart-bar"></i>
-      <span>Student Reports</span>
-    </a>
-    -->
   </nav>
   <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
-    <div class="d-flex align-items-center gap-3 cursor-pointer" (click)="navigateToProfile()" style="transition: opacity 0.2s; cursor: pointer;" [style.opacity]="profileHovered() ? '0.8' : '1'" (mouseenter)="profileHovered.set(true)" (mouseleave)="profileHovered.set(false)">
+    <div class="d-flex align-items-center gap-3 cursor-pointer" (click)="navigateToProfile(); closeSidebar()" style="transition: opacity 0.2s; cursor: pointer;" [style.opacity]="profileHovered() ? '0.8' : '1'" (mouseenter)="profileHovered.set(true)" (mouseleave)="profileHovered.set(false)">
       <img src="https://i.pravatar.cc/48?img=5" alt="Teacher" class="rounded-circle shadow" width="44" height="44">
       <div style="cursor: pointer;">
         <div class="fw-medium text-white">Teacher</div>
         <small class="text-white-50">Instructor</small>
       </div>
     </div>
-    <a (click)="handleLogout()" class="d-block mt-3 text-white-50 small cursor-pointer"><i
+    <a (click)="handleLogout(); closeSidebar()" class="d-block mt-3 text-white-50 small cursor-pointer"><i
         class="fas fa-sign-out-alt me-2"></i>Logout</a>
   </div>
 </aside>

@@ -15,11 +15,20 @@ import Swal from 'sweetalert2';
 export class TeacherSidebarComponent {
   @Input() collapsed = false;
   profileHovered = signal(false);
+  isOpen = signal(false);
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
+
+  toggleSidebar(): void {
+    this.isOpen.set(!this.isOpen());
+  }
+
+  closeSidebar(): void {
+    this.isOpen.set(false);
+  }
 
   handleLogout(): void {
     Swal.fire({

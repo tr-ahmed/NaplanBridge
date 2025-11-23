@@ -2,6 +2,31 @@
 
 .teacher-dashboard-container {
   min-height: 100vh;
+  position: relative;
+}
+
+/* Desktop Layout - Add padding for fixed sidebar */
+@media (min-width: 1024px) {
+  .teacher-dashboard-container .container {
+    padding-right: 22rem; /* w-80 + gap */
+  }
+}
+
+@media (min-width: 1280px) {
+  .teacher-dashboard-container .container {
+    padding-right: 26rem; /* w-96 + gap */
+  }
+}
+
+/* Mobile Sidebar Styles */
+@media (max-width: 1023px) {
+  .sidebar-overlay {
+    backdrop-filter: blur(2px);
+  }
+  
+  .sidebar-content {
+    box-shadow: -4px 0 6px -1px rgba(0, 0, 0, 0.1);
+  }
 }
 
 /* Stats card hover animation */

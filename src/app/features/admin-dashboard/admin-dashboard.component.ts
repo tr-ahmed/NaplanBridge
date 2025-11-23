@@ -92,6 +92,7 @@ export class AdminDashboardComponent implements OnInit {
 
   // State
   loading = signal<boolean>(true);
+  sidebarOpen = signal<boolean>(false);
 
   // Data
   statsCards = signal<StatCard[]>([]);
@@ -466,6 +467,13 @@ export class AdminDashboardComponent implements OnInit {
   refresh(): void {
     this.loadDashboardData();
     this.toastService.showSuccess('Dashboard refreshed');
+  }
+
+  /**
+   * Toggle sidebar visibility on mobile
+   */
+  toggleSidebar(): void {
+    this.sidebarOpen.set(!this.sidebarOpen());
   }
 
   /**

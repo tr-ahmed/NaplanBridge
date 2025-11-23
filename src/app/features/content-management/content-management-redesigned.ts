@@ -67,7 +67,6 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   // ============================================
   activeTab: string = 'hierarchy';
   searchTerm = '';
-  sidebarCollapsed = false;
 
   // ============================================
   // Data Collections
@@ -1398,13 +1397,6 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     }
 
     return 'An unexpected error occurred. Please try again.';
-  }
-
-  // ============================================
-  // Sidebar Methods
-  // ============================================
-  toggleSidebar(): void {
-    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   // ============================================

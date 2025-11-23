@@ -3,20 +3,6 @@
 <!-- Sidebar -->
 <app-teacher-sidebar [collapsed]="sidebarCollapsed"></app-teacher-sidebar>
 
-<!-- Toggle Sidebar Button -->
-<button
-  class="fixed z-50 rounded-full shadow-lg p-3 transition-all duration-300 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-400 border-0"
-  (click)="toggleSidebar()" aria-label="Toggle sidebar" [ngStyle]="{
-  top: '2rem',
-  left: sidebarCollapsed ? '1rem' : '270px',
-  width: '48px',
-  height: '48px',
-  background: 'linear-gradient(135deg, #1e293b 0%, #2563eb 100%)',
-  color: '#fff'
-}">
-  <i class="fas" [class.fa-chevron-right]="sidebarCollapsed" [class.fa-chevron-left]="!sidebarCollapsed"></i>
-</button>
-
 <!-- Main Content -->
 <div class="content-management-container min-h-screen bg-gray-50 py-8 main-content" [class.expanded]="sidebarCollapsed">
   <div class="container mx-auto px-4">

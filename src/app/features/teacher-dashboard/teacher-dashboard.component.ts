@@ -69,6 +69,7 @@ export class TeacherDashboardComponent implements OnInit {
   // State
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
+  sidebarOpen = signal<boolean>(false);
 
   // Data
   teacherId: number = 0;
@@ -336,6 +337,13 @@ export class TeacherDashboardComponent implements OnInit {
   viewStudents(): void {
     // TODO: Implement students list page
     this.toastService.showWarning('Students page coming soon');
+  }
+
+  /**
+   * Toggle sidebar visibility on mobile
+   */
+  toggleSidebar(): void {
+    this.sidebarOpen.set(!this.sidebarOpen());
   }
 
   /**
