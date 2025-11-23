@@ -172,7 +172,7 @@
                     </div>
                     <div class="flex justify-between">
                       <span class="text-gray-600">Last Access:</span>
-                      <span class="font-medium">{{ subscription.lastAccessDate | date:'MMM d' }}</span>
+                      <span class="font-medium">{{ subscription.lastAccessDate ? (subscription.lastAccessDate | date:'MMM d') : 'Not started' }}</span>
                     </div>
                   </div>
                 </div>
@@ -195,34 +195,16 @@
               <!-- Actions -->
               <div class="flex flex-wrap gap-3">
                 <button
-                  (click)="viewUsageDetails(subscription)"
-                  class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
-                  📊 View Details
-                </button>
-
-                <button
-                  (click)="upgradeSubscription(subscription)"
-                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
-                  ⬆️ Upgrade
-                </button>
-
-                <button
-                  (click)="toggleAutoRenew(subscription)"
-                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
-                  {{ subscription.autoRenew ? '🔄 Disable Auto-Renew' : '▶️ Enable Auto-Renew' }}
-                </button>
-
-                <button
                   (click)="downloadInvoice(subscription)"
-                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
-                  📄 Invoice
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                  📄 Download Invoice
                 </button>
 
                 @if (subscription.status === 'Active') {
                   <button
                     (click)="openCancelModal(subscription)"
                     class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium">
-                    ❌ Cancel
+                    ❌ Cancel Subscription
                   </button>
                 }
               </div>

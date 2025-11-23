@@ -156,26 +156,17 @@ export class MySubscriptionsComponent implements OnInit {
 
             const progressData = Array.isArray(data.progress) ? data.progress : [];
 
-            console.log(`👤 ${child.userName} subscriptions:`, {
-              totalSubs: subscriptions.length,
-              subscriptions: subscriptions.map((s: any) => ({
-                planName: s.planName,
-                isActive: s.isActive,
-                startDate: s.startDate,
-                endDate: s.endDate
-              }))
-            });
+            console.log(`👤 ${child.userName}:`, subscriptions.length, 'subscription(s)');
 
             subscriptions.forEach((sub: any) => {
-              // Calculate progress
-              const subjectProgress = progressData.filter((p: any) => p.subjectId === sub.subjectId);
-              const completedLessons = subjectProgress.filter((p: any) => p.isCompleted).length;
-              const totalLessons = subjectProgress.length;
-              const progressPercentage = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
+              // Calculate progress - use API data if available, fallback to calculation
+              const completedLessons = sub.completedLessons ?? (progressData.filter((p: any) => p.subjectId === sub.subjectId && p.isCompleted).length);
+              const totalLessons = sub.totalLessons ?? progressData.filter((p: any) => p.subjectId === sub.subjectId).length;
+              const progressPercentage = sub.progressPercentage ?? (totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0);
 
-              // Calculate days until expiry
-              const endDate = new Date(sub.endDate || sub.subscriptionEndDate);
-              const daysUntilExpiry = this.calculateDaysUntilExpiry(endDate);
+              // ✅ Handle different date field names from different endpoints
+              const endDate = new Date(sub.expiryDate || sub.endDate || sub.subscriptionEndDate || Date.now());
+              const daysUntilExpiry = sub.daysRemaining ?? this.calculateDaysUntilExpiry(endDate);
 
               // Map to SubscriptionWithDetails
               const subscription: SubscriptionWithDetails = {

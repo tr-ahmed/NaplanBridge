@@ -115,14 +115,24 @@ export class DashboardService {
 
   /**
    * Get Student Subscriptions Summary
-   * Endpoint: GET /api/StudentSubjects/student/{studentId}/subscriptions-summary
+   * ✅ UPDATED: Use Parent endpoint with full payment and usage data
+   * Endpoint: GET /api/Parent/student/{studentId}/subscriptions
    */
   getStudentSubscriptionsSummary(studentId: number): Observable<any> {
-    return this.api.get(`StudentSubjects/student/${studentId}/subscriptions-summary`).pipe(
-      map(response => response || []),
+    return this.api.get(`Parent/student/${studentId}/subscriptions`).pipe(
+      map((response: any) => {
+        // ✅ Extract data from { success: true, data: {...} } structure
+        if (response && response.data) {
+          return {
+            subscriptions: response.data.active || [],
+            totalActiveSubscriptions: response.data.totalActive || 0
+          };
+        }
+        return response || [];
+      }),
       catchError(error => {
         console.warn('Subscriptions endpoint error:', error);
-        return of([]);
+        return of({ subscriptions: [], totalActiveSubscriptions: 0 });
       })
     );
   }
