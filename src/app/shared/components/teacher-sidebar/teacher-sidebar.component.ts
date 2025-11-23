@@ -16,11 +16,29 @@ export class TeacherSidebarComponent {
   @Input() collapsed = false;
   profileHovered = signal(false);
   isOpen = signal(false);
+  currentUser: any;
 
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    this.currentUser = this.authService.currentUser;
+  }
+
+  get userAvatar(): string {
+    const profile = this.authService.getUserProfile();
+    return profile?.avatarUrl || 'https://i.pravatar.cc/48?img=5';
+  }
+
+  get userName(): string {
+    const profile = this.authService.getUserProfile();
+    return profile?.fullName || 'Teacher';
+  }
+
+  get userRole(): string {
+    const profile = this.authService.getUserProfile();
+    return profile?.role || 'Instructor';
+  }
 
   toggleSidebar(): void {
     this.isOpen.set(!this.isOpen());

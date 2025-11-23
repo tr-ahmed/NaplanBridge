@@ -31,6 +31,7 @@ import { ResourceModalComponent } from './components/resource-modal/resource-mod
 import { ResourceFormModalComponent } from './components/resource-form-modal/resource-form-modal.component';
 import { PreviewModalComponent } from './components/preview-modal/preview-modal.component';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
+import { AdminHeaderComponent } from '../../shared/components/admin-header/admin-header.component';
 
 type Id = number;
 type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson' | 'category';
@@ -56,6 +57,7 @@ type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson
     ResourceFormModalComponent,
     PreviewModalComponent,
     AdminSidebarComponent,
+    AdminHeaderComponent,
   ],
   templateUrl: './content-management-redesigned.html',
   styleUrls: ['./content-management-redesigned.scss'],

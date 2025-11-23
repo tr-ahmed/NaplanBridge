@@ -143,15 +143,29 @@
       <span>Notification Templates</span>
     </a>
   </nav>
+  
+  <!-- Profile Section -->
   <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
-    <div class="d-flex align-items-center gap-3 cursor-pointer" (click)="navigateToProfile(); closeSidebar()" style="transition: opacity 0.2s; cursor: pointer;" [style.opacity]="profileHovered() ? '0.8' : '1'" (mouseenter)="profileHovered.set(true)" (mouseleave)="profileHovered.set(false)">
-      <img src="https://i.pravatar.cc/48?img=11" alt="Admin" class="rounded-circle shadow" width="44" height="44">
-      <div style="cursor: pointer;">
-        <div class="fw-medium text-white">Admin</div>
-        <small class="text-white-50">Super Admin</small>
+    <div class="d-flex align-items-center gap-3 cursor-pointer" 
+      (click)="navigateToProfile(); closeSidebar()" 
+      [style.opacity]="profileHovered() ? '0.8' : '1'" 
+      (mouseenter)="profileHovered.set(true)" 
+      (mouseleave)="profileHovered.set(false)">
+      <img 
+        [src]="userAvatar" 
+        [alt]="userName" 
+        class="rounded-circle shadow-sm object-cover" 
+        width="48" 
+        height="48"
+        style="border: 2px solid rgba(96, 165, 250, 0.5);">
+      <div>
+        <div class="fw-semibold text-white">{{ userName }}</div>
+        <small class="text-white-50">{{ userRole }}</small>
       </div>
     </div>
-    <a (click)="handleLogout(); closeSidebar()" class="d-block mt-3 text-white-50 small cursor-pointer"><i
-        class="fas fa-sign-out-alt me-2"></i>Logout</a>
+    <a (click)="handleLogout(); closeSidebar()" 
+      class="d-block mt-3 text-white-50 small cursor-pointer hover:text-white transition-colors">
+      <i class="fas fa-sign-out-alt me-2"></i>Logout
+    </a>
   </div>
 </aside>

@@ -1,0 +1,28 @@
+// Admin Header Component Styles
+header {
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+// Profile hover effect
+.hover\:scale-110:hover {
+  transform: scale(1.1);
+}
+
+// Notification badge animation
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.bg-red-500 {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

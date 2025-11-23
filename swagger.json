@@ -707,6 +707,106 @@
         }
       }
     },
+    "/api/Account/forgot-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Request password reset - Sends reset token via email",
+        "requestBody": {
+          "description": "Email address for password reset",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ForgotPasswordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ForgotPasswordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Account/reset-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Reset password using token from email",
+        "requestBody": {
+          "description": "Email, new password, and reset token",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ResetPasswordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ResetPasswordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Achievements": {
       "get": {
         "tags": [
@@ -1400,6 +1500,18 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/debug/swagger-error": {
+      "get": {
+        "tags": [
+          "API"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -3128,27 +3240,6 @@
             "description": "OK"
           }
         }
-      },
-      "delete": {
-        "tags": [
-          "Exam"
-        ],
-        "parameters": [
-          {
-            "name": "questionId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     },
     "/api/Exam/subject/{subjectId}": {
@@ -4230,7 +4321,7 @@
         }
       }
     },
-    "/api/Lessons/subject/{subjectId}/with-progress/{studentId}": {
+    "/api/Lessons/subject/{subjectId}/with-progress": {
       "get": {
         "tags": [
           "Lessons"
@@ -4249,9 +4340,8 @@
           },
           {
             "name": "studentId",
-            "in": "path",
+            "in": "query",
             "description": "Student ID (optional - omit for guest preview)",
-            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -4291,7 +4381,7 @@
         }
       }
     },
-    "/api/Lessons/subject/{subjectId}/term-number/{termNumber}/with-progress/{studentId}": {
+    "/api/Lessons/subject/{subjectId}/term-number/{termNumber}/with-progress": {
       "get": {
         "tags": [
           "Lessons"
@@ -4320,9 +4410,8 @@
           },
           {
             "name": "studentId",
-            "in": "path",
+            "in": "query",
             "description": "Student ID (optional - omit for guest preview)",
-            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -4362,7 +4451,7 @@
         }
       }
     },
-    "/api/Lessons/term/{termId}/with-progress/{studentId}": {
+    "/api/Lessons/term/{termId}/with-progress": {
       "get": {
         "tags": [
           "Lessons"
@@ -4381,9 +4470,8 @@
           },
           {
             "name": "studentId",
-            "in": "path",
+            "in": "query",
             "description": "Student ID (optional - omit for guest preview)",
-            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -7617,6 +7705,65 @@
         }
       }
     },
+    "/api/Sessions/{sessionId}/meeting-link": {
+      "put": {
+        "tags": [
+          "Sessions"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Session.UpdateMeetingLinkDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Session.UpdateMeetingLinkDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Session.UpdateMeetingLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Sessions/student/upcoming": {
       "get": {
         "tags": [
@@ -8924,6 +9071,14 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "searchTerm",
+            "in": "query",
+            "description": "Search by subject name, description, or teacher name (optional)",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -11267,6 +11422,207 @@
         }
       }
     },
+    "/api/TestNotifications/test-email": {
+      "post": {
+        "tags": [
+          "TestNotifications"
+        ],
+        "summary": "Test email sending (Admin only)",
+        "parameters": [
+          {
+            "name": "toEmail",
+            "in": "query",
+            "description": "Recipient email address",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TestNotifications/test-notification": {
+      "post": {
+        "tags": [
+          "TestNotifications"
+        ],
+        "summary": "Test in-app notification (Admin only)",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Target user ID",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TestNotifications/test-template": {
+      "post": {
+        "tags": [
+          "TestNotifications"
+        ],
+        "summary": "Test notification template system (Admin only)",
+        "parameters": [
+          {
+            "name": "eventKey",
+            "in": "query",
+            "description": "Template event key (e.g., SESSION_REMINDER_24H_PARENT)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "Target user ID",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TestNotifications/email-config-status": {
+      "get": {
+        "tags": [
+          "TestNotifications"
+        ],
+        "summary": "Get email configuration status (without showing password)",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TestNotifications/test-welcome-email": {
+      "post": {
+        "tags": [
+          "TestNotifications"
+        ],
+        "summary": "Send test welcome email",
+        "parameters": [
+          {
+            "name": "toEmail",
+            "in": "query",
+            "description": "Recipient email",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userName",
+            "in": "query",
+            "description": "User name for email",
+            "schema": {
+              "type": "string",
+              "default": "Test User"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "User role",
+            "schema": {
+              "type": "string",
+              "default": "Student"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TestNotifications/test-session-booking-email": {
+      "post": {
+        "tags": [
+          "TestNotifications"
+        ],
+        "summary": "Send test session booking email",
+        "parameters": [
+          {
+            "name": "toEmail",
+            "in": "query",
+            "description": "Recipient email",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TestNotifications/test-exam-result-email": {
+      "post": {
+        "tags": [
+          "TestNotifications"
+        ],
+        "summary": "Send test exam result email",
+        "parameters": [
+          {
+            "name": "toEmail",
+            "in": "query",
+            "description": "Recipient email",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "passed",
+            "in": "query",
+            "description": "Whether the student passed",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TestNotifications/available-templates": {
+      "get": {
+        "tags": [
+          "TestNotifications"
+        ],
+        "summary": "Get list of available notification templates",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/User": {
       "get": {
         "tags": [
@@ -11407,6 +11763,188 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/User/profile": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get authenticated user's profile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Update authenticated user's profile information",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.UpdateProfileDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.UpdateProfileDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.UpdateProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.UserProfileResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/User/profile/avatar": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Upload or update user's profile picture",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "Image file (jpg, jpeg, png - max 5MB)",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.AvatarUploadResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.AvatarUploadResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.AvatarUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete user's profile picture (reset to default)",
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -11552,6 +12090,47 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/User/seed-notification-templates": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Seed notification templates into database",
+        "description": "This endpoint runs the notification template migration/seeding.\r\nOnly accessible by Admin users.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/User/notification-templates-stats": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get statistics about notification templates",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/User/force-reseed-notification-templates": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Force re-seed notification templates (clears existing data first)",
+        "description": "⚠️ WARNING: This will DELETE all existing notification templates and system events!\r\nUse with caution.",
         "responses": {
           "200": {
             "description": "OK"
@@ -14097,6 +14676,24 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.AvatarUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response after uploading profile picture\r\nاستجابة بعد رفع صورة البروفايل"
+      },
       "API.DTOs.Bookmark.CreateBookmarkDto": {
         "type": "object",
         "properties": {
@@ -15544,6 +16141,22 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ForgotPasswordDto": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "description": "User's email address for password reset",
+            "format": "email"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for forgot password"
+      },
       "API.DTOs.Lesson.LessonWithProgressDto": {
         "required": [
           "title"
@@ -16515,8 +17128,8 @@
             "nullable": true
           },
           "password": {
-            "maxLength": 8,
-            "minLength": 4,
+            "maxLength": 100,
+            "minLength": 8,
             "type": "string",
             "nullable": true
           },
@@ -17435,6 +18048,35 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ResetPasswordDto": {
+        "required": [
+          "email",
+          "password",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "description": "User's email address",
+            "format": "email"
+          },
+          "password": {
+            "maxLength": 100,
+            "minLength": 6,
+            "type": "string",
+            "description": "New password for the account"
+          },
+          "token": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Reset token from email link"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for reset password"
+      },
       "API.DTOs.ResourceManagement.LessonResourceDetailsDto": {
         "required": [
           "fileUrl",
@@ -17728,6 +18370,16 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.Session.UpdateMeetingLinkDto": {
+        "type": "object",
+        "properties": {
+          "meetingLink": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.Session.UpdateSessionSettingsDto": {
         "type": "object",
         "properties": {
@@ -17787,6 +18439,34 @@
           }
         },
         "additionalProperties": false
+      },
+      "API.DTOs.StudentProfileData": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "yearId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "yearNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "parentName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Student-specific profile data"
       },
       "API.DTOs.StudentQuestion.AnswerStudentQuestionDto": {
         "required": [
@@ -17918,8 +18598,8 @@
             "nullable": true
           },
           "password": {
-            "maxLength": 8,
-            "minLength": 4,
+            "maxLength": 100,
+            "minLength": 8,
             "type": "string"
           },
           "year": {
@@ -18835,8 +19515,8 @@
             "nullable": true
           },
           "password": {
-            "maxLength": 8,
-            "minLength": 4,
+            "maxLength": 100,
+            "minLength": 8,
             "type": "string",
             "nullable": true
           },
@@ -19103,6 +19783,34 @@
         "additionalProperties": false,
         "description": "DTO for updating an existing terminology configuration"
       },
+      "API.DTOs.UpdateProfileDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "User's first name",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "User's phone number",
+            "format": "tel",
+            "nullable": true
+          },
+          "age": {
+            "maximum": 150,
+            "minimum": 1,
+            "type": "integer",
+            "description": "User's age",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for updating user profile"
+      },
       "API.DTOs.UserDetailsDto": {
         "required": [
           "age",
@@ -19188,6 +19896,60 @@
           }
         },
         "additionalProperties": false
+      },
+      "API.DTOs.UserProfileResponseDto": {
+        "required": [
+          "email",
+          "userName"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "User's profile picture URL (from Bunny CDN)\r\nرابط صورة البروفايل (من Bunny CDN)",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "studentData": {
+            "$ref": "#/components/schemas/API.DTOs.StudentProfileData"
+          }
+        },
+        "additionalProperties": false,
+        "description": "User profile response DTO\r\nUsed for displaying user profile information"
       },
       "API.DTOs.VideoChapter.CreateVideoChapterDto": {
         "required": [
@@ -21797,6 +22559,11 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "description": "✅ NEW: User's profile picture URL (from Bunny CDN)\r\nرابط صورة البروفايل (مخزنة على Bunny.net CDN)\r\nExample: https://naplan.b-cdn.net/avatars/user-123-abc456.jpg",
+            "nullable": true
           },
           "student": {
             "$ref": "#/components/schemas/API.Entities.Student"

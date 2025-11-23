@@ -1,3 +1,135 @@
+/* CSS Variables */
+:root {
+  --primary-gradient: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
+  --blue-gradient: linear-gradient(135deg, #2563eb 0%, #1e293b 100%);
+  --cyan-gradient: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%);
+  --green-gradient: linear-gradient(135deg, #22c55e 0%, #166534 100%);
+  --orange-gradient: linear-gradient(135deg, #f97316 0%, #b45309 100%);
+  --yellow-gradient: linear-gradient(135deg, #facc15 0%, #f59e42 100%);
+  --purple-gradient: linear-gradient(135deg, #a855f7 0%, #6d28d9 100%);
+  --sidebar-width: 280px;
+  --transition-speed: 0.3s;
+}
+
+/* General Styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Main Content */
+.main-content {
+  margin-left: 280px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100vh;
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+  }
+}
+
+.main-content.expanded {
+  margin-left: 0;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+/* Card Styles with Enhanced Animations */
+.card {
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Gradient Card Animations */
+.group {
+  position: relative;
+  overflow: hidden;
+}
+
+.group::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.group:hover::before {
+  left: 100%;
+}
+
+/* Table Styles */
+.table-responsive {
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Button Hover Effects */
+button, a {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover:not(:disabled), a:hover {
+  filter: brightness(1.1);
+}
+
+/* Smooth Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #64748b, #475569);
+}
+
 // Modal Styles
 :host ::ng-deep {
   // Global cursor fix for buttons and clickable elements
