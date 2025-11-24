@@ -20,6 +20,7 @@ export interface ExamDto {
   subjectId: number;
   subjectName?: string;
   subject?: string;  // ✅ NEW - Subject name in responses
+  className?: string;  // ✅ NEW - Class/Year name
   termId?: number | null;
   lessonId?: number | null;
   weekId?: number | null;
@@ -36,6 +37,10 @@ export interface ExamDto {
   createdById?: number;
   createdBy?: UserBasicInfo;
   questions?: ExamQuestionDto[];
+  // ✅ NEW - Statistics fields
+  totalSubmissions?: number;
+  pendingGrading?: number;
+  averageScore?: number;
 }
 
 export interface UserBasicInfo {

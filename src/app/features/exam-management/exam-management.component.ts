@@ -163,28 +163,31 @@ export class ExamManagementComponent implements OnInit {
 
     this.examApi.getAllExams().subscribe({
       next: (exams: ExamDto[]) => {
+        console.log('📊 Exams loaded from API:', exams); // Debug log
+        
         const examList: ExamListItem[] = exams.map(exam => ({
           id: exam.id,
           title: exam.title,
           examType: exam.examType,
-          subjectName: exam.subjectName || 'Not Specified',
-          className: undefined,
+          subjectName: exam.subjectName || exam.subject || 'Not Specified',
+          className: exam.className,
           totalMarks: exam.totalMarks,
           durationInMinutes: exam.durationInMinutes,
           startTime: exam.startTime ? new Date(exam.startTime) : undefined,
           endTime: exam.endTime ? new Date(exam.endTime) : undefined,
           isPublished: exam.isPublished,
-          totalSubmissions: 0, // Can be added from separate API if needed
-          pendingGrading: 0,
-          averageScore: undefined,
+          totalSubmissions: exam.totalSubmissions || 0,
+          pendingGrading: exam.pendingGrading || 0,
+          averageScore: exam.averageScore,
           createdAt: exam.createdAt ? new Date(exam.createdAt) : new Date()
         }));
 
+        console.log('📋 Processed exam list:', examList); // Debug log
         this.allExams.set(examList);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Failed to load exams:', error);
+        console.error('❌ Failed to load exams:', error);
         this.error.set('Failed to load exams');
         this.toastService.showError('Failed to load exams');
         this.loading.set(false);

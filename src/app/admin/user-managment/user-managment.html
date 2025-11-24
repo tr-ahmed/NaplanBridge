@@ -149,7 +149,6 @@
                 </th>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Roles</th>
-                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                 <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions
                 </th>
               </tr>
@@ -175,27 +174,8 @@
                     }
                   </div>
                 </td>
-                <td class="px-4 py-3 text-center">
-                  @if (user.isActive !== undefined && user.isActive !== null) {
-                    <span
-                      class="px-3 py-1 text-xs font-semibold rounded-full inline-flex items-center gap-1"
-                      [ngClass]="user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                      <i class="fas" [ngClass]="user.isActive ? 'fa-check-circle' : 'fa-times-circle'"></i>
-                      {{ user.isActive ? 'Active' : 'Inactive' }}
-                    </span>
-                  } @else {
-                    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                      Unknown
-                    </span>
-                  }
-                </td>
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-2">
-                    <button [routerLink]="['/user', user.id]"
-                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="View Details">
-                      <i class="fas fa-eye"></i>
-                    </button>
                     <button (click)="editUserRoles(user)"
                             class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                             title="Edit Roles">

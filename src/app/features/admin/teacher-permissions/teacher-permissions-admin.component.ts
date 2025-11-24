@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { ToastService } from '../../../core/services/toast.service';
 import { TeacherPermissionsService, TeacherPermission, PendingApproval } from '../../../core/services/teacher-permissions.service';
 import { SubjectService } from '../../../core/services/subject.service';
@@ -494,6 +495,52 @@ export class TeacherPermissionsAdminComponent implements OnInit {
       error: (error: any) => {
         console.error('Error revoking permission:', error);
         this.toastService.showError('Failed to revoke permission');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Revoke all permissions for a teacher
+   */
+  revokeAllPermissions(teacherId: number): void {
+    if (!confirm('Are you sure you want to revoke ALL permissions for this teacher? This action cannot be undone.')) {
+      return;
+    }
+
+    this.loading.set(true);
+
+    // Get all permissions for this teacher
+    this.permissionsService.getTeacherPermissions(teacherId).subscribe({
+      next: (permissions) => {
+        if (!permissions || permissions.length === 0) {
+          this.toastService.showInfo('No permissions to revoke');
+          this.loading.set(false);
+          return;
+        }
+
+        // Create array of delete observables
+        const deleteObservables = permissions.map(permission => 
+          this.permissionsService.revokePermission(permission.id)
+        );
+
+        // Execute all deletions in parallel
+        forkJoin(deleteObservables).subscribe({
+          next: () => {
+            this.toastService.showSuccess(`Successfully revoked ${permissions.length} permission(s)`);
+            this.loadTeachersWithPermissions();
+            this.loading.set(false);
+          },
+          error: (error: any) => {
+            console.error('Error revoking permissions:', error);
+            this.toastService.showError('Failed to revoke all permissions');
+            this.loading.set(false);
+          }
+        });
+      },
+      error: (error: any) => {
+        console.error('Error fetching teacher permissions:', error);
+        this.toastService.showError('Failed to fetch teacher permissions');
         this.loading.set(false);
       }
     });
