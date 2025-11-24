@@ -1,20 +1,33 @@
 <!-- Main Content -->
 <main class="px-4 sm:px-6 lg:px-8 py-8">
     
-    <!-- Page Title -->
+    <!-- Modern Page Header -->
     <div class="mb-8">
-      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
-              👨‍🏫 My Private Sessions
-            </h1>
-            <p class="text-gray-600 mt-2 text-sm md:text-base">Manage and conduct private sessions with your students</p>
-          </div>
-          <div class="hidden md:flex items-center gap-3">
-            <div class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-3 rounded-xl shadow-lg">
-              <div class="text-2xl font-bold">{{ upcomingSessions().length + pastSessions().length }}</div>
-              <div class="text-xs opacity-90">Total Sessions</div>
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl p-8 text-white">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="p-3 bg-white/20 backdrop-blur-lg rounded-xl">
+                <i class="fas fa-video text-3xl"></i>
+              </div>
+              <div>
+                <h1 class="text-3xl lg:text-4xl font-bold">My Private Sessions</h1>
+                <p class="text-blue-100 text-sm mt-1">Manage and conduct private sessions with your students</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-4 text-sm">
+              <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+                <i class="fas fa-calendar-check"></i>
+                <span>{{ upcomingSessions().length }} Upcoming</span>
+              </div>
+              <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+                <i class="fas fa-history"></i>
+                <span>{{ pastSessions().length }} Completed</span>
+              </div>
+              <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+                <i class="fas fa-list"></i>
+                <span>{{ upcomingSessions().length + pastSessions().length }} Total</span>
+              </div>
             </div>
           </div>
         </div>
@@ -22,45 +35,41 @@
     </div>
 
     <!-- Filter Tabs -->
-    <div class="mb-6">
-      <div class="bg-white rounded-2xl shadow-lg p-3 border border-gray-100">
-        <div class="grid grid-cols-2 gap-3">
-          <button
-            (click)="setTab('upcoming')"
-            [class]="activeTab() === 'upcoming'
-              ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg transform scale-105'
-              : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'"
-            class="px-4 py-3 rounded-xl transition-all duration-300 font-semibold flex flex-col items-center gap-1">
-            <div class="flex items-center gap-2">
-              <span class="text-lg">⏰</span>
-              <span>Upcoming Sessions</span>
-            </div>
-            <span class="text-xs opacity-80">({{ upcomingSessions().length }})</span>
-          </button>
-
-          <button
-            (click)="setTab('history')"
-          [class]="activeTab() === 'history'
-            ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg transform scale-105'
-            : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'"
-          class="px-4 py-3 rounded-xl transition-all duration-300 font-semibold flex flex-col items-center gap-1">
-          <div class="flex items-center gap-2">
-            <span class="text-lg">📚</span>
-            <span>Past Sessions</span>
-          </div>
-          <span class="text-xs opacity-80">({{ pastSessions().length }})</span>
+    <div class="bg-white rounded-lg shadow-sm mb-6">
+      <nav class="flex border-b border-gray-200">
+        <button
+          (click)="setTab('upcoming')"
+          [class.border-blue-600]="activeTab() === 'upcoming'"
+          [class.text-blue-600]="activeTab() === 'upcoming'"
+          [class.border-transparent]="activeTab() !== 'upcoming'"
+          [class.text-gray-600]="activeTab() !== 'upcoming'"
+          class="flex-1 py-4 px-6 text-center font-medium transition-colors border-b-2 flex items-center justify-center gap-2">
+          <i class="fas fa-clock"></i>
+          <span>Upcoming Sessions</span>
+          <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold">{{ upcomingSessions().length }}</span>
         </button>
-        </div>
-      </div>
+
+        <button
+          (click)="setTab('history')"
+          [class.border-blue-600]="activeTab() === 'history'"
+          [class.text-blue-600]="activeTab() === 'history'"
+          [class.border-transparent]="activeTab() !== 'history'"
+          [class.text-gray-600]="activeTab() !== 'history'"
+          class="flex-1 py-4 px-6 text-center font-medium transition-colors border-b-2 flex items-center justify-center gap-2">
+          <i class="fas fa-history"></i>
+          <span>Past Sessions</span>
+          <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs font-bold">{{ pastSessions().length }}</span>
+        </button>
+      </nav>
     </div>
 
     <!-- Loading State -->
     <div *ngIf="loading()">
-      <div class="bg-white rounded-2xl shadow-lg p-12 border border-gray-100">
+      <div class="bg-white rounded-xl shadow-lg p-12 border border-gray-100">
         <div class="flex flex-col items-center justify-center">
           <div class="relative">
-            <div class="animate-spin rounded-full h-16 w-16 border-4 border-purple-200"></div>
-            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-purple-600 absolute top-0"></div>
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-blue-200"></div>
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 absolute top-0"></div>
           </div>
           <p class="mt-4 text-gray-600 font-medium">Loading your sessions...</p>
         </div>
@@ -69,14 +78,14 @@
     <div *ngIf="!loading()">
       <div class="grid gap-6">
         <div *ngFor="let session of activeTab() === 'upcoming' ? upcomingSessions() : pastSessions()"
-             class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 group hover:border-green-200">
+             class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 group hover:border-blue-200">
 
           <!-- Colored Top Bar based on Status -->
-          <div class="h-2" [ngClass]="{
-            'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200': getReadableStatus(session.status) === 'Confirmed',
-            'bg-gradient-to-r from-blue-400 to-cyan-500': session.status === 'Completed',
-            'bg-gradient-to-r from-yellow-400 to-orange-500': session.status === 'Pending',
-            'bg-gradient-to-r from-red-400 to-rose-500': session.status === 'Cancelled'
+          <div class="h-1.5" [ngClass]="{
+            'bg-gradient-to-r from-green-500 to-emerald-500': getReadableStatus(session.status) === 'Confirmed',
+            'bg-gradient-to-r from-blue-500 to-cyan-500': getReadableStatus(session.status) === 'Completed',
+            'bg-gradient-to-r from-yellow-400 to-amber-400': getReadableStatus(session.status) === 'Pending',
+            'bg-gradient-to-r from-red-500 to-rose-500': getReadableStatus(session.status) === 'Cancelled'
           }"></div>
 
           <div class="p-6 md:p-8">
@@ -87,20 +96,20 @@
               <div class="flex items-start justify-between gap-4">
                   <div class="flex-1">
                     <div class="flex items-center gap-3 mb-2">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
                       {{ session.studentName.charAt(0).toUpperCase() }}
                     </div>
                     <div>
                       <h3 class="text-xl font-bold text-gray-900">{{ session.studentName }}</h3>
                       <p class="text-sm text-gray-600 flex items-center gap-1">
-                        <span>👨‍👩‍👦</span>
+                        <i class="fas fa-user-friends text-blue-500"></i>
                         <span>Parent: {{ session.parentName }}</span>
                       </p>
                     </div>
                   </div>
                 </div>
                 <span
-                  class="px-4 py-2 rounded-xl text-sm font-bold shadow-md"
+                  class="px-4 py-2 rounded-lg text-sm font-bold shadow-sm"
                   [class]="getStatusClass(session.status)">
                   {{ getStatusText(session.status) }}
                 </span>
@@ -108,38 +117,38 @@
 
               <!-- Session Details Cards -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
                   <div class="flex items-center gap-2 mb-1">
-                    <span class="text-indigo-600 text-lg">📅</span>
-                    <span class="text-xs font-semibold text-indigo-600 uppercase">Date & Time</span>
+                    <i class="fas fa-calendar-alt text-blue-600"></i>
+                    <span class="text-xs font-semibold text-blue-700 uppercase">Date & Time</span>
                   </div>
-                  <p class="text-gray-900 font-bold text-sm">{{ formatDateTime(session.scheduledDateTime) }}</p>
+                  <p class="text-gray-900 font-medium text-sm">{{ formatDateTime(session.scheduledDateTime) }}</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
+                <div class="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-lg p-4 border border-cyan-100">
                   <div class="flex items-center gap-2 mb-1">
-                    <span class="text-blue-600 text-lg">⏱️</span>
-                    <span class="text-xs font-semibold text-blue-600 uppercase">Duration</span>
+                    <i class="fas fa-clock text-cyan-600"></i>
+                    <span class="text-xs font-semibold text-cyan-700 uppercase">Duration</span>
                   </div>
-                  <p class="text-gray-900 font-bold text-sm">{{ session.durationMinutes }} minutes</p>
+                  <p class="text-gray-900 font-medium text-sm">{{ session.durationMinutes }} minutes</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
                   <div class="flex items-center gap-2 mb-1">
-                    <span class="text-green-600 text-lg">💰</span>
-                    <span class="text-xs font-semibold text-green-600 uppercase">Price</span>
+                    <i class="fas fa-dollar-sign text-green-600"></i>
+                    <span class="text-xs font-semibold text-green-700 uppercase">Price</span>
                   </div>
-                  <p class="text-gray-900 font-bold text-sm">${{ session.price }}</p>
+                  <p class="text-gray-900 font-medium text-sm">${{ session.price }}</p>
                 </div>
               </div>
 
               <!-- Notes -->
               <div *ngIf="session.notes"
-                   class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-xl p-4">
+                   class="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg p-4">
                 <div class="flex items-start gap-2">
-                  <span class="text-amber-600 text-lg">📝</span>
+                  <i class="fas fa-sticky-note text-yellow-600"></i>
                   <div class="flex-1">
-                    <p class="text-xs font-semibold text-amber-700 uppercase mb-1">Session Notes</p>
+                    <p class="text-xs font-semibold text-yellow-700 uppercase mb-1">Session Notes</p>
                     <p class="text-sm text-gray-700">{{ session.notes }}</p>
                   </div>
                 </div>
@@ -150,11 +159,9 @@
 
                 <!-- Meeting Link Display (if exists) -->
                 <div *ngIf="session.googleMeetLink"
-                     class="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-4">
+                     class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
                   <div class="flex items-start gap-3">
-                    <svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
+                    <i class="fas fa-video text-blue-600 text-xl"></i>
                     <div class="flex-1 min-w-0">
                       <p class="text-xs font-semibold text-blue-700 uppercase mb-1">Google Meet Link</p>
                       <p class="text-sm text-gray-700 break-all font-mono bg-white px-3 py-2 rounded border border-blue-100">
@@ -170,25 +177,19 @@
                   <button
                     *ngIf="session.googleMeetLink && canJoinSession(session)"
                     (click)="joinSession(session)"
-                    class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
+                    class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold">
+                    <i class="fas fa-video"></i>
                     <span>Join Meeting Now</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
+                    <i class="fas fa-external-link-alt text-sm"></i>
                   </button>
 
                   <!-- Disabled Join Button -->
                   <button
                     *ngIf="session.googleMeetLink && !canJoinSession(session)"
                     disabled
-                    class="flex-1 px-6 py-3 bg-gray-100 text-gray-500 rounded-xl cursor-not-allowed font-medium opacity-60">
+                    class="flex-1 px-6 py-3 bg-gray-100 text-gray-500 rounded-lg cursor-not-allowed font-medium opacity-60">
                     <div class="flex items-center justify-center gap-2">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
+                      <i class="fas fa-lock"></i>
                       <span>Available {{ getTimeUntilSession(session.scheduledDateTime) }}</span>
                     </div>
                   </button>
@@ -197,11 +198,9 @@
                   <button
                     *ngIf="session.googleMeetLink"
                     (click)="copyMeetLink(session.googleMeetLink)"
-                    class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg font-semibold">
+                    class="px-6 py-3 bg-gradient-to-r from-cyan-600 to-sky-600 text-white rounded-lg hover:from-cyan-700 hover:to-sky-700 transition-all duration-300 shadow-lg font-semibold">
                     <div class="flex items-center justify-center gap-2">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                      </svg>
+                      <i class="fas fa-copy"></i>
                       <span>Copy</span>
                     </div>
                   </button>
@@ -209,20 +208,16 @@
                   <!-- Set/Update Meeting Link Button -->
                   <button
                     (click)="openMeetingLinkDialog(session)"
-                    class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
+                    class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold">
+                    <i class="fas fa-link"></i>
                     <span>{{ session.googleMeetLink ? 'Update' : 'Set' }} Link</span>
                   </button>
                 </div>
 
                 <!-- Help Text -->
                 <div *ngIf="session.googleMeetLink && !canJoinSession(session)"
-                     class="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-xl">
-                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                     class="flex items-center gap-2 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                  <i class="fas fa-info-circle text-blue-600"></i>
                   <span>You can join the meeting 15 minutes before the session starts</span>
                 </div>
               </div>
@@ -231,11 +226,9 @@
             <!-- Actions -->
             <div class="flex flex-col gap-3 lg:w-48">
               <button
-                class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300 font-medium">
+                class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-300 font-medium">
                 <div class="flex items-center justify-center gap-2">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                  <i class="fas fa-info-circle"></i>
                   <span>Details</span>
                 </div>
               </button>
@@ -259,13 +252,11 @@
   </div>
 
     <!-- Empty State -->
-    <div *ngIf="!loading() && (activeTab() === 'upcoming' ? upcomingSessions() : pastSessions()).length === 0" class="max-w-7xl mx-auto">
-      <div class="bg-white rounded-2xl shadow-lg p-12 md:p-16 text-center border border-gray-100">
+    <div *ngIf="!loading() && (activeTab() === 'upcoming' ? upcomingSessions() : pastSessions()).length === 0">
+      <div class="bg-white rounded-xl shadow-lg p-12 md:p-16 text-center border border-gray-100">
         <div class="max-w-md mx-auto">
-          <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-full flex items-center justify-center">
-            <svg class="h-12 w-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
+          <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+            <i class="fas fa-calendar-times text-4xl text-blue-600"></i>
           </div>
 
           <h3 class="text-2xl font-bold text-gray-900 mb-3">
@@ -277,15 +268,11 @@
                : "You haven't completed any sessions yet." }}
           </p>
 
-          <a routerLink="/sessions/availability"
-             class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold transform hover:scale-105">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
+          <a routerLink="/teacher/availability"
+             class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold transform hover:scale-105">
+            <i class="fas fa-calendar-alt"></i>
             <span>Manage Availability</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
+            <i class="fas fa-arrow-right text-sm"></i>
           </a>
         </div>
       </div>
@@ -297,15 +284,13 @@
 <div *ngIf="showMeetingDialog()"
      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
      (click)="closeMeetingLinkDialog()">
-  <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8"
+  <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 md:p-8"
        (click)="$event.stopPropagation()">
     <div class="flex items-center justify-between mb-6">
       <h3 class="text-2xl font-bold text-gray-900">Set Meeting Link</h3>
       <button (click)="closeMeetingLinkDialog()"
               class="text-gray-400 hover:text-gray-600 transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
+        <i class="fas fa-times text-xl"></i>
       </button>
     </div>
 
@@ -316,19 +301,19 @@
           type="url"
           [(ngModel)]="meetingLinkInput"
           placeholder="https://meet.google.com/xxx-xxxx-xxx"
-          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
         <p class="mt-2 text-xs text-gray-500">Enter the Google Meet link for this session</p>
       </div>
 
       <div class="flex gap-3">
         <button
           (click)="saveMeetingLink()"
-          class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg font-semibold">
+          class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg font-semibold">
           Save Link
         </button>
         <button
           (click)="closeMeetingLinkDialog()"
-          class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300 font-medium">
+          class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-300 font-medium">
           Cancel
         </button>
       </div>
