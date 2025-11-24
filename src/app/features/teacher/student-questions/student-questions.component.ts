@@ -3,11 +3,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StudentQuestionService } from '../../../core/services/student-question.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TeacherSidebarComponent } from '../../../shared/components/teacher-sidebar/teacher-sidebar.component';
+import { TeacherHeaderComponent } from '../../../shared/components/teacher-header/teacher-header.component';
 
 @Component({
   selector: 'app-student-questions',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule,
+    TeacherSidebarComponent,
+    TeacherHeaderComponent
+  ],
   templateUrl: './student-questions.component.html',
   styleUrl: './student-questions.component.scss'
 })

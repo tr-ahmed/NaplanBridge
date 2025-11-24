@@ -1,20 +1,32 @@
-<div class="admin-dashboard-container min-h-screen bg-gray-50 py-4 sm:py-6 lg:py-8">
-  <div class="container mx-auto px-3 sm:px-4 lg:px-6 max-w-7xl">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-      <div class="w-full sm:w-auto">
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p class="text-sm sm:text-base text-gray-600 mt-1">Welcome back! Here's what's happening with your system.</p>
+<!-- Sidebar Component -->
+<app-admin-sidebar></app-admin-sidebar>
+
+<!-- Main Container with Dynamic Margin -->
+<div class="min-h-screen lg:ml-[280px] transition-all duration-300 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+  
+  <!-- Admin Header -->
+  <app-admin-header></app-admin-header>
+
+  <!-- Main Content -->
+  <main class="px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Title -->
+    <div class="mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="w-full sm:w-auto">
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p class="text-sm sm:text-base text-gray-600 mt-1">Welcome back! Here's what's happening with your system.</p>
+        </div>
+        <button
+          (click)="refresh()"
+          [disabled]="loading()"
+          class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 flex items-center justify-center gap-2 text-sm sm:text-base font-medium shadow-sm transition-all">
+          <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span>Refresh</span>
+        </button>
       </div>
-      <button
-        (click)="refresh()"
-        [disabled]="loading()"
-        class="w-full sm:w-auto px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 flex items-center justify-center gap-2 text-sm sm:text-base font-medium shadow-sm transition-all">
-        <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-        </svg>
-        <span>Refresh</span>
-      </button>
     </div>
 
     @if (loading()) {
@@ -291,5 +303,5 @@
         </div>
       </div>
     }
-  </div>
+  </main>
 </div>

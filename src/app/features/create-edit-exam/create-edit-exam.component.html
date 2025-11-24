@@ -1,20 +1,32 @@
-<div class="create-edit-exam-container min-h-screen bg-gray-50 py-8">
-  <div class="container mx-auto px-4 max-w-6xl">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">
-          {{ isEditMode() ? 'Edit Exam' : 'Create New Exam' }}
-        </h1>
-        <p class="text-gray-600 mt-1">
-          {{ isEditMode() ? 'Update exam details and questions' : 'Fill in the details below to create a new exam' }}
-        </p>
+<!-- Sidebar Component -->
+<app-admin-sidebar></app-admin-sidebar>
+
+<!-- Main Container with Dynamic Margin -->
+<div class="min-h-screen lg:ml-[280px] transition-all duration-300 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+  
+  <!-- Admin Header -->
+  <app-admin-header></app-admin-header>
+
+  <!-- Main Content -->
+  <main class="px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Title -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            {{ isEditMode() ? 'Edit Exam' : 'Create New Exam' }}
+          </h1>
+          <p class="text-gray-600 mt-1">
+            {{ isEditMode() ? 'Update exam details and questions' : 'Fill in the details below to create a new exam' }}
+          </p>
+        </div>
+        <button (click)="cancel()" class="px-4 py-2 text-gray-700 hover:text-gray-900">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
-      <button (click)="cancel()" class="px-4 py-2 text-gray-700 hover:text-gray-900">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
     </div>
 
     <!-- Progress Steps -->
@@ -549,5 +561,5 @@
       </div>
       }
     </form>
-  </div>
+  </main>
 </div>

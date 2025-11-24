@@ -11,6 +11,8 @@ import { ExamService } from '../../core/services/exam.service';
 import { SubjectService } from '../../core/services/subject.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DashboardService, TeacherDashboardData } from '../../core/services/dashboard.service';
+import { TeacherSidebarComponent } from '../../shared/components/teacher-sidebar/teacher-sidebar.component';
+import { TeacherHeaderComponent } from '../../shared/components/teacher-header/teacher-header.component';
 
 interface TeacherStats {
   totalStudents: number;
@@ -53,7 +55,12 @@ interface RecentActivity {
 @Component({
   selector: 'app-teacher-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [
+    CommonModule, 
+    RouterLink,
+    TeacherSidebarComponent,
+    TeacherHeaderComponent
+  ],
   templateUrl: './teacher-dashboard.component.html',
   styleUrl: './teacher-dashboard.component.scss'
 })

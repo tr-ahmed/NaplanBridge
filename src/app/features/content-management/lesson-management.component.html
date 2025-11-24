@@ -1,32 +1,42 @@
-<!-- Comprehensive Lesson Management - Full Page Design -->
-<div class="lesson-management-container min-h-screen bg-gray-50 py-8">
-  <div class="container mx-auto px-4">
+<!-- Sidebar Component -->
+<app-admin-sidebar></app-admin-sidebar>
 
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-      <div class="flex items-center gap-4">
+<!-- Main Container with Dynamic Margin -->
+<div class="min-h-screen lg:ml-[280px] transition-all duration-300 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+  
+  <!-- Admin Header -->
+  <app-admin-header></app-admin-header>
+
+  <!-- Main Content -->
+  <main class="px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Page Title -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <button
+            type="button"
+            (click)="goBack()"
+            class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+          </button>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Lesson Management</h1>
+            <p class="text-gray-600 mt-1" *ngIf="lesson">{{ lesson.title }}</p>
+          </div>
+        </div>
         <button
           type="button"
-          (click)="goBack()"
-          class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          (click)="openLessonEdit()"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
           </svg>
+          Edit Lesson
         </button>
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900">Lesson Management</h1>
-          <p class="text-gray-600 mt-1" *ngIf="lesson">{{ lesson.title }}</p>
-        </div>
       </div>
-      <button
-        type="button"
-        (click)="openLessonEdit()"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-        </svg>
-        Edit Lesson
-      </button>
     </div>
 
     <!-- Loading State -->
@@ -666,7 +676,7 @@
 
     </div>
 
-  </div>
+  </main>
 </div>
 
 <!-- ============================================ -->

@@ -7,6 +7,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { VideoService } from '../../core/services/video.service';
 import { Subject, takeUntil } from 'rxjs';
 import Swal from 'sweetalert2';
+import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
+import { AdminHeaderComponent } from '../../shared/components/admin-header/admin-header.component';
 
 /**
  * Comprehensive Lesson Management Component
@@ -22,7 +24,12 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-lesson-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    AdminSidebarComponent,
+    AdminHeaderComponent
+  ],
   templateUrl: './lesson-management.component.html',
   styleUrls: ['./lesson-management.component.scss'],
   encapsulation: ViewEncapsulation.None

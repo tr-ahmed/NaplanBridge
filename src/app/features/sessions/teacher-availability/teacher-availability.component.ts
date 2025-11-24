@@ -9,6 +9,8 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { SessionService } from '../../../core/services/session.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmationDialogService } from '../../../shared/components/confirmation-dialog/confirmation-dialog.service';
+import { TeacherSidebarComponent } from '../../../shared/components/teacher-sidebar/teacher-sidebar.component';
+import { TeacherHeaderComponent } from '../../../shared/components/teacher-header/teacher-header.component';
 import {
   TeacherSessionSettingsDto,
   TeacherAvailabilityDto,
@@ -20,7 +22,13 @@ import {
 @Component({
   selector: 'app-teacher-availability',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    ReactiveFormsModule,
+    TeacherSidebarComponent,
+    TeacherHeaderComponent
+  ],
   templateUrl: './teacher-availability.component.html',
   styleUrl: './teacher-availability.component.scss'
 })

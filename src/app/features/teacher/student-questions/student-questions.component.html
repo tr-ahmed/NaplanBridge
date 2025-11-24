@@ -1,9 +1,19 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-  <div class="max-w-6xl mx-auto">
-    <!-- Header -->
+<!-- Sidebar Component -->
+<app-teacher-sidebar></app-teacher-sidebar>
+
+<!-- Main Container with Dynamic Margin -->
+<div class="min-h-screen lg:ml-[280px] transition-all duration-300 bg-gradient-to-br from-slate-50 via-green-50 to-teal-50">
+  
+  <!-- Teacher Header -->
+  <app-teacher-header></app-teacher-header>
+
+  <!-- Main Content -->
+  <main class="px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Title -->
     <div class="mb-8">
       <h1 class="text-4xl font-bold text-gray-900 flex items-center gap-3 mb-2">
-        <i class="fas fa-comments text-blue-600"></i>
+        <i class="fas fa-comments text-green-600"></i>
         Student Questions
       </h1>
       <p class="text-gray-600">View and answer questions from your students</p>
@@ -224,5 +234,5 @@
         }
       </div>
     }
-  </div>
+  </main>
 </div>

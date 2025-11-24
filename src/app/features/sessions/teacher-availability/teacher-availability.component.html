@@ -1,6 +1,16 @@
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-7xl mx-auto">
-    <!-- Header -->
+<!-- Sidebar Component -->
+<app-teacher-sidebar></app-teacher-sidebar>
+
+<!-- Main Container with Dynamic Margin -->
+<div class="min-h-screen lg:ml-[280px] transition-all duration-300 bg-gradient-to-br from-slate-50 via-green-50 to-teal-50">
+  
+  <!-- Teacher Header -->
+  <app-teacher-header></app-teacher-header>
+
+  <!-- Main Content -->
+  <main class="px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Title -->
     <div class="mb-8">
       <h1 class="text-4xl font-bold text-gray-900 mb-2">Manage Availability</h1>
       <p class="text-lg text-gray-600">Set up your available times for private sessions</p>
@@ -315,5 +325,5 @@
       </div>
 
     </div>
-  </div>
+  </main>
 </div>

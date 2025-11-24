@@ -10,11 +10,19 @@ import { FormsModule } from '@angular/forms';
 import { SessionService } from '../../../core/services/session.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { PrivateSessionDto } from '../../../models/session.models';
+import { TeacherSidebarComponent } from '../../../shared/components/teacher-sidebar/teacher-sidebar.component';
+import { TeacherHeaderComponent } from '../../../shared/components/teacher-header/teacher-header.component';
 
 @Component({
   selector: 'app-teacher-sessions',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [
+    CommonModule, 
+    RouterLink, 
+    FormsModule,
+    TeacherSidebarComponent,
+    TeacherHeaderComponent
+  ],
   templateUrl: './teacher-sessions.component.html',
   styleUrl: './teacher-sessions.component.scss'
 })

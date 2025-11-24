@@ -2,53 +2,40 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute} from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';   // ✅ استدعاء Router
+import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment.prod';
 
-interface User {
-  id: number;
+interface UserProfileResponse {
+  userId: number;
   userName: string;
-  normalizedUserName: string;
+  firstName?: string;
   email: string;
-  normalizedEmail: string;
-  emailConfirmed: boolean;
-  passwordHash: string;
-  securityStamp: string;
-  concurrencyStamp: string;
-  phoneNumber: string | null;
-  phoneNumberConfirmed: boolean;
-  twoFactorEnabled: boolean;
-  lockoutEnd: Date | null;
-  lockoutEnabled: boolean;
-  accessFailedCount: number;
   age: number;
+  phoneNumber?: string;
+  avatarUrl?: string;
   createdAt: string;
-  student: any | null;
-  students: any[];
-  notifications: any[];
-  userRoles: any[];
-  teachings: any[];
+  roles: string[];
+  studentData?: any;
 }
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [ CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './user-profile.html',
   styleUrls: ['./user-profile.scss']
 })
 export class UserProfileComponent implements OnInit {
-  user: User | null = null;
+  user: UserProfileResponse | null = null;
   loading = true;
   error = false;
   userId: number;
 
   isEditOpen = false;
   editData = {
-    userName: '',
-    email: '',
+    firstName: '',
     age: 0,
     phoneNumber: ''
   };
@@ -69,10 +56,15 @@ export class UserProfileComponent implements OnInit {
     this.loading = true;
     this.error = false;
 
-    this.http.get<User>(environment.apiBaseUrl + `/User/${this.userId}`)
+    this.http.get<UserProfileResponse>(environment.apiBaseUrl + `/User/profile`)
       .subscribe({
         next: (data) => {
           this.user = data;
+          this.editData = {
+            firstName: data.firstName || '',
+            age: data.age || 0,
+            phoneNumber: data.phoneNumber || ''
+          };
           this.loading = false;
         },
         error: (err) => {
@@ -83,36 +75,30 @@ export class UserProfileComponent implements OnInit {
       });
   }
 
-saveUserProfile() {
-  if (!this.user) return;
+  saveUserProfile() {
+    if (!this.user) return;
 
-  this.http.put<User>(
-    `${environment.apiBaseUrl}/User/${this.user.id}`,
-    this.editData
-  ).subscribe({
-    next: (updated) => {
-      this.user = updated;
-      this.isEditOpen = false;
-      console.log('User updated successfully:', updated);
-
-      // Route لصفحة البروفايل
-      this.router.navigate([`/user/${this.user.id}`]).then(() => {
-        // ✅ بعد ما يدخل البروفايل هات البيانات تاني
+    this.http.put<UserProfileResponse>(
+      `${environment.apiBaseUrl}/User/profile`,
+      this.editData
+    ).subscribe({
+      next: (updated) => {
+        this.user = updated;
+        this.isEditOpen = false;
+        console.log('Profile updated successfully:', updated);
         this.fetchUserData();
-      });
-    },
-    error: (err) => {
-      console.error('Error updating user:', err);
-    }
-  });
-}
-
+      },
+      error: (err) => {
+        console.error('Error updating profile:', err);
+        alert('Failed to update profile');
+      }
+    });
+  }
 
   openEditForm() {
     if (!this.user) return;
     this.editData = {
-      userName: this.user.userName,
-      email: this.user.email,
+      firstName: this.user.firstName || '',
       age: this.user.age,
       phoneNumber: this.user.phoneNumber ?? ''
     };
@@ -142,6 +128,29 @@ saveUserProfile() {
     } else {
       const years = Math.floor(diffDays / 365);
       return `${years} year${years !== 1 ? 's' : ''}`;
+    }
+  }
+
+  get defaultAvatar(): string {
+    return 'https://ui-avatars.com/api/?name=' + (this.user?.userName || 'User') + '&background=random&size=200';
+  }
+
+  get userAvatar(): string {
+    return this.user?.avatarUrl || this.defaultAvatar;
+  }
+
+  getRoleBadgeClass(role: string): string {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return 'bg-red-100 text-red-800';
+      case 'teacher':
+        return 'bg-green-100 text-green-800';
+      case 'student':
+        return 'bg-blue-100 text-blue-800';
+      case 'parent':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   }
 }

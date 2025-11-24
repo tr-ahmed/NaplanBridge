@@ -8,6 +8,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
+import { AdminHeaderComponent } from '../../shared/components/admin-header/admin-header.component';
 
 interface StatCard {
   title: string;
@@ -80,7 +82,12 @@ interface ContentStats {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [
+    CommonModule, 
+    RouterLink,
+    AdminSidebarComponent,
+    AdminHeaderComponent
+  ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
 })

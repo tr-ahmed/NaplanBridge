@@ -15,6 +15,8 @@ import { TeacherPermissionService, TeacherPermissionDto } from '../services/teac
 import { ExamDto, ExamType, TeacherExamDto } from '../../../models/exam-api.models';
 import { SubjectService } from '../../../core/services/subject.service';
 import { Subject } from '../../../models/subject.models';
+import { TeacherSidebarComponent } from '../../../shared/components/teacher-sidebar/teacher-sidebar.component';
+import { TeacherHeaderComponent } from '../../../shared/components/teacher-header/teacher-header.component';
 
 interface ExamListItem {
   id: number;
@@ -47,7 +49,12 @@ interface FilterOptions {
 @Component({
   selector: 'app-teacher-exam-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    TeacherSidebarComponent,
+    TeacherHeaderComponent
+  ],
   templateUrl: './teacher-exam-management.component.html',
   styleUrl: './teacher-exam-management.component.scss'
 })

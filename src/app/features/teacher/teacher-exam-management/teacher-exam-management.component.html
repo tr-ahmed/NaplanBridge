@@ -1,30 +1,42 @@
-<div class="exam-management-container min-h-screen bg-gray-50 py-8">
-  <div class="container mx-auto px-4">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">My Exams</h1>
-        <p class="text-gray-600 mt-1">Manage exams for your assigned subjects</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <button
-          (click)="refresh()"
-          [disabled]="loading()"
-          class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:bg-gray-100">
-          <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-          </svg>
-        </button>
-        @if (canCreateExams()) {
+<!-- Sidebar Component -->
+<app-teacher-sidebar></app-teacher-sidebar>
+
+<!-- Main Container with Dynamic Margin -->
+<div class="min-h-screen lg:ml-[280px] transition-all duration-300 bg-gradient-to-br from-slate-50 via-green-50 to-teal-50">
+  
+  <!-- Teacher Header -->
+  <app-teacher-header></app-teacher-header>
+
+  <!-- Main Content -->
+  <main class="px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Title -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">My Exams</h1>
+          <p class="text-gray-600 mt-1">Manage exams for your assigned subjects</p>
+        </div>
+        <div class="flex items-center gap-3">
           <button
-            (click)="createExam()"
-            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            (click)="refresh()"
+            [disabled]="loading()"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:bg-gray-100">
+            <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
-            <span>Create Exam</span>
           </button>
-        }
+          @if (canCreateExams()) {
+            <button
+              (click)="createExam()"
+              class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              <span>Create Exam</span>
+            </button>
+          }
+        </div>
       </div>
     </div>
 
@@ -578,5 +590,5 @@
         </div>
       }
     }
-  </div>
+  </main>
 </div>

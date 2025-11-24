@@ -16,13 +16,20 @@ import { TeacherPermissionService } from '../teacher/services/teacher-permission
 import { ExamType, QuestionType, CreateExamDto, CreateQuestionDto } from '../../models/exam-api.models';
 import { Subject } from '../../models/subject.models';
 import { Year } from '../../models/category.models';
+import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
+import { AdminHeaderComponent } from '../../shared/components/admin-header/admin-header.component';
 
 type FormStep = 'basic' | 'questions' | 'settings' | 'preview';
 
 @Component({
   selector: 'app-create-edit-exam',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule,
+    AdminSidebarComponent,
+    AdminHeaderComponent
+  ],
   templateUrl: './create-edit-exam.component.html',
   styleUrl: './create-edit-exam.component.scss'
 })

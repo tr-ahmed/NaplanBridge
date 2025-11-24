@@ -11,6 +11,8 @@ import { ExamApiService } from '../../core/services/exam-api.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ExamDto, ExamType } from '../../models/exam-api.models';
+import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
+import { AdminHeaderComponent } from '../../shared/components/admin-header/admin-header.component';
 
 interface ExamListItem {
   id: number;
@@ -39,7 +41,12 @@ interface FilterOptions {
 @Component({
   selector: 'app-exam-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    AdminSidebarComponent,
+    AdminHeaderComponent
+  ],
   templateUrl: './exam-management.component.html',
   styleUrl: './exam-management.component.scss'
 })
