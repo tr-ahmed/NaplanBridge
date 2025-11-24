@@ -8,7 +8,6 @@ import { CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto } from '../models/
 export interface ValidationError {
   field: string;
   message: string;
-  messageAr?: string;
 }
 
 export interface ValidationResult {
@@ -26,32 +25,28 @@ export function validateSubscriptionPlan(dto: CreateSubscriptionPlanDto): Valida
   if (!dto.name || dto.name.trim().length === 0) {
     errors.push({
       field: 'name',
-      message: 'Plan name is required',
-      messageAr: 'اسم الخطة مطلوب'
+      message: 'Plan name is required'
     });
   }
 
   if (!dto.description || dto.description.trim().length === 0) {
     errors.push({
       field: 'description',
-      message: 'Plan description is required',
-      messageAr: 'وصف الخطة مطلوب'
+      message: 'Plan description is required'
     });
   }
 
   if (!dto.price || dto.price <= 0) {
     errors.push({
       field: 'price',
-      message: 'Price must be greater than 0',
-      messageAr: 'السعر يجب أن يكون أكبر من 0'
+      message: 'Price must be greater than 0'
     });
   }
 
   if (!dto.planType) {
     errors.push({
       field: 'planType',
-      message: 'Plan type is required',
-      messageAr: 'نوع الخطة مطلوب'
+      message: 'Plan type is required'
     });
     return { isValid: false, errors };
   }
@@ -62,15 +57,13 @@ export function validateSubscriptionPlan(dto: CreateSubscriptionPlanDto): Valida
       if (!dto.termId) {
         errors.push({
           field: 'termId',
-          message: 'Term is required for Single Term plans',
-          messageAr: 'الترم مطلوب لخطط الترم الواحد'
+          message: 'Term is required for Single Term plans'
         });
       }
       if (!dto.subjectId) {
         errors.push({
           field: 'subjectId',
-          message: 'Subject is required for Single Term plans',
-          messageAr: 'المادة مطلوبة لخطط الترم الواحد'
+          message: 'Subject is required for Single Term plans'
         });
       }
       break;
@@ -79,15 +72,13 @@ export function validateSubscriptionPlan(dto: CreateSubscriptionPlanDto): Valida
       if (!dto.subjectId) {
         errors.push({
           field: 'subjectId',
-          message: 'Subject is required for Multi Term plans',
-          messageAr: 'المادة مطلوبة لخطط الفصول المتعددة'
+          message: 'Subject is required for Multi Term plans'
         });
       }
       if (!dto.includedTermIds || dto.includedTermIds.trim().length === 0) {
         errors.push({
           field: 'includedTermIds',
-          message: 'At least 2 terms must be selected for Multi Term plans',
-          messageAr: 'يجب اختيار فصلين على الأقل لخطط الفصول المتعددة'
+          message: 'At least 2 terms must be selected for Multi Term plans'
         });
       } else {
         // Validate format and count
@@ -95,8 +86,7 @@ export function validateSubscriptionPlan(dto: CreateSubscriptionPlanDto): Valida
         if (terms.length < 2) {
           errors.push({
             field: 'includedTermIds',
-            message: 'Multi Term plans must include at least 2 terms',
-            messageAr: 'خطط الفصول المتعددة يجب أن تتضمن فصلين على الأقل'
+            message: 'Multi Term plans must include at least 2 terms'
           });
         }
       }
@@ -106,8 +96,7 @@ export function validateSubscriptionPlan(dto: CreateSubscriptionPlanDto): Valida
       if (!dto.yearId) {
         errors.push({
           field: 'yearId',
-          message: 'Year is required for Full Year plans',
-          messageAr: 'السنة مطلوبة لخطط السنة الكاملة'
+          message: 'Year is required for Full Year plans'
         });
       }
       break;
@@ -116,8 +105,7 @@ export function validateSubscriptionPlan(dto: CreateSubscriptionPlanDto): Valida
       if (!dto.subjectId) {
         errors.push({
           field: 'subjectId',
-          message: 'Subject is required for Subject Annual plans',
-          messageAr: 'المادة مطلوبة لخطط المادة السنوية'
+          message: 'Subject is required for Subject Annual plans'
         });
       }
       break;
@@ -178,8 +166,8 @@ export function getDefaultDurationForPlanType(planType: PlanType, termsCount: nu
 /**
  * Format validation errors for display
  */
-export function formatValidationErrors(errors: ValidationError[], arabic: boolean = false): string {
+export function formatValidationErrors(errors: ValidationError[]): string {
   return errors
-    .map(e => arabic && e.messageAr ? e.messageAr : e.message)
+    .map(e => e.message)
     .join('\n');
 }

@@ -6,6 +6,6 @@ export const TEACHER_ROUTES: Routes = [
   {
     path: '',
     component: ContentManagementComponent,
-    canActivate: [roleGuard('teacher')] // ✅ مسموح للمعلم فقط
+    canActivate: [roleGuard('teacher')] // Only teachers allowed
   }
 ];

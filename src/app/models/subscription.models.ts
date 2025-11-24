@@ -175,7 +175,7 @@ export interface CreateSubscriptionPlanDto {
   description: string;
   price: number;
   planType: PlanType;
-  isActive?: boolean;        // افتراضي true
+  isActive?: boolean;        // Default: true
   subjectId?: number;        // ✅ Required for SingleTerm, MultiTerm, SubjectAnnual
   termId?: number;           // ✅ Required for SingleTerm only
   yearId?: number;           // ✅ Optional - mainly for FullYear plans
@@ -204,7 +204,6 @@ export type PaymentType = 'one_time' | 'monthly' | 'quarterly' | 'yearly';
 export type PaymentMethod = 'credit_card' | 'bank_transfer' | 'paypal' | 'stripe' | 'cash' | 'apple_pay' | 'google_pay';
 
 /**
- * معلومات الدفع
  * Payment Information
  */
 export interface SubscriptionPayment {
@@ -213,33 +212,32 @@ export interface SubscriptionPayment {
   studentId: number;
   planId: number;
 
-  // معلومات الدفع
+  // Payment information
   amount: number;
   currency: string;
   paymentMethod: PaymentMethod;
   paymentStatus: 'completed' | 'pending' | 'failed' | 'refunded';
 
-  // معلومات المعاملة
+  // Transaction information
   transactionId?: string;
   invoiceNumber: string;
   receiptUrl?: string;
 
-  // التواريخ
+  // Dates
   paymentDate: Date;
   dueDate?: Date;
 
-  // معلومات إضافية
+  // Additional information
   description?: string;
   failureReason?: string;
   refundReason?: string;
 
-  // معلومات تقنية
+  // Technical information
   createdAt: Date;
   updatedAt: Date;
 }
 
 /**
- * خصم أو كوبون
  * Discount/Coupon
  */
 export interface SubscriptionDiscount {
@@ -248,12 +246,12 @@ export interface SubscriptionDiscount {
   name: string;
   nameAr: string;
 
-  // نوع الخصم
+  // Discount type
   type: 'percentage' | 'fixed_amount';
   value: number;
-  maxDiscount?: number; // أقصى مبلغ خصم للنسبة المئوية
+  maxDiscount?: number; // Maximum discount amount for percentage
 
-  // الصلاحية
+  // Validity
   validFrom: Date;
   validTo: Date;
   maxUses: number;

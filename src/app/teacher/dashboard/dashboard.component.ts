@@ -241,7 +241,7 @@ export class ContentManagementComponent implements OnInit {
     this.loadAllFromAPI();
   }
 
-  // دالة محسنة لاستخراج الرسائل الإنجليزية من الأخطاء
+  // Improved function to extract English error messages
   private extractEnglishError(error: any): string {
     if (error.originalError && error.originalError.error && typeof error.originalError.error === 'string') {
       return error.originalError.error;
