@@ -83,35 +83,56 @@ export class HeaderComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Subscribe to notification changes
-    this.subscriptions.add(
-      this.notificationService.getUnreadCount().subscribe(count => {
-        this.unreadNotificationsCount = count.count || 0;
-        console.log('🔔 Header - Unread count:', count.count);
-      })
-    );
+    // ✅ Wait for token to be properly stored before loading notifications
+    // This prevents 401 errors when authentication is still being processed
+    setTimeout(() => {
+      const token = localStorage.getItem('authToken');
 
-    // Subscribe to notifications for dropdown preview
-    this.subscriptions.add(
-      this.notificationService.notifications$.subscribe(notifications => {
-        console.log('🔔 Header - Notifications received:', notifications);
-        // Get the 5 most recent notifications for dropdown preview
-        if (notifications && Array.isArray(notifications)) {
-          this.recentNotifications = notifications
-            .sort((a: any, b: any) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
-            .slice(0, 5);
-          console.log('🔔 Header - Recent notifications:', this.recentNotifications);
-        } else {
-          this.recentNotifications = [];
+      // Only load notifications if token exists
+      if (!token) {
+        console.warn('🔔 Header - No auth token found, skipping notification load');
+        return;
+      }
+
+      // Subscribe to notification changes
+      this.subscriptions.add(
+        this.notificationService.getUnreadCount().subscribe({
+          next: (count) => {
+            this.unreadNotificationsCount = count.count || 0;
+            console.log('🔔 Header - Unread count:', count.count);
+          },
+          error: (err) => {
+            console.error('❌ Header - Failed to load unread count:', err);
+            // Don't show error to user, just log it
+          }
+        })
+      );
+
+      // Subscribe to notifications for dropdown preview
+      this.subscriptions.add(
+        this.notificationService.notifications$.subscribe(notifications => {
+          console.log('🔔 Header - Notifications received:', notifications);
+          // Get the 5 most recent notifications for dropdown preview
+          if (notifications && Array.isArray(notifications)) {
+            this.recentNotifications = notifications
+              .sort((a: any, b: any) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
+              .slice(0, 5);
+            console.log('🔔 Header - Recent notifications:', this.recentNotifications);
+          } else {
+            this.recentNotifications = [];
+          }
+        })
+      );
+
+      // Load initial notifications data
+      this.notificationService.getNotifications().subscribe({
+        next: (data) => console.log('🔔 Header - Initial load:', data),
+        error: (err) => {
+          console.error('❌ Header - Failed to load notifications:', err);
+          // Don't show error to user, just log it
         }
-      })
-    );
-
-    // Load initial notifications data
-    this.notificationService.getNotifications().subscribe({
-      next: (data) => console.log('🔔 Header - Initial load:', data),
-      error: (err) => console.error('❌ Header - Load error:', err)
-    });
+      });
+    }, 500); // Wait 500ms for auth token to be properly stored
   }
 
   ngOnDestroy(): void {

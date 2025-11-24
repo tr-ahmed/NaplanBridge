@@ -29,7 +29,7 @@ interface UserProfileResponse {
 })
 export class TeacherHeaderComponent implements OnInit, OnDestroy {
   fullProfile = signal<UserProfileResponse | null>(null);
-  
+
   // Notifications
   notifications = signal<any[]>([]);
   unreadCount = signal<number>(0);
@@ -102,11 +102,31 @@ export class TeacherHeaderComponent implements OnInit, OnDestroy {
   // Notifications Methods
   private loadNotifications(): void {
     this.loadingNotifications.set(true);
-    this.notificationService.getNotifications({ pageSize: 10, isRead: false }).subscribe();
-    this.notificationService.getUnreadCount().subscribe({
-      next: (response) => this.unreadCount.set(response.count || 0),
-      error: (err) => console.error('Failed to load unread count:', err)
-    });
+
+    // ✅ Wait for token to be properly stored before loading notifications
+    setTimeout(() => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.warn('🔔 Teacher Header - No auth token found, skipping notification load');
+        this.loadingNotifications.set(false);
+        return;
+      }
+
+      this.notificationService.getNotifications({ pageSize: 10, isRead: false }).subscribe({
+        error: (err) => {
+          console.error('Failed to load notifications:', err);
+          this.loadingNotifications.set(false);
+        }
+      });
+
+      this.notificationService.getUnreadCount().subscribe({
+        next: (response) => this.unreadCount.set(response.count || 0),
+        error: (err) => {
+          console.error('Failed to load unread count:', err);
+          this.loadingNotifications.set(false);
+        }
+      });
+    }, 500);
   }
 
   private subscribeToNotifications(): void {
@@ -140,7 +160,7 @@ export class TeacherHeaderComponent implements OnInit, OnDestroy {
   markAsRead(notificationId: number): void {
     this.http.post(`${environment.apiBaseUrl}/Notifications/${notificationId}/read`, {}).subscribe({
       next: () => {
-        this.notifications.update(notifications => 
+        this.notifications.update(notifications =>
           notifications.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
         );
         this.unreadCount.update(count => Math.max(0, count - 1));
@@ -152,7 +172,7 @@ export class TeacherHeaderComponent implements OnInit, OnDestroy {
   markAllAsRead(): void {
     this.http.post(`${environment.apiBaseUrl}/Notifications/mark-all-read`, {}).subscribe({
       next: () => {
-        this.notifications.update(notifications => 
+        this.notifications.update(notifications =>
           notifications.map(n => ({ ...n, isRead: true }))
         );
         this.unreadCount.set(0);

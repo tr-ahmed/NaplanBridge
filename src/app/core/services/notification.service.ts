@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, BehaviorSubject, interval } from 'rxjs';
+import { Observable, of, BehaviorSubject, interval, timer } from 'rxjs';
 import { catchError, map, tap, switchMap, startWith } from 'rxjs/operators';
 import {
   Notification,
@@ -211,11 +211,20 @@ export class NotificationService {
 
     this.isPolling$.next(true);
 
+    // ✅ Add initial delay to ensure auth token is stored
+    // This prevents 401 errors immediately after login
+    const initialDelay = 1000; // 1 second delay
+
     // Poll for unread count
     this.pollingSubscription = interval(this.pollingInterval)
       .pipe(
-        startWith(0), // Immediate first call
-        switchMap(() => this.getUnreadCount())
+        startWith(0),
+        // ✅ Skip first emission and use timer instead for initial delay
+        switchMap((index) =>
+          index === 0
+            ? timer(initialDelay).pipe(switchMap(() => this.getUnreadCount()))
+            : this.getUnreadCount()
+        )
       )
       .subscribe({
         next: (response) => {
@@ -223,6 +232,7 @@ export class NotificationService {
         },
         error: (error) => {
           console.error('Polling error:', error);
+          // Don't stop polling on error, just log it
         }
       });
 
@@ -230,7 +240,12 @@ export class NotificationService {
     interval(this.pollingInterval)
       .pipe(
         startWith(0),
-        switchMap(() => this.getNotifications({ pageSize: 10 }))
+        // ✅ Skip first emission and use timer instead for initial delay
+        switchMap((index) =>
+          index === 0
+            ? timer(initialDelay).pipe(switchMap(() => this.getNotifications({ pageSize: 10 })))
+            : this.getNotifications({ pageSize: 10 })
+        )
       )
       .subscribe({
         next: (response) => {
@@ -238,6 +253,7 @@ export class NotificationService {
         },
         error: (error) => {
           console.error('Failed to load notifications:', error);
+          // Don't stop polling on error, just log it
         }
       });
   }
