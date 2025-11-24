@@ -61,22 +61,19 @@
         </button>
       </div>
     </div>
-    </div>
 
     <!-- Loading State -->
     <div *ngIf="loading()">
       <div class="bg-white rounded-2xl shadow-lg p-12 border border-gray-100">
         <div class="flex flex-col items-center justify-center">
           <div class="relative">
-          <div class="animate-spin rounded-full h-16 w-16 border-4 border-purple-200"></div>
-          <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-purple-600 absolute top-0"></div>
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-purple-200"></div>
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-purple-600 absolute top-0"></div>
+          </div>
+          <p class="mt-4 text-gray-600 font-medium">Loading your sessions...</p>
         </div>
-        <p class="mt-4 text-gray-600 font-medium">Loading your sessions...</p>
       </div>
-    </div>
-  </div>
-
-  <!-- Sessions List -->
+    </div>  <!-- Sessions List -->
     <div *ngIf="!loading()">
       <div class="grid gap-6">
         <div *ngFor="let session of activeTab() === 'upcoming' ? upcomingSessions() : pastSessions()"
@@ -93,9 +90,9 @@
           <div class="p-6 md:p-8">
             <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
               <!-- Session Info -->
-            <div class="flex-1 space-y-4">
-              <!-- Header -->
-              <div class="flex items-start justify-between gap-4">
+              <div class="flex-1 space-y-4">
+                <!-- Header -->
+                <div class="flex items-start justify-between gap-4">
                 <div class="flex-1">
                   <div class="flex items-center gap-3 mb-2">
                     <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
@@ -269,38 +266,41 @@
     </div>
   </div>
 
-  <!-- Empty State -->
-  <div *ngIf="!loading() && (activeTab() === 'upcoming' ? upcomingSessions() : pastSessions()).length === 0" class="max-w-7xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-lg p-12 md:p-16 text-center border border-gray-100">
-      <div class="max-w-md mx-auto">
-        <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-full flex items-center justify-center">
-          <svg class="h-12 w-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
+    <!-- Empty State -->
+    <div *ngIf="!loading() && (activeTab() === 'upcoming' ? upcomingSessions() : pastSessions()).length === 0" class="max-w-7xl mx-auto">
+      <div class="bg-white rounded-2xl shadow-lg p-12 md:p-16 text-center border border-gray-100">
+        <div class="max-w-md mx-auto">
+          <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-full flex items-center justify-center">
+            <svg class="h-12 w-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">
+            {{ activeTab() === 'upcoming' ? 'No Upcoming Sessions' : 'No Past Sessions' }}
+          </h3>
+          <p class="text-gray-600 mb-8">
+            {{ activeTab() === 'upcoming'
+               ? "You don't have any upcoming sessions scheduled yet."
+               : "You haven't completed any sessions yet." }}
+          </p>
+
+          <a routerLink="/sessions/availability"
+             class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold transform hover:scale-105">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span>Manage Availability</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
         </div>
-
-        <h3 class="text-2xl font-bold text-gray-900 mb-3">
-          {{ activeTab() === 'upcoming' ? 'No Upcoming Sessions' : 'No Past Sessions' }}
-        </h3>
-        <p class="text-gray-600 mb-8">
-          {{ activeTab() === 'upcoming'
-             ? "You don't have any upcoming sessions scheduled yet."
-             : "You haven't completed any sessions yet." }}
-        </p>
-
-        <a routerLink="/sessions/availability"
-           class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl hover:from-green-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold transform hover:scale-105">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          <span>Manage Availability</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
       </div>
     </div>
+
   </main>
+
 </div>
 
 <!-- Meeting Link Dialog (Modal) -->
