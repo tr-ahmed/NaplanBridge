@@ -108,8 +108,12 @@ export class CoursesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // ✅ IMPORTANT: Load years FIRST - they will trigger filtering when loaded
     this.loadAvailableYears(); // Load years from database first
+
+    // ✅ Then load user info - parent students will be loaded
     this.loadUserInfo(); // This will load parent students and trigger loadCourses for parents
+
     this.loadStudentSubscriptions(); // Load enrollment status
     this.subscribeToCart();
     this.subscribeToPlanModal();
@@ -148,6 +152,20 @@ export class CoursesComponent implements OnInit, OnDestroy {
         }));
         this.availableYears.set(formattedYears);
         this.logger.log('✅ Loaded years from database:', formattedYears);
+
+        // ✅ After loading years, check if we need to filter for parent
+        const user = this.currentUser();
+        if (user) {
+          const userRoles = user.roles || [];
+          const isParent = userRoles.some((r: string) => r?.toLowerCase() === 'parent');
+          const isStudent = userRoles.some((r: string) => r?.toLowerCase() === 'student');
+
+          // If parent (not student), filter years after they're loaded
+          if (isParent && !isStudent && this.parentStudents().length > 0) {
+            this.logger.log('✅ Years loaded - triggering parent filter');
+            this.filterYearsForParent();
+          }
+        }
       },
       error: (err) => {
         console.error('❌ Failed to load years:', err);
@@ -169,7 +187,10 @@ export class CoursesComponent implements OnInit, OnDestroy {
    */
   private filterYearsForParent(): void {
     const user = this.currentUser();
-    if (!user) return;
+    if (!user) {
+      this.logger.log('⚠️ filterYearsForParent - No user found');
+      return;
+    }
 
     const userRoles = user.roles || [];
     const isParent = userRoles.some((r: string) => r?.toLowerCase() === 'parent');
@@ -178,8 +199,18 @@ export class CoursesComponent implements OnInit, OnDestroy {
     // Only filter if user is parent (not student)
     if (isParent && !isStudent) {
       const students = this.parentStudents();
+      const allYears = this.availableYears();
 
-      this.logger.log('👨‍👩‍👧‍👦 Filtering years for parent - students:', students);
+      this.logger.log('👨‍👩‍👧‍👦 filterYearsForParent called:', {
+        students: students.length,
+        availableYears: allYears.length
+      });
+
+      // ✅ Check if years are loaded
+      if (!allYears || allYears.length === 0) {
+        this.logger.log('⚠️ No years available yet - cannot filter');
+        return;
+      }
 
       if (students && students.length > 0) {
         // Get unique year Numbers (not IDs!) from parent's children
@@ -187,26 +218,27 @@ export class CoursesComponent implements OnInit, OnDestroy {
         const childrenYearNumbers = [...new Set(students.map(s => s.yearId).filter(id => id))];
 
         this.logger.log('👨‍👩‍👧‍👦 Children year Numbers:', childrenYearNumbers);
+        this.logger.log('📚 Available years before filter:', allYears);
 
         // Filter available years by yearNumber (not id)
-        const allYears = this.availableYears();
         const filteredYears = allYears.filter(year => childrenYearNumbers.includes(year.yearNumber));
 
-        this.logger.log('✅ All years:', allYears);
         this.logger.log('✅ Filtered years (by yearNumber):', filteredYears);
 
         if (filteredYears.length > 0) {
           this.availableYears.set(filteredYears);
-          this.logger.log('✅ Applied filtered years for parent:', filteredYears);
 
           // ✅ Don't auto-select - keep null to show "All My Children"
           if (!this.selectedYearId()) {
             this.selectedYearId.set(null); // Show all children's subjects
-            this.logger.log('✅ Set to "All My Children" mode - showing all years:', filteredYears);
+            this.logger.log('✅ Set to "All My Children" mode');
           }
 
           // ✅ Reload courses with filtered years
+          this.logger.log('🔄 Reloading courses with filtered years');
           this.loadCourses();
+        } else {
+          this.logger.log('⚠️ No matching years found for children - keeping all years');
         }
       } else {
         // ✅ No students yet - show all years and load all courses
@@ -338,7 +370,14 @@ export class CoursesComponent implements OnInit, OnDestroy {
           localStorage.setItem('parentStudents', JSON.stringify(mappedStudents));
 
           // ✅ Filter available years based on children's years
-          this.filterYearsForParent();
+          // Only filter if years are already loaded
+          const availableYears = this.availableYears();
+          if (availableYears && availableYears.length > 0) {
+            this.logger.log('✅ Years already loaded - filtering immediately');
+            this.filterYearsForParent();
+          } else {
+            this.logger.log('⏳ Years not loaded yet - will filter when years load');
+          }
         },
         error: (error: any) => {
           console.error('❌ Error loading parent students:', error);
@@ -352,7 +391,14 @@ export class CoursesComponent implements OnInit, OnDestroy {
               this.logger.log('✅ Loaded parent students from localStorage:', students);
 
               // ✅ Filter available years based on children's years
-              this.filterYearsForParent();
+              // Only filter if years are already loaded
+              const availableYears = this.availableYears();
+              if (availableYears && availableYears.length > 0) {
+                this.logger.log('✅ Years already loaded - filtering from localStorage');
+                this.filterYearsForParent();
+              } else {
+                this.logger.log('⏳ Years not loaded yet - will filter when years load');
+              }
             } catch (e) {
               console.error('Failed to parse parent students data');
             }

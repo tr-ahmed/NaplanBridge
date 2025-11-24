@@ -411,9 +411,14 @@ export class CoursesService {
    * Load cart from backend API
    */
   loadCartFromBackend(studentId?: number): Observable<Cart> {
-    const url = `${this.baseUrl}/Cart`;
+    // ✅ CRITICAL: Include studentId in URL for parents with multiple children
+    // Backend needs to know which student's cart to load
+    const url = studentId
+      ? `${this.baseUrl}/Cart?studentId=${studentId}`
+      : `${this.baseUrl}/Cart`;
 
     console.log('📥 Loading cart from backend for studentId:', studentId);
+    console.log('📡 Cart URL:', url);
 
     return this.http.get<any>(url).pipe(
       map((response) => {

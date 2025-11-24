@@ -73,10 +73,23 @@ export class CartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('📥 Loading cart from backend...');
+    // ✅ For parents, we need to load cart for ALL their children
+    // and merge them, or load for currently selected student
+    // For now, we'll load using studentId if available (student role)
+    // For parents, the cart will be loaded when they select a student
+
+    const studentId = currentUser.studentId; // Works for students only
+
+    if (!studentId) {
+      // Parent or other role - cart will be loaded on-demand
+      console.log('ℹ️ Non-student user - cart will be loaded on-demand');
+      return;
+    }
+
+    console.log('📥 Loading cart from backend for student:', studentId);
     this.loading.set(true);
 
-    this.coursesService.loadCartFromBackend(currentUser.studentId)
+    this.coursesService.loadCartFromBackend(studentId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (cart) => {
