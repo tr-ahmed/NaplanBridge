@@ -192,8 +192,8 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
           </label>
           ${availableRoles.map(role => `
             <label style="display: block; margin-bottom: 5px; cursor: pointer;">
-              <input type="checkbox" value="${role}" 
-                     ${user.roles.includes(role) ? 'checked' : ''} 
+              <input type="checkbox" value="${role}"
+                     ${user.roles.includes(role) ? 'checked' : ''}
                      style="margin-right: 8px;" />
               ${role}
             </label>
@@ -312,6 +312,97 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
 
   closeMenu() {
     this.isOpen = false;
+  }
+
+  // ============================================
+  // User Active/Inactive Management
+  // ============================================
+
+  /**
+   * Activate user account
+   */
+  activateUser(user: any) {
+    if (user.isActive) {
+      Swal.fire('Info', 'User is already active', 'info');
+      return;
+    }
+
+    Swal.fire({
+      title: `Activate ${user.userName}?`,
+      text: 'This user will be able to login and use the platform.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Activate',
+      confirmButtonColor: '#10b981',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.http.put(`${environment.apiBaseUrl}/Admin/activate-user/${user.id}`, null)
+          .subscribe({
+            next: (response: any) => {
+              user.isActive = true;
+              Swal.fire('Success!', response.message || 'User has been activated successfully', 'success');
+            },
+            error: (error) => {
+              const errorMsg = error.error?.message || 'Failed to activate user. Please try again.';
+              Swal.fire('Error!', errorMsg, 'error');
+            }
+          });
+      }
+    });
+  }
+
+  /**
+   * Deactivate user account
+   */
+  deactivateUser(user: any) {
+    // Prevent deactivating admin users
+    if (user.roles.includes('Admin')) {
+      Swal.fire('Not Allowed', 'Cannot deactivate admin users for security reasons.', 'warning');
+      return;
+    }
+
+    if (!user.isActive) {
+      Swal.fire('Info', 'User is already inactive', 'info');
+      return;
+    }
+
+    Swal.fire({
+      title: `Deactivate ${user.userName}?`,
+      text: 'This user will not be able to login until reactivated.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Deactivate',
+      confirmButtonColor: '#f59e0b',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.http.put(`${environment.apiBaseUrl}/Admin/deactivate-user/${user.id}`, null)
+          .subscribe({
+            next: (response: any) => {
+              user.isActive = false;
+              Swal.fire('Success!', response.message || 'User has been deactivated successfully', 'success');
+            },
+            error: (error) => {
+              const errorMsg = error.error?.message || 'Failed to deactivate user. Please try again.';
+              Swal.fire('Error!', errorMsg, 'error');
+            }
+          });
+      }
+    });
+  }
+
+  /**
+   * Toggle user active/inactive status
+   */
+  toggleUserStatus(user: any) {
+    if (user.isActive) {
+      this.deactivateUser(user);
+    } else {
+      this.activateUser(user);
+    }
   }
 
 }

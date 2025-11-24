@@ -70,6 +70,7 @@ export type ApiResult<T> = {
   success: false;
   error: string;
   validationErrors?: ValidationError[];
+  statusCode?: number; // ✅ NEW - For handling specific HTTP status codes (e.g., 403 for deactivated accounts)
 };
 
 /**

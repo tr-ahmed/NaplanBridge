@@ -76,6 +76,17 @@ export class ParentApiService {
         console.error('Error Message:', error.message);
         console.error('Error Body:', error.error);
 
+        // ✅ Handle 403 Forbidden - Account Deactivated
+        if (error.status === 403) {
+          const deactivatedMessage = error.error?.message ||
+                                     'Your account has been deactivated. Please contact support.';
+          return of({
+            success: false as const,
+            error: deactivatedMessage,
+            statusCode: 403
+          });
+        }
+
         // Parse error response for better error handling
         const errorResult = this.parseErrorResponse(error.error);
         return of({
