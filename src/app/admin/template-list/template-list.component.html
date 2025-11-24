@@ -145,7 +145,7 @@
                 <i class="fas" [ngClass]="getCategoryIcon(template.eventCategory)"></i>
               </div>
               <div class="event-details">
-                <h3>{{ translateText(template.eventName) }}</h3>
+                <h3>{{ template.eventName }}</h3>
                 <span class="event-key">{{ template.eventKey }}</span>
               </div>
             </div>
@@ -167,13 +167,13 @@
             @if (template.eventCategory) {
               <span class="category-badge">
                 <i class="fas" [ngClass]="getCategoryIcon(template.eventCategory)"></i>
-                {{ translateText(template.eventCategory) }}
+                {{ template.eventCategory }}
               </span>
             }
 
             <!-- Description Preview -->
             @if (template.eventDescription) {
-              <p class="description">{{ translateText(template.eventDescription) }}</p>
+              <p class="description">{{ template.eventDescription }}</p>
             }
 
             <!-- Channels -->
