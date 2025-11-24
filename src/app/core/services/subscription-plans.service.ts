@@ -75,18 +75,57 @@ export class SubscriptionPlansService {
    * @returns Observable of SubscriptionPlan array
    */
   getAllPlans(): Observable<SubscriptionPlan[]> {
+    console.log('🌐 API Call: GET', this.apiUrl);
     return this.http.get<SubscriptionPlan[]>(this.apiUrl).pipe(
       tap(plans => {
-        console.log('📋 Loaded plans:', plans.length);
-        // Ensure planType is a number
-        plans.forEach(plan => {
-          if (typeof plan.planType === 'string') {
-            plan.planType = parseInt(plan.planType as any, 10) as PlanType;
+        console.log('📋 API Response - Loaded plans:', plans.length);
+        if (plans.length > 0) {
+          console.log('   - First plan (raw):', JSON.stringify(plans[0], null, 2));
+        }
+        
+        // Convert planType from string to number enum
+        plans.forEach((plan, index) => {
+          const originalType = plan.planType;
+          plan.planType = this.convertPlanTypeToEnum(plan.planType);
+          
+          if (index < 3) { // Log first 3 conversions for debugging
+            console.log(`   Plan ${plan.planId}: "${originalType}" → ${plan.planType} (${PlanType[plan.planType]})`);
           }
         });
+        
+        console.log('✅ All planTypes converted to enum numbers');
       }),
       catchError(this.handleError)
     );
+  }
+
+  /**
+   * Convert planType from string/number to PlanType enum
+   */
+  private convertPlanTypeToEnum(planType: any): PlanType {
+    // If already a valid number, return it
+    if (typeof planType === 'number' && planType in PlanType) {
+      return planType as PlanType;
+    }
+    
+    // If string, convert to enum
+    if (typeof planType === 'string') {
+      const typeMap: { [key: string]: PlanType } = {
+        'SingleTerm': PlanType.SingleTerm,
+        'MultiTerm': PlanType.MultiTerm,
+        'FullYear': PlanType.FullYear,
+        'SubjectAnnual': PlanType.SubjectAnnual,
+        '1': PlanType.SingleTerm,
+        '2': PlanType.MultiTerm,
+        '3': PlanType.FullYear,
+        '4': PlanType.SubjectAnnual
+      };
+      
+      return typeMap[planType] || PlanType.SingleTerm;
+    }
+    
+    // Default fallback
+    return PlanType.SingleTerm;
   }
 
   /**
@@ -98,10 +137,8 @@ export class SubscriptionPlansService {
     return this.http.get<SubscriptionPlan>(`${this.apiUrl}/${id}`).pipe(
       tap(plan => {
         console.log('📄 Loaded plan:', plan.name);
-        // Ensure planType is a number
-        if (typeof plan.planType === 'string') {
-          plan.planType = parseInt(plan.planType as any, 10) as PlanType;
-        }
+        // Convert planType from string to enum number
+        plan.planType = this.convertPlanTypeToEnum(plan.planType);
       }),
       catchError(this.handleError)
     );
@@ -265,6 +302,12 @@ export class SubscriptionPlansService {
   // ==================== ERROR HANDLING ====================
 
   private handleError(error: HttpErrorResponse): Observable<never> {
+    console.error('❌ SubscriptionPlansService Error Details:');
+    console.error('   - Status:', error.status);
+    console.error('   - Status Text:', error.statusText);
+    console.error('   - URL:', error.url);
+    console.error('   - Error:', error.error);
+    
     let errorMessage = 'An unknown error occurred';
 
     if (error.error instanceof ErrorEvent) {
@@ -272,7 +315,15 @@ export class SubscriptionPlansService {
       errorMessage = `Error: ${error.error.message}`;
     } else {
       // Server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      if (error.status === 0) {
+        errorMessage = 'Unable to connect to server. Please check your internet connection.';
+      } else if (error.status === 404) {
+        errorMessage = 'API endpoint not found. Please check the API URL.';
+      } else if (error.status === 500) {
+        errorMessage = 'Server error occurred. Please try again later.';
+      } else {
+        errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      }
 
       if (error.error?.errors) {
         const validationErrors = Object.entries(error.error.errors)
@@ -282,7 +333,7 @@ export class SubscriptionPlansService {
       }
     }
 
-    console.error('❌ SubscriptionPlansService Error:', errorMessage);
+    console.error('📝 Formatted error message:', errorMessage);
     return throwError(() => new Error(errorMessage));
   }
 }

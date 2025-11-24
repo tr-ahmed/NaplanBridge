@@ -574,24 +574,32 @@ export class SubscriptionsComponent implements OnInit {
   // ============================================
 
   loadSubscriptionPlans(): void {
+    console.log('🔍 loadSubscriptionPlans() - Starting...');
     this.loading.set(true);
     this.plansService.getAllPlans()
       .subscribe({
         next: (plans) => {
-          console.log('✅ Plans loaded from service:', plans.length);
+          console.log('✅ Plans loaded from service:', plans);
+          console.log('   - Count:', plans.length);
+          console.log('   - Raw data:', JSON.stringify(plans, null, 2));
 
           // Filter valid plans
           this.subscriptionPlans = plans.filter(plan =>
             this.plansService.isValidPlan(plan)
           );
 
+          console.log('📊 Filtered valid plans:', this.subscriptionPlans.length);
           this.stats.totalPlans = this.subscriptionPlans.length;
           this.stats.activePlans = this.subscriptionPlans.filter(p => p.isActive).length;
-
+          
+          console.log('📈 Stats:', this.stats);
           this.loading.set(false);
         },
         error: (error) => {
           console.error('❌ Error loading subscription plans:', error);
+          console.error('   - Status:', error.status);
+          console.error('   - Message:', error.message);
+          console.error('   - Full error:', JSON.stringify(error, null, 2));
           Swal.fire('Error', error.message || 'Failed to load subscription plans', 'error');
           this.loading.set(false);
         }

@@ -1,46 +1,54 @@
-<div class="teacher-permissions-admin min-h-screen bg-gray-50 p-6">
-  <div class="max-w-7xl mx-auto">
-    <!-- Header -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900">👨‍🏫 Teacher Management</h1>
-          <p class="text-gray-600 mt-1">Manage teacher permissions and content approvals</p>
-        </div>
+<!-- Main Content -->
+<main class="px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">👨‍🏫 Teacher Management</h1>
+      <p class="text-gray-600 mt-1">Manage teacher permissions and content approvals</p>
+    </div>
 
-        @if (activeTab() === 'permissions') {
-          <button
-            (click)="openGrantModal()"
-            class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
-            <span>+</span>
-            <span>Grant Permission</span>
-          </button>
+    @if (activeTab() === 'permissions') {
+      <button
+        (click)="openGrantModal()"
+        class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        <span>Grant Permission</span>
+      </button>
+    }
+  </div>
+
+  <!-- Tabs -->
+  <div class="bg-white rounded-lg shadow-sm mb-6">
+    <nav class="tab-nav flex border-b border-gray-200">
+      <button
+        (click)="switchTab('permissions')"
+        [class.active]="activeTab() === 'permissions'"
+        class="flex-1 py-4 px-6 text-center font-medium transition-colors border-b-2"
+        [class.border-blue-600]="activeTab() === 'permissions'"
+        [class.text-blue-600]="activeTab() === 'permissions'"
+        [class.border-transparent]="activeTab() !== 'permissions'"
+        [class.text-gray-600]="activeTab() !== 'permissions'">
+        🔐 Permissions Management
+      </button>
+      <button
+        (click)="switchTab('approvals')"
+        [class.active]="activeTab() === 'approvals'"
+        class="flex-1 py-4 px-6 text-center font-medium transition-colors relative border-b-2"
+        [class.border-blue-600]="activeTab() === 'approvals'"
+        [class.text-blue-600]="activeTab() === 'approvals'"
+        [class.border-transparent]="activeTab() !== 'approvals'"
+        [class.text-gray-600]="activeTab() !== 'approvals'">
+        ⏳ Pending Approvals
+        @if (pendingApprovals().length > 0) {
+          <span class="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+            {{ pendingApprovals().length }}
+          </span>
         }
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="bg-white rounded-lg shadow-sm mb-6">
-      <nav class="tab-nav flex">
-        <button
-          (click)="switchTab('permissions')"
-          [class.active]="activeTab() === 'permissions'"
-          class="flex-1 py-4 px-6 text-center font-medium transition-colors">
-          🔐 Permissions Management
-        </button>
-        <button
-          (click)="switchTab('approvals')"
-          [class.active]="activeTab() === 'approvals'"
-          class="flex-1 py-4 px-6 text-center font-medium transition-colors relative">
-          ⏳ Pending Approvals
-          @if (pendingApprovals().length > 0) {
-            <span class="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-              {{ pendingApprovals().length }}
-            </span>
-          }
-        </button>
-      </nav>
-    </div>
+      </button>
+    </nav>
+  </div>
 
     <!-- Permissions Tab -->
     @if (activeTab() === 'permissions') {
@@ -181,7 +189,6 @@
         }
       </div>
     }
-  </div>
 
   <!-- Grant Permission Modal -->
   @if (showGrantModal()) {
@@ -392,4 +399,4 @@
       </div>
     </div>
   }
-</div>
+</main>
