@@ -73,15 +73,6 @@
       <small class="text-white/50 fw-semibold">TEACHER MANAGEMENT</small>
     </div>
 
-    <a routerLink="/teacher/content-management"
-      routerLinkActive="active"
-      (click)="closeSidebar()"
-      [routerLinkActiveOptions]="{exact: false}"
-      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-      <i class="fas fa-chalkboard"></i>
-      <span>Teacher Dashboard</span>
-    </a>
-
     <a routerLink="/admin/teacher-permissions"
       routerLinkActive="active"
       (click)="closeSidebar()"
@@ -89,15 +80,6 @@
       class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
       <i class="fas fa-shield-alt"></i>
       <span>Teacher Permissions</span>
-    </a>
-
-    <a routerLink="/admin/assign-teacher"
-      routerLinkActive="active"
-      (click)="closeSidebar()"
-      [routerLinkActiveOptions]="{exact: false}"
-      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
-      <i class="fas fa-user-plus"></i>
-      <span>Assign Teachers</span>
     </a>
 
     <!-- Subscriptions & Billing -->

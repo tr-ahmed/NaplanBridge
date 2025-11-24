@@ -34,7 +34,6 @@ import { ContentModalComponent } from '../../content-management/components/conte
 import { ResourceModalComponent } from '../../content-management/components/resource-modal/resource-modal.component';
 import { ResourceFormModalComponent } from '../../content-management/components/resource-form-modal/resource-form-modal.component';
 import { PreviewModalComponent } from '../../content-management/components/preview-modal/preview-modal.component';
-import { TeacherSidebarComponent } from '../../../shared/components/teacher-sidebar/teacher-sidebar.component';
 
 type Id = number;
 type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson' | 'category';
@@ -59,8 +58,7 @@ type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson
     ContentModalComponent,
     ResourceModalComponent,
     ResourceFormModalComponent,
-    PreviewModalComponent,
-    TeacherSidebarComponent,
+    PreviewModalComponent
   ],
   templateUrl: './teacher-content-management-redesigned.html',
   styleUrls: ['./teacher-content-management-redesigned.scss'],
@@ -72,7 +70,6 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   // ============================================
   activeTab: string = 'hierarchy';
   searchTerm = '';
-  sidebarCollapsed = false;
 
   // ============================================
   // Teacher-specific Data
@@ -442,10 +439,6 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
 
   setActiveTab(tab: string): void {
     this.activeTab = tab;
-  }
-
-  toggleSidebar(): void {
-    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   // ============================================

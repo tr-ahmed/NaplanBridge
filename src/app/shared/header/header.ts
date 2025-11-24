@@ -18,7 +18,7 @@ import { Subscription, filter } from 'rxjs';
 export class HeaderComponent implements OnInit, OnDestroy {
   navigationItems = [
     { id: 1, label: 'Home', route: '/', icon: 'home' },
-    { id: 2, label: 'About Us', route: '/', icon: 'info', fragment: 'about', isAboutSection: true },
+    { id: 2, label: 'About Us', route: '/about', icon: 'info', isAboutSection: true },
     { id: 5, label: 'Subjects', route: '/courses', icon: 'book' },
     { id: 7, label: 'Contact', route: '/contact', icon: 'mail' }
   ];
@@ -132,14 +132,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   navigateToAboutSection() {
-    if (this.router.url === '/' || this.router.url.startsWith('/#')) {
-      setTimeout(() => {
-        const el = document.getElementById('about');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } else {
-      this.router.navigate(['/'], { fragment: 'about' });
-    }
+    this.router.navigate(['/about']);
   }
 
   /**

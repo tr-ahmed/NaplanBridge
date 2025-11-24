@@ -55,9 +55,7 @@ type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson
     ContentModalComponent,
     ResourceModalComponent,
     ResourceFormModalComponent,
-    PreviewModalComponent,
-    AdminSidebarComponent,
-    AdminHeaderComponent,
+    PreviewModalComponent
   ],
   templateUrl: './content-management-redesigned.html',
   styleUrls: ['./content-management-redesigned.scss'],
@@ -226,6 +224,13 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // Cleanup if needed
+  }
+
+  /**
+   * Refresh data - reload all content from API
+   */
+  refreshData(): void {
+    this.loadAllData();
   }
 
   // ============================================

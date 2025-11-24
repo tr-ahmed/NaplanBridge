@@ -1,9 +1,5 @@
-<!-- Sidebar -->
-<app-admin-sidebar [collapsed]="sidebarCollapsed"></app-admin-sidebar>
-
 <!-- Main Content -->
-<main class="main-content min-h-screen bg-gray-50 py-8" [class.expanded]="sidebarCollapsed">
-  <div class="container mx-auto px-4">
+<main class="px-4 sm:px-6 lg:px-8 py-8">
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-8">
       <div>
@@ -584,7 +580,6 @@
       }
     </div>
     }
-  </div>
 
   <!-- Add/Edit Plan Modal -->
   @if (showPlanModal) {

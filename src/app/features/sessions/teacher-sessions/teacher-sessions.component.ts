@@ -19,9 +19,7 @@ import { TeacherHeaderComponent } from '../../../shared/components/teacher-heade
   imports: [
     CommonModule, 
     RouterLink, 
-    FormsModule,
-    TeacherSidebarComponent,
-    TeacherHeaderComponent
+    FormsModule
   ],
   templateUrl: './teacher-sessions.component.html',
   styleUrl: './teacher-sessions.component.scss'

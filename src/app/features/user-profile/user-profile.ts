@@ -45,7 +45,8 @@ export class UserProfileComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router
   ) {
-    this.userId = Number(this.route.snapshot.paramMap.get('id'));
+    const idParam = this.route.snapshot.paramMap.get('id');
+    this.userId = idParam ? Number(idParam) : 0;
   }
 
   ngOnInit(): void {
@@ -56,7 +57,13 @@ export class UserProfileComponent implements OnInit {
     this.loading = true;
     this.error = false;
 
-    this.http.get<UserProfileResponse>(environment.apiBaseUrl + `/User/profile`)
+    // إذا كان هناك userId في الـ route، نجيب بيانات المستخدم المحدد
+    // وإلا نجيب بيانات المستخدم الحالي
+    const endpoint = this.userId 
+      ? `${environment.apiBaseUrl}/User/${this.userId}`
+      : `${environment.apiBaseUrl}/User/profile`;
+
+    this.http.get<UserProfileResponse>(endpoint)
       .subscribe({
         next: (data) => {
           this.user = data;

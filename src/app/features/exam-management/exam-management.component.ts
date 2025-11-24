@@ -43,9 +43,7 @@ interface FilterOptions {
   standalone: true,
   imports: [
     CommonModule, 
-    FormsModule,
-    AdminSidebarComponent,
-    AdminHeaderComponent
+    FormsModule
   ],
   templateUrl: './exam-management.component.html',
   styleUrl: './exam-management.component.scss'
@@ -261,7 +259,7 @@ export class ExamManagementComponent implements OnInit {
    * View exam details
    */
   viewExam(examId: number): void {
-    this.router.navigate(['/teacher/exam', examId]);
+    this.router.navigate(['/admin/exam/edit', examId]);
   }
 
   /**

@@ -6,6 +6,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { catchError, of } from 'rxjs';
 import { SessionService } from '../../../core/services/session.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmationDialogService } from '../../../shared/components/confirmation-dialog/confirmation-dialog.service';
@@ -25,9 +26,7 @@ import {
   imports: [
     CommonModule, 
     FormsModule, 
-    ReactiveFormsModule,
-    TeacherSidebarComponent,
-    TeacherHeaderComponent
+    ReactiveFormsModule
   ],
   templateUrl: './teacher-availability.component.html',
   styleUrl: './teacher-availability.component.scss'
@@ -98,40 +97,60 @@ export class TeacherAvailabilityComponent implements OnInit {
   private loadData(): void {
     this.loading.set(true);
 
-    // Load settings
-    this.sessionService.getTeacherSettings().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.settings.set(response.data);
-          this.patchSettingsForm(response.data);
+    // Load settings with graceful 404 handling
+    this.sessionService.getTeacherSettings()
+      .pipe(
+        catchError((error) => {
+          // 404 is expected when teacher hasn't set up settings yet
+          if (error.statusCode === 404 || error.status === 404) {
+            console.log('✅ No settings found - teacher can create settings on first save');
+            this.toastService.showInfo('No settings found. Please configure your session settings.');
+            this.showSettingsForm.set(true); // Auto-show settings form
+            return of({ success: false, data: null, message: 'No settings found' });
+          }
+          // For other errors, show error message
+          console.error('❌ Error loading settings:', error);
+          this.toastService.showError('Failed to load settings');
+          return of({ success: false, data: null, message: 'Error loading settings' });
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            this.settings.set(response.data);
+            this.patchSettingsForm(response.data);
+          }
+          this.loadAvailabilities();
         }
-        this.loadAvailabilities();
-      },
-      error: (error) => {
-        console.error('Error loading settings:', error);
-        this.toastService.showError('Failed to load settings');
-        this.loading.set(false);
-      }
-    });
+      });
   }
 
   /**
    * Load teacher availabilities
    */
   private loadAvailabilities(): void {
-    this.sessionService.getTeacherAvailability().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.availabilities.set(response.data);
+    this.sessionService.getTeacherAvailability()
+      .pipe(
+        catchError((error) => {
+          // 404 is expected when teacher hasn't added any availability slots yet
+          if (error.statusCode === 404 || error.status === 404) {
+            console.log('✅ No availability slots found - teacher can add them using the form');
+            return of({ success: true, data: [], message: 'No availability slots found' });
+          }
+          // For other errors, show error message
+          console.error('❌ Error loading availabilities:', error);
+          this.toastService.showError('Failed to load available time slots');
+          return of({ success: false, data: [], message: 'Error loading availabilities' });
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success && response.data) {
+            this.availabilities.set(response.data);
+          }
+          this.loading.set(false);
         }
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading availabilities:', error);
-        this.toastService.showError('Failed to load available time slots');
-        this.loading.set(false);
-      }
-    });
+      });
   }
 
   /**

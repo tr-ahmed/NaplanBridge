@@ -137,14 +137,46 @@ export class FinancialReportsComponent implements OnInit {
       format
     ).subscribe({
       next: (blob) => {
-        const filename = this.reportsService.generateExportFilename(format);
-        this.reportsService.downloadFile(blob, filename);
-        this.toastService.showSuccess(`Report exported successfully as ${format.toUpperCase()}`);
-        this.exporting.set(false);
+        // Check if blob is valid
+        if (!blob || blob.size === 0) {
+          this.toastService.showError('Received empty file from server');
+          this.exporting.set(false);
+          return;
+        }
+
+        try {
+          const filename = this.reportsService.generateExportFilename(format);
+          this.reportsService.downloadFile(blob, filename);
+          
+          // Small delay to ensure download starts before showing success message
+          setTimeout(() => {
+            this.toastService.showSuccess(`Report exported successfully as ${format.toUpperCase()}`);
+            this.exporting.set(false);
+          }, 100);
+        } catch (downloadError) {
+          console.error('Error downloading file:', downloadError);
+          this.toastService.showError('Failed to download the exported file');
+          this.exporting.set(false);
+        }
       },
       error: (error) => {
         console.error('Error exporting report:', error);
-        this.toastService.showError(`Failed to export report as ${format.toUpperCase()}`);
+        
+        // Check if error is due to blob parsing (might be successful but showing error)
+        if (error.error instanceof Blob) {
+          // Sometimes the response is successful but Angular treats it as error
+          // Try to download it anyway
+          try {
+            const filename = this.reportsService.generateExportFilename(format);
+            this.reportsService.downloadFile(error.error, filename);
+            this.toastService.showSuccess(`Report exported successfully as ${format.toUpperCase()}`);
+          } catch {
+            this.toastService.showError(`Failed to export report as ${format.toUpperCase()}`);
+          }
+        } else {
+          this.toastService.showError(`Failed to export report as ${format.toUpperCase()}`);
+        }
+        
         this.exporting.set(false);
       }
     });

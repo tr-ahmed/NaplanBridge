@@ -51,9 +51,7 @@ interface FilterOptions {
   standalone: true,
   imports: [
     CommonModule, 
-    FormsModule,
-    TeacherSidebarComponent,
-    TeacherHeaderComponent
+    FormsModule
   ],
   templateUrl: './teacher-exam-management.component.html',
   styleUrl: './teacher-exam-management.component.scss'
@@ -429,7 +427,7 @@ export class TeacherExamManagementComponent implements OnInit {
       this.toastService.showWarning('You do not have permission to create exams');
       return;
     }
-    this.router.navigate(['/teacher/exam/create']);
+    this.router.navigate(['/admin/exam/create']);
   }
 
   /**
@@ -440,7 +438,7 @@ export class TeacherExamManagementComponent implements OnInit {
       this.toastService.showWarning('You do not have permission to edit this exam');
       return;
     }
-    this.router.navigate(['/teacher/exam/edit', exam.id]);
+    this.router.navigate(['/admin/exam/edit', exam.id]);
   }
 
   /**

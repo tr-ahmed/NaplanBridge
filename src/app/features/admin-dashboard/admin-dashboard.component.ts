@@ -8,8 +8,6 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
-import { AdminHeaderComponent } from '../../shared/components/admin-header/admin-header.component';
 
 interface StatCard {
   title: string;
@@ -84,9 +82,7 @@ interface ContentStats {
   standalone: true,
   imports: [
     CommonModule, 
-    RouterLink,
-    AdminSidebarComponent,
-    AdminHeaderComponent
+    RouterLink
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
@@ -195,13 +191,6 @@ export class AdminDashboardComponent implements OnInit {
       icon: 'shield-check',
       color: 'emerald',
       route: '/admin/teacher-permissions'
-    },
-    {
-      title: 'Assign Teachers',
-      description: 'Assign teachers to subjects',
-      icon: 'users-plus',
-      color: 'cyan',
-      route: '/admin/assign-teacher'
     },
     {
       title: 'System Settings',

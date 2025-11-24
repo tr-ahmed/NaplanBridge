@@ -1,25 +1,75 @@
 <!-- Main App Layout -->
-<div class="min-h-screen flex flex-col bg-gradient-to-br from-blue-800 to-blue-900">
-  <!-- Header Component -->
-  @if (showHeader) {
-    <app-header></app-header>
+<div class="min-h-screen flex flex-col">
+  
+  <!-- ========================================
+       ADMIN LAYOUT (Sidebar + Header)
+       ======================================== -->
+  @if (showAdminLayout()) {
+    <div class="flex h-screen overflow-hidden bg-gray-50">
+      <!-- Admin Sidebar -->
+      <app-admin-sidebar></app-admin-sidebar>
+      
+      <!-- Main Content Area with margin for sidebar -->
+      <div class="flex-1 flex flex-col overflow-hidden lg:ml-72">
+        <!-- Admin Header -->
+        <app-admin-header></app-admin-header>
+        
+        <!-- Admin Content with scroll -->
+        <main class="flex-1 overflow-y-auto bg-gray-50">
+          <router-outlet></router-outlet>
+        </main>
+      </div>
+    </div>
   }
 
-  <!-- Main Content Area with padding-top to account for fixed header -->
-  <main class="flex-1 pt-16 !pt-16">
-    <router-outlet></router-outlet>
-  </main>
-
-  <app-scroll-to-top />
-
-  <!-- Footer Component -->
-  @if (showFooter) {
-    <app-footer></app-footer>
+  <!-- ========================================
+       TEACHER LAYOUT (Sidebar + Header)
+       ======================================== -->
+  @if (showTeacherLayout()) {
+    <div class="flex h-screen overflow-hidden bg-gray-50">
+      <!-- Teacher Sidebar -->
+      <app-teacher-sidebar></app-teacher-sidebar>
+      
+      <!-- Main Content Area with margin for sidebar -->
+      <div class="flex-1 flex flex-col overflow-hidden lg:ml-72">
+        <!-- Teacher Header -->
+        <app-teacher-header></app-teacher-header>
+        
+        <!-- Teacher Content with scroll -->
+        <main class="flex-1 overflow-y-auto bg-gray-50">
+          <router-outlet></router-outlet>
+        </main>
+      </div>
+    </div>
   }
 
-  <!-- Toast Container for notifications -->
+  <!-- ========================================
+       PUBLIC LAYOUT (Regular Header + Footer)
+       ======================================== -->
+  @if (showPublicLayout()) {
+    <div class="min-h-screen flex flex-col bg-gradient-to-br from-blue-800 to-blue-900">
+      <!-- Public Header -->
+      @if (showHeader()) {
+        <app-header></app-header>
+      }
+
+      <!-- Main Content Area with padding-top to account for fixed header -->
+      <main class="flex-1 pt-16 !pt-16">
+        <router-outlet></router-outlet>
+      </main>
+
+      <app-scroll-to-top />
+
+      <!-- Public Footer -->
+      @if (showFooter()) {
+        <app-footer></app-footer>
+      }
+    </div>
+  }
+
+  <!-- Toast Container for notifications (Always visible) -->
   <app-toast-container></app-toast-container>
 
-  <!-- Global Confirmation Dialog -->
+  <!-- Global Confirmation Dialog (Always visible) -->
   <app-global-confirmation-dialog></app-global-confirmation-dialog>
 </div>

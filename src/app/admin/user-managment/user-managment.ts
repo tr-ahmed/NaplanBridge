@@ -14,16 +14,11 @@ import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/adm
 @Component({
   selector: 'app-user-managment',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule, AddUserModalComponent, AdminSidebarComponent],
+  imports: [RouterLink, CommonModule, FormsModule, AddUserModalComponent],
   templateUrl: './user-managment.html',
   styleUrls: ['./user-managment.scss']
 })
 export class UserManagmentComponent implements OnInit, OnDestroy {
-  sidebarCollapsed = false;
-
-  toggleSidebar() {
-    this.sidebarCollapsed = !this.sidebarCollapsed;
-  }
   // User data
   admin = {
     name: 'Admin',

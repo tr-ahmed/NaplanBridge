@@ -1,14 +1,5 @@
-<!-- Sidebar Component -->
-<app-teacher-sidebar></app-teacher-sidebar>
-
-<!-- Main Container with Dynamic Margin -->
-<div class="min-h-screen lg:ml-[280px] transition-all duration-300 bg-gradient-to-br from-slate-50 via-green-50 to-teal-50">
-  
-  <!-- Teacher Header -->
-  <app-teacher-header></app-teacher-header>
-
-  <!-- Main Content -->
-  <main class="px-4 sm:px-6 lg:px-8 py-8">
+<!-- Main Content -->
+<main class="px-4 sm:px-6 lg:px-8 py-8">
     
     <!-- Page Title -->
     <div class="mb-8">
@@ -47,8 +38,8 @@
             <span class="text-xs opacity-80">({{ upcomingSessions().length }})</span>
           </button>
 
-        <button
-          (click)="setTab('history')"
+          <button
+            (click)="setTab('history')"
           [class]="activeTab() === 'history'
             ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg transform scale-105'
             : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'"
@@ -59,6 +50,7 @@
           </div>
           <span class="text-xs opacity-80">({{ pastSessions().length }})</span>
         </button>
+        </div>
       </div>
     </div>
 
@@ -91,10 +83,10 @@
             <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
               <!-- Session Info -->
               <div class="flex-1 space-y-4">
-                <!-- Header -->
-                <div class="flex items-start justify-between gap-4">
-                <div class="flex-1">
-                  <div class="flex items-center gap-3 mb-2">
+              <!-- Header -->
+              <div class="flex items-start justify-between gap-4">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
                     <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
                       {{ session.studentName.charAt(0).toUpperCase() }}
                     </div>
@@ -300,8 +292,6 @@
     </div>
 
   </main>
-
-</div>
 
 <!-- Meeting Link Dialog (Modal) -->
 <div *ngIf="showMeetingDialog()"

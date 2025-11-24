@@ -26,9 +26,7 @@ import { AdminHeaderComponent } from '../../shared/components/admin-header/admin
   standalone: true,
   imports: [
     CommonModule, 
-    FormsModule,
-    AdminSidebarComponent,
-    AdminHeaderComponent
+    FormsModule
   ],
   templateUrl: './lesson-management.component.html',
   styleUrls: ['./lesson-management.component.scss'],

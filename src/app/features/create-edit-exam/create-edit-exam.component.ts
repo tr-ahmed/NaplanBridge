@@ -26,9 +26,7 @@ type FormStep = 'basic' | 'questions' | 'settings' | 'preview';
   standalone: true,
   imports: [
     CommonModule, 
-    ReactiveFormsModule,
-    AdminSidebarComponent,
-    AdminHeaderComponent
+    ReactiveFormsModule
   ],
   templateUrl: './create-edit-exam.component.html',
   styleUrl: './create-edit-exam.component.scss'

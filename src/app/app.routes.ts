@@ -43,7 +43,7 @@ export const routes: Routes = [
   // Public routes
   {
     path: 'about',
-    loadComponent: () => import('./pages/about/about.component').then(m => m.AboutComponent)
+    loadComponent: () => import('./features/about/about.component').then(m => m.AboutComponent)
   },
   {
     path: 'faq',

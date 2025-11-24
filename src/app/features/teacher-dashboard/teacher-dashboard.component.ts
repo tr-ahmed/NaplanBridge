@@ -57,9 +57,7 @@ interface RecentActivity {
   standalone: true,
   imports: [
     CommonModule, 
-    RouterLink,
-    TeacherSidebarComponent,
-    TeacherHeaderComponent
+    RouterLink
   ],
   templateUrl: './teacher-dashboard.component.html',
   styleUrl: './teacher-dashboard.component.scss'

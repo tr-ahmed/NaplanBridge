@@ -80,13 +80,12 @@ interface Year {
 @Component({
   selector: 'app-subscriptions',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminSidebarComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './subscriptions.component.html',
   styleUrls: ['./subscriptions.component.scss']
 })
 export class SubscriptionsComponent implements OnInit {
   // UI State
-  sidebarCollapsed = false;
   activeTab = signal<'plans' | 'orders' | 'analytics'>('plans');
   loading = signal(false);
   Math = Math;
@@ -161,10 +160,6 @@ export class SubscriptionsComponent implements OnInit {
     this.loadSubjects();     // ✅ Load subjects from API
     this.loadOrders();
     this.loadAnalytics();
-  }
-
-  toggleSidebar(): void {
-    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   changeTab(tab: 'plans' | 'orders' | 'analytics'): void {

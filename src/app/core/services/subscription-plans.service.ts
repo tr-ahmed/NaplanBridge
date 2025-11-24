@@ -76,7 +76,15 @@ export class SubscriptionPlansService {
    */
   getAllPlans(): Observable<SubscriptionPlan[]> {
     return this.http.get<SubscriptionPlan[]>(this.apiUrl).pipe(
-      tap(plans => console.log('📋 Loaded plans:', plans.length)),
+      tap(plans => {
+        console.log('📋 Loaded plans:', plans.length);
+        // Ensure planType is a number
+        plans.forEach(plan => {
+          if (typeof plan.planType === 'string') {
+            plan.planType = parseInt(plan.planType as any, 10) as PlanType;
+          }
+        });
+      }),
       catchError(this.handleError)
     );
   }
@@ -88,7 +96,13 @@ export class SubscriptionPlansService {
    */
   getPlanById(id: number): Observable<SubscriptionPlan> {
     return this.http.get<SubscriptionPlan>(`${this.apiUrl}/${id}`).pipe(
-      tap(plan => console.log('📄 Loaded plan:', plan.name)),
+      tap(plan => {
+        console.log('📄 Loaded plan:', plan.name);
+        // Ensure planType is a number
+        if (typeof plan.planType === 'string') {
+          plan.planType = parseInt(plan.planType as any, 10) as PlanType;
+        }
+      }),
       catchError(this.handleError)
     );
   }

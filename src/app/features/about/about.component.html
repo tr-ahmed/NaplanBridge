@@ -1,0 +1,199 @@
+<!-- About Us Page -->
+
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white py-20 overflow-hidden">
+  <div class="absolute inset-0 bg-black/20"></div>
+  <div class="absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-br from-blue-600/50 to-purple-600/50 animate-pulse"></div>
+  </div>
+  
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fade-in">
+        About NaplanBridge
+      </h1>
+      <p class="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
+        Empowering students to achieve their academic dreams through innovative technology and expert guidance
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a routerLink="/contact" 
+          class="px-8 py-4 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+          Get in Touch
+        </a>
+        <a routerLink="/register" 
+          class="px-8 py-4 bg-yellow-400 text-gray-900 rounded-xl font-bold hover:bg-yellow-300 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+          Start Learning
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-16 bg-white">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      @for (stat of stats; track stat.label) {
+        <div class="text-center transform hover:scale-110 transition-transform">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4">
+            <i class="fas {{ stat.icon }} text-2xl text-white"></i>
+          </div>
+          <h3 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{{ stat.number }}</h3>
+          <p class="text-gray-600 font-medium">{{ stat.label }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Our Story Section -->
+<section class="py-20 bg-gray-50">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Story</h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-6"></div>
+      </div>
+      
+      <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+        <p class="text-lg text-gray-700 leading-relaxed mb-6">
+          NaplanBridge was born from a simple yet powerful vision: to bridge the gap between students' potential and their academic success. Founded in 2020 by a team of passionate educators and technologists, we recognized that traditional learning methods weren't keeping pace with the evolving needs of modern students.
+        </p>
+        <p class="text-lg text-gray-700 leading-relaxed mb-6">
+          Our platform combines cutting-edge technology with proven educational methodologies to create a personalized learning experience for each student. We believe that every student has the potential to excel, and our mission is to provide them with the tools, resources, and support they need to unlock that potential.
+        </p>
+        <p class="text-lg text-gray-700 leading-relaxed">
+          Today, NaplanBridge serves over 10,000 students across Australia, working with 500+ expert teachers to deliver exceptional educational outcomes. Our commitment to innovation and excellence has earned us recognition as a leading EdTech platform, but our greatest achievement is the success of our students.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Our Values Section -->
+<section class="py-20 bg-white">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Core Values</h2>
+      <div class="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-6"></div>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        These principles guide everything we do and shape our commitment to students, teachers, and education
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      @for (value of values; track value.title) {
+        <div class="group bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 border border-gray-100">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-6 group-hover:scale-110 transition-transform">
+            <i class="fas {{ value.icon }} text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4">{{ value.title }}</h3>
+          <p class="text-gray-600 leading-relaxed">{{ value.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Timeline Section -->
+<section class="py-20 bg-gradient-to-br from-blue-50 to-purple-50">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Journey</h2>
+      <div class="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-6"></div>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        From a bold vision to transforming education for thousands of students
+      </p>
+    </div>
+    
+    <div class="max-w-4xl mx-auto">
+      <div class="relative">
+        <!-- Timeline Line -->
+        <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-blue-600 to-purple-600 hidden md:block"></div>
+        
+        @for (item of timeline; track item.year; let i = $index) {
+          <div class="relative mb-12 md:mb-16">
+            <div class="flex flex-col md:flex-row items-center">
+              <!-- Year Badge -->
+              <div class="flex items-center justify-center w-full md:w-auto md:absolute md:left-1/2 md:transform md:-translate-x-1/2 mb-4 md:mb-0">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full font-bold text-lg shadow-lg z-10">
+                  {{ item.year }}
+                </div>
+              </div>
+              
+              <!-- Content -->
+              <div class="w-full md:w-5/12" [class.md:ml-auto]="i % 2 === 0" [class.md:mr-auto]="i % 2 !== 0" [class.md:text-right]="i % 2 === 0">
+                <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all transform hover:scale-105">
+                  <p class="text-gray-700 leading-relaxed">{{ item.event }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-20 bg-white">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
+      <div class="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-6"></div>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        Passionate educators and technologists dedicated to your success
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      @for (member of teamMembers; track member.name) {
+        <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 overflow-hidden">
+          <div class="relative overflow-hidden">
+            <img [src]="member.image" [alt]="member.name" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </div>
+          
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-1">{{ member.name }}</h3>
+            <p class="text-blue-600 font-semibold mb-3">{{ member.role }}</p>
+            <p class="text-gray-600 text-sm leading-relaxed mb-4">{{ member.bio }}</p>
+            
+            <div class="flex gap-3">
+              <a [href]="member.social.linkedin" class="w-10 h-10 bg-blue-100 hover:bg-blue-600 text-blue-600 hover:text-white rounded-lg flex items-center justify-center transition-all">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+              <a [href]="member.social.twitter" class="w-10 h-10 bg-blue-100 hover:bg-blue-400 text-blue-600 hover:text-white rounded-lg flex items-center justify-center transition-all">
+                <i class="fab fa-twitter"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Start Your Success Story?</h2>
+      <p class="text-xl text-blue-100 mb-8 leading-relaxed">
+        Join thousands of students who are achieving their academic goals with NaplanBridge
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a routerLink="/register" 
+          class="px-8 py-4 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+          <i class="fas fa-user-plus mr-2"></i>
+          Sign Up Now
+        </a>
+        <a routerLink="/contact" 
+          class="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold hover:bg-white hover:text-blue-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+          <i class="fas fa-envelope mr-2"></i>
+          Contact Us
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
