@@ -54,19 +54,19 @@
             <p class="text-2xl font-bold text-gray-900">{{ settings()!.bufferTimeMinutes }} <span class="text-base text-gray-600">minutes</span></p>
           </div>
 
-          <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
+          <div class="bg-gradient-to-br from-cyan-50 to-sky-50 p-6 rounded-xl border border-cyan-200">
             <div class="flex items-center gap-3 mb-2">
-              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               <p class="text-sm font-medium text-gray-700">Price per Session</p>
             </div>
-            <p class="text-2xl font-bold text-gray-900">${{ settings()!.pricePerSession }}</p>
+            <p class="text-2xl font-bold text-gray-900">\${{ settings()!.pricePerSession }}</p>
           </div>
 
-          <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-xl border border-orange-200">
+          <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-200">
             <div class="flex items-center gap-3 mb-2">
-              <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
               <p class="text-sm font-medium text-gray-700">Max Daily Sessions</p>
@@ -74,15 +74,15 @@
             <p class="text-2xl font-bold text-gray-900">{{ settings()!.maxSessionsPerDay || '-' }} <span class="text-base text-gray-600">sessions</span></p>
           </div>
 
-          <div class="bg-gradient-to-br from-teal-50 to-cyan-50 p-6 rounded-xl border border-teal-200">
+          <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-200">
             <div class="flex items-center gap-3 mb-2">
-              <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               <p class="text-sm font-medium text-gray-700">Booking Status</p>
             </div>
             <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold"
-                  [class]="settings()!.isAcceptingBookings ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                  [class]="settings()!.isAcceptingBookings ? 'bg-cyan-100 text-cyan-800' : 'bg-red-100 text-red-800'">
               {{ settings()!.isAcceptingBookings ? 'Open' : 'Closed' }}
             </span>
           </div>
@@ -202,7 +202,7 @@
 
         <!-- Add Availability Form -->
         <form *ngIf="showAvailabilityForm()" [formGroup]="availabilityForm" (ngSubmit)="addAvailability()"
-              class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 p-6 rounded-xl mb-6">
+              class="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 p-6 rounded-xl mb-6">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Add New Time Slot</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Day of Week -->

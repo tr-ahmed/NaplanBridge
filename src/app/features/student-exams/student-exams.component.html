@@ -62,12 +62,12 @@
         </div>
 
         <!-- Upcoming Exams -->
-        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
+        <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-green-100 text-sm font-medium uppercase tracking-wide">Upcoming</p>
+              <p class="text-cyan-100 text-sm font-medium uppercase tracking-wide">Upcoming</p>
               <p class="text-4xl font-bold mt-2">{{ upcomingCount() }}</p>
-              <p class="text-green-100 text-xs mt-1">Not started yet</p>
+              <p class="text-cyan-100 text-xs mt-1">Not started yet</p>
             </div>
             <div class="bg-white/20 rounded-xl p-3">
               <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,14 +94,14 @@
         </div>
 
         <!-- Average Score -->
-        <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
+        <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-orange-100 text-sm font-medium uppercase tracking-wide">Avg Score</p>
+              <p class="text-indigo-100 text-sm font-medium uppercase tracking-wide">Avg Score</p>
               <p class="text-4xl font-bold mt-2">
                 {{ averageScore() }}%
               </p>
-              <p class="text-orange-100 text-xs mt-1">Overall performance</p>
+              <p class="text-indigo-100 text-xs mt-1">Overall performance</p>
             </div>
             <div class="bg-white/20 rounded-xl p-3">
               <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,10 +182,10 @@
           </div>
         </div>
 
-        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition-transform duration-200">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-green-100 text-sm font-medium mb-1">Completed</p>
+              <p class="text-purple-100 text-sm font-medium mb-1">Completed</p>
               <p class="text-4xl font-bold">{{ completedExams().length }}</p>
             </div>
             <div class="p-4 bg-white/20 rounded-xl backdrop-blur-sm">
@@ -352,8 +352,8 @@
 
         @if (completedExams().length === 0) {
           <div class="bg-white rounded-2xl shadow-md p-12 text-center border border-gray-100">
-            <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center">
-              <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center">
+              <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
               </svg>
             </div>

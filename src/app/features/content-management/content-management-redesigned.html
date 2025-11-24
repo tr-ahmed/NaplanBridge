@@ -4,47 +4,47 @@
 <main class="px-4 sm:px-6 lg:px-8 py-8">
     
     <!-- Header -->
-    <div class="mb-8">
-      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-8 text-white">
-        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div class="flex-1">
-            <div class="flex items-center gap-3 mb-3">
-              <div class="p-3 bg-white/20 backdrop-blur-lg rounded-xl">
-                <i class="fas fa-layer-group text-3xl"></i>
+    <div class="mb-6 md:mb-8">
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg md:rounded-xl shadow-lg p-4 sm:p-6 md:p-8 text-white">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 md:gap-6">
+          <div class="flex-1 w-full">
+            <div class="flex items-center gap-2 sm:gap-3 mb-3">
+              <div class="p-2 sm:p-3 bg-white/20 backdrop-blur-lg rounded-lg md:rounded-xl">
+                <i class="fas fa-layer-group text-xl sm:text-2xl md:text-3xl"></i>
               </div>
               <div>
-                <h1 class="text-3xl lg:text-4xl font-bold">Content Management</h1>
-                <p class="text-blue-100 text-sm mt-1">Manage all educational content in one place</p>
+                <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">Content Management</h1>
+                <p class="text-blue-100 text-xs sm:text-sm mt-1 hidden sm:block">Manage all educational content in one place</p>
               </div>
             </div>
-            <div class="flex flex-wrap items-center gap-4 text-sm">
-              <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                <i class="fas fa-database"></i>
-                <span>{{ totalCounts.years + totalCounts.categories + totalCounts.subjectNames + totalCounts.subjects + totalCounts.terms + totalCounts.weeks + totalCounts.lessons }} Total Items</span>
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 text-xs sm:text-sm">
+              <div class="flex items-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-sm px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg">
+                <i class="fas fa-database text-xs sm:text-sm"></i>
+                <span class="whitespace-nowrap">{{ totalCounts.years + totalCounts.categories + totalCounts.subjectNames + totalCounts.subjects + totalCounts.terms + totalCounts.weeks + totalCounts.lessons }} Items</span>
               </div>
-              <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                <i class="fas fa-graduation-cap"></i>
-                <span>{{ totalCounts.lessons }} Lessons</span>
+              <div class="flex items-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-sm px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg">
+                <i class="fas fa-graduation-cap text-xs sm:text-sm"></i>
+                <span class="whitespace-nowrap">{{ totalCounts.lessons }} Lessons</span>
               </div>
-              <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+              <div class="hidden sm:flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 md:px-4 py-2 rounded-lg">
                 <i class="fas fa-book"></i>
                 <span>{{ totalCounts.subjects }} Subjects</span>
               </div>
             </div>
           </div>
-          <div class="flex flex-wrap gap-3">
+          <div class="flex flex-wrap gap-2 sm:gap-3 w-full lg:w-auto">
             <button
               type="button"
               (click)="refreshData()"
-              class="px-5 py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2">
-              <i class="fas fa-sync-alt"></i>
+              class="flex-1 sm:flex-none px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 bg-white text-blue-600 rounded-lg md:rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+              <i class="fas fa-sync-alt text-sm sm:text-base"></i>
               <span>Refresh</span>
             </button>
             <button
               type="button"
               (click)="openAdd('lesson')"
-              class="px-5 py-3 bg-yellow-400 text-gray-900 rounded-xl font-semibold hover:bg-yellow-300 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2">
-              <i class="fas fa-plus-circle"></i>
+              class="flex-1 sm:flex-none px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 bg-yellow-400 text-gray-900 rounded-lg md:rounded-xl font-semibold hover:bg-yellow-300 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+              <i class="fas fa-plus-circle text-sm sm:text-base"></i>
               <span>New Lesson</span>
             </button>
           </div>
@@ -53,177 +53,177 @@
     </div>
 
     <!-- Stats Overview with Modern Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-8">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 md:gap-4 mb-6 md:mb-8">
       
       <!-- Years Card -->
-      <div class="group relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="group relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg md:rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
         <div class="relative z-10">
-          <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-2">
-            <i class="fas fa-calendar-alt text-white text-lg"></i>
+          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+            <i class="fas fa-calendar-alt text-white text-base sm:text-lg"></i>
           </div>
-          <p class="text-2xl font-bold text-white mb-1">{{ totalCounts.years }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.years }}</p>
           <p class="text-blue-100 text-xs font-medium">Years</p>
         </div>
         <div class="absolute -right-2 -bottom-2 opacity-10">
-          <i class="fas fa-calendar-alt text-white text-4xl"></i>
+          <i class="fas fa-calendar-alt text-white text-3xl sm:text-4xl"></i>
         </div>
       </div>
 
       <!-- Categories Card -->
-      <div class="group relative overflow-hidden bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="group relative overflow-hidden bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg md:rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
         <div class="relative z-10">
-          <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-2">
-            <i class="fas fa-folder text-white text-lg"></i>
+          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+            <i class="fas fa-folder text-white text-base sm:text-lg"></i>
           </div>
-          <p class="text-2xl font-bold text-white mb-1">{{ totalCounts.categories }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.categories }}</p>
           <p class="text-cyan-100 text-xs font-medium">Categories</p>
         </div>
         <div class="absolute -right-2 -bottom-2 opacity-10">
-          <i class="fas fa-folder text-white text-4xl"></i>
+          <i class="fas fa-folder text-white text-3xl sm:text-4xl"></i>
         </div>
       </div>
 
       <!-- Subject Names Card -->
-      <div class="group relative overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="group relative overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg md:rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
         <div class="relative z-10">
-          <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-2">
-            <i class="fas fa-tag text-white text-lg"></i>
+          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+            <i class="fas fa-tag text-white text-base sm:text-lg"></i>
           </div>
-          <p class="text-2xl font-bold text-white mb-1">{{ totalCounts.subjectNames }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.subjectNames }}</p>
           <p class="text-xs font-medium text-indigo-100">Subject Names</p>
         </div>
         <div class="absolute -right-2 -bottom-2 opacity-10">
-          <i class="fas fa-tag text-white text-4xl"></i>
+          <i class="fas fa-tag text-white text-3xl sm:text-4xl"></i>
         </div>
       </div>
 
       <!-- Subjects Card -->
-      <div class="group relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="group relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg md:rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
         <div class="relative z-10">
-          <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-2">
-            <i class="fas fa-book text-white text-lg"></i>
+          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+            <i class="fas fa-book text-white text-base sm:text-lg"></i>
           </div>
-          <p class="text-2xl font-bold text-white mb-1">{{ totalCounts.subjects }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.subjects }}</p>
           <p class="text-purple-100 text-xs font-medium">Subjects</p>
         </div>
         <div class="absolute -right-2 -bottom-2 opacity-10">
-          <i class="fas fa-book text-white text-4xl"></i>
+          <i class="fas fa-book text-white text-3xl sm:text-4xl"></i>
         </div>
       </div>
 
       <!-- Terms Card -->
-      <div class="group relative overflow-hidden bg-gradient-to-br from-sky-500 to-sky-600 rounded-xl p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="group relative overflow-hidden bg-gradient-to-br from-sky-500 to-sky-600 rounded-lg md:rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
         <div class="relative z-10">
-          <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-2">
-            <i class="fas fa-chart-line text-white text-lg"></i>
+          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+            <i class="fas fa-chart-line text-white text-base sm:text-lg"></i>
           </div>
-          <p class="text-2xl font-bold text-white mb-1">{{ totalCounts.terms }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.terms }}</p>
           <p class="text-sky-100 text-xs font-medium">Terms</p>
         </div>
         <div class="absolute -right-2 -bottom-2 opacity-10">
-          <i class="fas fa-chart-line text-white text-4xl"></i>
+          <i class="fas fa-chart-line text-white text-3xl sm:text-4xl"></i>
         </div>
       </div>
 
       <!-- Weeks Card -->
-      <div class="group relative overflow-hidden bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="group relative overflow-hidden bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg md:rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
         <div class="relative z-10">
-          <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-2">
-            <i class="fas fa-calendar-week text-white text-lg"></i>
+          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+            <i class="fas fa-calendar-week text-white text-base sm:text-lg"></i>
           </div>
-          <p class="text-2xl font-bold text-white mb-1">{{ totalCounts.weeks }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.weeks }}</p>
           <p class="text-teal-100 text-xs font-medium">Weeks</p>
         </div>
         <div class="absolute -right-2 -bottom-2 opacity-10">
-          <i class="fas fa-calendar-week text-white text-4xl"></i>
+          <i class="fas fa-calendar-week text-white text-3xl sm:text-4xl"></i>
         </div>
       </div>
 
       <!-- Lessons Card -->
-      <div class="group relative overflow-hidden bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="group relative overflow-hidden bg-gradient-to-br from-violet-500 to-violet-600 rounded-lg md:rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
         <div class="relative z-10">
-          <div class="p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-2">
-            <i class="fas fa-graduation-cap text-white text-lg"></i>
+          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+            <i class="fas fa-graduation-cap text-white text-base sm:text-lg"></i>
           </div>
-          <p class="text-2xl font-bold text-white mb-1">{{ totalCounts.lessons }}</p>
+          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.lessons }}</p>
           <p class="text-violet-100 text-xs font-medium">Lessons</p>
         </div>
         <div class="absolute -right-2 -bottom-2 opacity-10">
-          <i class="fas fa-graduation-cap text-white text-4xl"></i>
+          <i class="fas fa-graduation-cap text-white text-3xl sm:text-4xl"></i>
         </div>
       </div>
     </div>
 
     <!-- Action Buttons Grid -->
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-gray-900 flex items-center gap-3">
-          <div class="p-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg">
-            <i class="fas fa-magic text-white"></i>
+    <div class="bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 mb-6 md:mb-8 border border-gray-100">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
+          <div class="p-1.5 sm:p-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg">
+            <i class="fas fa-magic text-white text-sm sm:text-base"></i>
           </div>
           Quick Actions
         </h2>
-        <span class="text-sm text-gray-500 font-medium">Create new content instantly</span>
+        <span class="text-xs sm:text-sm text-gray-500 font-medium">Create new content instantly</span>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
         <button type="button" (click)="openAdd('year')"
-          class="flex flex-col items-center gap-3 p-5 bg-blue-50 hover:bg-blue-100 rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-3 bg-blue-500 rounded-lg shadow-md">
-            <i class="fas fa-calendar-plus text-white text-xl"></i>
+          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-blue-50 hover:bg-blue-100 rounded-lg md:rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all transform hover:scale-105 hover:shadow-lg">
+          <div class="p-2 sm:p-2.5 md:p-3 bg-blue-500 rounded-lg shadow-md">
+            <i class="fas fa-calendar-plus text-white text-base sm:text-lg md:text-xl"></i>
           </div>
-          <span class="text-sm font-semibold text-blue-900 text-center">Add Year</span>
+          <span class="text-xs sm:text-sm font-semibold text-blue-900 text-center">Add Year</span>
         </button>
 
         <button type="button" (click)="openAdd('category')"
-          class="flex flex-col items-center gap-3 p-5 bg-cyan-50 hover:bg-cyan-100 rounded-xl border-2 border-cyan-200 hover:border-cyan-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-3 bg-cyan-500 rounded-lg shadow-md">
-            <i class="fas fa-folder-plus text-white text-xl"></i>
+          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-cyan-50 hover:bg-cyan-100 rounded-lg md:rounded-xl border-2 border-cyan-200 hover:border-cyan-400 transition-all transform hover:scale-105 hover:shadow-lg">
+          <div class="p-2 sm:p-2.5 md:p-3 bg-cyan-500 rounded-lg shadow-md">
+            <i class="fas fa-folder-plus text-white text-base sm:text-lg md:text-xl"></i>
           </div>
-          <span class="text-sm font-semibold text-cyan-900 text-center">Add Category</span>
+          <span class="text-xs sm:text-sm font-semibold text-cyan-900 text-center">Add Category</span>
         </button>
 
         <button type="button" (click)="openAdd('subjectName')"
-          class="flex flex-col items-center gap-3 p-5 bg-indigo-50 hover:bg-indigo-100 rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-3 bg-indigo-500 rounded-lg shadow-md">
-            <i class="fas fa-tag text-white text-xl"></i>
+          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-indigo-50 hover:bg-indigo-100 rounded-lg md:rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition-all transform hover:scale-105 hover:shadow-lg">
+          <div class="p-2 sm:p-2.5 md:p-3 bg-indigo-500 rounded-lg shadow-md">
+            <i class="fas fa-tag text-white text-base sm:text-lg md:text-xl"></i>
           </div>
-          <span class="text-sm font-semibold text-indigo-900 text-center">Subject Name</span>
+          <span class="text-xs sm:text-sm font-semibold text-indigo-900 text-center">Subject Name</span>
         </button>
 
         <button type="button" (click)="openAdd('subject')"
-          class="flex flex-col items-center gap-3 p-5 bg-purple-50 hover:bg-purple-100 rounded-xl border-2 border-purple-200 hover:border-purple-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-3 bg-purple-500 rounded-lg shadow-md">
-            <i class="fas fa-book-medical text-white text-xl"></i>
+          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-purple-50 hover:bg-purple-100 rounded-lg md:rounded-xl border-2 border-purple-200 hover:border-purple-400 transition-all transform hover:scale-105 hover:shadow-lg">
+          <div class="p-2 sm:p-2.5 md:p-3 bg-purple-500 rounded-lg shadow-md">
+            <i class="fas fa-book-medical text-white text-base sm:text-lg md:text-xl"></i>
           </div>
-          <span class="text-sm font-semibold text-purple-900 text-center">Add Subject</span>
+          <span class="text-xs sm:text-sm font-semibold text-purple-900 text-center">Add Subject</span>
         </button>
 
         <button type="button" (click)="openAdd('term')"
-          class="flex flex-col items-center gap-3 p-5 bg-sky-50 hover:bg-sky-100 rounded-xl border-2 border-sky-200 hover:border-sky-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-3 bg-sky-500 rounded-lg shadow-md">
-            <i class="fas fa-chart-line text-white text-xl"></i>
+          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-sky-50 hover:bg-sky-100 rounded-lg md:rounded-xl border-2 border-sky-200 hover:border-sky-400 transition-all transform hover:scale-105 hover:shadow-lg">
+          <div class="p-2 sm:p-2.5 md:p-3 bg-sky-500 rounded-lg shadow-md">
+            <i class="fas fa-chart-line text-white text-base sm:text-lg md:text-xl"></i>
           </div>
-          <span class="text-sm font-semibold text-sky-900 text-center">Add Term</span>
+          <span class="text-xs sm:text-sm font-semibold text-sky-900 text-center">Add Term</span>
         </button>
 
         <button type="button" (click)="openAdd('lesson')"
-          class="flex flex-col items-center gap-3 p-5 bg-violet-50 hover:bg-violet-100 rounded-xl border-2 border-violet-200 hover:border-violet-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-3 bg-violet-500 rounded-lg shadow-md">
-            <i class="fas fa-graduation-cap text-white text-xl"></i>
+          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-violet-50 hover:bg-violet-100 rounded-lg md:rounded-xl border-2 border-violet-200 hover:border-violet-400 transition-all transform hover:scale-105 hover:shadow-lg">
+          <div class="p-2 sm:p-2.5 md:p-3 bg-violet-500 rounded-lg shadow-md">
+            <i class="fas fa-graduation-cap text-white text-base sm:text-lg md:text-xl"></i>
           </div>
-          <span class="text-sm font-semibold text-violet-900 text-center">Add Lesson</span>
+          <span class="text-xs sm:text-sm font-semibold text-violet-900 text-center">Add Lesson</span>
         </button>
       </div>
     </div>
 
     <!-- Search and Filter -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
       
       <!-- Search -->
-      <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <label class="block text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <div class="p-2 bg-blue-100 rounded-lg">
-            <i class="fas fa-search text-blue-600"></i>
+      <div class="lg:col-span-2 bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 border border-gray-100">
+        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+          <div class="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
+            <i class="fas fa-search text-blue-600 text-sm sm:text-base"></i>
           </div>
           Search Content
         </label>
@@ -235,32 +235,32 @@
             type="text"
             [(ngModel)]="searchTerm"
             (ngModelChange)="onSearchChange()"
-            placeholder="Search years, subjects, lessons, and more..."
-            class="w-full pl-12 pr-24 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all">
+            placeholder="Search..."
+            class="w-full pl-10 sm:pl-12 pr-16 sm:pr-24 py-2 sm:py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm transition-all">
           @if (searchTerm) {
             <button
               type="button"
               (click)="clearSearch()"
-              class="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium transition-all">
-              <i class="fas fa-times mr-1"></i>
-              Clear
+              class="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 px-2 sm:px-3 py-1 sm:py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium transition-all">
+              <i class="fas fa-times sm:mr-1"></i>
+              <span class="hidden sm:inline">Clear</span>
             </button>
           }
         </div>
       </div>
 
       <!-- Filter -->
-      <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <label class="block text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <div class="p-2 bg-indigo-100 rounded-lg">
-            <i class="fas fa-filter text-indigo-600"></i>
+      <div class="bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 border border-gray-100">
+        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+          <div class="p-1.5 sm:p-2 bg-indigo-100 rounded-lg">
+            <i class="fas fa-filter text-indigo-600 text-sm sm:text-base"></i>
           </div>
           Filter by Year
         </label>
         <select
           [(ngModel)]="filters.yearId"
           (change)="onFilterChange()"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm transition-all">
+          class="w-full px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-xs sm:text-sm transition-all">
           <option [value]="null">All Years</option>
           <option *ngFor="let year of years" [value]="year.id">Year {{ year.yearNumber }}</option>
         </select>
@@ -268,54 +268,56 @@
     </div>
 
     <!-- Quick Links -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
       
       <!-- Analytics Link -->
       <a routerLink="/admin/analytics-dashboard" 
-        class="group relative block bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg hover:shadow-xl p-6 transform hover:-translate-y-1 transition-all duration-300">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="p-3 bg-white/20 rounded-lg backdrop-blur-lg">
-              <i class="fas fa-chart-bar text-white text-3xl"></i>
+        class="group relative block bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg md:rounded-xl shadow-lg hover:shadow-xl p-4 sm:p-5 md:p-6 transform hover:-translate-y-1 transition-all duration-300">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 sm:gap-4 flex-1">
+            <div class="p-2 sm:p-2.5 md:p-3 bg-white/20 rounded-lg backdrop-blur-lg flex-shrink-0">
+              <i class="fas fa-chart-bar text-white text-xl sm:text-2xl md:text-3xl"></i>
             </div>
-            <div>
-              <h3 class="text-xl font-bold text-white mb-1">Analytics Dashboard</h3>
-              <p class="text-blue-100 text-sm font-medium">View detailed insights & reports</p>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base sm:text-lg md:text-xl font-bold text-white mb-0.5 sm:mb-1 truncate">Analytics Dashboard</h3>
+              <p class="text-blue-100 text-xs sm:text-sm font-medium hidden sm:block">View detailed insights & reports</p>
+              <p class="text-blue-100 text-xs font-medium sm:hidden">View insights</p>
             </div>
           </div>
-          <div class="p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-all">
-            <i class="fas fa-arrow-right text-white text-xl group-hover:translate-x-1 transition-transform"></i>
+          <div class="p-1.5 sm:p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-all flex-shrink-0">
+            <i class="fas fa-arrow-right text-white text-base sm:text-lg md:text-xl group-hover:translate-x-1 transition-transform"></i>
           </div>
         </div>
       </a>
 
       <!-- Exams Link -->
       <a routerLink="/admin/exams" 
-        class="group relative block bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg hover:shadow-xl p-6 transform hover:-translate-y-1 transition-all duration-300">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="p-3 bg-white/20 rounded-lg backdrop-blur-lg">
-              <i class="fas fa-file-alt text-white text-3xl"></i>
+        class="group relative block bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg md:rounded-xl shadow-lg hover:shadow-xl p-4 sm:p-5 md:p-6 transform hover:-translate-y-1 transition-all duration-300">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 sm:gap-4 flex-1">
+            <div class="p-2 sm:p-2.5 md:p-3 bg-white/20 rounded-lg backdrop-blur-lg flex-shrink-0">
+              <i class="fas fa-file-alt text-white text-xl sm:text-2xl md:text-3xl"></i>
             </div>
-            <div>
-              <h3 class="text-xl font-bold text-white mb-1">Exams Management</h3>
-              <p class="indigo-100 text-sm font-medium">Create & manage assessments</p>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base sm:text-lg md:text-xl font-bold text-white mb-0.5 sm:mb-1 truncate">Exams Management</h3>
+              <p class="text-purple-100 text-xs sm:text-sm font-medium hidden sm:block">Create & manage assessments</p>
+              <p class="text-purple-100 text-xs font-medium sm:hidden">Manage assessments</p>
             </div>
           </div>
-          <div class="p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-all">
-            <i class="fas fa-arrow-right text-white text-xl group-hover:translate-x-1 transition-transform"></i>
+          <div class="p-1.5 sm:p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-all flex-shrink-0">
+            <i class="fas fa-arrow-right text-white text-base sm:text-lg md:text-xl group-hover:translate-x-1 transition-transform"></i>
           </div>
         </div>
       </a>
     </div>
 
     <!-- Content Tabs -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-      <div class="border-b border-gray-200 bg-gray-50">
-        <nav class="flex space-x-1 px-6 py-3" aria-label="Tabs">
+    <div class="bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden border border-gray-100">
+      <div class="border-b border-gray-200 bg-gray-50 overflow-x-auto">
+        <nav class="flex space-x-1 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 min-w-max sm:min-w-0" aria-label="Tabs">
           <button
             type="button"
-            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
             [class.border-blue-500]="activeTab === 'hierarchy'"
             [class.border-transparent]="activeTab !== 'hierarchy'"
             [class.text-blue-600]="activeTab === 'hierarchy'"
@@ -323,16 +325,17 @@
             [class.hover:text-blue-700]="activeTab !== 'hierarchy'"
             [class.hover:border-gray-300]="activeTab !== 'hierarchy'"
             (click)="setActiveTab('hierarchy')">
-            <i class="fas fa-sitemap mr-2 text-lg"
+            <i class="fas fa-sitemap mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
                [class.text-blue-500]="activeTab === 'hierarchy'"
                [class.text-gray-400]="activeTab !== 'hierarchy'"
                [class.group-hover:text-blue-700]="activeTab !== 'hierarchy'"></i>
-            Hierarchy View
+            <span class="hidden sm:inline">Hierarchy View</span>
+            <span class="sm:hidden">Hierarchy</span>
           </button>
 
           <button
             type="button"
-            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
             [class.border-blue-500]="activeTab === 'years'"
             [class.border-transparent]="activeTab !== 'years'"
             [class.text-blue-600]="activeTab === 'years'"
@@ -340,7 +343,7 @@
             [class.hover:text-blue-700]="activeTab !== 'years'"
             [class.hover:border-gray-300]="activeTab !== 'years'"
             (click)="setActiveTab('years')">
-            <i class="fas fa-calendar-alt mr-2 text-lg"
+            <i class="fas fa-calendar-alt mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
                [class.text-blue-500]="activeTab === 'years'"
                [class.text-gray-400]="activeTab !== 'years'"
                [class.group-hover:text-blue-700]="activeTab !== 'years'"></i>
@@ -349,7 +352,7 @@
 
           <button
             type="button"
-            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
             [class.border-blue-500]="activeTab === 'categories'"
             [class.border-transparent]="activeTab !== 'categories'"
             [class.text-blue-600]="activeTab === 'categories'"
@@ -357,7 +360,7 @@
             [class.hover:text-blue-700]="activeTab !== 'categories'"
             [class.hover:border-gray-300]="activeTab !== 'categories'"
             (click)="setActiveTab('categories')">
-            <i class="fas fa-folder mr-2 text-lg"
+            <i class="fas fa-folder mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
                [class.text-blue-500]="activeTab === 'categories'"
                [class.text-gray-400]="activeTab !== 'categories'"
                [class.group-hover:text-blue-700]="activeTab !== 'categories'"></i>
@@ -366,7 +369,7 @@
 
           <button
             type="button"
-            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
             [class.border-blue-500]="activeTab === 'subjectNames'"
             [class.border-transparent]="activeTab !== 'subjectNames'"
             [class.text-blue-600]="activeTab === 'subjectNames'"
@@ -374,16 +377,17 @@
             [class.hover:text-blue-700]="activeTab !== 'subjectNames'"
             [class.hover:border-gray-300]="activeTab !== 'subjectNames'"
             (click)="setActiveTab('subjectNames')">
-            <i class="fas fa-tag mr-2 text-lg"
+            <i class="fas fa-tag mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
                [class.text-blue-500]="activeTab === 'subjectNames'"
                [class.text-gray-400]="activeTab !== 'subjectNames'"
                [class.group-hover:text-blue-700]="activeTab !== 'subjectNames'"></i>
-            Subject Names
+            <span class="hidden sm:inline">Subject Names</span>
+            <span class="sm:hidden">Subjects</span>
           </button>
 
           <button
             type="button"
-            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
             [class.border-blue-500]="activeTab === 'subjects'"
             [class.border-transparent]="activeTab !== 'subjects'"
             [class.text-blue-600]="activeTab === 'subjects'"
@@ -391,7 +395,7 @@
             [class.hover:text-blue-700]="activeTab !== 'subjects'"
             [class.hover:border-gray-300]="activeTab !== 'subjects'"
             (click)="setActiveTab('subjects')">
-            <i class="fas fa-book mr-2 text-lg"
+            <i class="fas fa-book mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
                [class.text-blue-500]="activeTab === 'subjects'"
                [class.text-gray-400]="activeTab !== 'subjects'"
                [class.group-hover:text-blue-700]="activeTab !== 'subjects'"></i>
@@ -400,7 +404,7 @@
 
           <button
             type="button"
-            class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
+            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
             [class.border-blue-500]="activeTab === 'lessons'"
             [class.border-transparent]="activeTab !== 'lessons'"
             [class.text-blue-600]="activeTab === 'lessons'"
@@ -408,7 +412,7 @@
             [class.hover:text-blue-700]="activeTab !== 'lessons'"
             [class.hover:border-gray-300]="activeTab !== 'lessons'"
             (click)="setActiveTab('lessons')">
-            <i class="fas fa-graduation-cap mr-2 text-lg"
+            <i class="fas fa-graduation-cap mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
                [class.text-blue-500]="activeTab === 'lessons'"
                [class.text-gray-400]="activeTab !== 'lessons'"
                [class.group-hover:text-blue-700]="activeTab !== 'lessons'"></i>
@@ -417,32 +421,34 @@
         </nav>
       </div>
 
-      <div class="p-6">
+      <div class="p-4 sm:p-5 md:p-6">
         <!-- Tab Content -->
         <div class="tab-content">
 
           <!-- Hierarchy View Tab -->
           @if (activeTab === 'hierarchy') {
             <div class="hierarchy-view">
-              <div class="flex justify-between items-center mb-6">
-                <h4 class="text-xl font-bold text-gray-900">
-                  <i class="fas fa-sitemap mr-2"></i>
-                  Content Hierarchy
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
+                <h4 class="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <i class="fas fa-sitemap text-sm sm:text-base"></i>
+                  <span>Content Hierarchy</span>
                 </h4>
-                <div class="flex gap-2">
+                <div class="flex gap-2 w-full sm:w-auto">
                   <button
                     type="button"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                    class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs sm:text-sm font-medium"
                     (click)="expandAll()">
                     <i class="fas fa-plus-square mr-1"></i>
-                    Expand All
+                    <span class="hidden sm:inline">Expand All</span>
+                    <span class="sm:hidden">Expand</span>
                   </button>
                   <button
                     type="button"
-                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium"
+                    class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-xs sm:text-sm font-medium"
                     (click)="collapseAll()">
                     <i class="fas fa-minus-square mr-1"></i>
-                    Collapse All
+                    <span class="hidden sm:inline">Collapse All</span>
+                    <span class="sm:hidden">Collapse</span>
                   </button>
                 </div>
               </div>
