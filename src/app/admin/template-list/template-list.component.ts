@@ -12,8 +12,7 @@ import {
   CATEGORY_ICONS,
   CHANNEL_ICONS,
   EventCategory,
-  NotificationChannel,
-  translateFromArabic
+  NotificationChannel
 } from '../../models/notification-template.models';
 
 @Component({
@@ -242,13 +241,5 @@ export class TemplateListComponent implements OnInit {
    */
   setViewMode(mode: 'grid' | 'list') {
     this.viewMode.set(mode);
-  }
-
-  /**
-   * Translate Arabic text to English
-   */
-  translateText(text?: string): string {
-    if (!text) return '';
-    return translateFromArabic(text);
   }
 }
