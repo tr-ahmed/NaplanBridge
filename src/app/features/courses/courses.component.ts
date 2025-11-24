@@ -711,28 +711,25 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     // Check using exact subjectId and yearId from enhanced cart items
     const inCart = cart.items.some((item: any) => {
-      this.logger.log('🔄 Checking cart item:', {
-        hasSubjectId: item.subjectId !== undefined,
-        hasYearId: item.yearId !== undefined,
-        subjectId: item.subjectId,
-        yearId: item.yearId,
-        subjectName: item.subjectName,
-        planName: item.planName,
-        legacyCourseName: item.course?.name || item.course?.subjectName
-      });
+      // Removed excessive logging from inside loop to reduce noise
 
       // New backend structure with IDs
       if (item.subjectId !== undefined && item.yearId !== undefined) {
-        const match = item.subjectId === course.id && item.yearId === course.yearId;
+        // Compare subjectId from cart with subjectNameId from course
+        // AND compare yearId to ensure it's the same year
+        const match = item.subjectId === course.subjectNameId && item.yearId === course.yearId;
 
-        this.logger.log('✅ Using exact ID matching:', {
-          courseId: course.id,
-          courseName: course.name || course.subjectName,
-          courseYearId: course.yearId,
-          itemSubjectId: item.subjectId,
-          itemYearId: item.yearId,
-          match
-        });
+        // Only log if there's a match to reduce noise
+        if (match) {
+          this.logger.log('✅ Course is in cart:', {
+            courseId: course.id,
+            courseName: course.name || course.subjectName,
+            courseYearId: course.yearId,
+            courseSubjectNameId: course.subjectNameId,
+            itemSubjectId: item.subjectId,
+            itemYearId: item.yearId
+          });
+        }
 
         return match;
       }
