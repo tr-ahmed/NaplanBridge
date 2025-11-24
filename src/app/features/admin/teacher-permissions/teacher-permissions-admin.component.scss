@@ -1,7 +1,4 @@
-.teacher-permissions-admin {
-  min-height: 100vh;
-  background-color: #f9fafb;
-}
+// Teacher Permissions Admin Component Styles
 
 .permissions-card {
   transition: all 0.2s ease;
@@ -87,39 +84,6 @@
   &.normal {
     color: #10b981;
     font-weight: 500;
-  }
-}
-
-.tab-nav {
-  border-bottom: 2px solid #e5e7eb;
-
-  button {
-    position: relative;
-    padding: 1rem 1.5rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-
-    &.active {
-      color: #2563eb;
-
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background-color: #2563eb;
-      }
-    }
-
-    &:not(.active) {
-      color: #6b7280;
-
-      &:hover {
-        color: #374151;
-      }
-    }
   }
 }
 
