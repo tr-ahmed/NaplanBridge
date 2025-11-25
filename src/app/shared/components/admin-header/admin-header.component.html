@@ -2,13 +2,22 @@
   <div class="px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       
-      <!-- Left Section: Logo & Title -->
-      <div class="flex items-center gap-4">
+      <!-- Left Section: Hamburger Menu (Mobile) & Logo -->
+      <div class="flex items-center gap-3 sm:gap-4">
+        <!-- Hamburger Menu Button - Visible on small screens -->
+        <button
+          (click)="onToggleSidebar()"
+          class="lg:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+          aria-label="Toggle sidebar">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+        
+        <!-- Logo & Title -->
         <div class="flex items-center gap-3">
           <div class="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
             <i class="fas fa-layer-group text-white text-xl"></i>
           </div>
-          <div>
+          <div class="hidden sm:block">
             <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Admin Dashboard
             </h1>
