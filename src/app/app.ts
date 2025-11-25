@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, OnDestroy, computed } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/header/header';
@@ -35,6 +35,9 @@ import { filter } from 'rxjs/operators';
 export class AppComponent implements OnInit, OnDestroy {
   protected readonly title = signal('NAPLAN-Bridge Learning Platform');
 
+  @ViewChild(AdminSidebarComponent) adminSidebar?: AdminSidebarComponent;
+  @ViewChild(TeacherSidebarComponent) teacherSidebar?: TeacherSidebarComponent;
+
   showHeader = signal(true);
   showFooter = signal(true);
   showAdminLayout = signal(false);
@@ -64,6 +67,14 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.routerEventsSubscription) {
       this.routerEventsSubscription.unsubscribe();
     }
+  }
+
+  onToggleAdminSidebar(): void {
+    this.adminSidebar?.toggleSidebar();
+  }
+
+  onToggleTeacherSidebar(): void {
+    this.teacherSidebar?.toggleSidebar();
   }
 
   private checkCurrentRoute() {

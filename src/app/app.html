@@ -12,7 +12,7 @@
       <!-- Main Content Area with margin for sidebar -->
       <div class="flex-1 flex flex-col overflow-hidden lg:ml-72">
         <!-- Admin Header -->
-        <app-admin-header></app-admin-header>
+        <app-admin-header (toggleSidebar)="onToggleAdminSidebar()"></app-admin-header>
         
         <!-- Admin Content with scroll -->
         <main class="flex-1 overflow-y-auto bg-gray-50">
@@ -33,7 +33,7 @@
       <!-- Main Content Area with margin for sidebar -->
       <div class="flex-1 flex flex-col overflow-hidden lg:ml-72">
         <!-- Teacher Header -->
-        <app-teacher-header></app-teacher-header>
+        <app-teacher-header (toggleSidebar)="onToggleTeacherSidebar()"></app-teacher-header>
         
         <!-- Teacher Content with scroll -->
         <main class="flex-1 overflow-y-auto bg-gray-50">

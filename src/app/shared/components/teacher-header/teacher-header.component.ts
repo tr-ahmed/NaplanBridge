@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, signal, OnDestroy, HostListener, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -28,6 +28,8 @@ interface UserProfileResponse {
   styleUrls: ['./teacher-header.component.scss']
 })
 export class TeacherHeaderComponent implements OnInit, OnDestroy {
+  @Output() toggleSidebar = new EventEmitter<void>();
+  
   fullProfile = signal<UserProfileResponse | null>(null);
 
   // Notifications
@@ -52,6 +54,10 @@ export class TeacherHeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.notificationSubscription?.unsubscribe();
+  }
+
+  onToggleSidebar(): void {
+    this.toggleSidebar.emit();
   }
 
   private loadUserProfile(): void {
