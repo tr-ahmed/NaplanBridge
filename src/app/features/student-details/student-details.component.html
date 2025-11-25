@@ -252,9 +252,9 @@
                 <span>📅</span>
                 <span>Upcoming Exams</span>
               </h3>
-              @if (studentDetails()!.upcomingExams.length > 0) {
+              @if (filteredUpcomingExams().length > 0) {
                 <div class="space-y-3">
-                  @for (exam of studentDetails()!.upcomingExams; track exam.examId) {
+                  @for (exam of filteredUpcomingExams(); track exam.examId) {
                     <div class="p-3 border border-gray-200 rounded-lg">
                       <div class="font-semibold text-gray-900">{{ exam.title }}</div>
                       <div class="text-sm text-gray-600 mt-1">{{ exam.subject }}</div>
@@ -269,6 +269,9 @@
                 <div class="text-center py-8 text-gray-500">
                   <div class="text-4xl mb-2">📭</div>
                   <p>No upcoming exams</p>
+                  @if (studentDetails()!.activeSubscriptions.length === 0) {
+                    <p class="text-sm mt-2">Subscribe to subjects to access exams</p>
+                  }
                 </div>
               }
             </div>

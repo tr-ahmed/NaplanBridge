@@ -44,6 +44,27 @@ export class StudentDetailsComponent implements OnInit {
   // Computed
   hasData = computed(() => this.studentDetails() !== null);
 
+  /**
+   * ✅ Filter upcoming exams to show ONLY exams for subjects with active subscriptions
+   * This prevents showing exams for subjects the student hasn't subscribed to yet
+   */
+  filteredUpcomingExams = computed(() => {
+    const details = this.studentDetails();
+    if (!details) return [];
+
+    // Get list of subjects with active subscriptions
+    const activeSubjects = new Set(
+      details.activeSubscriptions
+        .filter(sub => sub.isActive)
+        .map(sub => sub.subject.toLowerCase())
+    );
+
+    // Filter exams to only show those for subscribed subjects
+    return details.upcomingExams.filter(exam =>
+      activeSubjects.has(exam.subject.toLowerCase())
+    );
+  });
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
