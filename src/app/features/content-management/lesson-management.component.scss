@@ -1,40 +1,82 @@
-// Lesson Management Component Styles
-.lesson-management-container {
-  min-height: 100vh;
+// Modern Lesson Management Component Styles
+
+// Hide scrollbar but keep functionality
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 }
 
-// Custom scrollbar for content areas
-.lesson-management-container {
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+// Smooth scroll behavior
+* {
+  scroll-behavior: smooth;
+}
 
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
+// Custom animations
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
 
-  ::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 10px;
-  }
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+// Gradient text
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Card hover effects
+.modern-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+}
+
+// Glass morphism effect
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+// Custom scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  
+  &:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
   }
 }
 
 // Smooth transitions
-.lesson-management-container {
-  button, a {
-    transition: all 0.2s ease-in-out;
-  }
+button, a {
+  transition: all 0.2s ease-in-out;
 }
 
 // Card hover effects
-.lesson-management-container {
-  .bg-white {
-    transition: box-shadow 0.3s ease-in-out;
-  }
+.bg-white {
+  transition: box-shadow 0.3s ease-in-out;
 }

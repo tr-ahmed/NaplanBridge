@@ -1,268 +1,355 @@
-<!-- Main Content -->
-<main class="px-4 sm:px-6 lg:px-8 py-8">
+<!-- Modern Lesson Management Interface -->
+<main class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+  <div class="px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 max-w-7xl mx-auto">
 
-    <!-- Page Title -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
+    <!-- Modern Header with Gradient -->
+    <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 mb-6 relative overflow-hidden">
+      <!-- Decorative Elements -->
+      <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
+      <div class="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
+      
+      <div class="relative z-10">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+            <button
+              type="button"
+              (click)="goBack()"
+              class="p-2 sm:p-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-xl transition-all hover:scale-105 flex-shrink-0 group">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+            </button>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <div class="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                  <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                  </svg>
+                </div>
+                <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white truncate">Lesson Management</h1>
+              </div>
+              <p class="text-xs sm:text-sm text-white/90 truncate flex items-center gap-2" *ngIf="lesson">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ lesson.title }}
+              </p>
+            </div>
+          </div>
           <button
             type="button"
-            (click)="goBack()"
-            class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            (click)="openLessonEdit()"
+            class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-indigo-600 rounded-xl hover:bg-gray-50 font-semibold flex items-center justify-center gap-2 text-sm sm:text-base shadow-lg hover:shadow-xl transition-all hover:scale-105 flex-shrink-0 group">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
             </svg>
+            <span class="hidden sm:inline">Edit Lesson</span>
+            <span class="sm:hidden">Edit</span>
           </button>
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900">Lesson Management</h1>
-            <p class="text-gray-600 mt-1" *ngIf="lesson">{{ lesson.title }}</p>
-          </div>
         </div>
-        <button
-          type="button"
-          (click)="openLessonEdit()"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-          </svg>
-          Edit Lesson
-        </button>
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    <!-- Modern Loading State -->
+    <div *ngIf="isLoading" class="flex flex-col justify-center items-center py-16 sm:py-20">
+      <div class="relative">
+        <div class="animate-spin rounded-full h-16 w-16 sm:h-20 sm:w-20 border-4 border-indigo-200"></div>
+        <div class="animate-spin rounded-full h-16 w-16 sm:h-20 sm:w-20 border-4 border-t-indigo-600 absolute top-0 left-0"></div>
+      </div>
+      <p class="mt-4 text-gray-600 font-medium">Loading lesson...</p>
     </div>
 
     <!-- Main Content -->
-    <div *ngIf="!isLoading && lesson">
+    <div *ngIf="!isLoading && lesson" class="space-y-6">
 
-      <!-- Lesson Overview Card -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Modern Lesson Overview Card -->
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-5 sm:p-6 md:p-8 border border-gray-100">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           <div>
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">Lesson Details</h2>
-            <div class="space-y-3">
-              <div>
-                <label class="text-sm font-medium text-gray-500">Title</label>
-                <p class="text-gray-900">{{ lesson.title }}</p>
+            <div class="flex items-center gap-3 mb-5">
+              <div class="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
               </div>
-              <div>
-                <label class="text-sm font-medium text-gray-500">Description</label>
-                <p class="text-gray-700">{{ lesson.description || 'No description' }}</p>
-              </div>
-              <div>
-                <label class="text-sm font-medium text-gray-500">Duration</label>
-                <p class="text-gray-900">{{ lesson.duration || 0 }} minutes</p>
-              </div>
+              <h2 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Lesson Details</h2>
             </div>
-          </div>
-          <div>
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">Media</h2>
             <div class="space-y-4">
-              <div *ngIf="lesson.posterUrl">
-                <label class="text-sm font-medium text-gray-500">Poster</label>
-                <img [src]="lesson.posterUrl" alt="Lesson poster" class="w-full h-48 object-cover rounded-lg mt-2">
+              <div class="group">
+                <label class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                  </svg>
+                  Title
+                </label>
+                <p class="text-sm sm:text-base text-gray-900 font-medium mt-1.5 group-hover:text-indigo-600 transition-colors">{{ lesson.title }}</p>
               </div>
-              <div *ngIf="lesson.videoUrl">
-                <label class="text-sm font-medium text-gray-500">Video</label>
-                <video #videoPlayer controls class="w-full h-48 rounded-lg mt-2"></video>
+              <div class="group">
+                <label class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                  </svg>
+                  Description
+                </label>
+                <p class="text-sm sm:text-base text-gray-700 mt-1.5 leading-relaxed">{{ lesson.description || 'No description provided' }}</p>
+              </div>
+              <div class="group">
+                <label class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Duration
+                </label>
+                <p class="text-sm sm:text-base text-gray-900 font-medium mt-1.5 flex items-center gap-2">
+                  <span class="px-3 py-1 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 rounded-full font-semibold">
+                    {{ lesson.duration || 0 }} minutes
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center gap-3 mb-5">
+              <div class="p-2.5 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <h2 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Media</h2>
+            </div>
+            <div class="space-y-5">
+              <div *ngIf="lesson.posterUrl" class="group">
+                <label class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2 block">Poster</label>
+                <div class="relative overflow-hidden rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-300">
+                  <img [src]="lesson.posterUrl" alt="Lesson poster" class="w-full h-48 sm:h-56 object-cover transform group-hover:scale-105 transition-transform duration-500">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+              </div>
+              <div *ngIf="lesson.videoUrl" class="group">
+                <label class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2 block">Video Preview</label>
+                <div class="relative overflow-hidden rounded-2xl shadow-lg">
+                  <video #videoPlayer controls class="w-full h-48 sm:h-56 rounded-2xl bg-gray-900"></video>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow-sm p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Resources</p>
-              <p class="text-2xl font-bold text-blue-600">{{ resources.length }}</p>
+      <!-- Modern Stats Cards with Gradients -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <!-- Resources Card -->
+        <div class="group bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-5 relative overflow-hidden cursor-pointer hover:scale-105">
+          <div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl group-hover:rotate-12 transition-transform duration-300">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+              </div>
             </div>
-            <div class="p-3 bg-blue-100 rounded-full">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-white mb-1">{{ resources.length }}</p>
+            <p class="text-xs sm:text-sm text-white/90 font-medium">Resources</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Notes</p>
-              <p class="text-2xl font-bold text-green-600">{{ notes.length }}</p>
+        <!-- Notes Card -->
+        <div class="group bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-5 relative overflow-hidden cursor-pointer hover:scale-105">
+          <div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl group-hover:rotate-12 transition-transform duration-300">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </div>
             </div>
-            <div class="p-3 bg-green-100 rounded-full">
-              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-              </svg>
-            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-white mb-1">{{ notes.length }}</p>
+            <p class="text-xs sm:text-sm text-white/90 font-medium">Notes</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Questions</p>
-              <p class="text-2xl font-bold text-purple-600">{{ questions.length }}</p>
+        <!-- Questions Card -->
+        <div class="group bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-5 relative overflow-hidden cursor-pointer hover:scale-105">
+          <div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl group-hover:rotate-12 transition-transform duration-300">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
             </div>
-            <div class="p-3 bg-purple-100 rounded-full">
-              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-white mb-1">{{ questions.length }}</p>
+            <p class="text-xs sm:text-sm text-white/90 font-medium">Questions</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Discussions</p>
-              <p class="text-2xl font-bold text-yellow-600">{{ discussions.length }}</p>
+        <!-- Discussions Card -->
+        <div class="group bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-5 relative overflow-hidden cursor-pointer hover:scale-105">
+          <div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl group-hover:rotate-12 transition-transform duration-300">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+                </svg>
+              </div>
             </div>
-            <div class="p-3 bg-yellow-100 rounded-full">
-              <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
-              </svg>
-            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-white mb-1">{{ discussions.length }}</p>
+            <p class="text-xs sm:text-sm text-white/90 font-medium">Discussions</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Exams</p>
-              <p class="text-2xl font-bold text-red-600">{{ exams.length }}</p>
+        <!-- Exams Card -->
+        <div class="group bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-5 relative overflow-hidden cursor-pointer hover:scale-105">
+          <div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl group-hover:rotate-12 transition-transform duration-300">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                </svg>
+              </div>
             </div>
-            <div class="p-3 bg-red-100 rounded-full">
-              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-              </svg>
-            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-white mb-1">{{ exams.length }}</p>
+            <p class="text-xs sm:text-sm text-white/90 font-medium">Exams</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm p-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500">Chapters</p>
-              <p class="text-2xl font-bold text-indigo-600">{{ chapters.length }}</p>
+        <!-- Chapters Card -->
+        <div class="group bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-5 relative overflow-hidden cursor-pointer hover:scale-105">
+          <div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-3">
+              <div class="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl group-hover:rotate-12 transition-transform duration-300">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+              </div>
             </div>
-            <div class="p-3 bg-indigo-100 rounded-full">
-              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-              </svg>
-            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-white mb-1">{{ chapters.length }}</p>
+            <p class="text-xs sm:text-sm text-white/90 font-medium">Chapters</p>
           </div>
         </div>
       </div>
 
-      <!-- Tabs -->
-      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div class="border-b border-gray-200">
-          <nav class="flex space-x-2 px-4" aria-label="Tabs">
-            <button
-              type="button"
-              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
-              [class.border-blue-500]="activeTab === 'overview'"
-              [class.border-transparent]="activeTab !== 'overview'"
-              [class.text-blue-600]="activeTab === 'overview'"
-              [class.text-gray-500]="activeTab !== 'overview'"
-              (click)="setActiveTab('overview')">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              Overview
-            </button>
+      <!-- Modern Tabs Section -->
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <!-- Tabs Header - Modern Pill Style -->
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 p-3 sm:p-4 border-b border-gray-200">
+          <div class="overflow-x-auto scrollbar-hide">
+            <nav class="flex gap-2 min-w-max sm:min-w-0" aria-label="Tabs">
+              <button
+                type="button"
+                class="group relative px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 whitespace-nowrap"
+                [class]="activeTab === 'overview' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg shadow-indigo-500/50 scale-105' : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-md'"
+                (click)="setActiveTab('overview')">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5 sm:mr-2" [class.animate-pulse]="activeTab === 'overview'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="hidden sm:inline">Overview</span>
+                <span class="sm:hidden">Info</span>
+              </button>
 
-            <button
-              type="button"
-              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
-              [class.border-blue-500]="activeTab === 'resources'"
-              [class.border-transparent]="activeTab !== 'resources'"
-              [class.text-blue-600]="activeTab === 'resources'"
-              [class.text-gray-500]="activeTab !== 'resources'"
-              (click)="setActiveTab('resources')">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-              Resources ({{ resources.length }})
-            </button>
+              <button
+                type="button"
+                class="group relative px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 whitespace-nowrap"
+                [class]="activeTab === 'resources' ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/50 scale-105' : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-md'"
+                (click)="setActiveTab('resources')">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5 sm:mr-2" [class.animate-pulse]="activeTab === 'resources'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="hidden sm:inline">Resources</span>
+                <span class="sm:hidden">Files</span>
+                <span class="ml-1.5 sm:ml-2 px-2 py-0.5 text-xs rounded-full"
+                      [class]="activeTab === 'resources' ? 'bg-white/30' : 'bg-gray-200 text-gray-700'">
+                  {{ resources.length }}
+                </span>
+              </button>
 
-            <button
-              type="button"
-              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
-              [class.border-blue-500]="activeTab === 'notes'"
-              [class.border-transparent]="activeTab !== 'notes'"
-              [class.text-blue-600]="activeTab === 'notes'"
-              [class.text-gray-500]="activeTab !== 'notes'"
-              (click)="setActiveTab('notes')">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-              </svg>
-              Notes ({{ notes.length }})
-            </button>
+              <button
+                type="button"
+                class="group relative px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 whitespace-nowrap"
+                [class]="activeTab === 'notes' ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-500/50 scale-105' : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-md'"
+                (click)="setActiveTab('notes')">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5 sm:mr-2" [class.animate-pulse]="activeTab === 'notes'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                <span class="hidden sm:inline">Notes</span>
+                <span class="sm:hidden">Notes</span>
+                <span class="ml-1.5 sm:ml-2 px-2 py-0.5 text-xs rounded-full"
+                      [class]="activeTab === 'notes' ? 'bg-white/30' : 'bg-gray-200 text-gray-700'">
+                  {{ notes.length }}
+                </span>
+              </button>
 
-            <button
-              type="button"
-              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
-              [class.border-blue-500]="activeTab === 'questions'"
-              [class.border-transparent]="activeTab !== 'questions'"
-              [class.text-blue-600]="activeTab === 'questions'"
-              [class.text-gray-500]="activeTab !== 'questions'"
-              (click)="setActiveTab('questions')">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              Questions ({{ questions.length }})
-            </button>
+              <button
+                type="button"
+                class="group relative px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 whitespace-nowrap"
+                [class]="activeTab === 'questions' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/50 scale-105' : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-md'"
+                (click)="setActiveTab('questions')">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5 sm:mr-2" [class.animate-pulse]="activeTab === 'questions'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="hidden sm:inline">Questions</span>
+                <span class="sm:hidden">Quiz</span>
+                <span class="ml-1.5 sm:ml-2 px-2 py-0.5 text-xs rounded-full"
+                      [class]="activeTab === 'questions' ? 'bg-white/30' : 'bg-gray-200 text-gray-700'">
+                  {{ questions.length }}
+                </span>
+              </button>
 
-            <button
-              type="button"
-              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
-              [class.border-blue-500]="activeTab === 'discussions'"
-              [class.border-transparent]="activeTab !== 'discussions'"
-              [class.text-blue-600]="activeTab === 'discussions'"
-              [class.text-gray-500]="activeTab !== 'discussions'"
-              (click)="setActiveTab('discussions')">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
-              </svg>
-              Discussions ({{ discussions.length }})
-            </button>
+              <button
+                type="button"
+                class="group relative px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 whitespace-nowrap"
+                [class]="activeTab === 'discussions' ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-lg shadow-yellow-500/50 scale-105' : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-md'"
+                (click)="setActiveTab('discussions')">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5 sm:mr-2" [class.animate-pulse]="activeTab === 'discussions'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+                </svg>
+                <span class="hidden sm:inline">Discussions</span>
+                <span class="sm:hidden">Chat</span>
+                <span class="ml-1.5 sm:ml-2 px-2 py-0.5 text-xs rounded-full"
+                      [class]="activeTab === 'discussions' ? 'bg-white/30' : 'bg-gray-200 text-gray-700'">
+                  {{ discussions.length }}
+                </span>
+              </button>
 
-            <button
-              type="button"
-              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
-              [class.border-blue-500]="activeTab === 'exams'"
-              [class.border-transparent]="activeTab !== 'exams'"
-              [class.text-blue-600]="activeTab === 'exams'"
-              [class.text-gray-500]="activeTab !== 'exams'"
-              (click)="setActiveTab('exams')">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-              </svg>
-              Exams ({{ exams.length }})
-            </button>
+              <button
+                type="button"
+                class="group relative px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 whitespace-nowrap"
+                [class]="activeTab === 'exams' ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/50 scale-105' : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-md'"
+                (click)="setActiveTab('exams')">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5 sm:mr-2" [class.animate-pulse]="activeTab === 'exams'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                </svg>
+                <span class="hidden sm:inline">Exams</span>
+                <span class="sm:hidden">Tests</span>
+                <span class="ml-1.5 sm:ml-2 px-2 py-0.5 text-xs rounded-full"
+                      [class]="activeTab === 'exams' ? 'bg-white/30' : 'bg-gray-200 text-gray-700'">
+                  {{ exams.length }}
+                </span>
+              </button>
 
-            <button
-              type="button"
-              class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all"
-              [class.border-blue-500]="activeTab === 'chapters'"
-              [class.border-transparent]="activeTab !== 'chapters'"
-              [class.text-blue-600]="activeTab === 'chapters'"
-              [class.text-gray-500]="activeTab !== 'chapters'"
-              (click)="setActiveTab('chapters')">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-              </svg>
-              Chapters ({{ chapters.length }})
-            </button>
-          </nav>
+              <button
+                type="button"
+                class="group relative px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold rounded-xl transition-all duration-300 whitespace-nowrap"
+                [class]="activeTab === 'chapters' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/50 scale-105' : 'text-gray-600 hover:bg-white hover:text-gray-900 hover:shadow-md'"
+                (click)="setActiveTab('chapters')">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block mr-1.5 sm:mr-2" [class.animate-pulse]="activeTab === 'chapters'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <span class="hidden sm:inline">Chapters</span>
+                <span class="sm:hidden">Chs</span>
+                <span class="ml-1.5 sm:ml-2 px-2 py-0.5 text-xs rounded-full"
+                      [class]="activeTab === 'chapters' ? 'bg-white/30' : 'bg-gray-200 text-gray-700'">
+                  {{ chapters.length }}
+                </span>
+              </button>
+            </nav>
+          </div>
         </div>
 
         <!-- Tab Content -->
@@ -661,13 +748,13 @@
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
     </div>
 
-  </main>
+  </div>
+</main>
 
 <!-- ============================================ -->
 <!-- MODALS -->

@@ -1010,16 +1010,16 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           data.orderIndex
         ).toPromise();
 
-        // Navigate to lesson detail page
+        // Navigate to lesson management page
         if (newLesson && newLesson.id) {
           await Swal.fire({
             icon: 'success',
             title: 'Success!',
-            text: 'Lesson created successfully. Redirecting to lesson details...',
+            text: 'Lesson created successfully. Redirecting to lesson management...',
             timer: 1500,
             showConfirmButton: false
           });
-          this.router.navigate(['/lesson-detail', newLesson.id]);
+          this.router.navigate(['/admin/lesson-management', newLesson.id]);
         }
         break;
     }

@@ -1,0 +1,281 @@
+<!-- Main Content - Responsive Design -->
+<main class="min-h-screen bg-gray-50">
+  <div class="px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+
+    <!-- Header - Responsive -->
+    <div class="mb-4 sm:mb-6 md:mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <!-- Back Button + Title -->
+        <div class="flex items-center gap-2 sm:gap-3 md:gap-4">
+          <button
+            type="button"
+            (click)="goBack()"
+            class="p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+          </button>
+          <div class="min-w-0 flex-1">
+            <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 truncate">Lesson Management</h1>
+            <p class="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1 truncate" *ngIf="lesson">{{ lesson.title }}</p>
+          </div>
+        </div>
+
+        <!-- Edit Button -->
+        <button
+          type="button"
+          (click)="openLessonEdit()"
+          class="w-full sm:w-auto px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center gap-2 text-sm sm:text-base flex-shrink-0">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          <span class="hidden sm:inline">Edit Lesson</span>
+          <span class="sm:hidden">Edit</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12 sm:py-16">
+      <div class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isLoading && lesson" class="space-y-4 sm:space-y-6">
+
+      <!-- Lesson Overview Card - Responsive -->
+      <div class="bg-white rounded-lg shadow-sm p-4 sm:p-5 md:p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
+          <!-- Details -->
+          <div>
+            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Lesson Details</h2>
+            <div class="space-y-2 sm:space-y-3">
+              <div>
+                <label class="text-xs sm:text-sm font-medium text-gray-500">Title</label>
+                <p class="text-sm sm:text-base text-gray-900 mt-0.5">{{ lesson.title }}</p>
+              </div>
+              <div>
+                <label class="text-xs sm:text-sm font-medium text-gray-500">Description</label>
+                <p class="text-sm sm:text-base text-gray-700 mt-0.5">{{ lesson.description || 'No description' }}</p>
+              </div>
+              <div>
+                <label class="text-xs sm:text-sm font-medium text-gray-500">Duration</label>
+                <p class="text-sm sm:text-base text-gray-900 mt-0.5">{{ lesson.duration || 0 }} minutes</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Media -->
+          <div>
+            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Media</h2>
+            <div class="space-y-3 sm:space-y-4">
+              <div *ngIf="lesson.posterUrl">
+                <label class="text-xs sm:text-sm font-medium text-gray-500">Poster</label>
+                <img [src]="lesson.posterUrl" alt="Lesson poster" class="w-full h-40 sm:h-48 object-cover rounded-lg mt-2">
+              </div>
+              <div *ngIf="lesson.videoUrl">
+                <label class="text-xs sm:text-sm font-medium text-gray-500">Video</label>
+                <video #videoPlayer controls class="w-full h-40 sm:h-48 rounded-lg mt-2"></video>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards - Responsive Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
+        <!-- Resources -->
+        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 truncate">Resources</p>
+              <p class="text-xl sm:text-2xl font-bold text-blue-600">{{ resources.length }}</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-blue-100 rounded-full self-start">
+              <svg class="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 truncate">Notes</p>
+              <p class="text-xl sm:text-2xl font-bold text-green-600">{{ notes.length }}</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-green-100 rounded-full self-start">
+              <svg class="w-4 h-4 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Questions -->
+        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 truncate">Questions</p>
+              <p class="text-xl sm:text-2xl font-bold text-purple-600">{{ questions.length }}</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-purple-100 rounded-full self-start">
+              <svg class="w-4 h-4 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discussions -->
+        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 truncate">Discussions</p>
+              <p class="text-xl sm:text-2xl font-bold text-yellow-600">{{ discussions.length }}</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-yellow-100 rounded-full self-start">
+              <svg class="w-4 h-4 sm:w-6 sm:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exams -->
+        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 truncate">Exams</p>
+              <p class="text-xl sm:text-2xl font-bold text-red-600">{{ exams.length }}</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-red-100 rounded-full self-start">
+              <svg class="w-4 h-4 sm:w-6 sm:h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chapters -->
+        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 truncate">Chapters</p>
+              <p class="text-xl sm:text-2xl font-bold text-indigo-600">{{ chapters.length }}</p>
+            </div>
+            <div class="p-2 sm:p-3 bg-indigo-100 rounded-full self-start">
+              <svg class="w-4 h-4 sm:w-6 sm:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs Section - Responsive -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <!-- Tabs Header - Horizontal Scroll on Mobile -->
+        <div class="border-b border-gray-200 overflow-x-auto">
+          <nav class="flex gap-1 sm:gap-2 px-2 sm:px-4 min-w-max sm:min-w-0" aria-label="Tabs">
+            <button *ngFor="let tab of tabsList" type="button"
+              class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all whitespace-nowrap"
+              [class.border-blue-500]="activeTab === tab.id"
+              [class.border-transparent]="activeTab !== tab.id"
+              [class.text-blue-600]="activeTab === tab.id"
+              [class.text-gray-500]="activeTab !== tab.id"
+              (click)="setActiveTab(tab.id)">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="tab.icon"></path>
+              </svg>
+              <span class="hidden sm:inline">{{ tab.label }}</span>
+              <span class="sm:hidden">{{ tab.shortLabel || tab.label }}</span>
+              <span class="ml-1.5 sm:ml-2 px-1.5 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full" 
+                    [class.bg-blue-100]="activeTab === tab.id"
+                    [class.text-blue-700]="activeTab === tab.id">
+                {{ tab.count }}
+              </span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Tab Content - Responsive Padding -->
+        <div class="p-3 sm:p-4 md:p-6">
+          @switch (activeTab) {
+            @case ('overview') {
+              <div class="text-center py-8 sm:py-12">
+                <svg class="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">Lesson Overview</h3>
+                <p class="mt-1 text-xs sm:text-sm text-gray-500">View lesson statistics and quick actions above</p>
+              </div>
+            }
+
+            @case ('resources') {
+              <div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+                  <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Resources</h2>
+                  <button type="button" (click)="openAddResource()"
+                    class="w-full sm:w-auto px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center gap-2 text-sm">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Add Resource
+                  </button>
+                </div>
+
+                <div *ngIf="isLoadingResources" class="text-center py-6 sm:py-8">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                </div>
+
+                <div *ngIf="!isLoadingResources && resources.length === 0" class="text-center py-8 sm:py-12">
+                  <svg class="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  <h3 class="mt-2 text-sm font-medium text-gray-900">No resources</h3>
+                  <p class="mt-1 text-xs sm:text-sm text-gray-500">Get started by adding a new resource</p>
+                </div>
+
+                <div *ngIf="!isLoadingResources && resources.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  <div *ngFor="let resource of resources" class="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
+                    <div class="flex items-start gap-2 sm:gap-3">
+                      <div class="flex-1 min-w-0">
+                        <h3 class="font-semibold text-sm sm:text-base text-gray-900 truncate">{{ resource.title }}</h3>
+                        <p class="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{{ resource.description }}</p>
+                        <div class="mt-2 flex items-center gap-2">
+                          <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{{ resource.resourceType }}</span>
+                        </div>
+                      </div>
+                      <div class="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 flex-shrink-0">
+                        <button type="button" (click)="openEditResource(resource)"
+                          class="p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                          </svg>
+                        </button>
+                        <button type="button" (click)="deleteResource(resource)"
+                          class="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded transition-colors">
+                          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Similar patterns for other tabs: notes, questions, discussions, exams, chapters -->
+            <!-- Keeping the structure consistent but with responsive classes -->
+            
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
