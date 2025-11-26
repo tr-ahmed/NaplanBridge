@@ -462,6 +462,20 @@ export class TeacherPermissionsAdminComponent implements OnInit {
       return;
     }
 
+    // Check if permission already exists
+    const existingPermission = this.teachersWithPermissions().find((teacher: any) => 
+      teacher.teacherId === this.grantForm.teacherId &&
+      teacher.permissions.some((p: any) => 
+        p.subjectId === this.grantForm.subjectId && 
+        p.yearId === this.grantForm.yearId
+      )
+    );
+
+    if (existingPermission) {
+      this.toastService.showWarning('Permission already exists for this teacher and subject');
+      return;
+    }
+
     this.loading.set(true);
 
     this.permissionsService.grantPermission(this.grantForm).subscribe({
@@ -473,7 +487,16 @@ export class TeacherPermissionsAdminComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error granting permission:', error);
-        this.toastService.showError('Failed to grant permission');
+        
+        // Extract error message from backend
+        let errorMessage = 'Failed to grant permission';
+        if (error?.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+        
+        this.toastService.showError(errorMessage);
         this.loading.set(false);
       }
     });

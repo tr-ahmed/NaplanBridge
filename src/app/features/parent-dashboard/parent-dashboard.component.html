@@ -1,32 +1,34 @@
 <!-- Parent Dashboard -->
-<div class="min-h-screen bg-gray-50 py-8">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- Header -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">Parent Dashboard</h1>
-        <p class="mt-1 text-sm text-gray-600">Monitor and manage your children's learning progress</p>
+        <h1 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          Parent Dashboard
+        </h1>
+        <p class="mt-1 text-xs sm:text-sm text-gray-600">Monitor and manage your children's learning progress</p>
       </div>
 
-      <div class="flex gap-3">
+      <div class="flex gap-2 sm:gap-3">
         <button
           (click)="refreshDashboard()"
-          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
-          <span class="text-lg">🔄</span>
-          <span class="hidden sm:inline">Refresh</span>
+          class="px-3 sm:px-4 py-2 bg-white/80 backdrop-blur-sm border border-indigo-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 transition-all duration-300 flex items-center gap-2 hover:scale-[1.02]">
+          <i class="fas fa-sync-alt text-gray-700"></i>
+          <span class="hidden sm:inline text-xs sm:text-sm font-medium text-gray-700">Refresh</span>
         </button>
         <button
           routerLink="/profile"
-          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
-          <span class="text-lg">⚙️</span>
-          <span class="hidden sm:inline">Settings</span>
+          class="px-3 sm:px-4 py-2 bg-white/80 backdrop-blur-sm border border-indigo-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 transition-all duration-300 flex items-center gap-2 hover:scale-[1.02]">
+          <i class="fas fa-cog text-gray-700"></i>
+          <span class="hidden sm:inline text-xs sm:text-sm font-medium text-gray-700">Settings</span>
         </button>
         <button
           (click)="addNewChild()"
-          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2">
-          <span class="text-lg">➕</span>
-          <span>Add Child</span>
+          class="px-3 sm:px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 flex items-center gap-2 hover:scale-[1.02] shadow-lg shadow-indigo-500/30">
+          <i class="fas fa-plus text-white"></i>
+          <span class="text-xs sm:text-sm font-medium">Add Child</span>
         </button>
       </div>
     </div>
@@ -34,75 +36,87 @@
     <!-- Loading State -->
     @if (loading()) {
       <div class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div class="relative w-12 h-12 sm:w-16 sm:h-16">
+          <div class="absolute inset-0 rounded-full border-4 border-indigo-200"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-indigo-600 animate-spin"></div>
+          <div class="absolute inset-2 rounded-full border-4 border-transparent border-t-purple-600 animate-spin" style="animation-direction: reverse; animation-duration: 0.8s;"></div>
+        </div>
       </div>
     }
 
     <!-- Dashboard Content -->
     @if (!loading()) {
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         <!-- Total Children -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-indigo-100 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total Children</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">{{ dashboardData().children.length }}</p>
+              <p class="text-xs sm:text-sm font-medium text-gray-600">Total Children</p>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{{ dashboardData().children.length }}</p>
             </div>
-            <div class="text-4xl">👨‍👩‍👧‍👦</div>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-users text-2xl sm:text-3xl text-indigo-600"></i>
+            </div>
           </div>
         </div>
 
         <!-- Active Subscriptions -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-indigo-100 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Active Subscriptions</p>
-              <p class="text-3xl font-bold text-indigo-600 mt-2">{{ dashboardData().activeSubscriptions }}</p>
+              <p class="text-xs sm:text-sm font-medium text-gray-600">Active Subscriptions</p>
+              <p class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mt-2">{{ dashboardData().activeSubscriptions }}</p>
             </div>
-            <div class="text-4xl">📚</div>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-book text-2xl sm:text-3xl text-indigo-600"></i>
+            </div>
           </div>
           <button
             (click)="manageSubscriptions()"
-            class="mt-4 text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+            class="mt-4 text-xs sm:text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors">
             Manage →
           </button>
         </div>
 
         <!-- Total Spent -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-cyan-100 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total Spent</p>
-              <p class="text-3xl font-bold text-green-600 mt-2">${{ dashboardData().totalSpent.toFixed(2) }}</p>
+              <p class="text-xs sm:text-sm font-medium text-gray-600">Total Spent</p>
+              <p class="text-2xl sm:text-3xl font-bold text-emerald-600 mt-2">${{ dashboardData().totalSpent.toFixed(2) }}</p>
               @if (dashboardData().orderCount > 0) {
                 <p class="text-xs text-gray-500 mt-1">{{ dashboardData().orderCount }} orders</p>
               }
             </div>
-            <div class="text-4xl">💰</div>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-dollar-sign text-2xl sm:text-3xl text-emerald-600"></i>
+            </div>
           </div>
           <button
             routerLink="/parent/orders"
-            class="mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+            class="mt-4 text-xs sm:text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
             View Orders →
           </button>
         </div>
 
         <!-- Monthly Spending -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-indigo-100 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">This Month</p>
-              <p class="text-3xl font-bold text-blue-600 mt-2">${{ dashboardData().monthlySpent.toFixed(2) }}</p>
+              <p class="text-xs sm:text-sm font-medium text-gray-600">This Month</p>
+              <p class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mt-2">${{ dashboardData().monthlySpent.toFixed(2) }}</p>
               @if (dashboardData().lastOrderDate) {
                 <p class="text-xs text-gray-500 mt-1">Last order: {{ dashboardData().lastOrderDate | date:'short' }}</p>
               }
             </div>
-            <div class="text-4xl">📅</div>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-calendar-alt text-2xl sm:text-3xl text-blue-600"></i>
+            </div>
           </div>
           <button
             routerLink="/parent/analytics"
-            class="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
+            class="mt-4 text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors">
             View Analytics →
           </button>
         </div>
@@ -112,15 +126,30 @@
       @if (dashboardData().alerts.length > 0) {
         <div class="mb-8 space-y-3">
           @for (alert of dashboardData().alerts; track alert.message) {
-            <div [class]="'rounded-lg border p-4 flex items-start justify-between ' + getAlertClass(alert.type)">
+            <div [class]="'rounded-lg border p-4 flex items-start justify-between bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 ' + getAlertClass(alert.type)">
               <div class="flex items-start gap-3">
-                <span class="text-2xl">{{ getAlertIcon(alert.type) }}</span>
-                <p class="text-sm font-medium">{{ alert.message }}</p>
+                <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full" [ngClass]="{
+                  'bg-yellow-100': alert.type === 'warning',
+                  'bg-red-100': alert.type === 'danger',
+                  'bg-blue-100': alert.type === 'info',
+                  'bg-green-100': alert.type === 'success'
+                }">
+                  @if (alert.type === 'warning') {
+                    <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                  } @else if (alert.type === 'danger') {
+                    <i class="fas fa-exclamation-circle text-red-600"></i>
+                  } @else if (alert.type === 'info') {
+                    <i class="fas fa-info-circle text-blue-600"></i>
+                  } @else {
+                    <i class="fas fa-check-circle text-green-600"></i>
+                  }
+                </div>
+                <p class="text-xs sm:text-sm font-medium">{{ alert.message }}</p>
               </div>
               @if (alert.actionUrl) {
                 <a
                   [routerLink]="alert.actionUrl"
-                  class="text-sm font-semibold hover:underline whitespace-nowrap ml-4">
+                  class="text-xs sm:text-sm font-semibold hover:underline whitespace-nowrap ml-4 text-indigo-600 hover:text-indigo-700 transition-colors">
                   {{ alert.actionText || 'View' }} →
                 </a>
               }
@@ -130,19 +159,25 @@
       }
 
       <!-- Children Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         @for (child of dashboardData().children; track child.id) {
-          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
+          <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-indigo-100 hover:shadow-xl transition-all duration-300 overflow-hidden hover:scale-[1.02]">
             <!-- Card Header -->
-            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
-              <div class="flex items-center gap-4">
-                <img
-                  [src]="child.avatar"
-                  [alt]="child.name"
-                  class="w-16 h-16 rounded-full border-4 border-white">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+              <div class="flex items-center gap-4 relative z-10">
+                <div class="relative">
+                  <div class="absolute inset-0 bg-white/20 backdrop-blur-sm rounded-full"></div>
+                  <div class="absolute inset-0 bg-gradient-to-br from-indigo-400/50 to-purple-400/50 rounded-full animate-pulse"></div>
+                  <img
+                    [src]="child.avatar"
+                    [alt]="child.name"
+                    class="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 border-white relative z-10"
+                    onerror="this.src='assets/images/default-avatar.png'">
+                </div>
                 <div>
-                  <h3 class="text-xl font-bold">{{ child.name }}</h3>
-                  <p class="text-indigo-100 text-sm">{{ child.grade }}</p>
+                  <h3 class="text-lg sm:text-xl font-bold">{{ child.name }}</h3>
+                  <p class="text-indigo-100 text-xs sm:text-sm">{{ child.grade }}</p>
                 </div>
               </div>
             </div>
@@ -152,12 +187,12 @@
               <!-- Overall Progress -->
               <div class="mb-6">
                 <div class="flex justify-between items-center mb-2">
-                  <span class="text-sm font-medium text-gray-700">Overall Progress</span>
-                  <span class="text-sm font-bold text-gray-900">{{ child.overallProgress }}%</span>
+                  <span class="text-xs sm:text-sm font-medium text-gray-700">Overall Progress</span>
+                  <span class="text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{{ child.overallProgress }}%</span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
                   <div
-                    [class]="'h-full rounded-full transition-all duration-500 ' + getProgressColor(child.overallProgress)"
+                    [class]="'h-full rounded-full transition-all duration-500 shadow-sm ' + getProgressColor(child.overallProgress)"
                     [style.width.%]="child.overallProgress">
                   </div>
                 </div>
@@ -166,33 +201,35 @@
               <!-- Subscriptions Section -->
               <div class="mb-6">
                 <div class="flex items-center justify-between mb-3">
-                  <h4 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                    <span>📚</span>
+                  <h4 class="text-xs sm:text-sm font-semibold text-gray-900 flex items-center gap-2">
+                    <i class="fas fa-book text-indigo-600"></i>
                     <span>Subscriptions</span>
                   </h4>
                   @if (getSubscriptionCount(child.activeSubscription) > 0) {
-                    <span class="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
+                    <span class="text-xs font-medium text-indigo-700 bg-indigo-50 px-2 py-1 rounded-full border border-indigo-200">
                       {{ getSubscriptionCount(child.activeSubscription) }} Active
                     </span>
                   }
                 </div>
 
                 @if (child.activeSubscription === 'No Active Subscription') {
-                  <div class="bg-gray-50 rounded-lg p-4 text-center">
-                    <span class="text-2xl mb-2 block">📭</span>
-                    <p class="text-sm text-gray-600">No active subscriptions</p>
+                  <div class="bg-gradient-to-br from-gray-50 to-indigo-50/30 rounded-lg p-4 text-center border border-gray-200">
+                    <div class="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-gray-200 to-indigo-200 rounded-full flex items-center justify-center">
+                      <i class="fas fa-inbox text-2xl text-gray-500"></i>
+                    </div>
+                    <p class="text-xs sm:text-sm text-gray-600 mb-2">No active subscriptions</p>
                     <button
                       (click)="addSubscription(child.id)"
-                      class="mt-2 text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+                      class="mt-2 text-xs text-indigo-600 hover:text-indigo-700 font-medium transition-colors">
                       Add Subscription →
                     </button>
                   </div>
                 } @else {
-                  <div class="bg-blue-50 rounded-lg p-3 max-h-32 overflow-y-auto custom-scrollbar">
+                  <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg p-3 max-h-32 overflow-y-auto custom-scrollbar border border-indigo-100">
                     @for (subscription of getSubscriptionList(child.activeSubscription); track subscription; let i = $index) {
                       <div class="flex items-start gap-2 mb-2 last:mb-0">
-                        <span class="text-green-500 text-xs mt-0.5">✓</span>
-                        <p class="text-xs text-blue-900 leading-relaxed flex-1">{{ subscription }}</p>
+                        <i class="fas fa-check text-emerald-500 flex-shrink-0 mt-0.5 text-xs"></i>
+                        <p class="text-xs text-indigo-900 leading-relaxed flex-1">{{ subscription }}</p>
                       </div>
                     }
                   </div>
@@ -201,24 +238,29 @@
 
               <!-- Upcoming Exams -->
               <div class="mb-6">
-                <div class="bg-orange-50 rounded-lg p-4">
+                <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-4 border border-orange-200 hover:shadow-md transition-shadow">
                   <div class="flex items-center justify-between">
                     <div>
                       <p class="text-xs text-orange-600 font-medium">Upcoming Exams</p>
-                      <p class="text-2xl font-bold text-orange-900 mt-1">{{ child.upcomingExams }}</p>
+                      <p class="text-xl sm:text-2xl font-bold text-orange-900 mt-1">{{ child.upcomingExams }}</p>
                     </div>
-                    <span class="text-3xl">📝</span>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-file-alt text-lg sm:text-xl text-orange-600"></i>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <!-- Recent Activity -->
               <div class="mb-6">
-                <h4 class="text-sm font-semibold text-gray-900 mb-3">Recent Activity</h4>
+                <h4 class="text-xs sm:text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <i class="fas fa-bolt text-indigo-600"></i>
+                  <span>Recent Activity</span>
+                </h4>
                 <div class="space-y-2">
                   @for (activity of child.recentActivity.slice(0, 2); track activity.description) {
-                    <div class="flex items-start gap-2 text-sm">
-                      <span class="text-lg flex-shrink-0">{{ activity.icon }}</span>
+                    <div class="flex items-start gap-2 text-xs sm:text-sm bg-gradient-to-r from-gray-50 to-indigo-50/30 p-2 rounded-lg">
+                      <span class="text-base sm:text-lg flex-shrink-0">{{ activity.icon }}</span>
                       <div class="flex-1 min-w-0">
                         <p class="text-gray-700 truncate">{{ activity.description }}</p>
                         <p class="text-xs text-gray-500 mt-0.5">{{ formatRelativeTime(activity.date) }}</p>
@@ -232,13 +274,13 @@
               <div class="flex gap-2">
                 <button
                   (click)="viewChildDashboard(child.id)"
-                  class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                  class="flex-1 px-3 sm:px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 text-xs sm:text-sm font-medium hover:scale-[1.02] shadow-lg shadow-indigo-500/30">
                   View Details
                 </button>
                 <button
                   (click)="selectChild(child)"
-                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
-                  ⚙️
+                  class="px-3 sm:px-4 py-2 bg-white/80 backdrop-blur-sm border border-indigo-200 text-gray-700 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 transition-all duration-300 text-xs sm:text-sm hover:scale-[1.02]">
+                  <i class="fas fa-cog"></i>
                 </button>
               </div>
             </div>
@@ -248,63 +290,80 @@
 
       <!-- Empty State -->
       @if (dashboardData().children.length === 0) {
-        <div class="bg-white rounded-lg shadow p-12 text-center">
-          <div class="text-6xl mb-4">👨‍👩‍👧‍👦</div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">No Children Added Yet</h3>
-          <p class="text-gray-600 mb-6">Start by adding your first child to monitor their learning progress</p>
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-indigo-100 p-8 sm:p-12 text-center">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center">
+            <i class="fas fa-users text-4xl sm:text-5xl text-indigo-600"></i>
+          </div>
+          <h3 class="text-lg sm:text-xl font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">No Children Added Yet</h3>
+          <p class="text-sm sm:text-base text-gray-600 mb-6">Start by adding your first child to monitor their learning progress</p>
           <button
             (click)="addNewChild()"
-            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors inline-flex items-center gap-2">
-            <span>➕</span>
+            class="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 inline-flex items-center gap-2 hover:scale-[1.02] shadow-lg shadow-indigo-500/30 text-sm sm:text-base font-medium">
+            <i class="fas fa-plus"></i>
             <span>Add Your First Child</span>
           </button>
         </div>
       }
 
       <!-- Quick Actions -->
-      <div class="mt-8 bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-indigo-100 p-4 sm:p-6">
+        <h2 class="text-base sm:text-lg font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4 flex items-center gap-2">
+          <i class="fas fa-bolt text-indigo-600"></i>
+          <span>Quick Actions</span>
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           <button
             (click)="viewSubscriptionPlans()"
-            class="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group">
-            <div class="text-3xl mb-2">📦</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-indigo-700">Browse Plans</p>
+            class="p-3 sm:p-4 border-2 border-indigo-200 bg-white/60 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <i class="fas fa-box text-lg sm:text-xl text-indigo-600"></i>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-indigo-700 transition-colors">Browse Plans</p>
           </button>
 
           <button
             (click)="manageSubscriptions()"
-            class="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group">
-            <div class="text-3xl mb-2">⚙️</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-indigo-700">Manage Subs</p>
+            class="p-3 sm:p-4 border-2 border-indigo-200 bg-white/60 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <i class="fas fa-cog text-lg sm:text-xl text-indigo-600"></i>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-indigo-700 transition-colors">Manage Subs</p>
           </button>
 
           <button
             (click)="addNewChild()"
-            class="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group">
-            <div class="text-3xl mb-2">➕</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-indigo-700">Add Child</p>
+            class="p-3 sm:p-4 border-2 border-indigo-200 bg-white/60 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <i class="fas fa-plus text-lg sm:text-xl text-indigo-600"></i>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-indigo-700 transition-colors">Add Child</p>
           </button>
 
           <a
             routerLink="/cart"
-            class="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group">
-            <div class="text-3xl mb-2">🛒</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-indigo-700">View Cart</p>
+            class="p-3 sm:p-4 border-2 border-indigo-200 bg-white/60 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md block">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <i class="fas fa-shopping-cart text-lg sm:text-xl text-indigo-600"></i>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-indigo-700 transition-colors">View Cart</p>
           </a>
 
           <a
             routerLink="/sessions/browse"
-            class="p-4 border-2 border-green-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all text-center group">
-            <div class="text-3xl mb-2">👨‍🏫</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-green-700">Book Session</p>
+            class="p-3 sm:p-4 border-2 border-emerald-200 bg-white/60 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md block">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <i class="fas fa-chalkboard-teacher text-lg sm:text-xl text-emerald-600"></i>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-emerald-700 transition-colors">Book Session</p>
           </a>
 
           <a
             routerLink="/sessions/my-bookings"
-            class="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-center group">
-            <div class="text-3xl mb-2">📅</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-blue-700">My Bookings</p>
+            class="p-3 sm:p-4 border-2 border-blue-200 bg-white/60 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md block">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <i class="fas fa-calendar-alt text-lg sm:text-xl text-blue-600"></i>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-blue-700 transition-colors">My Bookings</p>
           </a>
         </div>
       </div>
