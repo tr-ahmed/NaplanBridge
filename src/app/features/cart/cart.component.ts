@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -11,6 +11,7 @@ import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../auth/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { PaymentService } from '../../core/services/payment.service';
+import { UserService, ChildDto } from '../../core/services/user.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -23,12 +24,25 @@ import { environment } from '../../../environments/environment';
 export class CartComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
+  // Expose Array for template
+  Array = Array;
+
   cart = signal<Cart>({ items: [], totalAmount: 0, totalItems: 0 });
   loading = signal(false);
 
   // User role detection
   isStudent = signal<boolean>(false);
   currentUserRole = signal<string>('');
+
+  // ✅ Children data for parents (to show student names in cart)
+  children = signal<ChildDto[]>([]);
+  childrenMap = computed(() => {
+    const map = new Map<number, string>();
+    this.children().forEach(child => {
+      map.set(child.id, child.userName);
+    });
+    return map;
+  });
 
   constructor(
     private coursesService: CoursesService,
@@ -37,7 +51,8 @@ export class CartComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private router: Router,
     private toastService: ToastService,
-    private paymentService: PaymentService
+    private paymentService: PaymentService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +73,9 @@ export class CartComponent implements OnInit, OnDestroy {
     // Check user role (this will call loadStudents if needed)
     this.checkUserRole();
 
+    // ✅ Load children for parents (to show names in cart)
+    this.loadChildren();
+
     // Load cart from backend
     this.loadCartFromBackend();
   }
@@ -73,20 +91,18 @@ export class CartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // ✅ For parents, we need to load cart for ALL their children
-    // and merge them, or load for currently selected student
-    // For now, we'll load using studentId if available (student role)
-    // For parents, the cart will be loaded when they select a student
+    // ✅ For students: load their specific cart
+    // ✅ For parents: load merged cart for ALL children (no studentId filter)
+    const studentId = currentUser.studentId; // Only set for student role
 
-    const studentId = currentUser.studentId; // Works for students only
-
-    if (!studentId) {
-      // Parent or other role - cart will be loaded on-demand
-      console.log('ℹ️ Non-student user - cart will be loaded on-demand');
-      return;
+    if (studentId) {
+      // Student role - load their specific cart
+      console.log('📥 Loading cart from backend for student:', studentId);
+    } else {
+      // Parent role - load merged cart for all children
+      console.log('📥 Loading merged cart for parent (all children)');
     }
 
-    console.log('📥 Loading cart from backend for student:', studentId);
     this.loading.set(true);
 
     this.coursesService.loadCartFromBackend(studentId)
@@ -110,6 +126,60 @@ export class CartComponent implements OnInit, OnDestroy {
     console.log('🔄 Reloading cart...');
     this.loadCartFromBackend();
   }
+
+  /**
+   * Load children data for parents
+   */
+  private loadChildren(): void {
+    const currentUser = this.authService.getCurrentUser();
+
+    if (!currentUser) return;
+
+    // Only load children for parents
+    const roles = Array.isArray(currentUser.role) ? currentUser.role : [currentUser.role];
+    const isParent = roles.some((r: any) => r?.toLowerCase() === 'parent');
+
+    if (isParent && currentUser.id) {
+      console.log('👨‍👩‍👧‍👦 Loading children for parent:', currentUser.id);
+      this.userService.getChildren(currentUser.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (children) => {
+            console.log('✅ Children loaded:', children);
+            this.children.set(children);
+          },
+          error: (err) => {
+            console.error('❌ Failed to load children:', err);
+          }
+        });
+    }
+  }
+
+  /**
+   * Get student name by studentId
+   */
+  getStudentName(studentId: number | undefined): string {
+    if (!studentId) return '';
+    return this.childrenMap().get(studentId) || `Student #${studentId}`;
+  }
+
+  /**
+   * Group cart items by student (for parent view)
+   */
+  getItemsByStudent = computed(() => {
+    const cart = this.cart();
+    if (!cart.items.length) return new Map<number, CartItem[]>();
+
+    const grouped = new Map<number, CartItem[]>();
+    cart.items.forEach(item => {
+      const studentId = item.studentId || 0;
+      if (!grouped.has(studentId)) {
+        grouped.set(studentId, []);
+      }
+      grouped.get(studentId)!.push(item);
+    });
+    return grouped;
+  });
 
   /**
    * Check if current user is a Student
