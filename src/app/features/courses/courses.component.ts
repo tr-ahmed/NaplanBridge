@@ -377,8 +377,10 @@ export class CoursesComponent implements OnInit, OnDestroy {
           this.logger.log('✅ Final mapped students:', mappedStudents);
           this.parentStudents.set(mappedStudents);
 
-          // Store in localStorage for quick access
+          // ✅ CRITICAL: Clear old localStorage data and store new correct data
+          localStorage.removeItem('parentStudents'); // Clear old data first
           localStorage.setItem('parentStudents', JSON.stringify(mappedStudents));
+          this.logger.log('💾 Saved to localStorage:', mappedStudents);
 
           // ✅ Filter available years based on children's years
           // Only filter if years are already loaded
@@ -872,6 +874,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
           studentId = studentsInSameYear[0].id;
           this.selectedStudentId.set(studentId || null);
           this.logger.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'for Year', courseYearNumber);
+          this.logger.log('🔍 Student details:', {
+            studentId: studentId,
+            studentObject: studentsInSameYear[0],
+            allStudentsData: allParentStudents
+          });
         } else {
           // ✅ Multiple students in same year - ALWAYS show selector (even if previously selected)
           this.logger.log('👨‍👩‍👧‍👦 Multiple students in Year', courseYearNumber, '- showing selector');
