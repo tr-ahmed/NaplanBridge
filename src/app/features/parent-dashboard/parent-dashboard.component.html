@@ -15,26 +15,19 @@
         <button
           (click)="refreshDashboard()"
           class="px-3 sm:px-4 py-2 bg-white/80 backdrop-blur-sm border border-cyan-200 rounded-lg hover:bg-cyan-50 hover:border-cyan-300 transition-all duration-300 flex items-center gap-2 hover:scale-[1.02]">
-          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
+          <i class="fas fa-sync-alt text-gray-700"></i>
           <span class="hidden sm:inline text-xs sm:text-sm font-medium text-gray-700">Refresh</span>
         </button>
         <button
           routerLink="/profile"
           class="px-3 sm:px-4 py-2 bg-white/80 backdrop-blur-sm border border-cyan-200 rounded-lg hover:bg-cyan-50 hover:border-cyan-300 transition-all duration-300 flex items-center gap-2 hover:scale-[1.02]">
-          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+          <i class="fas fa-cog text-gray-700"></i>
           <span class="hidden sm:inline text-xs sm:text-sm font-medium text-gray-700">Settings</span>
         </button>
         <button
           (click)="addNewChild()"
           class="px-3 sm:px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-700 hover:to-teal-700 transition-all duration-300 flex items-center gap-2 hover:scale-[1.02] shadow-lg shadow-cyan-500/30">
-          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
+          <i class="fas fa-plus text-white"></i>
           <span class="text-xs sm:text-sm font-medium">Add Child</span>
         </button>
       </div>
@@ -63,9 +56,7 @@
               <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{{ dashboardData().children.length }}</p>
             </div>
             <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+              <i class="fas fa-users text-2xl sm:text-3xl text-cyan-600"></i>
             </div>
           </div>
         </div>
@@ -78,9 +69,7 @@
               <p class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent mt-2">{{ dashboardData().activeSubscriptions }}</p>
             </div>
             <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
+              <i class="fas fa-book text-2xl sm:text-3xl text-cyan-600"></i>
             </div>
           </div>
           <button
@@ -101,9 +90,7 @@
               }
             </div>
             <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <i class="fas fa-dollar-sign text-2xl sm:text-3xl text-emerald-600"></i>
             </div>
           </div>
           <button
@@ -124,9 +111,7 @@
               }
             </div>
             <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <i class="fas fa-calendar-alt text-2xl sm:text-3xl text-blue-600"></i>
             </div>
           </div>
           <button
@@ -150,21 +135,13 @@
                   'bg-green-100': alert.type === 'success'
                 }">
                   @if (alert.type === 'warning') {
-                    <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
+                    <i class="fas fa-exclamation-triangle text-yellow-600"></i>
                   } @else if (alert.type === 'danger') {
-                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <i class="fas fa-exclamation-circle text-red-600"></i>
                   } @else if (alert.type === 'info') {
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <i class="fas fa-info-circle text-blue-600"></i>
                   } @else {
-                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <i class="fas fa-check-circle text-green-600"></i>
                   }
                 </div>
                 <p class="text-xs sm:text-sm font-medium">{{ alert.message }}</p>
@@ -225,9 +202,7 @@
               <div class="mb-6">
                 <div class="flex items-center justify-between mb-3">
                   <h4 class="text-xs sm:text-sm font-semibold text-gray-900 flex items-center gap-2">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
+                    <i class="fas fa-book text-cyan-600"></i>
                     <span>Subscriptions</span>
                   </h4>
                   @if (getSubscriptionCount(child.activeSubscription) > 0) {
@@ -240,9 +215,7 @@
                 @if (child.activeSubscription === 'No Active Subscription') {
                   <div class="bg-gradient-to-br from-gray-50 to-cyan-50/30 rounded-lg p-4 text-center border border-gray-200">
                     <div class="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-gray-200 to-cyan-200 rounded-full flex items-center justify-center">
-                      <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                      </svg>
+                      <i class="fas fa-inbox text-2xl text-gray-500"></i>
                     </div>
                     <p class="text-xs sm:text-sm text-gray-600 mb-2">No active subscriptions</p>
                     <button
@@ -255,9 +228,7 @@
                   <div class="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-lg p-3 max-h-32 overflow-y-auto custom-scrollbar border border-cyan-100">
                     @for (subscription of getSubscriptionList(child.activeSubscription); track subscription; let i = $index) {
                       <div class="flex items-start gap-2 mb-2 last:mb-0">
-                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
+                        <i class="fas fa-check text-emerald-500 flex-shrink-0 mt-0.5 text-xs"></i>
                         <p class="text-xs text-cyan-900 leading-relaxed flex-1">{{ subscription }}</p>
                       </div>
                     }
@@ -274,9 +245,7 @@
                       <p class="text-xl sm:text-2xl font-bold text-orange-900 mt-1">{{ child.upcomingExams }}</p>
                     </div>
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center">
-                      <svg class="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
+                      <i class="fas fa-file-alt text-lg sm:text-xl text-orange-600"></i>
                     </div>
                   </div>
                 </div>
@@ -285,9 +254,7 @@
               <!-- Recent Activity -->
               <div class="mb-6">
                 <h4 class="text-xs sm:text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
+                  <i class="fas fa-bolt text-cyan-600"></i>
                   <span>Recent Activity</span>
                 </h4>
                 <div class="space-y-2">
@@ -313,10 +280,7 @@
                 <button
                   (click)="selectChild(child)"
                   class="px-3 sm:px-4 py-2 bg-white/80 backdrop-blur-sm border border-cyan-200 text-gray-700 rounded-lg hover:bg-cyan-50 hover:border-cyan-300 transition-all duration-300 text-xs sm:text-sm hover:scale-[1.02]">
-                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+                  <i class="fas fa-cog"></i>
                 </button>
               </div>
             </div>
@@ -328,18 +292,14 @@
       @if (dashboardData().children.length === 0) {
         <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-cyan-100 p-8 sm:p-12 text-center">
           <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-full flex items-center justify-center">
-            <svg class="w-10 h-10 sm:w-12 sm:h-12 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+            <i class="fas fa-users text-4xl sm:text-5xl text-cyan-600"></i>
           </div>
           <h3 class="text-lg sm:text-xl font-semibold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent mb-2">No Children Added Yet</h3>
           <p class="text-sm sm:text-base text-gray-600 mb-6">Start by adding your first child to monitor their learning progress</p>
           <button
             (click)="addNewChild()"
             class="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-700 hover:to-teal-700 transition-all duration-300 inline-flex items-center gap-2 hover:scale-[1.02] shadow-lg shadow-cyan-500/30 text-sm sm:text-base font-medium">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
+            <i class="fas fa-plus"></i>
             <span>Add Your First Child</span>
           </button>
         </div>
@@ -348,9 +308,7 @@
       <!-- Quick Actions -->
       <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-cyan-100 p-4 sm:p-6">
         <h2 class="text-base sm:text-lg font-semibold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent mb-4 flex items-center gap-2">
-          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
+          <i class="fas fa-bolt text-cyan-600"></i>
           <span>Quick Actions</span>
         </h2>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
@@ -358,9 +316,7 @@
             (click)="viewSubscriptionPlans()"
             class="p-3 sm:p-4 border-2 border-cyan-200 bg-white/60 rounded-lg hover:border-cyan-500 hover:bg-cyan-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md">
             <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
+              <i class="fas fa-box text-lg sm:text-xl text-cyan-600"></i>
             </div>
             <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-cyan-700 transition-colors">Browse Plans</p>
           </button>
@@ -369,10 +325,7 @@
             (click)="manageSubscriptions()"
             class="p-3 sm:p-4 border-2 border-cyan-200 bg-white/60 rounded-lg hover:border-cyan-500 hover:bg-cyan-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md">
             <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+              <i class="fas fa-cog text-lg sm:text-xl text-cyan-600"></i>
             </div>
             <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-cyan-700 transition-colors">Manage Subs</p>
           </button>
@@ -381,9 +334,7 @@
             (click)="addNewChild()"
             class="p-3 sm:p-4 border-2 border-cyan-200 bg-white/60 rounded-lg hover:border-cyan-500 hover:bg-cyan-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md">
             <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
+              <i class="fas fa-plus text-lg sm:text-xl text-cyan-600"></i>
             </div>
             <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-cyan-700 transition-colors">Add Child</p>
           </button>
@@ -392,9 +343,7 @@
             routerLink="/cart"
             class="p-3 sm:p-4 border-2 border-cyan-200 bg-white/60 rounded-lg hover:border-cyan-500 hover:bg-cyan-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md block">
             <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+              <i class="fas fa-shopping-cart text-lg sm:text-xl text-cyan-600"></i>
             </div>
             <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-cyan-700 transition-colors">View Cart</p>
           </a>
@@ -403,9 +352,7 @@
             routerLink="/sessions/browse"
             class="p-3 sm:p-4 border-2 border-emerald-200 bg-white/60 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md block">
             <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
+              <i class="fas fa-chalkboard-teacher text-lg sm:text-xl text-emerald-600"></i>
             </div>
             <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-emerald-700 transition-colors">Book Session</p>
           </a>
@@ -414,9 +361,7 @@
             routerLink="/sessions/my-bookings"
             class="p-3 sm:p-4 border-2 border-blue-200 bg-white/60 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md block">
             <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <i class="fas fa-calendar-alt text-lg sm:text-xl text-blue-600"></i>
             </div>
             <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-blue-700 transition-colors">My Bookings</p>
           </a>
