@@ -1,399 +1,662 @@
-<!-- Main Content -->
-<main class="px-4 sm:px-6 lg:px-8 py-8">
-  <!-- Page Header -->
-  <div class="flex items-center justify-between mb-8">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-900">👨‍🏫 Teacher Management</h1>
-      <p class="text-gray-600 mt-1">Manage teacher permissions and content approvals</p>
-    </div>
+<!-- Main Content with Modern Gradient Background -->
+<main class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">
+  <!-- Modern Page Header with Gradient -->
+  <div class="mb-6 md:mb-8">
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 md:p-8">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Teacher Management
+              </h1>
+              <p class="text-gray-600 text-sm md:text-base mt-1">Manage teacher permissions and content approvals</p>
+            </div>
+          </div>
+        </div>
 
-    @if (activeTab() === 'permissions') {
-      <button
-        (click)="openGrantModal()"
-        class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        <span>Grant Permission</span>
-      </button>
-    }
+        @if (activeTab() === 'permissions') {
+          <button
+            (click)="openGrantModal()"
+            class="group relative px-4 py-2.5 sm:px-5 sm:py-3 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-medium flex items-center gap-2 shadow-md overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <span class="relative z-10 text-sm sm:text-base">Grant Permission</span>
+          </button>
+        }
+      </div>
+    </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="bg-white rounded-lg shadow-sm mb-6">
-    <nav class="tab-nav flex border-b border-gray-200">
+  <!-- Modern Pill-Style Tabs -->
+  <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 mb-6 p-2">
+    <nav class="flex gap-2">
       <button
         (click)="switchTab('permissions')"
-        [class.active]="activeTab() === 'permissions'"
-        class="flex-1 py-4 px-6 text-center font-medium transition-colors border-b-2"
-        [class.border-blue-600]="activeTab() === 'permissions'"
-        [class.text-blue-600]="activeTab() === 'permissions'"
-        [class.border-transparent]="activeTab() !== 'permissions'"
-        [class.text-gray-600]="activeTab() !== 'permissions'">
-        🔐 Permissions Management
+        class="flex-1 py-4 px-4 md:px-6 text-center font-semibold transition-all duration-300 rounded-xl relative overflow-hidden group"
+        [class]="activeTab() === 'permissions' 
+          ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105' 
+          : 'text-gray-600 hover:bg-gray-50'">
+        <div class="flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+          <span class="hidden sm:inline">Permissions Management</span>
+          <span class="sm:hidden">Permissions</span>
+        </div>
       </button>
       <button
         (click)="switchTab('approvals')"
-        [class.active]="activeTab() === 'approvals'"
-        class="flex-1 py-4 px-6 text-center font-medium transition-colors relative border-b-2"
-        [class.border-blue-600]="activeTab() === 'approvals'"
-        [class.text-blue-600]="activeTab() === 'approvals'"
-        [class.border-transparent]="activeTab() !== 'approvals'"
-        [class.text-gray-600]="activeTab() !== 'approvals'">
-        ⏳ Pending Approvals
-        @if (pendingApprovals().length > 0) {
-          <span class="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-            {{ pendingApprovals().length }}
-          </span>
-        }
+        class="flex-1 py-4 px-4 md:px-6 text-center font-semibold transition-all duration-300 rounded-xl relative overflow-hidden group"
+        [class]="activeTab() === 'approvals' 
+          ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg scale-105' 
+          : 'text-gray-600 hover:bg-gray-50'">
+        <div class="flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="hidden sm:inline">Pending Approvals</span>
+          <span class="sm:hidden">Approvals</span>
+          @if (pendingApprovals().length > 0) {
+            <span class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-pulse">
+              {{ pendingApprovals().length }}
+            </span>
+          }
+        </div>
       </button>
     </nav>
   </div>
 
-    <!-- Permissions Tab -->
-    @if (activeTab() === 'permissions') {
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        @if (loading()) {
-          <div class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p class="mt-4 text-gray-600">Loading teachers...</p>
+  <!-- Permissions Tab with Modern Cards -->
+  @if (activeTab() === 'permissions') {
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-4 md:p-6">
+      @if (loading()) {
+        <div class="text-center py-16">
+          <div class="relative inline-block">
+            <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 w-16 h-16 border-4 border-transparent border-b-indigo-600 rounded-full animate-spin" style="animation-direction: reverse;"></div>
           </div>
-        } @else if (teachersWithPermissions().length === 0) {
-          <div class="text-center py-12">
-            <div class="text-6xl mb-4">👨‍🏫</div>
-            <h3 class="text-xl font-semibold text-gray-800 mb-2">No Teachers with Permissions Yet</h3>
-            <p class="text-gray-600 mb-4">Start by granting permissions to teachers</p>
-            <button
-              (click)="openGrantModal()"
-              class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
-              Grant First Permission
-            </button>
+          <p class="mt-6 text-gray-600 font-medium">Loading teachers...</p>
+        </div>
+      } @else if (teachersWithPermissions().length === 0) {
+        <div class="text-center py-16">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <svg class="w-10 h-10 sm:w-12 sm:h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
           </div>
-        } @else {
-          <div class="space-y-4">
-            @for (teacher of teachersWithPermissions(); track teacher.teacherId) {
-              <div class="teacher-card border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-3 mb-3">
-                      <div>
-                        <h3 class="text-lg font-bold text-gray-900">👨‍🏫 {{ teacher.teacherName || 'Unknown' }}</h3>
-                        <p class="text-gray-500 text-xs">{{ teacher.email || 'No email' }}</p>
+          <h3 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3">
+            No Teachers with Permissions Yet
+          </h3>
+          <p class="text-gray-600 mb-6 max-w-md mx-auto">Start by granting permissions to teachers to manage content</p>
+          <button
+            (click)="openGrantModal()"
+            class="group relative px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <span class="relative z-10">Grant First Permission</span>
+          </button>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 gap-4 md:gap-6">
+          @for (teacher of teachersWithPermissions(); track teacher.teacherId) {
+            <div class="group relative bg-gradient-to-br from-white to-blue-50/30 border border-blue-100 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] overflow-hidden">
+              <!-- Decorative gradient background -->
+              <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl transform translate-x-32 -translate-y-32 group-hover:scale-150 transition-transform duration-500"></div>
+              
+              <div class="relative z-10">
+                <div class="flex flex-col sm:flex-row items-start justify-between gap-4">
+                  <div class="flex-1 w-full">
+                    <div class="flex items-start gap-3 sm:gap-4 mb-4">
+                      <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
                       </div>
-                      <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap">
-                        {{ teacher.totalPermissions || 0 }} Subject{{ (teacher.totalPermissions || 0) !== 1 ? 's' : '' }}
-                      </span>
+                      <div class="flex-1 min-w-0">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-1 truncate">{{ teacher.teacherName || 'Unknown' }}</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm truncate">{{ teacher.email || 'No email' }}</p>
+                        <div class="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md">
+                          <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                          </svg>
+                          {{ teacher.totalPermissions || 0 }} Subject{{ (teacher.totalPermissions || 0) !== 1 ? 's' : '' }}
+                        </div>
+                      </div>
                     </div>
 
-                    <!-- Subjects List -->
+                    <!-- Subjects Grid -->
                     @if (teacher.subjects && teacher.subjects.length > 0) {
                       <div class="flex flex-wrap gap-2 mt-4">
                         @for (subject of teacher.subjects; track $index) {
-                          <span class="bg-green-50 text-green-800 px-3 py-1 rounded-lg text-sm border border-green-200">
-                            📚 {{ subject || 'Unknown Subject' }}
+                          <span class="group/subject relative px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 rounded-xl text-xs sm:text-sm font-semibold border-2 border-green-200 hover:border-green-400 transition-all duration-300 hover:scale-105 hover:shadow-md flex items-center gap-1">
+                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            <span class="truncate">{{ subject || 'Unknown Subject' }}</span>
                           </span>
                         }
                       </div>
                     } @else {
-                      <p class="text-gray-400 text-sm mt-4">No subjects assigned</p>
+                      <div class="mt-4 p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                        <p class="text-gray-400 text-sm text-center">No subjects assigned yet</p>
+                      </div>
                     }
                   </div>
 
-                  <div class="flex gap-2 ml-4">
+                  <div class="flex gap-2 w-full sm:w-auto">
                     <button
                       (click)="revokeAllPermissions(teacher.teacherId)"
                       title="Revoke all permissions for this teacher"
-                      class="text-red-600 hover:text-red-700 px-4 py-2 rounded hover:bg-red-50 transition-colors border border-red-200">
-                      🗑️ Revoke All
+                      class="group/btn flex-1 sm:flex-none px-3 py-2 sm:px-4 sm:py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold flex items-center justify-center gap-2 overflow-hidden relative text-sm sm:text-base">
+                      <div class="absolute inset-0 bg-gradient-to-r from-rose-600 to-red-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                      <svg class="w-4 h-4 sm:w-5 sm:h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                      <span class="relative z-10">Revoke All</span>
                     </button>
                   </div>
                 </div>
               </div>
-            }
-          </div>
-        }
-      </div>
-    }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
 
-    <!-- Approvals Tab -->
-    @if (activeTab() === 'approvals') {
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        @if (loading()) {
-          <div class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p class="mt-4 text-gray-600">Loading pending approvals...</p>
+  <!-- Approvals Tab with Modern Cards -->
+  @if (activeTab() === 'approvals') {
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-4 md:p-6">
+      @if (loading()) {
+        <div class="text-center py-16">
+          <div class="relative inline-block">
+            <div class="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 w-16 h-16 border-4 border-transparent border-b-pink-600 rounded-full animate-spin" style="animation-direction: reverse;"></div>
           </div>
-        } @else if (pendingApprovals().length === 0) {
-          <div class="text-center py-12">
-            <div class="text-6xl mb-4">✅</div>
-            <h3 class="text-xl font-semibold text-gray-800 mb-2">All Caught Up!</h3>
-            <p class="text-gray-600">No pending approvals at the moment</p>
+          <p class="mt-6 text-gray-600 font-medium">Loading pending approvals...</p>
+        </div>
+      } @else if (pendingApprovals().length === 0) {
+        <div class="text-center py-16">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <svg class="w-10 h-10 sm:w-12 sm:h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
           </div>
-        } @else {
-          <div class="space-y-4">
-            @for (approval of pendingApprovals(); track approval.id) {
-              <div
-                class="approval-card border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
-                [class.urgent]="approval.pendingDays > 3"
-                [class.warning]="approval.pendingDays > 1 && approval.pendingDays <= 3"
-                [class.normal]="approval.pendingDays <= 1">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-3 mb-2">
-                      <span class="text-2xl">
-                        @if (approval.type === 'Lesson') { 📚 }
-                        @else if (approval.type === 'Week') { 📅 }
-                        @else if (approval.type === 'Term') { 🗓️ }
-                        @else { 📎 }
-                      </span>
-                      <h3 class="text-lg font-semibold text-gray-900">{{ approval.title }}</h3>
-                      <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                        {{ approval.type }}
-                      </span>
-                    </div>
+          <h3 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-3">
+            All Caught Up!
+          </h3>
+          <p class="text-gray-600 max-w-md mx-auto">No pending approvals at the moment. Great work!</p>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 gap-4 md:gap-6">
+          @for (approval of pendingApprovals(); track approval.id) {
+            <div 
+              class="group relative bg-gradient-to-br from-white to-purple-50/30 border-2 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] overflow-hidden"
+              [class.border-red-300]="approval.pendingDays > 3"
+              [class.border-yellow-300]="approval.pendingDays > 1 && approval.pendingDays <= 3"
+              [class.border-purple-200]="approval.pendingDays <= 1">
+              
+              <!-- Status indicator gradient -->
+              <div 
+                class="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl transform translate-x-32 -translate-y-32 group-hover:scale-150 transition-transform duration-500 bg-gradient-to-br"
+                [ngClass]="{
+                  'from-red-400/20 to-rose-400/20': approval.pendingDays > 3,
+                  'from-yellow-400/20 to-orange-400/20': approval.pendingDays > 1 && approval.pendingDays <= 3,
+                  'from-purple-400/10 to-pink-400/10': approval.pendingDays <= 1
+                }">
+              </div>
+              
+              <div class="relative z-10">
+                <div class="flex flex-col lg:flex-row items-start justify-between gap-4">
+                  <div class="flex-1 w-full">
+                    <!-- Header with icon and title -->
+                    <div class="flex items-start gap-3 sm:gap-4 mb-4">
+                      <div 
+                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0 bg-gradient-to-br"
+                        [class.from-blue-500]="approval.type === 'Lesson'"
+                        [class.to-indigo-600]="approval.type === 'Lesson'"
+                        [class.from-green-500]="approval.type === 'Week'"
+                        [class.to-emerald-600]="approval.type === 'Week'"
+                        [class.from-purple-500]="approval.type === 'Term'"
+                        [class.to-pink-600]="approval.type === 'Term'"
+                        [class.from-gray-500]="approval.type !== 'Lesson' && approval.type !== 'Week' && approval.type !== 'Term'"
+                        [class.to-slate-600]="approval.type !== 'Lesson' && approval.type !== 'Week' && approval.type !== 'Term'">
+                        @if (approval.type === 'Lesson') {
+                          <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                          </svg>
+                        }
+                        @else if (approval.type === 'Week') {
+                          <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                          </svg>
+                        }
+                        @else if (approval.type === 'Term') {
+                          <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                          </svg>
+                        }
+                        @else {
+                          <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                          </svg>
+                        }
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                          <h3 class="text-lg sm:text-xl font-bold text-gray-900 truncate">{{ approval.title }}</h3>
+                          <span class="px-2 sm:px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-full text-xs font-bold border border-gray-300">
+                            {{ approval.type }}
+                          </span>
+                        </div>
 
-                    <div class="space-y-1 text-sm text-gray-600 mb-3">
-                      <p>📚 Subject: <strong>{{ approval.subjectName }}</strong></p>
-                      @if (approval.termNumber) {
-                        <p>🗓️ Term: <strong>{{ approval.termNumber }}</strong></p>
-                      }
-                      @if (approval.weekNumber) {
-                        <p>📅 Week: <strong>{{ approval.weekNumber }}</strong></p>
-                      }
-                      <p>👤 Created by: <strong>{{ approval.createdBy }}</strong> ({{ approval.createdByEmail }})</p>
-                      <p>📅 Created: {{ approval.createdAt | date:'medium' }}</p>
-                    </div>
+                        <!-- Details grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm mb-4">
+                          <div class="flex items-center gap-2 text-gray-700">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            <span class="font-semibold truncate">{{ approval.subjectName }}</span>
+                          </div>
+                          @if (approval.termNumber) {
+                            <div class="flex items-center gap-2 text-gray-700">
+                              <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                              </svg>
+                              <span>Term <strong>{{ approval.termNumber }}</strong></span>
+                            </div>
+                          }
+                          @if (approval.weekNumber) {
+                            <div class="flex items-center gap-2 text-gray-700">
+                              <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                              </svg>
+                              <span>Week <strong>{{ approval.weekNumber }}</strong></span>
+                            </div>
+                          }
+                          <div class="flex items-center gap-2 text-gray-700">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span class="truncate">{{ approval.createdBy }}</span>
+                          </div>
+                          <div class="flex items-center gap-2 text-gray-600 text-xs sm:col-span-2">
+                            <svg class="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>{{ approval.createdAt | date:'medium' }}</span>
+                          </div>
+                        </div>
 
-                    <div class="flex items-center space-x-2">
-                      <span
-                        class="pending-days text-sm font-semibold"
-                        [class.urgent]="approval.pendingDays > 3"
-                        [class.warning]="approval.pendingDays > 1 && approval.pendingDays <= 3"
-                        [class.normal]="approval.pendingDays <= 1">
-                        ⏱️ Pending for {{ approval.pendingDays }} day{{ approval.pendingDays !== 1 ? 's' : '' }}
-                      </span>
+                        <!-- Pending days badge -->
+                        <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold text-xs sm:text-sm shadow-md"
+                          [class.bg-gradient-to-r]="true"
+                          [class.from-red-500]="approval.pendingDays > 3"
+                          [class.to-rose-600]="approval.pendingDays > 3"
+                          [class.from-yellow-500]="approval.pendingDays > 1 && approval.pendingDays <= 3"
+                          [class.to-orange-600]="approval.pendingDays > 1 && approval.pendingDays <= 3"
+                          [class.from-blue-500]="approval.pendingDays <= 1"
+                          [class.to-indigo-600]="approval.pendingDays <= 1"
+                          [class.text-white]="true">
+                          <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          Pending {{ approval.pendingDays }} day{{ approval.pendingDays !== 1 ? 's' : '' }}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div class="flex items-center space-x-2 ml-4">
+                  <div class="w-full lg:w-auto">
                     <button
                       (click)="openApprovalDetail(approval)"
-                      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
-                      Review
+                      class="group/btn w-full lg:w-auto px-4 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold flex items-center justify-center gap-2 overflow-hidden relative text-sm sm:text-base">
+                      <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                      <span class="relative z-10">Review</span>
+                      <svg class="w-4 h-4 sm:w-5 sm:h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
                     </button>
                   </div>
                 </div>
               </div>
-            }
-          </div>
-        }
-      </div>
-    }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
 
-  <!-- Grant Permission Modal -->
+  <!-- Grant Permission Modal - Modern Design -->
   @if (showGrantModal()) {
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 modal-overlay">
-      <div class="bg-white rounded-lg max-w-md w-full">
-        <div class="p-6 border-b border-gray-200">
-          <h2 class="text-2xl font-bold text-gray-900">Grant Permission</h2>
-          <p class="text-sm text-gray-600 mt-1">Assign subject permissions to a teacher</p>
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-overlay animate-fadeIn">
+      <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl transform animate-slideUp overflow-hidden">
+        <!-- Modal Header with Gradient -->
+        <div class="relative p-6 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 text-white overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20"></div>
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-xl sm:text-2xl font-bold">Grant Permission</h2>
+                <p class="text-blue-100 text-xs sm:text-sm mt-1">Assign subject permissions to a teacher</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="p-6 space-y-4">
+        <div class="p-6 space-y-5">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Teacher *</label>
+            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              <span>Teacher *</span>
+            </label>
             @if (loading()) {
-              <div class="w-full border border-blue-300 rounded-lg px-4 py-2 bg-blue-50 text-blue-600 text-sm flex items-center">
-                <div class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-r-transparent mr-2"></div>
+              <div class="w-full border-2 border-blue-300 rounded-xl px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 text-sm flex items-center shadow-sm">
+                <div class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-r-transparent mr-2"></div>
                 Loading teachers...
               </div>
             } @else if (availableTeachers().length > 0) {
               <select
                 [(ngModel)]="grantForm.teacherId"
-                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:border-blue-400 font-medium">
                 <option [value]="null">👇 Select a teacher</option>
                 @for (teacher of availableTeachers(); track teacher.id) {
                   <option [value]="teacher.id">👨‍🏫 {{ teacher.name }} ({{ teacher.email }})</option>
                 }
               </select>
             } @else {
-              <div class="w-full border border-red-300 rounded-lg px-4 py-2 bg-red-50 text-red-600 text-sm">
+              <div class="w-full border-2 border-red-300 rounded-xl px-4 py-3 bg-gradient-to-r from-red-50 to-rose-50 text-red-600 text-sm font-semibold">
                 ⚠️ No teachers available. Check your API connection.
               </div>
             }
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Year *</label>
+            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span>Year *</span>
+            </label>
             @if (loading()) {
-              <div class="w-full border border-blue-300 rounded-lg px-4 py-2 bg-blue-50 text-blue-600 text-sm flex items-center">
-                <div class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-r-transparent mr-2"></div>
+              <div class="w-full border-2 border-blue-300 rounded-xl px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 text-sm flex items-center shadow-sm">
+                <div class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-r-transparent mr-2"></div>
                 Loading years...
               </div>
             } @else if (availableYears().length > 0) {
               <select
                 [(ngModel)]="grantForm.yearId"
                 (change)="onYearSelected(grantForm.yearId)"
-                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:border-blue-400 font-medium">
                 <option [value]="null">👇 Select a year</option>
                 @for (year of availableYears(); track year.name) {
                   <option [value]="year.name">📅 {{ year.name }}</option>
                 }
               </select>
             } @else {
-              <div class="w-full border border-red-300 rounded-lg px-4 py-2 bg-red-50 text-red-600 text-sm">
+              <div class="w-full border-2 border-red-300 rounded-xl px-4 py-3 bg-gradient-to-r from-red-50 to-rose-50 text-red-600 text-sm font-semibold">
                 ⚠️ No years available. Load subjects first.
               </div>
             }
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+              </svg>
+              <span>Subject *</span>
+            </label>
             @if (loading()) {
-              <div class="w-full border border-blue-300 rounded-lg px-4 py-2 bg-blue-50 text-blue-600 text-sm flex items-center">
-                <div class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-r-transparent mr-2"></div>
+              <div class="w-full border-2 border-blue-300 rounded-xl px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 text-sm flex items-center shadow-sm">
+                <div class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-r-transparent mr-2"></div>
                 Loading subjects...
               </div>
             } @else if (!grantForm.yearId) {
-              <div class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 text-gray-600 text-sm">
+              <div class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 bg-gradient-to-r from-gray-50 to-slate-50 text-gray-600 text-sm font-semibold">
                 👆 Please select a year first
               </div>
             } @else if (filteredSubjects().length > 0) {
               <select
                 [(ngModel)]="grantForm.subjectId"
-                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white hover:border-blue-400 font-medium">
                 <option [value]="null">👇 Select a subject</option>
                 @for (subject of filteredSubjects(); track subject.id) {
                   <option [value]="subject.id">📚 {{ subject.name }}</option>
                 }
               </select>
             } @else {
-              <div class="w-full border border-red-300 rounded-lg px-4 py-2 bg-red-50 text-red-600 text-sm">
+              <div class="w-full border-2 border-red-300 rounded-xl px-4 py-3 bg-gradient-to-r from-red-50 to-rose-50 text-red-600 text-sm font-semibold">
                 ⚠️ No subjects available for this year.
               </div>
             }
           </div>
 
-          <div class="border-t border-gray-200 pt-4">
-            <label class="block text-sm font-medium text-gray-700 mb-3">Permissions</label>
+          <div class="border-t-2 border-gray-100 pt-5">
+            <label class="block text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+              <span>Permissions</span>
+            </label>
 
-            <div class="space-y-3">
-              <label class="flex items-center space-x-3 cursor-pointer">
+            <div class="space-y-4">\n              <label class="group flex items-start gap-3 sm:gap-4 cursor-pointer p-3 sm:p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200">
                 <input
                   type="checkbox"
                   [(ngModel)]="grantForm.canCreate"
-                  class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
-                <div>
-                  <div class="font-medium text-gray-900">Create Content</div>
-                  <div class="text-sm text-gray-600">Can create new lessons, weeks, and terms</div>
+                  class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 mt-0.5 flex-shrink-0">
+                <div class="flex-1">
+                  <div class="font-bold text-gray-900 mb-1 flex items-center gap-2 text-sm sm:text-base">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Create Content</span>
+                  </div>
+                  <div class="text-xs sm:text-sm text-gray-600">Can create new lessons, weeks, and terms</div>
                 </div>
               </label>
 
-              <label class="flex items-center space-x-3 cursor-pointer">
+              <label class="group flex items-start gap-3 sm:gap-4 cursor-pointer p-3 sm:p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200">
                 <input
                   type="checkbox"
                   [(ngModel)]="grantForm.canEdit"
-                  class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
-                <div>
-                  <div class="font-medium text-gray-900">Edit Content</div>
-                  <div class="text-sm text-gray-600">Can modify existing content</div>
+                  class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 mt-0.5 flex-shrink-0">
+                <div class="flex-1">
+                  <div class="font-bold text-gray-900 mb-1 flex items-center gap-2 text-sm sm:text-base">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    <span>Edit Content</span>
+                  </div>
+                  <div class="text-xs sm:text-sm text-gray-600">Can modify existing content</div>
                 </div>
               </label>
 
-              <label class="flex items-center space-x-3 cursor-pointer">
+              <label class="group flex items-start gap-3 sm:gap-4 cursor-pointer p-3 sm:p-4 rounded-xl border-2 border-gray-200 hover:border-red-400 hover:bg-red-50/50 transition-all duration-200">
                 <input
                   type="checkbox"
                   [(ngModel)]="grantForm.canDelete"
-                  class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
-                <div>
-                  <div class="font-medium text-gray-900">Delete Content</div>
-                  <div class="text-sm text-gray-600">Can remove content permanently</div>
+                  class="w-5 h-5 sm:w-6 sm:h-6 text-red-600 rounded-lg focus:ring-2 focus:ring-red-500 mt-0.5 flex-shrink-0">
+                <div class="flex-1">
+                  <div class="font-bold text-gray-900 mb-1 flex items-center gap-2 text-sm sm:text-base">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    <span>Delete Content</span>
+                  </div>
+                  <div class="text-xs sm:text-sm text-gray-600">Can remove content permanently</div>
                 </div>
               </label>
             </div>
           </div>
         </div>
 
-        <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+        <div class="p-6 border-t-2 border-gray-100 flex flex-col sm:flex-row justify-end gap-3">
           <button
             (click)="closeGrantModal()"
-            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+            class="px-6 py-3 border-2 border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-semibold">
             Cancel
           </button>
           <button
             (click)="grantPermission()"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            [disabled]="!grantForm.teacherId || !grantForm.yearId || !grantForm.subjectId">
-            Grant Permission
+            class="group relative px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold overflow-hidden"
+            [disabled]="!grantForm.teacherId || !grantForm.yearId || !grantForm.subjectId"
+            [class.opacity-50]="!grantForm.teacherId || !grantForm.yearId || !grantForm.subjectId"
+            [class.cursor-not-allowed]="!grantForm.teacherId || !grantForm.yearId || !grantForm.subjectId">
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <span class="relative z-10">Grant Permission</span>
           </button>
         </div>
       </div>
     </div>
   }
 
-  <!-- Approval Detail Modal -->
+  <!-- Approval Detail Modal - Modern Design -->
   @if (showApprovalDetailModal() && selectedApproval()) {
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 modal-overlay">
-      <div class="bg-white rounded-lg max-w-2xl w-full">
-        <div class="p-6 border-b border-gray-200">
-          <h2 class="text-2xl font-bold text-gray-900">Review {{ selectedApproval()!.type }}</h2>
-          <p class="text-sm text-gray-600 mt-1">Review and approve or reject this content</p>
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 modal-overlay animate-fadeIn">
+      <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl transform animate-slideUp overflow-hidden">
+        <!-- Modal Header with Gradient -->
+        <div class="relative p-6 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-600 text-white overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20"></div>
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-xl sm:text-2xl font-bold">Review {{ selectedApproval()!.type }}</h2>
+                <p class="text-purple-100 text-xs sm:text-sm mt-1">Review and approve or reject this content</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="p-6 space-y-4">
-          <div class="bg-gray-50 rounded-lg p-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ selectedApproval()!.title }}</h3>
+        <div class="p-6 space-y-5">
+          <div class="bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl p-6 border-2 border-gray-100">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              @if (selectedApproval()!.type === 'Lesson') {
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+              }
+              @else if (selectedApproval()!.type === 'Week') {
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              }
+              @else if (selectedApproval()!.type === 'Term') {
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+              }
+              @else {
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                </svg>
+              }
+              <span class="truncate">{{ selectedApproval()!.title }}</span>
+            </h3>
 
-            <div class="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span class="text-gray-600">Subject:</span>
-                <span class="ml-2 font-semibold">{{ selectedApproval()!.subjectName }}</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+              <div class="flex items-center gap-2 sm:gap-3 p-3 bg-white rounded-xl border border-gray-200">
+                <svg class="w-5 h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <div class="flex-1 min-w-0">
+                  <span class="text-gray-600 text-xs block">Subject</span>
+                  <span class="font-bold text-gray-900 truncate block">{{ selectedApproval()!.subjectName }}</span>
+                </div>
               </div>
 
               @if (selectedApproval()!.termNumber) {
-                <div>
-                  <span class="text-gray-600">Term:</span>
-                  <span class="ml-2 font-semibold">{{ selectedApproval()!.termNumber }}</span>
+                <div class="flex items-center gap-2 sm:gap-3 p-3 bg-white rounded-xl border border-gray-200">
+                  <svg class="w-5 h-5 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                  </svg>
+                  <div>
+                    <span class="text-gray-600 text-xs block">Term</span>
+                    <span class="font-bold text-gray-900">{{ selectedApproval()!.termNumber }}</span>
+                  </div>
                 </div>
               }
 
-              <div>
-                <span class="text-gray-600">Created by:</span>
-                <span class="ml-2 font-semibold">{{ selectedApproval()!.createdBy }}</span>
+              <div class="flex items-center gap-2 sm:gap-3 p-3 bg-white rounded-xl border border-gray-200">
+                <svg class="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <div class="flex-1 min-w-0">
+                  <span class="text-gray-600 text-xs block">Created by</span>
+                  <span class="font-bold text-gray-900 truncate block">{{ selectedApproval()!.createdBy }}</span>
+                </div>
               </div>
 
-              <div>
-                <span class="text-gray-600">Created:</span>
-                <span class="ml-2 font-semibold">{{ selectedApproval()!.createdAt | date:'short' }}</span>
+              <div class="flex items-center gap-2 sm:gap-3 p-3 bg-white rounded-xl border border-gray-200">
+                <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <div class="flex-1 min-w-0">
+                  <span class="text-gray-600 text-xs block">Created</span>
+                  <span class="font-bold text-gray-900 text-xs truncate block">{{ selectedApproval()!.createdAt | date:'short' }}</span>
+                </div>
               </div>
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Rejection Reason (optional)</label>
+            <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+              </svg>
+              <span>Rejection Reason (optional)</span>
+            </label>
             <textarea
               [(ngModel)]="rejectionReason"
               rows="4"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 bg-white hover:border-purple-400 resize-none"
               placeholder="Provide a reason if rejecting this content..."></textarea>
           </div>
         </div>
 
-        <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+        <div class="p-4 sm:p-6 border-t-2 border-gray-100 flex flex-col sm:flex-row justify-end gap-3">
           <button
             (click)="closeApprovalDetailModal()"
-            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+            class="px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-semibold order-last sm:order-first text-sm sm:text-base">
             Cancel
           </button>
           <button
             (click)="rejectContent()"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-            ❌ Reject
+            class="group relative px-4 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold overflow-hidden flex items-center justify-center gap-2 text-sm sm:text-base">
+            <div class="absolute inset-0 bg-gradient-to-r from-rose-600 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <span class="relative z-10">Reject</span>
           </button>
           <button
             (click)="approveContent()"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-            ✅ Approve
+            class="group relative px-4 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold overflow-hidden flex items-center justify-center gap-2 text-sm sm:text-base">
+            <div class="absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="relative z-10">Approve</span>
           </button>
         </div>
       </div>

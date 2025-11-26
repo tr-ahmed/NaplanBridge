@@ -1,32 +1,41 @@
 <!-- Parent Dashboard -->
-<div class="min-h-screen bg-gray-50 py-8">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-teal-50 py-8">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- Header -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">Parent Dashboard</h1>
-        <p class="mt-1 text-sm text-gray-600">Monitor and manage your children's learning progress</p>
+        <h1 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-700 bg-clip-text text-transparent">
+          Parent Dashboard
+        </h1>
+        <p class="mt-1 text-xs sm:text-sm text-gray-600">Monitor and manage your children's learning progress</p>
       </div>
 
-      <div class="flex gap-3">
+      <div class="flex gap-2 sm:gap-3">
         <button
           (click)="refreshDashboard()"
-          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
-          <span class="text-lg">🔄</span>
-          <span class="hidden sm:inline">Refresh</span>
+          class="px-3 sm:px-4 py-2 bg-white/80 backdrop-blur-sm border border-cyan-200 rounded-lg hover:bg-cyan-50 hover:border-cyan-300 transition-all duration-300 flex items-center gap-2 hover:scale-[1.02]">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span class="hidden sm:inline text-xs sm:text-sm font-medium text-gray-700">Refresh</span>
         </button>
         <button
           routerLink="/profile"
-          class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
-          <span class="text-lg">⚙️</span>
-          <span class="hidden sm:inline">Settings</span>
+          class="px-3 sm:px-4 py-2 bg-white/80 backdrop-blur-sm border border-cyan-200 rounded-lg hover:bg-cyan-50 hover:border-cyan-300 transition-all duration-300 flex items-center gap-2 hover:scale-[1.02]">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span class="hidden sm:inline text-xs sm:text-sm font-medium text-gray-700">Settings</span>
         </button>
         <button
           (click)="addNewChild()"
-          class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2">
-          <span class="text-lg">➕</span>
-          <span>Add Child</span>
+          class="px-3 sm:px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-700 hover:to-teal-700 transition-all duration-300 flex items-center gap-2 hover:scale-[1.02] shadow-lg shadow-cyan-500/30">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span class="text-xs sm:text-sm font-medium">Add Child</span>
         </button>
       </div>
     </div>
@@ -34,75 +43,95 @@
     <!-- Loading State -->
     @if (loading()) {
       <div class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div class="relative w-12 h-12 sm:w-16 sm:h-16">
+          <div class="absolute inset-0 rounded-full border-4 border-cyan-200"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-cyan-600 animate-spin"></div>
+          <div class="absolute inset-2 rounded-full border-4 border-transparent border-t-teal-600 animate-spin" style="animation-direction: reverse; animation-duration: 0.8s;"></div>
+        </div>
       </div>
     }
 
     <!-- Dashboard Content -->
     @if (!loading()) {
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         <!-- Total Children -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-cyan-100 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total Children</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">{{ dashboardData().children.length }}</p>
+              <p class="text-xs sm:text-sm font-medium text-gray-600">Total Children</p>
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{{ dashboardData().children.length }}</p>
             </div>
-            <div class="text-4xl">👨‍👩‍👧‍👦</div>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
           </div>
         </div>
 
         <!-- Active Subscriptions -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-cyan-100 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Active Subscriptions</p>
-              <p class="text-3xl font-bold text-indigo-600 mt-2">{{ dashboardData().activeSubscriptions }}</p>
+              <p class="text-xs sm:text-sm font-medium text-gray-600">Active Subscriptions</p>
+              <p class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent mt-2">{{ dashboardData().activeSubscriptions }}</p>
             </div>
-            <div class="text-4xl">📚</div>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
           </div>
           <button
             (click)="manageSubscriptions()"
-            class="mt-4 text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+            class="mt-4 text-xs sm:text-sm text-cyan-600 hover:text-cyan-700 font-medium transition-colors">
             Manage →
           </button>
         </div>
 
         <!-- Total Spent -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-cyan-100 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Total Spent</p>
-              <p class="text-3xl font-bold text-green-600 mt-2">${{ dashboardData().totalSpent.toFixed(2) }}</p>
+              <p class="text-xs sm:text-sm font-medium text-gray-600">Total Spent</p>
+              <p class="text-2xl sm:text-3xl font-bold text-emerald-600 mt-2">${{ dashboardData().totalSpent.toFixed(2) }}</p>
               @if (dashboardData().orderCount > 0) {
                 <p class="text-xs text-gray-500 mt-1">{{ dashboardData().orderCount }} orders</p>
               }
             </div>
-            <div class="text-4xl">💰</div>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
           </div>
           <button
             routerLink="/parent/orders"
-            class="mt-4 text-sm text-green-600 hover:text-green-700 font-medium">
+            class="mt-4 text-xs sm:text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
             View Orders →
           </button>
         </div>
 
         <!-- Monthly Spending -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-cyan-100 p-6 hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">This Month</p>
-              <p class="text-3xl font-bold text-blue-600 mt-2">${{ dashboardData().monthlySpent.toFixed(2) }}</p>
+              <p class="text-xs sm:text-sm font-medium text-gray-600">This Month</p>
+              <p class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mt-2">${{ dashboardData().monthlySpent.toFixed(2) }}</p>
               @if (dashboardData().lastOrderDate) {
                 <p class="text-xs text-gray-500 mt-1">Last order: {{ dashboardData().lastOrderDate | date:'short' }}</p>
               }
             </div>
-            <div class="text-4xl">📅</div>
+            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
           </div>
           <button
             routerLink="/parent/analytics"
-            class="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
+            class="mt-4 text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors">
             View Analytics →
           </button>
         </div>
@@ -112,15 +141,38 @@
       @if (dashboardData().alerts.length > 0) {
         <div class="mb-8 space-y-3">
           @for (alert of dashboardData().alerts; track alert.message) {
-            <div [class]="'rounded-lg border p-4 flex items-start justify-between ' + getAlertClass(alert.type)">
+            <div [class]="'rounded-lg border p-4 flex items-start justify-between bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 ' + getAlertClass(alert.type)">
               <div class="flex items-start gap-3">
-                <span class="text-2xl">{{ getAlertIcon(alert.type) }}</span>
-                <p class="text-sm font-medium">{{ alert.message }}</p>
+                <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full" [ngClass]="{
+                  'bg-yellow-100': alert.type === 'warning',
+                  'bg-red-100': alert.type === 'danger',
+                  'bg-blue-100': alert.type === 'info',
+                  'bg-green-100': alert.type === 'success'
+                }">
+                  @if (alert.type === 'warning') {
+                    <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  } @else if (alert.type === 'danger') {
+                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  } @else if (alert.type === 'info') {
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  } @else {
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  }
+                </div>
+                <p class="text-xs sm:text-sm font-medium">{{ alert.message }}</p>
               </div>
               @if (alert.actionUrl) {
                 <a
                   [routerLink]="alert.actionUrl"
-                  class="text-sm font-semibold hover:underline whitespace-nowrap ml-4">
+                  class="text-xs sm:text-sm font-semibold hover:underline whitespace-nowrap ml-4 text-cyan-600 hover:text-cyan-700 transition-colors">
                   {{ alert.actionText || 'View' }} →
                 </a>
               }
@@ -130,19 +182,25 @@
       }
 
       <!-- Children Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         @for (child of dashboardData().children; track child.id) {
-          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
+          <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-cyan-100 hover:shadow-xl transition-all duration-300 overflow-hidden hover:scale-[1.02]">
             <!-- Card Header -->
-            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
-              <div class="flex items-center gap-4">
-                <img
-                  [src]="child.avatar"
-                  [alt]="child.name"
-                  class="w-16 h-16 rounded-full border-4 border-white">
+            <div class="bg-gradient-to-r from-cyan-500 to-teal-600 p-6 text-white relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+              <div class="flex items-center gap-4 relative z-10">
+                <div class="relative">
+                  <div class="absolute inset-0 bg-white/20 backdrop-blur-sm rounded-full"></div>
+                  <div class="absolute inset-0 bg-gradient-to-br from-cyan-400/50 to-teal-400/50 rounded-full animate-pulse"></div>
+                  <img
+                    [src]="child.avatar"
+                    [alt]="child.name"
+                    class="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 border-white relative z-10"
+                    onerror="this.src='assets/images/default-avatar.png'">
+                </div>
                 <div>
-                  <h3 class="text-xl font-bold">{{ child.name }}</h3>
-                  <p class="text-indigo-100 text-sm">{{ child.grade }}</p>
+                  <h3 class="text-lg sm:text-xl font-bold">{{ child.name }}</h3>
+                  <p class="text-cyan-100 text-xs sm:text-sm">{{ child.grade }}</p>
                 </div>
               </div>
             </div>
@@ -152,12 +210,12 @@
               <!-- Overall Progress -->
               <div class="mb-6">
                 <div class="flex justify-between items-center mb-2">
-                  <span class="text-sm font-medium text-gray-700">Overall Progress</span>
-                  <span class="text-sm font-bold text-gray-900">{{ child.overallProgress }}%</span>
+                  <span class="text-xs sm:text-sm font-medium text-gray-700">Overall Progress</span>
+                  <span class="text-xs sm:text-sm font-bold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent">{{ child.overallProgress }}%</span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
                   <div
-                    [class]="'h-full rounded-full transition-all duration-500 ' + getProgressColor(child.overallProgress)"
+                    [class]="'h-full rounded-full transition-all duration-500 shadow-sm ' + getProgressColor(child.overallProgress)"
                     [style.width.%]="child.overallProgress">
                   </div>
                 </div>
@@ -166,33 +224,41 @@
               <!-- Subscriptions Section -->
               <div class="mb-6">
                 <div class="flex items-center justify-between mb-3">
-                  <h4 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                    <span>📚</span>
+                  <h4 class="text-xs sm:text-sm font-semibold text-gray-900 flex items-center gap-2">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
                     <span>Subscriptions</span>
                   </h4>
                   @if (getSubscriptionCount(child.activeSubscription) > 0) {
-                    <span class="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
+                    <span class="text-xs font-medium text-cyan-700 bg-cyan-50 px-2 py-1 rounded-full border border-cyan-200">
                       {{ getSubscriptionCount(child.activeSubscription) }} Active
                     </span>
                   }
                 </div>
 
                 @if (child.activeSubscription === 'No Active Subscription') {
-                  <div class="bg-gray-50 rounded-lg p-4 text-center">
-                    <span class="text-2xl mb-2 block">📭</span>
-                    <p class="text-sm text-gray-600">No active subscriptions</p>
+                  <div class="bg-gradient-to-br from-gray-50 to-cyan-50/30 rounded-lg p-4 text-center border border-gray-200">
+                    <div class="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-gray-200 to-cyan-200 rounded-full flex items-center justify-center">
+                      <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                      </svg>
+                    </div>
+                    <p class="text-xs sm:text-sm text-gray-600 mb-2">No active subscriptions</p>
                     <button
                       (click)="addSubscription(child.id)"
-                      class="mt-2 text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+                      class="mt-2 text-xs text-cyan-600 hover:text-cyan-700 font-medium transition-colors">
                       Add Subscription →
                     </button>
                   </div>
                 } @else {
-                  <div class="bg-blue-50 rounded-lg p-3 max-h-32 overflow-y-auto custom-scrollbar">
+                  <div class="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-lg p-3 max-h-32 overflow-y-auto custom-scrollbar border border-cyan-100">
                     @for (subscription of getSubscriptionList(child.activeSubscription); track subscription; let i = $index) {
                       <div class="flex items-start gap-2 mb-2 last:mb-0">
-                        <span class="text-green-500 text-xs mt-0.5">✓</span>
-                        <p class="text-xs text-blue-900 leading-relaxed flex-1">{{ subscription }}</p>
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <p class="text-xs text-cyan-900 leading-relaxed flex-1">{{ subscription }}</p>
                       </div>
                     }
                   </div>
@@ -201,24 +267,33 @@
 
               <!-- Upcoming Exams -->
               <div class="mb-6">
-                <div class="bg-orange-50 rounded-lg p-4">
+                <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-4 border border-orange-200 hover:shadow-md transition-shadow">
                   <div class="flex items-center justify-between">
                     <div>
                       <p class="text-xs text-orange-600 font-medium">Upcoming Exams</p>
-                      <p class="text-2xl font-bold text-orange-900 mt-1">{{ child.upcomingExams }}</p>
+                      <p class="text-xl sm:text-2xl font-bold text-orange-900 mt-1">{{ child.upcomingExams }}</p>
                     </div>
-                    <span class="text-3xl">📝</span>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-100 to-amber-100 rounded-full flex items-center justify-center">
+                      <svg class="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <!-- Recent Activity -->
               <div class="mb-6">
-                <h4 class="text-sm font-semibold text-gray-900 mb-3">Recent Activity</h4>
+                <h4 class="text-xs sm:text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <span>Recent Activity</span>
+                </h4>
                 <div class="space-y-2">
                   @for (activity of child.recentActivity.slice(0, 2); track activity.description) {
-                    <div class="flex items-start gap-2 text-sm">
-                      <span class="text-lg flex-shrink-0">{{ activity.icon }}</span>
+                    <div class="flex items-start gap-2 text-xs sm:text-sm bg-gradient-to-r from-gray-50 to-cyan-50/30 p-2 rounded-lg">
+                      <span class="text-base sm:text-lg flex-shrink-0">{{ activity.icon }}</span>
                       <div class="flex-1 min-w-0">
                         <p class="text-gray-700 truncate">{{ activity.description }}</p>
                         <p class="text-xs text-gray-500 mt-0.5">{{ formatRelativeTime(activity.date) }}</p>
@@ -232,13 +307,16 @@
               <div class="flex gap-2">
                 <button
                   (click)="viewChildDashboard(child.id)"
-                  class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                  class="flex-1 px-3 sm:px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-700 hover:to-teal-700 transition-all duration-300 text-xs sm:text-sm font-medium hover:scale-[1.02] shadow-lg shadow-cyan-500/30">
                   View Details
                 </button>
                 <button
                   (click)="selectChild(child)"
-                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
-                  ⚙️
+                  class="px-3 sm:px-4 py-2 bg-white/80 backdrop-blur-sm border border-cyan-200 text-gray-700 rounded-lg hover:bg-cyan-50 hover:border-cyan-300 transition-all duration-300 text-xs sm:text-sm hover:scale-[1.02]">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -248,63 +326,99 @@
 
       <!-- Empty State -->
       @if (dashboardData().children.length === 0) {
-        <div class="bg-white rounded-lg shadow p-12 text-center">
-          <div class="text-6xl mb-4">👨‍👩‍👧‍👦</div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">No Children Added Yet</h3>
-          <p class="text-gray-600 mb-6">Start by adding your first child to monitor their learning progress</p>
+        <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-cyan-100 p-8 sm:p-12 text-center">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-full flex items-center justify-center">
+            <svg class="w-10 h-10 sm:w-12 sm:h-12 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg sm:text-xl font-semibold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent mb-2">No Children Added Yet</h3>
+          <p class="text-sm sm:text-base text-gray-600 mb-6">Start by adding your first child to monitor their learning progress</p>
           <button
             (click)="addNewChild()"
-            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors inline-flex items-center gap-2">
-            <span>➕</span>
+            class="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-700 hover:to-teal-700 transition-all duration-300 inline-flex items-center gap-2 hover:scale-[1.02] shadow-lg shadow-cyan-500/30 text-sm sm:text-base font-medium">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
             <span>Add Your First Child</span>
           </button>
         </div>
       }
 
       <!-- Quick Actions -->
-      <div class="mt-8 bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div class="mt-8 bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-cyan-100 p-4 sm:p-6">
+        <h2 class="text-base sm:text-lg font-semibold bg-gradient-to-r from-cyan-600 to-teal-600 bg-clip-text text-transparent mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span>Quick Actions</span>
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           <button
             (click)="viewSubscriptionPlans()"
-            class="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group">
-            <div class="text-3xl mb-2">📦</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-indigo-700">Browse Plans</p>
+            class="p-3 sm:p-4 border-2 border-cyan-200 bg-white/60 rounded-lg hover:border-cyan-500 hover:bg-cyan-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-cyan-700 transition-colors">Browse Plans</p>
           </button>
 
           <button
             (click)="manageSubscriptions()"
-            class="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group">
-            <div class="text-3xl mb-2">⚙️</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-indigo-700">Manage Subs</p>
+            class="p-3 sm:p-4 border-2 border-cyan-200 bg-white/60 rounded-lg hover:border-cyan-500 hover:bg-cyan-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-cyan-700 transition-colors">Manage Subs</p>
           </button>
 
           <button
             (click)="addNewChild()"
-            class="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group">
-            <div class="text-3xl mb-2">➕</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-indigo-700">Add Child</p>
+            class="p-3 sm:p-4 border-2 border-cyan-200 bg-white/60 rounded-lg hover:border-cyan-500 hover:bg-cyan-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-cyan-700 transition-colors">Add Child</p>
           </button>
 
           <a
             routerLink="/cart"
-            class="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group">
-            <div class="text-3xl mb-2">🛒</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-indigo-700">View Cart</p>
+            class="p-3 sm:p-4 border-2 border-cyan-200 bg-white/60 rounded-lg hover:border-cyan-500 hover:bg-cyan-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md block">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-cyan-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-cyan-700 transition-colors">View Cart</p>
           </a>
 
           <a
             routerLink="/sessions/browse"
-            class="p-4 border-2 border-green-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all text-center group">
-            <div class="text-3xl mb-2">👨‍🏫</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-green-700">Book Session</p>
+            class="p-3 sm:p-4 border-2 border-emerald-200 bg-white/60 rounded-lg hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md block">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-emerald-700 transition-colors">Book Session</p>
           </a>
 
           <a
             routerLink="/sessions/my-bookings"
-            class="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-center group">
-            <div class="text-3xl mb-2">📅</div>
-            <p class="text-sm font-medium text-gray-700 group-hover:text-blue-700">My Bookings</p>
+            class="p-3 sm:p-4 border-2 border-blue-200 bg-white/60 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 text-center group hover:scale-[1.02] hover:shadow-md block">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-blue-700 transition-colors">My Bookings</p>
           </a>
         </div>
       </div>

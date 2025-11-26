@@ -1,38 +1,6 @@
-// Teacher Permissions Admin Component Styles
+// Teacher Permissions Admin Component - Modern Styles
 
-.permissions-card {
-  transition: all 0.2s ease;
-
-  &:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.teacher-card {
-  border-left: 4px solid #3b82f6;
-}
-
-.approval-card {
-  position: relative;
-
-  &.urgent {
-    border-left: 4px solid #ef4444;
-  }
-
-  &.warning {
-    border-left: 4px solid #f59e0b;
-  }
-
-  &.normal {
-    border-left: 4px solid #10b981;
-  }
-}
-
-.modal-overlay {
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.2s ease;
-}
-
+// Smooth animations
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -42,12 +10,55 @@
   }
 }
 
-.permission-toggle {
-  transition: background-color 0.2s ease;
-
-  &:checked {
-    background-color: #3b82f6;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Modal overlay with blur
+.modal-overlay {
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+// Animate modal content
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease;
+}
+
+// Card hover effects
+.permissions-card,
+.teacher-card,
+.approval-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+// Smooth transitions for all interactive elements
+button, a, select, input, textarea {
+  transition: all 0.2s ease-in-out;
 }
 
 .action-button {
