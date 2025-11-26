@@ -828,46 +828,44 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.logger.log('✅ Student role - using studentId:', studentId, 'from:', user.studentId ? 'token.studentId' : 'user.id');
       } else if (isParent) {
         // Parent access - check if student selection is needed
-        studentId = this.selectedStudentId() || undefined;
+        // ✅ IMPORTANT: Do NOT use previously selected student automatically
+        // Always show modal if multiple students exist in same year
+        const allParentStudents = this.parentStudents();
 
-        if (!studentId) {
-          const allParentStudents = this.parentStudents();
+        if (allParentStudents.length === 0) {
+          this.logger.log('❌ No students found for parent');
+          this.toastService.showError('No students found. Please add a student first.');
+          return;
+        }
 
-          if (allParentStudents.length === 0) {
-            this.logger.log('❌ No students found for parent');
-            this.toastService.showError('No students found. Please add a student first.');
-            return;
-          }
+        // ✅ FIX: Convert course.yearId (DB id) to yearNumber for comparison
+        // course.yearId is the ID from Years table (1, 2, 3...)
+        // student.yearId is the yearNumber (7, 8, 9...)
+        const courseYearId = course.yearId;
+        const yearInfo = this.availableYears().find(y => y.id === courseYearId);
+        const courseYearNumber = yearInfo?.yearNumber || courseYearId;
 
-          // ✅ FIX: Convert course.yearId (DB id) to yearNumber for comparison
-          // course.yearId is the ID from Years table (1, 2, 3...)
-          // student.yearId is the yearNumber (7, 8, 9...)
-          const courseYearId = course.yearId;
-          const yearInfo = this.availableYears().find(y => y.id === courseYearId);
-          const courseYearNumber = yearInfo?.yearNumber || courseYearId;
+        const studentsInSameYear = allParentStudents.filter(s => s.yearId === courseYearNumber);
 
-          const studentsInSameYear = allParentStudents.filter(s => s.yearId === courseYearNumber);
+        this.logger.log('🔍 Course yearId (DB):', courseYearId);
+        this.logger.log('🔍 Course yearNumber:', courseYearNumber);
+        this.logger.log('👨‍👩‍👧‍👦 All students:', allParentStudents.map(s => ({ name: s.name, yearId: s.yearId })));
+        this.logger.log('👨‍👩‍👧‍👦 Students in same year:', studentsInSameYear.length);
 
-          this.logger.log('🔍 Course yearId (DB):', courseYearId);
-          this.logger.log('🔍 Course yearNumber:', courseYearNumber);
-          this.logger.log('👨‍👩‍👧‍👦 All students:', allParentStudents.map(s => ({ name: s.name, yearId: s.yearId })));
-          this.logger.log('👨‍👩‍👧‍👦 Students in same year:', studentsInSameYear.length);
-
-          if (studentsInSameYear.length === 0) {
-            this.logger.log('❌ No students found for this year');
-            this.toastService.showError('None of your children are enrolled in this year level.');
-            return;
-          } else if (studentsInSameYear.length === 1) {
-            // ✅ Only one student in this year - auto-select
-            studentId = studentsInSameYear[0].id;
-            this.selectedStudentId.set(studentId || null);
-            this.logger.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'for Year', courseYearNumber);
-          } else {
-            // ✅ Multiple students in same year - show selector
-            this.logger.log('👨‍👩‍👧‍👦 Multiple students in Year', courseYearNumber, '- showing selector');
-            this.showStudentSelectionModal(studentsInSameYear, planId, course);
-            return;  // Exit early - will continue after selection
-          }
+        if (studentsInSameYear.length === 0) {
+          this.logger.log('❌ No students found for this year');
+          this.toastService.showError('None of your children are enrolled in this year level.');
+          return;
+        } else if (studentsInSameYear.length === 1) {
+          // ✅ Only one student in this year - auto-select
+          studentId = studentsInSameYear[0].id;
+          this.selectedStudentId.set(studentId || null);
+          this.logger.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'for Year', courseYearNumber);
+        } else {
+          // ✅ Multiple students in same year - ALWAYS show selector (even if previously selected)
+          this.logger.log('👨‍👩‍👧‍👦 Multiple students in Year', courseYearNumber, '- showing selector');
+          this.showStudentSelectionModal(studentsInSameYear, planId, course);
+          return;  // Exit early - will continue after selection
         }
       } else {
         // ❌ User is not Student or Parent - cannot add to cart
