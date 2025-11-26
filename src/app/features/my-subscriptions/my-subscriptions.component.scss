@@ -1,13 +1,30 @@
 /**
  * My Subscriptions Styles
- * Custom styles for subscriptions management component
+ * Modern design matching home page aesthetics
  */
 
-// Animations
+/* Remove default link underlines */
+a {
+  text-decoration: none;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced hover effects for cards */
+.hover\:shadow-xl:hover,
+.hover\:shadow-2xl:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Smooth animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -15,10 +32,10 @@
   }
 }
 
-@keyframes slideIn {
+@keyframes slideInLeft {
   from {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-30px);
   }
   to {
     opacity: 1;
@@ -26,34 +43,37 @@
   }
 }
 
-@keyframes modalFadeIn {
+@keyframes scaleIn {
   from {
     opacity: 0;
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
+    transform: scale(1);
   }
 }
 
-// Component styles
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Component styles */
 :host {
   display: block;
 }
 
-// Card animations
-.bg-white {
-  animation: fadeIn 0.3s ease-out;
-}
-
-// Progress bar animation
-.w-full {
-  .h-full {
-    transition: width 0.5s ease-out;
-  }
-}
-
-// Stats cards stagger animation
-.grid > .bg-white {
+/* Stats cards animation */
+.grid > div {
+  animation: fadeIn 0.5s ease-out;
+  
   &:nth-child(1) {
     animation-delay: 0.1s;
   }
@@ -68,9 +88,9 @@
   }
 }
 
-// Subscription cards
+/* Subscription cards staggered animation */
 .space-y-6 > div {
-  animation: slideIn 0.4s ease-out;
+  animation: slideInLeft 0.5s ease-out;
 
   &:nth-child(2) {
     animation-delay: 0.1s;
@@ -78,26 +98,62 @@
   &:nth-child(3) {
     animation-delay: 0.2s;
   }
-}
-
-// Modal animation
-.fixed.inset-0 {
-  animation: modalFadeIn 0.2s ease-out;
-
-  > div {
-    animation: fadeIn 0.3s ease-out;
+  &:nth-child(4) {
+    animation-delay: 0.3s;
   }
 }
 
-// Hover effects
-.hover\:shadow-lg {
-  transition: box-shadow 0.3s ease;
+/* Modal animation */
+.fixed.inset-0 {
+  animation: fadeIn 0.3s ease-out;
+
+  > div {
+    animation: modalFadeIn 0.3s ease-out;
+  }
 }
 
-// Button transitions
-button {
+/* Progress bar smooth animation */
+.w-full .h-full {
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button hover enhancements */
+button,
+a {
+  &:active {
+    transform: translateY(1px) scale(0.98);
+  }
+}
+
+/* Card hover effects */
+.rounded-2xl {
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Performance optimizations */
+.rounded-2xl,
+.rounded-xl,
+svg,
+img {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* Badge animations */
+span[class*="rounded-full"] {
   transition: all 0.2s ease;
 }
+
+/* Input focus states */
+input,
+textarea {
+  &:focus {
+    outline: none;
+  }
+}
+
 
 // Responsive adjustments
 @media (max-width: 640px) {

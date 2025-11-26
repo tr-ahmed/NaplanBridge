@@ -5,7 +5,7 @@
     <!-- Loading State -->
     @if (loading()) {
       <div class="flex justify-center items-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         <p class="ml-4 text-gray-600">Loading student details...</p>
       </div>
     }
@@ -37,13 +37,13 @@
       <div class="mb-6">
         <button
           (click)="goBack()"
-          class="text-indigo-600 hover:text-indigo-700 flex items-center gap-2 mb-4">
+          class="text-blue-600 hover:text-blue-700 flex items-center gap-2 mb-4">
           <span>←</span>
           <span>Back to Dashboard</span>
         </button>
 
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
+          <div class="bg-blue-600 p-6 text-white">
             <div class="flex items-center gap-6">
               <!-- Avatar -->
               <img
@@ -54,23 +54,23 @@
               <!-- Info -->
               <div class="flex-1">
                 <h1 class="text-3xl font-bold mb-2">{{ studentDetails()!.student.userName }}</h1>
-                <p class="text-indigo-100 mb-1">{{ studentDetails()!.student.email }}</p>
-                <p class="text-indigo-100">{{ studentDetails()!.student.yearName }} • Age: {{ studentDetails()!.student.age }}</p>
+                <p class="text-blue-100 mb-1">{{ studentDetails()!.student.email }}</p>
+                <p class="text-blue-100">{{ studentDetails()!.student.yearName }} • Age: {{ studentDetails()!.student.age }}</p>
               </div>
 
               <!-- Quick Stats -->
               <div class="grid grid-cols-3 gap-6 text-center">
                 <div>
                   <div class="text-3xl font-bold">{{ studentDetails()!.progress.overallProgress }}%</div>
-                  <div class="text-sm text-indigo-100">Overall Progress</div>
+                  <div class="text-sm text-blue-100">Overall Progress</div>
                 </div>
                 <div>
                   <div class="text-3xl font-bold">{{ studentDetails()!.progress.averageScore }}%</div>
-                  <div class="text-sm text-indigo-100">Avg Score</div>
+                  <div class="text-sm text-blue-100">Avg Score</div>
                 </div>
                 <div>
                   <div class="text-3xl font-bold">{{ studentDetails()!.activeSubscriptions.length }}</div>
-                  <div class="text-sm text-indigo-100">Active Plans</div>
+                  <div class="text-sm text-blue-100">Active Plans</div>
                 </div>
               </div>
             </div>
@@ -81,25 +81,25 @@
             <nav class="flex -mb-px">
               <button
                 (click)="switchTab('overview')"
-                [class]="activeTab() === 'overview' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                [class]="activeTab() === 'overview' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                 class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
                 Overview
               </button>
               <button
                 (click)="switchTab('subscriptions')"
-                [class]="activeTab() === 'subscriptions' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                [class]="activeTab() === 'subscriptions' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                 class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
                 Subscriptions
               </button>
               <button
                 (click)="switchTab('progress')"
-                [class]="activeTab() === 'progress' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                [class]="activeTab() === 'progress' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                 class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
                 Progress
               </button>
               <button
                 (click)="switchTab('settings')"
-                [class]="activeTab() === 'settings' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                [class]="activeTab() === 'settings' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                 class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
                 Settings
               </button>
@@ -162,9 +162,9 @@
                   <div class="text-2xl font-bold text-green-600">{{ studentDetails()!.stats.totalExamsPassed }}/{{ studentDetails()!.stats.totalExamsTaken }}</div>
                   <div class="text-xs text-green-900 mt-1">Exams Passed</div>
                 </div>
-                <div class="text-center p-3 bg-purple-50 rounded-lg">
-                  <div class="text-sm font-bold text-purple-600">{{ studentDetails()!.stats.strongestSubject }}</div>
-                  <div class="text-xs text-purple-900 mt-1">Strongest Subject</div>
+                <div class="text-center p-3 bg-amber-50 rounded-lg">
+                  <div class="text-sm font-bold text-amber-600">{{ studentDetails()!.stats.strongestSubject }}</div>
+                  <div class="text-xs text-amber-900 mt-1">Strongest Subject</div>
                 </div>
                 <div class="text-center p-3 bg-orange-50 rounded-lg">
                   <div class="text-sm font-bold text-orange-600">{{ studentDetails()!.stats.weakestSubject }}</div>
@@ -183,7 +183,7 @@
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               @for (subject of studentDetails()!.subjects; track subject.subjectId) {
-                <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors">
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
                   <div class="flex justify-between items-start mb-2">
                     <h4 class="font-semibold text-gray-900">{{ subject.subjectName }}</h4>
                     @if (subject.hasActiveSubscription) {
@@ -260,7 +260,7 @@
                       <div class="text-sm text-gray-600 mt-1">{{ exam.subject }}</div>
                       <div class="flex items-center justify-between mt-2 text-xs">
                         <span class="text-gray-500">{{ exam.startDate | date:'MMM d, h:mm a' }}</span>
-                        <span class="text-indigo-600 font-medium">{{ exam.duration }}min • {{ exam.totalMarks }} marks</span>
+                        <span class="text-blue-600 font-medium">{{ exam.duration }}min • {{ exam.totalMarks }} marks</span>
                       </div>
                     </div>
                   }
@@ -286,7 +286,7 @@
               <h3 class="text-lg font-semibold text-gray-900">Active Subscriptions</h3>
               <button
                 (click)="addSubscription()"
-                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2">
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
                 <span>➕</span>
                 <span>Add Subscription</span>
               </button>
