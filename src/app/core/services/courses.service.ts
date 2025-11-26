@@ -342,21 +342,22 @@ export class CoursesService {
   private addPlanToCartBackend(planId: number, studentId: number, course: Course): Observable<boolean> {
     const url = `${this.baseUrl}/Cart/items`;
 
+    const requestBody = {
+      subscriptionPlanId: planId,
+      studentId: studentId,
+      quantity: 1
+    };
+
     console.log('🛒 Adding to cart:', {
       url,
-      subscriptionPlanId: planId,
-      studentId: studentId,  // ✅ Student.Id (e.g., 1)
+      requestBody,
       studentIdType: typeof studentId,
-      quantity: 1,
+      planIdType: typeof planId,
       note: 'Using Student.Id from Students table, NOT User.Id from AspNetUsers'
     });
 
     // ✅ Use correct API format with subscriptionPlanId
-    return this.http.post<any>(url, {
-      subscriptionPlanId: planId,
-      studentId: studentId,
-      quantity: 1
-    }).pipe(
+    return this.http.post<any>(url, requestBody).pipe(
       tap(() => {
         console.log('📦 Cart API call initiated...');
       }),
@@ -379,14 +380,20 @@ export class CoursesService {
           statusText: error.statusText,
           message: error.error?.message,
           details: error.error?.details,
-          traceId: error.error?.traceId
+          traceId: error.error?.traceId,
+          fullError: error.error
         });
+
+        // Log the error details as separate line for clarity
+        console.error('❌ Full Backend Error:', error.error);
+        console.error('❌ Error Message:', error.error?.message || 'No message');
 
         // ✅ Better error messages with backend feedback
         if (error.status === 401) {
           this.toastService.showWarning('Please log in to sync your cart with the server');
         } else if (error.status === 400) {
           const msg = error.error?.message || 'Invalid data';
+          console.error('❌ 400 Bad Request:', msg);
           this.toastService.showError(msg);
         } else if (error.status === 404) {
           const msg = error.error?.message || 'Selected plan not found';
