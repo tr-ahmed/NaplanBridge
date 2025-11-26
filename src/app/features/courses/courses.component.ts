@@ -338,25 +338,36 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     this.logger.log('👨‍👩‍👧‍👦 Loading parent students from API...');
 
-    // ✅ Use actual API endpoint
-    this.http.get<any[]>(`${environment.apiBaseUrl}/User/get-children/${parentId}`)
+    // ✅ Use Dashboard API instead of User API - it returns correct studentId!
+    // Dashboard API returns ChildSummaryDto with studentId field
+    this.http.get<any>(`${environment.apiBaseUrl}/Dashboard/parent`)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (students: any[]) => {
-          this.logger.log('✅ Loaded parent students from API (RAW):', students);
+        next: (dashboard: any) => {
+          this.logger.log('✅ Loaded parent dashboard from API (RAW):', dashboard);
+
+          // Extract children from dashboard response
+          const students = dashboard.children || [];
+          this.logger.log('✅ Children from dashboard:', students);
 
           // Map to expected format
           const mappedStudents = students.map((s: any) => {
+            // ✅ CRITICAL: Dashboard API returns studentId correctly!
             const mapped = {
-              id: s.id,
-              name: s.name || s.userName,
-              yearId: s.yearId || s.schoolYearId || s.year,
-              yearName: s.yearName || s.schoolYearName || (s.yearId ? `Year ${s.yearId}` : 'Unknown'),
+              id: s.studentId,  // ✅ Correct Student.Id from Students table
+              name: s.studentName || s.name || s.userName,
+              yearId: s.year || s.yearId || s.schoolYearId,
+              yearName: s.yearName || s.schoolYearName || (s.year ? `Year ${s.year}` : 'Unknown'),
               email: s.email
             };
 
             this.logger.log('📝 Mapping student:', {
-              raw: { id: s.id, name: s.name, yearId: s.yearId, schoolYearId: s.schoolYearId, year: s.year },
+              raw: {
+                studentId: s.studentId,
+                studentName: s.studentName,
+                year: s.year,
+                yearId: s.yearId
+              },
               mapped
             });
 
