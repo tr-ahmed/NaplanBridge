@@ -642,7 +642,15 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
         showConfirmButton: false
       });
     } catch (error: any) {
-      Swal.fire('Error', this.extractErrorMessage(error), 'error');
+      console.error('Note save error:', error);
+      let errorMessage = this.extractErrorMessage(error);
+      
+      // Handle 403 Forbidden specifically
+      if (error?.status === 403) {
+        errorMessage = 'You do not have permission to add/edit notes. Please contact your administrator.';
+      }
+      
+      Swal.fire('Error', errorMessage, 'error');
     }
   }
 
