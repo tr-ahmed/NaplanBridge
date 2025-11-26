@@ -36,7 +36,8 @@ export class RegisterComponent {
       Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z]).{8,}$/) // Must contain uppercase and lowercase, min 8 chars
     ]],
     confirmPassword: ['', [Validators.required]],
-    phoneNumber: ['', [Validators.required, Validators.pattern(/^01[0-9]{9}$/)]],
+    // Allow international formats with optional leading + and 9-15 digits
+    phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{9,15}$/)]],
     age: ['', [Validators.required, Validators.min(18), Validators.max(100)]],
     termsAccepted: [false, [Validators.requiredTrue]]
   }, {

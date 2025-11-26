@@ -352,6 +352,10 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
           // Map to expected format
           const mappedStudents = students.map((s: any) => {
+            // ✅ CRITICAL: Log FULL raw object to see what backend actually returns
+            this.logger.log('🔍 RAW STUDENT OBJECT FROM BACKEND:', s);
+            this.logger.log('🔍 All properties:', Object.keys(s));
+
             // ✅ CRITICAL: Dashboard API returns studentId correctly!
             const mapped = {
               id: s.studentId,  // ✅ Correct Student.Id from Students table
@@ -363,6 +367,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
             this.logger.log('📝 Mapping student:', {
               raw: {
+                FULL_OBJECT: s,
                 studentId: s.studentId,
                 studentName: s.studentName,
                 year: s.year,
