@@ -1261,6 +1261,10 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   expandAll(): void {
     // Emit event to all hierarchy node components to expand
     this.hierarchyExpandedState = 'expanded';
+    // Expand all items
+    this.filteredSubjects.forEach(s => s.id && this.expandedSubjects.add(s.id));
+    this.filteredTerms.forEach(t => t.id && this.expandedTerms.add(t.id));
+    this.filteredWeeks.forEach(w => w.id && this.expandedWeeks.add(w.id));
     // Force re-render
     this.refreshAll();
   }
@@ -1268,12 +1272,44 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   collapseAll(): void {
     // Emit event to all hierarchy node components to collapse
     this.hierarchyExpandedState = 'collapsed';
+    // Collapse all items
+    this.expandedSubjects.clear();
+    this.expandedTerms.clear();
+    this.expandedWeeks.clear();
     // Force re-render
     this.refreshAll();
+  }
+  
+  // Handle expand state changes from child components
+  onExpandStateChange(event: { type: 'subject' | 'term' | 'week'; id: number; expanded: boolean }): void {
+    if (event.type === 'subject') {
+      if (event.expanded) {
+        this.expandedSubjects.add(event.id);
+      } else {
+        this.expandedSubjects.delete(event.id);
+      }
+    } else if (event.type === 'term') {
+      if (event.expanded) {
+        this.expandedTerms.add(event.id);
+      } else {
+        this.expandedTerms.delete(event.id);
+      }
+    } else if (event.type === 'week') {
+      if (event.expanded) {
+        this.expandedWeeks.add(event.id);
+      } else {
+        this.expandedWeeks.delete(event.id);
+      }
+    }
   }
 
   // State for hierarchy expansion
   hierarchyExpandedState: 'expanded' | 'collapsed' | 'default' = 'default';
+  
+  // Store expanded state to persist across re-renders
+  expandedSubjects: Set<number> = new Set();
+  expandedTerms: Set<number> = new Set();
+  expandedWeeks: Set<number> = new Set();
 
   // ============================================
   // Navigation

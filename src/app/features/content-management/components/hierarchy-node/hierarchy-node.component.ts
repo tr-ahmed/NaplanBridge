@@ -18,30 +18,49 @@ export class HierarchyNodeComponent implements OnChanges {
   @Input() weeks: Week[] = [];
   @Input() lessons: Lesson[] = [];
   @Input() expandState: 'expanded' | 'collapsed' | 'default' = 'default';
+  @Input() expandedSubjects: Set<number> = new Set();
+  @Input() expandedTerms: Set<number> = new Set();
+  @Input() expandedWeeks: Set<number> = new Set();
 
   @Output() add = new EventEmitter<{ type: EntityType; entity: any }>();
   @Output() edit = new EventEmitter<{ type: EntityType; entity: any }>();
   @Output() delete = new EventEmitter<{ type: EntityType; entity: any }>();
   @Output() lessonClick = new EventEmitter<Lesson>();
   @Output() preview = new EventEmitter<Lesson>();
-
-  expandedSubjects: Set<number> = new Set();
-  expandedTerms: Set<number> = new Set();
-  expandedWeeks: Set<number> = new Set();
+  @Output() expandStateChange = new EventEmitter<{ type: 'subject' | 'term' | 'week'; id: number; expanded: boolean }>();
 
   ngOnChanges(): void {
+    // expandState is only used for 'expanded' and 'collapsed' commands from parent
+    // The actual state is now managed by the parent through expandedSubjects/Terms/Weeks inputs
     if (this.expandState === 'expanded') {
-      // Expand all
-      this.subjects.forEach(s => this.expandedSubjects.add(s.id!));
-      this.terms.forEach(t => this.expandedTerms.add(t.id!));
-      this.weeks.forEach(w => this.expandedWeeks.add(w.id!));
+      // Parent is requesting to expand all
+      this.subjects.forEach(s => {
+        if (s.id && !this.expandedSubjects.has(s.id)) {
+          this.expandStateChange.emit({ type: 'subject', id: s.id, expanded: true });
+        }
+      });
+      this.terms.forEach(t => {
+        if (t.id && !this.expandedTerms.has(t.id)) {
+          this.expandStateChange.emit({ type: 'term', id: t.id, expanded: true });
+        }
+      });
+      this.weeks.forEach(w => {
+        if (w.id && !this.expandedWeeks.has(w.id)) {
+          this.expandStateChange.emit({ type: 'week', id: w.id, expanded: true });
+        }
+      });
     } else if (this.expandState === 'collapsed') {
-      // Collapse all
-      this.expandedSubjects.clear();
-      this.expandedTerms.clear();
-      this.expandedWeeks.clear();
+      // Parent is requesting to collapse all
+      Array.from(this.expandedSubjects).forEach(id => {
+        this.expandStateChange.emit({ type: 'subject', id, expanded: false });
+      });
+      Array.from(this.expandedTerms).forEach(id => {
+        this.expandStateChange.emit({ type: 'term', id, expanded: false });
+      });
+      Array.from(this.expandedWeeks).forEach(id => {
+        this.expandStateChange.emit({ type: 'week', id, expanded: false });
+      });
     }
-    // Note: 'default' state preserves existing expand/collapse states
   }
 
   getSubjectsForYear(): Subject[] {
@@ -61,27 +80,18 @@ export class HierarchyNodeComponent implements OnChanges {
   }
 
   toggleSubject(subjectId: number): void {
-    if (this.expandedSubjects.has(subjectId)) {
-      this.expandedSubjects.delete(subjectId);
-    } else {
-      this.expandedSubjects.add(subjectId);
-    }
+    const isExpanded = this.expandedSubjects.has(subjectId);
+    this.expandStateChange.emit({ type: 'subject', id: subjectId, expanded: !isExpanded });
   }
 
   toggleTerm(termId: number): void {
-    if (this.expandedTerms.has(termId)) {
-      this.expandedTerms.delete(termId);
-    } else {
-      this.expandedTerms.add(termId);
-    }
+    const isExpanded = this.expandedTerms.has(termId);
+    this.expandStateChange.emit({ type: 'term', id: termId, expanded: !isExpanded });
   }
 
   toggleWeek(weekId: number): void {
-    if (this.expandedWeeks.has(weekId)) {
-      this.expandedWeeks.delete(weekId);
-    } else {
-      this.expandedWeeks.add(weekId);
-    }
+    const isExpanded = this.expandedWeeks.has(weekId);
+    this.expandStateChange.emit({ type: 'week', id: weekId, expanded: !isExpanded });
   }
 
   isSubjectExpanded(subjectId: number): boolean {

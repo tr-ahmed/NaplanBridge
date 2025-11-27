@@ -478,10 +478,14 @@
                     [weeks]="filteredWeeks"
                     [lessons]="filteredLessons"
                     [expandState]="hierarchyExpandedState"
+                    [expandedSubjects]="expandedSubjects"
+                    [expandedTerms]="expandedTerms"
+                    [expandedWeeks]="expandedWeeks"
                     (add)="openAddFromHierarchy($event.type, $event.entity)"
                     (edit)="openEdit($event.type, $event.entity)"
                     (delete)="confirmDelete($event.type, $event.entity)"
-                    (lessonClick)="navigateToLessonManagement($event)">
+                    (lessonClick)="navigateToLessonManagement($event)"
+                    (expandStateChange)="onExpandStateChange($event)">
                 </app-hierarchy-node>
               </div>
             </div>
