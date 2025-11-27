@@ -354,12 +354,7 @@ export class CreateEditExamComponent implements OnInit {
     // Track original questions count for detecting new questions in edit mode
     this.originalQuestionsCount = exam.questions?.length || 0;
 
-    console.log('📝 Patching form with exam data:', {
-      title: exam.title,
-      examType: exam.examType,
-      subjectId: exam.subjectId,
-      yearId: exam.yearId
-    });
+    console.log('📝 Patching form with exam data:', exam);
 
     // ✅ Convert IDs to numbers to ensure proper type matching
     const subjectId = exam.subjectId ? +exam.subjectId : null;
@@ -367,72 +362,129 @@ export class CreateEditExamComponent implements OnInit {
     const termId = exam.termId ? +exam.termId : null;
     const weekId = exam.weekId ? +exam.weekId : null;
     const lessonId = exam.lessonId ? +exam.lessonId : null;
+    
+    // ✅ Calculate totalMarks from questions if not provided
+    const calculatedTotalMarks = exam.questions?.reduce((sum: number, q: any) => sum + (q.marks || 0), 0) || 100;
+    const totalMarks = exam.totalMarks || calculatedTotalMarks;
+    
+    // ✅ Set passingMarks to 50% of totalMarks if not provided
+    const passingMarks = exam.passingMarks || (totalMarks * 0.5);
 
     this.examForm.patchValue({
-      title: exam.title,
-      description: exam.description,
-      examType: exam.examType,
+      title: exam.title || '',
+      description: exam.description || '',
+      examType: exam.examType || 'Lesson',
       subjectId: subjectId,
       yearId: yearId,
       termId: termId,
       weekId: weekId,
       lessonId: lessonId,
-      durationInMinutes: exam.durationInMinutes,
-      startTime: exam.startTime,
-      endTime: exam.endTime,
-      totalMarks: exam.totalMarks,
-      passingMarks: exam.passingMarks,
-      allowLateSubmission: exam.allowLateSubmission,
-      shuffleQuestions: exam.shuffleQuestions,
-      showResults: exam.showResults,
-      allowReview: exam.allowReview,
-      maxAttempts: exam.maxAttempts,
-      isPublished: exam.isPublished
+      durationInMinutes: exam.durationInMinutes || 60,
+      startTime: exam.startTime ? this.formatDateTimeForInput(exam.startTime) : '',
+      endTime: exam.endTime ? this.formatDateTimeForInput(exam.endTime) : '',
+      totalMarks: totalMarks,
+      passingMarks: passingMarks,
+      allowLateSubmission: exam.allowLateSubmission ?? false,
+      shuffleQuestions: exam.shuffleQuestions ?? false,
+      showResults: exam.showResults ?? true,
+      allowReview: exam.allowReview ?? true,
+      maxAttempts: exam.maxAttempts || 1,
+      isPublished: exam.isPublished ?? false
     });
 
-    console.log('✅ Form patched. Current values:', {
+    console.log('✅ Form patched with values:', {
+      title: exam.title,
       examType: this.examForm.get('examType')?.value,
       subjectId: this.examForm.get('subjectId')?.value,
-      yearId: this.examForm.get('yearId')?.value
+      yearId: this.examForm.get('yearId')?.value,
+      totalMarks: this.examForm.get('totalMarks')?.value,
+      passingMarks: this.examForm.get('passingMarks')?.value,
+      durationInMinutes: this.examForm.get('durationInMinutes')?.value
     });
 
     // Clear default questions and add loaded ones
     this.questions.clear();
-    exam.questions.forEach((q: any) => {
-      const questionGroup = this.createQuestionGroup();
-      questionGroup.patchValue({
-        questionText: q.questionText,
-        questionType: q.questionType,
-        marks: q.marks,
-        order: q.order
-      });
-
-      // Add options
-      const optionsArray = questionGroup.get('options') as FormArray;
-      optionsArray.clear();
-
-      // If TrueFalse and no options, add default True/False
-      if (q.questionType === 'TrueFalse' && (!q.options || q.options.length === 0)) {
-        optionsArray.push(this.fb.group({
-          optionText: ['True', Validators.required],
-          isCorrect: [false]
-        }));
-        optionsArray.push(this.fb.group({
-          optionText: ['False', Validators.required],
-          isCorrect: [false]
-        }));
-      } else {
-        // Load existing options
-        q.options?.forEach((opt: any) => {
-          optionsArray.push(this.fb.group({
-            optionText: [opt.optionText, Validators.required],
-            isCorrect: [opt.isCorrect]
-          }));
+    if (exam.questions && exam.questions.length > 0) {
+      exam.questions.forEach((q: any, index: number) => {
+        const questionGroup = this.createQuestionGroup();
+        
+        // ✅ Determine question type from options structure
+        let questionType = q.questionType || 'MultipleChoice';
+        const hasOptions = q.options && q.options.length > 0;
+        
+        if (hasOptions) {
+          const optionTexts = q.options.map((o: any) => o.optionText?.toLowerCase());
+          if (optionTexts.includes('true') && optionTexts.includes('false') && q.options.length === 2) {
+            questionType = 'TrueFalse';
+          } else if (q.isMultipleSelect) {
+            questionType = 'MultipleSelect';
+          } else {
+            questionType = 'MultipleChoice';
+          }
+        }
+        
+        questionGroup.patchValue({
+          questionText: q.questionText || '',
+          questionType: questionType,
+          marks: q.marks || 10,
+          order: q.order || (index + 1)
         });
-      }
 
-      this.questions.push(questionGroup);
-    });
+        // Add options
+        const optionsArray = questionGroup.get('options') as FormArray;
+        optionsArray.clear();
+
+        if (hasOptions) {
+          q.options.forEach((opt: any) => {
+            optionsArray.push(this.fb.group({
+              optionText: [opt.optionText || '', Validators.required],
+              isCorrect: [opt.isCorrect || false]
+            }));
+          });
+        } else if (questionType === 'TrueFalse') {
+          // Add default True/False options if none exist
+          optionsArray.push(this.fb.group({
+            optionText: ['True', Validators.required],
+            isCorrect: [false]
+          }));
+          optionsArray.push(this.fb.group({
+            optionText: ['False', Validators.required],
+            isCorrect: [false]
+          }));
+        }
+
+        this.questions.push(questionGroup);
+      });
+    } else {
+      // If no questions, add one default question
+      this.addQuestion();
+    }
+    
+    console.log('✅ Questions loaded:', this.questions.length);
+  }
+  
+  /**
+   * Format datetime for input field (datetime-local expects 'YYYY-MM-DDTHH:mm' format)
+   */
+  private formatDateTimeForInput(dateTime: string): string {
+    if (!dateTime) return '';
+    
+    try {
+      const date = new Date(dateTime);
+      if (isNaN(date.getTime())) return '';
+      
+      // Format: YYYY-MM-DDTHH:mm
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    } catch (e) {
+      console.error('Error formatting date:', e);
+      return '';
+    }
   }
 
   /**
