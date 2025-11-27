@@ -301,23 +301,27 @@ export class LessonsService {
 
     const endpoint = ApiNodes.getLessonsByTermNumberWithProgress;
 
-    // ✅ Build URL with required studentId parameter
-    // Note: Backend requires studentId in path, even for preview mode
-    const finalStudentId = studentId || 0; // Use 0 for guest/preview mode
-
+    // ✅ Build URL with query parameter for studentId
     const url = `${this.baseUrl}${endpoint.url
       .replace(':subjectId', subjectId.toString())
-      .replace(':termNumber', termNumber.toString())}/${finalStudentId}`;
+      .replace(':termNumber', termNumber.toString())}`;
+
+    // Add studentId as query parameter if provided
+    const params: any = {};
+    if (studentId) {
+      params.studentId = studentId.toString();
+    }
 
     console.log('📚 Fetching term number lessons with progress:', {
       subjectId,
       termNumber,
-      studentId: finalStudentId,
+      studentId: studentId || 'guest',
       isGuest: !studentId,
-      url
+      url,
+      params
     });
 
-    return this.http.get<Lesson[]>(url).pipe(
+    return this.http.get<Lesson[]>(url, { params }).pipe(
       tap((lessons) => {
         console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber} (guest: ${!studentId})`);
         this.loading.set(false);
