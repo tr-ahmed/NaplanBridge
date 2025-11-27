@@ -68,7 +68,7 @@ export class TeacherSidebarComponent implements OnInit {
 
   get userAvatar(): string {
     const profile = this.fullProfile();
-    return profile?.avatarUrl || 'https://i.pravatar.cc/48?img=5';
+    return profile?.avatarUrl || 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
   }
 
   get userName(): string {

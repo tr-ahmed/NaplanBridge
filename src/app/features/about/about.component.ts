@@ -14,7 +14,7 @@ export class AboutComponent {
     {
       name: 'Dr. Sarah Johnson',
       role: 'Founder & CEO',
-      image: 'https://i.pravatar.cc/300?img=1',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
       bio: 'Educational technology expert with 15+ years of experience in curriculum development.',
       social: {
         linkedin: '#',
@@ -24,7 +24,7 @@ export class AboutComponent {
     {
       name: 'Michael Chen',
       role: 'Head of Technology',
-      image: 'https://i.pravatar.cc/300?img=13',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
       bio: 'Software architect passionate about creating innovative learning solutions.',
       social: {
         linkedin: '#',
@@ -34,7 +34,7 @@ export class AboutComponent {
     {
       name: 'Emily Rodriguez',
       role: 'Lead Educator',
-      image: 'https://i.pravatar.cc/300?img=5',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
       bio: 'Master teacher specializing in NAPLAN preparation and student success.',
       social: {
         linkedin: '#',
@@ -44,7 +44,7 @@ export class AboutComponent {
     {
       name: 'David Thompson',
       role: 'Content Director',
-      image: 'https://i.pravatar.cc/300?img=12',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
       bio: 'Curriculum specialist dedicated to developing engaging educational content.',
       social: {
         linkedin: '#',
