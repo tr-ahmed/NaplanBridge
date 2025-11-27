@@ -421,6 +421,40 @@
           <button
             type="button"
             class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
+            [class.border-blue-500]="activeTab === 'terms'"
+            [class.border-transparent]="activeTab !== 'terms'"
+            [class.text-blue-600]="activeTab === 'terms'"
+            [class.text-gray-500]="activeTab !== 'terms'"
+            [class.hover:text-blue-700]="activeTab !== 'terms'"
+            [class.hover:border-gray-300]="activeTab !== 'terms'"
+            (click)="setActiveTab('terms')">
+            <i class="fas fa-calendar-alt mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
+               [class.text-blue-500]="activeTab === 'terms'"
+               [class.text-gray-400]="activeTab !== 'terms'"
+               [class.group-hover:text-blue-700]="activeTab !== 'terms'"></i>
+            Terms
+          </button>
+
+          <button
+            type="button"
+            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
+            [class.border-blue-500]="activeTab === 'weeks'"
+            [class.border-transparent]="activeTab !== 'weeks'"
+            [class.text-blue-600]="activeTab === 'weeks'"
+            [class.text-gray-500]="activeTab !== 'weeks'"
+            [class.hover:text-blue-700]="activeTab !== 'weeks'"
+            [class.hover:border-gray-300]="activeTab !== 'weeks'"
+            (click)="setActiveTab('weeks')">
+            <i class="fas fa-clock mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
+               [class.text-blue-500]="activeTab === 'weeks'"
+               [class.text-gray-400]="activeTab !== 'weeks'"
+               [class.group-hover:text-blue-700]="activeTab !== 'weeks'"></i>
+            Weeks
+          </button>
+
+          <button
+            type="button"
+            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
             [class.border-blue-500]="activeTab === 'lessons'"
             [class.border-transparent]="activeTab !== 'lessons'"
             [class.text-blue-600]="activeTab === 'lessons'"
@@ -686,6 +720,186 @@
               (delete)="confirmDelete('subject', $event)"
               (add)="openAdd('subject')">
             </app-subjects-table>
+          }
+
+          <!-- Terms Tab -->
+          @if (activeTab === 'terms') {
+            <div class="mb-4 flex justify-end">
+              <button
+                type="button"
+                (click)="openAdd('term')"
+                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span>Add Term</span>
+              </button>
+            </div>
+
+            <div class="overflow-x-auto bg-white rounded-lg shadow">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term Number</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  @for (term of pagedTerms; track term.id) {
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ term.id }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Term {{ term.termNumber }}</td>
+                      <td class="px-6 py-4 text-sm text-gray-900">
+                        @if (getSubjectById(term.subjectId); as subject) {
+                          {{ getSubjectDisplayName(subject) }}
+                        } @else {
+                          N/A
+                        }
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ term.startDate || 'N/A' }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          (click)="openEdit('term', term)"
+                          class="text-blue-600 hover:text-blue-900 mr-3">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button
+                          (click)="confirmDelete('term', term)"
+                          class="text-red-600 hover:text-red-900">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-calendar-alt text-4xl mb-2"></i>
+                        <p>No terms found</p>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-4 flex justify-between items-center">
+              <div class="text-sm text-gray-700">
+                Showing {{ (termPage - 1) * pageSize + 1 }} to {{ Math.min(termPage * pageSize, filteredTerms.length) }} of {{ filteredTerms.length }} terms
+              </div>
+              <div class="flex gap-2">
+                <button
+                  [disabled]="termPage <= 1"
+                  (click)="goTermPage(termPage - 1)"
+                  class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+                  Previous
+                </button>
+                <span class="px-4 py-1 text-sm">Page {{ termPage }} of {{ termTotalPages }}</span>
+                <button
+                  [disabled]="termPage >= termTotalPages"
+                  (click)="goTermPage(termPage + 1)"
+                  class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+                  Next
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- Weeks Tab -->
+          @if (activeTab === 'weeks') {
+            <div class="mb-4 flex justify-end">
+              <button
+                type="button"
+                (click)="openAdd('week')"
+                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span>Add Week</span>
+              </button>
+            </div>
+
+            <div class="overflow-x-auto bg-white rounded-lg shadow">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Week Number</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  @for (week of pagedWeeks; track week.id) {
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ week.id }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Week {{ week.weekNumber }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        @if (getTermById(week.termId); as term) {
+                          Term {{ term.termNumber }}
+                        } @else {
+                          N/A
+                        }
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-900">
+                        @if (getTermById(week.termId); as term) {
+                          @if (getSubjectById(term.subjectId); as subject) {
+                            {{ getSubjectDisplayName(subject) }}
+                          } @else {
+                            N/A
+                          }
+                        } @else {
+                          N/A
+                        }
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          (click)="openEdit('week', week)"
+                          class="text-blue-600 hover:text-blue-900 mr-3">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button
+                          (click)="confirmDelete('week', week)"
+                          class="text-red-600 hover:text-red-900">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-clock text-4xl mb-2"></i>
+                        <p>No weeks found</p>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-4 flex justify-between items-center">
+              <div class="text-sm text-gray-700">
+                Showing {{ (weekPage - 1) * pageSize + 1 }} to {{ Math.min(weekPage * pageSize, filteredWeeks.length) }} of {{ filteredWeeks.length }} weeks
+              </div>
+              <div class="flex gap-2">
+                <button
+                  [disabled]="weekPage <= 1"
+                  (click)="goWeekPage(weekPage - 1)"
+                  class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+                  Previous
+                </button>
+                <span class="px-4 py-1 text-sm">Page {{ weekPage }} of {{ weekTotalPages }}</span>
+                <button
+                  [disabled]="weekPage >= weekTotalPages"
+                  (click)="goWeekPage(weekPage + 1)"
+                  class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+                  Next
+                </button>
+              </div>
+            </div>
           }
 
           <!-- Lessons Tab -->
