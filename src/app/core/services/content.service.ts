@@ -251,12 +251,9 @@ export class ContentService {
   ): Observable<Subject> {
     const formData = new FormData();
     
-    // Always append PosterFile, even if empty (some backends require it)
+    // Only append PosterFile if a new file is provided
     if (posterFile) {
       formData.append('PosterFile', posterFile);
-    } else {
-      // Append empty blob to satisfy multipart/form-data requirement
-      formData.append('PosterFile', new Blob(), '');
     }
 
     const params = new HttpParams()
