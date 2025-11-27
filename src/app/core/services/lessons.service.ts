@@ -299,12 +299,10 @@ export class LessonsService {
     this.loading.set(true);
     this.error.set(null);
 
-    const endpoint = ApiNodes.getLessonsByTermNumberWithProgress;
+    // Use the subject endpoint and filter by termNumber in frontend
+    const endpoint = ApiNodes.getLessonsWithProgress;
 
-    // ✅ Build URL with query parameter for studentId
-    const url = `${this.baseUrl}${endpoint.url
-      .replace(':subjectId', subjectId.toString())
-      .replace(':termNumber', termNumber.toString())}`;
+    const url = `${this.baseUrl}${endpoint.url.replace(':subjectId', subjectId.toString())}`;
 
     // Add studentId as query parameter if provided
     const params: any = {};
@@ -322,8 +320,13 @@ export class LessonsService {
     });
 
     return this.http.get<Lesson[]>(url, { params }).pipe(
-      tap((lessons) => {
-        console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber} (guest: ${!studentId})`);
+      map((lessons) => {
+        // Filter lessons by termNumber
+        const filteredLessons = lessons.filter(lesson => lesson.termNumber === termNumber);
+        console.log(`✅ Loaded ${filteredLessons.length} lessons for term ${termNumber} (total: ${lessons.length}, guest: ${!studentId})`);
+        return filteredLessons;
+      }),
+      tap(() => {
         this.loading.set(false);
       }),
       catchError((error: HttpErrorResponse) => {
