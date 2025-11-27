@@ -17,6 +17,7 @@ import { AdminHeaderComponent } from '../../shared/components/admin-header/admin
 interface ExamListItem {
   id: number;
   title: string;
+  description?: string;
   examType: ExamType;
   subjectName: string;
   className?: string;
@@ -29,6 +30,8 @@ interface ExamListItem {
   pendingGrading: number;
   averageScore?: number;
   createdAt: Date;
+  questionsCount?: number;
+  questions?: ExamDto['questions'];
 }
 
 interface FilterOptions {
@@ -171,6 +174,7 @@ export class ExamManagementComponent implements OnInit {
         const examList: ExamListItem[] = exams.map(exam => ({
           id: exam.id,
           title: exam.title,
+          description: exam.description,
           examType: exam.examType,
           subjectName: exam.subjectName || exam.subject || 'Not Specified',
           className: exam.className,
@@ -182,7 +186,9 @@ export class ExamManagementComponent implements OnInit {
           totalSubmissions: exam.totalSubmissions || 0,
           pendingGrading: exam.pendingGrading || 0,
           averageScore: exam.averageScore,
-          createdAt: exam.createdAt ? new Date(exam.createdAt) : new Date()
+          createdAt: exam.createdAt ? new Date(exam.createdAt) : new Date(),
+          questionsCount: exam.questions?.length || 0,
+          questions: exam.questions
         }));
 
         console.log('📋 Processed exam list with types:', examList.map(e => ({ 

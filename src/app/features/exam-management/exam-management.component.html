@@ -263,6 +263,7 @@
                 <th class="text-left px-4 py-3 text-sm font-semibold text-gray-900">Exam</th>
                 <th class="text-left px-4 py-3 text-sm font-semibold text-gray-900">Type</th>
                 <th class="text-left px-4 py-3 text-sm font-semibold text-gray-900">Status</th>
+                <th class="text-center px-4 py-3 text-sm font-semibold text-gray-900">Questions</th>
                 <th class="text-center px-4 py-3 text-sm font-semibold text-gray-900">Submissions</th>
                 <th class="text-center px-4 py-3 text-sm font-semibold text-gray-900">Avg Score</th>
                 <th class="text-right px-4 py-3 text-sm font-semibold text-gray-900">Actions</th>
@@ -300,6 +301,12 @@
                       [ngClass]="getStatusBadge(exam).class">
                       {{ getStatusBadge(exam).text }}
                     </span>
+                  </td>
+                  <td class="px-4 py-4 text-center">
+                    <div class="flex flex-col items-center">
+                      <span class="font-medium text-gray-900">{{ exam.questionsCount || 0 }}</span>
+                      <span class="text-xs text-gray-500">questions</span>
+                    </div>
                   </td>
                   <td class="px-4 py-4 text-center">
                     <div class="flex flex-col items-center">
@@ -402,17 +409,21 @@
                 </div>
 
                 <!-- Stats -->
-                <div class="grid grid-cols-3 gap-4 mb-4">
+                <div class="grid grid-cols-4 gap-3 mb-4">
                   <div class="text-center">
-                    <p class="text-2xl font-bold text-gray-900">{{ exam.totalMarks }}</p>
+                    <p class="text-xl font-bold text-gray-900">{{ exam.totalMarks }}</p>
                     <p class="text-xs text-gray-600">Marks</p>
                   </div>
                   <div class="text-center">
-                    <p class="text-2xl font-bold text-gray-900">{{ exam.durationInMinutes }}</p>
+                    <p class="text-xl font-bold text-gray-900">{{ exam.durationInMinutes }}</p>
                     <p class="text-xs text-gray-600">Minutes</p>
                   </div>
                   <div class="text-center">
-                    <p class="text-2xl font-bold text-gray-900">{{ exam.totalSubmissions }}</p>
+                    <p class="text-xl font-bold text-gray-900">{{ exam.questionsCount || 0 }}</p>
+                    <p class="text-xs text-gray-600">Questions</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-xl font-bold text-gray-900">{{ exam.totalSubmissions }}</p>
                     <p class="text-xs text-gray-600">Submissions</p>
                   </div>
                 </div>
