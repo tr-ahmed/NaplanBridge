@@ -20,10 +20,7 @@ export class FooterComponent {
   footerLinks = {
     leftColumn: [
       { label: 'About', route: '/about' },
-      { label: 'Courses', route: '/courses' },
-      { label: 'Pricing', route: '/pricing' },
-      { label: 'Blog', route: '/blog' },
-      { label: 'Support', route: '/support' }
+      { label: 'Courses', route: '/courses' }
     ],
     rightColumn: [
       { label: 'FAQs', route: '/faq' },

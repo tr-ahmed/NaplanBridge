@@ -218,6 +218,9 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     private router: Router
   ) {}
 
+  // Expose Math for template use
+  Math = Math;
+
   ngOnInit(): void {
     this.loadAllData();
   }
@@ -1385,6 +1388,14 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     const subjectName = this.subjectNames.find(s => s.id === subject.subjectNameId);
 
     return `${subjectName?.name || 'N/A'} - Year ${year?.yearNumber || 'N/A'} - ${category?.name || 'N/A'}`;
+  }
+
+  getSubjectById(subjectId: number): Subject | undefined {
+    return this.subjects.find(s => s.id === subjectId);
+  }
+
+  getTermById(termId: number): Term | undefined {
+    return this.terms.find(t => t.id === termId);
   }
 
   getTermDisplayName(term: Term): string {
