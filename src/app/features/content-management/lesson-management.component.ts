@@ -181,19 +181,35 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   // ============================================
+  // Role Checking
+  // ============================================
+  
+  isStudent(): boolean {
+    return this.authService.hasRole('Student');
+  }
+
+  // ============================================
   // Data Loading
   // ============================================
 
   async loadAllData(): Promise<void> {
     await this.loadLesson();
-    await Promise.all([
+    
+    // Build array of promises - only include notes for students
+    const promises: Promise<void>[] = [
       this.loadResources(),
-      this.loadNotes(),
       this.loadQuestions(),
       this.loadDiscussions(),
       this.loadExams(),
       this.loadChapters()
-    ]);
+    ];
+    
+    // Only load notes if user is a student (notes are student-specific)
+    if (this.authService.hasRole('Student')) {
+      promises.push(this.loadNotes());
+    }
+    
+    await Promise.all(promises);
   }
 
   async loadLesson(): Promise<void> {
