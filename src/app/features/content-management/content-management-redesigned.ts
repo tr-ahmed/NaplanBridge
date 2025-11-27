@@ -817,6 +817,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       }
 
       await this.loadAllData();
+      // Reset to default to preserve user's expand/collapse state
+      this.hierarchyExpandedState = 'default';
       this.closeForm();
 
       Swal.fire({
@@ -857,6 +859,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
 
         await this.deleteEntity(type, entity.id);
         await this.loadAllData();
+        // Reset to default to preserve user's expand/collapse state
+        this.hierarchyExpandedState = 'default';
 
         Swal.fire({
           icon: 'success',

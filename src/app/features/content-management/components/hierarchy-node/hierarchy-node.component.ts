@@ -41,6 +41,7 @@ export class HierarchyNodeComponent implements OnChanges {
       this.expandedTerms.clear();
       this.expandedWeeks.clear();
     }
+    // Note: 'default' state preserves existing expand/collapse states
   }
 
   getSubjectsForYear(): Subject[] {
