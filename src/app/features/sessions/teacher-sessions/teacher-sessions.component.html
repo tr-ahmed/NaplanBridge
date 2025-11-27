@@ -226,14 +226,6 @@
             <!-- Actions -->
             <div class="flex flex-col gap-3 lg:w-48">
               <button
-                class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-300 font-medium">
-                <div class="flex items-center justify-center gap-2">
-                  <i class="fas fa-info-circle"></i>
-                  <span>Details</span>
-                </div>
-              </button>
-
-              <button
                 *ngIf="getReadableStatus(session.status) === 'Confirmed' && activeTab() === 'upcoming'"
                 (click)="markAsCompleted(session)"
                 class="px-6 py-3 bg-gradient-to-r from-cyan-600 to-sky-600 text-white rounded-xl hover:from-cyan-700 hover:to-sky-700 transition-all duration-300 shadow-lg font-semibold">
