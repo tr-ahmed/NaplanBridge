@@ -413,7 +413,7 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
    */
   getAvatarUrl(): string {
     const profile = this.profile();
-    return profile ? this.profileService.getAvatarUrl(profile) : 'https://ui-avatars.com/api/?name=User&size=200&background=667eea&color=fff';
+    return profile ? this.profileService.getAvatarUrl(profile) : 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
   }
 
   /**

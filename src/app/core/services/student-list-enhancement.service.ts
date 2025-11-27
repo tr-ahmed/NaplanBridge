@@ -227,7 +227,7 @@ export class StudentListEnhancementService {
         age: 12,
         yearId: 7,
         yearName: 'Year 7',
-        avatar: 'https://ui-avatars.com/api/?name=Ahmed+Hassan&background=4F46E5&color=fff',
+        avatar: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
         enrollmentDate: new Date('2024-09-01'),
         status: 'active',
         performance: {
@@ -253,7 +253,7 @@ export class StudentListEnhancementService {
         age: 10,
         yearId: 5,
         yearName: 'Year 5',
-        avatar: 'https://ui-avatars.com/api/?name=Sara+Mohamed&background=EC4899&color=fff',
+        avatar: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
         enrollmentDate: new Date('2024-09-01'),
         status: 'active',
         performance: {
@@ -279,7 +279,7 @@ export class StudentListEnhancementService {
         age: 8,
         yearId: 3,
         yearName: 'Year 3',
-        avatar: 'https://ui-avatars.com/api/?name=Omar+Ali&background=10B981&color=fff',
+        avatar: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
         enrollmentDate: new Date('2024-09-01'),
         status: 'active',
         performance: {
@@ -305,7 +305,7 @@ export class StudentListEnhancementService {
         age: 14,
         yearId: 9,
         yearName: 'Year 9',
-        avatar: 'https://ui-avatars.com/api/?name=Layla+Khaled&background=F59E0B&color=fff',
+        avatar: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
         enrollmentDate: new Date('2024-09-15'),
         status: 'active',
         performance: {
@@ -331,7 +331,7 @@ export class StudentListEnhancementService {
         age: 16,
         yearId: 11,
         yearName: 'Year 11',
-        avatar: 'https://ui-avatars.com/api/?name=Youssef+Ibrahim&background=8B5CF6&color=fff',
+        avatar: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
         enrollmentDate: new Date('2024-08-20'),
         status: 'inactive',
         performance: {

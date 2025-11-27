@@ -158,7 +158,7 @@ export class ProfileService {
    * @returns Avatar URL or default
    */
   getAvatarUrl(user: UserProfile): string {
-    return user.avatarUrl || user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.userName) + '&size=200&background=667eea&color=fff';
+    return user.avatarUrl || user.avatar || 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
   }
 
   /**

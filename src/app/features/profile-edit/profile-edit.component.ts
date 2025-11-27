@@ -92,6 +92,8 @@ export class ProfileEditComponent implements OnInit {
     // Set avatar preview
     if (userData.avatarUrl || userData.avatar) {
       this.avatarPreview = userData.avatarUrl || userData.avatar;
+    } else {
+      this.avatarPreview = 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
     }
   }
 
@@ -146,6 +148,8 @@ export class ProfileEditComponent implements OnInit {
       this.avatarPreview = currentAvatarUrl;
     } else if (this.currentUserData?.avatarUrl || this.currentUserData?.avatar) {
       this.avatarPreview = this.currentUserData.avatarUrl || this.currentUserData.avatar;
+    } else {
+      this.avatarPreview = 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
     }
   }
 

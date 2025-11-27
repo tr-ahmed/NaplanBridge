@@ -95,7 +95,7 @@ export class StudentsListComponent implements OnInit {
 
   }
   getAvatar(name: string) {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1e40af&color=fff&size=128`;
+    return 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
   }
   navigateToAddStudent() {
     this.router.navigate(['/add-student']);

@@ -16,17 +16,11 @@
         <h3 class="section-title">Profile Picture</h3>
 
         <!-- Avatar Preview -->
-        <div class="avatar-preview-container" *ngIf="avatarPreview">
-          <img [src]="avatarPreview" alt="Profile Picture" class="avatar-image">
+        <div class="avatar-preview-container">
+          <img [src]="avatarPreview || 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg'" alt="Profile Picture" class="avatar-image">
           <div class="avatar-overlay">
             <span class="avatar-label">Avatar</span>
           </div>
-        </div>
-
-        <!-- No Avatar -->
-        <div class="avatar-placeholder" *ngIf="!avatarPreview">
-          <i class="fas fa-user"></i>
-          <p>No profile picture</p>
         </div>
 
         <!-- Upload Buttons -->

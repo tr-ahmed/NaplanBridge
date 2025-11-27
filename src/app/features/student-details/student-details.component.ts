@@ -229,15 +229,14 @@ export class StudentDetailsComponent implements OnInit {
    */
   getAvatarUrl(): string {
     const student = this.studentDetails()?.student;
-    if (!student) return '';
+    if (!student) return 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
 
     if (student.avatar) {
       return student.avatar;
     }
 
-    // Generate UI Avatar if no custom avatar
-    const name = encodeURIComponent(student.userName);
-    return `https://ui-avatars.com/api/?name=${name}&background=4F46E5&color=fff&size=128`;
+    // Return default avatar if no custom avatar
+    return 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
   }
 
   /**

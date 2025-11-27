@@ -22,7 +22,7 @@ import { StudentListEnhancementService, StudentDetails } from '../../core/servic
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-4">
                 <img
-                  [src]="student?.avatar || 'https://ui-avatars.com/api/?name=' + student?.userName"
+                  [src]="student?.avatar || 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg'"
                   alt="Student"
                   class="w-20 h-20 rounded-full border-4 border-white"
                 />

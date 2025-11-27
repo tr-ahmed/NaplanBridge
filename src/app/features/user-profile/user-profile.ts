@@ -139,7 +139,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   get defaultAvatar(): string {
-    return 'https://ui-avatars.com/api/?name=' + (this.user?.userName || 'User') + '&background=random&size=200';
+    return 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
   }
 
   get userAvatar(): string {
