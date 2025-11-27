@@ -90,7 +90,7 @@ export interface PagedDiscussionDto {
   providedIn: 'root'
 })
 export class DiscussionService {
-  private apiUrl = `${environment.apiUrl}/Discussions`;
+  private apiUrl = `${environment.apiBaseUrl}/Discussions`;
 
   constructor(private http: HttpClient) {}
 
