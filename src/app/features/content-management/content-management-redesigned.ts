@@ -793,14 +793,20 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   closeForm(): void {
     this.isFormOpen = false;
     this.form = {};
+    this.formData = {}; // Clear formData to prevent stale file references
   }
 
   async submitForm(modalFormData?: any): Promise<void> {
     try {
-      // Merge formData from modal with existing formData
+      // Merge formData from modal with existing form data
+      let finalData = { ...this.form };
+      
       if (modalFormData) {
+        finalData = { ...finalData, ...modalFormData };
+        // Store files in formData for access in createEntity/updateEntity
         this.formData = { ...this.formData, ...modalFormData };
         console.log('📦 Received formData from modal:', modalFormData);
+        console.log('📋 Final data for submission:', finalData);
       }
 
       Swal.fire({
@@ -811,9 +817,9 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       });
 
       if (this.formMode === 'add') {
-        await this.createEntity(this.entityType, this.form);
+        await this.createEntity(this.entityType, finalData);
       } else {
-        await this.updateEntity(this.entityType, this.form);
+        await this.updateEntity(this.entityType, finalData);
       }
 
       await this.loadAllData();
@@ -1048,6 +1054,15 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         }).toPromise();
         break;
       case 'subject':
+        // Get poster file from formData (file upload) or data object
+        const posterFileForUpdate = this.formData['posterFile'] || data.posterFile;
+        
+        console.log('📝 Updating subject:', {
+          id: data.id,
+          teacherId: data.teacherId,
+          posterFile: posterFileForUpdate ? 'File selected' : 'No file'
+        });
+        
         await this.contentService.updateSubject(
           data.id,
           data.originalPrice,
@@ -1055,7 +1070,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           data.level,
           data.duration || 0,
           data.teacherId,
-          data.posterFile
+          posterFileForUpdate
         ).toPromise();
         break;
       case 'term':
