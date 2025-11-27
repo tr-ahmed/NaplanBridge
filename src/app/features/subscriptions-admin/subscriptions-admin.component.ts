@@ -14,10 +14,7 @@ import {
 } from '../../models/subscription.models';
 import {
   PlanType,
-  OrderStatus,
-  SubscriptionStatus,
-  getPlanTypeLabel,
-  getOrderStatusInfo
+  getPlanTypeLabel
 } from '../../models/enums';
 
 // ==================== TYPE DEFINITIONS BASED ON SWAGGER API ====================
@@ -26,41 +23,12 @@ import {
 // Subscription Plan Interface (from Swagger) - using imported SubscriptionPlan
 // Extended interface with UI properties
 
-// Order Interface (from Swagger)
-interface Order {
-  id: number;
-  totalAmount: number;
-  orderStatus: OrderStatus;
-  stripePaymentIntentId?: string;
-  stripeSessionId?: string;
-  createdAt: string;
-  userId: number;
-  orderItems?: OrderItem[];
-}
-
-// Order Item Interface
-interface OrderItem {
-  id: number;
-  unitPrice: number;
-  quantity: number;
-  orderId: number;
-  subscriptionPlanId: number;
-  studentId: number;
-}
-
 interface PlanWithStatus extends SubscriptionPlan {
   statusLabel: 'Active' | 'Inactive';
   planTypeLabel: string;
   subjectName?: string;
   termName?: string;
   yearName?: string;
-}
-
-interface OrderWithDetails extends Order {
-  userName?: string;
-  userEmail?: string;
-  statusLabel: string;
-  orderItemsCount?: number;
 }
 
 // User interface
@@ -97,26 +65,15 @@ interface DashboardStats {
   totalPlans: number;
   activePlans: number;
   inactivePlans: number;
-  totalOrders: number;
-  pendingOrders: number;
-  completedOrders: number;
-  cancelledOrders: number;
-  totalRevenue: number;
-  revenue30d: number;
-  revenue7d: number;
-  averageOrderValue: number;
 }
 
 // Filter Options
 interface FilterOptions {
   planStatus: '' | 'Active' | 'Inactive';
   planType: PlanType | null;
-  orderStatus: OrderStatus | null;
   subjectId: number | null;
   termId: number | null;
   yearId: number | null;
-  dateFrom: string;
-  dateTo: string;
   searchTerm: string;
 }
 
@@ -129,7 +86,6 @@ interface FilterOptions {
 })
 export class SubscriptionManagementComponent implements OnInit {
   // Enums for template access
-  OrderStatus = OrderStatus;
   PlanType = PlanType;
 
   // UI State
@@ -146,11 +102,10 @@ export class SubscriptionManagementComponent implements OnInit {
   private apiBaseUrl = environment.apiBaseUrl;
 
   // Tabs
-  activeTab: 'dashboard' | 'plans' | 'orders' = 'dashboard';
+  activeTab: 'dashboard' | 'plans' = 'dashboard';
 
   // Data arrays
   plans: PlanWithStatus[] = [];
-  orders: OrderWithDetails[] = [];
   users: UserDto[] = [];
   subjects: SubjectDto[] = [];
   terms: TermDto[] = [];
@@ -163,43 +118,30 @@ export class SubscriptionManagementComponent implements OnInit {
   stats: DashboardStats = {
     totalPlans: 0,
     activePlans: 0,
-    inactivePlans: 0,
-    totalOrders: 0,
-    pendingOrders: 0,
-    completedOrders: 0,
-    cancelledOrders: 0,
-    totalRevenue: 0,
-    revenue30d: 0,
-    revenue7d: 0,
-    averageOrderValue: 0
+    inactivePlans: 0
   };
 
   // Filters
   filters: FilterOptions = {
     planStatus: '',
     planType: null,
-    orderStatus: null,
     subjectId: null,
     termId: null,
     yearId: null,
-    dateFrom: '',
-    dateTo: '',
     searchTerm: ''
   };
 
   // Paging
   pageSize = 15;
-  currentPages = { plans: 1, orders: 1 };
+  currentPages = { plans: 1 };
 
   // Filtered data
   filtered = {
-    plans: [] as PlanWithStatus[],
-    orders: [] as OrderWithDetails[]
+    plans: [] as PlanWithStatus[]
   };
 
   paged = {
-    plans: [] as PlanWithStatus[],
-    orders: [] as OrderWithDetails[]
+    plans: [] as PlanWithStatus[]
   };
 
   // Modal state
@@ -243,8 +185,7 @@ export class SubscriptionManagementComponent implements OnInit {
       subjects: this.loadSubjects(),
       terms: this.loadTerms(),
       years: this.loadYears(),
-      plans: this.loadPlans(),
-      orders: this.loadOrders()
+      plans: this.loadPlans()
     }).subscribe({
       next: (results) => {
         this.users = results.users || [];
@@ -252,7 +193,6 @@ export class SubscriptionManagementComponent implements OnInit {
         this.terms = results.terms || [];
         this.years = results.years || [];
         this.plans = results.plans || [];
-        this.orders = results.orders || [];
 
         this.calculateStats();
         this.applyFilters();
@@ -295,14 +235,6 @@ export class SubscriptionManagementComponent implements OnInit {
     );
   }
 
-  private loadOrders() {
-    return this.http.get<Order[]>(`${this.apiBaseUrl}/Orders`)
-      .pipe(
-        map(orders => (orders || []).map(order => this.mapOrderWithDetails(order))),
-        catchError(() => of([]))
-      );
-  }
-
   // ==================== DATA MAPPING ====================
 
   private mapPlanWithStatus(plan: SubscriptionPlan): PlanWithStatus {
@@ -316,45 +248,13 @@ export class SubscriptionManagementComponent implements OnInit {
     };
   }
 
-  private mapOrderWithDetails(order: Order): OrderWithDetails {
-    const user = this.users.find(u => u.id === order.userId);
-
-    return {
-      ...order,
-      userName: user?.fullName || user?.userName || 'Unknown User',
-      userEmail: user?.email || '',
-      statusLabel: this.getOrderStatusLabel(order.orderStatus),
-      orderItemsCount: order.orderItems?.length || 0
-    };
-  }
-
   // ==================== STATISTICS ====================
 
   private calculateStats() {
-    const today = new Date();
-    const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-    const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-
     this.stats = {
       totalPlans: this.plans.length,
       activePlans: this.plans.filter(p => p.isActive).length,
-      inactivePlans: this.plans.filter(p => !p.isActive).length,
-      totalOrders: this.orders.length,
-      pendingOrders: this.orders.filter(o => o.orderStatus === OrderStatus.Pending).length,
-      completedOrders: this.orders.filter(o => o.orderStatus === OrderStatus.Completed).length,
-      cancelledOrders: this.orders.filter(o => o.orderStatus === OrderStatus.Cancelled).length,
-      totalRevenue: this.orders
-        .filter(o => o.orderStatus === OrderStatus.Completed)
-        .reduce((sum, o) => sum + o.totalAmount, 0),
-      revenue30d: this.orders
-        .filter(o => o.orderStatus === OrderStatus.Completed && new Date(o.createdAt) >= thirtyDaysAgo)
-        .reduce((sum, o) => sum + o.totalAmount, 0),
-      revenue7d: this.orders
-        .filter(o => o.orderStatus === OrderStatus.Completed && new Date(o.createdAt) >= sevenDaysAgo)
-        .reduce((sum, o) => sum + o.totalAmount, 0),
-      averageOrderValue: this.orders.length > 0
-        ? this.orders.reduce((sum, o) => sum + o.totalAmount, 0) / this.orders.length
-        : 0
+      inactivePlans: this.plans.filter(p => !p.isActive).length
     };
   }
 
@@ -376,28 +276,13 @@ export class SubscriptionManagementComponent implements OnInit {
       return true;
     });
 
-    // Filter orders
-    this.filtered.orders = this.orders.filter(o => {
-      if (this.filters.orderStatus !== null && o.orderStatus !== this.filters.orderStatus) return false;
-      if (this.filters.dateFrom && new Date(o.createdAt) < new Date(this.filters.dateFrom)) return false;
-      if (this.filters.dateTo && new Date(o.createdAt) > new Date(this.filters.dateTo)) return false;
-      if (this.filters.searchTerm) {
-        const term = this.filters.searchTerm.toLowerCase();
-        return (o.userName?.toLowerCase().includes(term) || false) ||
-               (o.userEmail?.toLowerCase().includes(term) || false);
-      }
-      return true;
-    });
-
     this.updatePagination();
   }
 
   updatePagination() {
     this.currentPages.plans = Math.min(this.currentPages.plans, this.getTotalPages('plans'));
-    this.currentPages.orders = Math.min(this.currentPages.orders, this.getTotalPages('orders'));
 
     this.paged.plans = this.paginate(this.filtered.plans, this.currentPages.plans);
-    this.paged.orders = this.paginate(this.filtered.orders, this.currentPages.orders);
   }
 
   private paginate<T>(items: T[], page: number): T[] {
@@ -405,11 +290,11 @@ export class SubscriptionManagementComponent implements OnInit {
     return items.slice(start, start + this.pageSize);
   }
 
-  getTotalPages(entity: 'plans' | 'orders'): number {
+  getTotalPages(entity: 'plans'): number {
     return Math.max(1, Math.ceil(this.filtered[entity].length / this.pageSize));
   }
 
-  goToPage(entity: 'plans' | 'orders', page: number) {
+  goToPage(entity: 'plans', page: number) {
     this.currentPages[entity] = Math.max(1, Math.min(page, this.getTotalPages(entity)));
     this.updatePagination();
   }
@@ -484,33 +369,10 @@ export class SubscriptionManagementComponent implements OnInit {
       });
   }
 
-  viewOrderDetails(orderId: number) {
-    this.http.get<Order>(`${this.apiBaseUrl}/Orders/${orderId}`)
-      .subscribe({
-        next: (order) => {
-          this.preview = this.mapOrderWithDetails(order);
-          this.previewOpen = true;
-        },
-        error: (error) => {
-          console.error('Error loading order details:', error);
-          this.showError('Failed to load order details');
-        }
-      });
-  }
-
   // ==================== UI HELPERS ====================
 
   getPlanTypeLabel(planType: PlanType): string {
     return getPlanTypeLabel(planType);
-  }
-
-  getOrderStatusLabel(status: OrderStatus): string {
-    return getOrderStatusInfo(status).label;
-  }
-
-  getOrderStatusClass(status: OrderStatus): string {
-    const color = getOrderStatusInfo(status).color;
-    return `badge bg-${color}${color === 'warning' ? ' text-dark' : ''}`;
   }
 
   getSubjectName(id?: number): string {
@@ -675,7 +537,7 @@ export class SubscriptionManagementComponent implements OnInit {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
-  setActiveTab(tab: 'dashboard' | 'plans' | 'orders') {
+  setActiveTab(tab: 'dashboard' | 'plans') {
     this.activeTab = tab;
   }
 
@@ -727,18 +589,15 @@ export class SubscriptionManagementComponent implements OnInit {
     this.filters = {
       planStatus: '',
       planType: null,
-      orderStatus: null,
       subjectId: null,
       termId: null,
       yearId: null,
-      dateFrom: '',
-      dateTo: '',
       searchTerm: ''
     };
     this.applyFilters();
   }
 
-  exportToCSV(entity: 'plans' | 'orders') {
+  exportToCSV(entity: 'plans') {
     // Implementation for CSV export
     console.log(`Exporting ${entity} to CSV...`);
   }

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AddUserModalComponent } from "../add-user-modal/add-user-modal";
+import { EditTeacherModalComponent } from "../edit-teacher-modal/edit-teacher-modal";
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { FormsModule } from '@angular/forms';
@@ -14,7 +15,7 @@ import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/adm
 @Component({
   selector: 'app-user-managment',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule, AddUserModalComponent],
+  imports: [RouterLink, CommonModule, FormsModule, AddUserModalComponent, EditTeacherModalComponent],
   templateUrl: './user-managment.html',
   styleUrls: ['./user-managment.scss']
 })
@@ -26,6 +27,8 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
     totalCourses: 0
   };
   isAddUserModalOpen = false;
+  isEditTeacherModalOpen = false;
+  selectedTeacher: any = null;
   loading = false;
   users: any[] = [];
   errorMessage: string | null = null;
@@ -165,6 +168,21 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
 
   handleUserCreated(newUser: any) {
     // Re-fetch users to ensure all data (including email) is loaded correctly
+    this.fetchUsers();
+  }
+
+  openEditTeacherModal(teacher: any) {
+    this.selectedTeacher = teacher;
+    this.isEditTeacherModalOpen = true;
+  }
+
+  closeEditTeacherModal() {
+    this.isEditTeacherModalOpen = false;
+    this.selectedTeacher = null;
+  }
+
+  handleTeacherUpdated(updatedTeacher: any) {
+    // Re-fetch users to get updated data
     this.fetchUsers();
   }
 

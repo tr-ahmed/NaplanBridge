@@ -591,7 +591,7 @@ export class SubscriptionsComponent implements OnInit {
           console.log('📊 Filtered valid plans:', this.subscriptionPlans.length);
           this.stats.totalPlans = this.subscriptionPlans.length;
           this.stats.activePlans = this.subscriptionPlans.filter(p => p.isActive).length;
-          
+
           console.log('📈 Stats:', this.stats);
           this.loading.set(false);
         },

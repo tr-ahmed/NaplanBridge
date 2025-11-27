@@ -1,36 +1,38 @@
-import { Component, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, Output, EventEmitter, Input, OnInit } from '@angular/core';
+import { FormBuilder, Validators, ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { environment } from '../../../environments/environment';
 
 @Component({
-  selector: 'app-add-user-modal',
+  selector: 'app-edit-teacher-modal',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './add-user-modal.html'
+  templateUrl: './edit-teacher-modal.html'
 })
-export class AddUserModalComponent {
+export class EditTeacherModalComponent implements OnInit {
+  @Input() teacher: any;
   @Output() close = new EventEmitter<void>();
-  @Output() userCreated = new EventEmitter<any>();
+  @Output() teacherUpdated = new EventEmitter<any>();
 
   loading = false;
   error: string | null = null;
   validationErrors: { [key: string]: string[] } = {};
 
-  addUserForm: ReturnType<FormBuilder['group']>;
+  editTeacherForm!: FormGroup;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
-    // Initialize the form after fb is available
-    this.addUserForm = this.fb.group({
-      userName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      phoneNumber: ['', Validators.required],
-      age: [null, [Validators.required, Validators.min(18)]],
-      salary: [null, [Validators.min(0)]],
-      iban: ['', [Validators.pattern(/^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/)]]
+  constructor(private fb: FormBuilder, private http: HttpClient) {}
+
+  ngOnInit() {
+    // Initialize the form with teacher data
+    this.editTeacherForm = this.fb.group({
+      userName: [this.teacher?.userName || '', Validators.required],
+      email: [this.teacher?.email || '', [Validators.required, Validators.email]],
+      phoneNumber: [this.teacher?.phoneNumber || '', Validators.required],
+      age: [this.teacher?.age || null, [Validators.required, Validators.min(18)]],
+      salary: [this.teacher?.salary || null, [Validators.min(0)]],
+      iban: [this.teacher?.iban || '', [Validators.pattern(/^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/)]]
     });
   }
 
@@ -38,35 +40,40 @@ export class AddUserModalComponent {
     this.error = null;
     this.validationErrors = {};
 
-    if (this.addUserForm.invalid) {
-      this.addUserForm.markAllAsTouched();
+    if (this.editTeacherForm.invalid) {
+      this.editTeacherForm.markAllAsTouched();
       return;
     }
 
     this.loading = true;
-    const payload = this.addUserForm.value;
+    const payload = this.editTeacherForm.value;
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
 
-    this.http.post(`${environment.apiBaseUrl}/Account/register-teacher`, payload, { headers })
+    // Update teacher endpoint
+    this.http.put(`${environment.apiBaseUrl}/Admin/update-teacher/${this.teacher.userName}`, payload, { headers })
       .subscribe({
         next: (res) => {
-          Swal.fire({ icon: 'success', title: 'Teacher added successfully!', timer: 1500, showConfirmButton: false });
-          this.userCreated.emit(res);
+          Swal.fire({
+            icon: 'success',
+            title: 'Teacher updated successfully!',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          this.teacherUpdated.emit(res);
           this.close.emit();
           this.loading = false;
         },
         error: (err) => {
           this.loading = false;
 
-          console.log('Error response:', err); // Debug log
+          console.log('Error response:', err);
 
-          // Handle direct array of errors (ASP.NET Identity format)
+          // Handle direct array of errors
           if (Array.isArray(err?.error)) {
-            // Format: [{ code: "InvalidUserName", description: "..." }]
             const backendErrors = err.error;
             let errorMessages: string[] = [];
 
@@ -84,7 +91,6 @@ export class AddUserModalComponent {
               errorMessages.push(message);
             });
 
-            // Show all errors in SweetAlert
             Swal.fire({
               icon: 'error',
               title: 'Validation Errors',
@@ -94,9 +100,8 @@ export class AddUserModalComponent {
               confirmButtonText: 'OK'
             });
           }
-          // Handle ASP.NET Identity validation errors in object
+          // Handle object with errors array
           else if (err?.error?.errors && Array.isArray(err.error.errors)) {
-            // Format: { errors: [{ code: "InvalidUserName", description: "..." }] }
             const backendErrors = err.error.errors;
             let errorMessages: string[] = [];
 
@@ -114,7 +119,6 @@ export class AddUserModalComponent {
               errorMessages.push(message);
             });
 
-            // Show all errors in SweetAlert
             Swal.fire({
               icon: 'error',
               title: 'Validation Errors',
@@ -124,7 +128,7 @@ export class AddUserModalComponent {
               confirmButtonText: 'OK'
             });
           }
-          // Handle standard error format { message: "...", errors: { field: ["error1"] } }
+          // Handle standard error format
           else if (err?.error?.errors && typeof err.error.errors === 'object') {
             this.validationErrors = err.error.errors;
 
@@ -141,11 +145,11 @@ export class AddUserModalComponent {
           }
           // Generic error message
           else {
-            this.error = err?.error?.message || err?.error?.title || 'Failed to add teacher.';
+            this.error = err?.error?.message || err?.error?.title || 'Failed to update teacher.';
             Swal.fire({
               icon: 'error',
               title: 'Error',
-              text: this.error ?? 'Failed to add teacher.'
+              text: this.error ?? 'Failed to update teacher.'
             });
           }
         }
@@ -159,11 +163,6 @@ export class AddUserModalComponent {
       'DuplicateUserName': 'userName',
       'InvalidEmail': 'email',
       'DuplicateEmail': 'email',
-      'PasswordTooShort': 'password',
-      'PasswordRequiresNonAlphanumeric': 'password',
-      'PasswordRequiresDigit': 'password',
-      'PasswordRequiresUpper': 'password',
-      'PasswordRequiresLower': 'password',
       'InvalidPhoneNumber': 'phoneNumber',
       'DuplicatePhoneNumber': 'phoneNumber',
       'InvalidIBAN': 'iban',

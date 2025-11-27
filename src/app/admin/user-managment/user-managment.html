@@ -176,6 +176,13 @@
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex justify-end gap-2">
+                    @if (user.roles && user.roles.includes('Teacher')) {
+                      <button (click)="openEditTeacherModal(user)"
+                              class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="Edit Teacher Details">
+                        <i class="fas fa-user-edit"></i>
+                      </button>
+                    }
                     <button (click)="editUserRoles(user)"
                             class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                             title="Edit Roles">
@@ -256,4 +263,13 @@
 @if (isAddUserModalOpen) {
 <app-add-user-modal (close)="closeAddUserModal()" (userCreated)="handleUserCreated($event)">
 </app-add-user-modal>
+}
+
+<!-- Edit Teacher Modal -->
+@if (isEditTeacherModalOpen && selectedTeacher) {
+<app-edit-teacher-modal
+  [teacher]="selectedTeacher"
+  (close)="closeEditTeacherModal()"
+  (teacherUpdated)="handleTeacherUpdated($event)">
+</app-edit-teacher-modal>
 }
