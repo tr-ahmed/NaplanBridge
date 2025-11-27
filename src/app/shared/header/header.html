@@ -64,6 +64,7 @@
             <li>
               <a [routerLink]="item.route"
                  routerLinkActive="text-primary-500 bg-blue-50 font-semibold"
+                 [routerLinkActiveOptions]="{ exact: true }"
                  class="nav-button px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 no-underline hover:text-primary-500 hover:bg-blue-50 whitespace-nowrap">
                 {{ item.label }}
               </a>
