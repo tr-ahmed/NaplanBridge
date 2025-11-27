@@ -300,7 +300,7 @@ export class LessonsService {
     this.error.set(null);
 
     // Use the subject endpoint and filter by termNumber in frontend
-    const endpoint = ApiNodes.getLessonsWithProgress;
+    const endpoint = ApiNodes.getLessonsBySubjectWithProgress;
 
     const url = `${this.baseUrl}${endpoint.url.replace(':subjectId', subjectId.toString())}`;
 
