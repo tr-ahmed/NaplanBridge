@@ -17,6 +17,7 @@ export class AddUserModalComponent {
 
   loading = false;
   error: string | null = null;
+  validationErrors: { [key: string]: string[] } = {};
 
   addUserForm: ReturnType<FormBuilder['group']>;
 
@@ -35,10 +36,13 @@ export class AddUserModalComponent {
 
   onSubmit() {
     this.error = null;
+    this.validationErrors = {};
+
     if (this.addUserForm.invalid) {
       this.addUserForm.markAllAsTouched();
       return;
     }
+
     this.loading = true;
     const payload = this.addUserForm.value;
     const token = localStorage.getItem('authToken');
@@ -56,10 +60,84 @@ export class AddUserModalComponent {
           this.loading = false;
         },
         error: (err) => {
-          this.error = err?.error?.message || 'Failed to add teacher.';
-          Swal.fire({ icon: 'error', title: 'Error', text: this.error ?? 'Failed to add teacher.' });
           this.loading = false;
+
+          // Handle ASP.NET Identity validation errors
+          if (err?.error?.errors && Array.isArray(err.error.errors)) {
+            // Format: [{ code: "InvalidUserName", description: "..." }]
+            const backendErrors = err.error.errors;
+            let errorMessages: string[] = [];
+
+            backendErrors.forEach((error: any) => {
+              const fieldName = this.mapErrorCodeToField(error.code);
+              const message = error.description || error.message || 'Validation error';
+
+              if (fieldName) {
+                if (!this.validationErrors[fieldName]) {
+                  this.validationErrors[fieldName] = [];
+                }
+                this.validationErrors[fieldName].push(message);
+              }
+
+              errorMessages.push(message);
+            });
+
+            // Show all errors in SweetAlert
+            Swal.fire({
+              icon: 'error',
+              title: 'Validation Errors',
+              html: '<ul style="text-align: left;">' +
+                    errorMessages.map(msg => `<li>${msg}</li>`).join('') +
+                    '</ul>',
+              confirmButtonText: 'OK'
+            });
+          }
+          // Handle standard error format { message: "...", errors: { field: ["error1"] } }
+          else if (err?.error?.errors && typeof err.error.errors === 'object') {
+            this.validationErrors = err.error.errors;
+
+            const errorList = Object.entries(this.validationErrors)
+              .map(([field, errors]) => `<strong>${field}:</strong> ${(errors as string[]).join(', ')}`)
+              .join('<br>');
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Validation Errors',
+              html: errorList,
+              confirmButtonText: 'OK'
+            });
+          }
+          // Generic error message
+          else {
+            this.error = err?.error?.message || err?.error?.title || 'Failed to add teacher.';
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: this.error ?? 'Failed to add teacher.'
+            });
+          }
         }
       });
+  }
+
+  // Map ASP.NET Identity error codes to form field names
+  private mapErrorCodeToField(errorCode: string): string | null {
+    const errorMap: { [key: string]: string } = {
+      'InvalidUserName': 'userName',
+      'DuplicateUserName': 'userName',
+      'InvalidEmail': 'email',
+      'DuplicateEmail': 'email',
+      'PasswordTooShort': 'password',
+      'PasswordRequiresNonAlphanumeric': 'password',
+      'PasswordRequiresDigit': 'password',
+      'PasswordRequiresUpper': 'password',
+      'PasswordRequiresLower': 'password',
+      'InvalidPhoneNumber': 'phoneNumber',
+      'DuplicatePhoneNumber': 'phoneNumber',
+      'InvalidIBAN': 'iban',
+      'InvalidSalary': 'salary'
+    };
+
+    return errorMap[errorCode] || null;
   }
 }

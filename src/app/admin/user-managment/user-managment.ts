@@ -164,9 +164,8 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
   }
 
   handleUserCreated(newUser: any) {
-    this.users.unshift(newUser);
-    this.admin.totalUsers = this.users.length;
-    this.currentPage.set(1);
+    // Re-fetch users to ensure all data (including email) is loaded correctly
+    this.fetchUsers();
   }
 
   goToPage(page: number) {
