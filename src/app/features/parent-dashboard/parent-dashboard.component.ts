@@ -267,7 +267,7 @@ export class ParentDashboardComponent implements OnInit {
             id: child.id,
             name: child.userName,
             grade: `Year ${child.year || 'N/A'}`,
-            avatar: child.avatar || 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
+            avatar: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
             overallProgress,
             activeSubscription,
             upcomingExams,

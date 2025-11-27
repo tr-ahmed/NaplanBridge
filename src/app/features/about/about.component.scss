@@ -89,13 +89,3 @@ img {
   transform-style: preserve-3d;
   backface-visibility: hidden;
 }
-
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
