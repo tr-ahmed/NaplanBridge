@@ -163,7 +163,10 @@ export class ExamManagementComponent implements OnInit {
 
     this.examApi.getAllExams().subscribe({
       next: (exams: ExamDto[]) => {
-        console.log('📊 Exams loaded from API:', exams); // Debug log
+        console.log('📊 Raw API Response - Total exams:', exams.length);
+        console.log('📊 First exam from API:', exams[0]);
+        console.log('📊 ExamType field:', exams[0]?.examType);
+        console.log('📊 AverageScore field:', exams[0]?.averageScore);
         
         const examList: ExamListItem[] = exams.map(exam => ({
           id: exam.id,
@@ -182,7 +185,11 @@ export class ExamManagementComponent implements OnInit {
           createdAt: exam.createdAt ? new Date(exam.createdAt) : new Date()
         }));
 
-        console.log('📋 Processed exam list:', examList); // Debug log
+        console.log('📋 Processed exam list with types:', examList.map(e => ({ 
+          title: e.title, 
+          examType: e.examType, 
+          avgScore: e.averageScore 
+        })));
         this.allExams.set(examList);
         this.loading.set(false);
       },
