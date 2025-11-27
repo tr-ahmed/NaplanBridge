@@ -488,6 +488,17 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
         return;
       }
 
+      // Additional validation for file object
+      console.log('🟢 saveResource - resourceForm:', this.resourceForm);
+      console.log('🟢 saveResource - file:', this.resourceForm.file);
+      console.log('🟢 saveResource - file type:', typeof this.resourceForm.file);
+      console.log('🟢 saveResource - file instanceof File:', this.resourceForm.file instanceof File);
+
+      if (!this.editingResource && !(this.resourceForm.file instanceof File)) {
+        Swal.fire('Error', 'Invalid file selected. Please select a file again.', 'error');
+        return;
+      }
+
       Swal.fire({
         title: 'Saving...',
         text: 'Please wait',
@@ -504,6 +515,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
           this.resourceForm.file
         ).toPromise();
       } else {
+        console.log('🟢 Calling addLessonResource with file:', this.resourceForm.file.name);
         await this.contentService.addLessonResource(
           this.lessonId,
           this.resourceForm.title,
@@ -1212,14 +1224,19 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
   onFileChange(event: any, field: string): void {
     const file = event.target.files?.[0];
+    console.log('🟡 onFileChange called - field:', field, 'file:', file);
     if (file) {
+      console.log('🟡 File details:', { name: file.name, size: file.size, type: file.type });
       if (field === 'resource') {
         this.resourceForm.file = file;
+        console.log('🟡 Set resourceForm.file to:', this.resourceForm.file);
       } else if (field === 'posterFile') {
         this.lessonEditForm.posterFile = file;
       } else if (field === 'videoFile') {
         this.lessonEditForm.videoFile = file;
       }
+    } else {
+      console.log('🔴 No file selected or event.target.files is empty');
     }
   }
 

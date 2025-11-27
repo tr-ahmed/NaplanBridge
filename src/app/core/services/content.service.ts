@@ -576,11 +576,27 @@ export class ContentService {
 
   // ===== Lesson Resources =====
   addLessonResource(lessonId: number, title: string, description: string, resourceType: string, file: File): Observable<any> {
-    console.log('🔵 addLessonResource called with:', { lessonId, title, fileName: file.name, fileSize: file.size, fileType: file.type });
+    console.log('🔵 addLessonResource called with:', { lessonId, title, fileName: file?.name, fileSize: file?.size, fileType: file?.type });
+    
+    if (!file) {
+      console.error('🔴 ERROR: File is null or undefined!');
+      throw new Error('File is required but was not provided');
+    }
+
+    if (!(file instanceof File)) {
+      console.error('🔴 ERROR: file is not an instance of File!', typeof file, file);
+      throw new Error('Invalid file object provided');
+    }
     
     const formData = new FormData();
     // IMPORTANT: The parameter name MUST be 'File' (capital F) to match backend expectation
     formData.append('File', file, file.name);
+
+    // Debug: Log FormData contents
+    console.log('🔵 FormData entries:');
+    formData.forEach((value, key) => {
+      console.log(`  ${key}:`, value);
+    });
 
     // API only accepts Title and LessonId as query params (based on Swagger)
     const params = new HttpParams()
