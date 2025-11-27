@@ -382,7 +382,7 @@
                   [class.input-error]="hasError('teacherId')"
                   [class.input-valid]="isFieldValid('teacherId')"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                  <option value="" disabled selected>Select Teacher</option>
+                  <option value="" disabled>Select Teacher</option>
                   <option *ngFor="let teacher of teachers" [value]="teacher.id">
                     {{ teacher.userName || teacher.name }}
                   </option>

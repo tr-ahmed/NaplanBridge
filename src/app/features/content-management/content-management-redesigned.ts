@@ -787,6 +787,13 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.formMode = 'edit';
     this.entityType = type;
     this.form = { ...entity };
+    
+    // Ensure numeric fields are properly typed for subject edit
+    if (type === 'subject' && this.form.teacherId) {
+      this.form.teacherId = Number(this.form.teacherId);
+    }
+    
+    console.log('📝 Opening edit for', type, ':', this.form);
     this.isFormOpen = true;
   }
 
@@ -1059,17 +1066,26 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         
         console.log('📝 Updating subject:', {
           id: data.id,
+          originalPrice: data.originalPrice,
+          discountPercentage: data.discountPercentage,
+          level: data.level,
+          duration: data.duration,
           teacherId: data.teacherId,
           posterFile: posterFileForUpdate ? 'File selected' : 'No file'
         });
         
+        // Validate required fields according to Swagger spec
+        if (!data.teacherId) {
+          throw new Error('Teacher is required');
+        }
+        
         await this.contentService.updateSubject(
           data.id,
-          data.originalPrice,
-          data.discountPercentage || 0,
-          data.level,
-          data.duration || 0,
-          data.teacherId,
+          Number(data.originalPrice) || 0,
+          Number(data.discountPercentage) || 0,
+          data.level || 'Beginner',
+          Number(data.duration) || 0,
+          Number(data.teacherId),
           posterFileForUpdate
         ).toPromise();
         break;
