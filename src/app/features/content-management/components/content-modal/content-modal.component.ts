@@ -80,6 +80,17 @@ export class ContentModalComponent implements OnChanges, OnInit {
     }
 
     if (changes['formData'] && this.formData) {
+      // Ensure numeric fields are properly typed
+      if (this.formData.teacherId) {
+        this.formData.teacherId = Number(this.formData.teacherId);
+      }
+      if (this.formData.yearId) {
+        this.formData.yearId = Number(this.formData.yearId);
+      }
+      if (this.formData.subjectNameId) {
+        this.formData.subjectNameId = Number(this.formData.subjectNameId);
+      }
+      console.log('📝 Modal received formData:', this.formData);
       this.setupHierarchicalWatchers();
     }
   }
