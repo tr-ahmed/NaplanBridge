@@ -21,6 +21,9 @@
             <li class="relative group">
               <button
                 (click)="navigateToCourses()"
+                [class.text-primary-500]="router.url.includes('/courses')"
+                [class.bg-blue-50]="router.url.includes('/courses')"
+                [class.font-semibold]="router.url.includes('/courses')"
                 class="nav-button text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-1 whitespace-nowrap cursor-pointer">
                 {{ item.label }}
               </button>
@@ -49,7 +52,10 @@
             </li>
           } @else if (item.isAboutSection) {
             <li>
-              <a class="nav-button px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 no-underline hover:text-primary-500 hover:bg-blue-50 cursor-pointer whitespace-nowrap"
+              <a [class.text-primary-500]="router.url.includes('/about')"
+                 [class.bg-blue-50]="router.url.includes('/about')"
+                 [class.font-semibold]="router.url.includes('/about')"
+                 class="nav-button px-2 xl:px-3 py-2 rounded-lg font-medium transition-all duration-300 no-underline hover:text-primary-500 hover:bg-blue-50 cursor-pointer whitespace-nowrap"
                  (click)="navigateToAboutSection()">
                 {{ item.label }}
               </a>
