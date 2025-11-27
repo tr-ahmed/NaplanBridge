@@ -1,6 +1,6 @@
 <!-- Main Content -->
 <main class="px-4 sm:px-6 lg:px-8 py-8">
-    
+
     <!-- Page Title -->
     <div class="mb-8">
       <div class="flex items-center justify-between">
@@ -292,11 +292,10 @@
                 @if (question.get('marks')?.touched && question.get('marks')?.errors?.['min']) {
                 <p class="mt-1 text-sm text-red-500">Minimum marks is 1</p>
                 }
-              </div>
             </div>
+          </div>
 
             <!-- Options (for MCQ, MultiSelect, TrueFalse) -->
-            @if (question.get('questionType')?.value !== 'Text') {
             <div class="mt-4 p-4 bg-gray-50 rounded-lg">
               <div class="flex items-center justify-between mb-3">
                 <label class="block text-sm font-medium text-gray-700">
@@ -308,9 +307,7 @@
                   + Add Option
                 </button>
                 }
-              </div>
-
-              <div class="space-y-2" formArrayName="options">
+              </div>              <div class="space-y-2" formArrayName="options">
                 @for (option of getOptions(i).controls; track $index; let j = $index) {
                 <div [formGroupName]="j" class="flex items-center gap-3">
                   <!-- Use radio for TrueFalse and MultipleChoice, checkbox for MultipleSelect -->
@@ -348,7 +345,6 @@
                 }
               </p>
             </div>
-            }
           </div>
           }
         </div>

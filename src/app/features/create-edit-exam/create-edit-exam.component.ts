@@ -25,7 +25,7 @@ type FormStep = 'basic' | 'questions' | 'settings' | 'preview';
   selector: 'app-create-edit-exam',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ReactiveFormsModule
   ],
   templateUrl: './create-edit-exam.component.html',
@@ -68,7 +68,7 @@ export class CreateEditExamComponent implements OnInit {
 
   // Enums for template
   examTypes: ExamType[] = [ExamType.Lesson, ExamType.Monthly, ExamType.Term];
-  questionTypes: QuestionType[] = [QuestionType.Text, QuestionType.MultipleChoice, QuestionType.MultipleSelect, QuestionType.TrueFalse];
+  questionTypes: QuestionType[] = [QuestionType.MultipleChoice, QuestionType.MultipleSelect, QuestionType.TrueFalse];
 
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
@@ -362,11 +362,11 @@ export class CreateEditExamComponent implements OnInit {
     const termId = exam.termId ? +exam.termId : null;
     const weekId = exam.weekId ? +exam.weekId : null;
     const lessonId = exam.lessonId ? +exam.lessonId : null;
-    
+
     // ✅ Calculate totalMarks from questions if not provided
     const calculatedTotalMarks = exam.questions?.reduce((sum: number, q: any) => sum + (q.marks || 0), 0) || 100;
     const totalMarks = exam.totalMarks || calculatedTotalMarks;
-    
+
     // ✅ Set passingMarks to 50% of totalMarks if not provided
     const passingMarks = exam.passingMarks || (totalMarks * 0.5);
 
@@ -407,11 +407,11 @@ export class CreateEditExamComponent implements OnInit {
     if (exam.questions && exam.questions.length > 0) {
       exam.questions.forEach((q: any, index: number) => {
         const questionGroup = this.createQuestionGroup();
-        
+
         // ✅ Determine question type from options structure
         let questionType = q.questionType || 'MultipleChoice';
         const hasOptions = q.options && q.options.length > 0;
-        
+
         if (hasOptions) {
           const optionTexts = q.options.map((o: any) => o.optionText?.toLowerCase());
           if (optionTexts.includes('true') && optionTexts.includes('false') && q.options.length === 2) {
@@ -422,7 +422,7 @@ export class CreateEditExamComponent implements OnInit {
             questionType = 'MultipleChoice';
           }
         }
-        
+
         questionGroup.patchValue({
           questionText: q.questionText || '',
           questionType: questionType,
@@ -459,27 +459,27 @@ export class CreateEditExamComponent implements OnInit {
       // If no questions, add one default question
       this.addQuestion();
     }
-    
+
     console.log('✅ Questions loaded:', this.questions.length);
   }
-  
+
   /**
    * Format datetime for input field (datetime-local expects 'YYYY-MM-DDTHH:mm' format)
    */
   private formatDateTimeForInput(dateTime: string): string {
     if (!dateTime) return '';
-    
+
     try {
       const date = new Date(dateTime);
       if (isNaN(date.getTime())) return '';
-      
+
       // Format: YYYY-MM-DDTHH:mm
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
-      
+
       return `${year}-${month}-${day}T${hours}:${minutes}`;
     } catch (e) {
       console.error('Error formatting date:', e);
@@ -614,6 +614,7 @@ export class CreateEditExamComponent implements OnInit {
         isCorrect: [false]
       }));
     }
+    // Text type removed - no longer available
   }
 
   /**
@@ -721,25 +722,23 @@ export class CreateEditExamComponent implements OnInit {
         isValid = false;
       }
 
-      const questionType = question.get('questionType')?.value;
-      if (questionType !== 'Text') {
-        const options = this.getOptions(index);
-        console.log(`📝 Question ${index + 1} Options:`,
-          options.controls.map(opt => ({
-            text: opt.get('optionText')?.value,
-            isCorrect: opt.get('isCorrect')?.value
-          }))
-        );
+      // All question types now require options and correct answers
+      const options = this.getOptions(index);
+      console.log(`📝 Question ${index + 1} Options:`,
+        options.controls.map(opt => ({
+          text: opt.get('optionText')?.value,
+          isCorrect: opt.get('isCorrect')?.value
+        }))
+      );
 
-        const hasCorrectAnswer = options.controls.some(opt => opt.get('isCorrect')?.value);
+      const hasCorrectAnswer = options.controls.some(opt => opt.get('isCorrect')?.value);
 
-        if (!hasCorrectAnswer) {
-          console.error(`❌ Question ${index + 1} has NO correct answer!`);
-          this.toastService.showError(`Question ${index + 1} must have at least one correct answer`);
-          isValid = false;
-        } else {
-          console.log(`✅ Question ${index + 1} has correct answer!`);
-        }
+      if (!hasCorrectAnswer) {
+        console.error(`❌ Question ${index + 1} has NO correct answer!`);
+        this.toastService.showError(`Question ${index + 1} must have at least one correct answer`);
+        isValid = false;
+      } else {
+        console.log(`✅ Question ${index + 1} has correct answer!`);
       }
     });
 

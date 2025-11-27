@@ -27,7 +27,9 @@ export class AddUserModalComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       phoneNumber: ['', Validators.required],
-      age: [null, [Validators.required, Validators.min(18)]]
+      age: [null, [Validators.required, Validators.min(18)]],
+      salary: [null, [Validators.min(0)]],
+      iban: ['', [Validators.pattern(/^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/)]]
     });
   }
 
