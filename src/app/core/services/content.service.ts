@@ -249,13 +249,6 @@ export class ContentService {
     teacherId: number,
     posterFile?: File
   ): Observable<Subject> {
-    const formData = new FormData();
-    
-    // Only append PosterFile if a new file is provided
-    if (posterFile) {
-      formData.append('PosterFile', posterFile);
-    }
-
     const params = new HttpParams()
       .set('OriginalPrice', originalPrice.toString())
       .set('DiscountPercentage', discountPercentage.toString())
@@ -263,7 +256,14 @@ export class ContentService {
       .set('Duration', duration.toString())
       .set('TeacherId', teacherId.toString());
 
-    return this.http.put<Subject>(`${this.apiUrl}/Subjects/${id}`, formData, { params });
+    // Only send FormData if a new file is provided, otherwise send null body
+    if (posterFile) {
+      const formData = new FormData();
+      formData.append('PosterFile', posterFile);
+      return this.http.put<Subject>(`${this.apiUrl}/Subjects/${id}`, formData, { params });
+    } else {
+      return this.http.put<Subject>(`${this.apiUrl}/Subjects/${id}`, null, { params });
+    }
   }
 
   deleteSubject(id: number): Observable<void> {
