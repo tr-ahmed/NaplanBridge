@@ -490,6 +490,19 @@ export class LessonsComponent implements OnInit, OnDestroy {
             ];
 
             console.log('✅ Created fallback terms for current term:', currentTermNum);
+          } else {
+            // ⚠️ WORKAROUND: If ALL terms have hasAccess: false but currentTermNumber is set,
+            // override hasAccess for the current term (backend bug)
+            const allLocked = termsData.every((t: any) => !t.hasAccess);
+            if (allLocked && termAccessStatus.currentTermNumber) {
+              console.warn('⚠️ Backend bug: All terms locked but currentTermNumber set');
+              console.log('🔧 Workaround: Granting access to current term:', termAccessStatus.currentTermNumber);
+
+              termsData = termsData.map((t: any) => ({
+                ...t,
+                hasAccess: t.termNumber === termAccessStatus.currentTermNumber || t.isCurrentTerm
+              }));
+            }
           }
 
           // ✅ Backend now returns correct number of terms (4) filtered by current year
@@ -645,25 +658,22 @@ export class LessonsComponent implements OnInit, OnDestroy {
             count: lessons.length,
             subjectId,
             termNumber,
-            isGuest: !studentId
+            isGuest: !studentId,
+            currentHasAccess: this.hasAccess()  // Current term access status
           });
 
           this.lessons.set(lessons);
           this.loading.set(false);
 
-          // Check if any lessons have access
-          const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
-          this.hasAccess.set(hasAnyAccess);
+          // ⚠️ DON'T update hasAccess from lessons - trust the term's hasAccess value
+          // The backend may return hasAccess:true for lessons even in locked terms
+          const currentAccess = this.hasAccess();
 
-          // Show subscription banner if no access and authenticated
-          if (!hasAnyAccess && this.authService.isAuthenticated()) {
-            this.showSubscriptionBanner.set(true);
-            console.log('🔒 Preview mode - Student viewing locked lessons');
-          } else if (hasAnyAccess) {
-            console.log('✅ Student has subscription access to this term');
+          console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber} (Term Access: ${currentAccess})`);
+
+          if (!currentAccess) {
+            console.log('🔒 Preview mode - Lessons shown but locked (no subscription for this term)');
           }
-
-          console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber} (Access: ${hasAnyAccess})`);
         },
         error: (error) => {
           console.error(`❌ Failed to load term ${termNumber} lessons:`, error);
@@ -695,7 +705,8 @@ export class LessonsComponent implements OnInit, OnDestroy {
     console.log('📋 All Available Terms:', this.availableTerms().map(t => ({
       id: t.id,
       termNumber: t.termNumber,
-      name: t.name
+      name: t.name,
+      hasAccess: t.hasAccess
     })));
 
     // ✅ UPDATE: Set access status for the selected term
@@ -714,12 +725,21 @@ export class LessonsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // ✅ Always load lessons for preview (even if locked)
+    // The onLessonClick() method will handle access control
     if (subjectId && term.termNumber) {
+      console.log(term.hasAccess ? '✅ Loading lessons - Student has access' : '👀 Loading lessons for preview - Locked term');
       this.loadLessonsByTermNumber(subjectId, term.termNumber);
+
+      if (!term.hasAccess) {
+        // Show info message for locked terms
+        this.toastService.showInfo(
+          `👀 ${term.name} - Preview mode. Subscribe to unlock all lessons!`,
+          5000
+        );
+      }
     } else {
-      console.warn('⚠️ Missing subjectId or termNumber, using fallback');
-      // Fallback to old method if termNumber not available
-      this.loadLessonsByTerm(termId);
+      console.warn('⚠️ Missing subjectId or termNumber');
     }
 
     // ✅ FIX: Update URL with termNumber AND hasAccess
