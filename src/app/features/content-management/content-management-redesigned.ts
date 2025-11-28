@@ -908,7 +908,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         level: 'Beginner',
         duration: 0,
         teacherId: 1, // Default teacher ID
-        startDate: new Date().toISOString().split('T')[0],
+        startDate: new Date().toISOString().split('T')[0], // Default to today
         posterFile: null
       },
       'term': { subjectId: null, termNumber: 1, startDate: new Date().toISOString().split('T')[0] },
@@ -967,7 +967,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           data.level,
           data.duration || 0,
           data.teacherId || 1, // Use default teacher ID if not provided
-          data.startDate,
+          data.startDate || new Date().toISOString().split('T')[0], // Default to today
           data.posterFile
         ).toPromise();
         break;
