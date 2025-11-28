@@ -281,6 +281,12 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
     data: { hideHeader: true, hideFooter: true }
   },
+  {
+    path: 'admin/academic-terms',
+    loadComponent: () => import('./admin/academic-terms/academic-terms.component').then(m => m.AcademicTermsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: true, hideFooter: true }
+  },
 
   // Teacher Dashboard
   {

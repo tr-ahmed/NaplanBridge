@@ -41,6 +41,14 @@
             </div>
           </div>
           <div class="flex flex-wrap gap-2 sm:gap-3 w-full lg:w-auto">
+            <a
+              routerLink="/admin/academic-terms"
+              class="flex-1 sm:flex-none px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span>Terms</span>
+            </a>
             <button
               type="button"
               (click)="refreshData()"
