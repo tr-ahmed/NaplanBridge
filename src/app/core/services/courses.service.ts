@@ -1002,10 +1002,13 @@ export class CoursesService {
 
     return this.http.get<TermAccessStatusDto>(url).pipe(
       tap(response => {
+        console.log('📡 RAW Response from term-access endpoint:', response);
         console.log('✅ Term access status:', {
           subject: response.subjectName,
           currentTerm: response.currentTermNumber,
-          accessibleTerms: response.terms.filter((t: any) => t.hasAccess).map((t: any) => t.termNumber)
+          termsArrayLength: response.terms?.length || 0,
+          termsArray: response.terms,
+          accessibleTerms: response.terms?.filter((t: any) => t.hasAccess).map((t: any) => t.termNumber) || []
         });
       }),
       catchError((error: HttpErrorResponse) => {

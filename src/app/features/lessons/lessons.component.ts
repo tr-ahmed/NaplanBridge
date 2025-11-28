@@ -158,7 +158,6 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
         if (courseId) {
           this.currentCourseId.set(parseInt(courseId));
-          this.checkEnrollmentStatus(parseInt(courseId));
         }
       });
   }
@@ -237,28 +236,6 @@ export class LessonsComponent implements OnInit, OnDestroy {
           this.error.set('Failed to load lessons');
           this.loading.set(false);
           console.error('Error loading lessons:', error);
-        }
-      });
-  }
-
-  /**
-   * Check if user is enrolled in the course
-   */
-  private checkEnrollmentStatus(courseId: number): void {
-    if (!this.authService.isAuthenticated()) {
-      this.isEnrolledInSubject.set(false);
-      return;
-    }
-
-    this.coursesService.isEnrolledInCourse(courseId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (enrolled: any) => {
-          this.isEnrolledInSubject.set(enrolled);
-        },
-        error: (error: any) => {
-          console.error('Error checking enrollment:', error);
-          this.isEnrolledInSubject.set(false);
         }
       });
   }
@@ -472,14 +449,52 @@ export class LessonsComponent implements OnInit, OnDestroy {
           console.log('✅ Term access status loaded:', {
             subject: termAccessStatus.subjectName,
             currentTerm: termAccessStatus.currentTermNumber,
-            totalTerms: termAccessStatus.terms.length,
-            accessibleTerms: termAccessStatus.terms.filter((t: any) => t.hasAccess).map((t: any) => t.termNumber),
-            lockedTerms: termAccessStatus.terms.filter((t: any) => !t.hasAccess).map((t: any) => t.termNumber)
+            totalTerms: termAccessStatus.terms?.length || 0,
+            accessibleTerms: termAccessStatus.terms?.filter((t: any) => t.hasAccess).map((t: any) => t.termNumber) || [],
+            lockedTerms: termAccessStatus.terms?.filter((t: any) => !t.hasAccess).map((t: any) => t.termNumber) || []
           });
+
+          // ✅ FALLBACK: If backend returns empty terms array, create default 4 terms
+          let termsData = termAccessStatus.terms || [];
+
+          if (termsData.length === 0) {
+            console.warn('⚠️ Backend returned 0 terms - Creating default fallback terms');
+
+            // Create 4 default terms, mark current term as accessible
+            const currentTermNum = termAccessStatus.currentTermNumber || 1;
+            termsData = [
+              {
+                termNumber: 1,
+                termName: 'Term 1',
+                isCurrentTerm: currentTermNum === 1,
+                hasAccess: currentTermNum === 1  // Only current term has access
+              },
+              {
+                termNumber: 2,
+                termName: 'Term 2',
+                isCurrentTerm: currentTermNum === 2,
+                hasAccess: currentTermNum === 2
+              },
+              {
+                termNumber: 3,
+                termName: 'Term 3',
+                isCurrentTerm: currentTermNum === 3,
+                hasAccess: currentTermNum === 3
+              },
+              {
+                termNumber: 4,
+                termName: 'Term 4',
+                isCurrentTerm: currentTermNum === 4,
+                hasAccess: currentTermNum === 4
+              }
+            ];
+
+            console.log('✅ Created fallback terms for current term:', currentTermNum);
+          }
 
           // ✅ Backend now returns correct number of terms (4) filtered by current year
           // No client-side filtering needed
-          const terms: Term[] = termAccessStatus.terms.map((t: any, index: number) => ({
+          const terms: Term[] = termsData.map((t: any, index: number) => ({
             id: t.termId || t.termNumber,  // ✅ FIX: Use termNumber if termId is 0
             termNumber: t.termNumber,
             name: t.termName,
@@ -487,7 +502,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
             hasAccess: t.hasAccess  // ✅ Backend determines access per term
           }));
 
-          console.log('📋 Mapped Terms:', terms.map(t => ({ id: t.id, termNumber: t.termNumber, name: t.name })));
+          console.log('📋 Mapped Terms:', terms.map(t => ({ id: t.id, termNumber: t.termNumber, name: t.name, hasAccess: t.hasAccess })));
 
           this.availableTerms.set(terms);
 

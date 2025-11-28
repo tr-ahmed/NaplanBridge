@@ -1165,43 +1165,41 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     this.logger.log('📚 Fetching current term/week for student:', studentId, 'subject:', course.id);
 
-    // ✅ Use backend endpoint to get current term/week
+    // ✅ Backend fixed: getCurrentTermWeek now returns correct subscribed term
     this.coursesService.getCurrentTermWeek(studentId, course.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (termWeek: any) => {
+          console.log('🔍 RAW API Response from getCurrentTermWeek:', termWeek);
+
           this.logger.log('✅ Term/Week info received:', {
             courseId: course.id,
             courseName: course.name || course.subjectName,
             hasAccess: termWeek.hasAccess,
             currentTerm: termWeek.currentTermName,
+            currentTermNumber: termWeek.currentTermNumber,
             currentWeek: termWeek.currentWeekNumber,
-            progress: `${termWeek.progressPercentage}%`
+            progress: `${termWeek.progressPercentage}%`,
+            subscriptionType: termWeek.subscriptionType
           });
 
-          // ✅ FIX: Use termNumber instead of termId for cross-subject navigation
-          // This fixes the issue where different subjects have different term IDs
-          // for the same term number (e.g., Algebra Term 3 = ID 3, Reading Term 3 = ID 11)
-
-          // ✅ FREEMIUM MODEL: Always navigate to lessons (even without subscription)
-          // User can see lesson names and terms, but lessons are locked
+          // ✅ Use termNumber from backend (now returns correct subscribed term)
           this.router.navigate(['/lessons'], {
             queryParams: {
               subjectId: course.subjectNameId,
               subject: course.subject || course.subjectName,
               courseId: course.id,
               yearId: course.yearId,
-              termNumber: termWeek.currentTermNumber || 3,  // Default to term 3 if not available
-              weekNumber: termWeek.currentWeekNumber || 1,  // Default to week 1 if not available
-              hasAccess: termWeek.hasAccess,  // ✅ Pass access status to lessons component
-              studentId: studentId  // ✅ NEW: Pass student ID for parent access
+              termNumber: termWeek.currentTermNumber || 1,
+              weekNumber: termWeek.currentWeekNumber || 1,
+              hasAccess: termWeek.hasAccess,
+              studentId: studentId
             }
           });
 
           // ⚠️ Show info message if no subscription (non-blocking)
           if (!termWeek.hasAccess) {
             console.warn('⚠️ No subscription:', termWeek.message);
-            // Show message after navigation completes
             setTimeout(() => {
               this.coursesService['toastService'].showInfo(
                 '🔒 Subscribe to unlock all lessons and features for this subject',
@@ -1214,17 +1212,16 @@ export class CoursesComponent implements OnInit, OnDestroy {
           console.error('❌ Error fetching current term/week:', error);
 
           // ✅ Still navigate to lessons even on error (with defaults)
-          // Better UX: Let user see the interface even if API fails
           this.router.navigate(['/lessons'], {
             queryParams: {
               subjectId: course.subjectNameId,
               subject: course.subject || course.subjectName,
               courseId: course.id,
               yearId: course.yearId,
-              termNumber: 3,  // Default term
-              weekNumber: 1,  // Default week
-              hasAccess: false,  // Assume no access on error
-              studentId: studentId  // ✅ NEW: Pass student ID for parent access
+              termNumber: 1,  // Default to term 1 on error
+              weekNumber: 1,
+              hasAccess: false,
+              studentId: studentId
             }
           });
 
