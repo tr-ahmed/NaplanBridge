@@ -907,7 +907,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         discountPercentage: 0,
         level: 'Beginner',
         duration: 0,
-        teacherId: null,
+        teacherId: 1, // Default teacher ID
         startDate: new Date().toISOString().split('T')[0],
         posterFile: null
       },
@@ -966,7 +966,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           data.discountPercentage || 0,
           data.level,
           data.duration || 0,
-          data.teacherId,
+          data.teacherId || 1, // Use default teacher ID if not provided
           data.startDate,
           data.posterFile
         ).toPromise();
@@ -1077,10 +1077,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           posterFile: posterFileForUpdate ? 'File selected' : 'No file'
         });
         
-        // Validate required fields according to Swagger spec
-        if (!data.teacherId) {
-          throw new Error('Teacher is required');
-        }
+        // Use default teacherId if not provided
+        const teacherId = data.teacherId || 1; // Default teacher ID
         
         await this.contentService.updateSubject(
           data.id,
@@ -1088,7 +1086,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           Number(data.discountPercentage) || 0,
           data.level || 'Beginner',
           Number(data.duration) || 0,
-          Number(data.teacherId),
+          Number(teacherId),
           posterFileForUpdate
         ).toPromise();
         break;
