@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { ExamApiService } from '../../core/services/exam-api.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { ExamDto, ExamType } from '../../models/exam-api.models';
+import { ExamDto, ExamType, UpdateExamDto } from '../../models/exam-api.models';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 import { AdminHeaderComponent } from '../../shared/components/admin-header/admin-header.component';
 
@@ -361,17 +361,19 @@ export class ExamManagementComponent implements OnInit {
     const exam = this.allExams().find(e => e.id === examId);
     if (!exam) return;
 
-    const updatedExam: any = {
-      id: exam.id,
+    const updatedExam: UpdateExamDto = {
       title: exam.title,
-      examType: exam.examType,
-      subjectId: 0,
+      description: exam.description,
       durationInMinutes: exam.durationInMinutes,
       totalMarks: exam.totalMarks,
       passingMarks: exam.totalMarks * 0.5,
-      startTime: exam.startTime?.toISOString() || '',
-      endTime: exam.endTime?.toISOString() || '',
-      isPublished: !exam.isPublished
+      startTime: exam.startTime?.toISOString() || null,
+      endTime: exam.endTime?.toISOString() || null,
+      isPublished: !exam.isPublished,
+      subjectId: null,
+      termId: null,
+      lessonId: null,
+      weekId: null
     };
 
     this.examApi.updateExam(examId, updatedExam).subscribe({

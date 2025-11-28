@@ -104,20 +104,31 @@ export interface CreateOptionDto {
 }
 
 export interface UpdateExamDto {
-  title?: string;
-  description?: string;
-  durationInMinutes?: number;
-  totalMarks?: number;
-  passingMarks?: number;
-  startTime?: string | null;  // ✅ Can be null or undefined
-  endTime?: string | null;    // ✅ Can be null or undefined
-  isPublished?: boolean;
+  title?: string | null;
+  description?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  durationInMinutes?: number | null;
+  subjectId?: number | null;
+  termId?: number | null;
+  isPublished?: boolean | null;
+  totalMarks?: number | null;
+  passingMarks?: number | null;
+  lessonId?: number | null;
+  weekId?: number | null;
 }
 
 export interface UpdateQuestionDto {
-  questionText?: string;
-  marks?: number;
-  order?: number;
+  questionText?: string | null;
+  marks?: number | null;
+  isMultipleSelect?: boolean | null;
+  options?: UpdateOptionDto[] | null;
+}
+
+export interface UpdateOptionDto {
+  id?: number | null;
+  optionText?: string | null;
+  isCorrect?: boolean;
 }
 
 // ============================================
