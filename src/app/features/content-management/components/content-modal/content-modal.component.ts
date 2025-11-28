@@ -293,8 +293,8 @@ export class ContentModalComponent implements OnChanges, OnInit {
       'category': ['name'],
       'subjectName': ['name', 'categoryId'],
       'subject': this.mode === 'add'
-        ? ['yearId', 'subjectNameId', 'originalPrice', 'level', 'teacherId', 'startDate']
-        : ['originalPrice', 'level', 'teacherId'],
+        ? ['yearId', 'subjectNameId', 'originalPrice', 'level']
+        : ['originalPrice', 'level'],
       'term': ['subjectId', 'termNumber', 'startDate'],
       'week': ['termId', 'weekNumber'],
       'lesson': ['title', 'description', 'weekId'] // subjectId removed - auto-calculated by backend
