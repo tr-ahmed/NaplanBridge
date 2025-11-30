@@ -243,7 +243,23 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   clearCart(): void {
     if (confirm('Are you sure you want to clear your cart?')) {
-      this.coursesService.clearCart();
+      this.loading.set(true);
+      this.cartService.clearCart()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            console.log('✅ Cart cleared successfully');
+            this.toastService.showSuccess('Cart cleared successfully!');
+            this.loading.set(false);
+            // Reload cart from backend to get fresh state
+            this.loadCartFromBackend();
+          },
+          error: (err) => {
+            console.error('❌ Failed to clear cart:', err);
+            this.toastService.showError('Failed to clear cart. Please try again.');
+            this.loading.set(false);
+          }
+        });
     }
   }
 

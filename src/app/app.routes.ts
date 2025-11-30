@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { Routes, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
 import { authGuard } from './auth/auth.guard';
@@ -76,7 +76,17 @@ export const routes: Routes = [
   },
   {
     path: 'courses',
-    loadComponent: () => import('./features/courses/courses.component').then(m => m.CoursesComponent)
+    loadComponent: () => import('./features/courses/courses.component').then(m => m.CoursesComponent),
+    canActivate: [authGuard, () => {
+      const authService = inject(AuthService);
+      const router = inject(Router);
+      // منع الطلاب من الوصول لصفحة المواد
+      if (authService.hasRole('student')) {
+        router.navigate(['/student/dashboard']);
+        return false;
+      }
+      return true;
+    }]
   },
   {
     path: 'lessons',
@@ -88,7 +98,17 @@ export const routes: Routes = [
   },
   {
     path: 'cart',
-    loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent)
+    loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent),
+    canActivate: [authGuard, () => {
+      const authService = inject(AuthService);
+      const router = inject(Router);
+      // منع الطلاب من الوصول للسلة
+      if (authService.hasRole('student')) {
+        router.navigate(['/student/dashboard']);
+        return false;
+      }
+      return true;
+    }]
   },
   {
     path: 'notifications',

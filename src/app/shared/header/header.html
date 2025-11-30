@@ -78,19 +78,21 @@
         <!-- Desktop Login/Logout Button -->
         @if (isLoggedIn) {
           <div class="hidden md:flex items-center space-x-2 xl:space-x-3">
-            <!-- Cart Icon -->
-            <button
-              (click)="navigateToCart()"
-              class="relative p-1.5 xl:p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0">
-              <svg class="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
-              </svg>
-              @if (cartItemCount > 0) {
-                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 xl:w-5 xl:h-5 flex items-center justify-center text-[10px] xl:text-xs">
-                  {{ cartItemCount }}
-                </span>
-              }
-            </button>
+            <!-- Cart Icon - Hidden for Students -->
+            @if (userRole !== 'Student') {
+              <button
+                (click)="navigateToCart()"
+                class="relative p-1.5 xl:p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0">
+                <svg class="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
+                </svg>
+                @if (cartItemCount > 0) {
+                  <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 xl:w-5 xl:h-5 flex items-center justify-center text-[10px] xl:text-xs">
+                    {{ cartItemCount }}
+                  </span>
+                }
+              </button>
+            }
 
             <!-- Notifications Icon -->
             <div class="relative" clickOutside (clickOutside)="closeNotificationsDropdown()">
@@ -323,18 +325,20 @@
 
                 <!-- Mobile Cart and Notifications -->
                 <div class="flex justify-center space-x-4 px-4 py-2">
-                  <button
-                    (click)="navigateToCart(); toggleMobileMenu()"
-                    class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
-                    </svg>
-                    @if (cartItemCount > 0) {
-                      <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {{ cartItemCount }}
-                      </span>
-                    }
-                  </button>
+                  @if (userRole !== 'Student') {
+                    <button
+                      (click)="navigateToCart(); toggleMobileMenu()"
+                      class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
+                      </svg>
+                      @if (cartItemCount > 0) {
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          {{ cartItemCount }}
+                        </span>
+                      }
+                    </button>
+                  }
 
                   <button
                     (click)="navigateToNotifications(); toggleMobileMenu()"

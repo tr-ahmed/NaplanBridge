@@ -151,6 +151,84 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main Content Area -->
         <div class="lg:col-span-2 space-y-8">
+          <!-- Enrolled Subjects with Progress -->
+          @if (enrolledSubjects().length > 0) {
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-900">My Subjects</h2>
+                <span class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">
+                  {{ enrolledSubjects().length }} Subject{{ enrolledSubjects().length > 1 ? 's' : '' }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @for (subject of enrolledSubjects(); track subject.subjectId) {
+                  <div class="border-2 border-gray-200 hover:border-blue-400 rounded-xl p-5 transition-all hover:shadow-lg bg-gradient-to-br from-white to-gray-50">
+                    <div class="flex items-start justify-between mb-4">
+                      <div class="flex-1">
+                        <h3 class="font-bold text-gray-900 text-lg mb-1">{{ subject.subjectName }}</h3>
+                        @if (subject.isActive) {
+                          <span class="inline-block text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Active</span>
+                        } @else {
+                          <span class="inline-block text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full font-medium">Inactive</span>
+                        }
+                      </div>
+                      <div class="text-right">
+                        <div class="text-3xl font-bold text-blue-600">{{ subject.progress }}%</div>
+                      </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mb-4">
+                      <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div
+                          class="h-3 rounded-full transition-all duration-500 bg-gradient-to-r"
+                          [ngClass]="{
+                            'from-green-400 to-green-600': subject.progress >= 75,
+                            'from-blue-400 to-blue-600': subject.progress >= 50 && subject.progress < 75,
+                            'from-yellow-400 to-yellow-600': subject.progress >= 25 && subject.progress < 50,
+                            'from-red-400 to-red-600': subject.progress < 25
+                          }"
+                          [style.width.%]="subject.progress">
+                        </div>
+                      </div>
+                      <div class="flex justify-between items-center mt-2">
+                        <span class="text-xs text-gray-600">
+                          {{ subject.completedLessons }}/{{ subject.totalLessons }} lessons completed
+                        </span>
+                        @if (subject.expiryDate) {
+                          <span class="text-xs text-gray-500">
+                            Expires: {{ formatDate(subject.expiryDate) }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-2">
+                      <button
+                        (click)="viewSubjectLessons(subject.subjectId)"
+                        class="flex-1 px-3 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        Lessons
+                      </button>
+                      <button
+                        (click)="viewSubjectExams(subject.subjectId)"
+                        class="flex-1 px-3 py-2 bg-green-500 text-white hover:bg-green-600 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Exams
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
           <!-- Overall Progress -->
           @if (progress()) {
             <div class="bg-white rounded-lg shadow-sm p-6">
@@ -412,8 +490,10 @@
 
             @if (recentActivities().length > 0) {
               <div class="space-y-3">
-                @for (activity of recentActivities().slice(0, 5); track activity.title + activity.date) {
-                  <div class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                @for (activity of recentActivities().slice(0, 5); track activity.id || (activity.title + activity.date)) {
+                  <div
+                    (click)="handleActivityClick(activity)"
+                    class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
                     <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full text-base shadow-sm"
                          [class.bg-blue-100]="activity.type === 'ExamTaken'"
                          [class.text-blue-600]="activity.type === 'ExamTaken'"
@@ -428,15 +508,36 @@
                       {{ getActivityIcon(activity.type) }}
                     </div>
                     <div class="flex-1 min-w-0">
-                      <p class="text-sm font-semibold text-gray-900 line-clamp-1">{{ activity.title }}</p>
+                      <p class="text-sm font-semibold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">{{ activity.title }}</p>
                       <p class="text-xs text-gray-600 mt-1 line-clamp-2">{{ activity.description }}</p>
-                      <div class="flex items-center gap-2 mt-2">
+                      <div class="flex items-center gap-2 mt-2 flex-wrap">
                         <span class="text-xs text-gray-500 flex items-center gap-1">
                           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                           </svg>
                           {{ timeAgo(activity.date) }}
                         </span>
+                        @if (activity.subjectName) {
+                          <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full font-medium">
+                            {{ activity.subjectName }}
+                          </span>
+                        }
+                        @if (activity.progress && activity.progress < 100) {
+                          <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
+                            {{ activity.progress }}% Progress
+                          </span>
+                        }
+                        @if (activity.score) {
+                          <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+                                [class.bg-green-100]="activity.score >= 80"
+                                [class.text-green-700]="activity.score >= 80"
+                                [class.bg-yellow-100]="activity.score >= 60 && activity.score < 80"
+                                [class.text-yellow-700]="activity.score >= 60 && activity.score < 80"
+                                [class.bg-red-100]="activity.score < 60"
+                                [class.text-red-700]="activity.score < 60">
+                            Score: {{ activity.score }}%
+                          </span>
+                        }
                         <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                               [class.bg-blue-100]="activity.type === 'ExamTaken'"
                               [class.text-blue-700]="activity.type === 'ExamTaken'"
@@ -490,7 +591,7 @@
 
             @if (getRecentLessons().length > 0) {
               <div class="space-y-3">
-                @for (lesson of getRecentLessons().slice(0, 4); track lesson.title + lesson.date) {
+                @for (lesson of getRecentLessons(); track lesson.lessonId) {
                   <div class="p-4 border-l-4 border-green-400 bg-green-50 rounded-lg hover:shadow-md transition-all cursor-pointer group">
                     <div class="flex items-start justify-between gap-3">
                       <div class="flex-1 min-w-0">
@@ -499,20 +600,33 @@
                           <p class="font-semibold text-gray-900 text-sm line-clamp-1 group-hover:text-green-700 transition-colors">{{ lesson.title }}</p>
                         </div>
                         <p class="text-xs text-gray-600 line-clamp-2 mb-2">{{ lesson.description }}</p>
-                        <div class="flex items-center gap-3 text-xs text-gray-500">
-                          <span class="flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            {{ timeAgo(lesson.date) }}
-                          </span>
+                        <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
+                          @if (lesson.subjectName) {
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
+                              {{ lesson.subjectName }}
+                            </span>
+                          }
+                          @if (lesson.termNumber && lesson.weekNumber) {
+                            <span>Term {{ lesson.termNumber }} • Week {{ lesson.weekNumber }}</span>
+                          }
                           <span class="px-2 py-0.5 bg-green-200 text-green-800 rounded-full font-medium">
-                            In Progress
+                            {{ lesson.progress }}% Complete
                           </span>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="bg-gray-200 rounded-full h-2 mb-2">
+                          <div
+                            class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all"
+                            [style.width.%]="lesson.progress">
+                          </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-gray-500">
+                          <span>{{ lesson.timeSpent }} / {{ lesson.duration }} min</span>
+                          <span class="text-green-600 font-medium">{{ lesson.duration - lesson.timeSpent }} min left</span>
                         </div>
                       </div>
                       <button
-                        (click)="resumeLesson(lesson.title)"
+                        (click)="resumeLesson(lesson)"
                         class="px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg text-xs font-semibold whitespace-nowrap shadow-sm transition-colors flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>

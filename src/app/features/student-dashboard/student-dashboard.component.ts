@@ -11,7 +11,6 @@ import { SubscriptionService } from '../../core/services/subscription.service';
 import { ExamService } from '../../core/services/exam.service';
 import { LessonService } from '../../core/services/lesson.service';
 import { DashboardService } from '../../core/services/dashboard.service';
-import { MockDashboardService } from '../../core/services/mock-dashboard.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import {
@@ -44,7 +43,6 @@ export class StudentDashboardComponent implements OnInit {
   private examService = inject(ExamService);
   private lessonService = inject(LessonService);
   private dashboardService = inject(DashboardService);
-  private mockDashboardService = inject(MockDashboardService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
@@ -60,6 +58,8 @@ export class StudentDashboardComponent implements OnInit {
   examHistory = signal<ExamHistory[]>([]);
   recentActivities = signal<RecentActivity[]>([]);
   upcomingExams = signal<any[]>([]);
+  enrolledSubjects = signal<any[]>([]); // المواد المشترك فيها
+  inProgressLessons = signal<any[]>([]); // الدروس قيد التقدم
 
   // Stats
   stats = signal<DashboardStats>({
@@ -159,10 +159,12 @@ export class StudentDashboardComponent implements OnInit {
   private loadAvailableEndpoints(): void {
     const loadPromises = [
       this.safeLoadSubscriptions(),
+      this.safeLoadEnrolledSubjects(),
       this.safeLoadAchievements(),
       this.safeLoadExamHistory(),
       this.safeLoadRecentActivities(),
-      this.safeLoadUpcomingExams()
+      this.safeLoadUpcomingExams(),
+      this.safeLoadInProgressLessons()
     ];
 
     Promise.allSettled(loadPromises).then((results) => {
@@ -221,6 +223,82 @@ export class StudentDashboardComponent implements OnInit {
         error: (err) => {
           console.warn('⚠️ Subscriptions endpoint failed:', err);
           this.subscriptions.set([]);
+          resolve([]);
+        }
+      });
+    });
+  }
+
+  /**
+   * Safely load enrolled subjects with progress
+   */
+  private safeLoadEnrolledSubjects(): Promise<any> {
+    return new Promise((resolve) => {
+      this.dashboardService.getStudentSubscriptionsSummary(this.studentId).subscribe({
+        next: (response) => {
+          console.log('📚 Subscriptions response:', response);
+
+          // Now load progress for each subject
+          this.progressService.getStudentProgress(this.studentId).subscribe({
+            next: (progressData: any) => {
+              console.log('📊 Progress data:', progressData);
+
+              let subsArray: any[] = [];
+              if (response) {
+                if (Array.isArray(response)) {
+                  subsArray = response;
+                } else if (response.subscriptions && Array.isArray(response.subscriptions)) {
+                  subsArray = response.subscriptions;
+                } else if (typeof response === 'object') {
+                  subsArray = [response];
+                }
+              }
+
+              // Map subscriptions to subjects with progress
+              const subjectsMap = new Map<number, any>();
+
+              subsArray.forEach(sub => {
+                const subjectId = sub.subjectId;
+                const subjectName = sub.subjectName || sub.subject || 'Unknown Subject';
+
+                if (!subjectsMap.has(subjectId)) {
+                  // Filter progress for this subject
+                  let subjectProgress: any[] = [];
+                  if (Array.isArray(progressData)) {
+                    subjectProgress = progressData.filter((p: any) => p.subjectId === subjectId);
+                  }
+
+                  const completedLessons = subjectProgress.filter((p: any) => p.isCompleted).length;
+                  const totalLessons = subjectProgress.length;
+                  const progressPercentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+                  subjectsMap.set(subjectId, {
+                    subjectId,
+                    subjectName,
+                    progress: progressPercentage,
+                    completedLessons,
+                    totalLessons,
+                    isActive: sub.isActive !== false,
+                    expiryDate: sub.expiryDate || sub.endDate
+                  });
+                }
+              });
+
+              const enrolledSubjectsArray = Array.from(subjectsMap.values());
+              console.log(`✅ Loaded ${enrolledSubjectsArray.length} enrolled subject(s) with progress`);
+              this.enrolledSubjects.set(enrolledSubjectsArray);
+              resolve(enrolledSubjectsArray);
+            },
+            error: (err) => {
+              console.warn('⚠️ Progress data unavailable:', err);
+              this.enrolledSubjects.set([]);
+              resolve([]);
+            }
+          });
+        },
+        error: (err) => {
+          console.warn('⚠️ Enrolled subjects endpoint failed:', err);
+          this.enrolledSubjects.set([]);
           resolve([]);
         }
       });
@@ -347,6 +425,36 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   /**
+   * Safely load in-progress lessons
+   * Uses new backend endpoint: GET /api/Lessons/student/{studentId}/in-progress
+   */
+  private safeLoadInProgressLessons(): Promise<any> {
+    return new Promise((resolve) => {
+      this.lessonService.getInProgressLessons(this.studentId).subscribe({
+        next: (response) => {
+          if (response && response.data) {
+            this.inProgressLessons.set(response.data);
+            console.log('✅ In-progress lessons loaded:', response.data.length, 'lessons');
+            resolve(response.data);
+          } else if (Array.isArray(response)) {
+            this.inProgressLessons.set(response);
+            console.log('✅ In-progress lessons loaded:', response.length, 'lessons');
+            resolve(response);
+          } else {
+            this.inProgressLessons.set([]);
+            resolve([]);
+          }
+        },
+        error: (err) => {
+          console.warn('⚠️ In-progress lessons endpoint failed:', err);
+          this.inProgressLessons.set([]);
+          resolve([]);
+        }
+      });
+    });
+  }
+
+  /**
    * Calculate stats from available data only
    */
   private calculateStatsFromAvailableData(): void {
@@ -432,290 +540,6 @@ export class StudentDashboardComponent implements OnInit {
       currentStreak: 0, // Calculate from activities if needed
       activeSubscriptions: activeSubs,
       upcomingExams: Array.isArray(data.upcomingExams) ? data.upcomingExams.length : 0
-    });
-  }  /**
-   * Load mock dashboard data for development
-   */
-  private loadMockDashboardData(): void {
-    Promise.all([
-      this.loadMockProgress(),
-      this.loadMockSubscriptions(),
-      this.loadMockCertificates(),
-      this.loadMockAchievements()
-    ]).then(() => {
-      this.calculateMockStats();
-      this.loading.set(false);
-      this.toastService.showSuccess('Dashboard loaded successfully (mock data)');
-    }).catch(err => {
-      this.error.set('Failed to load dashboard data');
-      this.loading.set(false);
-      this.toastService.showError('Failed to load dashboard');
-      console.error('Mock Dashboard error:', err);
-    });
-  }
-
-  /**
-   * Load mock progress data
-   */
-  private loadMockProgress(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.mockDashboardService.getMockStudentProgress().subscribe({
-        next: (progress) => {
-          this.progress.set(progress);
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  /**
-   * Load mock subscriptions
-   */
-  private loadMockSubscriptions(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.mockDashboardService.getMockSubscriptionsSummary().subscribe({
-        next: (subs) => {
-          this.subscriptions.set(subs);
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  /**
-   * Load mock certificates
-   */
-  private loadMockCertificates(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.mockDashboardService.getMockCertificates().subscribe({
-        next: (certs) => {
-          // Store certificates for display
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  /**
-   * Load mock achievements
-   */
-  private loadMockAchievements(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.mockDashboardService.getMockAchievements().subscribe({
-        next: (achievements) => {
-          // Store achievements for display
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  /**
-   * Calculate stats from mock data
-   */
-  private calculateMockStats(): void {
-    const prog = this.progress();
-
-    this.stats.set({
-      totalLessonsCompleted: prog?.completedLessons || 45,
-      totalExamsTaken: prog?.examsCompleted || 12,
-      averageScore: prog?.averageExamScore || 87,
-      currentStreak: 7, // Mock streak
-      activeSubscriptions: this.activeSubsCount() || 2,
-      upcomingExams: 2 // Mock upcoming exams
-    });
-  }
-
-  /**
-   * Process dashboard data from comprehensive endpoint
-   */
-  private processDashboardData(data: any): void {
-    // Set progress data
-    if (data.detailedProgress) {
-      this.progress.set(data.detailedProgress);
-    }
-
-    // Set subscriptions
-    if (data.subscriptionDetails) {
-      this.subscriptions.set(data.subscriptionDetails);
-    }
-
-    // Set certificates and achievements
-    if (data.certificates) {
-      // Process certificates data
-    }
-
-    if (data.achievements) {
-      // Process achievements data
-    }
-
-    // Calculate stats from the data
-    this.calculateStatsFromData(data);
-  }
-
-  /**
-   * Fallback method using individual API calls
-   */
-  private loadDashboardDataFallback(): void {
-    Promise.all([
-      this.loadProgress(),
-      this.loadSubscriptions(),
-      this.loadRecentExams(),
-      this.loadRecentActivities(),
-      this.loadUpcomingExams(),
-      this.loadCertificates(),
-      this.loadAchievements()
-    ]).then(() => {
-      this.calculateStats();
-      this.loading.set(false);
-    }).catch(err => {
-      this.error.set('Failed to load dashboard data');
-      this.loading.set(false);
-      this.toastService.showError('Failed to load dashboard');
-      console.error('Dashboard error:', err);
-    });
-  }
-
-  /**
-   * Load student progress
-   */
-  private loadProgress(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.progressService.getStudentProgress(this.studentId).subscribe({
-        next: (progress) => {
-          this.progress.set(progress);
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  /**
-   * Load active subscriptions
-   */
-  private loadSubscriptions(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.subscriptionService.getStudentSubscriptions(this.studentId).subscribe({
-        next: (subs) => {
-          this.subscriptions.set(subs);
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  /**
-   * Load recent exam results
-   */
-  private loadRecentExams(): Promise<void> {
-    return new Promise((resolve) => {
-      // Use exam history instead of separate recent exams
-      this.examHistory.set([]);
-      resolve();
-    });
-  }
-
-  /**
-   * Load student certificates
-   */
-  private loadCertificates(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.dashboardService.getStudentCertificates(this.studentId).subscribe({
-        next: (certificates) => {
-          // Process certificates
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  /**
-   * Load student achievements
-   */
-  private loadAchievements(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.dashboardService.getStudentAchievements(this.studentId).subscribe({
-        next: (achievements) => {
-          // Process achievements
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  /**
-   * Load recent activities
-   */
-  private loadRecentActivities(): Promise<void> {
-    return new Promise((resolve) => {
-      // Mock activities for now
-      this.recentActivities.set([]);
-      resolve();
-    });
-  }
-
-  /**
-   * Load upcoming exams
-   */
-  private loadUpcomingExams(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.examService.getUpcomingExams(this.studentId).subscribe({
-        next: (exams) => {
-          this.upcomingExams.set(exams);
-          resolve();
-        },
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  /**
-   * Calculate stats from comprehensive dashboard data
-   */
-  private calculateStatsFromData(data: any): void {
-    this.stats.set({
-      totalLessonsCompleted: data.totalLessonsCompleted || 0,
-      totalExamsTaken: data.totalExamsCompleted || 0,
-      averageScore: data.averageScore || 0,
-      currentStreak: 0, // Will be calculated from activities
-      activeSubscriptions: this.activeSubsCount() || data.activeSubscriptions || 0,
-      upcomingExams: data.upcomingExams?.length || 0
-    });
-  }
-
-  /**
-   * Calculate dashboard stats (fallback method for mock data)
-   */
-  private calculateStats(): void {
-    const prog = this.progress();
-    const subs = this.subscriptions();
-    const exams = this.examHistory();
-    const upcoming = this.upcomingExams();
-
-    const totalLessons = prog?.subjectProgress?.reduce((sum: number, sp: any) => sum + (sp.completedLessons || 0), 0) || 0;
-    const totalExams = Array.isArray(exams) ? exams.length : 0;
-    const avgScore = Array.isArray(exams) && exams.length > 0
-      ? exams.reduce((sum: number, e: ExamHistory) => sum + (e.score || 0), 0) / exams.length
-      : 0;
-
-    // Use the activeSubsCount computed property for accurate count
-    const activeSubs = this.activeSubsCount();
-
-    this.stats.set({
-      totalLessonsCompleted: totalLessons,
-      totalExamsTaken: totalExams,
-      averageScore: Math.round(avgScore),
-      currentStreak: 0, // Will be calculated from activities
-      activeSubscriptions: activeSubs,
-      upcomingExams: Array.isArray(upcoming) ? upcoming.length : 0
     });
   }
 
@@ -857,26 +681,58 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   /**
-   * Get recent lessons from activities (filter by lesson type)
+   * Get recent lessons from in-progress lessons (new endpoint)
    */
-  getRecentLessons(): RecentActivity[] {
-    return this.recentActivities().filter(
-      a => a.type === 'LessonProgress' || a.type === 'LessonCompleted'
-    );
+  getRecentLessons(): any[] {
+    return this.inProgressLessons().slice(0, 4);
   }
 
   /**
-   * Resume a specific lesson
+   * Resume a specific lesson using in-progress lessons data
    */
-  resumeLesson(lessonTitle: string): void {
-    // Find lesson by title and navigate to it
-    const lesson = this.recentActivities().find(a => a.title === lessonTitle && a.type === 'LessonProgress');
-    if (lesson) {
-      // Extract lesson ID from description or use a fallback approach
-      this.router.navigate(['/lessons']);
-      this.toastService.showSuccess(`Resuming: ${lessonTitle}`);
+  resumeLesson(lesson: any): void {
+    if (lesson && lesson.lessonId) {
+      this.router.navigate(['/lesson', lesson.lessonId]);
+      this.toastService.showSuccess(`Resuming: ${lesson.title}`);
     } else {
-      this.toastService.showInfo('Lesson details not available');
+      this.toastService.showError('Lesson ID not available');
+    }
+  }
+
+  /**
+   * Handle activity click with proper navigation
+   */
+  handleActivityClick(activity: RecentActivity): void {
+    if (!activity) return;
+
+    switch (activity.type) {
+      case 'LessonProgress':
+      case 'LessonCompleted':
+        if (activity.lessonId) {
+          this.router.navigate(['/lesson', activity.lessonId]);
+        } else {
+          this.toastService.showWarning('Lesson not available');
+        }
+        break;
+
+      case 'ExamTaken':
+        if (activity.examId) {
+          this.router.navigate(['/student/exam', activity.examId]);
+        } else {
+          this.toastService.showWarning('Exam not available');
+        }
+        break;
+
+      case 'AchievementUnlocked':
+        this.toastService.showSuccess(`Achievement: ${activity.title}`);
+        break;
+
+      case 'CertificateEarned':
+        this.toastService.showSuccess(`Certificate: ${activity.title}`);
+        break;
+
+      default:
+        console.log('Activity clicked:', activity);
     }
   }
 }

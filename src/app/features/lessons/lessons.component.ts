@@ -60,7 +60,6 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   // ✅ NEW: Student selection (for parents)
   selectedStudentId = signal<number | null>(null);
-  isBrowseMode = signal<boolean>(false);
 
   // ✅ NEW: Plan selection modal (using PlanSelectionModalComponent)
   showPlanModal = signal<boolean>(false);
@@ -103,11 +102,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
         const termNumber = params['termNumber'];  // ✅ NEW: Use termNumber instead of termId
         const termId = params['termId'];          // Keep for backward compatibility
         const hasAccessParam = params['hasAccess']; // ✅ NEW: Get access status from params
-        const browseMode = params['browseMode'] === 'true'; // ✅ NEW: Check if in browse mode
         const studentIdParam = params['studentId']; // ✅ NEW: Get studentId from URL
-
-        // ✅ Set browse mode and student ID
-        this.isBrowseMode.set(browseMode);
 
         if (studentIdParam) {
           const studentId = parseInt(studentIdParam, 10);
@@ -434,10 +429,10 @@ export class LessonsComponent implements OnInit, OnDestroy {
     const user = this.authService.getCurrentUser();
     let studentId = user?.studentId || this.selectedStudentId();
 
-    // ✅ If still no studentId, load terms without access info (browse mode)
+    // ✅ If no studentId, don't load terms (student must be logged in)
     if (!studentId) {
-      console.warn('⚠️ No studentId found - loading terms in browse mode');
-      this.loadTermsForBrowseMode(subjectId);
+      console.warn('⚠️ No studentId found - cannot load terms');
+      this.availableTerms.set([]);
       return;
     }
 
@@ -517,39 +512,40 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
           console.log('📋 Mapped Terms:', terms.map(t => ({ id: t.id, termNumber: t.termNumber, name: t.name, hasAccess: t.hasAccess })));
 
-          this.availableTerms.set(terms);
-
-          // Find and set current term
-          const currentTerm = terms.find(t => t.isCurrentTerm);
-          if (currentTerm) {
-            this.currentTermId.set(currentTerm.id);
-
-            // If no term is selected yet, select the current term if accessible
-            if (!this.selectedTermId()) {
-              if (currentTerm.hasAccess) {
-                this.selectedTermId.set(currentTerm.id);
-              } else {
-                // Current term not accessible, select first accessible term
-                const firstAccessibleTerm = terms.find(t => t.hasAccess);
-                if (firstAccessibleTerm) {
-                  this.selectedTermId.set(firstAccessibleTerm.id);
-                }
-              }
-            }
-          } else {
-            // No current term, default to first accessible term
-            const firstAccessibleTerm = terms.find(t => t.hasAccess);
-            if (firstAccessibleTerm && !this.selectedTermId()) {
-              this.selectedTermId.set(firstAccessibleTerm.id);
-            }
-          }
+          // ✅ FILTER: Only show terms that student has access to
+          const accessibleTerms = terms.filter(t => t.hasAccess);
 
           console.log('✅ Terms loaded with backend access control:', {
             totalTerms: terms.length,
-            accessibleTerms: terms.filter(t => t.hasAccess).map(t => t.termNumber),
+            accessibleTerms: accessibleTerms.map(t => t.termNumber),
             lockedTerms: terms.filter(t => !t.hasAccess).map(t => t.termNumber),
             currentTermNumber: termAccessStatus.currentTermNumber,
-            selectedTermId: this.selectedTermId()
+            filtered: `Showing ${accessibleTerms.length} of ${terms.length} terms`
+          });
+
+          // Set only accessible terms
+          this.availableTerms.set(accessibleTerms);
+
+          // Find and set current term (from accessible terms only)
+          const currentTerm = accessibleTerms.find(t => t.isCurrentTerm);
+          if (currentTerm) {
+            this.currentTermId.set(currentTerm.id);
+
+            // If no term is selected yet, select the current term
+            if (!this.selectedTermId()) {
+              this.selectedTermId.set(currentTerm.id);
+            }
+          } else {
+            // No current term in accessible terms, select first accessible term
+            if (accessibleTerms.length > 0 && !this.selectedTermId()) {
+              this.selectedTermId.set(accessibleTerms[0].id);
+            }
+          }
+
+          console.log('✅ Selected term:', {
+            currentTermId: this.currentTermId(),
+            selectedTermId: this.selectedTermId(),
+            availableCount: accessibleTerms.length
           });
         },
         error: (error: any) => {
@@ -557,30 +553,6 @@ export class LessonsComponent implements OnInit, OnDestroy {
           this.toastService.showError('Unable to load subscription information. Please try again.');
         }
       });
-  }
-
-  /**
-   * ✅ NEW: Load terms in browse mode (without student ID)
-   * Shows all 4 terms as locked for preview
-   */
-  private loadTermsForBrowseMode(subjectId: number): void {
-    console.log('👀 Loading terms for browse mode (no student ID)');
-
-    // ✅ Fallback: Create default 4 terms (all locked for preview)
-    const defaultTerms: Term[] = [
-      { id: 1, termNumber: 1, name: 'Term 1', isCurrentTerm: false, hasAccess: false },
-      { id: 2, termNumber: 2, name: 'Term 2', isCurrentTerm: false, hasAccess: false },
-      { id: 3, termNumber: 3, name: 'Term 3', isCurrentTerm: false, hasAccess: false },
-      { id: 4, termNumber: 4, name: 'Term 4', isCurrentTerm: false, hasAccess: false }
-    ];
-
-    this.availableTerms.set(defaultTerms);
-
-    // Select first term by default
-    if (!this.selectedTermId()) {
-      this.selectedTermId.set(1);
-      console.log('✅ Selected Term 1 for browse mode');
-    }
   }
 
   /**
