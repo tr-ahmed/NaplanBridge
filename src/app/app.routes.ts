@@ -2,6 +2,7 @@ import { Routes, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
 import { authGuard } from './auth/auth.guard';
+import { teacherGuard } from './auth/teacher.guard';
 import { RoleSelectionGuard } from './auth/role-selection/role-selection.guard';
 import { StudentDetailsComponent } from './features/student-details/student-details';
 import { UserProfileComponent } from './features/user-profile/user-profile';
@@ -316,14 +317,14 @@ export const routes: Routes = [
   {
     path: 'teacher/dashboard',
     loadComponent: () => import('./features/teacher-dashboard/teacher-dashboard.component').then(m => m.TeacherDashboardComponent),
-    canActivate: [authGuard]
+    canActivate: [teacherGuard]
   },
 
   // Teacher Questions Dashboard
   {
     path: 'teacher/questions',
     loadComponent: () => import('./features/teacher/student-questions/student-questions.component').then(m => m.StudentQuestionsComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: false, hideFooter: false }
   },
 
@@ -331,25 +332,25 @@ export const routes: Routes = [
   {
     path: 'teacher/exams',
     loadComponent: () => import('./features/teacher/teacher-exam-management/teacher-exam-management.component').then(m => m.TeacherExamManagementComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'teacher/exam/create',
     loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'teacher/exam/edit/:id',
     loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'teacher/exams/:id/submissions',
     loadComponent: () => import('./features/teacher/exam-grading/exam-grading.component').then(m => m.ExamGradingComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
 
@@ -357,7 +358,7 @@ export const routes: Routes = [
   {
     path: 'teacher/content-management',
     loadComponent: () => import('./features/teacher/content-management/teacher-content-management-redesigned').then(m => m.TeacherContentManagementRedesignedComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
 
@@ -365,7 +366,7 @@ export const routes: Routes = [
   {
     path: 'teacher/content-management-old',
     loadComponent: () => import('./features/teacher/content-management/teacher-content-management.component').then(m => m.TeacherContentManagementComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
 

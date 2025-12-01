@@ -9,7 +9,11 @@
       <p>Manage your exams and grading efficiently</p>
     </div>
 
-    <button class="btn-primary" (click)="createExam()">
+    <button
+      type="button"
+      class="btn-primary"
+      (click)="createExam()"
+      style="z-index: 100; position: relative;">
       <i class="fas fa-plus-circle"></i>
       Create New Exam
     </button>
@@ -196,7 +200,11 @@
           </div>
           <h3>No Exams Yet</h3>
           <p>Create your first exam to get started with assessments</p>
-          <button class="btn-create" (click)="createExam()">
+          <button
+            type="button"
+            class="btn-create"
+            (click)="createExam()"
+            style="z-index: 100; position: relative;">
             <i class="fas fa-plus-circle"></i>
             Create Your First Exam
           </button>

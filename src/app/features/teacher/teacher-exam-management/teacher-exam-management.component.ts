@@ -444,7 +444,8 @@ export class TeacherExamManagementComponent implements OnInit {
       this.toastService.showWarning('You do not have permission to create exams');
       return;
     }
-    this.router.navigate(['/admin/exam/create']);
+    console.log('🔵 Teacher - Create Exam clicked');
+    this.router.navigate(['/teacher/exam/create']);
   }
 
   /**
@@ -455,7 +456,8 @@ export class TeacherExamManagementComponent implements OnInit {
       this.toastService.showWarning('You do not have permission to edit this exam');
       return;
     }
-    this.router.navigate(['/admin/exam/edit', exam.id]);
+    console.log('🔵 Teacher - Edit Exam clicked:', exam.id);
+    this.router.navigate(['/teacher/exam/edit', exam.id]);
   }
 
   /**
