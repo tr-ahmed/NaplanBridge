@@ -172,8 +172,46 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
   }
 
   openEditTeacherModal(teacher: any) {
-    this.selectedTeacher = teacher;
-    this.isEditTeacherModalOpen = true;
+    console.log('🔑 Opening edit modal for teacher:', teacher);
+
+    // Fetch complete teacher details from API (includes age, phone, salary, iban)
+    this.loading = true;
+    this.http.get(`${environment.apiBaseUrl}/User/${teacher.id}`)
+      .subscribe({
+        next: (fullTeacherData: any) => {
+          console.log('✅ Fetched complete teacher data:', fullTeacherData);
+
+          // Combine data from list and API (API returns array, take first item)
+          const teacherData = Array.isArray(fullTeacherData) ? fullTeacherData[0] : fullTeacherData;
+
+          this.selectedTeacher = {
+            ...teacher,
+            ...teacherData,
+            // Ensure critical fields are populated
+            age: teacherData.age || teacher.age || null,
+            phoneNumber: teacherData.phoneNumber || teacher.phoneNumber || '',
+            salary: teacherData.salary || teacher.salary || null,
+            iban: teacherData.iban || teacher.iban || ''
+          };
+
+          console.log('📝 Final selectedTeacher object:', this.selectedTeacher);
+          this.isEditTeacherModalOpen = true;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('❌ Error fetching teacher details:', err);
+          // Fallback: use data from list (may be incomplete)
+          this.selectedTeacher = teacher;
+          this.isEditTeacherModalOpen = true;
+          this.loading = false;
+          Swal.fire({
+            icon: 'warning',
+            title: 'Incomplete Data',
+            text: 'Could not load all teacher details. Some fields may be empty.',
+            timer: 3000
+          });
+        }
+      });
   }
 
   closeEditTeacherModal() {

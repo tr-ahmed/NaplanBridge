@@ -25,6 +25,16 @@ export class EditTeacherModalComponent implements OnInit {
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
   ngOnInit() {
+    console.log('📝 EditTeacherModal - Received teacher object:', this.teacher);
+    console.log('📝 EditTeacherModal - Teacher fields:', {
+      userName: this.teacher?.userName,
+      email: this.teacher?.email,
+      phoneNumber: this.teacher?.phoneNumber,
+      age: this.teacher?.age,
+      salary: this.teacher?.salary,
+      iban: this.teacher?.iban
+    });
+
     // Initialize the form with teacher data
     this.editTeacherForm = this.fb.group({
       userName: [this.teacher?.userName || '', Validators.required],
@@ -34,6 +44,8 @@ export class EditTeacherModalComponent implements OnInit {
       salary: [this.teacher?.salary || null, [Validators.min(0)]],
       iban: [this.teacher?.iban || '', [Validators.pattern(/^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/)]]
     });
+
+    console.log('📝 EditTeacherForm initialized with values:', this.editTeacherForm.value);
   }
 
   onSubmit() {

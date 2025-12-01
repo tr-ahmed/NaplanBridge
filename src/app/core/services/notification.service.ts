@@ -127,7 +127,7 @@ export class NotificationService {
    * Mark all notifications as read
    */
   markAllAsRead(): Observable<any> {
-    return this.http.put(`${this.apiUrl}/mark-all-read`, {}).pipe(
+    return this.http.put(`${this.apiUrl}/read-all`, {}).pipe(
       tap(() => {
         // Update local state
         const current = this.notifications$.value;

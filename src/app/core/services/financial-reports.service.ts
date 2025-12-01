@@ -158,10 +158,22 @@ export class FinancialReportsService {
       .set('paymentSource', paymentSource)
       .set('format', format);
 
+    console.log('📡 Requesting export with params:', {
+      startDate,
+      endDate,
+      paymentSource,
+      format,
+      url: `${this.apiUrl}/detailed/export`
+    });
+
     return this.http.get(
       `${this.apiUrl}/detailed/export`,
-      { params, responseType: 'blob' }
-    );
+      {
+        params,
+        responseType: 'blob' as 'json',  // Type assertion to handle Angular type checking
+        observe: 'body'
+      }
+    ) as Observable<Blob>;
   }
 
   /**

@@ -16,11 +16,7 @@ import { Subscription, filter } from 'rxjs';
   styleUrls: ['./header.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  navigationItems = [
-    { id: 1, label: 'Home', route: '/', icon: 'home' },
-    { id: 2, label: 'About Us', route: '/about', icon: 'info', isAboutSection: true },
-    { id: 7, label: 'Contact', route: '/contact', icon: 'mail' }
-  ];
+  navigationItems: any[] = [];
 
   isMobileMenuOpen = false;
   isLoggedIn = false;
@@ -51,6 +47,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.userName = user?.userName || '';
         this.userRole = this.authService.getPrimaryRole();
 
+        // Update navigation items based on user role
+        this.updateNavigationItems();
+
         // Initialize services when user is logged in
         if (this.isLoggedIn) {
           this.initializeCartAndNotifications();
@@ -69,6 +68,30 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     // ✅ Initial value for isLoginPage
     this.isLoginPage = this.router.url.includes('/auth/login');
+
+    // Set initial navigation items
+    this.updateNavigationItems();
+  }
+
+  /**
+   * Update navigation items based on user role
+   * Shows Subjects for everyone except Students
+   */
+  private updateNavigationItems(): void {
+    const baseItems = [
+      { id: 1, label: 'Home', route: '/', icon: 'home' },
+      { id: 2, label: 'About Us', route: '/about', icon: 'info', isAboutSection: true }
+    ];
+
+    // Add Subjects for everyone except Students
+    if (this.userRole !== 'Student') {
+      baseItems.push({ id: 3, label: 'Subjects', route: '/courses', icon: 'book' });
+    }
+
+    // Add Contact
+    baseItems.push({ id: 7, label: 'Contact', route: '/contact', icon: 'mail' });
+
+    this.navigationItems = baseItems;
   }
 
   /**

@@ -88,3 +88,36 @@ export interface PasswordResetConfirmation {
   password: string;
   token: string;
 }
+
+/**
+ * Interface for email verification request
+ */
+export interface VerifyEmailDto {
+  email: string;
+  token: string;
+}
+
+/**
+ * Interface for resend verification email request
+ */
+export interface ResendVerificationDto {
+  email: string;
+}
+
+/**
+ * Generic API response wrapper
+ */
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message: string;
+}
+
+/**
+ * Interface for login error with verification flag
+ */
+export interface LoginError {
+  error: string;
+  message: string;
+  requiresVerification?: boolean;
+}

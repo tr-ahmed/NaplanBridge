@@ -463,10 +463,10 @@ export class TeacherPermissionsAdminComponent implements OnInit {
     }
 
     // Check if permission already exists
-    const existingPermission = this.teachersWithPermissions().find((teacher: any) => 
+    const existingPermission = this.teachersWithPermissions().find((teacher: any) =>
       teacher.teacherId === this.grantForm.teacherId &&
-      teacher.permissions.some((p: any) => 
-        p.subjectId === this.grantForm.subjectId && 
+      teacher.permissions.some((p: any) =>
+        p.subjectId === this.grantForm.subjectId &&
         p.yearId === this.grantForm.yearId
       )
     );
@@ -487,7 +487,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error granting permission:', error);
-        
+
         // Extract error message from backend
         let errorMessage = 'Failed to grant permission';
         if (error?.error?.message) {
@@ -495,7 +495,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
         } else if (error?.message) {
           errorMessage = error.message;
         }
-        
+
         this.toastService.showError(errorMessage);
         this.loading.set(false);
       }
@@ -535,7 +535,21 @@ export class TeacherPermissionsAdminComponent implements OnInit {
 
     // Get all permissions for this teacher
     this.permissionsService.getTeacherPermissions(teacherId).subscribe({
-      next: (permissions) => {
+      next: (response: any) => {
+        console.log('✅ Raw teacher permissions response:', response);
+
+        // Handle different response formats
+        let permissions = [];
+        if (Array.isArray(response)) {
+          permissions = response;
+        } else if (response && response.data && Array.isArray(response.data)) {
+          permissions = response.data;
+        } else if (response && response.items && Array.isArray(response.items)) {
+          permissions = response.items;
+        }
+
+        console.log('📋 Processed permissions to revoke:', permissions);
+
         if (!permissions || permissions.length === 0) {
           this.toastService.showInfo('No permissions to revoke');
           this.loading.set(false);
@@ -543,26 +557,106 @@ export class TeacherPermissionsAdminComponent implements OnInit {
         }
 
         // Create array of delete observables
-        const deleteObservables = permissions.map(permission => 
+        const deleteObservables = permissions.map((permission: any) =>
           this.permissionsService.revokePermission(permission.id)
         );
 
+        console.log(`🗑️ Revoking ${deleteObservables.length} permission(s)...`);
+
         // Execute all deletions in parallel
         forkJoin(deleteObservables).subscribe({
-          next: () => {
+          next: (results) => {
+            console.log('✅ All permissions revoked:', results);
             this.toastService.showSuccess(`Successfully revoked ${permissions.length} permission(s)`);
             this.loadTeachersWithPermissions();
             this.loading.set(false);
           },
           error: (error: any) => {
-            console.error('Error revoking permissions:', error);
+            console.error('❌ Error revoking permissions:', error);
             this.toastService.showError('Failed to revoke all permissions');
+            this.loadTeachersWithPermissions(); // Reload to show current state
             this.loading.set(false);
           }
         });
       },
       error: (error: any) => {
-        console.error('Error fetching teacher permissions:', error);
+        console.error('❌ Error fetching teacher permissions:', error);
+        this.toastService.showError('Failed to fetch teacher permissions');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Revoke permission for a single subject
+   */
+  revokeSingleSubject(teacherId: number, subjectName: string, event?: Event): void {
+    event?.stopPropagation();
+
+    if (!confirm(`Are you sure you want to revoke permission for "${subjectName}"?`)) {
+      return;
+    }
+
+    this.loading.set(true);
+
+    // Get all permissions for this teacher
+    this.permissionsService.getTeacherPermissions(teacherId).subscribe({
+      next: (response: any) => {
+        console.log('✅ Fetched permissions for single subject revoke:', response);
+
+        // Handle different response formats
+        let permissions = [];
+        if (Array.isArray(response)) {
+          permissions = response;
+        } else if (response && response.data && Array.isArray(response.data)) {
+          permissions = response.data;
+        } else if (response && response.items && Array.isArray(response.items)) {
+          permissions = response.items;
+        }
+
+        // Find permissions for this subject
+        const subjectPermissions = permissions.filter((perm: any) => {
+          const permSubjectName = this.subjectNamesMap.get(perm.subjectId) ||
+                                 perm.subjectName ||
+                                 perm.subject_name ||
+                                 perm.subject?.name ||
+                                 '';
+          return permSubjectName === subjectName;
+        });
+
+        console.log(`📋 Found ${subjectPermissions.length} permission(s) for subject "${subjectName}":`, subjectPermissions);
+
+        if (!subjectPermissions || subjectPermissions.length === 0) {
+          this.toastService.showWarning('No permissions found for this subject');
+          this.loading.set(false);
+          return;
+        }
+
+        // Create array of delete observables for this subject
+        const deleteObservables = subjectPermissions.map((permission: any) =>
+          this.permissionsService.revokePermission(permission.id)
+        );
+
+        console.log(`🗑️ Revoking ${deleteObservables.length} permission(s) for subject "${subjectName}"...`);
+
+        // Execute all deletions in parallel
+        forkJoin(deleteObservables).subscribe({
+          next: (results) => {
+            console.log('✅ Subject permissions revoked:', results);
+            this.toastService.showSuccess(`Permission for "${subjectName}" revoked successfully`);
+            this.loadTeachersWithPermissions();
+            this.loading.set(false);
+          },
+          error: (error: any) => {
+            console.error('❌ Error revoking subject permission:', error);
+            this.toastService.showError('Failed to revoke permission');
+            this.loadTeachersWithPermissions();
+            this.loading.set(false);
+          }
+        });
+      },
+      error: (error: any) => {
+        console.error('❌ Error fetching teacher permissions:', error);
         this.toastService.showError('Failed to fetch teacher permissions');
         this.loading.set(false);
       }

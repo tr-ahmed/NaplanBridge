@@ -25,7 +25,7 @@ import { AdminHeaderComponent } from '../../shared/components/admin-header/admin
   selector: 'app-lesson-management',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule
   ],
   templateUrl: './lesson-management.component.html',
@@ -63,7 +63,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     title: '',
     description: '',
     resourceType: 'pdf',
-    file: null
+    file: null,
+    currentFileUrl: null
   };
   isResourceFormOpen = false;
   editingResource: any = null;
@@ -183,7 +184,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   // ============================================
   // Role Checking
   // ============================================
-  
+
   isStudent(): boolean {
     return this.authService.hasRole('Student');
   }
@@ -194,7 +195,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
   async loadAllData(): Promise<void> {
     await this.loadLesson();
-    
+
     // Build array of promises - only include notes for students
     const promises: Promise<void>[] = [
       this.loadResources(),
@@ -203,12 +204,12 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       this.loadExams(),
       this.loadChapters()
     ];
-    
+
     // Only load notes if user is a student (notes are student-specific)
     if (this.authService.hasRole('Student')) {
       promises.push(this.loadNotes());
     }
-    
+
     await Promise.all(promises);
   }
 
@@ -449,19 +450,23 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       title: '',
       description: '',
       resourceType: 'pdf',
-      file: null
+      file: null,
+      currentFileUrl: null
     };
     this.isResourceFormOpen = true;
   }
 
   openEditResource(resource: any): void {
+    console.log('📝 Opening edit for resource:', resource);
     this.editingResource = resource;
     this.resourceForm = {
       title: resource.title || '',
       description: resource.description || '',
-      resourceType: resource.resourceType || 'pdf',
-      file: null
+      resourceType: resource.resourceType || resource.type || 'pdf',
+      file: null,
+      currentFileUrl: resource.fileUrl || resource.url || null
     };
+    console.log('📝 Form populated with:', this.resourceForm);
     this.isResourceFormOpen = true;
   }
 
@@ -472,7 +477,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       title: '',
       description: '',
       resourceType: 'pdf',
-      file: null
+      file: null,
+      currentFileUrl: null
     };
   }
 
@@ -672,12 +678,12 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     } catch (error: any) {
       console.error('Note save error:', error);
       let errorMessage = this.extractErrorMessage(error);
-      
+
       // Handle 403 Forbidden specifically
       if (error?.status === 403) {
         errorMessage = 'You do not have permission to add/edit notes. Please contact your administrator.';
       }
-      
+
       Swal.fire('Error', errorMessage, 'error');
     }
   }
@@ -1117,14 +1123,25 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   openEditChapter(chapter: any): void {
+    console.log('📝 Opening edit for chapter:', chapter);
     this.editingChapter = chapter;
+
+    // Convert timestamp (seconds) to HH:MM:SS format if needed
+    let startTimeStr = '00:00:00';
+    if (chapter.startTime) {
+      startTimeStr = chapter.startTime;
+    } else if (chapter.timestamp !== undefined && chapter.timestamp !== null) {
+      startTimeStr = this.formatTimestamp(chapter.timestamp);
+    }
+
     this.chapterForm = {
       title: chapter.title || '',
       description: chapter.description || '',
-      startTime: chapter.startTime || '00:00:00',
+      startTime: startTimeStr,
       endTime: chapter.endTime || '00:00:00',
-      orderIndex: chapter.orderIndex || 0
+      orderIndex: chapter.order !== undefined ? chapter.order : (chapter.orderIndex || 0)
     };
+    console.log('📝 Form populated with:', this.chapterForm);
     this.isChapterFormOpen = true;
   }
 

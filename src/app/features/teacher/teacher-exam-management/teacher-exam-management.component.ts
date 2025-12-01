@@ -50,7 +50,7 @@ interface FilterOptions {
   selector: 'app-teacher-exam-management',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule
   ],
   templateUrl: './teacher-exam-management.component.html',
@@ -289,6 +289,23 @@ export class TeacherExamManagementComponent implements OnInit {
   /**
    * Load all exams for teacher (filtered by permissions)
    */
+  /**
+   * Convert numeric ExamType from API to string
+   */
+  private convertExamType(type: any): ExamType {
+    // API returns: 0=Lesson, 1=Monthly, 2=Term, 3=Year
+    if (typeof type === 'number') {
+      switch (type) {
+        case 0: return ExamType.Lesson;
+        case 1: return ExamType.Monthly;
+        case 2: return ExamType.Term;
+        case 3: return ExamType.Year;
+        default: return ExamType.Lesson;
+      }
+    }
+    return type; // Already a string
+  }
+
   private loadExams(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -312,7 +329,7 @@ export class TeacherExamManagementComponent implements OnInit {
           return {
             id: exam.id,
             title: exam.title,
-            examType: exam.examType,
+            examType: this.convertExamType(exam.examType),
             subjectId: permission?.subjectId || 0,
             subjectName: exam.subjectName || 'Not Specified',
             totalMarks: exam.totalMarks,
@@ -514,15 +531,50 @@ export class TeacherExamManagementComponent implements OnInit {
       return;
     }
 
-    const action = exam.isPublished ? 'unpublish' : 'publish';
+    const newPublishStatus = !exam.isPublished;
+    const action = newPublishStatus ? 'publish' : 'unpublish';
 
-    this.examApi.updateExam(exam.id, { isPublished: !exam.isPublished }).subscribe({
+    // Update locally first for immediate UI feedback
+    this.allExams.update(exams =>
+      exams.map(e => e.id === exam.id ? { ...e, isPublished: newPublishStatus } : e)
+    );
+
+    // Convert ExamType to number for API
+    let examTypeNumber = 0;
+    switch (exam.examType) {
+      case ExamType.Lesson: examTypeNumber = 0; break;
+      case ExamType.Monthly: examTypeNumber = 1; break;
+      case ExamType.Term: examTypeNumber = 2; break;
+      case ExamType.Year: examTypeNumber = 3; break;
+    }
+
+    const updateData: any = {
+      id: exam.id,
+      title: exam.title,
+      examType: examTypeNumber,
+      subjectId: exam.subjectId || 0,
+      durationInMinutes: exam.durationInMinutes,
+      totalMarks: exam.totalMarks,
+      passingMarks: exam.totalMarks * 0.5,
+      startTime: exam.startTime?.toISOString() || null,
+      endTime: exam.endTime?.toISOString() || null,
+      isPublished: newPublishStatus
+    };
+
+    console.log(`📤 ${action}ing exam:`, updateData);
+
+    this.examApi.updateExam(exam.id, updateData).subscribe({
       next: () => {
+        console.log(`✅ Exam ${action}ed successfully`);
         this.toastService.showSuccess(`Exam ${action}ed successfully`);
         this.loadExams();
       },
       error: (error) => {
-        console.error(`Failed to ${action} exam:`, error);
+        console.error(`❌ Failed to ${action} exam:`, error);
+        // Revert local change on error
+        this.allExams.update(exams =>
+          exams.map(e => e.id === exam.id ? { ...e, isPublished: !newPublishStatus } : e)
+        );
         this.toastService.showError(`Failed to ${action} exam`);
       }
     });

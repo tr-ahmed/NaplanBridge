@@ -88,11 +88,24 @@ export class RegisterComponent {
           this.isLoading.set(false);
 
           if (result.success) {
-            const currentUser = this.authService.currentUser();
-            this.toastService.showSuccess('Registration successful! Welcome to NaplanBridge.');
+            // ✅ NEW: Show verification message instead of auto-login
+            this.toastService.showSuccess(
+              'Registration successful! Please check your email to verify your account.',
+              8000
+            );
 
-            // Navigate to appropriate dashboard
-            this.authService.navigateToUserDashboard();
+            // Show additional info message
+            this.toastService.showInfo(
+              `We've sent a verification link to ${formValue.email}. Click the link in the email to verify your account.`,
+              10000
+            );
+
+            // Redirect to login after 5 seconds
+            setTimeout(() => {
+              this.router.navigate(['/auth/login'], {
+                queryParams: { email: formValue.email }
+              });
+            }, 5000);
           } else {
             this.handleRegistrationError(result.message || 'Registration failed', undefined);
           }

@@ -3,7 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, map } from 'rxjs';
 import { ParentApiService } from './parent-api.service';
-import { LoginRequest, ParentRegisterRequest, AuthResponse } from '../../models/auth.models';
+import { LoginRequest, ParentRegisterRequest, AuthResponse, VerifyEmailDto, ResendVerificationDto, ApiResponse } from '../../models/auth.models';
 import { jwtDecode } from 'jwt-decode';
 
 /**
@@ -451,5 +451,21 @@ navigateToUserDashboard(): void {
         }
       })
     );
+  }
+
+  /**
+   * Verify email with token
+   * @param dto Email verification data (email and token)
+   */
+  verifyEmail(dto: VerifyEmailDto): Observable<ApiResponse<boolean>> {
+    return this.parentApiService.verifyEmail(dto);
+  }
+
+  /**
+   * Resend verification email
+   * @param dto Resend verification data (email)
+   */
+  resendVerificationEmail(dto: ResendVerificationDto): Observable<ApiResponse<boolean>> {
+    return this.parentApiService.resendVerificationEmail(dto);
   }
 }

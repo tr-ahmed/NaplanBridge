@@ -83,6 +83,28 @@
       </button>
     </form>
 
+    <!-- Email Verification Alert -->
+    @if (showResendVerification()) {
+      <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-left">
+        <div class="flex items-start">
+          <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-2"></i>
+          <div class="flex-1">
+            <strong class="text-yellow-800 font-semibold">Email Verification Required</strong>
+            <p class="text-sm text-yellow-700 mt-1 mb-3">
+              Your email address is not verified. Please check your inbox for the verification link.
+            </p>
+            <button
+              type="button"
+              (click)="resendVerification()"
+              class="bg-yellow-600 text-white px-4 py-2 rounded text-sm hover:bg-yellow-700 transition-colors"
+            >
+              <i class="fas fa-envelope mr-1"></i> Resend Verification Email
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
     <!-- Sign Up Link -->
     <div class="mt-6 text-center">
       <span class="text-gray-700">Don't have an account?</span>

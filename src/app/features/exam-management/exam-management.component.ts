@@ -42,7 +42,7 @@ interface FilterOptions {
   selector: 'app-exam-management',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule
   ],
   templateUrl: './exam-management.component.html',
@@ -155,6 +155,23 @@ export class ExamManagementComponent implements OnInit {
   }
 
   /**
+   * Convert numeric ExamType from API to string
+   */
+  private convertExamType(type: any): ExamType {
+    // API returns: 0=Lesson, 1=Monthly, 2=Term, 3=Year
+    if (typeof type === 'number') {
+      switch (type) {
+        case 0: return ExamType.Lesson;
+        case 1: return ExamType.Monthly;
+        case 2: return ExamType.Term;
+        case 3: return ExamType.Year;
+        default: return ExamType.Lesson;
+      }
+    }
+    return type; // Already a string
+  }
+
+  /**
    * Load all exams for teacher
    */
   private loadExams(): void {
@@ -167,11 +184,11 @@ export class ExamManagementComponent implements OnInit {
         console.log('📊 First exam from API:', exams[0]);
         console.log('📊 ExamType field:', exams[0]?.examType);
         console.log('📊 AverageScore field:', exams[0]?.averageScore);
-        
+
         const examList: ExamListItem[] = exams.map(exam => ({
           id: exam.id,
           title: exam.title,
-          examType: exam.examType,
+          examType: this.convertExamType(exam.examType),
           subjectName: exam.subjectName || exam.subject || 'Not Specified',
           className: exam.className,
           totalMarks: exam.totalMarks,
@@ -185,10 +202,10 @@ export class ExamManagementComponent implements OnInit {
           createdAt: exam.createdAt ? new Date(exam.createdAt) : new Date()
         }));
 
-        console.log('📋 Processed exam list with types:', examList.map(e => ({ 
-          title: e.title, 
-          examType: e.examType, 
-          avgScore: e.averageScore 
+        console.log('📋 Processed exam list with types:', examList.map(e => ({
+          title: e.title,
+          examType: e.examType,
+          avgScore: e.averageScore
         })));
         this.allExams.set(examList);
         this.loading.set(false);
@@ -355,30 +372,51 @@ export class ExamManagementComponent implements OnInit {
     const exam = this.allExams().find(e => e.id === examId);
     if (!exam) return;
 
+    const newPublishStatus = !exam.isPublished;
+
+    // Update locally first for immediate UI feedback
+    this.allExams.update(exams =>
+      exams.map(e => e.id === examId ? { ...e, isPublished: newPublishStatus } : e)
+    );
+
+    // Convert ExamType to number for API
+    let examTypeNumber = 0;
+    switch (exam.examType) {
+      case ExamType.Lesson: examTypeNumber = 0; break;
+      case ExamType.Monthly: examTypeNumber = 1; break;
+      case ExamType.Term: examTypeNumber = 2; break;
+      case ExamType.Year: examTypeNumber = 3; break;
+    }
+
     const updatedExam: any = {
       id: exam.id,
       title: exam.title,
-      examType: exam.examType,
+      examType: examTypeNumber,
       subjectId: 0,
       durationInMinutes: exam.durationInMinutes,
       totalMarks: exam.totalMarks,
       passingMarks: exam.totalMarks * 0.5,
-      startTime: exam.startTime?.toISOString() || '',
-      endTime: exam.endTime?.toISOString() || '',
-      isPublished: !exam.isPublished
+      startTime: exam.startTime?.toISOString() || null,
+      endTime: exam.endTime?.toISOString() || null,
+      isPublished: newPublishStatus
     };
 
-    this.examApi.updateExam(examId, updatedExam).subscribe({
-      next: () => {
-        this.allExams.update(exams =>
-          exams.map(e => e.id === examId ? { ...e, isPublished: !e.isPublished } : e)
-        );
+    console.log('📤 Updating exam publish status:', updatedExam);
 
-        const action = updatedExam.isPublished ? 'published' : 'unpublished';
+    this.examApi.updateExam(examId, updatedExam).subscribe({
+      next: (response) => {
+        console.log('✅ Exam publish status updated:', response);
+        const action = newPublishStatus ? 'published' : 'unpublished';
         this.toastService.showSuccess(`Exam ${action} successfully`);
+        // Reload to ensure sync with server
+        this.loadExams();
       },
       error: (error) => {
-        console.error('Failed to update exam:', error);
+        console.error('❌ Failed to update exam:', error);
+        // Revert local change on error
+        this.allExams.update(exams =>
+          exams.map(e => e.id === examId ? { ...e, isPublished: !newPublishStatus } : e)
+        );
         this.toastService.showError('Failed to update exam');
       }
     });
@@ -439,9 +477,18 @@ export class ExamManagementComponent implements OnInit {
         return 'bg-purple-100 text-purple-800';
       case ExamType.Term:
         return 'bg-red-100 text-red-800';
+      case ExamType.Year:
+        return 'bg-green-100 text-green-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  /**
+   * Get exam type display name
+   */
+  getExamTypeDisplay(type: ExamType): string {
+    return type || 'Unknown';
   }
 
   /**

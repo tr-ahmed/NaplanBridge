@@ -10,7 +10,10 @@ import {
   ApiErrorResponse,
   ValidationError,
   PasswordResetRequest,
-  PasswordResetConfirmation
+  PasswordResetConfirmation,
+  VerifyEmailDto,
+  ResendVerificationDto,
+  ApiResponse
 } from '../../models/auth.models';
 
 /**
@@ -220,6 +223,50 @@ export class ParentApiService {
           error: errorResult.message,
           validationErrors: errorResult.validationErrors
         });
+      })
+    );
+  }
+
+  /**
+   * Verify email with token
+   * @param dto Email verification data (email and token)
+   * @returns Observable with API result
+   */
+  verifyEmail(dto: VerifyEmailDto): Observable<ApiResponse<boolean>> {
+    const url = `${this.baseUrl}/Account/verify-email`;
+
+    console.log('🔍 Email Verification Request:', { email: dto.email });
+
+    return this.http.post<ApiResponse<boolean>>(url, dto).pipe(
+      map((response: ApiResponse<boolean>) => {
+        console.log('✅ Email Verified Successfully');
+        return response;
+      }),
+      catchError((error) => {
+        console.error('❌ Email Verification Error:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Resend verification email
+   * @param dto Resend verification data (email)
+   * @returns Observable with API result
+   */
+  resendVerificationEmail(dto: ResendVerificationDto): Observable<ApiResponse<boolean>> {
+    const url = `${this.baseUrl}/Account/resend-verification-email`;
+
+    console.log('🔍 Resend Verification Email Request:', { email: dto.email });
+
+    return this.http.post<ApiResponse<boolean>>(url, dto).pipe(
+      map((response: ApiResponse<boolean>) => {
+        console.log('✅ Verification Email Sent');
+        return response;
+      }),
+      catchError((error) => {
+        console.error('❌ Resend Verification Email Error:', error);
+        throw error;
       })
     );
   }

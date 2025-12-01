@@ -41,6 +41,9 @@ export class NotificationTemplateService {
       if (filters.category) params = params.set('category', filters.category);
     }
 
+    console.log('API Request - Filters:', filters);
+    console.log('API Request - Params:', params.toString());
+
     return this.http.get<ApiResponse<NotificationTemplateDto[]>>(this.apiUrl, { params });
   }
 

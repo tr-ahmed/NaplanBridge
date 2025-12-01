@@ -22,6 +22,10 @@ export class LoginComponent implements OnInit {
   // Loading state signal
   isLoading = signal(false);
 
+  // Email verification states
+  showResendVerification = signal(false);
+  unverifiedEmail = signal('');
+
   // Reactive form for login
   loginForm: FormGroup = this.fb.group({
     identifier: ['', [Validators.required]], // Can be email, username, or phone
@@ -38,6 +42,13 @@ export class LoginComponent implements OnInit {
         rememberMe: true
       });
     }
+
+    // Pre-fill email if coming from verify page
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    if (email) {
+      this.loginForm.patchValue({ identifier: email });
+    }
   }
 
   /**
@@ -46,6 +57,7 @@ export class LoginComponent implements OnInit {
 onLogin(): void {
   if (this.loginForm.valid) {
     this.isLoading.set(true);
+    this.showResendVerification.set(false);
 
     // Extract form data and prepare API request
     const formValue = this.loginForm.value;
@@ -102,7 +114,18 @@ onLogin(): void {
       error: (error) => {
         this.isLoading.set(false);
         console.error('Login error:', error);
-        this.toastService.showError('Login failed. Please try again.');
+
+        // ✅ NEW: Check for email verification required
+        if (error.error?.requiresVerification) {
+          this.showResendVerification.set(true);
+          this.unverifiedEmail.set(formValue.identifier);
+          this.toastService.showWarning(
+            'Please verify your email address before logging in.',
+            8000
+          );
+        } else {
+          this.toastService.showError(error.error?.message || 'Login failed. Please try again.');
+        }
       }
     });
   } else {
@@ -171,5 +194,30 @@ onLogin(): void {
   hasFieldError(fieldName: string): boolean {
     const control = this.loginForm.get(fieldName);
     return !!(control?.errors && control.touched);
+  }
+
+  /**
+   * Resend verification email
+   */
+  resendVerification(): void {
+    const email = this.unverifiedEmail();
+
+    if (!email) {
+      this.toastService.showError('Email address not found');
+      return;
+    }
+
+    this.authService.resendVerificationEmail({ email }).subscribe({
+      next: (response) => {
+        this.toastService.showSuccess(
+          response.message || 'Verification email sent! Please check your inbox.',
+          8000
+        );
+        this.showResendVerification.set(false);
+      },
+      error: (error) => {
+        this.toastService.showError('Failed to send verification email');
+      }
+    });
   }
 }

@@ -72,11 +72,19 @@ export class FinancialReportsComponent implements OnInit {
       this.pageSize
     ).subscribe({
       next: (data) => {
+        console.log('📊 Financial report loaded:', data);
+        console.log('💰 Summary:', {
+          totalRevenue: data.summary.totalRevenue,
+          sessionsRevenue: data.summary.sessionsRevenue,
+          subscriptionsRevenue: data.summary.subscriptionsRevenue,
+          totalSessions: data.summary.totalSessions,
+          totalSubscriptions: data.summary.totalSubscriptions
+        });
         this.report.set(data);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error loading report:', error);
+        console.error('❌ Error loading report:', error);
         this.toastService.showError('Failed to load financial report');
         this.loading.set(false);
       }
@@ -129,6 +137,7 @@ export class FinancialReportsComponent implements OnInit {
     }
 
     this.exporting.set(true);
+    console.log(`📤 Exporting report as ${format.toUpperCase()}...`);
 
     this.reportsService.exportReport(
       this.startDate,
@@ -136,47 +145,86 @@ export class FinancialReportsComponent implements OnInit {
       this.paymentSource,
       format
     ).subscribe({
-      next: (blob) => {
+      next: (response) => {
+        console.log('✅ Export response received:', response);
+
+        // Handle different response types
+        let blob: Blob;
+
+        if (response instanceof Blob) {
+          blob = response;
+        } else if (response && typeof response === 'object') {
+          // If response is wrapped in an object, try to extract blob
+          blob = new Blob([JSON.stringify(response)], { type: 'application/octet-stream' });
+        } else {
+          console.error('❌ Invalid response type:', typeof response);
+          this.toastService.showError('Invalid response from server');
+          this.exporting.set(false);
+          return;
+        }
+
         // Check if blob is valid
         if (!blob || blob.size === 0) {
+          console.error('❌ Empty blob received');
           this.toastService.showError('Received empty file from server');
           this.exporting.set(false);
           return;
         }
 
+        console.log(`📦 Blob size: ${blob.size} bytes, type: ${blob.type}`);
+
         try {
           const filename = this.reportsService.generateExportFilename(format);
+          console.log(`💾 Downloading file: ${filename}`);
           this.reportsService.downloadFile(blob, filename);
-          
+
           // Small delay to ensure download starts before showing success message
           setTimeout(() => {
             this.toastService.showSuccess(`Report exported successfully as ${format.toUpperCase()}`);
             this.exporting.set(false);
           }, 100);
         } catch (downloadError) {
-          console.error('Error downloading file:', downloadError);
+          console.error('❌ Error downloading file:', downloadError);
           this.toastService.showError('Failed to download the exported file');
           this.exporting.set(false);
         }
       },
       error: (error) => {
-        console.error('Error exporting report:', error);
-        
-        // Check if error is due to blob parsing (might be successful but showing error)
+        console.error('❌ Error exporting report:', error);
+        console.error('Error details:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.message,
+          error: error.error
+        });
+
+        // Check if error contains a blob (sometimes successful responses are treated as errors)
         if (error.error instanceof Blob) {
-          // Sometimes the response is successful but Angular treats it as error
-          // Try to download it anyway
+          console.log('⚠️ Response treated as error but contains blob, attempting download...');
           try {
             const filename = this.reportsService.generateExportFilename(format);
             this.reportsService.downloadFile(error.error, filename);
             this.toastService.showSuccess(`Report exported successfully as ${format.toUpperCase()}`);
-          } catch {
-            this.toastService.showError(`Failed to export report as ${format.toUpperCase()}`);
+            this.exporting.set(false);
+            return;
+          } catch (downloadError) {
+            console.error('❌ Failed to download blob from error:', downloadError);
           }
-        } else {
-          this.toastService.showError(`Failed to export report as ${format.toUpperCase()}`);
         }
-        
+
+        // Show user-friendly error message
+        let errorMessage = `Failed to export report as ${format.toUpperCase()}`;
+        if (error.status === 0) {
+          errorMessage = 'Network error - please check your connection';
+        } else if (error.status === 401) {
+          errorMessage = 'Unauthorized - please login again';
+        } else if (error.status === 500) {
+          errorMessage = 'Server error - please try again later';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+
+        this.toastService.showError(errorMessage);
         this.exporting.set(false);
       }
     });
