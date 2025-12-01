@@ -930,7 +930,17 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   private async createEntity(type: EntityType, data: any): Promise<void> {
     // Teacher can create subjects, terms, weeks, and lessons
     if (type === 'subject') {
-      await this.contentService.addSubject(data).toPromise();
+      await this.contentService.addSubject(
+        data.yearId,
+        data.subjectNameId,
+        data.originalPrice,
+        data.discountPercentage,
+        data.level,
+        data.duration,
+        data.teacherId,
+        data.startDate,
+        data.posterFile
+      ).toPromise();
     } else if (type === 'term') {
       await this.contentService.addTerm({
         subjectId: data.subjectId,
@@ -950,7 +960,15 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   private async updateEntity(type: EntityType, id: Id, data: any): Promise<void> {
     // Teacher can update subjects, terms, weeks, and lessons
     if (type === 'subject') {
-      await this.contentService.updateSubject(id, data).toPromise();
+      await this.contentService.updateSubject(
+        id as number,
+        data.originalPrice,
+        data.discountPercentage,
+        data.level,
+        data.duration,
+        data.teacherId,
+        data.posterFile
+      ).toPromise();
     } else if (type === 'term') {
       await this.contentService.updateTerm(id, {
         subjectId: data.subjectId,

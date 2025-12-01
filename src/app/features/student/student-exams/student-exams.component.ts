@@ -38,14 +38,18 @@ export class StudentExamsComponent implements OnInit {
     const subjectId = this.selectedSubjectId();
     const exams = this.allUpcomingExams();
     if (!subjectId) return exams;
-    return exams.filter(exam => exam.subjectId === subjectId);
+    // Note: We can't filter by subjectId since the API doesn't return it
+    // The filtering would need to be done on the backend or we need subject names
+    return exams;
   });
 
   filteredHistory = computed(() => {
     const subjectId = this.selectedSubjectId();
     const history = this.allExamHistory();
     if (!subjectId) return history;
-    return history.filter(exam => exam.subjectId === subjectId);
+    // Note: We can't filter by subjectId since the API doesn't return it
+    // The filtering would need to be done on the backend or we need subject names
+    return history;
   });
 
   constructor(
