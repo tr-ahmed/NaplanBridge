@@ -77,12 +77,21 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
     this.http.get<any[]>(`${environment.apiBaseUrl}/Admin/users-with-roles`)
       .subscribe({
         next: (data) => {
-          this.users = data || [];
+          console.log('📦 Raw users data from API:', data);
+
+          // Ensure each user has isActive property (default to true if not present)
+          this.users = (data || []).map(user => ({
+            ...user,
+            isActive: user.isActive !== undefined ? user.isActive : true
+          }));
+
+          console.log('✅ Processed users with isActive:', this.users);
           this.admin.totalUsers = this.users.length;
           this.loading = false;
           this.currentPage.set(1);
         },
         error: (err) => {
+          console.error('❌ Error fetching users:', err);
           this.errorMessage = 'Failed to load users. Please try again later.';
           this.loading = false;
         }
@@ -227,11 +236,60 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * View user details
+   * View user details - Load complete data from API
    */
   viewUserDetails(user: any) {
-    this.selectedUserDetails = user;
-    this.isUserDetailsModalOpen = true;
+    console.log('🔍 Opening user details for:', user.userName);
+
+    // Show loading state
+    this.loading = true;
+
+    // Fetch complete user details from API
+    this.http.get(`${environment.apiBaseUrl}/User/${user.id}`)
+      .subscribe({
+        next: (fullUserData: any) => {
+          console.log('✅ Fetched complete user data:', fullUserData);
+
+          // API may return array or single object
+          const userData = Array.isArray(fullUserData) ? fullUserData[0] : fullUserData;
+
+          // Combine data from list and API
+          this.selectedUserDetails = {
+            ...user,
+            ...userData,
+            // Ensure all fields are populated
+            age: userData.age || user.age || null,
+            phoneNumber: userData.phoneNumber || user.phoneNumber || '',
+            salary: userData.salary || user.salary || null,
+            iban: userData.iban || user.iban || '',
+            lastLoginDate: userData.lastLoginDate || user.lastLoginDate || null,
+            emailConfirmed: userData.emailConfirmed ?? user.emailConfirmed ?? false,
+            createdAt: userData.createdAt || user.createdAt || null,
+            isActive: userData.isActive ?? user.isActive ?? true
+          };
+
+          console.log('📝 Final selectedUserDetails:', this.selectedUserDetails);
+          this.isUserDetailsModalOpen = true;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('❌ Error fetching user details:', err);
+          // Fallback: use data from list (may be incomplete)
+          this.selectedUserDetails = user;
+          this.isUserDetailsModalOpen = true;
+          this.loading = false;
+
+          Swal.fire({
+            icon: 'warning',
+            title: 'Incomplete Data',
+            text: 'Could not load all user details. Some fields may be empty.',
+            timer: 3000,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false
+          });
+        }
+      });
   }
 
   closeUserDetailsModal() {
@@ -612,13 +670,16 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
+        this.loading = true;
         this.http.put(`${environment.apiBaseUrl}/Admin/activate-user/${user.id}`, null)
           .subscribe({
             next: (response: any) => {
               user.isActive = true;
+              this.loading = false;
               Swal.fire('Success!', response.message || 'User has been activated successfully', 'success');
             },
             error: (error) => {
+              this.loading = false;
               const errorMsg = error.error?.message || 'Failed to activate user. Please try again.';
               Swal.fire('Error!', errorMsg, 'error');
             }
@@ -653,13 +714,16 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
+        this.loading = true;
         this.http.put(`${environment.apiBaseUrl}/Admin/deactivate-user/${user.id}`, null)
           .subscribe({
             next: (response: any) => {
               user.isActive = false;
+              this.loading = false;
               Swal.fire('Success!', response.message || 'User has been deactivated successfully', 'success');
             },
             error: (error) => {
+              this.loading = false;
               const errorMsg = error.error?.message || 'Failed to deactivate user. Please try again.';
               Swal.fire('Error!', errorMsg, 'error');
             }
