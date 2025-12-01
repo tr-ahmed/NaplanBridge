@@ -1,7 +1,7 @@
 # Backend Report: Missing `isActive` in `/api/Admin/users-with-roles`
 
 ## Issue
-The endpoint `GET /api/Admin/users-with-roles` does not return the `isActive` property for users, which is required for the frontend to display and manage user status (Active/Inactive).
+The endpoint `GET /api/Admin/users-with-roles` does not return the `isActive` and `lastLoginDate` properties for users, which are required for the frontend to display and manage user status (Active/Inactive) and show when users last logged in.
 
 ## Current Situation
 
@@ -200,7 +200,7 @@ bool isActive = !user.LockoutEnabled ||
 
 ## Alternative: Add Custom Property to User Entity
 
-If you want explicit `IsActive` tracking:
+If you want explicit `IsActive` and `LastLoginDate` tracking:
 
 **File:** `Entities/User.cs`
 
@@ -210,7 +210,7 @@ public class User : IdentityUser<int>
     // ... existing properties
     
     public bool IsActive { get; set; } = true;  // ✅ Add this
-    public DateTime? LastLoginDate { get; set; }  // ✅ Add this if not exists
+    public DateTime? LastLoginDate { get; set; }  // ✅ Add this
     
     // ... rest of properties
 }
@@ -218,8 +218,33 @@ public class User : IdentityUser<int>
 
 Then create a migration:
 ```bash
-dotnet ef migrations add AddIsActiveToUser
+dotnet ef migrations add AddIsActiveAndLastLoginToUser
 dotnet ef database update
+```
+
+**Important:** You also need to update the login logic to track `LastLoginDate`:
+
+**File:** `Controllers/AuthController.cs` (or wherever login is handled)
+
+```csharp
+[HttpPost("login")]
+public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+{
+    var user = await _userManager.FindByNameAsync(loginDto.UserName);
+    
+    if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
+    {
+        return Unauthorized(new { message = "Invalid credentials" });
+    }
+    
+    // ✅ Update last login date
+    user.LastLoginDate = DateTime.UtcNow;
+    await _userManager.UpdateAsync(user);
+    
+    // ... rest of login logic (generate token, etc.)
+    
+    return Ok(new { token, user });
+}
 ```
 
 ## Testing
@@ -237,12 +262,37 @@ After implementing the changes:
    - ✅ `phoneNumber` (string)
    - ✅ `age` (number)
    - ✅ `createdAt` (datetime)
-   - ✅ `lastLoginDate` (datetime)
+   - ✅ `lastLoginDate` (datetime) ⚠️ **Will be null until user logs in after update**
 
 3. **Test toggle functionality:**
    - Activate user: `PUT /api/Admin/activate-user/{userId}`
    - Deactivate user: `PUT /api/Admin/deactivate-user/{userId}`
    - Verify `isActive` changes in the list
+
+4. **Test last login tracking:**
+   - Login as a user: `POST /api/Auth/login`
+   - Check user details: `GET /api/User/{userId}`
+   - Verify `lastLoginDate` is updated with current timestamp
+   - Refresh admin users page and check that "Last Login" shows the correct date instead of "Never"
+
+## Why "Last Login" Shows "Never" for All Users
+
+The issue occurs because:
+
+1. **Database doesn't have the column:**
+   - The `User` table in the database doesn't have a `LastLoginDate` column
+   - Even if you query the API, it can't return data that doesn't exist
+
+2. **No tracking mechanism:**
+   - The login endpoint doesn't update this field (because it doesn't exist yet)
+   - There's no code that records when users successfully authenticate
+
+3. **Fix requires database changes:**
+   - You MUST add the column to the database via migration
+   - You MUST update the login logic to track this timestamp
+   - Only AFTER these changes will you see actual login dates instead of "Never"
+
+**Note:** After adding `LastLoginDate` column, existing users will show "Never" until they login for the first time after the update.
 
 ## Related Endpoints
 
@@ -274,9 +324,24 @@ this.users = (data || []).map(user => ({
 
 ## Summary
 
-- ❌ **Problem:** `/api/Admin/users-with-roles` missing `isActive` and other properties
-- ✅ **Solution:** Update endpoint to include all required user properties
+- ❌ **Problem 1:** `/api/Admin/users-with-roles` missing `isActive` property
+- ❌ **Problem 2:** `/api/Admin/users-with-roles` and `/api/User/{id}` missing `lastLoginDate` property
+- ❌ **Problem 3:** `lastLoginDate` is not being tracked when users login
+- ✅ **Solution:** Update endpoints to include all required user properties + track login dates
 - ✅ **Frontend:** Temporary fallback added (assumes `isActive: true` if missing)
-- 🔧 **Backend:** Needs to be updated to return complete user data
+- 🔧 **Backend:** Needs multiple updates:
+  1. Add `IsActive` and `LastLoginDate` properties to User entity
+  2. Create database migration
+  3. Update login logic to track `LastLoginDate`
+  4. Update `AdminController.cs` to return these properties
+  5. Update `UserController.cs` to return these properties
 
-**Action Required:** Backend developer must update `AdminController.cs` to include `isActive` and other missing properties in the response.
+**Action Required:** Backend developer must:
+1. ✅ Add `IsActive` and `LastLoginDate` properties to User entity
+2. ✅ Run migration to update database
+3. ✅ Update login endpoint to track last login
+4. ✅ Update both endpoints to return complete user data
+
+**Current Frontend Status:**
+- All users show **"Never"** for Last Login because the backend doesn't track or return this data
+- All users show **Active** status because the frontend defaults to `true` when `isActive` is missing

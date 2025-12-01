@@ -220,6 +220,11 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
 
   hierarchyExpandedState: 'expanded' | 'collapsed' | 'default' = 'default';
 
+  // Hierarchy expansion tracking
+  expandedSubjects = new Set<number>();
+  expandedTerms = new Set<number>();
+  expandedWeeks = new Set<number>();
+
   // Expose Math for template use
   Math = Math;
 
@@ -695,29 +700,19 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   // ============================================
 
   /**
-   * Open form to add a new entity (teachers can create subjects, terms, weeks, and lessons)
+   * Open form to add a new entity (teachers can create all content types for authorized subjects)
    */
   openAdd(type: EntityType): void {
-    if (type !== 'lesson' && type !== 'term' && type !== 'week' && type !== 'subject') {
+    // Teachers can now create all content types (year, category, subjectName, subject, term, week, lesson)
+    // as long as they have create permission for at least one subject
+    const hasCreatePermission = this.authorizedSubjects.some(s => s.canCreate);
+    if (!hasCreatePermission) {
       Swal.fire({
         icon: 'warning',
         title: 'Permission Denied',
-        text: 'Teachers can only create subjects, terms, weeks, and lessons for subjects they have permissions for. Other content types are managed by administrators.',
+        text: 'You do not have permission to create content. Please contact an administrator.',
       });
       return;
-    }
-
-    // For subjects, check if teacher has at least one subject with create permission
-    if (type === 'subject') {
-      const hasCreatePermission = this.authorizedSubjects.some(s => s.canCreate);
-      if (!hasCreatePermission) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Permission Denied',
-          text: 'You do not have permission to create subjects. Please contact an administrator.',
-        });
-        return;
-      }
     }
 
     this.formMode = 'add';
@@ -732,37 +727,17 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
 
   /**
    * Open form to edit an entity
-   * Teachers can edit subjects, terms, weeks, and lessons they have permission for
+   * Teachers can edit all content types for authorized subjects
    */
   openEdit(type: EntityType, entity: any): void {
-    if (type !== 'lesson' && type !== 'term' && type !== 'week' && type !== 'subject') {
+    // Check if teacher has edit permission
+    // For all entity types, verify the teacher has permission for related subjects
+    const hasEditPermission = this.authorizedSubjects.some(s => s.canEdit);
+    if (!hasEditPermission) {
       Swal.fire({
         icon: 'warning',
         title: 'Permission Denied',
-        text: 'Teachers can only edit subjects, terms, weeks, and lessons for subjects they have permissions for. Other content types are managed by administrators.',
-      });
-      return;
-    }
-
-    // Check if teacher has permission to edit this entity's subject
-    let subjectId: number | null = null;
-    if (type === 'subject' && entity.id) {
-      subjectId = entity.id;
-    } else if (type === 'lesson' && entity.subjectId) {
-      subjectId = entity.subjectId;
-    } else if (type === 'term' && entity.subjectId) {
-      subjectId = entity.subjectId;
-    } else if (type === 'week' && entity.termId) {
-      // For weeks, we need to find the term first, then get its subjectId
-      const term = this.terms.find(t => t.id === entity.termId);
-      subjectId = term?.subjectId || null;
-    }
-
-    if (subjectId && !this.canEditForSubject(subjectId)) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Permission Denied',
-        text: `You do not have permission to edit ${type}s for this subject.`,
+        text: 'You do not have permission to edit content. Please contact an administrator.',
       });
       return;
     }
@@ -793,33 +768,7 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
    * All teacher changes go to pending approval status
    */
   async saveEntity(): Promise<void> {
-    if (this.entityType !== 'lesson' && this.entityType !== 'term' && this.entityType !== 'week') {
-      Swal.fire({
-        icon: 'error',
-        title: 'Invalid Operation',
-        text: 'Teachers can only save terms, weeks, and lessons.',
-      });
-      return;
-    }
-
-    // Check permissions based on entity type
-    let subjectId: number | null = null;
-    if (this.entityType === 'lesson' || this.entityType === 'term') {
-      subjectId = this.form.subjectId;
-    } else if (this.entityType === 'week' && this.form.termId) {
-      const term = this.terms.find(t => t.id === this.form.termId);
-      subjectId = term?.subjectId || null;
-    }
-
-    if (subjectId && !this.canCreateForSubject(subjectId)) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Permission Denied',
-        text: `You do not have permission to create ${this.entityType}s for this subject.`,
-      });
-      return;
-    }
-
+    // Teachers can now save all entity types for authorized subjects
     try {
       Swal.fire({
         title: 'Saving...',
@@ -857,39 +806,16 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   }
 
   /**
-   * Delete an entity (subjects, terms, weeks, and lessons for teachers)
+   * Delete an entity (all content types for authorized subjects)
    */
   async deleteItem(type: EntityType, id: Id): Promise<void> {
-    if (type !== 'lesson' && type !== 'term' && type !== 'week' && type !== 'subject') {
+    // Check if teacher has delete permission
+    const hasDeletePermission = this.authorizedSubjects.some(s => s.canDelete);
+    if (!hasDeletePermission) {
       Swal.fire({
         icon: 'warning',
         title: 'Permission Denied',
-        text: 'Teachers can only delete subjects, terms, weeks, and lessons for subjects they have permissions for.',
-      });
-      return;
-    }
-
-    // Check permissions based on entity type
-    let subjectId: number | null = null;
-    if (type === 'subject') {
-      subjectId = id;
-    } else if (type === 'lesson') {
-      const lesson = this.lessons.find(l => l.id === id);
-      subjectId = lesson?.subjectId || null;
-    } else if (type === 'term') {
-      const term = this.terms.find(t => t.id === id);
-      subjectId = term?.subjectId || null;
-    } else if (type === 'week') {
-      const week = this.weeks.find(w => w.id === id);
-      const term = week ? this.terms.find(t => t.id === week.termId) : null;
-      subjectId = term?.subjectId || null;
-    }
-
-    if (subjectId && !this.canDeleteForSubject(subjectId)) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Permission Denied',
-        text: `You do not have permission to delete ${type}s for this subject.`,
+        text: 'You do not have permission to delete content. Please contact an administrator.',
       });
       return;
     }
@@ -928,8 +854,20 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   // ============================================
 
   private async createEntity(type: EntityType, data: any): Promise<void> {
-    // Teacher can create subjects, terms, weeks, and lessons
-    if (type === 'subject') {
+    // Teacher can create all content types
+    if (type === 'year') {
+      await this.contentService.addYear({ yearNumber: data.yearNumber }).toPromise();
+    } else if (type === 'category') {
+      await this.contentService.addCategory({
+        name: data.name,
+        description: data.description
+      }).toPromise();
+    } else if (type === 'subjectName') {
+      await this.contentService.addSubjectName({
+        name: data.name,
+        categoryId: data.categoryId
+      }).toPromise();
+    } else if (type === 'subject') {
       await this.contentService.addSubject(
         data.yearId,
         data.subjectNameId,
@@ -958,8 +896,20 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   }
 
   private async updateEntity(type: EntityType, id: Id, data: any): Promise<void> {
-    // Teacher can update subjects, terms, weeks, and lessons
-    if (type === 'subject') {
+    // Teacher can update all content types
+    if (type === 'year') {
+      await this.contentService.updateYear(id, { yearNumber: data.yearNumber }).toPromise();
+    } else if (type === 'category') {
+      await this.contentService.updateCategory(id, {
+        name: data.name,
+        description: data.description
+      }).toPromise();
+    } else if (type === 'subjectName') {
+      await this.contentService.updateSubjectName(id, {
+        name: data.name,
+        categoryId: data.categoryId
+      }).toPromise();
+    } else if (type === 'subject') {
       await this.contentService.updateSubject(
         id as number,
         data.originalPrice,
@@ -986,8 +936,14 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   }
 
   private async deleteEntity(type: EntityType, id: Id): Promise<void> {
-    // Teacher can delete subjects, terms, weeks, and lessons
-    if (type === 'subject') {
+    // Teacher can delete all content types
+    if (type === 'year') {
+      await this.contentService.deleteYear(id).toPromise();
+    } else if (type === 'category') {
+      await this.contentService.deleteCategory(id).toPromise();
+    } else if (type === 'subjectName') {
+      await this.contentService.deleteSubjectName(id).toPromise();
+    } else if (type === 'subject') {
       await this.contentService.deleteSubject(id).toPromise();
     } else if (type === 'term') {
       await this.contentService.deleteTerm(id).toPromise();
@@ -1078,12 +1034,61 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
 
   expandAll(): void {
     this.hierarchyExpandedState = 'expanded';
-    this.refreshAll();
+    // Add all subjects, terms, and weeks to expanded sets
+    this.filteredSubjects.forEach(s => {
+      if (s.id) this.expandedSubjects.add(s.id);
+    });
+    this.filteredTerms.forEach(t => {
+      if (t.id) this.expandedTerms.add(t.id);
+    });
+    this.filteredWeeks.forEach(w => {
+      if (w.id) this.expandedWeeks.add(w.id);
+    });
+    // Reset state after a brief delay to allow ngOnChanges to process
+    setTimeout(() => {
+      this.hierarchyExpandedState = 'default';
+    }, 100);
   }
 
   collapseAll(): void {
     this.hierarchyExpandedState = 'collapsed';
-    this.refreshAll();
+    // Clear all expanded sets
+    this.expandedSubjects.clear();
+    this.expandedTerms.clear();
+    this.expandedWeeks.clear();
+    // Reset state after a brief delay to allow ngOnChanges to process
+    setTimeout(() => {
+      this.hierarchyExpandedState = 'default';
+    }, 100);
+  }
+
+  /**
+   * Handle expand/collapse state changes from hierarchy nodes
+   */
+  onExpandStateChange(event: { type: 'subject' | 'term' | 'week'; id: number; expanded: boolean }): void {
+    switch (event.type) {
+      case 'subject':
+        if (event.expanded) {
+          this.expandedSubjects.add(event.id);
+        } else {
+          this.expandedSubjects.delete(event.id);
+        }
+        break;
+      case 'term':
+        if (event.expanded) {
+          this.expandedTerms.add(event.id);
+        } else {
+          this.expandedTerms.delete(event.id);
+        }
+        break;
+      case 'week':
+        if (event.expanded) {
+          this.expandedWeeks.add(event.id);
+        } else {
+          this.expandedWeeks.delete(event.id);
+        }
+        break;
+    }
   }
 
   // ============================================
@@ -1092,6 +1097,20 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
 
   private getEmptyForm(type: EntityType): any {
     switch (type) {
+      case 'year':
+        return {
+          yearNumber: 1,
+        };
+      case 'category':
+        return {
+          name: '',
+          description: '',
+        };
+      case 'subjectName':
+        return {
+          name: '',
+          categoryId: null,
+        };
       case 'subject':
         return {
           yearId: null,

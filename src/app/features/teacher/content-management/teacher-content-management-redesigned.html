@@ -6,26 +6,86 @@
     <div class="flex items-center justify-between mb-8">
       <div>
         <h1 class="text-3xl font-bold text-gray-900">Teacher Content Management</h1>
-        <p class="text-gray-600 mt-1">Create and manage your educational content</p>
+        <p class="text-gray-600 mt-1">Create and manage your educational content with full control</p>
         <p class="text-sm text-orange-600 mt-1">
           <i class="fas fa-info-circle mr-1"></i>
           All changes require admin approval before publication
         </p>
       </div>
-      <div class="flex items-center gap-3 flex-wrap">
-        <!-- Add Subject Button - Only if teacher has create permission -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Add Year Button -->
+        <button
+          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
+          type="button"
+          (click)="openAdd('year')"
+          class="px-3 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 font-medium flex items-center gap-2 shadow-md text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Year</span>
+        </button>
+
+        <!-- Add Category Button -->
+        <button
+          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
+          type="button"
+          (click)="openAdd('category')"
+          class="px-3 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-700 hover:to-teal-700 font-medium flex items-center gap-2 shadow-md text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Category</span>
+        </button>
+
+        <!-- Add Subject Name Button -->
+        <button
+          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
+          type="button"
+          (click)="openAdd('subjectName')"
+          class="px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 font-medium flex items-center gap-2 shadow-md text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Subject Name</span>
+        </button>
+
+        <!-- Add Subject Button -->
         <button
           *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
           type="button"
           (click)="openAdd('subject')"
-          class="px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 font-medium flex items-center gap-2 shadow-md">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="px-3 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 font-medium flex items-center gap-2 shadow-md text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
-          <span>Create Subject</span>
+          <span>Subject</span>
         </button>
 
-        <!-- Add Lesson Button (Primary Action) - Only if teacher has create permission -->
+        <!-- Add Term Button -->
+        <button
+          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
+          type="button"
+          (click)="openAdd('term')"
+          class="px-3 py-2 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-lg hover:from-sky-700 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Term</span>
+        </button>
+
+        <!-- Add Week Button -->
+        <button
+          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
+          type="button"
+          (click)="openAdd('week')"
+          class="px-3 py-2 bg-gradient-to-r from-teal-600 to-green-600 text-white rounded-lg hover:from-teal-700 hover:to-green-700 font-medium flex items-center gap-2 shadow-md text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Week</span>
+        </button>
+
+        <!-- Add Lesson Button (Primary Action) -->
         <button
           *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
           type="button"
@@ -238,10 +298,10 @@
           <i class="fas fa-info-circle text-blue-600 text-xl"></i>
         </div>
         <div class="ml-3 flex-1">
-          <h3 class="text-sm font-medium text-blue-900">Teacher Permissions</h3>
+          <h3 class="text-sm font-medium text-blue-900">Teacher Full Control</h3>
           <div class="mt-2 text-sm text-blue-700">
-            <p>You can create and edit subjects, terms, weeks, and lessons for subjects you have been granted permission for.</p>
-            <p class="mt-1">All your changes require admin approval before they become visible to students.</p>
+            <p>✅ You have <strong>full control</strong> to create, edit, and delete all content types (Years, Categories, Subject Names, Subjects, Terms, Weeks, and Lessons) for subjects you have been granted permission for.</p>
+            <p class="mt-1">⚠️ All your changes require admin approval before they become visible to students.</p>
           </div>
         </div>
       </div>
@@ -331,7 +391,7 @@
               <div class="flex justify-between items-center mb-6">
                 <h4 class="text-xl font-bold text-gray-900">
                   <i class="fas fa-sitemap mr-2"></i>
-                  Content Hierarchy (Read-Only View)
+                  Content Hierarchy (Full Control)
                 </h4>
                 <div class="flex gap-2">
                   <button
@@ -360,56 +420,108 @@
                     [weeks]="filteredWeeks"
                     [lessons]="filteredLessons"
                     [expandState]="hierarchyExpandedState"
+                    [expandedSubjects]="expandedSubjects"
+                    [expandedTerms]="expandedTerms"
+                    [expandedWeeks]="expandedWeeks"
                     (add)="openAdd($event.type)"
                     (edit)="openEdit($event.type, $event.entity)"
                     (delete)="confirmDelete($event.type, $event.entity)"
-                    (preview)="openLessonPreview($event)">
+                    (preview)="openLessonPreview($event)"
+                    (expandStateChange)="onExpandStateChange($event)">
                 </app-hierarchy-node>
               </div>
             </div>
           }
 
-          <!-- Years Tab (Read-Only) -->
+          <!-- Years Tab (Full Control) -->
           @if (activeTab === 'years') {
-            <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p class="text-sm text-yellow-800">
-                <i class="fas fa-lock mr-2"></i>
-                Read-Only View - Only administrators can manage years
+            <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p class="text-sm text-green-800">
+                <i class="fas fa-edit mr-2"></i>
+                You have full control to create, edit, and delete years for authorized subjects
               </p>
             </div>
+
+            <!-- Add Year Button -->
+            <div class="mb-4 flex justify-end">
+              <button
+                *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
+                type="button"
+                (click)="openAdd('year')"
+                class="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 font-medium flex items-center gap-2 shadow-md">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span>Add Year</span>
+              </button>
+            </div>
+
             <app-years-table
               [years]="pagedYears"
               [totalPages]="yearTotalPages"
               [currentPage]="yearPage"
               [totalItems]="filteredYears.length"
-              (pageChange)="goYearPage($event)">
+              (pageChange)="goYearPage($event)"
+              (edit)="openEdit('year', $event)"
+              (delete)="confirmDelete('year', $event)">
             </app-years-table>
           }
 
-          <!-- Categories Tab (Read-Only) -->
+          <!-- Categories Tab (Full Control) -->
           @if (activeTab === 'categories') {
-            <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p class="text-sm text-yellow-800">
-                <i class="fas fa-lock mr-2"></i>
-                Read-Only View - Only administrators can manage categories
+            <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p class="text-sm text-green-800">
+                <i class="fas fa-edit mr-2"></i>
+                You have full control to create, edit, and delete categories for authorized subjects
               </p>
             </div>
+
+            <!-- Add Category Button -->
+            <div class="mb-4 flex justify-end">
+              <button
+                *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
+                type="button"
+                (click)="openAdd('category')"
+                class="px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-700 hover:to-teal-700 font-medium flex items-center gap-2 shadow-md">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span>Add Category</span>
+              </button>
+            </div>
+
             <app-categories-table
               [categories]="pagedCategories"
               [totalPages]="categoryTotalPages"
               [currentPage]="categoryPage"
               [totalItems]="filteredCategories.length"
-              (pageChange)="goCategoryPage($event)">
+              (pageChange)="goCategoryPage($event)"
+              (edit)="openEdit('category', $event)"
+              (delete)="confirmDelete('category', $event)">
             </app-categories-table>
           }
 
-          <!-- Subject Names Tab (Read-Only) -->
+          <!-- Subject Names Tab (Full Control) -->
           @if (activeTab === 'subjectNames') {
-            <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p class="text-sm text-yellow-800">
-                <i class="fas fa-lock mr-2"></i>
-                Read-Only View - Only administrators can manage subject names
+            <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p class="text-sm text-green-800">
+                <i class="fas fa-edit mr-2"></i>
+                You have full control to create, edit, and delete subject names for authorized subjects
               </p>
+            </div>
+
+            <!-- Add Subject Name Button -->
+            <div class="mb-4 flex justify-end">
+              <button
+                *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
+                type="button"
+                (click)="openAdd('subjectName')"
+                class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 font-medium flex items-center gap-2 shadow-md">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span>Add Subject Name</span>
+              </button>
             </div>
             <div class="subject-names-table">
               <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -419,6 +531,7 @@
                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                       <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white divide-y divide-gray-200">
@@ -435,10 +548,26 @@
                             {{ getCategoryName(sn.categoryId) }}
                           </span>
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            type="button"
+                            (click)="openEdit('subjectName', sn)"
+                            class="text-blue-600 hover:text-blue-900 mr-3"
+                            title="Edit">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button
+                            type="button"
+                            (click)="confirmDelete('subjectName', sn)"
+                            class="text-red-600 hover:text-red-900"
+                            title="Delete">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
                       </tr>
                     } @empty {
                       <tr>
-                        <td colspan="3" class="px-6 py-12 text-center">
+                        <td colspan="4" class="px-6 py-12 text-center">
                           <div class="flex flex-col items-center justify-center">
                             <i class="fas fa-tag text-gray-300 text-5xl mb-4"></i>
                             <p class="text-gray-500 text-lg font-medium">No subject names found</p>
@@ -452,14 +581,29 @@
             </div>
           }
 
-          <!-- Subjects Tab (Read-Only) -->
+          <!-- Subjects Tab (Full Control) -->
           @if (activeTab === 'subjects') {
-            <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p class="text-sm text-yellow-800">
-                <i class="fas fa-lock mr-2"></i>
-                Read-Only View - Only administrators can manage subjects
+            <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p class="text-sm text-green-800">
+                <i class="fas fa-edit mr-2"></i>
+                You have full control to create, edit, and delete subjects you have permission for
               </p>
             </div>
+
+            <!-- Add Subject Button -->
+            <div class="mb-4 flex justify-end">
+              <button
+                *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
+                type="button"
+                (click)="openAdd('subject')"
+                class="px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 font-medium flex items-center gap-2 shadow-md">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span>Add Subject</span>
+              </button>
+            </div>
+
             <app-subjects-table
               [subjects]="pagedSubjects"
               [years]="years"
@@ -467,7 +611,9 @@
               [totalPages]="subjectTotalPages"
               [currentPage]="subjectPage"
               [totalItems]="filteredSubjects.length"
-              (pageChange)="goSubjectPage($event)">
+              (pageChange)="goSubjectPage($event)"
+              (edit)="openEdit('subject', $event)"
+              (delete)="confirmDelete('subject', $event)">
             </app-subjects-table>
           }
 
