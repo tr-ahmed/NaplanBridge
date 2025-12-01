@@ -1,16 +1,16 @@
-<div class="dashboard-container min-h-screen bg-gray-50 py-8">
+<div class="dashboard-container min-h-screen bg-gray-50 py-6">
   <div class="container mx-auto px-4">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">Student Dashboard</h1>
-        <p class="text-gray-600 mt-1">Welcome back! Here's your learning overview</p>
+        <h1 class="text-2xl font-bold text-gray-900">Student Dashboard</h1>
+        <p class="text-gray-600 text-sm mt-1">Welcome back! Here's your learning overview</p>
       </div>
       <button
         (click)="refresh()"
         [disabled]="loading()"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2">
-        <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2 text-sm">
+        <svg class="w-4 h-4" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
         </svg>
         <span>Refresh</span>
@@ -30,99 +30,107 @@
     <!-- Main Content -->
     @if (!loading()) {
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <!-- Lessons Completed -->
-        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
               </svg>
             </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-2xl font-bold text-gray-900">{{ stats().totalLessonsCompleted }}</p>
+              <p class="text-xs text-gray-600 truncate">Lessons</p>
+            </div>
           </div>
-          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().totalLessonsCompleted }}</p>
-          <p class="text-sm text-gray-600">Lessons Completed</p>
         </div>
 
         <!-- Exams Taken -->
-        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
             </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-2xl font-bold text-gray-900">{{ stats().totalExamsTaken }}</p>
+              <p class="text-xs text-gray-600 truncate">Exams</p>
+            </div>
           </div>
-          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().totalExamsTaken }}</p>
-          <p class="text-sm text-gray-600">Exams Taken</p>
         </div>
 
         <!-- Average Score -->
-        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
               </svg>
             </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-2xl font-bold text-gray-900">{{ stats().averageScore }}%</p>
+              <p class="text-xs text-gray-600 truncate">Avg Score</p>
+            </div>
           </div>
-          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().averageScore }}%</p>
-          <p class="text-sm text-gray-600">Average Score</p>
         </div>
 
         <!-- Active Subscriptions -->
-        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-2xl font-bold text-gray-900">{{ stats().activeSubscriptions }}</p>
+              <p class="text-xs text-gray-600 truncate">Plans</p>
+            </div>
           </div>
-          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().activeSubscriptions }}</p>
-          <p class="text-sm text-gray-600">Active Subscriptions</p>
         </div>
       </div>
 
       <!-- Quick Actions -->
-      <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg p-8 text-white mb-8">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-bold">Quick Actions</h2>
-          <span class="text-sm bg-white/20 px-3 py-1 rounded-full">{{ stats().activeSubscriptions > 0 ? '✓ Active' : '⚠️ No Plans' }}</span>
+      <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg p-5 text-white mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold">Quick Actions</h2>
+          <span class="text-xs bg-white/20 px-2 py-1 rounded-full">{{ stats().activeSubscriptions > 0 ? '✓ Active' : '⚠️ No Plans' }}</span>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
           <!-- Browse Lessons -->
           <button
             (click)="goToLessons()"
-            class="flex flex-col items-center justify-center px-4 py-4 bg-white rounded-lg transition-all duration-200 transform hover:scale-105 border border-gray-200 group">
-            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">📚</span>
-            <span class="text-xs font-semibold text-center whitespace-normal text-gray-900">Browse Lessons</span>
-            <span class="text-xs text-gray-600 mt-1">{{ stats().totalLessonsCompleted }} completed</span>
+            class="flex flex-col items-center justify-center px-3 py-3 bg-white rounded-lg transition-all duration-200 transform hover:scale-105 border border-gray-200 group">
+            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">📚</span>
+            <span class="text-xs font-semibold text-center text-gray-900">Browse Lessons</span>
+            <span class="text-xs text-gray-600 mt-1">{{ stats().totalLessonsCompleted }} done</span>
           </button>
 
           <!-- Take Exam -->
           <button
             (click)="goToExams()"
-            class="flex flex-col items-center justify-center px-4 py-4 bg-white rounded-lg transition-all duration-200 transform hover:scale-105 border border-gray-200 group">
-            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">📝</span>
-            <span class="text-xs font-semibold text-center whitespace-normal text-gray-900">Take Exam</span>
+            class="flex flex-col items-center justify-center px-3 py-3 bg-white rounded-lg transition-all duration-200 transform hover:scale-105 border border-gray-200 group">
+            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">📝</span>
+            <span class="text-xs font-semibold text-center text-gray-900">Take Exam</span>
             <span class="text-xs text-gray-600 mt-1">{{ stats().totalExamsTaken }} taken</span>
           </button>
 
           <button
             (click)="goToSubscriptions()"
-            class="flex flex-col items-center justify-center px-4 py-4 bg-white rounded-lg transition-all duration-200 transform hover:scale-105 border border-gray-200 group">
-            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform text-yellow-500">★</span>
-            <span class="text-xs font-semibold text-center whitespace-normal text-gray-900">My Plans</span>
+            class="flex flex-col items-center justify-center px-3 py-3 bg-white rounded-lg transition-all duration-200 transform hover:scale-105 border border-gray-200 group">
+            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform text-yellow-500">★</span>
+            <span class="text-xs font-semibold text-center text-gray-900">My Plans</span>
             <span class="text-xs text-gray-600 mt-1">{{ stats().activeSubscriptions }} active</span>
           </button>
 
           <!-- My Sessions -->
           <a
             routerLink="/sessions/student"
-            class="flex flex-col items-center justify-center px-4 py-4 bg-white rounded-lg transition-all duration-200 transform hover:scale-105 border border-gray-200 group">
-            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">🎓</span>
-            <span class="text-xs font-semibold text-center whitespace-normal text-gray-900">My Sessions</span>
+            class="flex flex-col items-center justify-center px-3 py-3 bg-white rounded-lg transition-all duration-200 transform hover:scale-105 border border-gray-200 group">
+            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">🎓</span>
+            <span class="text-xs font-semibold text-center text-gray-900">My Sessions</span>
             <span class="text-xs text-gray-600 mt-1">View & book</span>
           </a>
         </div>
@@ -130,59 +138,54 @@
 
       <!-- No Active Subscription Warning -->
       @if (!hasActiveSubscription()) {
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8 rounded-lg">
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-lg">
           <div class="flex items-start">
-            <svg class="w-6 h-6 text-yellow-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
             </svg>
-            <div class="ml-4 flex-1">
-              <h3 class="text-lg font-semibold text-yellow-800 mb-2">No Active Subscription</h3>
-              <p class="text-yellow-700 mb-4">You don't have any active subscriptions. Subscribe now to access lessons and exams.</p>
-              <button
-                (click)="goToSubscriptions()"
-                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 font-medium">
-                Browse Subscriptions
-              </button>
+            <div class="ml-3 flex-1">
+              <h3 class="text-base font-semibold text-yellow-800">No Active Subscription</h3>
+              <p class="text-sm text-yellow-700 mt-1">You don't have any active subscriptions. Subscribe now to access lessons and exams.</p>
             </div>
           </div>
         </div>
       }
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Main Content Area -->
-        <div class="lg:col-span-2 space-y-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Left Column -->
+        <div class="space-y-6">
           <!-- Enrolled Subjects with Progress -->
           @if (enrolledSubjects().length > 0) {
-            <div class="bg-white rounded-lg shadow-sm p-6">
-              <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-semibold text-gray-900">My Subjects</h2>
-                <span class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">
+            <div class="bg-white rounded-lg shadow-sm p-5">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-900">My Subjects</h2>
+                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
                   {{ enrolledSubjects().length }} Subject{{ enrolledSubjects().length > 1 ? 's' : '' }}
                 </span>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-3">
                 @for (subject of enrolledSubjects(); track subject.subjectId) {
-                  <div class="border-2 border-gray-200 hover:border-blue-400 rounded-xl p-5 transition-all hover:shadow-lg bg-gradient-to-br from-white to-gray-50">
-                    <div class="flex items-start justify-between mb-4">
+                  <div class="border-2 border-gray-200 hover:border-blue-400 rounded-lg p-4 transition-all hover:shadow-md bg-gradient-to-br from-white to-gray-50">
+                    <div class="flex items-start justify-between mb-3">
                       <div class="flex-1">
-                        <h3 class="font-bold text-gray-900 text-lg mb-1">{{ subject.subjectName }}</h3>
+                        <h3 class="font-bold text-gray-900 text-base mb-1">{{ subject.subjectName }}</h3>
                         @if (subject.isActive) {
-                          <span class="inline-block text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Active</span>
+                          <span class="inline-block text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Active</span>
                         } @else {
-                          <span class="inline-block text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full font-medium">Inactive</span>
+                          <span class="inline-block text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">Inactive</span>
                         }
                       </div>
                       <div class="text-right">
-                        <div class="text-3xl font-bold text-blue-600">{{ subject.progress }}%</div>
+                        <div class="text-2xl font-bold text-blue-600">{{ subject.progress }}%</div>
                       </div>
                     </div>
 
                     <!-- Progress Bar -->
-                    <div class="mb-4">
-                      <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div class="mb-3">
+                      <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
                         <div
-                          class="h-3 rounded-full transition-all duration-500 bg-gradient-to-r"
+                          class="h-2 rounded-full transition-all duration-500 bg-gradient-to-r"
                           [ngClass]="{
                             'from-green-400 to-green-600': subject.progress >= 75,
                             'from-blue-400 to-blue-600': subject.progress >= 50 && subject.progress < 75,
@@ -192,13 +195,13 @@
                           [style.width.%]="subject.progress">
                         </div>
                       </div>
-                      <div class="flex justify-between items-center mt-2">
+                      <div class="flex justify-between items-center mt-1">
                         <span class="text-xs text-gray-600">
-                          {{ subject.completedLessons }}/{{ subject.totalLessons }} lessons completed
+                          {{ subject.completedLessons }}/{{ subject.totalLessons }} lessons
                         </span>
                         @if (subject.expiryDate) {
                           <span class="text-xs text-gray-500">
-                            Expires: {{ formatDate(subject.expiryDate) }}
+                            Exp: {{ formatDate(subject.expiryDate) }}
                           </span>
                         }
                       </div>
@@ -208,16 +211,16 @@
                     <div class="flex gap-2">
                       <button
                         (click)="viewSubjectLessons(subject.subjectId)"
-                        class="flex-1 px-3 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex-1 px-2 py-1.5 bg-blue-500 text-white hover:bg-blue-600 rounded-lg font-medium text-xs transition-colors flex items-center justify-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                         </svg>
                         Lessons
                       </button>
                       <button
                         (click)="viewSubjectExams(subject.subjectId)"
-                        class="flex-1 px-3 py-2 bg-green-500 text-white hover:bg-green-600 rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex-1 px-2 py-1.5 bg-green-500 text-white hover:bg-green-600 rounded-lg font-medium text-xs transition-colors flex items-center justify-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                         Exams
@@ -229,64 +232,10 @@
             </div>
           }
 
-          <!-- Overall Progress -->
-          @if (progress()) {
-            <div class="bg-white rounded-lg shadow-sm p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold text-gray-900">Overall Progress</h2>
-                <span class="text-2xl font-bold text-blue-600">{{ overallProgress() }}%</span>
-              </div>
-
-              <!-- Progress Bar -->
-              <div class="bg-gray-200 rounded-full h-4 mb-6">
-                <div
-                  class="bg-gradient-to-r from-blue-500 to-blue-600 h-4 rounded-full transition-all duration-500"
-                  [style.width.%]="overallProgress()">
-                </div>
-              </div>
-
-              <!-- Subject Progress -->
-              @if (progress()!.subjectProgress && progress()!.subjectProgress.length > 0) {
-                <div class="space-y-4">
-                  <h3 class="text-lg font-semibold text-gray-900 mb-3">Progress by Subject</h3>
-                  @for (subject of progress()!.subjectProgress; track subject.subjectId) {
-                    <div class="border-2 border-gray-200 hover:border-blue-300 rounded-lg p-4 transition-all hover:shadow-md">
-                      <div class="flex items-center justify-between mb-3">
-                        <div class="flex-1">
-                          <h4 class="font-bold text-gray-900 text-base">{{ subject.subjectName }}</h4>
-                          <p class="text-xs text-gray-500 mt-1">{{ subject.completedLessons }}/{{ subject.totalLessons }} lessons • {{ subject.completedExams }}/{{ subject.totalExams }} exams</p>
-                        </div>
-                        <span class="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{{ subject.progress }}%</span>
-                      </div>
-                      <div class="bg-gray-200 rounded-full h-3 mb-4">
-                        <div
-                          class="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all"
-                          [style.width.%]="subject.progress">
-                        </div>
-                      </div>
-                      <div class="flex gap-2">
-                        <button
-                          (click)="viewSubjectLessons(subject.subjectId)"
-                          class="flex-1 px-3 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg font-medium text-sm transition-colors">
-                          📚 View Lessons
-                        </button>
-                        <button
-                          (click)="viewSubjectExams(subject.subjectId)"
-                          class="flex-1 px-3 py-2 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg font-medium text-sm transition-colors">
-                          📝 View Exams
-                        </button>
-                      </div>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          }
-
-          <!-- Recent Exams -->
-          <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-xl font-semibold text-gray-900">Recent Exam Results</h2>
+          <!-- Recent Exam Results -->
+          <div class="bg-white rounded-lg shadow-sm p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold text-gray-900">Recent Exam Results</h2>
               <button
                 (click)="goToExams()"
                 class="text-blue-600 hover:text-blue-700 font-medium text-sm">
@@ -295,41 +244,132 @@
             </div>
 
             @if (examHistory().length === 0) {
-              <div class="text-center py-8 text-gray-500">
-                <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="text-center py-6 text-gray-500">
+                <svg class="w-10 h-10 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <p>No exam results yet</p>
+                <p class="text-sm">No exam results yet</p>
               </div>
             }
 
             @if (examHistory().length > 0) {
-              <div class="space-y-3">
-                @for (exam of examHistory().slice(0, 5); track exam.examId) {
+              <div class="space-y-2">
+                @for (exam of examHistory().slice(0, 3); track exam.examId) {
                   <div
                     (click)="viewExam(exam.examId)"
-                    class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                    class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                     <div class="flex-1">
-                      <p class="font-medium text-gray-900">{{ exam.examTitle }}</p>
-                      <p class="text-sm text-gray-600 mt-1">{{ formatDate(exam.completedDate) }}</p>
+                      <p class="font-medium text-gray-900 text-sm">{{ exam.examTitle }}</p>
+                      <p class="text-xs text-gray-600 mt-1">{{ formatDate(exam.completedDate) }}</p>
                     </div>
                     <div class="text-right">
-                      <p class="text-2xl font-bold" [ngClass]="getGradeClass(exam.score)">
+                      <p class="text-xl font-bold" [ngClass]="getGradeClass(exam.score)">
                         {{ exam.score }}%
                       </p>
-                      <p class="text-sm text-gray-600">{{ exam.correctAnswers }}/{{ exam.totalQuestions }}</p>
+                      <p class="text-xs text-gray-600">{{ exam.correctAnswers }}/{{ exam.totalQuestions }}</p>
                     </div>
                   </div>
                 }
               </div>
             }
           </div>
+
+          <!-- Recent Lessons -->
+          <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <span class="text-2xl">📖</span>
+                  Recently Started Lessons
+                </h2>
+                <p class="text-xs text-gray-500 mt-1">Continue where you left off</p>
+              </div>
+              <button
+                (click)="goToLessons()"
+                class="text-green-600 hover:text-green-700 text-sm font-semibold">
+                View All →
+              </button>
+            </div>
+
+            @if (getRecentLessons().length === 0) {
+              <div class="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <p class="text-sm text-gray-600 font-medium">No lessons started yet</p>
+                <p class="text-xs text-gray-500 mt-1 mb-4">Start learning to track your progress</p>
+                <button
+                  (click)="goToLessons()"
+                  class="px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg font-medium text-sm transition-colors shadow-sm">
+                  Browse Lessons
+                </button>
+              </div>
+            }
+
+            @if (getRecentLessons().length > 0) {
+              <div class="space-y-3">
+                @for (lesson of getRecentLessons(); track lesson.lessonId) {
+                  <div class="p-4 border-l-4 border-green-400 bg-green-50 rounded-lg hover:shadow-md transition-all cursor-pointer group">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-2">
+                          <span class="text-lg">📚</span>
+                          <p class="font-semibold text-gray-900 text-sm line-clamp-1 group-hover:text-green-700 transition-colors">{{ lesson.title }}</p>
+                        </div>
+                        <p class="text-xs text-gray-600 line-clamp-2 mb-2">{{ lesson.description }}</p>
+                        <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
+                          @if (lesson.subjectName) {
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
+                              {{ lesson.subjectName }}
+                            </span>
+                          }
+                          @if (lesson.termNumber && lesson.weekNumber) {
+                            <span>Term {{ lesson.termNumber }} • Week {{ lesson.weekNumber }}</span>
+                          }
+                          <span class="px-2 py-0.5 bg-green-200 text-green-800 rounded-full font-medium">
+                            {{ lesson.progress }}% Complete
+                          </span>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="bg-gray-200 rounded-full h-2 mb-2">
+                          <div
+                            class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all"
+                            [style.width.%]="lesson.progress">
+                          </div>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-gray-500">
+                          <span>{{ lesson.timeSpent }} / {{ lesson.duration }} min</span>
+                          <span class="text-green-600 font-medium">{{ lesson.duration - lesson.timeSpent }} min left</span>
+                        </div>
+                      </div>
+                      <button
+                        (click)="resumeLesson(lesson)"
+                        class="px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg text-xs font-semibold whitespace-nowrap shadow-sm transition-colors flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Resume
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+              @if (getRecentLessons().length > 4) {
+                <button
+                  (click)="goToLessons()"
+                  class="w-full mt-3 py-2 text-green-600 hover:text-green-700 font-semibold text-sm border-2 border-green-200 rounded-lg hover:bg-green-50 transition-colors">
+                  View All {{ getRecentLessons().length }} Lessons in Progress
+                </button>
+              }
+            }
+          </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="lg:col-span-1 space-y-6">
+        <!-- Right Column -->
+        <div class="space-y-6">
           <!-- Upcoming Exams -->
-          <div class="bg-white rounded-lg shadow-sm p-6">
+          <div class="bg-white rounded-lg shadow-sm p-5">
             <h2 class="text-lg font-semibold text-gray-900 mb-4">Upcoming Exams</h2>
 
             @if (upcomingExams().length === 0) {
@@ -337,15 +377,15 @@
             }
 
             @if (upcomingExams().length > 0) {
-              <div class="space-y-3">
-                @for (exam of upcomingExams(); track exam.id) {
+              <div class="space-y-2">
+                @for (exam of upcomingExams().slice(0, 3); track exam.id) {
                   <div
                     (click)="viewExam(exam.id)"
                     class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                     <p class="font-medium text-gray-900 text-sm mb-1">{{ exam.title }}</p>
                     <p class="text-xs text-gray-600">{{ formatDate(exam.startTime) }}</p>
                     <div class="flex items-center gap-2 mt-2">
-                      <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ exam.examType }}</span>
+                      <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">{{ exam.examType }}</span>
                       <span class="text-xs text-gray-500">{{ exam.durationInMinutes }} min</span>
                     </div>
                   </div>
@@ -355,31 +395,26 @@
           </div>
 
           <!-- Active Subscriptions -->
-          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border-l-4 border-purple-500">
-            <div class="flex items-center justify-between mb-5">
+          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-5 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between mb-4">
               <div>
                 <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <span class="text-2xl">💳</span>
+                  <span class="text-xl">💳</span>
                   Active Plans
                 </h2>
                 <p class="text-xs text-gray-500 mt-1">{{ subscriptions().length }} subscription(s)</p>
               </div>
               <button
                 (click)="goToSubscriptions()"
-                class="px-3 py-1 bg-purple-100 text-purple-700 hover:bg-purple-200 text-xs font-semibold rounded-lg transition-colors">
-                Browse More
+                class="px-2 py-1 bg-purple-100 text-purple-700 hover:bg-purple-200 text-xs font-semibold rounded-lg transition-colors">
+                Browse
               </button>
             </div>
 
             @if (subscriptions().length === 0) {
-              <div class="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <p class="text-gray-600 font-medium mb-2">No Active Subscriptions</p>
-                <p class="text-sm text-gray-500 mb-4">Subscribe to access lessons, exams, and exclusive content</p>
-                <button
-                  (click)="goToSubscriptions()"
-                  class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm">
-                  View Plans
-                </button>
+              <div class="text-center py-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <p class="text-gray-600 font-medium text-sm mb-1">No Active Subscriptions</p>
+                <p class="text-xs text-gray-500">Subscribe to access lessons</p>
               </div>
             }
 
@@ -554,97 +589,6 @@
                   </div>
                 }
               </div>
-            }
-          </div>
-
-          <!-- Recent Lessons -->
-          <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-            <div class="flex items-center justify-between mb-5">
-              <div>
-                <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <span class="text-2xl">📖</span>
-                  Recently Started Lessons
-                </h2>
-                <p class="text-xs text-gray-500 mt-1">Continue where you left off</p>
-              </div>
-              <button
-                (click)="goToLessons()"
-                class="text-green-600 hover:text-green-700 text-sm font-semibold">
-                View All →
-              </button>
-            </div>
-
-            @if (getRecentLessons().length === 0) {
-              <div class="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-                <p class="text-sm text-gray-600 font-medium">No lessons started yet</p>
-                <p class="text-xs text-gray-500 mt-1 mb-4">Start learning to track your progress</p>
-                <button
-                  (click)="goToLessons()"
-                  class="px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg font-medium text-sm transition-colors shadow-sm">
-                  Browse Lessons
-                </button>
-              </div>
-            }
-
-            @if (getRecentLessons().length > 0) {
-              <div class="space-y-3">
-                @for (lesson of getRecentLessons(); track lesson.lessonId) {
-                  <div class="p-4 border-l-4 border-green-400 bg-green-50 rounded-lg hover:shadow-md transition-all cursor-pointer group">
-                    <div class="flex items-start justify-between gap-3">
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-2">
-                          <span class="text-lg">📚</span>
-                          <p class="font-semibold text-gray-900 text-sm line-clamp-1 group-hover:text-green-700 transition-colors">{{ lesson.title }}</p>
-                        </div>
-                        <p class="text-xs text-gray-600 line-clamp-2 mb-2">{{ lesson.description }}</p>
-                        <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
-                          @if (lesson.subjectName) {
-                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
-                              {{ lesson.subjectName }}
-                            </span>
-                          }
-                          @if (lesson.termNumber && lesson.weekNumber) {
-                            <span>Term {{ lesson.termNumber }} • Week {{ lesson.weekNumber }}</span>
-                          }
-                          <span class="px-2 py-0.5 bg-green-200 text-green-800 rounded-full font-medium">
-                            {{ lesson.progress }}% Complete
-                          </span>
-                        </div>
-                        <!-- Progress Bar -->
-                        <div class="bg-gray-200 rounded-full h-2 mb-2">
-                          <div
-                            class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all"
-                            [style.width.%]="lesson.progress">
-                          </div>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs text-gray-500">
-                          <span>{{ lesson.timeSpent }} / {{ lesson.duration }} min</span>
-                          <span class="text-green-600 font-medium">{{ lesson.duration - lesson.timeSpent }} min left</span>
-                        </div>
-                      </div>
-                      <button
-                        (click)="resumeLesson(lesson)"
-                        class="px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg text-xs font-semibold whitespace-nowrap shadow-sm transition-colors flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Resume
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-              @if (getRecentLessons().length > 4) {
-                <button
-                  (click)="goToLessons()"
-                  class="w-full mt-3 py-2 text-green-600 hover:text-green-700 font-semibold text-sm border-2 border-green-200 rounded-lg hover:bg-green-50 transition-colors">
-                  View All {{ getRecentLessons().length }} Lessons in Progress
-                </button>
-              }
             }
           </div>
         </div>

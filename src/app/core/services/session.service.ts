@@ -189,6 +189,14 @@ export class SessionService {
     return this.api.post<SessionApiResponse<boolean>>(`Sessions/confirm-payment/${stripeSessionId}`, {});
   }
 
+  /**
+   * Cancel unpaid session booking
+   * POST /api/Sessions/cancel-payment/{stripeSessionId}
+   */
+  cancelPayment(stripeSessionId: string): Observable<SessionApiResponse<boolean>> {
+    return this.api.post<SessionApiResponse<boolean>>(`Sessions/cancel-payment/${stripeSessionId}`, {});
+  }
+
   // ============================================
   // Helper Methods
   // ============================================

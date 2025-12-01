@@ -285,11 +285,23 @@ export class StudentDetailsComponent implements OnInit {
   }
 
   /**
-   * Navigate to subject progress
+   * Navigate to subject progress details
+   * Uses the ParentStudentService to get detailed progress for a specific subject
    */
   viewSubjectProgress(subjectId: number): void {
-    // TODO: Implement subject progress view
-    console.log('View subject progress:', subjectId);
+    const studentId = this.studentId();
+
+    // Navigate to a detailed subject progress page
+    // Option 1: Navigate to lessons page filtered by subject
+    this.router.navigate(['/lessons'], {
+      queryParams: {
+        subjectId: subjectId,
+        studentId: studentId
+      }
+    });
+
+    // Option 2: Could implement a dedicated progress details modal/page
+    // For now, we navigate to lessons where they can see detailed progress
   }
 
   /**

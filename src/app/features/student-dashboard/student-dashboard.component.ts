@@ -32,7 +32,7 @@ interface DashboardStats {
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './student-dashboard.component.html',
   styleUrl: './student-dashboard.component.scss'
 })
@@ -197,26 +197,23 @@ export class StudentDashboardComponent implements OnInit {
     return new Promise((resolve) => {
       this.dashboardService.getStudentSubscriptionsSummary(this.studentId).subscribe({
         next: (response) => {
-          // Handle different response formats:
-          // 1. If response is an object with 'subscriptions' array
-          // 2. If response is directly an array
-          // 3. If response is null/undefined
+          console.log('📦 Raw subscriptions response:', response);
+
           let subsArray: any[] = [];
 
           if (response) {
-            if (Array.isArray(response)) {
-              // Response is directly an array
-              subsArray = response;
-            } else if (response.subscriptions && Array.isArray(response.subscriptions)) {
-              // Response is an object with subscriptions property
+            // Response comes as { subscriptions: [...], totalActiveSubscriptions: X }
+            if (response.subscriptions && Array.isArray(response.subscriptions)) {
               subsArray = response.subscriptions;
-            } else if (typeof response === 'object') {
-              // Response might be a single subscription object
+            } else if (Array.isArray(response)) {
+              subsArray = response;
+            } else if (typeof response === 'object' && !response.subscriptions) {
+              // Single subscription object
               subsArray = [response];
             }
           }
 
-          console.log(`✅ Loaded ${subsArray.length} subscription(s)`);
+          console.log(`✅ Loaded ${subsArray.length} active subscription(s):`, subsArray);
           this.subscriptions.set(subsArray);
           resolve(subsArray);
         },
