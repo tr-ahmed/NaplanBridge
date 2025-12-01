@@ -32,7 +32,7 @@ interface DashboardStats {
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './student-dashboard.component.html',
   styleUrl: './student-dashboard.component.scss'
 })
@@ -676,7 +676,13 @@ export class StudentDashboardComponent implements OnInit {
    * View exams for a specific subject
    */
   viewSubjectExams(subjectId: number): void {
-    this.router.navigate(['/student/exams'], { queryParams: { subjectId: subjectId } });
+    // Navigate with both subjectId and studentId to ensure proper filtering
+    this.router.navigate(['/student/exams'], {
+      queryParams: {
+        subjectId: subjectId,
+        studentId: this.studentId
+      }
+    });
   }
 
   /**

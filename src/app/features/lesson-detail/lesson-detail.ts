@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ContentService } from '../../core/services/content.service';
+import { DiscussionService, CreateDiscussionDto, CreateReplyDto, DiscussionDto } from '../../core/services/discussion.service';
+import { AuthService } from '../../core/services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -14,10 +16,16 @@ import Swal from 'sweetalert2';
 export class LessonDetail implements OnInit {
   lessonId!: number;
   lesson: any = null;
-  
+
+  // User role
+  currentUserRole: string = '';
+  isAdmin: boolean = false;
+  isTeacher: boolean = false;
+  isStudent: boolean = false;
+
   // Tabs
   activeTab: 'overview' | 'questions' | 'discussions' | 'resources' = 'overview';
-  
+
   // Lesson Questions (Quiz)
   lessonQuestions: any[] = [];
   questionForm: any = {
@@ -32,15 +40,17 @@ export class LessonDetail implements OnInit {
     ]
   };
   isAddingQuestion = false;
-  
+
   // Discussions
-  discussions: any[] = [];
+  discussions: DiscussionDto[] = [];
   discussionForm: any = {
     question: '',
-    details: ''
+    videoTimestamp: undefined
   };
   isAddingDiscussion = false;
-  
+  replyTexts: { [discussionId: number]: string } = {}; // Track reply text per discussion
+  currentVideoTime: number = 0; // Track current video time for timestamp
+
   // Resources
   resources: any[] = [];
   resourceForm: any = {
@@ -48,7 +58,7 @@ export class LessonDetail implements OnInit {
     file: null
   };
   isAddingResource = false;
-  
+
   // Loading states
   isLoading = false;
   isLoadingQuestions = false;
@@ -58,10 +68,15 @@ export class LessonDetail implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private contentService: ContentService
+    private contentService: ContentService,
+    private discussionService: DiscussionService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    // Initialize user role
+    this.initializeUserRole();
+
     // Get lesson ID from route
     this.route.params.subscribe(params => {
       this.lessonId = +params['id'];
@@ -72,6 +87,14 @@ export class LessonDetail implements OnInit {
         this.loadResources();
       }
     });
+  }
+
+  private initializeUserRole(): void {
+    const selectedRole = localStorage.getItem('selectedRole');
+    this.currentUserRole = selectedRole || '';
+    this.isAdmin = this.currentUserRole.toLowerCase() === 'admin';
+    this.isTeacher = this.currentUserRole.toLowerCase() === 'teacher';
+    this.isStudent = this.currentUserRole.toLowerCase() === 'student';
   }
 
   async loadLesson(): Promise<void> {
@@ -101,10 +124,14 @@ export class LessonDetail implements OnInit {
   async loadDiscussions(): Promise<void> {
     try {
       this.isLoadingDiscussions = true;
-      const response: any = await this.contentService.getLessonDiscussions(this.lessonId).toPromise();
-      this.discussions = Array.isArray(response) ? response : (response?.items || []);
+      const response = await this.discussionService.getLessonDiscussions(
+        this.lessonId,
+        { page: 1, pageSize: 50, sortBy: 'CreatedAt', sortOrder: 'Desc' }
+      ).toPromise();
+      this.discussions = response?.items || [];
     } catch (error) {
       console.error('Error loading discussions:', error);
+      this.discussions = [];
     } finally {
       this.isLoadingDiscussions = false;
     }
@@ -129,7 +156,7 @@ export class LessonDetail implements OnInit {
   // ============================================
   // Lesson Questions Management
   // ============================================
-  
+
   openAddQuestion(): void {
     this.isAddingQuestion = true;
     this.questionForm = {
@@ -231,12 +258,12 @@ export class LessonDetail implements OnInit {
   // ============================================
   // Discussions Management
   // ============================================
-  
+
   openAddDiscussion(): void {
     this.isAddingDiscussion = true;
     this.discussionForm = {
       question: '',
-      details: ''
+      videoTimestamp: this.currentVideoTime || undefined
     };
   }
 
@@ -258,23 +285,30 @@ export class LessonDetail implements OnInit {
         didOpen: () => Swal.showLoading()
       });
 
-      await this.contentService.addLessonDiscussion(
-        this.lessonId,
-        this.discussionForm.question,
-        this.discussionForm.details
-      ).toPromise();
+      const data: CreateDiscussionDto = {
+        question: this.discussionForm.question.trim(),
+        videoTimestamp: this.discussionForm.videoTimestamp || this.currentVideoTime
+      };
+
+      await this.discussionService.createDiscussion(this.lessonId, data).toPromise();
 
       await this.loadDiscussions();
       this.closeDiscussionForm();
 
-      Swal.fire('Success', 'Discussion added successfully', 'success');
+      Swal.fire('Success', 'Question posted successfully', 'success');
     } catch (error) {
       console.error('Error saving discussion:', error);
-      Swal.fire('Error', 'Failed to save discussion', 'error');
+      Swal.fire('Error', 'Failed to post question', 'error');
     }
   }
 
   async deleteDiscussion(discussionId: number): Promise<void> {
+    // Security check - only Admin can delete
+    if (!this.isAdmin) {
+      Swal.fire('Access Denied', 'Only administrators can delete discussions', 'error');
+      return;
+    }
+
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: 'Do you want to delete this discussion?',
@@ -287,7 +321,7 @@ export class LessonDetail implements OnInit {
 
     if (result.isConfirmed) {
       try {
-        await this.contentService.deleteLessonDiscussion(discussionId).toPromise();
+        await this.discussionService.deleteDiscussion(discussionId).toPromise();
         await this.loadDiscussions();
         Swal.fire('Deleted', 'Discussion deleted successfully', 'success');
       } catch (error) {
@@ -298,9 +332,109 @@ export class LessonDetail implements OnInit {
   }
 
   // ============================================
+  // Discussion Reply & Helpful Methods
+  // ============================================
+
+  async addReply(discussionId: number): Promise<void> {
+    try {
+      const replyText = this.replyTexts[discussionId]?.trim();
+      if (!replyText) {
+        Swal.fire('Error', 'Please enter a reply', 'error');
+        return;
+      }
+
+      const data: CreateReplyDto = { reply: replyText };
+      await this.discussionService.addReply(discussionId, data).toPromise();
+
+      // Clear reply text
+      this.replyTexts[discussionId] = '';
+
+      // Reload discussions to show new reply
+      await this.loadDiscussions();
+
+      Swal.fire('Success', 'Reply posted successfully', 'success');
+    } catch (error) {
+      console.error('Error adding reply:', error);
+      Swal.fire('Error', 'Failed to post reply', 'error');
+    }
+  }
+
+  async markAsHelpful(discussionId: number): Promise<void> {
+    try {
+      await this.discussionService.markAsHelpful(discussionId).toPromise();
+
+      // Update UI optimistically
+      const discussion = this.discussions.find(d => d.id === discussionId);
+      if (discussion) {
+        discussion.helpfulCount++;
+        discussion.isHelpful = true;
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Marked as Helpful',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000
+      });
+    } catch (error) {
+      console.error('Error marking as helpful:', error);
+      Swal.fire('Error', 'Failed to mark as helpful', 'error');
+    }
+  }
+
+  async unmarkAsHelpful(discussionId: number): Promise<void> {
+    try {
+      await this.discussionService.unmarkAsHelpful(discussionId).toPromise();
+
+      // Update UI optimistically
+      const discussion = this.discussions.find(d => d.id === discussionId);
+      if (discussion && discussion.helpfulCount > 0) {
+        discussion.helpfulCount--;
+        discussion.isHelpful = false;
+      }
+
+      Swal.fire({
+        icon: 'info',
+        title: 'Unmarked',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000
+      });
+    } catch (error) {
+      console.error('Error unmarking as helpful:', error);
+      Swal.fire('Error', 'Failed to unmark', 'error');
+    }
+  }
+
+  formatVideoTimestamp(seconds: number | undefined): string {
+    if (!seconds) return '';
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  jumpToTimestamp(timestamp: number | undefined): void {
+    if (!timestamp) return;
+    // TODO: Implement video player seek functionality
+    console.log(`Jumping to ${timestamp} seconds in video`);
+    Swal.fire({
+      icon: 'info',
+      title: 'Video Timestamp',
+      text: `Jump to ${this.formatVideoTimestamp(timestamp)} in the video`,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000
+    });
+  }
+
+  // ============================================
   // Resources Management
   // ============================================
-  
+
   openAddResource(): void {
     this.isAddingResource = true;
     this.resourceForm = {
@@ -384,10 +518,10 @@ export class LessonDetail implements OnInit {
       });
     } catch (error: any) {
       console.error('Error saving resource:', error);
-      
+
       let errorMessage = 'Failed to upload resource. Please try again.';
       let errorTitle = 'Upload Failed';
-      
+
       // Handle different error types
       if (error.status === 500) {
         errorTitle = 'Server Error (500)';
@@ -409,7 +543,7 @@ export class LessonDetail implements OnInit {
         errorTitle = 'Network Error';
         errorMessage = 'Cannot connect to server. Please check your internet connection.';
       }
-      
+
       Swal.fire({
         icon: 'error',
         title: errorTitle,

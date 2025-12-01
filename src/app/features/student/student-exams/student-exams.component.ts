@@ -1,6 +1,6 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { ExamApiService } from '../../../core/services/exam-api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -24,25 +24,61 @@ export class StudentExamsComponent implements OnInit {
   // Data
   upcomingExams = signal<UpcomingExamDto[]>([]);
   examHistory = signal<ExamHistoryDto[]>([]);
+  allUpcomingExams = signal<UpcomingExamDto[]>([]); // Store all exams
+  allExamHistory = signal<ExamHistoryDto[]>([]); // Store all history
 
   // UI State
   loading = signal(false);
   historyLoading = signal(false);
   activeTab = signal<'upcoming' | 'history'>('upcoming');
+  selectedSubjectId = signal<number | null>(null);
+
+  // Computed filtered lists
+  filteredUpcoming = computed(() => {
+    const subjectId = this.selectedSubjectId();
+    const exams = this.allUpcomingExams();
+    if (!subjectId) return exams;
+    return exams.filter(exam => exam.subjectId === subjectId);
+  });
+
+  filteredHistory = computed(() => {
+    const subjectId = this.selectedSubjectId();
+    const history = this.allExamHistory();
+    if (!subjectId) return history;
+    return history.filter(exam => exam.subjectId === subjectId);
+  });
 
   constructor(
     private examApi: ExamApiService,
     private auth: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private toast: ToastService
   ) {}
 
   ngOnInit() {
-    const user = this.auth.currentUser();
-    const userId = user?.userId;
-    if (userId) {
-      this.loadUpcomingExams(userId);
-      this.loadExamHistory(userId);
+    // Get subjectId from query params
+    this.route.queryParams.subscribe(params => {
+      if (params['subjectId']) {
+        this.selectedSubjectId.set(parseInt(params['subjectId'], 10));
+      }
+    });
+
+    // Use correct studentId from AuthService
+    const studentId = this.auth.getStudentId();
+    if (studentId) {
+      this.loadUpcomingExams(studentId);
+      this.loadExamHistory(studentId);
+    } else {
+      // Fallback to userId if studentId not available
+      const userId = this.auth.getUserId();
+      if (userId) {
+        console.warn('⚠️ Using userId instead of studentId');
+        this.loadUpcomingExams(userId);
+        this.loadExamHistory(userId);
+      } else {
+        this.toast.showError('Student ID not found. Please login again.');
+      }
     }
   }
 
@@ -107,8 +143,15 @@ export class StudentExamsComponent implements OnInit {
           };
         });
 
-        this.upcomingExams.set(processedExams || []);
+        this.allUpcomingExams.set(processedExams || []);
+        this.upcomingExams.set(this.filteredUpcoming());
         this.loading.set(false);
+
+        console.log('✅ Loaded upcoming exams:', {
+          total: processedExams?.length || 0,
+          filtered: this.filteredUpcoming().length,
+          subjectFilter: this.selectedSubjectId()
+        });
       },
       error: (error: any) => {
         console.error('Failed to load upcoming exams:', error);
@@ -126,8 +169,17 @@ export class StudentExamsComponent implements OnInit {
 
     this.examApi.getExamHistory(studentId).subscribe({
       next: (response: any) => {
-        this.examHistory.set(response.data);
+        console.log('📊 Exam History Data:', response.data?.examHistory);
+        const history = response.data?.examHistory || response.data || [];
+        this.allExamHistory.set(history);
+        this.examHistory.set(this.filteredHistory());
         this.historyLoading.set(false);
+
+        console.log('✅ Loaded exam history:', {
+          total: history.length,
+          filtered: this.filteredHistory().length,
+          subjectFilter: this.selectedSubjectId()
+        });
       },
       error: (error: any) => {
         console.error('Failed to load exam history:', error);
@@ -201,6 +253,18 @@ export class StudentExamsComponent implements OnInit {
    */
   viewResult(studentExamId: number) {
     this.router.navigate(['/student/exam-result', studentExamId]);
+  }
+
+  /**
+   * Clear subject filter
+   */
+  clearSubjectFilter() {
+    this.selectedSubjectId.set(null);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { subjectId: null },
+      queryParamsHandling: 'merge'
+    });
   }
 
   /**

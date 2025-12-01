@@ -24,6 +24,8 @@ export class MyBookingsComponent implements OnInit {
   bookings = signal<PrivateSessionDto[]>([]);
   loading = signal<boolean>(true);
   filter = signal<'all' | 'upcoming' | 'completed' | 'cancelled'>('all');
+  selectedBooking = signal<PrivateSessionDto | null>(null);
+  showDetailsModal = signal<boolean>(false);
 
   ngOnInit(): void {
     this.loadBookings();
@@ -258,5 +260,21 @@ export class MyBookingsComponent implements OnInit {
     if (hours > 0) return `in ${hours} hour${hours > 1 ? 's' : ''}`;
     if (minutes > 0) return `in ${minutes} min`;
     return 'Now';
+  }
+
+  /**
+   * Show booking details modal
+   */
+  showDetails(booking: PrivateSessionDto): void {
+    this.selectedBooking.set(booking);
+    this.showDetailsModal.set(true);
+  }
+
+  /**
+   * Close details modal
+   */
+  closeDetailsModal(): void {
+    this.showDetailsModal.set(false);
+    this.selectedBooking.set(null);
   }
 }

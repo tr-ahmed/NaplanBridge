@@ -170,10 +170,10 @@ export class FinancialReportsService {
       `${this.apiUrl}/detailed/export`,
       {
         params,
-        responseType: 'blob' as 'json',  // Type assertion to handle Angular type checking
+        responseType: 'blob',
         observe: 'body'
       }
-    ) as Observable<Blob>;
+    );
   }
 
   /**

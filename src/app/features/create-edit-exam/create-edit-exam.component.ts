@@ -841,8 +841,21 @@ export class CreateEditExamComponent implements OnInit {
     console.log('💾 Saving Exam Data:', examData);
 
     if (this.isEditMode() && this.examId) {
-      // ✅ UPDATE exam
-      this.examApi.updateExam(this.examId, examData).subscribe({
+      // ✅ UPDATE exam - use UpdateExamDto structure
+      const updateData: any = {
+        title: examData.title,
+        description: examData.description,
+        durationInMinutes: examData.durationInMinutes,
+        totalMarks: examData.totalMarks,
+        passingMarks: examData.passingMarks,
+        startTime: examData.startTime,
+        endTime: examData.endTime,
+        isPublished: publish  // ✅ Explicitly set publish status
+      };
+
+      console.log('📤 Updating exam with data:', updateData);
+
+      this.examApi.updateExam(this.examId, updateData).subscribe({
         next: (response) => {
           console.log('✅ Exam updated successfully:', response);
 
@@ -987,7 +1000,11 @@ export class CreateEditExamComponent implements OnInit {
         marks: questionValue.marks,
         order: this.originalQuestionsCount + index + 1,
         isMultipleSelect: questionValue.questionType === 'MultipleSelect',
-        options: questionValue.options || []
+        options: (questionValue.options || []).map((opt: any, optIndex: number) => ({
+          optionText: opt.optionText,
+          isCorrect: opt.isCorrect,
+          order: optIndex + 1
+        }))
       };
 
       console.log(`➕ Adding new question ${index + 1}:`, questionData);

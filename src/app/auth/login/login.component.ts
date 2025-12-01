@@ -115,13 +115,25 @@ onLogin(): void {
         this.isLoading.set(false);
         console.error('Login error:', error);
 
-        // ✅ NEW: Check for email verification required
-        if (error.error?.requiresVerification) {
+        // ✅ Check for email verification required (multiple detection methods)
+        const isEmailNotVerified =
+          error.error?.requiresVerification === true ||
+          error.error?.error === 'Email not verified' ||
+          error.error?.message?.toLowerCase().includes('email not verified') ||
+          error.error?.toLowerCase().includes('email not verified');
+
+        if (isEmailNotVerified) {
           this.showResendVerification.set(true);
-          this.unverifiedEmail.set(formValue.identifier);
+
+          // Try to extract email from error response or use identifier if it looks like an email
+          const errorEmail = error.error?.email || error.error?.data?.email;
+          const identifierIsEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValue.identifier);
+
+          this.unverifiedEmail.set(errorEmail || (identifierIsEmail ? formValue.identifier : ''));
+
           this.toastService.showWarning(
-            'Please verify your email address before logging in.',
-            8000
+            'Please verify your email address before logging in. Check your inbox for the verification link.',
+            10000
           );
         } else {
           this.toastService.showError(error.error?.message || 'Login failed. Please try again.');
@@ -200,11 +212,19 @@ onLogin(): void {
    * Resend verification email
    */
   resendVerification(): void {
-    const email = this.unverifiedEmail();
+    let email = this.unverifiedEmail();
 
+    // If email is empty, prompt the user to enter it
     if (!email) {
-      this.toastService.showError('Email address not found');
-      return;
+      const identifierValue = this.loginForm.get('identifier')?.value;
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifierValue);
+
+      if (isEmail) {
+        email = identifierValue;
+      } else {
+        this.toastService.showError('Please enter your email address in the login field to resend verification email');
+        return;
+      }
     }
 
     this.authService.resendVerificationEmail({ email }).subscribe({
@@ -216,7 +236,7 @@ onLogin(): void {
         this.showResendVerification.set(false);
       },
       error: (error) => {
-        this.toastService.showError('Failed to send verification email');
+        this.toastService.showError('Failed to send verification email. Please make sure you entered the correct email address.');
       }
     });
   }

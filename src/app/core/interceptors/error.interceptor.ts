@@ -14,6 +14,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      // Skip error handling for blob responses (file downloads)
+      // These are handled by the component directly
+      if (error.error instanceof Blob) {
+        console.log('⚠️ Blob response detected in error handler, passing through...');
+        return throwError(() => error);
+      }
+
       let errorMessage = 'An unexpected error occurred';
 
       if (error.error instanceof ErrorEvent) {

@@ -202,6 +202,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
           email: teacherEmail,
           totalPermissions: 0,
           subjects: [],
+          subjectIds: new Map<string, number>(), // Map subject name to subject ID
           permissions: []
         });
       }
@@ -210,6 +211,7 @@ export class TeacherPermissionsAdminComponent implements OnInit {
       teacher.totalPermissions++;
       if (!teacher.subjects.includes(subjectName)) {
         teacher.subjects.push(subjectName);
+        teacher.subjectIds.set(subjectName, perm.subjectId); // Store the mapping
       }
       teacher.permissions.push(perm);
     });
@@ -614,14 +616,20 @@ export class TeacherPermissionsAdminComponent implements OnInit {
           permissions = response.items;
         }
 
-        // Find permissions for this subject
+        // Normalize the target subject name for comparison
+        const normalizedTargetName = subjectName.trim().toLowerCase();
+
+        // Find permissions for this subject with improved matching
         const subjectPermissions = permissions.filter((perm: any) => {
           const permSubjectName = this.subjectNamesMap.get(perm.subjectId) ||
                                  perm.subjectName ||
                                  perm.subject_name ||
                                  perm.subject?.name ||
                                  '';
-          return permSubjectName === subjectName;
+          const normalizedPermName = permSubjectName.trim().toLowerCase();
+
+          // Match by normalized name comparison
+          return normalizedPermName === normalizedTargetName;
         });
 
         console.log(`📋 Found ${subjectPermissions.length} permission(s) for subject "${subjectName}":`, subjectPermissions);

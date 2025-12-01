@@ -29,6 +29,8 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
   isAddUserModalOpen = false;
   isEditTeacherModalOpen = false;
   selectedTeacher: any = null;
+  isUserDetailsModalOpen = false;
+  selectedUserDetails: any = null;
   loading = false;
   users: any[] = [];
   errorMessage: string | null = null;
@@ -224,9 +226,203 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
     this.fetchUsers();
   }
 
+  /**
+   * View user details
+   */
+  viewUserDetails(user: any) {
+    this.selectedUserDetails = user;
+    this.isUserDetailsModalOpen = true;
+  }
+
+  closeUserDetailsModal() {
+    this.isUserDetailsModalOpen = false;
+    this.selectedUserDetails = null;
+  }
+
+  formatDate(dateString: string | null | undefined): string {
+    if (!dateString) return 'Never';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return 'Invalid Date';
+    }
+  }
+
   goToPage(page: number) {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage.set(page);
+    }
+  }
+
+  /**
+   * Change user email
+   */
+  async changeUserEmail(user: any) {
+    const { value: newEmail } = await Swal.fire({
+      title: 'Change Email',
+      html: `
+        <div style="text-align: left;">
+          <label style="font-weight: bold; display: block; margin-bottom: 10px;">
+            Change email for <strong>${user.userName}</strong>
+          </label>
+          <label style="display: block; margin-bottom: 5px; color: #666;">
+            Current Email: <strong>${user.email || 'Not set'}</strong>
+          </label>
+          <input type="email" id="newEmail" class="swal2-input" placeholder="Enter new email"
+                 style="width: 90%; margin: 10px auto;" required>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Update Email',
+      cancelButtonText: 'Cancel',
+      preConfirm: () => {
+        const emailInput = (document.getElementById('newEmail') as HTMLInputElement);
+        const email = emailInput?.value?.trim();
+
+        if (!email) {
+          Swal.showValidationMessage('Please enter an email address');
+          return false;
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          Swal.showValidationMessage('Please enter a valid email address');
+          return false;
+        }
+
+        return email;
+      }
+    });
+
+    if (!newEmail) return;
+
+    try {
+      const authToken = localStorage.getItem('authToken') || '';
+      await this.http.put(
+        `${environment.apiBaseUrl}/Admin/change-user-email/${user.id}`,
+        { newEmail },
+        {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          })
+        }
+      ).toPromise();
+
+      user.email = newEmail;
+      Swal.fire('Success!', 'Email updated successfully', 'success');
+
+    } catch (error: unknown) {
+      console.error('API Error:', error);
+      let errorMsg = 'Failed to update email. Please try again.';
+
+      if (error instanceof HttpErrorResponse) {
+        if (error.status === 401) {
+          errorMsg = 'Session expired. Please login again.';
+        } else if (error.error?.message) {
+          errorMsg = error.error.message;
+        }
+      } else if (error instanceof Error) {
+        errorMsg = error.message;
+      }
+
+      Swal.fire('Error!', errorMsg, 'error');
+    }
+  }
+
+  /**
+   * Change user password
+   */
+  async changeUserPassword(user: any) {
+    const { value: formValues } = await Swal.fire({
+      title: 'Change Password',
+      html: `
+        <div style="text-align: left;">
+          <label style="font-weight: bold; display: block; margin-bottom: 10px;">
+            Change password for <strong>${user.userName}</strong>
+          </label>
+          <input type="password" id="newPassword" class="swal2-input"
+                 placeholder="Enter new password"
+                 style="width: 90%; margin: 10px auto;" required>
+          <input type="password" id="confirmPassword" class="swal2-input"
+                 placeholder="Confirm new password"
+                 style="width: 90%; margin: 10px auto;" required>
+          <p style="font-size: 12px; color: #666; margin: 10px 20px;">
+            Password must be at least 6 characters long
+          </p>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Update Password',
+      cancelButtonText: 'Cancel',
+      preConfirm: () => {
+        const newPasswordInput = (document.getElementById('newPassword') as HTMLInputElement);
+        const confirmPasswordInput = (document.getElementById('confirmPassword') as HTMLInputElement);
+        const newPassword = newPasswordInput?.value;
+        const confirmPassword = confirmPasswordInput?.value;
+
+        if (!newPassword || !confirmPassword) {
+          Swal.showValidationMessage('Please fill in both password fields');
+          return false;
+        }
+
+        if (newPassword.length < 6) {
+          Swal.showValidationMessage('Password must be at least 6 characters long');
+          return false;
+        }
+
+        if (newPassword !== confirmPassword) {
+          Swal.showValidationMessage('Passwords do not match');
+          return false;
+        }
+
+        return newPassword;
+      }
+    });
+
+    if (!formValues) return;
+
+    try {
+      const authToken = localStorage.getItem('authToken') || '';
+      await this.http.put(
+        `${environment.apiBaseUrl}/Admin/change-user-password/${user.id}`,
+        { newPassword: formValues },
+        {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          })
+        }
+      ).toPromise();
+
+      Swal.fire('Success!', 'Password updated successfully', 'success');
+
+    } catch (error: unknown) {
+      console.error('API Error:', error);
+      let errorMsg = 'Failed to update password. Please try again.';
+
+      if (error instanceof HttpErrorResponse) {
+        if (error.status === 401) {
+          errorMsg = 'Session expired. Please login again.';
+        } else if (error.error?.message) {
+          errorMsg = error.error.message;
+        }
+      } else if (error instanceof Error) {
+        errorMsg = error.message;
+      }
+
+      Swal.fire('Error!', errorMsg, 'error');
     }
   }
 

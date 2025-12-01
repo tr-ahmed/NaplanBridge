@@ -236,16 +236,35 @@ export class AddStudentComponent implements OnInit {
    */
   private handleSuccess(studentName: string): void {
     this.success.set(true);
+    const studentEmail = this.addStudentForm.get('email')?.value;
     this.addStudentForm.reset();
     this.loading.set(false);
 
+    // ✅ Updated to inform parent about email verification
     Swal.fire({
       icon: 'success',
       title: 'Student Added Successfully!',
-      text: `${studentName} has been registered and linked to your account.`,
+      html: `
+        <p><strong>${studentName}</strong> has been registered and linked to your account.</p>
+        ${studentEmail ? `
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p class="text-sm text-blue-800 mb-2">
+              <i class="fas fa-envelope mr-2"></i>
+              <strong>Email Verification Required</strong>
+            </p>
+            <p class="text-sm text-blue-700">
+              A verification email has been sent to <strong>${studentEmail}</strong>.
+              The student must verify their email before they can login.
+            </p>
+          </div>
+        ` : ''}
+      `,
       confirmButtonText: 'Go to Dashboard',
       showCancelButton: true,
-      cancelButtonText: 'Add Another'
+      cancelButtonText: 'Add Another',
+      customClass: {
+        htmlContainer: 'text-left'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         this.router.navigate(['/parent/dashboard']);

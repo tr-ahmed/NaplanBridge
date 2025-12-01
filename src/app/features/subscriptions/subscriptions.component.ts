@@ -669,6 +669,14 @@ export class SubscriptionsComponent implements OnInit {
 
   openEditPlanModal(plan: SubscriptionPlan): void {
     console.log('✅ openEditPlanModal() called for plan:', plan.name);
+    console.log('   📊 Plan data:', {
+      planType: plan.planType,
+      subjectId: plan.subjectId,
+      termId: plan.termId,
+      yearId: plan.yearId,
+      includedTermIds: plan.includedTermIds
+    });
+
     this.isEditMode = true;
     this.currentPlan = { ...plan };
 
@@ -676,26 +684,67 @@ export class SubscriptionsComponent implements OnInit {
     this.selectedTerms = [];
     if (plan.includedTermIds) {
       this.selectedTerms = plan.includedTermIds.split(',').map(id => parseInt(id, 10));
+      console.log('   📌 Selected terms for MultiTerm plan:', this.selectedTerms);
     }
+
+    // ✅ Helper function to set year filter and load terms
+    const setupYearAndTerms = () => {
+      if (plan.subjectId && plan.subjectId > 0) {
+        const selectedSubject = this.subjects.find(s => s.id === plan.subjectId);
+        console.log('   🔍 Found subject:', selectedSubject);
+
+        if (selectedSubject && selectedSubject.yearId) {
+          console.log('   🔄 Setting year filter to:', selectedSubject.yearId);
+          this.selectedYearFilter = selectedSubject.yearId;
+          this.filteredSubjects = this.subjects.filter(s => s.yearId === selectedSubject.yearId);
+          console.log('   📚 Filtered subjects for year:', this.filteredSubjects.length);
+        }
+
+        console.log('   🔄 Loading terms for subjectId:', plan.subjectId);
+        this.onSubjectChange(plan.subjectId);
+      } else {
+        console.log('   ℹ️ No subject selected for this plan');
+        this.filteredTerms = [];
+        this.selectedYearFilter = 0;
+        this.filteredSubjects = [];
+      }
+    };
 
     // ✅ Ensure subjects are loaded
     if (this.subjects.length === 0) {
       console.log('🔄 Loading subjects for edit...');
-      this.loadSubjects();
+      this.http.get<any>(`${environment.apiBaseUrl}/Subjects?pageSize=1000`)
+        .subscribe({
+          next: (data) => {
+            if (data && data.items && Array.isArray(data.items)) {
+              this.subjects = data.items.map((item: any) => ({
+                id: item.id,
+                subjectName: item.subjectName,
+                name: item.subjectName,
+                categoryId: item.categoryId,
+                yearId: item.yearId
+              }));
+            } else if (Array.isArray(data)) {
+              this.subjects = data;
+            }
+            console.log('✅ Subjects loaded for edit:', this.subjects.length);
+            setupYearAndTerms();
+          },
+          error: (error) => {
+            console.error('❌ Error loading subjects for edit:', error);
+          }
+        });
+    } else {
+      console.log('✅ Subjects already loaded, count:', this.subjects.length);
+      setupYearAndTerms();
     }
 
     // ✅ Ensure years are loaded
     if (this.years.length === 0) {
       console.log('🔄 Loading years for edit...');
       this.loadYears();
-    }
-
-    // ✅ Load terms if editing a plan with a subject
-    if (plan.subjectId && plan.subjectId > 0) {
-      console.log('🔄 Loading terms for subjectId:', plan.subjectId);
-      this.onSubjectChange(plan.subjectId);
     } else {
-      this.filteredTerms = [];
+      console.log('✅ Years already loaded, count:', this.years.length);
     }
 
     this.showPlanModal = true;

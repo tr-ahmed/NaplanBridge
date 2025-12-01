@@ -13,6 +13,18 @@
         </p>
       </div>
       <div class="flex items-center gap-3 flex-wrap">
+        <!-- Add Subject Button - Only if teacher has create permission -->
+        <button
+          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
+          type="button"
+          (click)="openAdd('subject')"
+          class="px-4 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 font-medium flex items-center gap-2 shadow-md">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Create Subject</span>
+        </button>
+
         <!-- Add Lesson Button (Primary Action) - Only if teacher has create permission -->
         <button
           *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
@@ -228,7 +240,7 @@
         <div class="ml-3 flex-1">
           <h3 class="text-sm font-medium text-blue-900">Teacher Permissions</h3>
           <div class="mt-2 text-sm text-blue-700">
-            <p>You can view all content but can only create and edit lessons for subjects you have permission for.</p>
+            <p>You can create and edit subjects, terms, weeks, and lessons for subjects you have been granted permission for.</p>
             <p class="mt-1">All your changes require admin approval before they become visible to students.</p>
           </div>
         </div>
@@ -467,7 +479,7 @@
                 You can create and edit terms for subjects you have permission for
               </p>
             </div>
-            
+
             <!-- Add Term Button -->
             <div class="mb-4 flex justify-end">
               <button
@@ -565,7 +577,7 @@
                 You can create and edit weeks for subjects you have permission for
               </p>
             </div>
-            
+
             <!-- Add Week Button -->
             <div class="mb-4 flex justify-end">
               <button

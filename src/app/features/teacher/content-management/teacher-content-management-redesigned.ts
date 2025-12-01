@@ -695,16 +695,29 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   // ============================================
 
   /**
-   * Open form to add a new entity (teachers can create terms, weeks, and lessons)
+   * Open form to add a new entity (teachers can create subjects, terms, weeks, and lessons)
    */
   openAdd(type: EntityType): void {
-    if (type !== 'lesson' && type !== 'term' && type !== 'week') {
+    if (type !== 'lesson' && type !== 'term' && type !== 'week' && type !== 'subject') {
       Swal.fire({
         icon: 'warning',
         title: 'Permission Denied',
-        text: 'Teachers can only create terms, weeks, and lessons. Other content types are managed by administrators.',
+        text: 'Teachers can only create subjects, terms, weeks, and lessons for subjects they have permissions for. Other content types are managed by administrators.',
       });
       return;
+    }
+
+    // For subjects, check if teacher has at least one subject with create permission
+    if (type === 'subject') {
+      const hasCreatePermission = this.authorizedSubjects.some(s => s.canCreate);
+      if (!hasCreatePermission) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Permission Denied',
+          text: 'You do not have permission to create subjects. Please contact an administrator.',
+        });
+        return;
+      }
     }
 
     this.formMode = 'add';
@@ -719,21 +732,23 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
 
   /**
    * Open form to edit an entity
-   * Teachers can edit terms, weeks, and lessons they have permission for
+   * Teachers can edit subjects, terms, weeks, and lessons they have permission for
    */
   openEdit(type: EntityType, entity: any): void {
-    if (type !== 'lesson' && type !== 'term' && type !== 'week') {
+    if (type !== 'lesson' && type !== 'term' && type !== 'week' && type !== 'subject') {
       Swal.fire({
         icon: 'warning',
         title: 'Permission Denied',
-        text: 'Teachers can only edit terms, weeks, and lessons. Other content types are managed by administrators.',
+        text: 'Teachers can only edit subjects, terms, weeks, and lessons for subjects they have permissions for. Other content types are managed by administrators.',
       });
       return;
     }
 
     // Check if teacher has permission to edit this entity's subject
     let subjectId: number | null = null;
-    if (type === 'lesson' && entity.subjectId) {
+    if (type === 'subject' && entity.id) {
+      subjectId = entity.id;
+    } else if (type === 'lesson' && entity.subjectId) {
       subjectId = entity.subjectId;
     } else if (type === 'term' && entity.subjectId) {
       subjectId = entity.subjectId;
@@ -842,21 +857,23 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   }
 
   /**
-   * Delete an entity (terms, weeks, and lessons for teachers)
+   * Delete an entity (subjects, terms, weeks, and lessons for teachers)
    */
   async deleteItem(type: EntityType, id: Id): Promise<void> {
-    if (type !== 'lesson' && type !== 'term' && type !== 'week') {
+    if (type !== 'lesson' && type !== 'term' && type !== 'week' && type !== 'subject') {
       Swal.fire({
         icon: 'warning',
         title: 'Permission Denied',
-        text: 'Teachers can only delete terms, weeks, and lessons.',
+        text: 'Teachers can only delete subjects, terms, weeks, and lessons for subjects they have permissions for.',
       });
       return;
     }
 
     // Check permissions based on entity type
     let subjectId: number | null = null;
-    if (type === 'lesson') {
+    if (type === 'subject') {
+      subjectId = id;
+    } else if (type === 'lesson') {
       const lesson = this.lessons.find(l => l.id === id);
       subjectId = lesson?.subjectId || null;
     } else if (type === 'term') {
@@ -911,8 +928,10 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   // ============================================
 
   private async createEntity(type: EntityType, data: any): Promise<void> {
-    // Teacher can create terms, weeks, and lessons
-    if (type === 'term') {
+    // Teacher can create subjects, terms, weeks, and lessons
+    if (type === 'subject') {
+      await this.contentService.addSubject(data).toPromise();
+    } else if (type === 'term') {
       await this.contentService.addTerm({
         subjectId: data.subjectId,
         termNumber: data.termNumber,
@@ -929,8 +948,10 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   }
 
   private async updateEntity(type: EntityType, id: Id, data: any): Promise<void> {
-    // Teacher can update terms, weeks, and lessons
-    if (type === 'term') {
+    // Teacher can update subjects, terms, weeks, and lessons
+    if (type === 'subject') {
+      await this.contentService.updateSubject(id, data).toPromise();
+    } else if (type === 'term') {
       await this.contentService.updateTerm(id, {
         subjectId: data.subjectId,
         termNumber: data.termNumber,
@@ -947,8 +968,10 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   }
 
   private async deleteEntity(type: EntityType, id: Id): Promise<void> {
-    // Teacher can delete terms, weeks, and lessons
-    if (type === 'term') {
+    // Teacher can delete subjects, terms, weeks, and lessons
+    if (type === 'subject') {
+      await this.contentService.deleteSubject(id).toPromise();
+    } else if (type === 'term') {
       await this.contentService.deleteTerm(id).toPromise();
     } else if (type === 'week') {
       await this.contentService.deleteWeek(id).toPromise();
@@ -1051,6 +1074,17 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
 
   private getEmptyForm(type: EntityType): any {
     switch (type) {
+      case 'subject':
+        return {
+          yearId: null,
+          subjectNameId: null,
+          teacherId: this.teacherId ? Number(this.teacherId) : null,
+          originalPrice: 0,
+          discountPercentage: 0,
+          level: '',
+          duration: 0,
+          startDate: null,
+        };
       case 'term':
         return {
           subjectId: null,

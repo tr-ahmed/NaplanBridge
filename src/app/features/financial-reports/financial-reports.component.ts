@@ -145,23 +145,8 @@ export class FinancialReportsComponent implements OnInit {
       this.paymentSource,
       format
     ).subscribe({
-      next: (response) => {
-        console.log('✅ Export response received:', response);
-
-        // Handle different response types
-        let blob: Blob;
-
-        if (response instanceof Blob) {
-          blob = response;
-        } else if (response && typeof response === 'object') {
-          // If response is wrapped in an object, try to extract blob
-          blob = new Blob([JSON.stringify(response)], { type: 'application/octet-stream' });
-        } else {
-          console.error('❌ Invalid response type:', typeof response);
-          this.toastService.showError('Invalid response from server');
-          this.exporting.set(false);
-          return;
-        }
+      next: (blob: Blob) => {
+        console.log('✅ Export response received:', blob);
 
         // Check if blob is valid
         if (!blob || blob.size === 0) {
@@ -178,11 +163,8 @@ export class FinancialReportsComponent implements OnInit {
           console.log(`💾 Downloading file: ${filename}`);
           this.reportsService.downloadFile(blob, filename);
 
-          // Small delay to ensure download starts before showing success message
-          setTimeout(() => {
-            this.toastService.showSuccess(`Report exported successfully as ${format.toUpperCase()}`);
-            this.exporting.set(false);
-          }, 100);
+          this.toastService.showSuccess(`Report exported successfully as ${format.toUpperCase()}`);
+          this.exporting.set(false);
         } catch (downloadError) {
           console.error('❌ Error downloading file:', downloadError);
           this.toastService.showError('Failed to download the exported file');

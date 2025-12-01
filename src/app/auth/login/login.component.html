@@ -92,6 +92,11 @@
             <strong class="text-yellow-800 font-semibold">Email Verification Required</strong>
             <p class="text-sm text-yellow-700 mt-1 mb-3">
               Your email address is not verified. Please check your inbox for the verification link.
+              @if (!unverifiedEmail()) {
+                <br><span class="text-xs text-yellow-600 mt-1 block">
+                  💡 Tip: Enter your email address in the login field above, then click "Resend Verification Email"
+                </span>
+              }
             </p>
             <button
               type="button"
@@ -103,9 +108,7 @@
           </div>
         </div>
       </div>
-    }
-
-    <!-- Sign Up Link -->
+    }    <!-- Sign Up Link -->
     <div class="mt-6 text-center">
       <span class="text-gray-700">Don't have an account?</span>
       <a routerLink="/auth/register" class="text-blue-900 font-semibold hover:underline ml-2">Sign up</a>
