@@ -119,8 +119,9 @@ onLogin(): void {
         const isEmailNotVerified =
           error.error?.requiresVerification === true ||
           error.error?.error === 'Email not verified' ||
+          error.error?.message?.toLowerCase().includes('verify your email') ||
           error.error?.message?.toLowerCase().includes('email not verified') ||
-          error.error?.toLowerCase().includes('email not verified');
+          (typeof error.error === 'string' && error.error.toLowerCase().includes('email not verified'));
 
         if (isEmailNotVerified) {
           this.showResendVerification.set(true);
@@ -131,10 +132,11 @@ onLogin(): void {
 
           this.unverifiedEmail.set(errorEmail || (identifierIsEmail ? formValue.identifier : ''));
 
-          this.toastService.showWarning(
-            'Please verify your email address before logging in. Check your inbox for the verification link.',
-            10000
-          );
+          // Use the backend message if available, otherwise use default message
+          const verificationMessage = error.error?.message ||
+            'Please verify your email address before logging in. Check your inbox for the verification link.';
+
+          this.toastService.showWarning(verificationMessage, 10000);
         } else {
           this.toastService.showError(error.error?.message || 'Login failed. Please try again.');
         }

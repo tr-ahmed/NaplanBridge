@@ -149,25 +149,11 @@ export class FinancialReportsComponent implements OnInit {
         console.log('✅ Export response received');
         console.log(`📦 Blob details: size=${blob.size} bytes, type="${blob.type}"`);
 
-        // Check if blob is valid
         if (!blob || blob.size === 0) {
           console.error('❌ Empty blob received');
           this.toastService.showError('Received empty file from server');
           this.exporting.set(false);
           return;
-        }
-
-        // Validate blob type for Excel
-        if (format === 'excel') {
-          const validExcelTypes = [
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.ms-excel',
-            'application/octet-stream'
-          ];
-
-          if (!validExcelTypes.includes(blob.type)) {
-            console.warn(`⚠️ Unexpected blob type for Excel: ${blob.type}`);
-          }
         }
 
         try {
@@ -192,7 +178,6 @@ export class FinancialReportsComponent implements OnInit {
           error: error.error
         });
 
-        // Check if error contains a blob (sometimes successful responses are treated as errors)
         if (error.error instanceof Blob) {
           console.log('⚠️ Response treated as error but contains blob, attempting download...');
           try {
@@ -206,7 +191,6 @@ export class FinancialReportsComponent implements OnInit {
           }
         }
 
-        // Show user-friendly error message
         let errorMessage = `Failed to export report as ${format.toUpperCase()}`;
         if (error.status === 0) {
           errorMessage = 'Network error - please check your connection';
