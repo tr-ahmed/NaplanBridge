@@ -156,7 +156,12 @@ export class TeacherPermissionsAdminComponent implements OnInit {
   private groupPermissionsByTeacher(permissions: TeacherPermission[]): any[] {
     const grouped = new Map<number, any>();
 
-    permissions.forEach((perm: any, index: number) => {
+    // ✅ Filter only active permissions
+    const activePermissions = permissions.filter((perm: any) => perm.isActive === true);
+
+    console.log(`📊 Total permissions: ${permissions.length}, Active permissions: ${activePermissions.length}`);
+
+    activePermissions.forEach((perm: any, index: number) => {
       // Enhanced logging - show first item completely
       if (index === 0) {
         console.log('🔍 FIRST PERMISSION OBJECT - ALL PROPERTIES:', JSON.stringify(perm, null, 2));

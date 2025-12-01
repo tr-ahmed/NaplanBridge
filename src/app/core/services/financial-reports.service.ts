@@ -166,14 +166,45 @@ export class FinancialReportsService {
       url: `${this.apiUrl}/detailed/export`
     });
 
-    return this.http.get(
-      `${this.apiUrl}/detailed/export`,
-      {
-        params,
-        responseType: 'blob',
-        observe: 'body'
+    // Use XMLHttpRequest for better control over binary data
+    return new Observable<Blob>(observer => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', `${this.apiUrl}/detailed/export?${params.toString()}`, true);
+      xhr.responseType = 'blob';
+
+      // Add authorization header - use correct token name
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        console.log('🔐 Added Authorization header');
+      } else {
+        console.warn('⚠️ No auth token found in localStorage');
       }
-    );
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const blob = xhr.response;
+          console.log('✅ Export successful:', {
+            status: xhr.status,
+            contentType: xhr.getResponseHeader('Content-Type'),
+            blobSize: blob.size,
+            blobType: blob.type
+          });
+          observer.next(blob);
+          observer.complete();
+        } else {
+          console.error('❌ Export failed:', xhr.status, xhr.statusText);
+          observer.error(new Error(`Export failed: ${xhr.status} ${xhr.statusText}`));
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error('❌ Network error during export');
+        observer.error(new Error('Network error'));
+      };
+
+      xhr.send();
+    });
   }
 
   /**
@@ -194,15 +225,48 @@ export class FinancialReportsService {
   }
 
   /**
-   * Download exported file
+   * Download exported file with correct MIME type
    */
   downloadFile(blob: Blob, filename: string): void {
-    const url = window.URL.createObjectURL(blob);
+    console.log(`📥 Starting download: ${filename}`);
+    console.log(`📦 Blob details: size=${blob.size} bytes, type="${blob.type}"`);
+
+    // Determine correct MIME type from extension
+    const extension = filename.split('.').pop()?.toLowerCase();
+    let correctMimeType = blob.type;
+
+    switch (extension) {
+      case 'xlsx':
+        correctMimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        break;
+      case 'pdf':
+        correctMimeType = 'application/pdf';
+        break;
+      case 'csv':
+        correctMimeType = 'text/csv';
+        break;
+    }
+
+    // Always create new blob with correct MIME type
+    const correctedBlob = new Blob([blob], { type: correctMimeType });
+    console.log(`✅ Using MIME type: ${correctMimeType}`);
+
+    // Create download link
+    const url = window.URL.createObjectURL(correctedBlob);
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
+    link.style.display = 'none';
+
+    document.body.appendChild(link);
     link.click();
-    window.URL.revokeObjectURL(url);
+
+    // Cleanup
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      console.log('✅ Download completed and cleaned up');
+    }, 100);
   }
 
   /**

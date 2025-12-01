@@ -308,7 +308,7 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
 
     try {
       const authToken = localStorage.getItem('authToken') || '';
-      await this.http.put(
+      const response: any = await this.http.put(
         `${environment.apiBaseUrl}/Admin/change-user-email/${user.id}`,
         { newEmail },
         {
@@ -319,8 +319,15 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
         }
       ).toPromise();
 
-      user.email = newEmail;
-      Swal.fire('Success!', 'Email updated successfully', 'success');
+      // Update local user object with response data
+      if (response?.data) {
+        user.email = response.data.email;
+        user.userName = response.data.userName;
+      } else {
+        user.email = newEmail;
+      }
+
+      Swal.fire('Success!', response?.message || 'Email updated successfully', 'success');
 
     } catch (error: unknown) {
       console.error('API Error:', error);
@@ -329,6 +336,14 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
       if (error instanceof HttpErrorResponse) {
         if (error.status === 401) {
           errorMsg = 'Session expired. Please login again.';
+        } else if (error.status === 403) {
+          errorMsg = 'Access denied. Admin role required.';
+        } else if (error.status === 404) {
+          errorMsg = 'User not found.';
+        } else if (error.status === 400 && error.error?.errors?.length > 0) {
+          // Handle validation errors from backend
+          const validationErrors = error.error.errors.map((e: any) => e.description).join('\n');
+          errorMsg = validationErrors;
         } else if (error.error?.message) {
           errorMsg = error.error.message;
         }
@@ -395,7 +410,7 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
 
     try {
       const authToken = localStorage.getItem('authToken') || '';
-      await this.http.put(
+      const response: any = await this.http.put(
         `${environment.apiBaseUrl}/Admin/change-user-password/${user.id}`,
         { newPassword: formValues },
         {
@@ -406,7 +421,7 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
         }
       ).toPromise();
 
-      Swal.fire('Success!', 'Password updated successfully', 'success');
+      Swal.fire('Success!', response?.message || 'Password updated successfully', 'success');
 
     } catch (error: unknown) {
       console.error('API Error:', error);
@@ -415,6 +430,19 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
       if (error instanceof HttpErrorResponse) {
         if (error.status === 401) {
           errorMsg = 'Session expired. Please login again.';
+        } else if (error.status === 403) {
+          errorMsg = 'Access denied. Admin role required.';
+        } else if (error.status === 404) {
+          errorMsg = 'User not found.';
+        } else if (error.status === 400 && error.error?.errors?.length > 0) {
+          // Handle password validation errors from backend
+          const validationErrors = error.error.errors.map((e: any) => e.description).join('\n');
+          Swal.fire({
+            title: 'Password Requirements',
+            html: `<div style="text-align: left;">${validationErrors.replace(/\n/g, '<br>')}</div>`,
+            icon: 'error'
+          });
+          return;
         } else if (error.error?.message) {
           errorMsg = error.error.message;
         }

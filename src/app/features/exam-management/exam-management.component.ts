@@ -180,10 +180,7 @@ export class ExamManagementComponent implements OnInit {
 
     this.examApi.getAllExams().subscribe({
       next: (exams: ExamDto[]) => {
-        console.log('📊 Raw API Response - Total exams:', exams.length);
-        console.log('📊 First exam from API:', exams[0]);
-        console.log('📊 ExamType field:', exams[0]?.examType);
-        console.log('📊 AverageScore field:', exams[0]?.averageScore);
+        console.log('✅ Loaded exams:', exams.length);
 
         const examList: ExamListItem[] = exams.map(exam => ({
           id: exam.id,
@@ -202,11 +199,6 @@ export class ExamManagementComponent implements OnInit {
           createdAt: exam.createdAt ? new Date(exam.createdAt) : new Date()
         }));
 
-        console.log('📋 Processed exam list with types:', examList.map(e => ({
-          title: e.title,
-          examType: e.examType,
-          avgScore: e.averageScore
-        })));
         this.allExams.set(examList);
         this.loading.set(false);
       },
@@ -379,45 +371,23 @@ export class ExamManagementComponent implements OnInit {
       exams.map(e => e.id === examId ? { ...e, isPublished: newPublishStatus } : e)
     );
 
-    // Convert ExamType to number for API
-    let examTypeNumber = 0;
-    switch (exam.examType) {
-      case ExamType.Lesson: examTypeNumber = 0; break;
-      case ExamType.Monthly: examTypeNumber = 1; break;
-      case ExamType.Term: examTypeNumber = 2; break;
-      case ExamType.Year: examTypeNumber = 3; break;
-    }
-
-    const updatedExam: any = {
-      id: exam.id,
-      title: exam.title,
-      examType: examTypeNumber,
-      subjectId: 0,
-      durationInMinutes: exam.durationInMinutes,
-      totalMarks: exam.totalMarks,
-      passingMarks: exam.totalMarks * 0.5,
-      startTime: exam.startTime?.toISOString() || null,
-      endTime: exam.endTime?.toISOString() || null,
+    const updateDto = {
       isPublished: newPublishStatus
     };
 
-    console.log('📤 Updating exam publish status:', updatedExam);
-
-    this.examApi.updateExam(examId, updatedExam).subscribe({
-      next: (response) => {
-        console.log('✅ Exam publish status updated:', response);
+    this.examApi.updateExam(examId, updateDto).subscribe({
+      next: () => {
         const action = newPublishStatus ? 'published' : 'unpublished';
         this.toastService.showSuccess(`Exam ${action} successfully`);
-        // Reload to ensure sync with server
-        this.loadExams();
       },
       error: (error) => {
         console.error('❌ Failed to update exam:', error);
+
         // Revert local change on error
         this.allExams.update(exams =>
           exams.map(e => e.id === examId ? { ...e, isPublished: !newPublishStatus } : e)
         );
-        this.toastService.showError('Failed to update exam');
+        this.toastService.showError('Failed to update exam status');
       }
     });
   }

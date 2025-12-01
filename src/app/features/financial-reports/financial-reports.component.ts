@@ -146,7 +146,8 @@ export class FinancialReportsComponent implements OnInit {
       format
     ).subscribe({
       next: (blob: Blob) => {
-        console.log('✅ Export response received:', blob);
+        console.log('✅ Export response received');
+        console.log(`📦 Blob details: size=${blob.size} bytes, type="${blob.type}"`);
 
         // Check if blob is valid
         if (!blob || blob.size === 0) {
@@ -156,11 +157,22 @@ export class FinancialReportsComponent implements OnInit {
           return;
         }
 
-        console.log(`📦 Blob size: ${blob.size} bytes, type: ${blob.type}`);
+        // Validate blob type for Excel
+        if (format === 'excel') {
+          const validExcelTypes = [
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel',
+            'application/octet-stream'
+          ];
+
+          if (!validExcelTypes.includes(blob.type)) {
+            console.warn(`⚠️ Unexpected blob type for Excel: ${blob.type}`);
+          }
+        }
 
         try {
           const filename = this.reportsService.generateExportFilename(format);
-          console.log(`💾 Downloading file: ${filename}`);
+          console.log(`💾 Initiating download: ${filename}`);
           this.reportsService.downloadFile(blob, filename);
 
           this.toastService.showSuccess(`Report exported successfully as ${format.toUpperCase()}`);

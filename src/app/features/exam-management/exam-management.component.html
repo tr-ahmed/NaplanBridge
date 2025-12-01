@@ -263,6 +263,7 @@
                 <th class="text-left px-4 py-3 text-sm font-semibold text-gray-900">Exam</th>
                 <th class="text-left px-4 py-3 text-sm font-semibold text-gray-900">Type</th>
                 <th class="text-left px-4 py-3 text-sm font-semibold text-gray-900">Status</th>
+                <th class="text-center px-4 py-3 text-sm font-semibold text-gray-900">Published</th>
                 <th class="text-center px-4 py-3 text-sm font-semibold text-gray-900">Submissions</th>
                 <th class="text-center px-4 py-3 text-sm font-semibold text-gray-900">Avg Score</th>
                 <th class="text-right px-4 py-3 text-sm font-semibold text-gray-900">Actions</th>
@@ -300,6 +301,25 @@
                       [ngClass]="getStatusBadge(exam).class">
                       {{ getStatusBadge(exam).text }}
                     </span>
+                  </td>
+                  <td class="px-4 py-4">
+                    <div class="flex items-center justify-center" (click)="$event.stopPropagation()">
+                      <!-- Toggle Switch -->
+                      <button
+                        (click)="togglePublish(exam.id, $event)"
+                        [class]="exam.isPublished ? 'bg-green-500' : 'bg-gray-300'"
+                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        [title]="exam.isPublished ? 'Published - Click to unpublish' : 'Draft - Click to publish'">
+                        <span
+                          [class]="exam.isPublished ? 'translate-x-6' : 'translate-x-1'"
+                          class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out">
+                        </span>
+                      </button>
+                      <!-- Status Text -->
+                      <span class="ml-2 text-xs font-medium" [class]="exam.isPublished ? 'text-green-700' : 'text-gray-600'">
+                        {{ exam.isPublished ? 'Published' : 'Draft' }}
+                      </span>
+                    </div>
                   </td>
                   <td class="px-4 py-4 text-center">
                     <div class="flex flex-col items-center">
@@ -399,6 +419,26 @@
                     [ngClass]="getStatusBadge(exam).class">
                     {{ getStatusBadge(exam).text }}
                   </span>
+                </div>
+
+                <!-- Publish Toggle -->
+                <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100" (click)="$event.stopPropagation()">
+                  <span class="text-sm font-medium text-gray-700">Publish Status</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-medium" [class]="exam.isPublished ? 'text-green-700' : 'text-gray-600'">
+                      {{ exam.isPublished ? 'Published' : 'Draft' }}
+                    </span>
+                    <button
+                      (click)="togglePublish(exam.id, $event)"
+                      [class]="exam.isPublished ? 'bg-green-500' : 'bg-gray-300'"
+                      class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                      [title]="exam.isPublished ? 'Published - Click to unpublish' : 'Draft - Click to publish'">
+                      <span
+                        [class]="exam.isPublished ? 'translate-x-6' : 'translate-x-1'"
+                        class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out">
+                      </span>
+                    </button>
+                  </div>
                 </div>
 
                 <!-- Stats -->
