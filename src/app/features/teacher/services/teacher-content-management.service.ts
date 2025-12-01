@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, filter } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { UploadService } from '../../../core/services/upload.service';
 
 /**
  * Teacher Content Management Service
@@ -120,6 +121,7 @@ export interface ContentPreviewDto {
 })
 export class TeacherContentManagementService {
   private http = inject(HttpClient);
+  private uploadService = inject(UploadService);
   private apiUrl = `${environment.apiBaseUrl}/TeacherContent`;
   private baseApiUrl = environment.apiBaseUrl;
 
@@ -130,7 +132,7 @@ export class TeacherContentManagementService {
     const endpoint = `${this.apiUrl}/my-subjects`;
     console.log(`🔗 API Endpoint: ${endpoint}`);
     console.log('📡 Calling API to fetch teacher subjects...');
-    
+
     return this.http.get<ApiResponse<TeacherSubject[]>>(endpoint)
       .pipe(
         map(response => {
@@ -226,10 +228,10 @@ export class TeacherContentManagementService {
    */
   createLesson(lessonData: any): Observable<any> {
     console.log('📝 Creating lesson:', lessonData);
-    
+
     // Create FormData for multipart/form-data
     const formData = new FormData();
-    
+
     // Add required query parameters as form fields
     if (lessonData.title) {
       formData.append('Title', lessonData.title);
@@ -237,12 +239,12 @@ export class TeacherContentManagementService {
     if (lessonData.description) {
       formData.append('Description', lessonData.description);
     }
-    
+
     // Add optional query parameters
     if (lessonData.weekId) {
       formData.append('WeekId', lessonData.weekId.toString());
     }
-    
+
     // Add file attachments
     if (lessonData.posterFile) {
       formData.append('PosterFile', lessonData.posterFile);
@@ -250,14 +252,27 @@ export class TeacherContentManagementService {
     if (lessonData.videoFile) {
       formData.append('VideoFile', lessonData.videoFile);
     }
-    
-    return this.http.post<any>(`${this.baseApiUrl}/Lessons`, formData)
-      .pipe(
-        catchError(error => {
-          console.error('❌ Error creating lesson:', error);
-          throw error;
-        })
-      );
+
+    // Use upload service with progress tracking
+    return this.uploadService.uploadWithProgress<any>(
+      `${this.baseApiUrl}/Lessons`,
+      formData,
+      'teacher_lesson_upload'
+    ).pipe(
+      filter(event => event.response !== undefined),
+      map(event => event.response!),
+      catchError(error => {
+        console.error('❌ Error creating lesson:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Get teacher lesson upload progress
+   */
+  getTeacherLessonUploadProgress() {
+    return this.uploadService.getProgress('teacher_lesson_upload');
   }
 
   /**
@@ -281,10 +296,10 @@ export class TeacherContentManagementService {
    */
   updateLesson(lessonId: number, lessonData: any): Observable<any> {
     console.log('✏️ Updating lesson:', { lessonId, data: lessonData });
-    
+
     // Create FormData for multipart/form-data
     const formData = new FormData();
-    
+
     // Add optional query parameters as form fields
     if (lessonData.title) {
       formData.append('Title', lessonData.title);
@@ -295,7 +310,7 @@ export class TeacherContentManagementService {
     if (lessonData.weekId) {
       formData.append('WeekId', lessonData.weekId.toString());
     }
-    
+
     // Add optional file attachments
     if (lessonData.posterFile) {
       formData.append('PosterFile', lessonData.posterFile);
@@ -303,14 +318,27 @@ export class TeacherContentManagementService {
     if (lessonData.videoFile) {
       formData.append('VideoFile', lessonData.videoFile);
     }
-    
-    return this.http.put<any>(`${this.baseApiUrl}/Lessons/${lessonId}`, formData)
-      .pipe(
-        catchError(error => {
-          console.error('❌ Error updating lesson:', error);
-          throw error;
-        })
-      );
+
+    // Use upload service with progress tracking
+    return this.uploadService.uploadWithProgressPut<any>(
+      `${this.baseApiUrl}/Lessons/${lessonId}`,
+      formData,
+      'teacher_lesson_update'
+    ).pipe(
+      filter(event => event.response !== undefined),
+      map(event => event.response!),
+      catchError(error => {
+        console.error('❌ Error updating lesson:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Get teacher lesson update progress
+   */
+  getTeacherLessonUpdateProgress() {
+    return this.uploadService.getProgress('teacher_lesson_update');
   }
 
   /**
@@ -447,10 +475,10 @@ export class TeacherContentManagementService {
    */
   createSubject(subjectData: any): Observable<any> {
     console.log('📝 Creating subject:', subjectData);
-    
+
     // Create FormData for multipart/form-data
     const formData = new FormData();
-    
+
     // Add required query parameters
     if (subjectData.yearId) {
       formData.append('YearId', subjectData.yearId.toString());
@@ -458,7 +486,7 @@ export class TeacherContentManagementService {
     if (subjectData.subjectNameId) {
       formData.append('SubjectNameId', subjectData.subjectNameId.toString());
     }
-    
+
     // Add optional query parameters
     if (subjectData.originalPrice !== undefined && subjectData.originalPrice !== null) {
       formData.append('OriginalPrice', subjectData.originalPrice.toString());
@@ -478,40 +506,53 @@ export class TeacherContentManagementService {
     if (subjectData.startDate) {
       formData.append('StartDate', subjectData.startDate);
     }
-    
+
     // Add required file (PosterFile)
     if (subjectData.posterFile) {
       formData.append('PosterFile', subjectData.posterFile);
     }
-    
-    return this.http.post<ApiResponse<any>>(`${this.baseApiUrl}/Subjects`, formData)
-      .pipe(
-        map(response => {
-          console.log('✅ Subject created successfully:', response.data);
-          return response.data;
-        }),
-        catchError(error => {
-          console.error('❌ Error creating subject:', {
-            status: error.status,
-            message: error.message,
-            error: error.error
-          });
-          
-          // Better error message based on status code
-          let errorMessage = 'Failed to create subject';
-          if (error.status === 403) {
-            errorMessage = '🔒 Permission Denied: Only Admin users or teachers with special permission can create subjects. Please contact your administrator to grant you the "create_subject" permission.';
-          } else if (error.status === 400) {
-            errorMessage = '⚠️ Invalid subject data. Please check your inputs and ensure PosterFile is provided.';
-          } else if (error.status === 401) {
-            errorMessage = '🔐 Your session has expired. Please log in again.';
-          } else if (error.status === 409) {
-            errorMessage = '⚠️ A subject with this name already exists.';
-          }
-          
-          throw new Error(errorMessage);
-        })
-      );
+
+    // Use upload service with progress tracking
+    return this.uploadService.uploadWithProgress<ApiResponse<any>>(
+      `${this.baseApiUrl}/Subjects`,
+      formData,
+      'teacher_subject_upload'
+    ).pipe(
+      filter(event => event.response !== undefined),
+      map(event => {
+        const response = event.response!;
+        console.log('✅ Subject created successfully:', response.data);
+        return response.data;
+      }),
+      catchError(error => {
+        console.error('❌ Error creating subject:', {
+          status: error.status,
+          message: error.message,
+          error: error.error
+        });
+
+        // Better error message based on status code
+        let errorMessage = 'Failed to create subject';
+        if (error.status === 403) {
+          errorMessage = '🔒 Permission Denied: Only Admin users or teachers with special permission can create subjects. Please contact your administrator to grant you the "create_subject" permission.';
+        } else if (error.status === 400) {
+          errorMessage = '⚠️ Invalid subject data. Please check your inputs and ensure PosterFile is provided.';
+        } else if (error.status === 401) {
+          errorMessage = '🔐 Your session has expired. Please log in again.';
+        } else if (error.status === 409) {
+          errorMessage = '⚠️ A subject with this name already exists.';
+        }
+
+        throw new Error(errorMessage);
+      })
+    );
+  }
+
+  /**
+   * Get teacher subject upload progress
+   */
+  getTeacherSubjectUploadProgress() {
+    return this.uploadService.getProgress('teacher_subject_upload');
   }
 
   /**

@@ -1,6 +1,6 @@
 <!-- Main App Layout -->
 <div class="min-h-screen flex flex-col">
-  
+
   <!-- ========================================
        ADMIN LAYOUT (Sidebar + Header)
        ======================================== -->
@@ -8,12 +8,12 @@
     <div class="flex h-screen overflow-hidden bg-gray-50">
       <!-- Admin Sidebar -->
       <app-admin-sidebar></app-admin-sidebar>
-      
+
       <!-- Main Content Area with margin for sidebar -->
       <div class="flex-1 flex flex-col overflow-hidden lg:ml-72">
         <!-- Admin Header -->
         <app-admin-header (toggleSidebar)="onToggleAdminSidebar()"></app-admin-header>
-        
+
         <!-- Admin Content with scroll -->
         <main class="flex-1 overflow-y-auto bg-gray-50">
           <router-outlet></router-outlet>
@@ -29,12 +29,12 @@
     <div class="flex h-screen overflow-hidden bg-gray-50">
       <!-- Teacher Sidebar -->
       <app-teacher-sidebar></app-teacher-sidebar>
-      
+
       <!-- Main Content Area with margin for sidebar -->
       <div class="flex-1 flex flex-col overflow-hidden lg:ml-72">
         <!-- Teacher Header -->
         <app-teacher-header (toggleSidebar)="onToggleTeacherSidebar()"></app-teacher-header>
-        
+
         <!-- Teacher Content with scroll -->
         <main class="flex-1 overflow-y-auto bg-gray-50">
           <router-outlet></router-outlet>
@@ -72,4 +72,7 @@
 
   <!-- Global Confirmation Dialog (Always visible) -->
   <app-global-confirmation-dialog></app-global-confirmation-dialog>
+
+  <!-- Global Upload Progress Indicator (Always visible) -->
+  <app-upload-progress></app-upload-progress>
 </div>

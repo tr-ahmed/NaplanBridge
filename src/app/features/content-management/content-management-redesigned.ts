@@ -555,70 +555,45 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     const subjectIdNum = this.filters.subjectId ? Number(this.filters.subjectId) : null;
     const termIdNum = this.filters.termId ? Number(this.filters.termId) : null;
     const weekIdNum = this.filters.weekId ? Number(this.filters.weekId) : null;    // Filter Years - Apply year filter for hierarchy view
-    // When searching, include years that have matching subjects/content
+    // When searching, include years that have matching subjects
     this.filteredYears = this.years.filter(y => {
       if (!y) return false;
 
-      // Direct match on year number or ID
-      const directMatch = !q ||
-        (y.yearNumber && y.yearNumber.toString().includes(q)) ||
-        (y.id && y.id.toString().includes(q));
-
-      // If searching, also check if this year has any subjects that match
+      // If searching, check if this year has any subjects that match by subject name only
       let hasMatchingSubjects = false;
       if (q) {
         hasMatchingSubjects = this.subjects.some(s => {
           if (s.yearId !== y.id) return false;
-
-          const subjectNameObj = this.subjectNames.find(sn => sn.id === s.subjectNameId);
-          return (s.subjectName && s.subjectName.toLowerCase().includes(q)) ||
-                 (s.categoryName && s.categoryName.toLowerCase().includes(q)) ||
-                 (s.categoryDescription && s.categoryDescription.toLowerCase().includes(q)) ||
-                 (s.level && s.level.toLowerCase().includes(q)) ||
-                 (subjectNameObj && subjectNameObj.name && subjectNameObj.name.toLowerCase().includes(q));
+          return (s.subjectName && s.subjectName.toLowerCase().includes(q));
         });
       }
 
-      const matchesSearch = !q || directMatch || hasMatchingSubjects;
+      const matchesSearch = !q || hasMatchingSubjects;
       const matchesYearFilter = !yearIdNum || y.id === yearIdNum;
 
       return matchesSearch && matchesYearFilter;
     });
 
-    // Filter Categories
+    // Filter Categories - no search applied, only filter
     this.filteredCategories = this.categories.filter(c => {
       if (!c) return false;
-      return !q ||
-        (c.name && c.name.toLowerCase().includes(q)) ||
-        (c.description && c.description.toLowerCase().includes(q)) ||
-        (c.id && c.id.toString().includes(q));
+      return true; // Show all categories when no category filter is applied
     });
 
-    // Filter Subject Names
+    // Filter Subject Names - no search applied, only filter
     this.filteredSubjectNames = this.subjectNames.filter(sn => {
       if (!sn) return false;
-      const matchesSearch = !q ||
-        (sn.name && sn.name.toLowerCase().includes(q)) ||
-        (sn.id && sn.id.toString().includes(q));
       const matchesCategory = !categoryIdNum || sn.categoryId === categoryIdNum;
-      return matchesSearch && matchesCategory;
+      return matchesCategory;
     });
 
-    // Filter Subjects
+    // Filter Subjects - search by subject name only
     const subjectsArr = Array.isArray(this.subjects) ? this.subjects : [];
     this.filteredSubjects = subjectsArr.filter((s: Subject) => {
       if (!s) return false;
 
-      // Get subject name details if available
-      const subjectNameObj = this.subjectNames.find(sn => sn.id === s.subjectNameId);
-
-      const matchesSearch = !q ||
-        (s.subjectName && s.subjectName.toLowerCase().includes(q)) ||
-        (s.categoryName && s.categoryName.toLowerCase().includes(q)) ||
-        (s.categoryDescription && s.categoryDescription.toLowerCase().includes(q)) ||
-        (s.level && s.level.toLowerCase().includes(q)) ||
-        (subjectNameObj && subjectNameObj.name && subjectNameObj.name.toLowerCase().includes(q)) ||
-        (s.id && s.id.toString().includes(q));
+      // Search by subject name only
+      const matchesSearch = !q || (s.subjectName && s.subjectName.toLowerCase().includes(q));
 
       const matchesYear = !yearIdNum || s.yearId === yearIdNum;
       const matchesCategory = !categoryIdNum || s.categoryId === categoryIdNum;
@@ -626,7 +601,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       return matchesSearch && matchesYear && matchesCategory;
     });
 
-    // Filter Terms - also search in related subject
+    // Filter Terms - search by related subject name only
     this.filteredTerms = this.terms.filter(t => {
       if (!t) return false;
 
@@ -635,51 +610,37 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       if (q && t.subjectId) {
         const subject = this.subjects.find(s => s.id === t.subjectId);
         if (subject) {
-          const subjectNameObj = this.subjectNames.find(sn => sn.id === subject.subjectNameId);
-          subjectMatches = !!
-            ((subject.subjectName && subject.subjectName.toLowerCase().includes(q)) ||
-            (subject.categoryName && subject.categoryName.toLowerCase().includes(q)) ||
-            (subjectNameObj && subjectNameObj.name && subjectNameObj.name.toLowerCase().includes(q)));
+          subjectMatches = !!(subject.subjectName && subject.subjectName.toLowerCase().includes(q));
         }
       }
 
-      const matchesSearch = !q ||
-        (t.termNumber && t.termNumber.toString().includes(q)) ||
-        (t.id && t.id.toString().includes(q)) ||
-        subjectMatches;
+      const matchesSearch = !q || subjectMatches;
       const matchesSubject = !subjectIdNum || t.subjectId === subjectIdNum;
       return matchesSearch && matchesSubject;
     });
 
-    // Filter Weeks - also search in related term/subject
+    // Filter Weeks - search by related subject name only
     this.filteredWeeks = this.weeks.filter(w => {
       if (!w) return false;
 
       // Get term and subject details if searching
-      let relatedMatches = false;
+      let subjectMatches = false;
       if (q && w.termId) {
         const term = this.terms.find(t => t.id === w.termId);
         if (term && term.subjectId) {
           const subject = this.subjects.find(s => s.id === term.subjectId);
           if (subject) {
-            const subjectNameObj = this.subjectNames.find(sn => sn.id === subject.subjectNameId);
-            relatedMatches = !!
-              ((subject.subjectName && subject.subjectName.toLowerCase().includes(q)) ||
-              (subject.categoryName && subject.categoryName.toLowerCase().includes(q)) ||
-              (subjectNameObj && subjectNameObj.name && subjectNameObj.name.toLowerCase().includes(q)));
+            subjectMatches = !!(subject.subjectName && subject.subjectName.toLowerCase().includes(q));
           }
         }
       }
 
-      const matchesSearch = !q ||
-        (w.weekNumber && w.weekNumber.toString().includes(q)) ||
-        (w.id && w.id.toString().includes(q)) ||
-        relatedMatches;
+      const matchesSearch = !q || subjectMatches;
       const matchesTerm = !termIdNum || w.termId === termIdNum;
       return matchesSearch && matchesTerm;
     });
 
-    // Filter Lessons - also search in related week/term/subject
+    // Filter Lessons - search by related subject name only
     this.filteredLessons = this.lessons.filter((l: any) => {
       if (!l) return false;
 
@@ -688,19 +649,11 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       if (q && l.subjectId) {
         const subject = this.subjects.find(s => s.id === l.subjectId);
         if (subject) {
-          const subjectNameObj = this.subjectNames.find(sn => sn.id === subject.subjectNameId);
-          subjectMatches = !!
-            ((subject.subjectName && subject.subjectName.toLowerCase().includes(q)) ||
-            (subject.categoryName && subject.categoryName.toLowerCase().includes(q)) ||
-            (subjectNameObj && subjectNameObj.name && subjectNameObj.name.toLowerCase().includes(q)));
+          subjectMatches = !!(subject.subjectName && subject.subjectName.toLowerCase().includes(q));
         }
       }
 
-      const matchesSearch = !q ||
-        (l.title && l.title.toLowerCase().includes(q)) ||
-        (l.description && l.description.toLowerCase().includes(q)) ||
-        (l.id && l.id.toString().includes(q)) ||
-        subjectMatches;
+      const matchesSearch = !q || subjectMatches;
 
       const matchesWeek = !weekIdNum || l.weekId === weekIdNum;
       const matchesTerm = !termIdNum || this.getTermIdFromWeekId(l.weekId) === termIdNum;
@@ -863,7 +816,9 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.form = this.getEmptyForm(type);
 
     // Pre-fill based on hierarchy context
-    if (type === 'term' && contextData?.subject) {
+    if (type === 'subject' && contextData?.year) {
+      this.form.yearId = contextData.year.id;
+    } else if (type === 'term' && contextData?.subject) {
       this.form.subjectId = contextData.subject.id;
     } else if (type === 'week' && contextData?.term) {
       this.form.termId = contextData.term.id;

@@ -197,7 +197,7 @@ export class StudentDashboardComponent implements OnInit {
     return new Promise((resolve) => {
       this.dashboardService.getStudentSubscriptionsSummary(this.studentId).subscribe({
         next: (response) => {
-          console.log('📦 Raw subscriptions response:', response);
+          console.log('📦 [STUDENT DASHBOARD] Raw subscriptions response:', response);
 
           let subsArray: any[] = [];
 
@@ -213,12 +213,14 @@ export class StudentDashboardComponent implements OnInit {
             }
           }
 
-          console.log(`✅ Loaded ${subsArray.length} active subscription(s):`, subsArray);
+          console.log(`✅ [STUDENT DASHBOARD] Loaded ${subsArray.length} subscription(s):`, subsArray);
+          console.log(`📊 [STUDENT DASHBOARD] Setting subscriptions signal with:`, subsArray);
           this.subscriptions.set(subsArray);
+
           resolve(subsArray);
         },
         error: (err) => {
-          console.warn('⚠️ Subscriptions endpoint failed:', err);
+          console.error('⚠️ [STUDENT DASHBOARD] Subscriptions endpoint failed:', err);
           this.subscriptions.set([]);
           resolve([]);
         }

@@ -154,6 +154,115 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Left Column -->
         <div class="space-y-6">
+          <!-- Active Subscriptions - MOVED TO TOP -->
+          <div class="bg-gradient-to-br from-purple-50 to-white rounded-lg shadow-md hover:shadow-xl transition-all p-6 border-2 border-purple-200">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <span class="text-2xl">💳</span>
+                  Active Plans
+                </h2>
+                <p class="text-sm text-gray-600 mt-1">{{ subscriptions().length }} subscription(s)</p>
+              </div>
+              <button
+                (click)="goToSubscriptions()"
+                class="px-3 py-2 bg-purple-600 text-white hover:bg-purple-700 text-sm font-semibold rounded-lg transition-colors shadow-sm">
+                Browse Plans
+              </button>
+            </div>
+
+            @if (subscriptions().length === 0) {
+              <div class="text-center py-6 bg-white rounded-lg border-2 border-dashed border-purple-300">
+                <div class="w-16 h-16 mx-auto mb-3 bg-purple-100 rounded-full flex items-center justify-center">
+                  <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                  </svg>
+                </div>
+                <p class="text-gray-800 font-semibold text-base mb-1">No Active Subscriptions</p>
+                <p class="text-sm text-gray-600 mb-3">Subscribe to access lessons and exams</p>
+                <button
+                  (click)="goToSubscriptions()"
+                  class="px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 rounded-lg font-medium text-sm transition-colors shadow-sm">
+                  Browse Subscription Plans
+                </button>
+              </div>
+            }
+
+            @if (subscriptions().length > 0) {
+              <div class="space-y-3">
+                @for (sub of subscriptions().slice(0, 3); track sub.id) {
+                  <div class="p-4 border-2 rounded-lg transition-all hover:border-purple-400 hover:shadow-md bg-white"
+                       [class.border-green-400]="sub.status === 'Active'"
+                       [class.border-gray-300]="sub.status === 'Expired'"
+                       [class.shadow-green-100]="sub.status === 'Active'">
+                    <!-- Header with Plan Name and Status -->
+                    <div class="flex items-start justify-between mb-3">
+                      <div class="flex-1">
+                        <p class="font-bold text-gray-900 text-lg">{{ sub.planName || 'Subscription Plan' }}</p>
+                        <p class="text-sm text-gray-600 mt-1">{{ sub.planType || 'Premium Plan' }}</p>
+                      </div>
+                      <span
+                        class="text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap ml-2"
+                        [class.bg-green-200]="sub.status === 'Active'"
+                        [class.text-green-800]="sub.status === 'Active'"
+                        [class.bg-red-200]="sub.status === 'Expired'"
+                        [class.text-red-800]="sub.status === 'Expired'">
+                        @if (sub.status === 'Active') {
+                          ✓ Active
+                        }
+                        @if (sub.status === 'Expired') {
+                          ✕ Expired
+                        }
+                      </span>
+                    </div>
+
+                    <!-- Price and Duration -->
+                    <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
+                      @if (sub.amountPaid) {
+                        <div class="bg-purple-50 rounded p-3">
+                          <p class="text-gray-600 text-xs">Price</p>
+                          <p class="font-bold text-gray-900">${{ sub.amountPaid | number:'1.2-2' }}</p>
+                        </div>
+                      }
+                      @if (sub.startDate && sub.endDate) {
+                        <div class="bg-purple-50 rounded p-3">
+                          <p class="text-gray-600 text-xs">Duration</p>
+                          <p class="font-bold text-gray-900">{{ calculateDuration(sub.startDate, sub.endDate) }} days</p>
+                        </div>
+                      }
+                    </div>
+
+                    <!-- Expiry Info -->
+                    <div class="flex items-center justify-between text-sm text-gray-600 pt-3 border-t border-gray-200">
+                      <div>
+                        @if (sub.status === 'Active') {
+                          <span class="font-medium text-green-700">Expires: {{ formatDate(sub.endDate) }}</span>
+                        }
+                        @if (sub.status === 'Expired') {
+                          <span class="font-medium text-red-700">Ended: {{ formatDate(sub.endDate) }}</span>
+                        }
+                      </div>
+                      @if (sub.status === 'Active') {
+                        <button
+                          (click)="goToSubscriptions()"
+                          class="text-purple-600 hover:text-purple-700 font-semibold text-sm">
+                          Manage →
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (subscriptions().length > 3) {
+                  <button
+                    (click)="goToSubscriptions()"
+                    class="w-full py-2 text-purple-600 hover:text-purple-700 font-semibold text-sm border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
+                    View All {{ subscriptions().length }} Subscriptions
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
           <!-- Enrolled Subjects with Progress -->
           @if (enrolledSubjects().length > 0) {
             <div class="bg-white rounded-lg shadow-sm p-5">
@@ -389,108 +498,6 @@
                       <span class="text-xs text-gray-500">{{ exam.durationInMinutes }} min</span>
                     </div>
                   </div>
-                }
-              </div>
-            }
-          </div>
-
-          <!-- Active Subscriptions -->
-          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-5 border-l-4 border-purple-500">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <span class="text-xl">💳</span>
-                  Active Plans
-                </h2>
-                <p class="text-xs text-gray-500 mt-1">{{ subscriptions().length }} subscription(s)</p>
-              </div>
-              <button
-                (click)="goToSubscriptions()"
-                class="px-2 py-1 bg-purple-100 text-purple-700 hover:bg-purple-200 text-xs font-semibold rounded-lg transition-colors">
-                Browse
-              </button>
-            </div>
-
-            @if (subscriptions().length === 0) {
-              <div class="text-center py-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <p class="text-gray-600 font-medium text-sm mb-1">No Active Subscriptions</p>
-                <p class="text-xs text-gray-500">Subscribe to access lessons</p>
-              </div>
-            }
-
-            @if (subscriptions().length > 0) {
-              <div class="space-y-3">
-                @for (sub of subscriptions().slice(0, 3); track sub.id) {
-                  @if (sub.planName || sub.planType || sub.amountPaid || sub.startDate) {
-                    <div class="p-4 border-2 rounded-lg transition-all hover:border-purple-300 hover:shadow-md"
-                         [class.border-green-300]="sub.status === 'Active'"
-                         [class.border-gray-200]="sub.status === 'Expired'"
-                         [class.bg-green-50]="sub.status === 'Active'"
-                         [class.bg-gray-50]="sub.status === 'Expired'">
-                      <!-- Header with Plan Name and Status -->
-                      <div class="flex items-start justify-between mb-3">
-                        <div class="flex-1">
-                          <p class="font-bold text-gray-900">{{ sub.planName || 'Subscription Plan' }}</p>
-                          <p class="text-xs text-gray-600 mt-1">{{ sub.planType || 'Premium Plan' }}</p>
-                        </div>
-                        <span
-                          class="text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap ml-2"
-                          [class.bg-green-200]="sub.status === 'Active'"
-                          [class.text-green-800]="sub.status === 'Active'"
-                          [class.bg-red-200]="sub.status === 'Expired'"
-                          [class.text-red-800]="sub.status === 'Expired'">
-                          @if (sub.status === 'Active') {
-                            ✓ Active
-                          }
-                          @if (sub.status === 'Expired') {
-                            ✕ Expired
-                          }
-                        </span>
-                      </div>
-
-                      <!-- Price and Duration -->
-                      <div class="grid grid-cols-2 gap-2 mb-3 text-xs">
-                        @if (sub.amountPaid) {
-                          <div class="bg-gray-100 rounded p-2">
-                            <p class="text-gray-600">Price</p>
-                            <p class="font-bold text-gray-900">${{ sub.amountPaid | number:'1.2-2' }}</p>
-                          </div>
-                        }
-                        @if (sub.startDate && sub.endDate) {
-                          <div class="bg-gray-100 rounded p-2">
-                            <p class="text-gray-600">Duration</p>
-                            <p class="font-bold text-gray-900">{{ calculateDuration(sub.startDate, sub.endDate) }} days</p>
-                          </div>
-                        }
-                      </div>
-
-                      <!-- Expiry Info -->
-                      <div class="flex items-center justify-between text-xs text-gray-600 pt-3 border-t border-gray-200">
-                        <div>
-                          @if (sub.status === 'Active') {
-                            <span class="font-medium text-green-700">Expires: {{ formatDate(sub.endDate) }}</span>
-                          }
-                          @if (sub.status === 'Expired') {
-                            <span class="font-medium text-red-700">Ended: {{ formatDate(sub.endDate) }}</span>
-                          }
-                        </div>
-                        @if (sub.status === 'Active') {
-                          <button
-                            (click)="goToSubscriptions()"
-                            class="text-purple-600 hover:text-purple-700 font-semibold text-xs">
-                            Renew →
-                          </button>
-                        }
-                      </div>
-                    </div>
-                  }
-                }
-                @if (subscriptions().length > 3) {
-                  <button
-                    (click)="goToSubscriptions()"
-                    class="w-full py-2 text-purple-600 hover:text-purple-700 font-semibold text-sm border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
-                    View All {{ subscriptions().length }} Subscriptions
-                  </button>
                 }
               </div>
             }
