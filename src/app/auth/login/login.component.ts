@@ -108,38 +108,36 @@ onLogin(): void {
             }
           }
         } else {
-          this.handleLoginError(result.message || 'Login failed');
+          // result.success is false, extract error message safely
+          const errorMessage: string = ('message' in result && typeof result.message === 'string')
+            ? result.message
+            : (('error' in result && typeof result.error === 'string') ? result.error : 'Login failed');
+
+          // ✅ Check if email verification is required
+          if ('requiresVerification' in result && result.requiresVerification === true) {
+            this.showResendVerification.set(true);
+
+            // Extract email from result or use identifier if it's an email
+            const errorEmail = ('email' in result && typeof result.email === 'string') ? result.email : undefined;
+            const identifierIsEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValue.identifier);
+
+            this.unverifiedEmail.set(errorEmail || (identifierIsEmail ? formValue.identifier : ''));
+
+            // Show warning toast
+            this.toastService.showWarning(
+              errorMessage,
+              10000
+            );
+          } else {
+            // Handle other login errors
+            this.handleLoginError(errorMessage);
+          }
         }
       },
       error: (error) => {
         this.isLoading.set(false);
-        console.error('Login error:', error);
-
-        // ✅ Check for email verification required (multiple detection methods)
-        const isEmailNotVerified =
-          error.error?.requiresVerification === true ||
-          error.error?.error === 'Email not verified' ||
-          error.error?.message?.toLowerCase().includes('verify your email') ||
-          error.error?.message?.toLowerCase().includes('email not verified') ||
-          (typeof error.error === 'string' && error.error.toLowerCase().includes('email not verified'));
-
-        if (isEmailNotVerified) {
-          this.showResendVerification.set(true);
-
-          // Try to extract email from error response or use identifier if it looks like an email
-          const errorEmail = error.error?.email || error.error?.data?.email;
-          const identifierIsEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValue.identifier);
-
-          this.unverifiedEmail.set(errorEmail || (identifierIsEmail ? formValue.identifier : ''));
-
-          // Use the backend message if available, otherwise use default message
-          const verificationMessage = error.error?.message ||
-            'Please verify your email address before logging in. Check your inbox for the verification link.';
-
-          this.toastService.showWarning(verificationMessage, 10000);
-        } else {
-          this.toastService.showError(error.error?.message || 'Login failed. Please try again.');
-        }
+        console.error('Unexpected login error:', error);
+        this.toastService.showError('An unexpected error occurred. Please try again.');
       }
     });
   } else {

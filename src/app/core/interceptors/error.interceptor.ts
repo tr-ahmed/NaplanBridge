@@ -48,8 +48,18 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
 
           case 401:
-            // Handled by auth interceptor
-            errorMessage = 'Unauthorized. Please login again.';
+            // Check if this is an email verification error
+            const isEmailVerificationError =
+              error.error?.requiresVerification === true ||
+              error.error?.error === 'Email not verified';
+
+            if (isEmailVerificationError) {
+              // Don't show toast for email verification - let component handle it
+              errorMessage = error.error?.message || 'Please verify your email address.';
+            } else {
+              // Other 401 errors - handled by auth interceptor
+              errorMessage = 'Unauthorized. Please login again.';
+            }
             break;
 
           case 403:
@@ -85,10 +95,27 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      // Show error toast notification (except for 401/403/404 and when explicitly skipped)
+      // Show error toast notification (except for specific cases when explicitly skipped)
       const skipToast = req.headers.has('X-Skip-Toast');
-      if (error.status !== 401 && error.status !== 403 && error.status !== 404 && !skipToast) {
-        toastService.showError(errorMessage);
+      const isEmailVerificationError = error.status === 401 &&
+        (error.error?.requiresVerification === true || error.error?.error === 'Email not verified');
+
+      // Skip toast for: 401 (except email verification which is shown by component), 403, 404
+      if (error.status !== 403 && error.status !== 404 && !skipToast && !isEmailVerificationError) {
+        // For 401, only show toast if it's NOT an email verification error
+        if (error.status === 401) {
+          if (!isEmailVerificationError) {
+            toastService.showError(errorMessage);
+          }
+        } else {
+          toastService.showError(errorMessage);
+        }
+      }
+
+      // If skipToast is true, just pass the error through without re-throwing
+      // This allows the service to handle it with catchError
+      if (skipToast) {
+        return throwError(() => error);
       }
 
       // Re-throw the error for further handling

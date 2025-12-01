@@ -359,6 +359,61 @@ export class SubscriptionsComponent implements OnInit {
     return year?.name || `Year ${yearId + 6}`;
   }
 
+  // ✅ Get coverage description for a plan
+  getCoverageDescription(plan: SubscriptionPlan): string {
+    if (!plan || plan.planType === undefined) return '-';
+
+    switch (plan.planType) {
+      case PlanType.SingleTerm:
+        if (plan.subjectId) {
+          const subject = this.subjects.find(s => s.id === plan.subjectId);
+          const subjectName = subject ? (subject.subjectName || subject.name) : `Subject #${plan.subjectId}`;
+
+          // Use plan's own term name if available, otherwise use generic
+          if (plan.termId) {
+            return `${subjectName} - Term ${plan.termId}`;
+          }
+          return `${subjectName} - Single Term`;
+        }
+        return 'Single Term Plan';
+
+      case PlanType.MultiTerm:
+        if (plan.subjectId) {
+          const subject = this.subjects.find(s => s.id === plan.subjectId);
+          const subjectName = subject ? (subject.subjectName || subject.name) : `Subject #${plan.subjectId}`;
+          const termCount = plan.includedTermIds ? plan.includedTermIds.split(',').length : 0;
+          return `${subjectName} - ${termCount} Terms`;
+        }
+        return 'Multi-Term Plan';
+
+      case PlanType.SubjectAnnual:
+        if (plan.subjectId) {
+          const subject = this.subjects.find(s => s.id === plan.subjectId);
+          const subjectName = subject ? (subject.subjectName || subject.name) : `Subject #${plan.subjectId}`;
+          return `${subjectName} - Full Year`;
+        }
+        return 'Subject Annual Plan';
+
+      case PlanType.FullYear:
+        const yearName = this.getYearName(plan.yearId);
+        return yearName ? `All Subjects - ${yearName}` : 'Full Year Plan';
+
+      default:
+        return '-';
+    }
+  }
+
+  // ✅ Get term name by ID (searches in filteredTerms or loads from API)
+  getTermNameById(termId: number): string {
+    // First, try to find in already loaded terms
+    const term = this.filteredTerms.find(t => t.id === termId);
+    if (term) {
+      return term.name || `Term ${term.termNumber || termId}`;
+    }
+    // If not found, return a placeholder (the term will be loaded asynchronously)
+    return `Term #${termId}`;
+  }
+
   // ✅ Auto-generate plan name based on selections
   generatePlanName(): string {
     const planType = this.currentPlan.planType;
@@ -701,12 +756,47 @@ export class SubscriptionsComponent implements OnInit {
         }
 
         console.log('   🔄 Loading terms for subjectId:', plan.subjectId);
-        this.onSubjectChange(plan.subjectId);
+        // ✅ Load terms and wait for completion before showing modal
+        this.http.get<any>(`${environment.apiBaseUrl}/Terms/by-subject/${plan.subjectId}`)
+          .subscribe({
+            next: (data) => {
+              console.log('📦 Terms loaded for edit:', data);
+
+              let rawTerms: any[] = [];
+              if (Array.isArray(data)) {
+                rawTerms = data;
+              } else if (data && data.items && Array.isArray(data.items)) {
+                rawTerms = data.items;
+              } else if (data && typeof data === 'object') {
+                rawTerms = (data as any).data || Object.values(data) || [];
+              }
+
+              this.filteredTerms = rawTerms.map((term: any) => ({
+                id: term.id || term.termId,
+                name: term.name || term.termName || `Term ${term.termNumber || term.id}`,
+                termNumber: term.termNumber || 0,
+                subjectId: term.subjectId || plan.subjectId,
+                yearId: term.yearId
+              }));
+
+              console.log('✅ Terms loaded and ready:', this.filteredTerms.length);
+              // ✅ Now show modal after data is loaded
+              this.showPlanModal = true;
+            },
+            error: (error) => {
+              console.error('❌ Error loading terms for edit:', error);
+              this.filteredTerms = [];
+              // Still show modal even if terms fail to load
+              this.showPlanModal = true;
+            }
+          });
       } else {
         console.log('   ℹ️ No subject selected for this plan');
         this.filteredTerms = [];
         this.selectedYearFilter = 0;
         this.filteredSubjects = [];
+        // Show modal immediately if no subject
+        this.showPlanModal = true;
       }
     };
 
@@ -732,6 +822,7 @@ export class SubscriptionsComponent implements OnInit {
           },
           error: (error) => {
             console.error('❌ Error loading subjects for edit:', error);
+            this.showPlanModal = true;
           }
         });
     } else {
@@ -746,8 +837,6 @@ export class SubscriptionsComponent implements OnInit {
     } else {
       console.log('✅ Years already loaded, count:', this.years.length);
     }
-
-    this.showPlanModal = true;
   }
 
   closePlanModal(): void {
@@ -804,11 +893,9 @@ export class SubscriptionsComponent implements OnInit {
       this.plansService.updatePlan(planId, planDto)
         .subscribe({
           next: (updatedPlan) => {
-            // Update plan in local array
-            const index = this.subscriptionPlans.findIndex(p => (p.planId || p.id) === planId);
-            if (index !== -1) {
-              this.subscriptionPlans[index] = updatedPlan;
-            }
+            console.log('✅ Plan updated successfully:', updatedPlan);
+            // ✅ Reload all plans to ensure fresh data with all relationships
+            this.loadSubscriptionPlans();
             this.loading.set(false);
             this.closePlanModal();
             Swal.fire('Success', 'Subscription plan updated successfully', 'success');
@@ -824,9 +911,9 @@ export class SubscriptionsComponent implements OnInit {
       this.plansService.createPlan(planDto)
         .subscribe({
           next: (newPlan) => {
-            this.subscriptionPlans.push(newPlan);
-            this.stats.totalPlans = this.subscriptionPlans.length;
-            this.stats.activePlans = this.subscriptionPlans.filter(p => p.isActive).length;
+            console.log('✅ Plan created successfully:', newPlan);
+            // ✅ Reload all plans to ensure fresh data
+            this.loadSubscriptionPlans();
             this.loading.set(false);
             this.closePlanModal();
             Swal.fire('Success', 'Subscription plan created successfully', 'success');

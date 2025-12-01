@@ -65,7 +65,10 @@ export class ParentApiService {
     console.log('Full URL:', url);
     console.log('Login Data:', loginData);
 
-    return this.http.post<AuthResponse>(url, loginData).pipe(
+    // Add header to skip toast notification in interceptor
+    const headers = { 'X-Skip-Toast': 'true' };
+
+    return this.http.post<AuthResponse>(url, loginData, { headers }).pipe(
       map((response: AuthResponse) => {
         console.log('✅ Login Success Response:', response);
         return {
@@ -78,6 +81,28 @@ export class ParentApiService {
         console.error('Error Status:', error.status);
         console.error('Error Message:', error.message);
         console.error('Error Body:', error.error);
+
+        // ✅ Handle 401 Email Not Verified - Pass it to component for special handling
+        const isEmailNotVerified = error.status === 401 &&
+            (error.error?.requiresVerification === true || error.error?.error === 'Email not verified');
+
+        console.log('🔍 Is Email Not Verified?', isEmailNotVerified);
+        console.log('🔍 Condition Details:', {
+          status: error.status,
+          requiresVerification: error.error?.requiresVerification,
+          errorField: error.error?.error
+        });
+
+        if (isEmailNotVerified) {
+          console.log('✅ Returning email verification error result');
+          return of({
+            success: false as const,
+            error: error.error?.message || 'Please verify your email address before logging in.',
+            requiresVerification: true,
+            email: error.error?.email,
+            statusCode: 401
+          });
+        }
 
         // ✅ Handle 403 Forbidden - Account Deactivated
         if (error.status === 403) {

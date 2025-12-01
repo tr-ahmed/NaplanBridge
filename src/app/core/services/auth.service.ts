@@ -110,6 +110,15 @@ export class AuthService {
           this.setCurrentUser(result.data);
           return { success: true };
         } else {
+          // ✅ Pass through requiresVerification and email for email verification errors
+          if ('requiresVerification' in result && result.requiresVerification) {
+            return {
+              success: false,
+              message: result.error,
+              requiresVerification: true,
+              email: 'email' in result ? result.email : undefined
+            };
+          }
           return { success: false, message: result.error };
         }
       })
