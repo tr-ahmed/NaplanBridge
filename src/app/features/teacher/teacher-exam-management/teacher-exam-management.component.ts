@@ -303,6 +303,13 @@ export class TeacherExamManagementComponent implements OnInit {
         default: return ExamType.Lesson;
       }
     }
+
+    // If type is undefined or null, return default
+    if (type === undefined || type === null) {
+      console.warn('⚠️ examType is undefined/null, defaulting to Lesson');
+      return ExamType.Lesson;
+    }
+
     return type; // Already a string
   }
 
@@ -326,10 +333,13 @@ export class TeacherExamManagementComponent implements OnInit {
             p.subjectName === exam.subjectName && p.isActive
           );
 
+          const convertedType = this.convertExamType(exam.examType);
+          console.log(`📝 Exam: ${exam.title}, Type from API: ${exam.examType}, Converted: ${convertedType}`);
+
           return {
             id: exam.id,
             title: exam.title,
-            examType: this.convertExamType(exam.examType),
+            examType: convertedType,
             subjectId: permission?.subjectId || 0,
             subjectName: exam.subjectName || 'Not Specified',
             totalMarks: exam.totalMarks,
@@ -606,6 +616,24 @@ export class TeacherExamManagementComponent implements OnInit {
       [ExamType.Year]: '🎓'
     };
     return icons[type] || '📄';
+  }
+
+  /**
+   * Get exam type badge colors (like Admin)
+   */
+  getExamTypeBadge(type: ExamType): string {
+    switch (type) {
+      case ExamType.Lesson:
+        return 'bg-blue-100 text-blue-800';
+      case ExamType.Monthly:
+        return 'bg-purple-100 text-purple-800';
+      case ExamType.Term:
+        return 'bg-red-100 text-red-800';
+      case ExamType.Year:
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   }
 
   /**
