@@ -8,36 +8,36 @@
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Filters</h2>
+    <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
+      <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Filters</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <!-- Start Date -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Start Date</label>
           <input
             type="date"
             [(ngModel)]="startDate"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-2.5 py-2 sm:px-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
         <!-- End Date -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">End Date</label>
           <input
             type="date"
             [(ngModel)]="endDate"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-2.5 py-2 sm:px-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
         <!-- Payment Source -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Payment Source</label>
+          <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Payment Source</label>
           <select
             [(ngModel)]="paymentSource"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full px-2.5 py-2 sm:px-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="All">All</option>
             <option value="Session">Sessions Only</option>
@@ -50,7 +50,7 @@
           <button
             (click)="applyFilters()"
             [disabled]="loading()"
-            class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-medium"
+            class="w-full px-3 py-2 sm:px-4 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-medium"
           >
             @if (loading()) {
               <span>Loading...</span>
@@ -62,38 +62,38 @@
       </div>
 
       <!-- Export Buttons -->
-      <div class="mt-4 flex gap-3">
+      <div class="mt-3 sm:mt-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
         <button
           (click)="exportReport('excel')"
           [disabled]="exporting() || !report()"
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-medium flex items-center gap-2"
+          class="px-3 py-2 sm:px-4 text-sm sm:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-medium flex items-center justify-center gap-2"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
-          Export Excel
+          <span>Export Excel</span>
         </button>
 
         <button
           (click)="exportReport('pdf')"
           [disabled]="exporting() || !report()"
-          class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 font-medium flex items-center gap-2"
+          class="px-3 py-2 sm:px-4 text-sm sm:text-base bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 font-medium flex items-center justify-center gap-2"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
           </svg>
-          Export PDF
+          <span>Export PDF</span>
         </button>
 
         <button
           (click)="exportReport('csv')"
           [disabled]="exporting() || !report()"
-          class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 font-medium flex items-center gap-2"
+          class="px-3 py-2 sm:px-4 text-sm sm:text-base bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 font-medium flex items-center justify-center gap-2"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
-          Export CSV
+          <span>Export CSV</span>
         </button>
       </div>
     </div>

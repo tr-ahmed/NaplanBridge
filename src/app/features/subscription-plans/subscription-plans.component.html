@@ -1,22 +1,22 @@
 <!-- Subscription Plans Page -->
 <!-- Subscription Plans Selection Page -->
-<div class="min-h-screen bg-gray-50 pt-32 pb-16">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-gray-50 pt-20 sm:pt-32 pb-8 sm:pb-16">
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
 
     <!-- Header Section -->
-    <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-gray-900 mb-4">
+    <div class="text-center mb-6 sm:mb-12">
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
         Choose Your Learning Plan
       </h1>
-      <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+      <p class="text-sm sm:text-base lg:text-lg text-gray-600 max-w-3xl mx-auto px-2">
         Select the perfect educational package for your academic journey.
         Choose from flexible term-based options or save with our full year plan.
       </p>
 
       <!-- Year Selection -->
-      <div class="mt-8 bg-blue-50 rounded-xl p-6 max-w-md mx-auto">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Select Your Academic Year</h3>
-        <div class="grid grid-cols-2 gap-3">
+      <div class="mt-4 sm:mt-8 bg-blue-50 rounded-lg sm:rounded-xl p-4 sm:p-6 max-w-md mx-auto">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">Select Your Academic Year</h3>
+        <div class="grid grid-cols-2 gap-2 sm:gap-3">
           @for (yearOption of yearOptions; track yearOption.value) {
             <button
               (click)="onYearChange(yearOption.value)"
@@ -26,26 +26,26 @@
               [class.text-gray-700]="selectedYear() !== yearOption.value"
               [class.border-blue-600]="selectedYear() === yearOption.value"
               [class.border-gray-300]="selectedYear() !== yearOption.value"
-              class="px-4 py-3 rounded-lg font-medium border-2 transition-all duration-200 hover:shadow-md">
+              class="px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base rounded-lg font-medium border-2 transition-all duration-200 hover:shadow-md">
               {{ yearOption.label }}
             </button>
           }
         </div>
-        <p class="text-sm text-gray-500 mt-3">
+        <p class="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-3">
           Prices and content are tailored for {{ getSelectedYearName() }} students
         </p>
       </div>
     </div>
 
     <!-- Filters Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-      <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div class="flex flex-col sm:flex-row gap-4 flex-1">
+    <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-8">
+      <div class="flex flex-col md:flex-row gap-3 sm:gap-4 items-center justify-between">
+        <div class="flex flex-col gap-3 sm:gap-4 flex-1 w-full">
           <!-- Plan Type Filter -->
-          <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Plan Type</label>
+          <div class="flex-1 w-full">
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Plan Type</label>
             <select
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-2.5 py-2 sm:px-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               [value]="selectedFilter()"
               (change)="onFilterChange($any($event.target).value)">
               @for (option of filterOptions; track option.value) {
@@ -55,10 +55,10 @@
           </div>
 
           <!-- Payment Type Filter -->
-          <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Payment Type</label>
+          <div class="flex-1 w-full">
+            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Payment Type</label>
             <select
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full px-2.5 py-2 sm:px-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               [value]="selectedPaymentType()"
               (change)="onPaymentTypeChange($any($event.target).value)">
               @for (option of paymentTypeOptions; track option.value) {
@@ -69,7 +69,7 @@
         </div>
 
         <!-- Results Count -->
-        <div class="text-sm text-gray-500">
+        <div class="text-xs sm:text-sm text-gray-500 text-center md:text-left">
           {{ filteredPlans().length }} plan(s) found
         </div>
       </div>
@@ -104,7 +104,7 @@
 
     <!-- Plans Grid -->
     @if (!loading() && filteredPlans().length > 0) {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-12">
         @for (plan of filteredPlans(); track plan.id) {
           <div
             class="relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
@@ -116,7 +116,7 @@
             <!-- Most Popular Badge -->
             @if (plan.mostPopular) {
               <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-lg">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1.5 sm:px-6 sm:py-2 rounded-full text-xs sm:text-sm font-semibold shadow-lg">
                   🌟 Most Popular
                 </div>
               </div>
@@ -124,8 +124,8 @@
 
             <!-- Recommended Badge -->
             @if (plan.recommended && !plan.mostPopular) {
-              <div class="absolute top-4 right-4">
-                <div class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+              <div class="absolute top-2 right-2 sm:top-4 sm:right-4">
+                <div class="bg-green-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-semibold">
                   ✨ Recommended
                 </div>
               </div>
@@ -133,78 +133,78 @@
 
             <!-- Discount Badge -->
             @if (hasDiscount(plan)) {
-              <div class="absolute top-4 left-4">
-                <div class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+              <div class="absolute top-2 left-2 sm:top-4 sm:left-4">
+                <div class="bg-red-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-semibold">
                   {{ plan.currentDiscountPercentage }}% OFF
                 </div>
               </div>
             }
 
-            <div class="p-8">
+            <div class="p-4 sm:p-6 lg:p-8">
               <!-- Plan Header -->
-              <div class="text-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ plan.name }}</h3>
-                <p class="text-lg font-semibold text-gray-600 mb-4">{{ plan.nameAr }}</p>
+              <div class="text-center mb-4 sm:mb-6">
+                <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2">{{ plan.name }}</h3>
+                <p class="text-sm sm:text-base lg:text-lg font-semibold text-gray-600 mb-3 sm:mb-4">{{ plan.nameAr }}</p>
 
                 <!-- Pricing -->
-                <div class="mb-4">
+                <div class="mb-3 sm:mb-4">
                   @if (hasDiscount(plan)) {
-                    <div class="flex items-center justify-center gap-2 mb-2">
-                      <span class="text-3xl font-bold text-gray-900">{{ formatPrice(plan.currentPrice) }}</span>
-                      <span class="text-lg text-gray-500 line-through">{{ formatPrice(plan.currentOriginalPrice) }}</span>
+                    <div class="flex items-center justify-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                      <span class="text-2xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{{ formatPrice(plan.currentPrice) }}</span>
+                      <span class="text-sm sm:text-base lg:text-lg text-gray-500 line-through">{{ formatPrice(plan.currentOriginalPrice) }}</span>
                     </div>
-                    <div class="text-green-600 font-semibold text-sm">
+                    <div class="text-green-600 font-semibold text-xs sm:text-sm">
                       Save {{ formatPrice(calculateTotalSavings(plan)) }}
                     </div>
                   } @else {
-                    <span class="text-3xl font-bold text-gray-900">{{ formatPrice(plan.currentPrice) }}</span>
+                    <span class="text-2xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{{ formatPrice(plan.currentPrice) }}</span>
                   }
 
                   <!-- Payment Type -->
-                  <div class="text-sm text-gray-500 mt-2">
+                  <div class="text-xs sm:text-sm text-gray-500 mt-1.5 sm:mt-2">
                     {{ getPaymentTypeDisplay(plan.paymentType || 'monthly') }}
                   </div>
 
                   <!-- Monthly Price for annual plans -->
                   @if (plan.paymentType !== 'monthly' && plan.monthlyPrice !== plan.currentPrice) {
-                    <div class="text-sm text-blue-600 mt-1">
+                    <div class="text-xs sm:text-sm text-blue-600 mt-1">
                       {{ formatPrice(plan.monthlyPrice) }}/month
                     </div>
                   }
                 </div>
 
                 <!-- Plan Type -->
-                <div class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                <div class="inline-block bg-blue-100 text-blue-800 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium">
                   {{ getPlanTypeDisplay(plan.type || 'subject') }}
                 </div>
               </div>
 
               <!-- Plan Description -->
-              <p class="text-gray-600 text-center mb-6">{{ plan.description }}</p>
+              <p class="text-gray-600 text-center text-sm sm:text-base mb-4 sm:mb-6">{{ plan.description }}</p>
 
               <!-- Plan Stats -->
-              <div class="grid grid-cols-2 gap-4 mb-6 text-center">
-                <div class="bg-gray-50 rounded-lg p-3">
-                  <div class="text-2xl font-bold text-blue-600">{{ plan.totalSubjects }}</div>
-                  <div class="text-xs text-gray-600">Subjects</div>
+              <div class="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6 text-center">
+                <div class="bg-gray-50 rounded-lg p-2 sm:p-3">
+                  <div class="text-xl sm:text-2xl font-bold text-blue-600">{{ plan.totalSubjects }}</div>
+                  <div class="text-[10px] sm:text-xs text-gray-600">Subjects</div>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3">
-                  <div class="text-2xl font-bold text-green-600">{{ plan.totalLessons }}</div>
-                  <div class="text-xs text-gray-600">Lessons</div>
+                <div class="bg-gray-50 rounded-lg p-2 sm:p-3">
+                  <div class="text-xl sm:text-2xl font-bold text-green-600">{{ plan.totalLessons }}</div>
+                  <div class="text-[10px] sm:text-xs text-gray-600">Lessons</div>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3">
-                  <div class="text-2xl font-bold text-purple-600">{{ plan.estimatedHours }}</div>
-                  <div class="text-xs text-gray-600">Hours</div>
+                <div class="bg-gray-50 rounded-lg p-2 sm:p-3">
+                  <div class="text-xl sm:text-2xl font-bold text-purple-600">{{ plan.estimatedHours }}</div>
+                  <div class="text-[10px] sm:text-xs text-gray-600">Hours</div>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-3">
-                  <div class="text-2xl font-bold text-orange-600">{{ plan.includedTerms.length }}</div>
-                  <div class="text-xs text-gray-600">Terms</div>
+                <div class="bg-gray-50 rounded-lg p-2 sm:p-3">
+                  <div class="text-xl sm:text-2xl font-bold text-orange-600">{{ plan.includedTerms.length }}</div>
+                  <div class="text-[10px] sm:text-xs text-gray-600">Terms</div>
                 </div>
               </div>
 
               <!-- Features List -->
-              <div class="mb-8">
-                <h4 class="font-semibold text-gray-900 mb-3">What's Included:</h4>
+              <div class="mb-6 sm:mb-8">
+                <h4 class="font-semibold text-gray-900 text-sm sm:text-base mb-2 sm:mb-3">What's Included:</h4>
                 <ul class="space-y-2">
                   @for (feature of (plan.features || []).slice(0, 6); track feature) {
                     <li class="flex items-center text-sm text-gray-600">
@@ -226,22 +226,22 @@
               </div>
 
               <!-- Action Buttons -->
-              <div class="space-y-3">
+              <div class="space-y-2 sm:space-y-3">
                 <button
                   (click)="selectPlan(plan)"
-                  class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg">
+                  class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 text-sm sm:text-base rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg">
                   Choose This Plan
                 </button>
 
                 <button
                   (click)="viewPlanDetails(plan)"
-                  class="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 px-6 rounded-lg transition-colors duration-200">
+                  class="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2 sm:py-2 px-4 sm:px-6 text-sm sm:text-base rounded-lg transition-colors duration-200">
                   View Details
                 </button>
               </div>
 
               <!-- Validity Info -->
-              <div class="mt-4 text-center text-xs text-gray-500">
+              <div class="mt-3 sm:mt-4 text-center text-[10px] sm:text-xs text-gray-500">
                 {{ getValidityDescription(plan) }}
               </div>
             </div>
@@ -267,13 +267,13 @@
     }
 
     <!-- Additional Information Section -->
-    <div class="mt-16 bg-white rounded-2xl shadow-lg p-8">
-      <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold text-gray-900 mb-4">Why Choose Our Plans?</h2>
-        <p class="text-lg text-gray-600">Discover the benefits of our educational packages</p>
+    <div class="mt-8 sm:mt-12 lg:mt-16 bg-white rounded-lg sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8">
+      <div class="text-center mb-6 sm:mb-8">
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2 sm:mb-4">Why Choose Our Plans?</h2>
+        <p class="text-sm sm:text-base lg:text-lg text-gray-600">Discover the benefits of our educational packages</p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
         <div class="text-center">
           <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

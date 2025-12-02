@@ -245,34 +245,36 @@
         </div>
 
       <!-- Pagination -->
-      <div class="border-t border-gray-200 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gray-50">
-        <div class="text-sm text-gray-700">
+      <div class="border-t border-gray-200 px-3 py-3 sm:px-6 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 bg-gray-50">
+        <div class="hidden sm:block text-sm text-gray-700">
           Showing <span class="font-semibold text-gray-900">{{ startIndex }}</span> to
           <span class="font-semibold text-gray-900">{{ endIndex }}</span> of
           <span class="font-semibold text-gray-900">{{ filteredUsers.length }}</span> entries
         </div>
-        <div class="flex items-center gap-2">
+        <div class="w-full sm:w-auto flex items-center gap-1.5 sm:gap-2">
           <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1"
-                  class="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
-            Previous
+                  class="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
+            Prev
           </button>
-          <div class="flex items-center gap-1">
+          <div class="flex-1 sm:flex-none overflow-x-auto scrollbar-hide">
+            <div class="flex items-center gap-1 min-w-max">
             @for (page of getVisiblePages(); track page) {
             @if (page === -1) {
-            <span class="px-2 text-gray-500">...</span>
+            <span class="px-1 sm:px-2 text-gray-500 text-xs sm:text-sm">...</span>
             } @else {
             <button (click)="goToPage(page)"
                     [class.bg-blue-600]="page === currentPage()"
                     [class.text-white]="page === currentPage()"
                     [class.border-blue-600]="page === currentPage()"
-                    class="min-w-[2.5rem] h-10 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-gray-50 font-semibold transition-colors">
+                    class="min-w-[2rem] h-8 sm:min-w-[2.5rem] sm:h-10 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-xs sm:text-sm font-semibold transition-colors">
               {{ page }}
             </button>
             }
             }
+            </div>
           </div>
           <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages"
-                  class="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
+                  class="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
             Next
           </button>
         </div>
