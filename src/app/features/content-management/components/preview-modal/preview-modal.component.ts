@@ -398,7 +398,7 @@ export class PreviewModalComponent implements AfterViewInit, OnDestroy, OnChange
    */
   getResourceIcon(resourceType: string): string {
     const type = resourceType?.toLowerCase() || '';
-    
+
     // Check for common file extensions or types
     if (type.includes('pdf') || type === 'pdf') {
       return 'fas fa-file-pdf text-danger';
@@ -421,7 +421,7 @@ export class PreviewModalComponent implements AfterViewInit, OnDestroy, OnChange
     } else if (type.includes('text') || type.includes('txt')) {
       return 'fas fa-file-alt text-secondary';
     }
-    
+
     return 'fas fa-file text-muted';
   }
 
