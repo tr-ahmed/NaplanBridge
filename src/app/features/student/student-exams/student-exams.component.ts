@@ -218,9 +218,7 @@ export class StudentExamsComponent implements OnInit {
 
         this.allExamHistory.set(history);
         this.examHistory.set(this.filteredHistory());
-        this.historyLoading.set(false);
-
-        console.log('✅ Loaded exam history:', {
+        this.historyLoading.set(false);        console.log('✅ Loaded exam history:', {
           total: history.length,
           filtered: this.filteredHistory().length,
           subjectFilter: this.selectedSubjectId(),
@@ -361,10 +359,12 @@ export class StudentExamsComponent implements OnInit {
 
   /**
    * ✅ Calculate score percentage from exam history
+   * Backend returns decimal (0.75 for 75%), convert to percentage
    */
   getScorePercentage(exam: any): number {
-    if (!exam.totalMarks || exam.totalMarks === 0) return 0;
-    return (exam.score / exam.totalMarks) * 100;
+    // Backend now returns score as decimal (0.75 for 75%)
+    // Multiply by 100 to get percentage
+    return (exam.score || 0) * 100;
   }
 
   /**

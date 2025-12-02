@@ -328,6 +328,17 @@ export class LessonsComponent implements OnInit, OnDestroy {
   private navigateToLesson(lessonId: number, isPreviewMode: boolean = false): void {
     const queryParams: any = {};
 
+    // Pass subjectId for proper navigation back
+    if (this.currentSubjectId()) {
+      queryParams.subjectId = this.currentSubjectId();
+    }
+
+    // Pass studentId if authenticated
+    const studentId = this.authService.getCurrentUser()?.studentId;
+    if (studentId) {
+      queryParams.studentId = studentId;
+    }
+
     if (isPreviewMode) {
       queryParams.preview = 'true';
     }
