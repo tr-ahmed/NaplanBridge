@@ -304,44 +304,13 @@
         <ul class="space-y-2 list-none">
           @for (item of navigationItems; track item.id) {
             @if (item.label === 'Subjects') {
-              <!-- Subjects with Dropdown for Mobile -->
+              <!-- Subjects without subcategories for Mobile -->
               <li>
                 <button
                   (click)="navigateToCourses(); toggleMobileMenu()"
                   class="w-full text-left block text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-all duration-300 whitespace-nowrap">
                   {{ item.label }}
                 </button>
-                <!-- Subject Categories -->
-                <ul class="ml-4 mt-1 space-y-1">
-                  <li>
-                    <a (click)="navigateToCoursesWithFilter('mathematics'); toggleMobileMenu()"
-                       class="block text-gray-600 hover:text-primary-500 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-2">
-                      <i class="fas fa-calculator text-blue-600 text-xs"></i>
-                      Mathematics
-                    </a>
-                  </li>
-                  <li>
-                    <a (click)="navigateToCoursesWithFilter('reading'); toggleMobileMenu()"
-                       class="block text-gray-600 hover:text-primary-500 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-2">
-                      <i class="fas fa-book-open text-green-600 text-xs"></i>
-                      Reading
-                    </a>
-                  </li>
-                  <li>
-                    <a (click)="navigateToCoursesWithFilter('writing'); toggleMobileMenu()"
-                       class="block text-gray-600 hover:text-primary-500 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-2">
-                      <i class="fas fa-pen text-purple-600 text-xs"></i>
-                      Writing
-                    </a>
-                  </li>
-                  <li>
-                    <a (click)="navigateToCoursesWithFilter('language'); toggleMobileMenu()"
-                       class="block text-gray-600 hover:text-primary-500 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-2">
-                      <i class="fas fa-language text-orange-600 text-xs"></i>
-                      Language Conventions
-                    </a>
-                  </li>
-                </ul>
               </li>
             } @else {
               <li>
