@@ -88,7 +88,7 @@
             <p class="text-4xl font-bold text-gray-900 mb-2">{{ stats().totalLessonsCompleted }}</p>
             <p class="text-sm text-gray-600 font-medium">Lessons Completed</p>
             <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all" style="width: 65%"></div>
+              <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all" style="width: 100%"></div>
             </div>
           </div>
         </div>
@@ -108,7 +108,7 @@
             <p class="text-4xl font-bold text-gray-900 mb-2">{{ stats().totalExamsTaken }}</p>
             <p class="text-sm text-gray-600 font-medium">Exams Completed</p>
             <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all" style="width: 80%"></div>
+              <div class="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all" style="width: 100%"></div>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@
             <p class="text-4xl font-bold text-gray-900 mb-2">{{ stats().averageScore }}%</p>
             <p class="text-sm text-gray-600 font-medium">Average Score</p>
             <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full transition-all" [style.width.%]="stats().averageScore"></div>
+              <div class="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full transition-all" style="width: 100%"></div>
             </div>
           </div>
         </div>
@@ -148,7 +148,7 @@
             <p class="text-4xl font-bold text-gray-900 mb-2">{{ stats().activeSubscriptions }}</p>
             <p class="text-sm text-gray-600 font-medium">Active Plans</p>
             <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all" [style.width.%]="stats().activeSubscriptions > 0 ? 100 : 0"></div>
+              <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all" style="width: 100%"></div>
             </div>
           </div>
         </div>
@@ -188,7 +188,7 @@
                 <h3 class="font-bold text-gray-900 mb-1 text-base">Browse Lessons</h3>
                 <p class="text-xs text-gray-600 mb-2">{{ stats().totalLessonsCompleted }} completed</p>
                 <div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" style="width: 65%"></div>
+                  <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" style="width: 100%"></div>
                 </div>
               </div>
             </button>
@@ -204,7 +204,7 @@
                 <h3 class="font-bold text-gray-900 mb-1 text-base">Take Exam</h3>
                 <p class="text-xs text-gray-600 mb-2">{{ stats().totalExamsTaken }} completed</p>
                 <div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full" style="width: 80%"></div>
+                  <div class="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full" style="width: 100%"></div>
                 </div>
               </div>
             </button>
@@ -220,7 +220,7 @@
                 <h3 class="font-bold text-gray-900 mb-1 text-base">My Plans</h3>
                 <p class="text-xs text-gray-600 mb-2">{{ stats().activeSubscriptions }} active</p>
                 <div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full" [style.width.%]="stats().activeSubscriptions > 0 ? 100 : 0"></div>
+                  <div class="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full" style="width: 100%"></div>
                 </div>
               </div>
             </button>
@@ -236,7 +236,7 @@
                 <h3 class="font-bold text-gray-900 mb-1 text-base">My Sessions</h3>
                 <p class="text-xs text-gray-600 mb-2">View & book</p>
                 <div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                  <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full" style="width: 45%"></div>
+                  <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full" style="width: 100%"></div>
                 </div>
               </div>
             </a>
