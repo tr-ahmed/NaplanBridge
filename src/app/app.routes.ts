@@ -82,10 +82,11 @@ export const routes: Routes = [
   {
     path: 'courses',
     loadComponent: () => import('./features/courses/courses.component').then(m => m.CoursesComponent),
-    canActivate: [authGuard, () => {
+    // Allow guests to view courses. Only block users with the 'student' role.
+    canActivate: [() => {
       const authService = inject(AuthService);
       const router = inject(Router);
-      // منع الطلاب من الوصول لصفحة المواد
+      // Prevent students from accessing the public courses page
       if (authService.hasRole('student')) {
         router.navigate(['/student/dashboard']);
         return false;

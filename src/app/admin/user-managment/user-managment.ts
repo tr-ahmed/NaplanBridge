@@ -536,8 +536,12 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
       showCancelButton: true,
       confirmButtonText: 'Update',
       preConfirm: () => {
-        const roles = [...document.querySelectorAll('input[type="checkbox"]:checked')]
+        const popup = Swal.getPopup();
+        if (!popup) return Swal.showValidationMessage('Unable to read role selections');
+
+        const roles = [...popup.querySelectorAll('input[type="checkbox"]:checked')]
           .map((el: any) => el.value);
+
         return roles.length ? roles : Swal.showValidationMessage('Select at least one role');
       }
     });

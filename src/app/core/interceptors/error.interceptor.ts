@@ -100,11 +100,16 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       const isEmailVerificationError = error.status === 401 &&
         (error.error?.requiresVerification === true || error.error?.error === 'Email not verified');
 
-      // Skip toast for: 401 (except email verification which is shown by component), 403, 404
-      if (error.status !== 403 && error.status !== 404 && !skipToast && !isEmailVerificationError) {
-        // For 401, only show toast if it's NOT an email verification error
+      // Check if this is a guest 401 on public course/year endpoints
+      const token = localStorage.getItem('token');
+      const isGuestCourseEndpoint = error.status === 401 && !token &&
+        /\/api\/(years|courses)/i.test((error as any)?.url || req.url || '');
+
+      // Skip toast for: 401 (except email verification which is shown by component), 403, 404, and guest 401s on course endpoints
+      if (error.status !== 403 && error.status !== 404 && !skipToast && !isEmailVerificationError && !isGuestCourseEndpoint) {
+        // For 401, only show toast if it's NOT an email verification error and NOT a guest on course endpoints
         if (error.status === 401) {
-          if (!isEmailVerificationError) {
+          if (!isEmailVerificationError && !isGuestCourseEndpoint) {
             toastService.showError(errorMessage);
           }
         } else {

@@ -539,11 +539,20 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     this.coursesService.getCourses(filter)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(response => {
-        this.logger.log('📚 Received courses from API:', response.courses.length, response);
-        this.courses.set(response.courses);
-        this.totalCount.set(response.totalCount);
-        this.applyFilters();
+      .subscribe({
+        next: (response) => {
+          this.logger.log('📚 Received courses from API:', response.courses.length, response);
+          this.courses.set(response.courses);
+          this.totalCount.set(response.totalCount);
+          this.applyFilters();
+        },
+        error: (error) => {
+          this.logger.error('❌ Failed to load courses:', error);
+          // For guests or unauthorized responses, show an empty list gracefully
+          this.courses.set([]);
+          this.totalCount.set(0);
+          this.applyFilters();
+        }
       });
   }  /**
    * Subscribe to cart changes
