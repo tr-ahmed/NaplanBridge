@@ -398,7 +398,7 @@ export class ParentDashboardComponent implements OnInit {
         alerts.push({
           type: 'warning',
           message: `${child.name}'s progress is below 50%`,
-          actionUrl: '/student/dashboard',
+          actionUrl: `/parent/student/${child.id}`,
           actionText: 'View Details'
         });
       }
@@ -418,7 +418,7 @@ export class ParentDashboardComponent implements OnInit {
         alerts.push({
           type: 'success',
           message: `${child.name} is doing great with ${child.overallProgress}% progress! 🎉`,
-          actionUrl: '/student/dashboard',
+          actionUrl: `/parent/student/${child.id}`,
           actionText: 'View Progress'
         });
       }
