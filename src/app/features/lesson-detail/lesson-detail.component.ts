@@ -87,6 +87,10 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   loading = signal(false);
   error = signal<string | null>(null);
 
+  // Navigation context (for going back)
+  private subjectId?: number;
+  private studentId?: number;
+
   // Lesson navigation
   nextLesson = signal<Lesson | null>(null);
   previousLesson = signal<Lesson | null>(null);
@@ -216,6 +220,18 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Save navigation context from query params
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(queryParams => {
+        if (queryParams['subjectId']) {
+          this.subjectId = parseInt(queryParams['subjectId']);
+        }
+        if (queryParams['studentId']) {
+          this.studentId = parseInt(queryParams['studentId']);
+        }
+      });
+
     this.route.params
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
@@ -1084,16 +1100,37 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
    * Navigation methods
    */
   goBack(): void {
-    const lesson = this.lesson();
-    if (lesson) {
-      this.router.navigate(['/lessons'], {
-        queryParams: {
-          subject: lesson.subject,
-          courseId: lesson.courseId
-        }
-      });
+    // Use saved subjectId from navigation context
+    if (this.subjectId) {
+      const queryParams: any = {
+        subjectId: this.subjectId
+      };
+
+      // Add studentId if available
+      if (this.studentId) {
+        queryParams.studentId = this.studentId;
+      }
+
+      // Add subject name if available from lesson
+      const lesson = this.lesson();
+      if (lesson?.subject) {
+        queryParams.subject = lesson.subject;
+      }
+
+      this.router.navigate(['/lessons'], { queryParams });
     } else {
-      this.router.navigate(['/courses']);
+      // Fallback: try to get from lesson object or go to courses
+      const lesson = this.lesson();
+      if (lesson) {
+        this.router.navigate(['/lessons'], {
+          queryParams: {
+            subject: lesson.subject,
+            courseId: lesson.courseId
+          }
+        });
+      } else {
+        this.router.navigate(['/courses']);
+      }
     }
   }
 

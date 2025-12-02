@@ -23,9 +23,9 @@ import {
 export class StudentExamsComponent implements OnInit {
   // Data
   upcomingExams = signal<UpcomingExamDto[]>([]);
-  examHistory = signal<ExamHistoryDto[]>([]);
+  examHistory = signal<any[]>([]); // ✅ Changed to any[] to support actual API response
   allUpcomingExams = signal<UpcomingExamDto[]>([]); // Store all exams
-  allExamHistory = signal<ExamHistoryDto[]>([]); // Store all history
+  allExamHistory = signal<any[]>([]); // ✅ Changed to any[] to support actual API response
 
   // UI State
   loading = signal(false);
@@ -210,6 +210,12 @@ export class StudentExamsComponent implements OnInit {
         console.log('📊 [HISTORY DEBUG] Parsed history array:', history);
         console.log('📊 [HISTORY DEBUG] History length:', history.length);
 
+        // Log first item details if exists
+        if (history.length > 0) {
+          console.log('📊 [HISTORY DEBUG] First exam details:', history[0]);
+          console.log('📊 [HISTORY DEBUG] First exam keys:', Object.keys(history[0]));
+        }
+
         this.allExamHistory.set(history);
         this.examHistory.set(this.filteredHistory());
         this.historyLoading.set(false);
@@ -217,7 +223,8 @@ export class StudentExamsComponent implements OnInit {
         console.log('✅ Loaded exam history:', {
           total: history.length,
           filtered: this.filteredHistory().length,
-          subjectFilter: this.selectedSubjectId()
+          subjectFilter: this.selectedSubjectId(),
+          examHistorySignal: this.examHistory()
         });
       },
       error: (error: any) => {
@@ -350,6 +357,27 @@ export class StudentExamsComponent implements OnInit {
   isExamAvailable(exam: UpcomingExamDto): boolean {
     // The exam object now has isAvailableNow calculated in loadUpcomingExams
     return exam.isAvailableNow === true;
+  }
+
+  /**
+   * ✅ Calculate score percentage from exam history
+   */
+  getScorePercentage(exam: any): number {
+    if (!exam.totalMarks || exam.totalMarks === 0) return 0;
+    return (exam.score / exam.totalMarks) * 100;
+  }
+
+  /**
+   * ✅ Get grade letter based on percentage
+   */
+  getGradeLetter(exam: any): string {
+    const percentage = this.getScorePercentage(exam);
+    if (percentage >= 90) return 'A+';
+    if (percentage >= 80) return 'A';
+    if (percentage >= 70) return 'B';
+    if (percentage >= 60) return 'C';
+    if (percentage >= 50) return 'D';
+    return 'F';
   }
 
   /**
