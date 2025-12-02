@@ -1013,9 +1013,13 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.isAddingDiscussion.set(true);
 
+    // Get current video time and convert to integer seconds
+    const currentTime = this.videoCurrentTime();
+    const timestamp = currentTime > 0 ? Math.floor(currentTime) : undefined;
+
     const discussionData: CreateDiscussionDto = {
       question: this.discussionForm.value.question,
-      videoTimestamp: this.videoCurrentTime()
+      videoTimestamp: timestamp
     };
 
     this.discussionService.createDiscussion(lessonId, discussionData).subscribe({
