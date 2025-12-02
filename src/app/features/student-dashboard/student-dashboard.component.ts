@@ -564,6 +564,13 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   /**
+   * Navigate to My Subjects page
+   */
+  goToMySubjects(): void {
+    this.router.navigate(['/student/subjects']);
+  }
+
+  /**
    * Navigate to specific lesson
    */
   viewLesson(lessonId: number): void {

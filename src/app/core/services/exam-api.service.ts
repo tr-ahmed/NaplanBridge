@@ -29,7 +29,7 @@ import {
 })
 export class ExamApiService {
   private readonly apiUrl = `${environment.apiBaseUrl}/exam`;
-  private useMock = true; // Set to true for testing with mock data
+  private useMock = false; // Set to true for testing with mock data
 
   constructor(private http: HttpClient) {}
 

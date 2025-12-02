@@ -143,7 +143,7 @@
               @if (hasQuizzes()) {
                 <option value="quiz">❓ Quiz ({{ quizzes().length }})</option>
               }
-              <option value="notes">📝 Notes ({{ notes().length }})</option>
+              <option value="discussions">💬 Discussions ({{ discussions().length }})</option>
               <option value="teacher">👨‍🏫 Ask Teacher ({{ teacherQuestions().length }})</option>
               @if (canEditContent() && hasChapters()) {
                 <option value="chapters">📋 Chapters ({{ videoChapters().length }})</option>
@@ -196,29 +196,18 @@
                 </button>
               }
               <button
-                (click)="setActiveTab('notes')"
-                [class.border-blue-500]="activeTab() === 'notes'"
-                [class.text-blue-600]="activeTab() === 'notes'"
-                [class.border-transparent]="activeTab() !== 'notes'"
-                [class.text-gray-500]="activeTab() !== 'notes'"
-                class="flex-shrink-0 whitespace-nowrap py-3 md:py-4 px-1 border-b-2 font-medium text-xs md:text-sm hover:text-blue-600 hover:border-blue-300 transition-colors">
-                <i class="fas fa-sticky-note mr-1 md:mr-2"></i>
-                <span class="hidden md:inline">Notes</span>
-                <span class="md:hidden">N</span>
-                @if (notes().length > 0) {
-                  <span class="ml-1 md:ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">{{ notes().length }}</span>
-                }
-              </button>
-              <button
-                (click)="setActiveTab('qa')"
-                [class.border-blue-500]="activeTab() === 'qa'"
-                [class.text-blue-600]="activeTab() === 'qa'"
-                [class.border-transparent]="activeTab() !== 'qa'"
-                [class.text-gray-500]="activeTab() !== 'qa'"
+                (click)="setActiveTab('discussions')"
+                [class.border-blue-500]="activeTab() === 'discussions'"
+                [class.text-blue-600]="activeTab() === 'discussions'"
+                [class.border-transparent]="activeTab() !== 'discussions'"
+                [class.text-gray-500]="activeTab() !== 'discussions'"
                 class="flex-shrink-0 whitespace-nowrap py-3 md:py-4 px-1 border-b-2 font-medium text-xs md:text-sm hover:text-blue-600 hover:border-blue-300 transition-colors">
                 <i class="fas fa-comments mr-1 md:mr-2"></i>
-                <span class="hidden md:inline">Q&A</span>
-                <span class="md:hidden">Q&A</span>
+                <span class="hidden md:inline">Discussions</span>
+                <span class="md:hidden">Disc</span>
+                @if (discussions().length > 0) {
+                  <span class="ml-1 md:ml-2 bg-teal-100 text-teal-800 text-xs font-medium px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">{{ discussions().length }}</span>
+                }
               </button>
               <button
                 (click)="setActiveTab('teacher')"
@@ -512,74 +501,146 @@
             </div>
           }
 
-          <!-- Notes Tab -->
-          @if (activeTab() === 'notes') {
+          <!-- Discussions Tab -->
+          @if (activeTab() === 'discussions') {
             <div class="space-y-6">
               <div class="flex items-center justify-between">
-                <h3 class="text-xl font-semibold text-gray-900">Lesson Notes</h3>
+                <h3 class="text-xl font-semibold text-gray-900">Lesson Discussions</h3>
                 <div class="text-sm text-gray-600">
-                  Click on timestamps to jump to that part of the video
+                  {{ discussions().length }} {{ discussions().length === 1 ? 'discussion' : 'discussions' }}
                 </div>
               </div>
 
-              <!-- Add Note Form -->
-              <form [formGroup]="noteForm" (ngSubmit)="addNote()" class="bg-blue-50 rounded-lg p-4">
+              <!-- Add Discussion Form -->
+              <form [formGroup]="discussionForm" (ngSubmit)="addDiscussion()" class="bg-teal-50 rounded-lg p-4">
                 <div class="mb-4">
-                  <label class="block text-sm font-medium text-blue-900 mb-2">Add a note at {{ formatTimestamp(videoCurrentTime()) }}</label>
+                  <label class="block text-sm font-medium text-teal-900 mb-2">
+                    Ask a question about this lesson
+                    @if (videoCurrentTime() > 0) {
+                      <span class="text-teal-700"> at {{ formatTimestamp(videoCurrentTime()) }}</span>
+                    }
+                  </label>
                   <textarea
-                    formControlName="content"
+                    formControlName="question"
                     rows="3"
-                    class="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                    placeholder="Enter your note here..."></textarea>
+                    class="w-full px-3 py-2 border border-teal-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                    placeholder="Type your question here..."></textarea>
                 </div>
                 <button
                   type="submit"
-                  [disabled]="noteForm.invalid || isAddingNote()"
-                  class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                  [disabled]="discussionForm.invalid || isAddingDiscussion()"
+                  class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                   <i class="fas fa-plus mr-2"></i>
-                  Add Note
+                  Post Question
                 </button>
               </form>
 
-              <!-- Notes List -->
-              @if (notes().length > 0) {
+              <!-- Discussions List -->
+              @if (isLoadingDiscussions()) {
+                <div class="flex justify-center py-8">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                  <span class="ml-3 text-gray-600">Loading discussions...</span>
+                </div>
+              } @else if (discussions().length > 0) {
                 <div class="space-y-4">
-                  @for (note of notes(); track note.id) {
+                  @for (discussion of discussions(); track discussion.id) {
                     <div class="bg-white border border-gray-200 rounded-lg p-4">
-                      <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                          <div class="flex items-center gap-2 mb-2">
-                            <button
-                              (click)="seekToTime(note.timestamp)"
-                              class="text-blue-600 hover:text-blue-800 font-medium text-sm">
-                              <i class="fas fa-play mr-1"></i>
-                              {{ formatTimestamp(note.timestamp) }}
-                            </button>
-                            <span class="text-gray-500 text-xs">{{ note.createdAt | date:'short' }}</span>
+                      <!-- Discussion Header -->
+                      <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                          <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
+                            <i class="fas fa-user text-teal-600"></i>
                           </div>
-                          <p class="text-gray-800">{{ note.content }}</p>
+                          <div>
+                            <div class="font-medium text-gray-900">{{ discussion.studentName }}</div>
+                            <div class="text-sm text-gray-500">{{ discussion.createdAt | date:'short' }}</div>
+                          </div>
                         </div>
+                        @if (discussion.videoTimestamp) {
+                          <button
+                            (click)="seekToDiscussionTime(discussion.videoTimestamp)"
+                            class="text-teal-600 hover:text-teal-800 text-sm">
+                            <i class="fas fa-play mr-1"></i>
+                            {{ formatTimestamp(discussion.videoTimestamp) }}
+                          </button>
+                        }
+                      </div>
+
+                      <!-- Discussion Question -->
+                      <p class="text-gray-800 mb-3">{{ discussion.question }}</p>
+
+                      <!-- Discussion Stats -->
+                      <div class="flex items-center gap-4 text-sm text-gray-600 mb-3">
                         <button
-                          (click)="deleteNote(note.id)"
-                          class="text-red-600 hover:text-red-800 ml-4">
-                          <i class="fas fa-trash text-sm"></i>
+                          (click)="markHelpful(discussion.id)"
+                          [disabled]="discussion.isHelpful"
+                          [class.text-teal-600]="discussion.isHelpful"
+                          class="flex items-center gap-1 hover:text-teal-600 disabled:opacity-50">
+                          <i class="fas fa-thumbs-up"></i>
+                          <span>{{ discussion.helpfulCount }} Helpful</span>
                         </button>
+                        <span class="flex items-center gap-1">
+                          <i class="fas fa-reply"></i>
+                          <span>{{ discussion.repliesCount }} {{ discussion.repliesCount === 1 ? 'Reply' : 'Replies' }}</span>
+                        </span>
+                        @if (discussion.isAnswered) {
+                          <span class="text-green-600 font-medium">
+                            <i class="fas fa-check-circle"></i> Answered
+                          </span>
+                        }
+                      </div>
+
+                      <!-- Replies -->
+                      @if (discussion.replies.length > 0) {
+                        <div class="mt-4 pl-4 border-l-2 border-gray-200 space-y-3">
+                          @for (reply of discussion.replies; track reply.id) {
+                            <div class="bg-gray-50 rounded-lg p-3">
+                              <div class="flex items-center gap-2 mb-2">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                  <i [class]="reply.isTeacherReply ? 'fas fa-chalkboard-teacher text-blue-600' : 'fas fa-user text-gray-600'"></i>
+                                </div>
+                                <div>
+                                  <div class="font-medium text-gray-900">
+                                    {{ reply.userName }}
+                                    @if (reply.isTeacherReply) {
+                                      <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full ml-1">Teacher</span>
+                                    }
+                                  </div>
+                                  <div class="text-xs text-gray-500">{{ reply.createdAt | date:'short' }}</div>
+                                </div>
+                              </div>
+                              <p class="text-gray-700">{{ reply.reply }}</p>
+                            </div>
+                          }
+                        </div>
+                      }
+
+                      <!-- Add Reply -->
+                      <div class="mt-4">
+                        <div class="flex gap-2">
+                          <input
+                            type="text"
+                            [(ngModel)]="replyTexts[discussion.id]"
+                            placeholder="Write a reply..."
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                          <button
+                            (click)="addReply(discussion.id)"
+                            [disabled]="!replyTexts[discussion.id] || replyTexts[discussion.id].trim() === ''"
+                            class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-paper-plane"></i>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   }
                 </div>
               } @else {
-                <div class="text-center py-8">
-                  <i class="fas fa-sticky-note text-4xl text-gray-400 mb-4"></i>
-                  <p class="text-gray-600">No notes yet. Add your first note above!</p>
+                <div class="text-center py-12 bg-gray-50 rounded-lg">
+                  <i class="fas fa-comments text-gray-400 text-4xl mb-4"></i>
+                  <p class="text-gray-600">No discussions yet. Be the first to ask a question!</p>
                 </div>
               }
             </div>
-          }
-
-          <!-- Q&A Tab -->
-          @if (activeTab() === 'qa' && lesson()) {
-            <app-lesson-qa [lessonId]="lesson()!.id" />
           }
 
           <!-- Teacher Interaction Tab -->

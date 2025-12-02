@@ -32,43 +32,18 @@ export class StudentSessionsComponent implements OnInit {
 
     this.sessionService.getStudentUpcomingSessions().subscribe({
       next: (response) => {
-        console.log('📚 Student Sessions API Response:', response);
-        console.log('📚 Sessions Data:', response.data);
-        console.log('📚 Sessions Count:', response.data?.length);
-
         if (response.success && response.data) {
-          console.log('✅ Setting sessions:', response.data);
           this.sessions.set(response.data);
-
-          // Log each session status
-          response.data.forEach((session, index) => {
-            console.log(`Session ${index + 1}:`, {
-              id: session.id,
-              teacher: session.teacherName,
-              status: session.status,
-              statusReadable: this.getReadableStatus(session.status),
-              scheduledDateTime: session.scheduledDateTime
-            });
-          });
-        } else {
-          console.warn('⚠️ No sessions data or success=false');
         }
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error loading sessions:', error);
-        console.error('❌ Error details:', {
-          status: error.status,
-          message: error.message,
-          error: error.error
-        });
+        console.error('Error loading sessions:', error);
         this.toastService.showError('Failed to load sessions');
         this.loading.set(false);
       }
     });
-  }
-
-  /**
+  }  /**
    * Format date time for display
    */
   formatDateTime(dateTime: string): string {

@@ -182,21 +182,35 @@ export class LessonsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
+          // ✅ WORKAROUND: If hasAccess=true, unlock all lessons
+          // Backend still returns locked lessons despite valid subscription
+          if (this.hasAccess()) {
+            console.log('🔓 WORKAROUND: Unlocking all lessons (hasAccess=true)');
+            lessons = lessons.map((lesson: any) => ({
+              ...lesson,
+              hasAccess: true,
+              isLocked: false
+            }));
+          }
+
           this.lessons.set(lessons);
           this.loading.set(false);
 
-          // Check if any lessons have access
-          const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
-          this.hasAccess.set(hasAnyAccess);
+          // ✅ Don't override hasAccess if it was set from query params
+          if (!this.hasAccess()) {
+            // Check if any lessons have access
+            const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
+            this.hasAccess.set(hasAnyAccess);
 
-          // Show subscription banner if no access
-          if (!hasAnyAccess && this.authService.isAuthenticated()) {
-            this.showSubscriptionBanner.set(true);
+            // Show subscription banner if no access
+            if (!hasAnyAccess && this.authService.isAuthenticated()) {
+              this.showSubscriptionBanner.set(true);
+            }
           }
 
           console.log('✅ Lessons loaded:', {
             count: lessons.length,
-            hasAccess: hasAnyAccess,
+            hasAccess: this.hasAccess(),
             isGuest: !studentId
           });
         },
@@ -626,22 +640,18 @@ export class LessonsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
+          this.lessons.set(lessons);
+          this.loading.set(false);
+
+          const currentAccess = this.hasAccess();
+
           console.log('📦 Lessons loaded:', {
             count: lessons.length,
             subjectId,
             termNumber,
-            isGuest: !studentId,
-            currentHasAccess: this.hasAccess()  // Current term access status
+            hasAccess: currentAccess,
+            isGuest: !studentId
           });
-
-          this.lessons.set(lessons);
-          this.loading.set(false);
-
-          // ⚠️ DON'T update hasAccess from lessons - trust the term's hasAccess value
-          // The backend may return hasAccess:true for lessons even in locked terms
-          const currentAccess = this.hasAccess();
-
-          console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber} (Term Access: ${currentAccess})`);
 
           if (!currentAccess) {
             console.log('🔒 Preview mode - Lessons shown but locked (no subscription for this term)');

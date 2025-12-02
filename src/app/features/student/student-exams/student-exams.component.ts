@@ -43,6 +43,21 @@ export class StudentExamsComponent implements OnInit {
     return exams;
   });
 
+  // ✅ Computed: Check if any exam is currently available
+  hasLiveExams = computed(() => {
+    return this.upcomingExams().some(exam => this.isExamAvailable(exam));
+  });
+
+  // ✅ Computed: Count of live exams
+  liveExamsCount = computed(() => {
+    return this.upcomingExams().filter(exam => this.isExamAvailable(exam)).length;
+  });
+
+  // ✅ Computed: Check if has upcoming exams but none are live
+  hasUpcomingButNoLive = computed(() => {
+    return this.upcomingExams().length > 0 && !this.hasLiveExams();
+  });
+
   filteredHistory = computed(() => {
     const subjectId = this.selectedSubjectId();
     const history = this.allExamHistory();
@@ -134,11 +149,14 @@ export class StudentExamsComponent implements OnInit {
             }
           }
 
-          console.log(`Exam: ${exam.title}`);
-          console.log(`  Start: ${exam.startDate}`);
-          console.log(`  End: ${exam.endDate}`);
-          console.log(`  Available Now: ${isAvailableNow}`);
-          console.log(`  Remaining Time: ${remainingTime}`);
+          console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+          console.log(`📋 Exam: ${exam.title}`);
+          console.log(`🕐 Current Time: ${now.toLocaleString()}`);
+          console.log(`📅 Start Time: ${startDate.toLocaleString()}`);
+          console.log(`📅 End Time: ${endDate.toLocaleString()}`);
+          console.log(`${isAvailableNow ? '🟢' : '🔴'} Available Now: ${isAvailableNow}`);
+          console.log(`⏱️  Remaining Time: ${remainingTime}`);
+          console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
 
           return {
             ...exam,
@@ -281,15 +299,19 @@ export class StudentExamsComponent implements OnInit {
   /**
    * Get exam type label
    */
-  getExamTypeLabel(type: ExamType): string {
-    return getExamTypeLabel(type);
+  getExamTypeLabel(type: ExamType | string): string {
+    // Convert string to ExamType enum if needed
+    const examType = typeof type === 'string' ? (type as ExamType) : type;
+    return getExamTypeLabel(examType);
   }
 
   /**
    * Get exam type icon
    */
-  getExamTypeIcon(type: ExamType): string {
-    return getExamTypeIcon(type);
+  getExamTypeIcon(type: ExamType | string): string {
+    // Convert string to ExamType enum if needed
+    const examType = typeof type === 'string' ? (type as ExamType) : type;
+    return getExamTypeIcon(examType);
   }
 
   /**

@@ -11,6 +11,7 @@ import { LessonsService } from '../../core/services/lessons.service';
 import { ContentService } from '../../core/services/content.service';
 import { AuthService } from '../../core/services/auth.service';
 import { VideoService } from '../../core/services/video.service';
+import { DiscussionService, DiscussionDto, CreateDiscussionDto, CreateReplyDto } from '../../core/services/discussion.service';
 import { LessonQaComponent } from './lesson-qa/lesson-qa.component';
 
 interface Quiz {
@@ -128,8 +129,15 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   questionForm: FormGroup;
   isAskingQuestion = signal(false);
 
+  // Discussions state
+  discussions = signal<DiscussionDto[]>([]);
+  discussionForm: FormGroup;
+  isAddingDiscussion = signal(false);
+  isLoadingDiscussions = signal(false);
+  replyTexts: { [discussionId: number]: string } = {};
+
   // Active tab
-  activeTab = signal<'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker' | 'qa'>('video');
+  activeTab = signal<'video' | 'resources' | 'quiz' | 'discussions' | 'teacher' | 'chapters' | 'quiz-maker'>('video');
 
   // Computed values
   currentQuiz = computed(() => {
@@ -164,6 +172,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     private contentService: ContentService,
     private authService: AuthService,
     private videoService: VideoService,
+    private discussionService: DiscussionService,
     private fb: FormBuilder,
     private toastService: ToastService,
     private cdr: ChangeDetectorRef
@@ -173,6 +182,10 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.questionForm = this.fb.group({
+      question: ['', [Validators.required, Validators.minLength(10)]]
+    });
+
+    this.discussionForm = this.fb.group({
       question: ['', [Validators.required, Validators.minLength(10)]]
     });
 
@@ -259,6 +272,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
             this.loadQuizzes(lessonId);  // Changed from loadMockQuizzes
             this.loadMockNotes(lessonId);
             this.loadMockTeacherQuestions(lessonId);
+            this.loadDiscussions();
             this.loadAdjacentLessons(lessonId);
             this.loadVideoChapters(lessonId);
             this.loadQuizMakers(lessonId);
@@ -555,7 +569,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Set active tab
    */
-  setActiveTab(tab: 'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker' | 'qa'): void {
+  setActiveTab(tab: 'video' | 'resources' | 'quiz' | 'discussions' | 'teacher' | 'chapters' | 'quiz-maker'): void {
     this.activeTab.set(tab);
 
     // Re-initialize video player when switching back to video tab
@@ -947,6 +961,107 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       // Show success message
       this.toastService.showSuccess('Your question has been sent to the teacher. You will be notified when they respond.');
     }
+  }
+
+  /**
+   * Discussion methods
+   */
+  loadDiscussions(): void {
+    const lessonId = this.lesson()?.id;
+    if (!lessonId) return;
+
+    this.isLoadingDiscussions.set(true);
+
+    this.discussionService.getDiscussionsForLesson(lessonId).subscribe({
+      next: (discussions) => {
+        this.discussions.set(discussions);
+        this.isLoadingDiscussions.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading discussions:', error);
+        this.toastService.showError('Failed to load discussions');
+        this.isLoadingDiscussions.set(false);
+      }
+    });
+  }
+
+  addDiscussion(): void {
+    if (this.discussionForm.invalid) return;
+
+    const lessonId = this.lesson()?.id;
+    if (!lessonId) return;
+
+    this.isAddingDiscussion.set(true);
+
+    const discussionData: CreateDiscussionDto = {
+      question: this.discussionForm.value.question,
+      videoTimestamp: this.videoCurrentTime()
+    };
+
+    this.discussionService.createDiscussion(lessonId, discussionData).subscribe({
+      next: (discussion) => {
+        const current = this.discussions();
+        this.discussions.set([discussion, ...current]);
+        this.discussionForm.reset();
+        this.isAddingDiscussion.set(false);
+        this.toastService.showSuccess('Discussion posted successfully!');
+      },
+      error: (error) => {
+        console.error('Error adding discussion:', error);
+        this.toastService.showError('Failed to post discussion');
+        this.isAddingDiscussion.set(false);
+      }
+    });
+  }
+
+  addReply(discussionId: number): void {
+    const replyText = this.replyTexts[discussionId];
+    if (!replyText || replyText.trim() === '') return;
+
+    const replyData: CreateReplyDto = {
+      reply: replyText
+    };
+
+    this.discussionService.addReply(discussionId, replyData).subscribe({
+      next: (reply) => {
+        const discussions = this.discussions();
+        const discussion = discussions.find(d => d.id === discussionId);
+        if (discussion) {
+          discussion.replies.push(reply);
+          discussion.repliesCount++;
+          this.discussions.set([...discussions]);
+        }
+        this.replyTexts[discussionId] = '';
+        this.toastService.showSuccess('Reply added successfully!');
+      },
+      error: (error) => {
+        console.error('Error adding reply:', error);
+        this.toastService.showError('Failed to add reply');
+      }
+    });
+  }
+
+  markHelpful(discussionId: number): void {
+    this.discussionService.markAsHelpful(discussionId).subscribe({
+      next: () => {
+        const discussions = this.discussions();
+        const discussion = discussions.find(d => d.id === discussionId);
+        if (discussion) {
+          discussion.isHelpful = true;
+          discussion.helpfulCount++;
+          this.discussions.set([...discussions]);
+        }
+        this.toastService.showSuccess('Marked as helpful!');
+      },
+      error: (error) => {
+        console.error('Error marking helpful:', error);
+        this.toastService.showError('Failed to mark as helpful');
+      }
+    });
+  }
+
+  seekToDiscussionTime(timestamp: number): void {
+    this.seekToTime(timestamp);
   }
 
   /**

@@ -94,7 +94,7 @@ export class StudentExamsComponent implements OnInit {
   }
 
   /**
-   * ✅ NEW: Load all published exams using new endpoint
+   * ✅ Load all published exams using new endpoint
    * GET /api/exam/student/{studentId}/all
    */
   private loadAllExams(): Promise<void> {
@@ -104,12 +104,14 @@ export class StudentExamsComponent implements OnInit {
           if (response.success && response.data) {
             this.allExams.set(response.data.exams);
             this.totalCount.set(response.data.totalCount);
-            console.log(`✅ Loaded ${response.data.totalCount} total exams`);
+          } else {
+            this.allExams.set([]);
+            this.totalCount.set(0);
           }
           resolve();
         },
         error: (err) => {
-          console.error('❌ Error loading all exams:', err);
+          console.error('Error loading all exams:', err);
           this.allExams.set([]);
           this.totalCount.set(0);
           resolve();
@@ -119,7 +121,7 @@ export class StudentExamsComponent implements OnInit {
   }
 
   /**
-   * ✅ UPDATED: Load upcoming exams using existing endpoint
+   * ✅ Load upcoming exams using existing endpoint
    * GET /api/exam/student/{studentId}/upcoming
    */
   private loadUpcomingExams(): Promise<void> {
@@ -129,22 +131,23 @@ export class StudentExamsComponent implements OnInit {
           if (response.success && response.data) {
             this.upcomingExams.set(response.data.exams);
             this.upcomingCount.set(response.data.upcomingCount);
-            console.log(`✅ Loaded ${response.data.upcomingCount} upcoming exams`);
+          } else {
+            this.upcomingExams.set([]);
+            this.upcomingCount.set(0);
           }
           resolve();
         },
         error: (err) => {
-          console.error('❌ Error loading upcoming exams:', err);
+          console.error('Error loading upcoming exams:', err);
+          this.toastService.showError('Failed to load upcoming exams');
           this.upcomingExams.set([]);
           this.upcomingCount.set(0);
           resolve();
         }
       });
     });
-  }
-
-  private loadExamHistory(): Promise<void> {
-    return new Promise((resolve, reject) => {
+  }  private loadExamHistory(): Promise<void> {
+    return new Promise((resolve) => {
       this.dashboardService.getStudentExamHistory(this.studentId).subscribe({
         next: (response: any) => {
           if (response && response.data && Array.isArray(response.data)) {
@@ -182,18 +185,62 @@ export class StudentExamsComponent implements OnInit {
   }
 
   /**
-   * ✅ NEW: Check if exam is past
+   * ✅ Check if exam is past
    */
   isPast(exam: UpcomingExamDto): boolean {
     return new Date(exam.endDate) < new Date();
   }
 
   /**
-   * ✅ NEW: Check if exam is in progress
+   * ✅ Check if exam is in progress (available to take now)
    */
   isInProgress(exam: UpcomingExamDto): boolean {
     const now = new Date();
     return new Date(exam.startDate) <= now && new Date(exam.endDate) >= now;
+  }
+
+  /**
+   * ✅ Check if exam is upcoming (not started yet)
+   */
+  isUpcoming(exam: UpcomingExamDto): boolean {
+    return new Date(exam.startDate) > new Date();
+  }
+
+  /**
+   * ✅ Get exam status text
+   */
+  getExamStatus(exam: UpcomingExamDto): string {
+    if (this.isInProgress(exam)) return 'Available Now';
+    if (this.isUpcoming(exam)) return 'Upcoming';
+    if (this.isPast(exam)) return 'Ended';
+    return 'Unknown';
+  }
+
+  /**
+   * ✅ Get time until exam starts or ends
+   */
+  getTimeInfo(exam: UpcomingExamDto): string {
+    const now = new Date();
+    const start = new Date(exam.startDate);
+    const end = new Date(exam.endDate);
+
+    if (this.isInProgress(exam)) {
+      const hoursLeft = Math.floor((end.getTime() - now.getTime()) / (1000 * 60 * 60));
+      const minutesLeft = Math.floor(((end.getTime() - now.getTime()) % (1000 * 60 * 60)) / (1000 * 60));
+      return `Ends in ${hoursLeft}h ${minutesLeft}m`;
+    }
+
+    if (this.isUpcoming(exam)) {
+      const hoursUntil = Math.floor((start.getTime() - now.getTime()) / (1000 * 60 * 60));
+      const minutesUntil = Math.floor(((start.getTime() - now.getTime()) % (1000 * 60 * 60)) / (1000 * 60));
+      if (hoursUntil > 24) {
+        const days = Math.floor(hoursUntil / 24);
+        return `Starts in ${days} day${days > 1 ? 's' : ''}`;
+      }
+      return `Starts in ${hoursUntil}h ${minutesUntil}m`;
+    }
+
+    return 'Ended';
   }
 
   /**

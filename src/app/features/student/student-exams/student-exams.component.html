@@ -59,6 +59,51 @@
       </div>
     </div>
 
+    <!-- 🔥 LIVE EXAMS ALERT - Show if any exam is available -->
+    @if (activeTab() === 'upcoming' && hasLiveExams()) {
+      <div class="bg-gradient-to-r from-green-500 via-emerald-600 to-green-700 rounded-2xl shadow-2xl p-6 mb-6 animate-pulse border-4 border-green-400">
+        <div class="flex items-center gap-4">
+          <div class="flex-shrink-0">
+            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center animate-bounce">
+              <svg class="w-10 h-10 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1 text-white">
+            <h3 class="text-2xl font-bold mb-1 flex items-center gap-2">
+              🎯 LIVE EXAMS AVAILABLE!
+            </h3>
+            <p class="text-green-100 text-lg">You have {{ liveExamsCount() }} exam(s) ready to start. Scroll down to begin!</p>
+          </div>
+          <div class="flex-shrink-0">
+            <svg class="w-12 h-12 text-white animate-ping" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ⏰ NO LIVE EXAMS - Show helpful message -->
+    @if (activeTab() === 'upcoming' && hasUpcomingButNoLive()) {
+      <div class="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl shadow-xl p-6 mb-6 border-2 border-blue-300">
+        <div class="flex items-center gap-4">
+          <div class="flex-shrink-0">
+            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+              <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1 text-white">
+            <h3 class="text-2xl font-bold mb-1">📅 No Live Exams Right Now</h3>
+            <p class="text-blue-100 text-lg">All your exams are scheduled for later. Check below for start times!</p>
+          </div>
+        </div>
+      </div>
+    }
+
   <!-- Upcoming Exams Tab -->
   @if (activeTab() === 'upcoming') {
     <div class="tab-content">
@@ -68,74 +113,183 @@
           <p>Loading...</p>
         </div>
       } @else {
-        <div class="exams-grid">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           @for (exam of upcomingExams(); track exam.id) {
-            <div class="exam-card upcoming" [class.available]="isExamAvailable(exam)">
-              <div class="card-header">
-                <div class="type-icon">
-                  <i class="fas" [ngClass]="getExamTypeIcon(exam.examType)"></i>
-                </div>
-                <div class="exam-info">
-                  <h3>{{ exam.title }}</h3>
-                  <span class="subject">{{ exam.subject }}</span>
-                  <span class="type-label">{{ getExamTypeLabel(exam.examType) }}</span>
-                </div>
-              </div>
+            <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 transform hover:-translate-y-1"
+                 [ngClass]="{
+                   'border-green-400 ring-4 ring-green-100': isExamAvailable(exam),
+                   'border-blue-200': !isExamAvailable(exam)
+                 }">
 
-              <div class="card-body">
-                <div class="exam-details">
-                  <div class="detail-item">
-                    <i class="fas fa-clock"></i>
-                    <span>{{ exam.durationInMinutes }} minutes</span>
-                  </div>
-                  <div class="detail-item">
-                    <i class="fas fa-star"></i>
-                    <span>{{ exam.totalMarks }} points</span>
+              <!-- Status Banner at Top -->
+              @if (isExamAvailable(exam)) {
+                <div class="relative overflow-hidden">
+                  <div class="absolute inset-0 bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 animate-gradient"></div>
+                  <div class="relative px-4 py-3 flex items-center justify-center gap-3 text-white font-bold">
+                    <svg class="w-6 h-6 animate-bounce" fill="currentColor" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    <span class="text-lg">🎯 EXAM IS LIVE - START NOW!</span>
+                    <svg class="w-6 h-6 animate-bounce" fill="currentColor" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10"/>
+                    </svg>
                   </div>
                 </div>
+              } @else {
+                <div class="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 px-4 py-3 flex items-center justify-center gap-2 text-white font-bold">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span>⏰ UPCOMING EXAM</span>
+                </div>
+              }
 
-                <div class="exam-schedule">
-                  <div class="schedule-item">
-                    <i class="fas fa-calendar-day"></i>
-                    <div class="schedule-info">
-                      <span class="label">Starts:</span>
-                      <span class="value">{{ exam.startDate | date:'dd/MM/yyyy h:mm a' }}</span>
+              <!-- Card Content -->
+              <div class="p-6">
+                <!-- Header with Icon and Title -->
+                <div class="flex items-start gap-4 mb-4">
+                  <div class="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                    <i class="fas text-white text-2xl" [ngClass]="getExamTypeIcon(exam.examType)"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
+                      {{ exam.title }}
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        {{ exam.subject }}
+                      </span>
+                      <span class="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        {{ getExamTypeLabel(exam.examType) }}
+                      </span>
                     </div>
                   </div>
-                  <div class="schedule-item">
-                    <i class="fas fa-calendar-times"></i>
-                    <div class="schedule-info">
-                      <span class="label">Ends:</span>
-                      <span class="value">{{ exam.endDate | date:'dd/MM/yyyy h:mm a' }}</span>
+                </div>
+
+                <!-- Exam Quick Stats -->
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                  <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-100">
+                    <div class="flex items-center gap-2 mb-1">
+                      <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <span class="text-xs text-purple-600 font-semibold uppercase">Duration</span>
+                    </div>
+                    <p class="text-2xl font-bold text-purple-900">{{ exam.durationInMinutes }}<span class="text-sm font-medium text-purple-600 ml-1">min</span></p>
+                  </div>
+                  <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-100">
+                    <div class="flex items-center gap-2 mb-1">
+                      <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                      </svg>
+                      <span class="text-xs text-yellow-600 font-semibold uppercase">Points</span>
+                    </div>
+                    <p class="text-2xl font-bold text-yellow-900">{{ exam.totalMarks }}<span class="text-sm font-medium text-yellow-600 ml-1">pts</span></p>
+                  </div>
+                </div>
+
+                <!-- Schedule Timeline -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 mb-4 border border-blue-100">
+                  <div class="space-y-3">
+                    <div class="flex items-start gap-3">
+                      <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-xs text-blue-600 font-semibold uppercase mb-0.5">Starts</p>
+                        <p class="text-sm font-bold text-blue-900">{{ exam.startDate | date:'EEE, MMM d, yyyy' }}</p>
+                        <p class="text-sm font-bold text-blue-900">{{ exam.startDate | date:'h:mm a' }}</p>
+                      </div>
+                    </div>
+                    <div class="border-t border-blue-200"></div>
+                    <div class="flex items-start gap-3">
+                      <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-xs text-red-600 font-semibold uppercase mb-0.5">Ends</p>
+                        <p class="text-sm font-bold text-red-900">{{ exam.endDate | date:'EEE, MMM d, yyyy' }}</p>
+                        <p class="text-sm font-bold text-red-900">{{ exam.endDate | date:'h:mm a' }}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
+                <!-- Availability Status -->
                 @if (isExamAvailable(exam)) {
-                  <div class="available-badge">
-                    <i class="fas fa-check-circle"></i>
-                    Available Now - Time Remaining: {{ exam.remainingTime }}
+                  <div class="bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-400 rounded-xl p-4 mb-4 animate-pulse">
+                    <div class="flex items-center gap-3">
+                      <div class="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-base font-bold text-green-900 mb-1">🟢 Exam is LIVE!</p>
+                        <p class="text-sm text-green-700">Time remaining: <span class="font-bold">{{ exam.remainingTime }}</span></p>
+                        <p class="text-xs text-green-600 mt-1">Click "START NOW" below to begin</p>
+                      </div>
+                    </div>
                   </div>
                 } @else {
-                  <div class="not-available-badge">
-                    <i class="fas fa-clock"></i>
-                    Starts in: {{ exam.remainingTime }}
+                  <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl p-4 mb-4">
+                    <div class="flex items-center gap-3">
+                      <div class="flex-shrink-0 w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-base font-bold text-amber-900 mb-1">🔒 Locked - Not Available Yet</p>
+                        <p class="text-sm text-amber-700">Opens in: <span class="font-bold">{{ exam.remainingTime }}</span></p>
+                        <p class="text-xs text-amber-600 mt-1">Come back when exam starts</p>
+                      </div>
+                    </div>
                   </div>
                 }
-              </div>
 
-              <div class="card-actions">
+                <!-- Action Button -->
                 @if (isExamAvailable(exam)) {
-                  <button class="btn-start" (click)="startExam(exam.id, exam.title)">
-                    <i class="fas fa-play"></i>
-                    Start Exam
+                  <button class="w-full py-4 bg-gradient-to-r from-green-500 via-emerald-600 to-green-700 hover:from-green-600 hover:via-emerald-700 hover:to-green-800 text-white rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95 group"
+                          (click)="startExam(exam.id, exam.title)">
+                    <svg class="w-7 h-7 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>START EXAM NOW</span>
+                    <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
                   </button>
                 } @else {
-                  <button class="btn-disabled" disabled>
-                    <i class="fas fa-lock"></i>
-                    Not Available Yet
+                  <button class="w-full py-4 bg-gray-200 text-gray-500 rounded-xl font-bold text-lg cursor-not-allowed flex items-center justify-center gap-3 border-2 border-gray-300"
+                          disabled>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span>LOCKED - Opens in {{ exam.remainingTime }}</span>
                   </button>
                 }
+
+                <!-- Info Note -->
+                <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <p class="text-xs text-gray-600 text-center">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    When exam is available, click "START NOW" to open the exam page
+                  </p>
+                </div>
               </div>
             </div>
           } @empty {

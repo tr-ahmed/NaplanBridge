@@ -210,14 +210,21 @@ export interface QuestionGradeDto {
 export interface UpcomingExamDto {
   id: number;
   title: string;
-  startDate: string;
-  endDate: string;
-  subject: string;
+  description?: string;
+  subjectId: number;
+  subject: string;           // Backend: "subject" property (Subject name)
+  subjectName?: string;      // Alternative property name
+  yearId?: number;
+  yearNumber?: number;
+  startDate: string;         // Backend: "startDate"
+  endDate: string;           // Backend: "endDate"
   durationInMinutes: number;
   totalMarks: number;
-  examType: ExamType;
-  isAvailableNow: boolean;
-  remainingTime: string;
+  passingMarks?: number;
+  examType: string | ExamType;  // Backend returns string, frontend uses enum
+  isPublished?: boolean;
+  isAvailableNow?: boolean;
+  remainingTime?: string;
 }
 
 export interface ExamHistoryDto {

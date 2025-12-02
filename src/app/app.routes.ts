@@ -200,6 +200,13 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
   },
 
+  // Student Subjects (My Subjects)
+  {
+    path: 'student/subjects',
+    loadComponent: () => import('./features/student-subjects/student-subjects.component').then(m => m.StudentSubjectsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
+
   // Admin Dashboard
   {
     path: 'admin/dashboard',
