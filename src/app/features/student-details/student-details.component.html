@@ -60,10 +60,10 @@
 
               <!-- Quick Stats -->
               <div class="grid grid-cols-3 gap-6 text-center">
-                <div>
+                <!-- <div>
                   <div class="text-3xl font-bold">{{ studentDetails()!.progress.overallProgress }}%</div>
                   <div class="text-sm text-blue-100">Overall Progress</div>
-                </div>
+                </div> -->
                 <!-- <div>
                   <div class="text-3xl font-bold">{{ studentDetails()!.progress.averageScore }}%</div>
                   <div class="text-sm text-blue-100">Avg Score</div>
@@ -161,7 +161,7 @@
               </h3>
               <div class="grid grid-cols-2 gap-4">
                 <div class="text-center p-3 bg-blue-50 rounded-lg">
-                  <div class="text-2xl font-bold text-blue-600">{{ studentDetails()!.stats.completionRate }}%</div>
+                  <div class="text-2xl font-bold text-blue-600">{{ studentDetails()!.progress.overallProgress }}%</div>
                   <div class="text-xs text-blue-900 mt-1">Completion Rate</div>
                 </div>
                 <div class="text-center p-3 bg-green-50 rounded-lg">
