@@ -126,8 +126,8 @@ export class MySubscriptionsComponent implements OnInit {
       const childRequests = children.map(child => {
         return forkJoin({
           child: of(child),
-          subscriptions: this.dashboardService.getStudentSubscriptionsSummary(child.id).pipe(
-            catchError(() => of([]))
+          subscriptions: this.dashboardService.getParentStudentSubscriptions(child.id, true).pipe(
+            catchError(() => of({ subscriptions: [], expired: [], totalActiveSubscriptions: 0, totalExpired: 0, totalSpent: 0 }))
           ),
           progress: this.progressService.getStudentProgress(child.id).pipe(
             catchError(() => of(null))
@@ -140,23 +140,26 @@ export class MySubscriptionsComponent implements OnInit {
           console.log('🔍 My Subscriptions - Raw API Response:', childrenData);
 
           const allSubscriptions: SubscriptionWithDetails[] = [];
+          let totalSpentAcrossAllChildren = 0;
 
           childrenData.forEach(data => {
             const child = data.child;
 
-            // ✅ Extract subscriptions from API response { totalActiveSubscriptions, subscriptions: [...] }
+            // ✅ Extract subscriptions from Parent API response
             let subscriptions: any[] = [];
             if (data.subscriptions && typeof data.subscriptions === 'object') {
-              if (Array.isArray(data.subscriptions.subscriptions)) {
-                subscriptions = data.subscriptions.subscriptions;
-              } else if (Array.isArray(data.subscriptions)) {
-                subscriptions = data.subscriptions;
-              }
+              // Combine active and expired subscriptions
+              const activeSubscriptions = Array.isArray(data.subscriptions.subscriptions) ? data.subscriptions.subscriptions : [];
+              const expiredSubscriptions = Array.isArray(data.subscriptions.expired) ? data.subscriptions.expired : [];
+              subscriptions = [...activeSubscriptions, ...expiredSubscriptions];
+
+              // ✅ Add totalSpent from API response
+              totalSpentAcrossAllChildren += data.subscriptions.totalSpent || 0;
             }
 
             const progressData = Array.isArray(data.progress) ? data.progress : [];
 
-            console.log(`👤 ${child.userName}:`, subscriptions.length, 'subscription(s)');
+            console.log(`👤 ${child.userName}:`, subscriptions.length, 'subscription(s), Total Spent: $', data.subscriptions?.totalSpent || 0);
 
             subscriptions.forEach((sub: any) => {
               // Calculate progress - use API data if available, fallback to calculation
@@ -201,7 +204,7 @@ export class MySubscriptionsComponent implements OnInit {
           });
 
           this.subscriptions.set(allSubscriptions);
-          this.calculateStats(allSubscriptions);
+          this.calculateStats(allSubscriptions, totalSpentAcrossAllChildren);
           this.loading.set(false);
         },
         error: (error) => {
@@ -216,14 +219,14 @@ export class MySubscriptionsComponent implements OnInit {
   /**
    * Calculate subscription statistics
    */
-  private calculateStats(subscriptions: SubscriptionWithDetails[]): void {
+  private calculateStats(subscriptions: SubscriptionWithDetails[], totalSpentFromAPI: number): void {
     const stats = {
       total: subscriptions.length,
       active: subscriptions.filter(s => s.status === 'Active').length,
       expiringSoon: subscriptions.filter(s =>
         (s.daysUntilExpiry || 0) <= 30 && (s.daysUntilExpiry || 0) > 0
       ).length,
-      totalSpent: subscriptions.reduce((sum, s) => sum + s.totalAmount, 0)
+      totalSpent: totalSpentFromAPI // ✅ Use totalSpent from API instead of calculating
     };
     this.stats.set(stats);
   }
@@ -309,7 +312,9 @@ export class MySubscriptionsComponent implements OnInit {
             s.id === sub.id ? { ...s, status: 'Cancelled' as any, autoRenew: false } : s
           );
           this.subscriptions.set(updated);
-          this.calculateStats(updated);
+          // Recalculate totalSpent after cancellation
+          const totalSpent = updated.reduce((sum, s) => sum + (s.status !== 'Cancelled' ? s.totalAmount : 0), 0);
+          this.calculateStats(updated, totalSpent);
           this.closeCancelModal();
           this.loading.set(false);
 
