@@ -73,7 +73,8 @@ export class ContentModalComponent implements OnChanges, OnInit {
         document.body.style.overflow = 'hidden';
         this.resetValidation();
         this.initializeFilters();
-        this.setupHierarchicalWatchers();
+        // Delay to ensure all inputs are ready
+        setTimeout(() => this.setupHierarchicalWatchers(), 50);
       } else {
         document.body.style.overflow = '';
       }
@@ -91,7 +92,13 @@ export class ContentModalComponent implements OnChanges, OnInit {
         this.formData.subjectNameId = Number(this.formData.subjectNameId);
       }
       console.log('📝 Modal received formData:', this.formData);
-      this.setupHierarchicalWatchers();
+      // Delay to ensure all inputs are ready
+      setTimeout(() => this.setupHierarchicalWatchers(), 50);
+    }
+
+    // Re-run auto-selection when data arrays change
+    if ((changes['subjects'] || changes['terms'] || changes['weeks']) && this.isOpen && this.mode === 'add') {
+      setTimeout(() => this.setupHierarchicalWatchers(), 50);
     }
   }
 
@@ -110,8 +117,49 @@ export class ContentModalComponent implements OnChanges, OnInit {
    * Setup watchers for hierarchical auto-fill
    */
   setupHierarchicalWatchers(): void {
+    // Only proceed if we're in add mode
+    if (this.mode !== 'add') {
+      return;
+    }
+
     // Apply filters based on current formData
     this.applyHierarchicalFilters();
+
+    // Auto-select for Term: if only one subject available, select it automatically
+    if (this.entityType === 'term') {
+      const availableSubjects = this.filteredSubjects.length > 0 ? this.filteredSubjects : this.subjects;
+      console.log('🔍 Term - Available subjects:', availableSubjects.length, 'Current subjectId:', this.formData.subjectId);
+
+      if (availableSubjects.length === 1 && (this.formData.subjectId === null || this.formData.subjectId === undefined)) {
+        console.log('✅ Auto-selecting subject:', availableSubjects[0]);
+        this.formData.subjectId = availableSubjects[0].id;
+        this.applyHierarchicalFilters();
+      }
+    }
+
+    // Auto-select for Week: if only one term available, select it automatically
+    if (this.entityType === 'week') {
+      const availableTerms = this.filteredTerms.length > 0 ? this.filteredTerms : this.terms;
+      console.log('🔍 Week - Available terms:', availableTerms.length, 'Current termId:', this.formData.termId);
+
+      if (availableTerms.length === 1 && (this.formData.termId === null || this.formData.termId === undefined)) {
+        console.log('✅ Auto-selecting term:', availableTerms[0]);
+        this.formData.termId = availableTerms[0].id;
+        this.applyHierarchicalFilters();
+      }
+    }
+
+    // Auto-select for Lesson: if only one week available, select it automatically
+    if (this.entityType === 'lesson') {
+      const availableWeeks = this.filteredWeeks.length > 0 ? this.filteredWeeks : this.weeks;
+      console.log('🔍 Lesson - Available weeks:', availableWeeks.length, 'Current weekId:', this.formData.weekId);
+
+      if (availableWeeks.length === 1 && (this.formData.weekId === null || this.formData.weekId === undefined)) {
+        console.log('✅ Auto-selecting week:', availableWeeks[0]);
+        this.formData.weekId = availableWeeks[0].id;
+        this.applyHierarchicalFilters();
+      }
+    }
   }
 
   /**
@@ -144,13 +192,21 @@ export class ContentModalComponent implements OnChanges, OnInit {
         t => t.subjectId === Number(this.formData.subjectId)
       );
 
-      // Auto-fill term count
+      // Auto-fill term count when adding a new term
       if (this.entityType === 'term' && this.mode === 'add') {
         const maxTermNumber = this.filteredTerms.reduce((max, t) => Math.max(max, t.termNumber || 0), 0);
         this.formData.termNumber = maxTermNumber + 1;
       }
     } else {
       this.filteredTerms = [...this.terms];
+
+      // If adding a term and no subject selected, try to auto-select if only one subject exists
+      if (this.entityType === 'term' && this.mode === 'add' && this.subjects.length === 1) {
+        this.formData.subjectId = this.subjects[0].id;
+        // Re-trigger to calculate term number
+        this.applyHierarchicalFilters();
+        return;
+      }
     }
 
     // Filter Weeks by Term
@@ -159,7 +215,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
         w => w.termId === Number(this.formData.termId)
       );
 
-      // Auto-fill week count
+      // Auto-fill week count when adding a new week
       if (this.entityType === 'week' && this.mode === 'add') {
         const maxWeekNumber = this.filteredWeeks.reduce((max, w) => Math.max(max, w.weekNumber || 0), 0);
         this.formData.weekNumber = maxWeekNumber + 1;
@@ -174,16 +230,32 @@ export class ContentModalComponent implements OnChanges, OnInit {
       }
     } else {
       this.filteredWeeks = [...this.weeks];
+
+      // If adding a week and no term selected, try to auto-select if only one term exists
+      if (this.entityType === 'week' && this.mode === 'add' && this.terms.length === 1) {
+        this.formData.termId = this.terms[0].id;
+        // Re-trigger to calculate week number
+        this.applyHierarchicalFilters();
+        return;
+      }
     }
 
     // Auto-fill for lesson based on week selection
-    if (this.entityType === 'lesson' && this.formData.weekId) {
-      const selectedWeek = this.weeks.find(w => w.id === Number(this.formData.weekId));
-      if (selectedWeek) {
-        const selectedTerm = this.terms.find(t => t.id === selectedWeek.termId);
-        if (selectedTerm && !this.formData.subjectId) {
-          this.formData.subjectId = selectedTerm.subjectId;
+    if (this.entityType === 'lesson') {
+      if (this.formData.weekId) {
+        const selectedWeek = this.weeks.find(w => w.id === Number(this.formData.weekId));
+        if (selectedWeek) {
+          const selectedTerm = this.terms.find(t => t.id === selectedWeek.termId);
+          if (selectedTerm && !this.formData.subjectId) {
+            this.formData.subjectId = selectedTerm.subjectId;
+          }
         }
+      } else if (this.mode === 'add' && this.weeks.length === 1 && !this.formData.weekId) {
+        // If adding a lesson and only one week exists, auto-select it
+        this.formData.weekId = this.weeks[0].id;
+        // Re-trigger to set subjectId from term
+        this.applyHierarchicalFilters();
+        return;
       }
     }
   }

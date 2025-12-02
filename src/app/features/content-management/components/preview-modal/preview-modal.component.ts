@@ -97,26 +97,46 @@ import Hls from 'hls.js';
                         @for (resource of preview.resources; track resource.id) {
                           <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
                             <div class="flex-shrink-0">
-                              <i [class]="getResourceIcon(resource.resourceType) + ' text-2xl'"></i>
+                              <i [class]="getResourceIcon(resource.fileType || resource.resourceType) + ' text-2xl'"></i>
                             </div>
                             <div class="flex-grow min-w-0">
                               <h6 class="font-semibold text-gray-900 text-sm truncate">{{ resource.title }}</h6>
                               @if (resource.description) {
                                 <p class="text-xs text-gray-500 truncate">{{ resource.description }}</p>
                               }
-                              <span class="inline-block mt-2 px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded font-medium uppercase">
-                                {{ resource.resourceType }}
-                              </span>
+                              @if (resource.fileType) {
+                                <span class="inline-block mt-2 px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded font-medium uppercase">
+                                  {{ resource.fileType }}
+                                </span>
+                              } @else if (resource.resourceType) {
+                                <span class="inline-block mt-2 px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded font-medium uppercase">
+                                  {{ resource.resourceType }}
+                                </span>
+                              }
+                              @if (resource.fileSize) {
+                                <span class="ml-2 text-xs text-gray-500">
+                                  ({{ formatFileSize(resource.fileSize) }})
+                                </span>
+                              }
                             </div>
-                            @if (resource.resourceUrl) {
-                              <a
-                                [href]="resource.resourceUrl"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="flex-shrink-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm">
-                                <i class="fas fa-external-link-alt me-2"></i>
-                                Open
-                              </a>
+                            @if (resource.fileUrl || resource.resourceUrl) {
+                              <div class="flex-shrink-0 flex gap-2">
+                                <a
+                                  [href]="resource.fileUrl || resource.resourceUrl"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm">
+                                  <i class="fas fa-external-link-alt me-2"></i>
+                                  View
+                                </a>
+                                <a
+                                  [href]="resource.fileUrl || resource.resourceUrl"
+                                  [download]="resource.title"
+                                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-sm">
+                                  <i class="fas fa-download me-2"></i>
+                                  Download
+                                </a>
+                              </div>
                             }
                           </div>
                         }
@@ -374,19 +394,35 @@ export class PreviewModalComponent implements AfterViewInit, OnDestroy, OnChange
   }
 
   /**
-   * Get icon class based on resource type
+   * Get icon class based on resource type or file type
    */
   getResourceIcon(resourceType: string): string {
-    const icons: Record<string, string> = {
-      'pdf': 'fas fa-file-pdf text-danger',
-      'video': 'fas fa-file-video text-primary',
-      'image': 'fas fa-file-image text-success',
-      'audio': 'fas fa-file-audio text-warning',
-      'document': 'fas fa-file-word text-info',
-      'link': 'fas fa-link text-secondary',
-      'other': 'fas fa-file text-muted'
-    };
-    return icons[resourceType?.toLowerCase()] || icons['other'];
+    const type = resourceType?.toLowerCase() || '';
+    
+    // Check for common file extensions or types
+    if (type.includes('pdf') || type === 'pdf') {
+      return 'fas fa-file-pdf text-danger';
+    } else if (type.includes('video') || type.includes('mp4') || type.includes('mov') || type.includes('avi')) {
+      return 'fas fa-file-video text-primary';
+    } else if (type.includes('image') || type.includes('jpg') || type.includes('jpeg') || type.includes('png') || type.includes('gif')) {
+      return 'fas fa-file-image text-success';
+    } else if (type.includes('audio') || type.includes('mp3') || type.includes('wav')) {
+      return 'fas fa-file-audio text-warning';
+    } else if (type.includes('document') || type.includes('doc') || type.includes('docx') || type === 'word') {
+      return 'fas fa-file-word text-info';
+    } else if (type.includes('excel') || type.includes('xls') || type.includes('xlsx') || type === 'spreadsheet') {
+      return 'fas fa-file-excel text-success';
+    } else if (type.includes('powerpoint') || type.includes('ppt') || type.includes('pptx')) {
+      return 'fas fa-file-powerpoint text-danger';
+    } else if (type === 'link' || type.includes('url')) {
+      return 'fas fa-link text-secondary';
+    } else if (type.includes('zip') || type.includes('rar') || type.includes('archive')) {
+      return 'fas fa-file-archive text-warning';
+    } else if (type.includes('text') || type.includes('txt')) {
+      return 'fas fa-file-alt text-secondary';
+    }
+    
+    return 'fas fa-file text-muted';
   }
 
   /**
@@ -403,5 +439,16 @@ export class PreviewModalComponent implements AfterViewInit, OnDestroy, OnChange
       'REVISION_REQUESTED': 'bg-orange-500'
     };
     return statusClasses[status] || 'bg-gray-500';
+  }
+
+  /**
+   * Format file size in human readable format
+   */
+  formatFileSize(bytes: number): string {
+    if (!bytes || bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 }

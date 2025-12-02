@@ -726,6 +726,47 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   }
 
   /**
+   * Open add form from hierarchy view with pre-filled context
+   */
+  openAddFromHierarchy(type: EntityType, contextEntity: any): void {
+    const hasCreatePermission = this.authorizedSubjects.some(s => s.canCreate);
+    if (!hasCreatePermission) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Permission Denied',
+        text: 'You do not have permission to create content. Please contact an administrator.',
+      });
+      return;
+    }
+
+    this.formMode = 'add';
+    this.entityType = type;
+    this.entityTitle = `Add ${this.capitalizeFirst(type)}`;
+    this.form = this.getEmptyForm(type);
+
+    console.log('📦 Context entity received:', contextEntity, 'for type:', type);
+
+    // Pre-fill based on hierarchy context
+    if (type === 'term' && contextEntity?.subject) {
+      // Adding term from subject context
+      this.form.subjectId = contextEntity.subject.id;
+      console.log('✅ Pre-filled subjectId:', contextEntity.subject.id);
+    } else if (type === 'week' && contextEntity?.term) {
+      // Adding week from term context
+      this.form.termId = contextEntity.term.id;
+      console.log('✅ Pre-filled termId:', contextEntity.term.id);
+    } else if (type === 'lesson' && contextEntity?.week) {
+      // Adding lesson from week context
+      this.form.weekId = contextEntity.week.id;
+      console.log('✅ Pre-filled weekId:', contextEntity.week.id);
+    }
+
+    this.formErrors = {};
+    this.formTouched = {};
+    this.isFormOpen = true;
+  }
+
+  /**
    * Open form to edit an entity
    * Teachers can edit all content types for authorized subjects
    */

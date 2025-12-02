@@ -3,7 +3,7 @@
 <!-- Main Content -->
 <main class="px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="mb-8">
       <div>
         <h1 class="text-3xl font-bold text-gray-900">Teacher Content Management</h1>
         <p class="text-gray-600 mt-1">Create and manage your educational content with full control</p>
@@ -11,91 +11,6 @@
           <i class="fas fa-info-circle mr-1"></i>
           All changes require admin approval before publication
         </p>
-      </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <!-- Add Year Button -->
-        <button
-          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
-          type="button"
-          (click)="openAdd('year')"
-          class="px-3 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 font-medium flex items-center gap-2 shadow-md text-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span>Year</span>
-        </button>
-
-        <!-- Add Category Button -->
-        <button
-          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
-          type="button"
-          (click)="openAdd('category')"
-          class="px-3 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-lg hover:from-cyan-700 hover:to-teal-700 font-medium flex items-center gap-2 shadow-md text-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span>Category</span>
-        </button>
-
-        <!-- Add Subject Name Button -->
-        <button
-          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
-          type="button"
-          (click)="openAdd('subjectName')"
-          class="px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 font-medium flex items-center gap-2 shadow-md text-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span>Subject Name</span>
-        </button>
-
-        <!-- Add Subject Button -->
-        <button
-          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
-          type="button"
-          (click)="openAdd('subject')"
-          class="px-3 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 font-medium flex items-center gap-2 shadow-md text-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span>Subject</span>
-        </button>
-
-        <!-- Add Term Button -->
-        <button
-          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
-          type="button"
-          (click)="openAdd('term')"
-          class="px-3 py-2 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-lg hover:from-sky-700 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md text-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span>Term</span>
-        </button>
-
-        <!-- Add Week Button -->
-        <button
-          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
-          type="button"
-          (click)="openAdd('week')"
-          class="px-3 py-2 bg-gradient-to-r from-teal-600 to-green-600 text-white rounded-lg hover:from-teal-700 hover:to-green-700 font-medium flex items-center gap-2 shadow-md text-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span>Week</span>
-        </button>
-
-        <!-- Add Lesson Button (Primary Action) -->
-        <button
-          *ngIf="getAuthorizedSubjectsCanCreateCount() > 0"
-          type="button"
-          (click)="openAdd('lesson')"
-          class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          <span>Create Lesson</span>
-        </button>
       </div>
     </div>
 
@@ -423,7 +338,7 @@
                     [expandedSubjects]="expandedSubjects"
                     [expandedTerms]="expandedTerms"
                     [expandedWeeks]="expandedWeeks"
-                    (add)="openAdd($event.type)"
+                    (add)="openAddFromHierarchy($event.type, $event.entity)"
                     (edit)="openEdit($event.type, $event.entity)"
                     (delete)="confirmDelete($event.type, $event.entity)"
                     (preview)="openLessonPreview($event)"
@@ -861,12 +776,12 @@
   [mode]="formMode"
   [entityType]="entityType"
   [formData]="form"
-  [years]="years"
-  [categories]="categories"
-  [subjectNames]="subjectNames"
-  [subjects]="subjects"
-  [terms]="terms"
-  [weeks]="weeks"
+  [years]="filteredYears"
+  [categories]="filteredCategories"
+  [subjectNames]="filteredSubjectNames"
+  [subjects]="filteredSubjects"
+  [terms]="filteredTerms"
+  [weeks]="filteredWeeks"
   (save)="saveEntity()"
   (cancel)="closeForm()">
 </app-content-modal>
