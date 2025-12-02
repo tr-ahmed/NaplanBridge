@@ -14,6 +14,7 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { UserService, ChildDto } from '../../core/services/user.service';
 import { OrderService, ParentOrderSummary } from '../../core/services/order.service';
 import { StudentService } from '../../core/services/student.service';
+import { AuthService } from '../../core/services/auth.service';
 import { forkJoin, catchError, of, map } from 'rxjs';
 
 // Interfaces
@@ -69,6 +70,7 @@ export class ParentDashboardComponent implements OnInit {
   private userService = inject(UserService);
   private orderService = inject(OrderService);
   private studentService = inject(StudentService);
+  private authService = inject(AuthService);
 
   // Signals
   dashboardData = signal<ParentDashboardData>({
@@ -83,9 +85,11 @@ export class ParentDashboardComponent implements OnInit {
   loading = signal(true);
   selectedChild = signal<Child | null>(null);
   parentId = signal<number | null>(null);
+  parentUsername = signal<string>('');  // ✅ New signal for parent's username
 
   ngOnInit(): void {
     this.getParentIdFromToken();
+    this.getParentUsernameFromAuth();
     this.loadDashboardData();
   }
 
@@ -101,6 +105,16 @@ export class ParentDashboardComponent implements OnInit {
       } catch (error) {
         console.error('Error parsing token:', error);
       }
+    }
+  }
+
+  /**
+   * Get parent username from auth service
+   */
+  private getParentUsernameFromAuth(): void {
+    const user = this.authService.getCurrentUser();
+    if (user && user.userName) {
+      this.parentUsername.set(user.userName);
     }
   }
 

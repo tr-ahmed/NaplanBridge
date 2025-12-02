@@ -50,6 +50,7 @@ export class StudentDashboardComponent implements OnInit {
   // State
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
+  studentUsername = signal<string>('Student');  // ✅ Username signal
 
   // Data
   studentId: number = 0;
@@ -116,6 +117,12 @@ export class StudentDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUser = this.authService.currentUser();
+
+    // ✅ Get student username for welcome message
+    if (currentUser && currentUser.userName) {
+      this.studentUsername.set(currentUser.userName);
+    }
+
     if (currentUser && this.authService.hasRole('Student')) {
       // ✅ CRITICAL: Use studentId (Student.Id) NOT userId (User.Id)
       // studentId is from Students table and required for API calls
