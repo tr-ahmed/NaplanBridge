@@ -360,7 +360,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
       queryParams.subject = this.currentSubject();
     }
 
-    this.router.navigate(['/courses'], { queryParams });
+    this.router.navigate(['/student/subjects'], { queryParams });
   }
 
   /**
