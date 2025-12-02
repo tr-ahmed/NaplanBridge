@@ -136,8 +136,34 @@ onLogin(): void {
       },
       error: (error) => {
         this.isLoading.set(false);
-        console.error('Unexpected login error:', error);
-        this.toastService.showError('An unexpected error occurred. Please try again.');
+        console.error('Login error response:', error);
+
+        // Prefer backend-provided structured error
+        const backend = error?.error || {};
+        const code: string | undefined = backend.code || backend.errorCode || backend.type;
+        const message: string | undefined = backend.message || backend.error || error?.statusText;
+
+        let friendly = 'Login failed. Please try again.';
+        if (code === 'USER_NOT_FOUND') {
+          friendly = message || 'The email, username, or phone number you entered is incorrect. Please check and try again.';
+        } else if (code === 'INVALID_PASSWORD') {
+          friendly = message || 'Incorrect password. Please try again.';
+        } else if (code === 'EMAIL_NOT_VERIFIED') {
+          friendly = message || 'Email is not verified. Please verify your email to continue.';
+          this.showResendVerification.set(true);
+          const identifierValue = this.loginForm.get('identifier')?.value;
+          const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifierValue);
+          this.unverifiedEmail.set(backend.email || (isEmail ? identifierValue : ''));
+        } else if (error?.status === 401) {
+          // Generic unauthorized without specific code
+          friendly = message || 'Invalid email/username or password. Please check your credentials and try again.';
+        } else if (error?.status === 0) {
+          friendly = 'Network error. Please check your connection and try again.';
+        } else if (message) {
+          friendly = message;
+        }
+
+        this.handleLoginError(friendly);
       }
     });
   } else {

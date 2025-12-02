@@ -159,6 +159,16 @@ export class ParentApiService {
       return { message: errorResponse.title };
     }
 
+    // Use common fields when present
+    if (typeof errorResponse === 'string') {
+      return { message: errorResponse };
+    }
+    if (errorResponse?.message) {
+      return { message: errorResponse.message };
+    }
+    if (errorResponse?.error) {
+      return { message: errorResponse.error };
+    }
     return { message: 'An unexpected error occurred' };
   }
 
