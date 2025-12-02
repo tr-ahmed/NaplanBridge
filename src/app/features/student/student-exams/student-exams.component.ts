@@ -194,7 +194,7 @@ export class StudentExamsComponent implements OnInit {
         console.log('📊 [HISTORY DEBUG] Full Response:', response);
         console.log('📊 [HISTORY DEBUG] Response.data:', response.data);
         console.log('📊 [HISTORY DEBUG] Response.data.examHistory:', response.data?.examHistory);
-        
+
         // Try different possible response structures
         let history = [];
         if (response.data?.examHistory) {
@@ -206,10 +206,10 @@ export class StudentExamsComponent implements OnInit {
         } else if (Array.isArray(response)) {
           history = response;
         }
-        
+
         console.log('📊 [HISTORY DEBUG] Parsed history array:', history);
         console.log('📊 [HISTORY DEBUG] History length:', history.length);
-        
+
         this.allExamHistory.set(history);
         this.examHistory.set(this.filteredHistory());
         this.historyLoading.set(false);
