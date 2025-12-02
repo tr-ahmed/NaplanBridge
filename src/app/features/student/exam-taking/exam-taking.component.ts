@@ -91,35 +91,83 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Use the student exam ID to get the exam data
-    const studentExamId = this.studentExamId();
+    // ✅ NEW: Try to get exam data from navigation state
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras?.state || history.state;
 
-    this.examApi.getExamForTaking(studentExamId).subscribe({
-      next: (exam) => {
-        console.log('📚 Exam loaded for taking:', exam);
-        console.log('📝 Questions with options:', exam.questions);
+    console.log('📍 Navigation state:', state);
 
-        // Verify that options are present
-        if (exam.questions && exam.questions.length > 0) {
-          exam.questions.forEach((q: any, i: number) => {
-            console.log(`Question ${i + 1} options:`, q.options);
-          });
-        }
+    if (state && state.examData && state.fromStart) {
+      console.log('✅ Using exam data from navigation state');
+      const examData = state.examData;
 
-        this.exam.set(exam);
-        this.examStartTime.set(new Date());
-        this.timeRemaining.set(exam.durationInMinutes * 60); // Convert to seconds
-        this.startTimer();
-        this.startAutoSave();
-        this.saveExamState(); // Save initial state
+      // Convert StartExamResponseDto to ExamDto format
+      const exam: ExamDto = {
+        id: examData.examId,
+        title: examData.examTitle || examData.title,
+        description: examData.description || '',
+        examType: examData.examType || 'Lesson',
+        subjectId: examData.subjectId || 0,
+        subjectName: examData.subjectName || '',
+        termId: examData.termId,
+        lessonId: examData.lessonId,
+        weekId: examData.weekId,
+        yearId: examData.yearId,
+        durationInMinutes: examData.durationInMinutes,
+        totalMarks: examData.totalMarks,
+        passingMarks: examData.passingMarks || 0,
+        startTime: examData.startedAt || new Date().toISOString(),
+        endTime: examData.endTime || new Date().toISOString(),
+        isPublished: true,
+        questions: examData.questions || []
+      };
+
+      console.log('📚 Exam loaded from navigation:', exam);
+      console.log('📝 Questions count:', exam.questions?.length || 0);
+
+      if (!exam.questions || exam.questions.length === 0) {
+        console.error('❌ No questions in exam data!');
         this.loading.set(false);
-      },
-      error: (error: any) => {
-        console.error('Failed to load exam:', error);
-        this.toast.showError('Failed to load exam');
-        this.router.navigate(['/student/exams']);
+        this.toast.showError('Exam has no questions. Please contact support.');
+        setTimeout(() => {
+          this.router.navigate(['/student/exams']);
+        }, 2000);
+        return;
       }
-    });
+
+      // Verify questions have options
+      exam.questions.forEach((q: any, i: number) => {
+        console.log(`Question ${i + 1}:`, q.questionText);
+        console.log(`Question ${i + 1} options:`, q.options);
+        if (!q.options || q.options.length === 0) {
+          console.error(`❌ Question ${i + 1} has no options!`);
+        }
+      });
+
+      this.exam.set(exam);
+      this.examStartTime.set(new Date());
+      this.timeRemaining.set(exam.durationInMinutes * 60); // Convert to seconds
+      this.startTimer();
+      this.startAutoSave();
+      this.saveExamState(); // Save initial state
+      this.loading.set(false);
+      return;
+    }
+
+    // ❌ FALLBACK: No exam data in navigation state
+    console.error('❌ No exam data in navigation state');
+    console.error('❌ This usually happens when:');
+    console.error('   1. User refreshed the page');
+    console.error('   2. User navigated directly to this URL');
+    console.error('   3. Backend did not return questions in startExam response');
+
+    this.loading.set(false);
+    this.toast.showError('Unable to load exam. Please start the exam from the exams list.');
+
+    // Redirect back to exams list after 2 seconds
+    setTimeout(() => {
+      this.router.navigate(['/student/exams']);
+    }, 2000);
   }
 
   /**

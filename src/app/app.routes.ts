@@ -235,6 +235,12 @@ export const routes: Routes = [
       ,  data: { hideHeader: true, hideFooter: true }
   },
   {
+    path: 'admin/discussions',
+    loadComponent: () => import('./features/admin/admin-discussions/admin-discussions.component').then(m => m.AdminDiscussionsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: false, hideFooter: false }
+  },
+  {
     path: 'admin/exam/create',
     loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
@@ -331,6 +337,14 @@ export const routes: Routes = [
   {
     path: 'teacher/questions',
     loadComponent: () => import('./features/teacher/student-questions/student-questions.component').then(m => m.StudentQuestionsComponent),
+    canActivate: [teacherGuard],
+    data: { hideHeader: false, hideFooter: false }
+  },
+
+  // Teacher Discussions Dashboard (New Discussion API)
+  {
+    path: 'teacher/discussions',
+    loadComponent: () => import('./features/teacher/teacher-discussions/teacher-discussions.component').then(m => m.TeacherDiscussionsComponent),
     canActivate: [teacherGuard],
     data: { hideHeader: false, hideFooter: false }
   },

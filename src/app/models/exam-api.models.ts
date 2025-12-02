@@ -227,7 +227,20 @@ export interface UpcomingExamDto {
   remainingTime?: string;
 }
 
+// ✅ Updated to match ACTUAL backend response
 export interface ExamHistoryDto {
+  examId: number;
+  examTitle: string;
+  completedDate: string;        // Backend sends this (not submittedAt)
+  score: number;                 // Decimal (0.75 for 75%)
+  totalMarks: number;
+  totalQuestions: number;
+  correctAnswers: number;        // Count of correct questions
+  status: string;                // "Completed", "Pending", etc.
+}
+
+// ❌ OLD DTO (keeping for reference, but not used)
+export interface ExamHistoryDto_OLD {
   studentExamId: number;
   examId: number;
   examTitle: string;
@@ -250,12 +263,16 @@ export interface StartExamResponseDto {
   studentExamId: number;
   examId: number;
   examTitle: string;
+  title?: string;
+  examType?: ExamType;
+  durationMinutes?: number;  // Backend field name
+  durationInMinutes?: number;  // Frontend compatibility
   startedAt: string;
-  durationInMinutes: number;
   endTime: string;
   totalMarks: number;
-  totalQuestions: number;
-  message: string;
+  totalQuestions?: number;
+  message?: string;
+  questions?: ExamQuestionDto[];
 }
 
 export interface SubmitExamDto {

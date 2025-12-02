@@ -356,6 +356,47 @@
           <p>Loading...</p>
         </div>
       } @else {
+        <!-- 🐛 BACKEND BUG WARNING -->
+        @if (hasZeroScoreExams()) {
+          <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 max-w-5xl mx-auto shadow-lg">
+            <div class="flex items-start gap-3">
+              <svg class="w-8 h-8 text-red-600 flex-shrink-0 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+              <div class="flex-1">
+                <h3 class="text-lg font-bold text-red-900 mb-2">
+                  🐛 Backend Bug: Scores Show 0% Instead of Actual Scores!
+                </h3>
+                <div class="space-y-3">
+                  <div class="bg-white rounded-lg p-3 border-2 border-red-300">
+                    <p class="text-sm font-semibold text-red-900 mb-2">✅ To See Your REAL Score:</p>
+                    <ol class="text-sm text-red-700 space-y-1.5 ml-5 list-decimal">
+                      <li>Click <strong class="bg-blue-100 px-2 py-0.5 rounded">"View Details"</strong> button on any exam below</li>
+                      <li>You will see your correct score (e.g., <strong class="text-green-700">75%</strong> instead of 0%)</li>
+                      <li>All your answers and grades are saved correctly!</li>
+                    </ol>
+                  </div>
+                  <details class="bg-red-100 rounded-lg p-3">
+                    <summary class="text-sm font-semibold text-red-900 cursor-pointer hover:text-red-700 select-none">
+                      🔧 For Backend Team (Click to expand)
+                    </summary>
+                    <div class="mt-3 pt-3 border-t border-red-300 text-xs text-red-700 space-y-1.5">
+                      <p><strong>Broken Endpoint:</strong></p>
+                      <code class="block bg-white px-2 py-1 rounded font-mono text-red-800">GET /api/exam/student/{{'{studentId}'}}/history</code>
+                      <p class="mt-2"><strong>Current (Wrong) Response:</strong></p>
+                      <code class="block bg-white px-2 py-1 rounded font-mono text-red-800">score: 0, correctAnswers: 0</code>
+                      <p class="mt-2"><strong>Expected (Correct) Response:</strong></p>
+                      <code class="block bg-white px-2 py-1 rounded font-mono text-green-800">score: 0.75, correctAnswers: 1</code>
+                      <p class="mt-2"><strong>Fix Documentation:</strong></p>
+                      <code class="block bg-white px-2 py-1 rounded font-mono">BACKEND_REPORT_EXAM_HISTORY_WRONG_SCORE.md</code>
+                    </div>
+                  </details>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
         <div class="space-y-4 max-w-5xl mx-auto">
           @for (exam of examHistory(); track exam.examId || $index) {
             <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-l-4"

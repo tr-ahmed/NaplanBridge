@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../core/services/toast.service';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 import { Lesson, LessonResource, StudentLesson, LessonProgress } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
@@ -12,6 +12,9 @@ import { ContentService } from '../../core/services/content.service';
 import { AuthService } from '../../core/services/auth.service';
 import { VideoService } from '../../core/services/video.service';
 import { DiscussionService, DiscussionDto, CreateDiscussionDto, CreateReplyDto } from '../../core/services/discussion.service';
+
+// Type alias for Discussion
+type Discussion = DiscussionDto;
 
 interface Quiz {
   id: number;
@@ -957,25 +960,53 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
    * Teacher interaction methods
    */
   askTeacher(): void {
-    if (this.questionForm.valid) {
-      this.isAskingQuestion.set(true);
+    if (this.questionForm.invalid) return;
 
-      const newQuestion: TeacherQuestion = {
-        id: Date.now(),
-        question: this.questionForm.value.question,
-        isAnswered: false,
-        askedAt: new Date()
-      };
+    const lessonId = this.lesson()?.id;
+    if (!lessonId) return;
 
-      const currentQuestions = this.teacherQuestions();
-      this.teacherQuestions.set([...currentQuestions, newQuestion]);
+    this.isAskingQuestion.set(true);
 
-      this.questionForm.reset();
-      this.isAskingQuestion.set(false);
+    // Get current video time for context
+    const currentTime = this.videoCurrentTime();
+    const timestamp = currentTime > 0 ? Math.floor(currentTime) : undefined;
 
-      // Show success message
-      this.toastService.showSuccess('Your question has been sent to the teacher. You will be notified when they respond.');
-    }
+    const discussionData: CreateDiscussionDto = {
+      question: this.questionForm.value.question,
+      videoTimestamp: timestamp
+    };
+
+    this.discussionService.createDiscussion(lessonId, discussionData)
+      .pipe(
+        finalize(() => this.isAskingQuestion.set(false)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (discussion) => {
+          // Add to local list
+          const currentQuestions = this.teacherQuestions();
+          const newQuestion: TeacherQuestion = {
+            id: discussion.id,
+            question: discussion.question,
+            isAnswered: discussion.isAnswered,
+            askedAt: new Date(discussion.createdAt),
+            answer: discussion.replies && discussion.replies.length > 0
+              ? discussion.replies[0].reply
+              : undefined,
+            answeredAt: discussion.replies && discussion.replies.length > 0
+              ? new Date(discussion.replies[0].createdAt)
+              : undefined
+          };
+          this.teacherQuestions.set([newQuestion, ...currentQuestions]);
+
+          this.questionForm.reset();
+          this.toastService.showSuccess('Your question has been sent to the teacher. You will be notified when they respond.');
+        },
+        error: (error) => {
+          console.error('Error asking teacher:', error);
+          this.toastService.showError('Failed to send question. Please try again.');
+        }
+      });
   }
 
   /**
@@ -995,6 +1026,10 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.discussionService.getDiscussionsForLesson(lessonId, studentId).subscribe({
       next: (discussions) => {
         this.discussions.set(discussions);
+
+        // Also load teacher questions from the same API
+        this.loadTeacherQuestions(discussions);
+
         this.isLoadingDiscussions.set(false);
       },
       error: (error) => {
@@ -1003,6 +1038,32 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isLoadingDiscussions.set(false);
       }
     });
+  }
+
+  /**
+   * Load teacher questions from discussions
+   */
+  private loadTeacherQuestions(discussions: Discussion[]): void {
+    const currentStudentId = this.authService.getCurrentUser()?.studentId;
+    if (!currentStudentId) return;
+
+    // Filter discussions created by current student
+    const myQuestions = discussions
+      .filter(d => d.studentId === currentStudentId)
+      .map(d => ({
+        id: d.id,
+        question: d.question,
+        isAnswered: d.isAnswered,
+        askedAt: new Date(d.createdAt),
+        answer: d.replies && d.replies.length > 0
+          ? d.replies.find(r => r.isTeacherReply)?.reply
+          : undefined,
+        answeredAt: d.replies && d.replies.length > 0
+          ? new Date(d.replies.find(r => r.isTeacherReply)?.createdAt || d.createdAt)
+          : undefined
+      }));
+
+    this.teacherQuestions.set(myQuestions);
   }
 
   addDiscussion(): void {

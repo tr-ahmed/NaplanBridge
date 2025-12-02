@@ -214,6 +214,13 @@ export class StudentExamsComponent implements OnInit {
         if (history.length > 0) {
           console.log('📊 [HISTORY DEBUG] First exam details:', history[0]);
           console.log('📊 [HISTORY DEBUG] First exam keys:', Object.keys(history[0]));
+
+          // ⚠️ Check if backend bug exists
+          if (history[0].score === 0 && history[0].status === 'Completed') {
+            console.error('🐛 [BACKEND BUG DETECTED] Score is 0 but exam is completed!');
+            console.error('🐛 Backend endpoint /api/exam/student/{studentId}/history is broken');
+            console.error('🐛 See BACKEND_REPORT_EXAM_HISTORY_WRONG_SCORE.md for fix');
+          }
         }
 
         this.allExamHistory.set(history);
@@ -283,8 +290,31 @@ export class StudentExamsComponent implements OnInit {
 
     this.examApi.startExam(examId).subscribe({
       next: (response: any) => {
+        console.log('✅ Exam started successfully:', response);
+        console.log('📝 Exam data:', response);
+
+        // Check if response contains questions
+        if (response.questions && response.questions.length > 0) {
+          console.log('✅ Questions received:', response.questions.length);
+
+          // Navigate with exam data in state
+          this.router.navigate(['/student/exam', response.studentExamId], {
+            state: {
+              examData: response,
+              fromStart: true
+            }
+          });
+        } else {
+          console.warn('⚠️ No questions in response. Questions count:', response.totalQuestions);
+          console.warn('⚠️ Full response:', JSON.stringify(response, null, 2));
+
+          // Still navigate, but component will show an error
+          this.router.navigate(['/student/exam', response.studentExamId]);
+
+          this.toast.showWarning('Exam started but questions data is missing. Please contact support.');
+        }
+
         this.toast.showSuccess('Exam started successfully');
-        this.router.navigate(['/student/exam', response.studentExamId]);
       },
       error: (error: any) => {
         console.error('Failed to start exam:', error);
@@ -381,20 +411,29 @@ export class StudentExamsComponent implements OnInit {
   }
 
   /**
+   * Check if there are exams with zero score
+   */
+  hasZeroScoreExams(): boolean {
+    return this.examHistory().some(e => e.score === 0 && e.status === 'Completed');
+  }
+
+  /**
    * Get status badge class
    */
   getStatusClass(exam: ExamHistoryDto): string {
-    if (!exam.isCompleted) return 'in-progress';
-    if (!exam.isGraded) return 'pending';
-    return exam.isPassed ? 'passed' : 'failed';
+    if (exam.status === 'Pending') return 'pending';
+    if (exam.status === 'In Progress') return 'in-progress';
+    const percentage = (exam.score / exam.totalMarks) * 100;
+    return percentage >= 50 ? 'passed' : 'failed';
   }
 
   /**
    * Get status text
    */
   getStatusText(exam: ExamHistoryDto): string {
-    if (!exam.isCompleted) return 'لم يكتمل';
-    if (!exam.isGraded) return 'قيد التصحيح';
-    return exam.isPassed ? 'ناجح' : 'راسب';
+    if (exam.status === 'Pending') return 'قيد التصحيح';
+    if (exam.status === 'In Progress') return 'لم يكتمل';
+    const percentage = (exam.score / exam.totalMarks) * 100;
+    return percentage >= 50 ? 'ناجح' : 'راسب';
   }
 }
