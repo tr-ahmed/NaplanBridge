@@ -375,24 +375,6 @@
                 {{ lesson.description }}
               </p>
 
-              <!-- Lesson Meta -->
-              <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
-                <span>
-                  @if (lesson.term && lesson.week) {
-                    Term {{ lesson.term }} - Week {{ lesson.week }}
-                  } @else if (lesson.termId && lesson.weekId) {
-                    Term {{ lesson.termId }} - Week {{ lesson.weekId }}
-                  } @else {
-                    Lesson {{ lesson.id }}
-                  }
-                </span>
-                <span>
-                  @if (lesson.duration) {
-                    {{ formatDuration(lesson.duration) }}
-                  }
-                </span>
-              </div>
-
               <!-- Progress Info (for enrolled students) -->
               @if (isEnrolledInSubject()) {
                 <div class="mb-3">
@@ -609,9 +591,6 @@
               <div class="flex items-start justify-between mb-2">
                 <div class="flex-1">
                   <h4 class="font-medium text-gray-900">{{ lesson.title }}</h4>
-                  <p class="text-sm text-gray-500">
-                    Term {{ lesson.term || lesson.termId }} - Week {{ lesson.week || lesson.weekId }}
-                  </p>
                 </div>
 
                 @if (isLessonCompleted(lesson.id)) {

@@ -12,7 +12,6 @@ import { ContentService } from '../../core/services/content.service';
 import { AuthService } from '../../core/services/auth.service';
 import { VideoService } from '../../core/services/video.service';
 import { DiscussionService, DiscussionDto, CreateDiscussionDto, CreateReplyDto } from '../../core/services/discussion.service';
-import { LessonQaComponent } from './lesson-qa/lesson-qa.component';
 
 interface Quiz {
   id: number;
@@ -73,7 +72,7 @@ interface TeacherQuestion {
 @Component({
   selector: 'app-lesson-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LessonQaComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './lesson-detail.component.html',
   styleUrls: ['./lesson-detail.component.scss']
 })
@@ -972,7 +971,12 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.isLoadingDiscussions.set(true);
 
-    this.discussionService.getDiscussionsForLesson(lessonId).subscribe({
+    // Get student ID if authenticated
+    const studentId = this.authService.isAuthenticated()
+      ? this.authService.getCurrentUser()?.studentId
+      : undefined;
+
+    this.discussionService.getDiscussionsForLesson(lessonId, studentId).subscribe({
       next: (discussions) => {
         this.discussions.set(discussions);
         this.isLoadingDiscussions.set(false);

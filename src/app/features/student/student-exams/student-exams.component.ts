@@ -191,8 +191,25 @@ export class StudentExamsComponent implements OnInit {
 
     this.examApi.getExamHistory(studentId).subscribe({
       next: (response: any) => {
-        console.log('📊 Exam History Data:', response.data?.examHistory);
-        const history = response.data?.examHistory || response.data || [];
+        console.log('📊 [HISTORY DEBUG] Full Response:', response);
+        console.log('📊 [HISTORY DEBUG] Response.data:', response.data);
+        console.log('📊 [HISTORY DEBUG] Response.data.examHistory:', response.data?.examHistory);
+        
+        // Try different possible response structures
+        let history = [];
+        if (response.data?.examHistory) {
+          history = response.data.examHistory;
+        } else if (response.data && Array.isArray(response.data)) {
+          history = response.data;
+        } else if (response.examHistory) {
+          history = response.examHistory;
+        } else if (Array.isArray(response)) {
+          history = response;
+        }
+        
+        console.log('📊 [HISTORY DEBUG] Parsed history array:', history);
+        console.log('📊 [HISTORY DEBUG] History length:', history.length);
+        
         this.allExamHistory.set(history);
         this.examHistory.set(this.filteredHistory());
         this.historyLoading.set(false);
@@ -204,7 +221,13 @@ export class StudentExamsComponent implements OnInit {
         });
       },
       error: (error: any) => {
-        console.error('Failed to load exam history:', error);
+        console.error('❌ Failed to load exam history:', error);
+        console.error('❌ Error details:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.message,
+          error: error.error
+        });
         this.toast.showError('Failed to load exam history');
         this.historyLoading.set(false);
       }

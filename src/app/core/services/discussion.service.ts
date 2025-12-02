@@ -152,11 +152,18 @@ export class DiscussionService {
   /**
    * Get all discussions for a specific lesson (without pagination)
    * @param lessonId - The ID of the lesson
+   * @param studentId - Optional student ID for filtering
    * @returns Observable<DiscussionDto[]>
    */
-  getDiscussionsForLesson(lessonId: number): Observable<DiscussionDto[]> {
+  getDiscussionsForLesson(lessonId: number, studentId?: number): Observable<DiscussionDto[]> {
     // Use paginated endpoint with large page size to get all discussions
-    const params = { page: 1, pageSize: 1000 };
+    const params: any = { page: 1, pageSize: 1000 };
+
+    // Add studentId if provided (for backend authentication)
+    if (studentId) {
+      params.studentId = studentId;
+    }
+
     const httpParams = this.buildHttpParams(params);
 
     return this.http.get<PagedDiscussionDto>(
