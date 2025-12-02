@@ -685,6 +685,19 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Cart management methods
    */
   addToCart(course: Course): void {
+    // ✅ Check if user is logged in (not a guest)
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      // Guest user - show message and redirect to login
+      this.toastService.showWarning('Please login first to add items to your cart');
+      this.logger.log('🚫 Guest tried to add to cart - redirecting to login');
+      // Redirect to login page after a short delay so user sees the message
+      setTimeout(() => {
+        this.router.navigate(['/auth/login']);
+      }, 1500);
+      return;
+    }
+
     this.coursesService.addToCart(course)
       .pipe(takeUntil(this.destroy$))
       .subscribe(success => {
