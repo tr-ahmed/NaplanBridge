@@ -133,11 +133,17 @@
                       [style.width.%]="studentDetails()!.progress.overallProgress">
                     </div>
                   </div>
+                  <!-- ✅ NEW: Display total lessons info -->
+                  <div class="mt-2 text-xs text-gray-600">
+                    {{ studentDetails()!.progress.completedLessons }} of {{ studentDetails()!.progress.totalLessons }} lessons completed
+                  </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 pt-4 border-t">
                   <div>
-                    <div class="text-2xl font-bold text-gray-900">{{ studentDetails()!.progress.completedLessons }}</div>
-                    <div class="text-sm text-gray-600">Lessons Completed</div>
+                    <div class="text-2xl font-bold text-gray-900">
+                      {{ studentDetails()!.progress.completedLessons }}<span class="text-lg text-gray-500">/{{ studentDetails()!.progress.totalLessons }}</span>
+                    </div>
+                    <div class="text-sm text-gray-600">Lessons Progress</div>
                   </div>
                   <div>
                     <div class="text-2xl font-bold text-gray-900">{{ formatTime(studentDetails()!.progress.timeSpent) }}</div>
