@@ -112,7 +112,7 @@ export class ContactComponent {
   }
 
   // Build a cross-platform WhatsApp link from our contact info
-  getWhatsappHref(prefilledMessage = 'Hello Naplan Bridge, I need some help'): string {
+  getWhatsappHref(prefilledMessage = 'Hello NaplanBridge, I need some help'): string {
     const phoneItem = this.contactInfo.find(i => i.title === 'Phone');
     if (!phoneItem) return 'https://wa.me/';
     // Prefer the displayed value if available, otherwise fall back to link
