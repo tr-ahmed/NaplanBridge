@@ -301,7 +301,7 @@
     <!-- Mobile Navigation -->
     @if (isMobileMenuOpen) {
       <div class="md:hidden lg:hidden bg-white border-t border-gray-200 py-3 max-h-[calc(100vh-4rem)] overflow-y-auto">
-        <ul class="space-y-1.5 list-none px-2">
+        <ul class="space-y-1.5 list-none px-3">
           @for (item of navigationItems; track item.id) {
             @if (item.label === 'Subjects') {
               <!-- Subjects without subcategories for Mobile -->
@@ -329,13 +329,13 @@
             @if (isLoggedIn) {
               <div class="space-y-2 pt-2">
                 @if (userName) {
-                  <div class="text-center text-gray-700 font-semibold px-3 py-1.5 text-sm bg-gray-50 rounded-lg mx-2">
+                  <div class="text-center text-gray-700 font-semibold px-3 py-1.5 text-sm bg-gray-50 rounded-lg">
                     Welcome, {{ userName }}
                   </div>
                 }
 
                 <!-- Mobile Cart and Notifications -->
-                <div class="flex justify-center gap-3 px-3 py-2">
+                <div class="flex justify-center gap-3 py-2">
                   @if (userRole !== 'Student') {
                     <button
                       (click)="navigateToCart(); toggleMobileMenu()"
@@ -366,7 +366,7 @@
                 </div>
 
                 <!-- Mobile Role-based buttons -->
-                <div class="space-y-2 px-2">
+                <div class="space-y-2">
                   @if (userRole === 'Admin') {
                     <a
                       routerLink="/admin/users"
@@ -415,7 +415,7 @@
                 </div>
               </div>
             } @else {
-              <div class="space-y-2 px-2 pt-2">
+              <div class="space-y-2 pt-2">
                 <a
                   routerLink="/auth/login"
                   class="block w-full bg-primary-500 hover:bg-primary-600 text-white px-3 py-2.5 rounded-lg font-semibold transition-colors duration-200 text-center text-sm"

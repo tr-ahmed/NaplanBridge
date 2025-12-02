@@ -108,22 +108,18 @@ export class CoursesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // ✅ IMPORTANT: Load years FIRST - they will trigger filtering when loaded
-    this.loadAvailableYears(); // Load years from database first
-
-    // ✅ Then load user info - parent students will be loaded
-    this.loadUserInfo(); // This will load parent students and trigger loadCourses for parents
-
-    this.loadStudentSubscriptions(); // Load enrollment status
-    this.subscribeToCart();
-    this.subscribeToPlanModal();
-    this.subscribeToSearch(); // Subscribe to search with debounce
-    this.handleQueryParameters();
-
-    // ✅ Load courses will be called from filterYearsForParent for parents
-    // For non-parents, load courses now
+    // Check if user is logged in
     const user = this.authService.getCurrentUser();
+
     if (user) {
+      // ✅ IMPORTANT: Load years FIRST - they will trigger filtering when loaded (only for logged-in users)
+      this.loadAvailableYears(); // Load years from database first
+
+      // ✅ Then load user info - parent students will be loaded
+      this.loadUserInfo(); // This will load parent students and trigger loadCourses for parents
+
+      this.loadStudentSubscriptions(); // Load enrollment status
+
       const userRoles = user.role || user.roles || user.Role || user.Roles;
       const rolesArray = Array.isArray(userRoles) ? userRoles : (userRoles ? [userRoles] : []);
       const isParent = rolesArray.some((r: string) => r?.toLowerCase() === 'parent');
@@ -134,9 +130,31 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.loadCourses();
       }
     } else {
-      // Guest user - load courses
+      // Guest user - use default years and load courses
+      this.setDefaultYears();
       this.loadCourses();
     }
+
+    this.subscribeToCart();
+    this.subscribeToPlanModal();
+    this.subscribeToSearch(); // Subscribe to search with debounce
+    this.handleQueryParameters();
+  }
+
+  /**
+   * Set default years for guests or when API fails
+   */
+  private setDefaultYears(): void {
+    const defaultYears = [
+      { id: 1, yearNumber: 7, name: 'Year 7' },
+      { id: 2, yearNumber: 8, name: 'Year 8' },
+      { id: 3, yearNumber: 9, name: 'Year 9' },
+      { id: 4, yearNumber: 10, name: 'Year 10' },
+      { id: 5, yearNumber: 11, name: 'Year 11' },
+      { id: 6, yearNumber: 12, name: 'Year 12' }
+    ];
+    this.availableYears.set(defaultYears);
+    this.logger.log('✅ Using default years:', defaultYears);
   }
 
   /**
@@ -170,14 +188,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('❌ Failed to load years:', err);
         // Fallback to default years
-        this.availableYears.set([
-          { id: 1, yearNumber: 7, name: 'Year 7' },
-          { id: 2, yearNumber: 8, name: 'Year 8' },
-          { id: 3, yearNumber: 9, name: 'Year 9' },
-          { id: 4, yearNumber: 10, name: 'Year 10' },
-          { id: 5, yearNumber: 11, name: 'Year 11' },
-          { id: 6, yearNumber: 12, name: 'Year 12' }
-        ]);
+        this.setDefaultYears();
       }
     });
   }
