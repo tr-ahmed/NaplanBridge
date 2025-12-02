@@ -24,6 +24,9 @@ interface Child {
   grade: string;
   avatar?: string;
   overallProgress: number;
+  completedLessons?: number;  // ✅ NEW: From backend summary
+  totalLessons?: number;      // ✅ NEW: From backend summary
+  averageScore?: number;      // ✅ NEW: From backend summary
   activeSubscription: string;
   upcomingExams: number;
   recentActivity: Activity[];
@@ -197,8 +200,17 @@ export class ParentDashboardComponent implements OnInit {
     const childRequests = children.map(child => {
       return forkJoin({
         child: of(child),
-        progress: this.progressService.getStudentProgress(child.id).pipe(
-          catchError(() => of(null))
+        // ✅ NEW: Using new summary endpoint from backend
+        progressSummary: this.progressService.getStudentProgressSummary(child.id).pipe(
+          catchError(() => of({
+            studentId: child.id,
+            overallProgress: 0,
+            completedLessons: 0,
+            totalLessons: 0,
+            averageScore: 0,
+            totalTimeSpent: 0,
+            lastActivityDate: null
+          }))
         ),
         subscriptions: this.dashboardService.getStudentSubscriptionsSummary(child.id).pipe(
           catchError(() => of([]))
@@ -218,7 +230,10 @@ export class ParentDashboardComponent implements OnInit {
 
         const processedChildren: Child[] = childrenData.map(data => {
           const child = data.child;
-          const progress = data.progress;
+          // ✅ NEW: Use progressSummary from backend API
+          const progressSummary = data.progressSummary;
+
+          console.log(`📊 Progress Summary for ${child.userName}:`, progressSummary);
 
           // ✅ NEW: API now returns { totalActiveSubscriptions, subscriptions: [...] }
           let subscriptions: any[] = [];
@@ -245,8 +260,8 @@ export class ParentDashboardComponent implements OnInit {
             }))
           });
 
-          // Calculate overall progress
-          const overallProgress = progress?.overallProgress || 0;
+          // ✅ NEW: Get overall progress from backend summary
+          const overallProgress = progressSummary.overallProgress || 0;
 
           // Get active subscription - filter for active subscriptions only
           const activeSubscriptions = subscriptions.filter((sub: any) => sub.isActive === true);
@@ -283,6 +298,9 @@ export class ParentDashboardComponent implements OnInit {
             grade: `Year ${child.year || 'N/A'}`,
             avatar: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
             overallProgress,
+            completedLessons: progressSummary.completedLessons,  // ✅ NEW: From backend
+            totalLessons: progressSummary.totalLessons,          // ✅ NEW: From backend
+            averageScore: progressSummary.averageScore,          // ✅ NEW: From backend
             activeSubscription,
             upcomingExams,
             recentActivity

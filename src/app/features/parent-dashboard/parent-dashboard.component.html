@@ -237,6 +237,12 @@
               [style.width.%]="child.overallProgress">
             </div>
           </div>
+          <!-- ✅ NEW: Display completed/total lessons -->
+          @if (child.completedLessons !== undefined && child.totalLessons !== undefined) {
+            <div class="mt-2 text-xs text-gray-600">
+              {{ child.completedLessons }} of {{ child.totalLessons }} lessons completed
+            </div>
+          }
         </div>
 
         <!-- Subscriptions Section -->

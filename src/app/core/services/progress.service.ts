@@ -10,6 +10,7 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 import { ApiService } from './base-api.service';
 import {
   StudentProgress,
+  StudentProgressSummaryDto,
   SubjectProgress,
   TermProgress,
   WeekProgress,
@@ -43,6 +44,16 @@ export class ProgressService {
    */
   getStudentProgress(studentId: number): Observable<StudentProgress> {
     return this.api.get<StudentProgress>(`Progress/by-student/${studentId}`);
+  }
+
+  /**
+   * ✅ NEW: Get student progress summary with overall completion percentage
+   * Endpoint: GET /api/Progress/by-student/{studentId}/summary
+   * Roles: Student, Parent, Teacher, Admin
+   * Returns: Overall progress, completed lessons, average score, etc.
+   */
+  getStudentProgressSummary(studentId: number): Observable<StudentProgressSummaryDto> {
+    return this.api.get<StudentProgressSummaryDto>(`Progress/by-student/${studentId}/summary`);
   }
 
   /**
