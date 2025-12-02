@@ -38,22 +38,13 @@ export class BrowseTeachersComponent implements OnInit {
 
     this.sessionService.getAvailableTeachers().subscribe({
       next: (response) => {
-        console.log('📚 Available Teachers API Response:', response);
         if (response.success && response.data) {
-          console.log('👨‍🏫 Teachers Data:', response.data);
-          response.data.forEach((teacher, index) => {
-            console.log(`Teacher ${index + 1}:`, {
-              name: teacher.teacherName,
-              subjects: teacher.subjects,
-              subjectsCount: teacher.subjects?.length || 0
-            });
-          });
           this.teachers.set(response.data);
         }
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error loading teachers:', error);
+        console.error('Error loading teachers:', error);
         this.toastService.showError('Failed to load teachers');
         this.loading.set(false);
       }
