@@ -28,23 +28,23 @@
                 {{ item.label }}
               </button>
               <ul class="absolute left-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <li><a (click)="navigateToCoursesWithFilter('mathematics')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                <li><a (click)="navigateToCoursesWithFilter('mathematics'); closeMobileMenuIfOpen()" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
                   <i class="fas fa-calculator text-blue-600"></i>
                   Mathematics
                 </a></li>
-                <li><a (click)="navigateToCoursesWithFilter('reading')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                <li><a (click)="navigateToCoursesWithFilter('reading'); closeMobileMenuIfOpen()" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
                   <i class="fas fa-book-open text-green-600"></i>
                   Reading
                 </a></li>
-                <li><a (click)="navigateToCoursesWithFilter('writing')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                <li><a (click)="navigateToCoursesWithFilter('writing'); closeMobileMenuIfOpen()" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
                   <i class="fas fa-pen text-purple-600"></i>
                   Writing
                 </a></li>
-                <li><a (click)="navigateToCoursesWithFilter('language')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                <li><a (click)="navigateToCoursesWithFilter('language'); closeMobileMenuIfOpen()" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
                   <i class="fas fa-language text-orange-600"></i>
                   Language Conventions
                 </a></li>
-                <li><a routerLink="/courses" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 border-t border-gray-100 mt-1 pt-3 flex items-center gap-2 whitespace-nowrap text-sm">
+                <li><a (click)="closeMobileMenuIfOpen()" routerLink="/courses" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 border-t border-gray-100 mt-1 pt-3 flex items-center gap-2 whitespace-nowrap text-sm">
                   <i class="fas fa-list text-gray-600"></i>
                   View All Subjects
                 </a></li>

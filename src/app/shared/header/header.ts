@@ -174,6 +174,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
+  /**
+   * Close mobile menu if it's open (for dropdown items)
+   */
+  closeMobileMenuIfOpen(): void {
+    if (this.isMobileMenuOpen) {
+      this.isMobileMenuOpen = false;
+    }
+  }
+
   navigateToAboutSection() {
     this.router.navigate(['/about']);
   }
