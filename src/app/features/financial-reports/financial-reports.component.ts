@@ -54,6 +54,24 @@ export class FinancialReportsComponent implements OnInit {
   }
 
   /**
+   * Convert a date string (YYYY-MM-DD) to end-of-day ISO string (inclusive)
+   */
+  private toEndOfDayISOString(dateStr: string): string {
+    const d = new Date(dateStr);
+    d.setHours(23, 59, 59, 999);
+    return d.toISOString();
+  }
+
+  /**
+   * Convert a date string (YYYY-MM-DD) to start-of-day ISO string
+   */
+  private toStartOfDayISOString(dateStr: string): string {
+    const d = new Date(dateStr);
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  }
+
+  /**
    * Load detailed report
    */
   loadReport(): void {
@@ -62,11 +80,17 @@ export class FinancialReportsComponent implements OnInit {
       return;
     }
 
+    // Guard: startDate should not be after endDate
+    if (new Date(this.startDate) > new Date(this.endDate)) {
+      this.toastService.showWarning('Start date cannot be after end date');
+      return;
+    }
+
     this.loading.set(true);
 
     this.reportsService.getDetailedReport(
-      this.startDate,
-      this.endDate,
+      this.toStartOfDayISOString(this.startDate),
+      this.toEndOfDayISOString(this.endDate),
       this.paymentSource,
       this.currentPage,
       this.pageSize
@@ -98,8 +122,8 @@ export class FinancialReportsComponent implements OnInit {
     if (!this.startDate || !this.endDate) return;
 
     this.reportsService.getSummaryBySource(
-      this.startDate,
-      this.endDate
+      this.toStartOfDayISOString(this.startDate),
+      this.toEndOfDayISOString(this.endDate)
     ).subscribe({
       next: (data) => {
         this.summary.set(data);
@@ -140,8 +164,8 @@ export class FinancialReportsComponent implements OnInit {
     console.log(`📤 Exporting report as ${format.toUpperCase()}...`);
 
     this.reportsService.exportReport(
-      this.startDate,
-      this.endDate,
+      this.toStartOfDayISOString(this.startDate),
+      this.toEndOfDayISOString(this.endDate),
       this.paymentSource,
       format
     ).subscribe({
