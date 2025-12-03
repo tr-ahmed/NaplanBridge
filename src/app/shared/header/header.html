@@ -15,7 +15,7 @@
       </div>
 
       <!-- Navigation (center) -->
-      <ul class="hidden lg:flex xl:space-x-6 lg:space-x-4 list-none order-2 items-center">
+      <ul class="hidden md:flex xl:space-x-6 lg:space-x-4 md:space-x-3 list-none order-2 items-center">
         @for (item of navigationItems; track item.id) {
           @if (item.label === 'Subjects') {
             <li class="relative group">
@@ -271,7 +271,7 @@
               Register
             </a>
           } @else {
-            <a routerLink="/auth/register" class="action-button hidden lg:block bg-primary-500 hover:bg-primary-600 text-white px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold whitespace-nowrap">
+            <a routerLink="/auth/register" class="action-button hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold whitespace-nowrap">
               Register
             </a>
             <a routerLink="/auth/login" class="action-button hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-4 py-1.5 xl:px-6 xl:py-2 rounded-lg font-semibold whitespace-nowrap">
@@ -282,7 +282,7 @@
 
         <!-- Mobile Menu Toggle -->
         <button
-          class="md:hidden lg:hidden flex flex-col justify-center items-center space-y-1 p-1.5 flex-shrink-0 w-9 h-9 rounded-lg hover:bg-gray-100 transition-colors"
+          class="md:hidden flex flex-col justify-center items-center space-y-1 p-1.5 flex-shrink-0 w-9 h-9 rounded-lg hover:bg-gray-100 transition-colors"
           (click)="toggleMobileMenu()"
           [class.active]="isMobileMenuOpen"
           aria-label="Toggle navigation">
