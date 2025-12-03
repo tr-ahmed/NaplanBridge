@@ -130,9 +130,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.loadCourses();
       }
     } else {
-      // Guest user - use default years and load courses
-      this.setDefaultYears();
-      this.loadCourses();
+      // Guest user - load years from database and filter by available subjects
+      this.loadAvailableYearsForGuest();
     }
 
     this.subscribeToCart();
@@ -145,14 +144,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Set default years for guests or when API fails
    */
   private setDefaultYears(): void {
-    const defaultYears = [
-      { id: 1, yearNumber: 7, name: 'Year 7' },
-      { id: 2, yearNumber: 8, name: 'Year 8' },
-      { id: 3, yearNumber: 9, name: 'Year 9' },
-      { id: 4, yearNumber: 10, name: 'Year 10' },
-      { id: 5, yearNumber: 11, name: 'Year 11' },
-      { id: 6, yearNumber: 12, name: 'Year 12' }
-    ];
+    const defaultYears = this.getDefaultYears();
     this.availableYears.set(defaultYears);
     this.logger.log('✅ Using default years:', defaultYears);
   }
@@ -257,6 +249,58 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.loadCourses(); // Load courses without year filter
       }
     }
+  }
+
+  /**
+   * Load available years for guest users and filter by subjects that exist
+   */
+  private loadAvailableYearsForGuest(): void {
+    // For guests, load all courses first to find which years have subjects
+    this.coursesService.getCourses({ pageSize: 10000 }).subscribe({
+      next: (response) => {
+        // Extract unique yearIds from courses
+        const uniqueYearIds = [...new Set(response.courses.map(c => c.yearId))].sort((a, b) => a - b);
+
+        // Map yearIds to year objects with proper names
+        const yearsWithSubjects = uniqueYearIds.map(yearId => {
+          // Find the year number from default years or calculate from ID
+          const defaultYear = this.getDefaultYears().find(y => y.id === yearId);
+          const yearNumber = defaultYear ? defaultYear.yearNumber : yearId + 6; // Fallback calculation
+
+          return {
+            id: yearId,
+            yearNumber: yearNumber,
+            name: `Year ${yearNumber}`
+          };
+        });
+
+        this.availableYears.set(yearsWithSubjects);
+        this.logger.log('✅ Guest - Loaded years with subjects:', yearsWithSubjects);
+
+        // Now load courses with pagination
+        this.loadCourses();
+      },
+      error: (err) => {
+        console.error('❌ Failed to load courses for guest year filter:', err);
+        // Fallback to default years
+        this.setDefaultYears();
+        this.loadCourses();
+      }
+    });
+  }
+
+  /**
+   * Get default years array (helper method)
+   */
+  private getDefaultYears() {
+    return [
+      { id: 1, yearNumber: 7, name: 'Year 7' },
+      { id: 2, yearNumber: 8, name: 'Year 8' },
+      { id: 3, yearNumber: 9, name: 'Year 9' },
+      { id: 4, yearNumber: 10, name: 'Year 10' },
+      { id: 5, yearNumber: 11, name: 'Year 11' },
+      { id: 6, yearNumber: 12, name: 'Year 12' }
+    ];
   }
 
   /**
