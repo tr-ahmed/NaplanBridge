@@ -154,6 +154,57 @@
         </div>
       </div>
 
+      <!-- Overall Progress Section -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-900">Overall Progress</h2>
+            <p class="text-sm text-gray-600">Track your learning journey</p>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border-2 border-blue-100">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-base font-semibold text-gray-700">Completion Progress</span>
+            <span class="text-lg font-bold text-blue-600">{{ overallProgress() }}%</span>
+          </div>
+
+          <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner mb-4">
+            <div
+              [class]="'h-full rounded-full transition-all duration-500 ' + getProgressColor(overallProgress())"
+              [style.width.%]="overallProgress()">
+            </div>
+          </div>
+
+          @if (completedLessons() !== undefined && totalLessons() !== undefined) {
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-sm text-gray-600">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="font-medium">{{ completedLessons() }} of {{ totalLessons() }} lessons completed</span>
+              </div>
+              <div class="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+                @if (overallProgress() >= 80) {
+                  <span>🎉 Excellent!</span>
+                } @else if (overallProgress() >= 60) {
+                  <span>👍 Great!</span>
+                } @else if (overallProgress() >= 40) {
+                  <span>💪 Keep Going!</span>
+                } @else {
+                  <span>🚀 Let's Start!</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
       <!-- Quick Actions with Enhanced Design -->
       <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-8 text-white mb-8 relative overflow-hidden">
         <!-- Animated Background Pattern -->
@@ -475,13 +526,13 @@
                         }
                       </div>
                       <div class="text-right">
-                        <div class="text-2xl font-bold text-blue-600">{{ subject.progress }}%</div>
+                        <div class="text-2xl font-bold text-blue-600">{{ overallProgress() }}%</div>
                       </div>
                     </div>
 
                     <!-- Progress Bar -->
                     <div class="mb-3">
-                      <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <!-- <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
                         <div
                           class="h-2 rounded-full transition-all duration-500 bg-gradient-to-r"
                           [ngClass]="{
@@ -492,10 +543,16 @@
                           }"
                           [style.width.%]="subject.progress">
                         </div>
+                      </div> -->
+                      <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner mb-3">
+                        <div
+                          [class]="'h-full rounded-full transition-all duration-500 ' + getProgressColor(overallProgress())"
+                          [style.width.%]="overallProgress()">
+                        </div>
                       </div>
                       <div class="flex justify-between items-center mt-1">
                         <span class="text-xs text-gray-600">
-                          {{ subject.completedLessons }}/{{ subject.totalLessons }} lessons
+                          {{ completedLessons() }} / {{ totalLessons() }} lessons
                         </span>
                         @if (subject.expiryDate) {
                           <span class="text-xs text-gray-500">
@@ -572,96 +629,7 @@
             }
           </div>
 
-          <!-- Recent Lessons -->
-          <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-            <div class="flex items-center justify-between mb-5">
-              <div>
-                <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <span class="text-2xl">📖</span>
-                  Recently Started Lessons
-                </h2>
-                <p class="text-xs text-gray-500 mt-1">Continue where you left off</p>
-              </div>
-              <button
-                (click)="goToLessons()"
-                class="text-green-600 hover:text-green-700 text-sm font-semibold">
-                View All →
-              </button>
-            </div>
 
-            @if (getRecentLessons().length === 0) {
-              <div class="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-                <p class="text-sm text-gray-600 font-medium">No lessons started yet</p>
-                <p class="text-xs text-gray-500 mt-1 mb-4">Start learning to track your progress</p>
-                <button
-                  (click)="goToLessons()"
-                  class="px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg font-medium text-sm transition-colors shadow-sm">
-                  Browse Lessons
-                </button>
-              </div>
-            }
-
-            @if (getRecentLessons().length > 0) {
-              <div class="space-y-3">
-                @for (lesson of getRecentLessons(); track lesson.lessonId) {
-                  <div class="p-4 border-l-4 border-green-400 bg-green-50 rounded-lg hover:shadow-md transition-all cursor-pointer group">
-                    <div class="flex items-start justify-between gap-3">
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-2">
-                          <span class="text-lg">📚</span>
-                          <p class="font-semibold text-gray-900 text-sm line-clamp-1 group-hover:text-green-700 transition-colors">{{ lesson.title }}</p>
-                        </div>
-                        <p class="text-xs text-gray-600 line-clamp-2 mb-2">{{ lesson.description }}</p>
-                        <div class="flex items-center gap-3 text-xs text-gray-500 mb-2">
-                          @if (lesson.subjectName) {
-                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
-                              {{ lesson.subjectName }}
-                            </span>
-                          }
-                          @if (lesson.termNumber && lesson.weekNumber) {
-                            <span>Term {{ lesson.termNumber }} • Week {{ lesson.weekNumber }}</span>
-                          }
-                          <span class="px-2 py-0.5 bg-green-200 text-green-800 rounded-full font-medium">
-                            {{ lesson.progress }}% Complete
-                          </span>
-                        </div>
-                        <!-- Progress Bar -->
-                        <div class="bg-gray-200 rounded-full h-2 mb-2">
-                          <div
-                            class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all"
-                            [style.width.%]="lesson.progress">
-                          </div>
-                        </div>
-                        <!-- <div class="flex items-center gap-2 text-xs text-gray-500">
-                          <span>{{ lesson.timeSpent }} / {{ lesson.duration }} min</span>
-                          <span class="text-green-600 font-medium">{{ lesson.duration - lesson.timeSpent }} min left</span>
-                        </div> -->
-                      </div>
-                      <button
-                        (click)="resumeLesson(lesson)"
-                        class="px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg text-xs font-semibold whitespace-nowrap shadow-sm transition-colors flex items-center gap-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        Resume
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-              @if (getRecentLessons().length > 4) {
-                <button
-                  (click)="goToLessons()"
-                  class="w-full mt-3 py-2 text-green-600 hover:text-green-700 font-semibold text-sm border-2 border-green-200 rounded-lg hover:bg-green-50 transition-colors">
-                  View All {{ getRecentLessons().length }} Lessons in Progress
-                </button>
-              }
-            }
-          </div>
         </div>
 
         <!-- Right Column -->

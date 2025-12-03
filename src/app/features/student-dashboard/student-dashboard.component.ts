@@ -55,6 +55,15 @@ export class StudentDashboardComponent implements OnInit {
   // Data
   studentId: number = 0;
   progress = signal<StudentProgress | null>(null);
+  progressSummary = signal<any>({
+    studentId: 0,
+    overallProgress: 0,
+    completedLessons: 0,
+    totalLessons: 0,
+    averageScore: 0,
+    totalTimeSpent: 0,
+    lastActivityDate: null
+  }); // ✅ Progress summary from backend API
   subscriptions = signal<StudentSubscription[]>([]);
   examHistory = signal<ExamHistory[]>([]);
   recentActivities = signal<RecentActivity[]>([]);
@@ -74,9 +83,18 @@ export class StudentDashboardComponent implements OnInit {
 
   // Computed values
   overallProgress = computed(() => {
-    const prog = this.progress();
-    if (!prog) return 0;
-    return Math.round(prog.overallProgress || 0);
+    const summary = this.progressSummary();
+    return Math.round(summary?.overallProgress || 0);
+  });
+
+  completedLessons = computed(() => {
+    const summary = this.progressSummary();
+    return summary?.completedLessons || 0;
+  });
+
+  totalLessons = computed(() => {
+    const summary = this.progressSummary();
+    return summary?.totalLessons || 0;
   });
 
   activeSubsCount = computed(() => {
@@ -165,6 +183,7 @@ export class StudentDashboardComponent implements OnInit {
    */
   private loadAvailableEndpoints(): void {
     const loadPromises = [
+      this.safeLoadProgressSummary(),
       this.safeLoadSubscriptions(),
       this.safeLoadEnrolledSubjects(),
       this.safeLoadAchievements(),
@@ -194,6 +213,34 @@ export class StudentDashboardComponent implements OnInit {
       } else {
         this.toastService.showSuccess('Dashboard loaded successfully');
       }
+    });
+  }
+
+  /**
+   * Safely load progress summary with fallback
+   */
+  private safeLoadProgressSummary(): Promise<any> {
+    return new Promise((resolve) => {
+      this.progressService.getStudentProgressSummary(this.studentId).subscribe({
+        next: (summary) => {
+          console.log('📊 [STUDENT DASHBOARD] Progress Summary:', summary);
+          this.progressSummary.set(summary);
+          resolve(summary);
+        },
+        error: (err) => {
+          console.error('⚠️ [STUDENT DASHBOARD] Progress summary endpoint failed:', err);
+          this.progressSummary.set({
+            studentId: this.studentId,
+            overallProgress: 0,
+            completedLessons: 0,
+            totalLessons: 0,
+            averageScore: 0,
+            totalTimeSpent: 0,
+            lastActivityDate: null
+          });
+          resolve(null);
+        }
+      });
     });
   }
 
@@ -604,6 +651,16 @@ export class StudentDashboardComponent implements OnInit {
   refresh(): void {
     this.loadDashboardData();
     this.toastService.showSuccess('Dashboard refreshed');
+  }
+
+  /**
+   * Get progress bar color based on percentage
+   */
+  getProgressColor(progress: number): string {
+    if (progress >= 80) return 'bg-gradient-to-r from-green-500 to-green-600';
+    if (progress >= 60) return 'bg-gradient-to-r from-blue-500 to-blue-600';
+    if (progress >= 40) return 'bg-gradient-to-r from-yellow-500 to-yellow-600';
+    return 'bg-gradient-to-r from-red-500 to-red-600';
   }
 
   /**
