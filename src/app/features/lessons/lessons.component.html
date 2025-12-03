@@ -310,17 +310,7 @@
                 [src]="lesson.posterUrl || lesson.thumbnailUrl || 'https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80'"
                 [alt]="lesson.title"
                 onerror="this.src='https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80'"
-                class="w-full h-full object-cover"
-                [class.blur-sm]="!hasAccess()">
-
-              <!-- Lock overlay for no subscription -->
-              @if (!hasAccess()) {
-                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                  <svg class="w-12 h-12 text-white opacity-90" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
-                  </svg>
-                </div>
-              }
+                class="w-full h-full object-cover">
 
               <!-- Completion Badge -->
               @if (isLessonCompleted(lesson.id)) {
