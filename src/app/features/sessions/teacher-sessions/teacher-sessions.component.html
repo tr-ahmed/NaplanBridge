@@ -36,14 +36,14 @@
 
     <!-- Filter Tabs -->
     <div class="bg-white rounded-lg shadow-sm mb-6">
-      <nav class="flex border-b border-gray-200">
+      <nav class="flex flex-col sm:flex-row border-b border-gray-200">
         <button
           (click)="setTab('upcoming')"
           [class.border-blue-600]="activeTab() === 'upcoming'"
           [class.text-blue-600]="activeTab() === 'upcoming'"
           [class.border-transparent]="activeTab() !== 'upcoming'"
           [class.text-gray-600]="activeTab() !== 'upcoming'"
-          class="flex-1 py-4 px-6 text-center font-medium transition-colors border-b-2 flex items-center justify-center gap-2">
+          class="flex-1 py-3 px-3 sm:py-4 sm:px-6 text-center font-medium transition-colors border-b-2 sm:border-b-0 sm:border-r-2 flex items-center justify-center gap-2 text-sm sm:text-base">
           <i class="fas fa-clock"></i>
           <span>Upcoming Sessions</span>
           <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold">{{ upcomingSessions().length }}</span>
@@ -55,7 +55,7 @@
           [class.text-blue-600]="activeTab() === 'history'"
           [class.border-transparent]="activeTab() !== 'history'"
           [class.text-gray-600]="activeTab() !== 'history'"
-          class="flex-1 py-4 px-6 text-center font-medium transition-colors border-b-2 flex items-center justify-center gap-2">
+          class="flex-1 py-3 px-3 sm:py-4 sm:px-6 text-center font-medium transition-colors border-b-2 sm:border-b-0 sm:border-r-2 flex items-center justify-center gap-2 text-sm sm:text-base">
           <i class="fas fa-history"></i>
           <span>Past Sessions</span>
           <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs font-bold">{{ pastSessions().length }}</span>

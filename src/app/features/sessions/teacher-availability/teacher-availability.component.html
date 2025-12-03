@@ -1,14 +1,27 @@
 <!-- Main Content -->
-<main class="px-4 sm:px-6 lg:px-8 py-8">
-    
+<main class="px-2 sm:px-4 lg:px-8 py-4">
+
     <!-- Page Title -->
-    <div class="mb-8">
-      <h1 class="text-4xl font-bold text-gray-900 mb-2">Manage Availability</h1>
-      <p class="text-lg text-gray-600">Set up your available times for private sessions</p>
+    <div class="mb-6 sm:mb-8">
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl p-6 sm:p-8 text-white">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="p-3 bg-white/20 backdrop-blur-lg rounded-xl">
+                <i class="fas fa-calendar-check text-3xl"></i>
+              </div>
+              <div>
+                <h1 class="text-3xl sm:text-4xl font-bold">Manage Availability</h1>
+                <p class="text-blue-100 text-sm mt-1">Set up your available times for private sessions</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Loading State -->
-    <div *ngIf="loading()" class="flex items-center justify-center py-20">
+    <div *ngIf="loading()" class="flex items-center justify-center py-12 sm:py-20">
       <div class="text-center">
         <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
         <p class="text-gray-600 text-lg">Loading your availability settings...</p>
@@ -16,11 +29,11 @@
     </div>
 
     <!-- Content -->
-    <div *ngIf="!loading()" class="space-y-6">
+    <div *ngIf="!loading()" class="space-y-4 sm:space-y-6">
 
       <!-- Settings Card -->
-      <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
-        <div class="flex items-center justify-between mb-6">
+      <div class="bg-white rounded-xl shadow-lg p-4 sm:p-8 border border-gray-100">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
           <div>
             <h2 class="text-2xl font-bold text-gray-900">Session Settings</h2>
             <p class="text-sm text-gray-500 mt-1">Configure your session preferences</p>
@@ -33,7 +46,7 @@
         </div>
 
         <!-- Current Settings Display -->
-        <div *ngIf="!showSettingsForm() && settings()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngIf="!showSettingsForm() && settings()" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
             <div class="flex items-center gap-3 mb-2">
               <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,8 +100,8 @@
             </span>
           </div>
         </div>      <!-- Settings Form -->
-      <form *ngIf="showSettingsForm()" [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form *ngIf="showSettingsForm()" [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="space-y-3 sm:space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <!-- Session Duration -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -142,7 +155,7 @@
         </div>
 
         <!-- Accepting Bookings -->
-        <div class="flex items-center">
+        <div class="flex items-center mt-2">
           <input
             type="checkbox"
             id="isAcceptingBookings"
@@ -155,18 +168,16 @@
 
         <!-- Description -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Description (Optional)
-          </label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
           <textarea
             formControlName="description"
-            rows="3"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            rows="2"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
             placeholder="Additional information about teaching style or specializations..."></textarea>
         </div>
 
         <!-- Buttons -->
-        <div class="flex gap-3">
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
             type="submit"
             [disabled]="savingSettings() || settingsForm.invalid"
@@ -184,8 +195,8 @@
     </div>
 
       <!-- Availability Management Card -->
-      <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
-        <div class="flex items-center justify-between mb-6">
+      <div class="bg-white rounded-xl shadow-lg p-4 sm:p-8 border border-gray-100">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
           <div>
             <h2 class="text-2xl font-bold text-gray-900">Available Time Slots</h2>
             <p class="text-sm text-gray-500 mt-1">Manage your weekly availability schedule</p>
@@ -202,9 +213,9 @@
 
         <!-- Add Availability Form -->
         <form *ngIf="showAvailabilityForm()" [formGroup]="availabilityForm" (ngSubmit)="addAvailability()"
-              class="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 p-6 rounded-xl mb-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Add New Time Slot</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              class="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 p-3 sm:p-6 rounded-xl mb-4 sm:mb-6">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-4">Add New Time Slot</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
           <!-- Day of Week -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -243,7 +254,7 @@
           </div>
         </div>
 
-          <div class="flex gap-3 mt-4">
+          <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-3 sm:mt-4">
             <button
               type="submit"
               [disabled]="addingAvailability() || availabilityForm.invalid"
@@ -260,20 +271,20 @@
         </form>
 
         <!-- Availabilities List -->
-        <div *ngIf="availabilities().length > 0" class="space-y-4">
-          <div *ngFor="let day of getSortedDays()" class="bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div class="flex items-center gap-2 mb-4">
+        <div *ngIf="availabilities().length > 0" class="space-y-3 sm:space-y-4">
+          <div *ngFor="let day of getSortedDays()" class="bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl p-3 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 sm:mb-4">
               <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
               <h3 class="text-xl font-bold text-gray-900">{{ day }}</h3>
               <span class="ml-auto text-sm text-gray-500">{{ getAvailabilitiesByDay()[day].length }} slot(s)</span>
             </div>
-            <div class="space-y-3">
+            <div class="space-y-2 sm:space-y-3">
               <div *ngFor="let availability of getAvailabilitiesByDay()[day]"
-                   class="flex items-center justify-between bg-white border border-gray-200 p-4 rounded-lg hover:border-indigo-300 transition-all">
-                <div class="flex items-center gap-4">
-                  <div class="flex items-center gap-2 text-lg font-semibold text-gray-900">
+                   class="flex flex-col sm:flex-row sm:items-center justify-between bg-white border border-gray-200 p-3 sm:p-4 rounded-lg hover:border-indigo-300 transition-all gap-2">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <div class="flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-900">
                     <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
@@ -287,8 +298,8 @@
                 </div>
                 <button
                   (click)="deleteAvailability(availability)"
-                  class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all hover:shadow-md group">
-                  <svg class="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all hover:shadow-md group self-start sm:self-auto">
+                  <svg class="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
@@ -298,7 +309,7 @@
         </div>
 
         <!-- Empty State -->
-        <div *ngIf="availabilities().length === 0" class="text-center py-16 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border-2 border-dashed border-gray-300">
+        <div *ngIf="availabilities().length === 0" class="text-center py-8 sm:py-16 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border-2 border-dashed border-gray-300">
           <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
