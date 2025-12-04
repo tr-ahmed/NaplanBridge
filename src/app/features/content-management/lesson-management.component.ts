@@ -109,6 +109,11 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   };
   isDiscussionFormOpen = false;
   editingDiscussion: any = null;
+  
+  // Reply management
+  replyForm: any = {};
+  showReplyForm: any = {};
+  expandedDiscussions: any = {};
 
   // ============================================
   // Exams Management
@@ -981,6 +986,51 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       } catch (error: any) {
         Swal.fire('Error', this.extractErrorMessage(error), 'error');
       }
+    }
+  }
+
+  toggleDiscussion(discussionId: number): void {
+    this.expandedDiscussions[discussionId] = !this.expandedDiscussions[discussionId];
+  }
+
+  toggleReplyForm(discussionId: number): void {
+    this.showReplyForm[discussionId] = !this.showReplyForm[discussionId];
+    if (this.showReplyForm[discussionId]) {
+      this.replyForm[discussionId] = '';
+    }
+  }
+
+  async submitReply(discussionId: number): Promise<void> {
+    const reply = this.replyForm[discussionId]?.trim();
+    
+    if (!reply) {
+      Swal.fire('Warning', 'Please enter a reply', 'warning');
+      return;
+    }
+
+    try {
+      Swal.fire({
+        title: 'Sending...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      await this.contentService.addDiscussionReply(discussionId, reply).toPromise();
+      await this.loadDiscussions();
+      
+      this.showReplyForm[discussionId] = false;
+      this.replyForm[discussionId] = '';
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Reply added successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error: any) {
+      Swal.fire('Error', this.extractErrorMessage(error), 'error');
     }
   }
 

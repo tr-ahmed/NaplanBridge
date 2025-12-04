@@ -624,6 +624,11 @@ export class ContentService {
     return this.http.delete<void>(`${this.apiUrl}/Discussions/${id}`);
   }
 
+  addDiscussionReply(discussionId: number, reply: string): Observable<any> {
+    const body = { reply };
+    return this.http.post<any>(`${this.apiUrl}/Discussions/${discussionId}/replies`, body);
+  }
+
   // ===== Lesson Resources =====
   addLessonResource(lessonId: number, title: string, description: string, resourceType: string, file: File): Observable<any> {
     console.log('🔵 addLessonResource called with:', { lessonId, title, fileName: file?.name, fileSize: file?.size, fileType: file?.type });

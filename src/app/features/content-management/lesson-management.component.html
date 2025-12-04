@@ -554,25 +554,87 @@
             </div>
 
             <div *ngIf="!isLoadingDiscussions && discussions.length > 0" class="space-y-4">
-              <div *ngFor="let discussion of discussions" class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <h3 class="font-semibold text-gray-900">{{ discussion.question }}</h3>
-                    <p class="text-sm text-gray-600 mt-2">{{ discussion.details }}</p>
-                    <div class="mt-3 flex items-center gap-4 text-xs text-gray-500">
-                      <span>{{ discussion.replies?.length || 0 }} replies</span>
-                      <span>{{ discussion.createdAt | date: 'short' }}</span>
+              <div *ngFor="let discussion of discussions" class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                <div class="p-4">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <h3 class="font-semibold text-gray-900">{{ discussion.question }}</h3>
+                      <p class="text-sm text-gray-600 mt-2" *ngIf="discussion.details">{{ discussion.details }}</p>
+                      <div class="mt-3 flex items-center gap-4 text-xs text-gray-500">
+                        <span>{{ discussion.replies?.length || 0 }} replies</span>
+                        <span>{{ discussion.createdAt | date: 'short' }}</span>
+                        <span *ngIf="discussion.videoTimestamp" class="text-blue-600">⏱ {{ discussion.videoTimestamp }}s</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2 ml-4">
+                      <button
+                        type="button"
+                        (click)="toggleDiscussion(discussion.id)"
+                        class="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                        title="Toggle replies">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            [attr.d]="expandedDiscussions[discussion.id] ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'"></path>
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        (click)="deleteDiscussion(discussion)"
+                        class="p-1 text-red-600 hover:bg-red-50 rounded"
+                        title="Delete discussion">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                      </button>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2 ml-4">
+                </div>
+
+                <!-- Replies Section -->
+                <div *ngIf="expandedDiscussions[discussion.id]" class="bg-gray-50 border-t border-gray-200">
+                  <!-- Existing Replies -->
+                  <div *ngIf="discussion.replies && discussion.replies.length > 0" class="p-4 space-y-3">
+                    <div *ngFor="let reply of discussion.replies" class="bg-white rounded-lg p-3 border border-gray-200">
+                      <p class="text-sm text-gray-800">{{ reply.reply }}</p>
+                      <div class="mt-2 flex items-center gap-3 text-xs text-gray-500">
+                        <span>{{ reply.userName || 'Anonymous' }}</span>
+                        <span>{{ reply.createdAt | date: 'short' }}</span>
+                        <span *ngIf="reply.isHelpful" class="text-green-600">✓ Helpful</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Reply Form -->
+                  <div class="p-4 border-t border-gray-200">
                     <button
+                      *ngIf="!showReplyForm[discussion.id]"
                       type="button"
-                      (click)="deleteDiscussion(discussion)"
-                      class="p-1 text-red-600 hover:bg-red-50 rounded">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                      </svg>
+                      (click)="toggleReplyForm(discussion.id)"
+                      class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                      + Add Reply
                     </button>
+
+                    <div *ngIf="showReplyForm[discussion.id]" class="space-y-3">
+                      <textarea
+                        [(ngModel)]="replyForm[discussion.id]"
+                        rows="3"
+                        placeholder="Write your reply..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                      <div class="flex gap-2">
+                        <button
+                          type="button"
+                          (click)="submitReply(discussion.id)"
+                          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+                          Submit Reply
+                        </button>
+                        <button
+                          type="button"
+                          (click)="toggleReplyForm(discussion.id)"
+                          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium">
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
