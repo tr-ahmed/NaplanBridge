@@ -185,7 +185,8 @@ export class ExamManagementComponent implements OnInit {
         const examList: ExamListItem[] = exams.map(exam => ({
           id: exam.id,
           title: exam.title,
-          examType: this.convertExamType(exam.examType),
+          // Use examType directly from backend - it returns the correct type
+          examType: exam.examType || ExamType.Lesson,
           subjectName: exam.subjectName || exam.subject || 'Not Specified',
           className: exam.className,
           totalMarks: exam.totalMarks,
@@ -457,8 +458,17 @@ export class ExamManagementComponent implements OnInit {
   /**
    * Get exam type display name
    */
-  getExamTypeDisplay(type: ExamType): string {
-    return type || 'Unknown';
+  getExamTypeDisplay(type: ExamType | string | null | undefined): string {
+    if (!type) return 'Lesson';
+
+    const typeMap: Record<string, string> = {
+      'Lesson': 'Lesson',
+      'Monthly': 'Monthly',
+      'Term': 'Term',
+      'Year': 'Year'
+    };
+
+    return typeMap[String(type)] || 'Lesson';
   }
 
   /**
