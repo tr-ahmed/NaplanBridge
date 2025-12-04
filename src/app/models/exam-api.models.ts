@@ -225,6 +225,11 @@ export interface UpcomingExamDto {
   isPublished?: boolean;
   isAvailableNow?: boolean;
   remainingTime?: string;
+  // ✅ Added for in-progress exam support
+  isInProgress?: boolean;
+  studentExamId?: number;     // For resuming in-progress exams
+  status?: string;            // "InProgress", "NotStarted", etc.
+  studentExamStatus?: string; // Alternative field name
 }
 
 // ✅ Updated to match ACTUAL backend response
