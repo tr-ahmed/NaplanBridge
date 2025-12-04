@@ -2,6 +2,7 @@ import { Routes, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
 import { authGuard } from './auth/auth.guard';
+import { guestGuard } from './auth/guest.guard';
 import { teacherGuard } from './auth/teacher.guard';
 import { RoleSelectionGuard } from './auth/role-selection/role-selection.guard';
 import { StudentDetailsComponent } from './features/student-details/student-details';
@@ -22,11 +23,13 @@ export const routes: Routes = [
   // Authentication routes
   {
     path: 'auth/login',
-    loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent)
+    loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent),
+    canActivate: [guestGuard]
   },
   {
     path: 'auth/register',
-    loadComponent: () => import('./auth/register/register.component').then(m => m.RegisterComponent)
+    loadComponent: () => import('./auth/register/register.component').then(m => m.RegisterComponent),
+    canActivate: [guestGuard]
   },
   {
     path: 'auth/reset-password',
