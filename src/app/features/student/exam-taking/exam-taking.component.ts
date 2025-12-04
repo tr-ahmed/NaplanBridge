@@ -10,6 +10,7 @@ import {
   SubmitExamDto,
   ExamAnswerDto,
   QuestionType,
+  SavedAnswerDto,
   getQuestionTypeLabel,
   getQuestionTypeIcon
 } from '../../../models/exam-api.models';
@@ -33,6 +34,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   examStartTime = signal<Date | null>(null);
   private timerSubscription?: Subscription;
   private autoSaveSubscription?: Subscription;
+  private serverAutoSaveSubscription?: Subscription; // ✅ NEW: Server auto-save
 
   // UI State
   loading = signal(false);
@@ -64,7 +66,9 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.stopTimer();
     this.stopAutoSave();
+    this.stopServerAutoSave(); // ✅ NEW
     this.saveExamState(); // Save state before leaving
+    this.saveAnswersToServer(); // ✅ NEW: Save to server on exit
   }
 
   /**
@@ -84,90 +88,307 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
   loadExamData() {
     this.loading.set(true);
 
-    // Try to restore previous state first
+    // ✅ STEP 1: Try to restore from localStorage first
     const savedState = this.loadExamState();
     if (savedState) {
-      this.restoreExamState(savedState);
+      console.log('📦 Found saved state in localStorage, verifying with backend...');
+      this.verifyAndRestoreFromBackend(savedState);
       return;
     }
 
-    // ✅ NEW: Try to get exam data from navigation state
+    // ✅ STEP 2: Try to get exam data from navigation state (fresh start)
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras?.state || history.state;
 
     console.log('📍 Navigation state:', state);
 
     if (state && state.examData && state.fromStart) {
-      console.log('✅ Using exam data from navigation state');
-      const examData = state.examData;
-
-      // Convert StartExamResponseDto to ExamDto format
-      const exam: ExamDto = {
-        id: examData.examId,
-        title: examData.examTitle || examData.title,
-        description: examData.description || '',
-        examType: examData.examType || 'Lesson',
-        subjectId: examData.subjectId || 0,
-        subjectName: examData.subjectName || '',
-        termId: examData.termId,
-        lessonId: examData.lessonId,
-        weekId: examData.weekId,
-        yearId: examData.yearId,
-        durationInMinutes: examData.durationInMinutes,
-        totalMarks: examData.totalMarks,
-        passingMarks: examData.passingMarks || 0,
-        startTime: examData.startedAt || new Date().toISOString(),
-        endTime: examData.endTime || new Date().toISOString(),
-        isPublished: true,
-        questions: examData.questions || []
-      };
-
-      console.log('📚 Exam loaded from navigation:', exam);
-      console.log('📝 Questions count:', exam.questions?.length || 0);
-
-      if (!exam.questions || exam.questions.length === 0) {
-        console.error('❌ No questions in exam data!');
-        this.loading.set(false);
-        this.toast.showError('Exam has no questions. Please contact support.');
-        setTimeout(() => {
-          this.router.navigate(['/student/exams']);
-        }, 2000);
-        return;
-      }
-
-      // Verify questions have options
-      exam.questions.forEach((q: any, i: number) => {
-        console.log(`Question ${i + 1}:`, q.questionText);
-        console.log(`Question ${i + 1} options:`, q.options);
-        if (!q.options || q.options.length === 0) {
-          console.error(`❌ Question ${i + 1} has no options!`);
-        }
-      });
-
-      this.exam.set(exam);
-      this.examStartTime.set(new Date());
-      this.timeRemaining.set(exam.durationInMinutes * 60); // Convert to seconds
-      this.startTimer();
-      this.startAutoSave();
-      this.saveExamState(); // Save initial state
-      this.loading.set(false);
+      console.log('✅ Using exam data from navigation state (fresh start)');
+      this.initializeFromNavigationState(state.examData);
       return;
     }
 
-    // ❌ FALLBACK: No exam data in navigation state
-    console.error('❌ No exam data in navigation state');
-    console.error('❌ This usually happens when:');
-    console.error('   1. User refreshed the page');
-    console.error('   2. User navigated directly to this URL');
-    console.error('   3. Backend did not return questions in startExam response');
+    // ✅ STEP 3: No local state, no navigation state - check backend for in-progress exam
+    console.log('🔍 Checking backend for in-progress exam...');
+    this.checkBackendForInProgressExam();
+  }
 
+  /**
+   * ✅ NEW: Verify saved state with backend before restoring
+   */
+  private verifyAndRestoreFromBackend(savedState: any) {
+    const studentExamId = savedState.studentExamId;
+
+    this.examApi.getStudentExamStatus(studentExamId).subscribe({
+      next: (response) => {
+        const status = response.data;
+        console.log('📊 Backend status:', status);
+
+        if (status.canContinue && status.status === 'InProgress') {
+          // ✅ Can continue - use backend data for time, restore local answers
+          console.log('✅ Exam can be continued, restoring with backend time...');
+
+          // Use exam data from backend if available, otherwise from local state
+          if (status.examData) {
+            this.initializeFromBackendResume(status, savedState);
+          } else {
+            this.restoreExamState(savedState);
+          }
+        } else if (status.status === 'Completed') {
+          // ❌ Already submitted - redirect to result
+          console.log('⚠️ Exam already completed, redirecting to result...');
+          this.clearExamState();
+          this.toast.showInfo('This exam has already been submitted');
+          this.router.navigate(['/student/exam-result', studentExamId]);
+        } else if (status.status === 'Expired') {
+          // ❌ Time expired - redirect to result
+          console.log('⚠️ Exam time expired, redirecting to result...');
+          this.clearExamState();
+          this.toast.showWarning('Exam time has expired. Your answers were auto-submitted.');
+          this.router.navigate(['/student/exam-result', studentExamId]);
+        } else {
+          // Unknown status - fallback to local restore
+          console.warn('⚠️ Unknown status, falling back to local restore');
+          this.restoreExamState(savedState);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error checking exam status:', error);
+
+        if (error.status === 404) {
+          // Exam not found - clear state and redirect
+          this.clearExamState();
+          this.toast.showError('Exam not found');
+          this.router.navigate(['/student/exams']);
+        } else {
+          // Network error - try local restore
+          console.warn('⚠️ Network error, falling back to local restore');
+          this.restoreExamState(savedState);
+        }
+      }
+    });
+  }
+
+  /**
+   * ✅ NEW: Initialize exam from backend resume data
+   */
+  private initializeFromBackendResume(status: any, savedState: any) {
+    const examData = status.examData;
+
+    // Convert backend data to ExamDto format
+    const exam: ExamDto = {
+      id: status.examId,
+      title: examData.examTitle,
+      description: '',
+      examType: 'Lesson' as any,
+      subjectId: 0,
+      durationInMinutes: examData.durationInMinutes,
+      totalMarks: examData.totalMarks,
+      passingMarks: 0,
+      startTime: status.startedAt,
+      endTime: '',
+      isPublished: true,
+      questions: examData.questions?.map((q: any) => ({
+        id: q.questionId,
+        questionText: q.questionText,
+        questionType: q.questionType,
+        marks: q.marks,
+        order: 0,
+        isMultipleSelect: q.isMultipleSelect,
+        options: q.options?.map((o: any) => ({
+          id: o.optionId,
+          optionText: o.optionText,
+          isCorrect: false,
+          order: 0
+        })) || []
+      })) || []
+    };
+
+    this.exam.set(exam);
+    this.examStartTime.set(new Date(status.startedAt));
+    this.timeRemaining.set(status.remainingTimeSeconds);
+
+    // Restore answers - prefer backend saved answers, fallback to local
+    const answersMap = new Map<number, ExamAnswerDto>();
+
+    // First, load from backend
+    if (status.savedAnswers && status.savedAnswers.length > 0) {
+      status.savedAnswers.forEach((sa: SavedAnswerDto) => {
+        answersMap.set(sa.questionId, {
+          examQuestionId: sa.questionId,
+          questionType: QuestionType.MultipleChoice, // Will be updated
+          selectedOptionIds: sa.selectedOptionIds,
+          answerText: sa.answerText
+        });
+      });
+    }
+
+    // Then, merge with local answers (local takes precedence for recent changes)
+    if (savedState.answers && Array.isArray(savedState.answers)) {
+      savedState.answers.forEach(([key, value]: [number, ExamAnswerDto]) => {
+        answersMap.set(key, value);
+      });
+    }
+
+    this.answers.set(answersMap);
+    this.currentQuestionIndex.set(savedState.currentQuestionIndex || 0);
+
+    this.startTimer();
+    this.startAutoSave();
+    this.startServerAutoSave(); // ✅ NEW: Also save to server
     this.loading.set(false);
-    this.toast.showError('Unable to load exam. Please start the exam from the exams list.');
 
-    // Redirect back to exams list after 2 seconds
-    setTimeout(() => {
-      this.router.navigate(['/student/exams']);
-    }, 2000);
+    this.toast.showInfo('Exam resumed successfully');
+  }
+
+  /**
+   * ✅ NEW: Check backend for in-progress exam (page refresh without local state)
+   */
+  private checkBackendForInProgressExam() {
+    const studentExamId = this.studentExamId();
+
+    this.examApi.getStudentExamStatus(studentExamId).subscribe({
+      next: (response) => {
+        const status = response.data;
+        console.log('📊 Backend status (no local state):', status);
+
+        if (status.canContinue && status.status === 'InProgress' && status.examData) {
+          console.log('✅ Found in-progress exam on backend, resuming...');
+          this.initializeFromBackendOnly(status);
+        } else if (status.status === 'Completed') {
+          console.log('⚠️ Exam already completed');
+          this.toast.showInfo('This exam has already been submitted');
+          this.router.navigate(['/student/exam-result', studentExamId]);
+        } else if (status.status === 'Expired') {
+          console.log('⚠️ Exam time expired');
+          this.toast.showWarning('Exam time has expired');
+          this.router.navigate(['/student/exam-result', studentExamId]);
+        } else {
+          // No exam found or can't continue
+          console.error('❌ Cannot continue exam');
+          this.loading.set(false);
+          this.toast.showError('Unable to load exam. Please start from the exams list.');
+          setTimeout(() => {
+            this.router.navigate(['/student/exams']);
+          }, 2000);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error checking backend:', error);
+        this.loading.set(false);
+        this.toast.showError('Unable to load exam. Please start from the exams list.');
+        setTimeout(() => {
+          this.router.navigate(['/student/exams']);
+        }, 2000);
+      }
+    });
+  }
+
+  /**
+   * ✅ NEW: Initialize exam from backend data only (no local state)
+   */
+  private initializeFromBackendOnly(status: any) {
+    const examData = status.examData;
+
+    const exam: ExamDto = {
+      id: status.examId,
+      title: examData.examTitle,
+      description: '',
+      examType: 'Lesson' as any,
+      subjectId: 0,
+      durationInMinutes: examData.durationInMinutes,
+      totalMarks: examData.totalMarks,
+      passingMarks: 0,
+      startTime: status.startedAt,
+      endTime: '',
+      isPublished: true,
+      questions: examData.questions?.map((q: any) => ({
+        id: q.questionId,
+        questionText: q.questionText,
+        questionType: q.questionType,
+        marks: q.marks,
+        order: 0,
+        isMultipleSelect: q.isMultipleSelect,
+        options: q.options?.map((o: any) => ({
+          id: o.optionId,
+          optionText: o.optionText,
+          isCorrect: false,
+          order: 0
+        })) || []
+      })) || []
+    };
+
+    this.exam.set(exam);
+    this.examStartTime.set(new Date(status.startedAt));
+    this.timeRemaining.set(status.remainingTimeSeconds);
+
+    // Load saved answers from backend
+    const answersMap = new Map<number, ExamAnswerDto>();
+    if (status.savedAnswers && status.savedAnswers.length > 0) {
+      status.savedAnswers.forEach((sa: SavedAnswerDto) => {
+        answersMap.set(sa.questionId, {
+          examQuestionId: sa.questionId,
+          questionType: QuestionType.MultipleChoice,
+          selectedOptionIds: sa.selectedOptionIds,
+          answerText: sa.answerText
+        });
+      });
+    }
+    this.answers.set(answersMap);
+
+    this.startTimer();
+    this.startAutoSave();
+    this.startServerAutoSave();
+    this.loading.set(false);
+
+    this.toast.showInfo('Exam resumed from server');
+  }
+
+  /**
+   * ✅ NEW: Initialize from navigation state (fresh exam start)
+   */
+  private initializeFromNavigationState(examData: any) {
+    const exam: ExamDto = {
+      id: examData.examId,
+      title: examData.examTitle || examData.title,
+      description: examData.description || '',
+      examType: examData.examType || 'Lesson',
+      subjectId: examData.subjectId || 0,
+      subjectName: examData.subjectName || '',
+      termId: examData.termId,
+      lessonId: examData.lessonId,
+      weekId: examData.weekId,
+      yearId: examData.yearId,
+      durationInMinutes: examData.durationInMinutes,
+      totalMarks: examData.totalMarks,
+      passingMarks: examData.passingMarks || 0,
+      startTime: examData.startedAt || new Date().toISOString(),
+      endTime: examData.endTime || new Date().toISOString(),
+      isPublished: true,
+      questions: examData.questions || []
+    };
+
+    console.log('📚 Exam loaded from navigation:', exam);
+    console.log('📝 Questions count:', exam.questions?.length || 0);
+
+    if (!exam.questions || exam.questions.length === 0) {
+      console.error('❌ No questions in exam data!');
+      this.loading.set(false);
+      this.toast.showError('Exam has no questions. Please contact support.');
+      setTimeout(() => {
+        this.router.navigate(['/student/exams']);
+      }, 2000);
+      return;
+    }
+
+    this.exam.set(exam);
+    this.examStartTime.set(new Date());
+    this.timeRemaining.set(exam.durationInMinutes * 60);
+    this.startTimer();
+    this.startAutoSave();
+    this.startServerAutoSave(); // ✅ NEW: Also save to server
+    this.saveExamState();
+    this.loading.set(false);
   }
 
   /**
@@ -226,6 +447,73 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       this.autoSaveSubscription.unsubscribe();
       this.autoSaveSubscription = undefined;
     }
+  }
+
+  // ============================================
+  // ✅ NEW: SERVER AUTO-SAVE METHODS
+  // ============================================
+
+  /**
+   * Start server auto-save (every 30 seconds)
+   */
+  startServerAutoSave() {
+    this.stopServerAutoSave();
+    this.serverAutoSaveSubscription = interval(30000).subscribe(() => {
+      this.saveAnswersToServer();
+    });
+  }
+
+  /**
+   * Stop server auto-save
+   */
+  stopServerAutoSave() {
+    if (this.serverAutoSaveSubscription) {
+      this.serverAutoSaveSubscription.unsubscribe();
+      this.serverAutoSaveSubscription = undefined;
+    }
+  }
+
+  /**
+   * Save answers to server
+   */
+  saveAnswersToServer() {
+    if (this.isSubmitted() || this.submitting()) {
+      return;
+    }
+
+    const answers = this.answers();
+    if (answers.size === 0) {
+      return;
+    }
+
+    // Convert to SavedAnswerDto format
+    const savedAnswers: SavedAnswerDto[] = Array.from(answers.entries()).map(([questionId, answer]) => ({
+      questionId: questionId,
+      selectedOptionIds: answer.selectedOptionIds || (answer.selectedOptionId ? [answer.selectedOptionId] : undefined),
+      answerText: answer.answerText
+    }));
+
+    this.examApi.saveAnswers(this.studentExamId(), savedAnswers).subscribe({
+      next: (response) => {
+        console.log('💾 Answers saved to server:', response.data.savedAt);
+        // Update remaining time from server (more accurate)
+        if (response.data.remainingTimeSeconds !== undefined) {
+          this.timeRemaining.set(response.data.remainingTimeSeconds);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Failed to save answers to server:', error);
+
+        // Check if exam expired
+        if (error.error?.errors?.includes('EXAM_EXPIRED')) {
+          this.stopTimer();
+          this.stopAutoSave();
+          this.stopServerAutoSave();
+          this.toast.showWarning('Exam time has expired. Your answers were auto-submitted.');
+          this.router.navigate(['/student/exam-result', this.studentExamId()]);
+        }
+      }
+    });
   }
 
   /**

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   ExamDto,
@@ -21,7 +20,12 @@ import {
   ExamResultDto,
   ApiResponse,
   UpcomingExamsResponse,
-  AllExamsResponse  // ✅ NEW import
+  AllExamsResponse,
+  // ✅ NEW: Resume exam DTOs
+  CheckInProgressResponse,
+  StudentExamStatusDto,
+  SaveAnswersResponseDto,
+  SavedAnswerDto
 } from '../../models/exam-api.models';
 
 @Injectable({
@@ -29,7 +33,6 @@ import {
 })
 export class ExamApiService {
   private readonly apiUrl = `${environment.apiBaseUrl}/exam`;
-  private useMock = false; // Set to true for testing with mock data
 
   constructor(private http: HttpClient) {}
 
@@ -191,121 +194,46 @@ export class ExamApiService {
 
   /**
    * Get exam result (Student, Parent, Admin)
+   * GET /api/Exam/{studentExamId}/result
    */
   getExamResult(studentExamId: number): Observable<ExamResultDto> {
-    // Mock data for testing
-    if (this.useMock) {
-      return of({
-        studentExamId: studentExamId,
-        examId: 1,
-        examTitle: 'Lesson 1 Quick Quiz',
-        subjectName: 'Mathematics',
-        totalMarks: 20,
-        totalScore: 15,
-        scorePercentage: 75,
-        passingMarks: 12,
-        grade: 'B',
-        isPassed: true,
-        correctAnswersCount: 3,
-        wrongAnswersCount: 0,
-        submittedAt: new Date().toISOString(),
-        gradedAt: new Date().toISOString(),
-        generalFeedback: 'Good job! Keep practicing.',
-        questionResults: [
-          {
-            questionId: 1,
-            questionText: 'What is 5 + 3?',
-            questionType: 'MultipleChoice' as any,
-            marks: 5,
-            earnedScore: 5,
-            studentAnswer: '8',
-            correctAnswer: '8',
-            isCorrect: true,
-            feedback: undefined
-          },
-          {
-            questionId: 2,
-            questionText: 'What is 10 - 4?',
-            questionType: 'MultipleChoice' as any,
-            marks: 5,
-            earnedScore: 5,
-            studentAnswer: '6',
-            correctAnswer: '6',
-            isCorrect: true,
-            feedback: undefined
-          },
-          {
-            questionId: 3,
-            questionText: '2 + 2 = 4',
-            questionType: 'TrueFalse' as any,
-            marks: 5,
-            earnedScore: 5,
-            studentAnswer: 'True',
-            correctAnswer: 'True',
-            isCorrect: true,
-            feedback: undefined
-          }
-        ]
-      } as ExamResultDto);
-    }
+    return this.http.get<ExamResultDto>(`${this.apiUrl}/${studentExamId}/result`);
+  }
 
-    return this.http.get<ExamResultDto>(`${this.apiUrl}/${studentExamId}/result`).pipe(
-      catchError((error) => {
-        console.error('Error loading exam result, using mock data:', error);
-        // Return mock data on error
-        return of({
-          studentExamId: studentExamId,
-          examId: 1,
-          examTitle: 'Lesson 1 Quick Quiz',
-          subjectName: 'Mathematics',
-          totalMarks: 20,
-          totalScore: 15,
-          scorePercentage: 75,
-          passingMarks: 12,
-          grade: 'B',
-          isPassed: true,
-          correctAnswersCount: 3,
-          wrongAnswersCount: 0,
-          submittedAt: new Date().toISOString(),
-          gradedAt: new Date().toISOString(),
-          generalFeedback: 'Good job! Keep practicing.',
-          questionResults: [
-            {
-              questionId: 1,
-              questionText: 'What is 5 + 3?',
-              questionType: 'MultipleChoice' as any,
-              marks: 5,
-              earnedScore: 5,
-              studentAnswer: '8',
-              correctAnswer: '8',
-              isCorrect: true,
-              feedback: undefined
-            },
-            {
-              questionId: 2,
-              questionText: 'What is 10 - 4?',
-              questionType: 'MultipleChoice' as any,
-              marks: 5,
-              earnedScore: 5,
-              studentAnswer: '6',
-              correctAnswer: '6',
-              isCorrect: true,
-              feedback: undefined
-            },
-            {
-              questionId: 3,
-              questionText: '2 + 2 = 4',
-              questionType: 'TrueFalse' as any,
-              marks: 5,
-              earnedScore: 5,
-              studentAnswer: 'True',
-              correctAnswer: 'True',
-              isCorrect: true,
-              feedback: undefined
-            }
-          ]
-        } as ExamResultDto);
-      })
+  // ============================================
+  // ✅ NEW: EXAM RESUME ENDPOINTS (v1.1)
+  // ============================================
+
+  /**
+   * Check if student has an in-progress exam
+   * GET /api/Exam/{examId}/check-in-progress
+   *
+   * Use this before starting an exam to check if student has an incomplete attempt
+   */
+  checkInProgressExam(examId: number): Observable<ApiResponse<CheckInProgressResponse>> {
+    return this.http.get<ApiResponse<CheckInProgressResponse>>(`${this.apiUrl}/${examId}/check-in-progress`);
+  }
+
+  /**
+   * Get student exam status
+   * GET /api/Exam/student-exam/{studentExamId}/status
+   *
+   * Use this when page is refreshed to get exam state
+   */
+  getStudentExamStatus(studentExamId: number): Observable<ApiResponse<StudentExamStatusDto>> {
+    return this.http.get<ApiResponse<StudentExamStatusDto>>(`${this.apiUrl}/student-exam/${studentExamId}/status`);
+  }
+
+  /**
+   * Save answers automatically
+   * POST /api/Exam/student-exam/{studentExamId}/save-answers
+   *
+   * Use this to auto-save answers every 30 seconds
+   */
+  saveAnswers(studentExamId: number, answers: SavedAnswerDto[]): Observable<ApiResponse<SaveAnswersResponseDto>> {
+    return this.http.post<ApiResponse<SaveAnswersResponseDto>>(
+      `${this.apiUrl}/student-exam/${studentExamId}/save-answers`,
+      answers
     );
   }
 

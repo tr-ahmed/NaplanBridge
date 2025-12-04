@@ -198,6 +198,7 @@ export class ProgressService {
   /**
    * Create new lesson progress
    * ✅ Endpoint: POST /api/Progress/students/{studentId}/lessons/{lessonId}
+   * ✅ SECURITY: Backend validates subscription - handles 403 Forbidden
    * Backend expects: progressNumber, timeSpent, currentPosition (int)
    */
   createLessonProgress(dto: UpdateLessonProgressDto): Observable<LessonProgress> {
@@ -219,12 +220,21 @@ export class ProgressService {
       currentPosition: dto.lastWatchedPosition ? Math.floor(dto.lastWatchedPosition) : 0
     };
 
-    return this.api.post<LessonProgress>(url, payload);
+    return this.api.post<LessonProgress>(url, payload).pipe(
+      catchError((error) => {
+        // ✅ Handle 403 - No subscription access
+        if (error.status === 403) {
+          console.warn('🔒 Progress creation denied - No subscription:', error.error?.message);
+        }
+        return of({} as LessonProgress);
+      })
+    );
   }
 
   /**
    * Update lesson progress (video position, completion)
    * ✅ FIXED: Using correct endpoint PUT /api/Progress/students/{studentId}/lessons/{lessonId}
+   * ✅ SECURITY: Backend validates subscription - handles 403 Forbidden
    * Backend expects: progressNumber, timeSpent, currentPosition (int)
    */
   updateLessonProgress(dto: UpdateLessonProgressDto): Observable<LessonProgress> {
@@ -246,7 +256,15 @@ export class ProgressService {
       currentPosition: dto.lastWatchedPosition ? Math.floor(dto.lastWatchedPosition) : 0  // Must be int
     };
 
-    return this.api.put<LessonProgress>(url, payload);
+    return this.api.put<LessonProgress>(url, payload).pipe(
+      catchError((error) => {
+        // ✅ Handle 403 - No subscription access
+        if (error.status === 403) {
+          console.warn('🔒 Progress update denied - No subscription:', error.error?.message);
+        }
+        return of({} as LessonProgress);
+      })
+    );
   }
 
   /**

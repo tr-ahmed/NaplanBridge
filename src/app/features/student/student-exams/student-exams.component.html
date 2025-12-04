@@ -499,7 +499,7 @@
                           {{ getScorePercentage(exam) >= 50 ? 'Passed' : 'Failed' }}
                         </span>
                         <button
-                          (click)="viewResult(exam.examId)"
+                          (click)="viewResult(exam.studentExamId || exam.examId)"
                           class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 text-sm font-semibold inline-flex items-center justify-center gap-2">
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>

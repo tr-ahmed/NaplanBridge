@@ -247,10 +247,49 @@ export class StudentExamsComponent implements OnInit {
   }
 
   /**
-   * Start exam
+   * Start exam - ✅ UPDATED: Now checks backend for in-progress exam first
    */
   startExam(examId: number, title: string) {
-    // Check if there's a saved state for this exam
+    // ✅ STEP 1: Check backend for in-progress exam
+    this.examApi.checkInProgressExam(examId).subscribe({
+      next: (response) => {
+        const data = response.data;
+        console.log('📋 Check in-progress response:', data);
+
+        if (data.hasInProgressExam && data.studentExamId) {
+          // ✅ Found in-progress exam on backend
+          console.log('✅ Found in-progress exam:', data.studentExamId);
+
+          if (confirm(`You have an incomplete exam "${title}" (${data.answeredQuestions || 0}/${data.totalQuestions || 0} questions answered).\n\nRemaining time: ${Math.floor((data.remainingTimeSeconds || 0) / 60)} minutes\n\nDo you want to continue?`)) {
+            // Navigate to resume exam
+            this.router.navigate(['/student/exam', data.studentExamId]);
+          }
+          return;
+        }
+
+        if (data.previousAttemptExpired && data.studentExamId) {
+          // ❌ Previous attempt expired
+          console.log('⚠️ Previous attempt expired');
+          this.toast.showWarning('Your previous attempt has expired and was auto-submitted.');
+          this.router.navigate(['/student/exam-result', data.studentExamId]);
+          return;
+        }
+
+        // ✅ No in-progress exam - check localStorage as backup
+        this.checkLocalStorageAndStart(examId, title);
+      },
+      error: (error) => {
+        console.error('❌ Error checking in-progress exam:', error);
+        // Fallback to localStorage check
+        this.checkLocalStorageAndStart(examId, title);
+      }
+    });
+  }
+
+  /**
+   * ✅ NEW: Check localStorage and start exam
+   */
+  private checkLocalStorageAndStart(examId: number, title: string) {
     const savedStateKey = `exam_state_`;
     let hasExistingExam = false;
 
@@ -265,12 +304,10 @@ export class StudentExamsComponent implements OnInit {
 
             // Ask if user wants to continue
             if (confirm(`You have an incomplete exam "${title}".\nDo you want to continue from where you left off?`)) {
-              // Navigate directly to exam with existing state
               const studentExamId = state.studentExamId;
               this.router.navigate(['/student/exam', studentExamId]);
               return;
             } else {
-              // Clear old state and start fresh
               localStorage.removeItem(key);
               break;
             }
@@ -288,16 +325,20 @@ export class StudentExamsComponent implements OnInit {
       }
     }
 
+    this.doStartExam(examId);
+  }
+
+  /**
+   * ✅ NEW: Actually start the exam
+   */
+  private doStartExam(examId: number) {
     this.examApi.startExam(examId).subscribe({
       next: (response: any) => {
         console.log('✅ Exam started successfully:', response);
-        console.log('📝 Exam data:', response);
 
-        // Check if response contains questions
         if (response.questions && response.questions.length > 0) {
           console.log('✅ Questions received:', response.questions.length);
 
-          // Navigate with exam data in state
           this.router.navigate(['/student/exam', response.studentExamId], {
             state: {
               examData: response,
@@ -305,12 +346,8 @@ export class StudentExamsComponent implements OnInit {
             }
           });
         } else {
-          console.warn('⚠️ No questions in response. Questions count:', response.totalQuestions);
-          console.warn('⚠️ Full response:', JSON.stringify(response, null, 2));
-
-          // Still navigate, but component will show an error
+          console.warn('⚠️ No questions in response');
           this.router.navigate(['/student/exam', response.studentExamId]);
-
           this.toast.showWarning('Exam started but questions data is missing. Please contact support.');
         }
 
@@ -319,7 +356,6 @@ export class StudentExamsComponent implements OnInit {
       error: (error: any) => {
         console.error('Failed to start exam:', error);
         if (error.error?.existingStudentExamId) {
-          // Already started, navigate to it
           this.router.navigate(['/student/exam', error.error.existingStudentExamId]);
         } else {
           this.toast.showError('Failed to start exam');

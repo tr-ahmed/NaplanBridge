@@ -267,6 +267,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Load lesson details
+   * ✅ SECURITY: Handles 403 Forbidden when student has no subscription
    */
   private loadLesson(lessonId: number): void {
     this.loading.set(true);
@@ -321,9 +322,44 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
           this.loading.set(false);
         },
         error: (error) => {
-          this.error.set('Failed to load lesson');
           this.loading.set(false);
           console.error('Error loading lesson:', error);
+
+          // ✅ SECURITY: Handle 403 Forbidden - No subscription access
+          if (error.status === 403) {
+            const errorMessage = error.error?.message || 'You need an active subscription to access this lesson';
+            this.error.set(errorMessage);
+            this.toastService.showWarning(errorMessage);
+
+            // Log the access attempt
+            console.warn('🔒 Access denied - No subscription:', {
+              lessonId,
+              details: error.error?.details
+            });
+
+            // Redirect to lessons page after a short delay
+            setTimeout(() => {
+              this.router.navigate(['/lessons'], {
+                queryParams: {
+                  subjectId: this.subjectId,
+                  accessDenied: true
+                }
+              });
+            }, 2000);
+            return;
+          }
+
+          // Handle 404 - Lesson not found
+          if (error.status === 404) {
+            this.error.set('Lesson not found');
+            this.toastService.showError('The requested lesson does not exist');
+            this.router.navigate(['/lessons']);
+            return;
+          }
+
+          // Handle other errors
+          this.error.set('Failed to load lesson. Please try again.');
+          this.toastService.showError('Error loading lesson');
         }
       });
   }

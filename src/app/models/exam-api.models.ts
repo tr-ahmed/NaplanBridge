@@ -229,6 +229,7 @@ export interface UpcomingExamDto {
 
 // ✅ Updated to match ACTUAL backend response
 export interface ExamHistoryDto {
+  studentExamId: number;         // ✅ REQUIRED - Primary key for viewing results
   examId: number;
   examTitle: string;
   completedDate: string;        // Backend sends this (not submittedAt)
@@ -354,6 +355,93 @@ export interface UpcomingExamsResponse {
 export interface AllExamsResponse {
   totalCount: number;
   exams: UpcomingExamDto[];  // Same structure as upcoming exams
+}
+
+// ============================================
+// ✅ NEW: EXAM RESUME DTOs (v1.1)
+// ============================================
+
+/**
+ * Response for checking in-progress exam
+ * GET /api/Exam/{examId}/check-in-progress
+ */
+export interface CheckInProgressResponse {
+  hasInProgressExam: boolean;
+  previousAttemptExpired?: boolean;
+  studentExamId?: number;
+  examId?: number;
+  examTitle?: string;
+  startedAt?: string;
+  remainingTimeSeconds?: number;
+  totalQuestions?: number;
+  answeredQuestions?: number;
+  questions?: QuestionForStudentDto[];
+  savedAnswers?: SavedAnswerDto[];
+}
+
+/**
+ * Question format for student (without correct answers)
+ */
+export interface QuestionForStudentDto {
+  questionId: number;
+  questionText: string;
+  marks: number;
+  questionType: QuestionType;
+  isMultipleSelect: boolean;
+  options: OptionForStudentDto[];
+}
+
+/**
+ * Option format for student (without isCorrect)
+ */
+export interface OptionForStudentDto {
+  optionId: number;
+  optionText: string;
+}
+
+/**
+ * Saved answer format
+ */
+export interface SavedAnswerDto {
+  questionId: number;
+  selectedOptionIds?: number[];
+  answerText?: string;
+}
+
+/**
+ * Response for exam status check
+ * GET /api/Exam/student-exam/{studentExamId}/status
+ */
+export interface StudentExamStatusDto {
+  studentExamId: number;
+  examId: number;
+  status: 'NotStarted' | 'InProgress' | 'Completed' | 'Expired';
+  canContinue: boolean;
+  startedAt: string;
+  remainingTimeSeconds: number;
+  examData?: ExamDataForResumeDto | null;
+  savedAnswers: SavedAnswerDto[];
+}
+
+/**
+ * Exam data for resume
+ */
+export interface ExamDataForResumeDto {
+  examTitle: string;
+  durationInMinutes: number;
+  totalMarks: number;
+  totalQuestions: number;
+  questions: QuestionForStudentDto[];
+}
+
+/**
+ * Response for saving answers
+ * POST /api/Exam/student-exam/{studentExamId}/save-answers
+ */
+export interface SaveAnswersResponseDto {
+  savedAt: string;
+  questionsUpdated: number;
+  remainingTimeSeconds: number;
 }
 
 // ============================================
