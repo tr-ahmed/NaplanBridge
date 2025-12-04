@@ -30,11 +30,6 @@ import {
 })
 export class SessionService {
   private api = inject(ApiService);
-<<<<<<< HEAD
-  private http = inject(HttpClient);
-  private baseUrl = environment.apiBaseUrl;
-=======
->>>>>>> e9bf4327237e6695e8ec555859801396788ad724
 
   // ============================================
   // Teacher Endpoints - للمعلمين
