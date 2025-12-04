@@ -760,7 +760,9 @@ export class SubscriptionService {
       return of({ hasAccess: true });
     }
 
-    return this.http.get<{ hasAccess: boolean; reason?: string }>(url).pipe(
+    // 🔧 FIX: API returns boolean directly, not { hasAccess: boolean }
+    return this.http.get<boolean>(url).pipe(
+      map(result => ({ hasAccess: result === true })),
       catchError(() => of({ hasAccess: false, reason: 'Unable to verify access' }))
     );
   }
@@ -775,7 +777,9 @@ export class SubscriptionService {
       return of({ hasAccess: true });
     }
 
-    return this.http.get<{ hasAccess: boolean; reason?: string }>(url).pipe(
+    // 🔧 FIX: API returns boolean directly, not { hasAccess: boolean }
+    return this.http.get<boolean>(url).pipe(
+      map(result => ({ hasAccess: result === true })),
       catchError(() => of({ hasAccess: false, reason: 'Unable to verify access' }))
     );
   }
@@ -790,7 +794,9 @@ export class SubscriptionService {
       return of({ hasAccess: true });
     }
 
-    return this.http.get<{ hasAccess: boolean; reason?: string }>(url).pipe(
+    // 🔧 FIX: API returns boolean directly, not { hasAccess: boolean }
+    return this.http.get<boolean>(url).pipe(
+      map(result => ({ hasAccess: result === true })),
       catchError(() => of({ hasAccess: false, reason: 'Unable to verify access' }))
     );
   }
@@ -805,7 +811,9 @@ export class SubscriptionService {
       return of({ hasAccess: true });
     }
 
-    return this.http.get<{ hasAccess: boolean; reason?: string }>(url).pipe(
+    // 🔧 FIX: API returns boolean directly, not { hasAccess: boolean }
+    return this.http.get<boolean>(url).pipe(
+      map(result => ({ hasAccess: result === true })),
       catchError(() => of({ hasAccess: false, reason: 'Unable to verify access' }))
     );
   }
