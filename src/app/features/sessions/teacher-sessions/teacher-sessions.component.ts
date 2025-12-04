@@ -185,6 +185,30 @@ export class TeacherSessionsComponent implements OnInit {
   markAsCompleted(session: PrivateSessionDto): void {
     console.log('🔵 Attempting to complete session:', session);
     
+    // Validate session can be completed
+    if (session.status === 'Completed') {
+      this.toastService.showWarning('This session is already completed');
+      return;
+    }
+    
+    if (session.status === 'PendingPayment') {
+      this.toastService.showWarning('Cannot complete session - payment is pending');
+      return;
+    }
+    
+    if (session.status === 'Cancelled' || session.status === 'NoShow') {
+      this.toastService.showWarning(`Cannot complete ${session.status.toLowerCase()} session`);
+      return;
+    }
+    
+    // Check if session has started
+    const sessionStart = new Date(session.scheduledDateTime);
+    const now = new Date();
+    if (sessionStart > now) {
+      this.toastService.showWarning('Cannot complete session that has not started yet');
+      return;
+    }
+    
     if (!confirm(`Mark this session with ${session.studentName} as completed?`)) {
       return;
     }

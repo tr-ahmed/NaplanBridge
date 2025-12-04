@@ -4,11 +4,8 @@
  */
 
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { ApiService } from './base-api.service';
-import { environment } from '../../../environments/environment';
 import {
   PrivateSession,
   TeacherSessionSettings,
@@ -33,8 +30,6 @@ import {
 })
 export class SessionService {
   private api = inject(ApiService);
-  private http = inject(HttpClient);
-  private baseUrl = environment.apiUrl;
 
   // ============================================
   // Teacher Endpoints - للمعلمين
