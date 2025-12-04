@@ -1,7 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { UploadService } from './upload.service';
 
 export interface Year {
   id: number;
@@ -136,7 +138,8 @@ export interface User {
 export class ContentService {
   private apiUrl = environment.apiBaseUrl;
 
-  constructor(private http: HttpClient) { }
+  private http = inject(HttpClient);
+  private uploadService = inject(UploadService);
 
   // ===== Years =====
   getYears(): Observable<Year[]> {
@@ -237,7 +240,19 @@ export class ContentService {
       .set('TeacherId', teacherId.toString())
       .set('StartDate', startDate);
 
-    return this.http.post<Subject>(`${this.apiUrl}/Subjects`, formData, { params });
+    // Use upload service with progress tracking
+    const url = `${this.apiUrl}/Subjects?${params.toString()}`;
+    return this.uploadService.uploadWithProgress<Subject>(url, formData, 'subject_upload').pipe(
+      filter(event => event.response !== undefined),
+      map(event => event.response!)
+    );
+  }
+
+  /**
+   * Get subject upload progress
+   */
+  getSubjectUploadProgress() {
+    return this.uploadService.getProgress('subject_upload');
   }
 
   updateSubject(
@@ -250,7 +265,7 @@ export class ContentService {
     posterFile?: File
   ): Observable<Subject> {
     const formData = new FormData();
-    
+
     // Always append PosterFile, even if empty (some backends require it)
     if (posterFile) {
       formData.append('PosterFile', posterFile);
@@ -351,7 +366,7 @@ export class ContentService {
     }
   ): Observable<Lesson[] | PaginatedResult<LessonDetailsDto>> {
     let params = new HttpParams();
-    
+
     if (pageNumber) params = params.set('pageNumber', pageNumber.toString());
     if (pageSize) params = params.set('pageSize', pageSize.toString());
     if (filters?.searchTerm) params = params.set('searchTerm', filters.searchTerm);
@@ -396,7 +411,7 @@ export class ContentService {
       console.error('❌ PosterFile is missing or empty');
       throw new Error('Poster file is required');
     }
-    
+
     if (!videoFile || videoFile.size === 0) {
       console.error('❌ VideoFile is missing or empty');
       throw new Error('Video file is required');
@@ -428,12 +443,24 @@ export class ContentService {
     if (duration !== undefined && duration !== null) {
       params = params.set('Duration', duration.toString());
     }
-    
+
     if (orderIndex !== undefined && orderIndex !== null) {
       params = params.set('OrderIndex', orderIndex.toString());
     }
 
-    return this.http.post<Lesson>(`${this.apiUrl}/Lessons`, formData, { params });
+    // Use upload service with progress tracking
+    const url = `${this.apiUrl}/Lessons?${params.toString()}`;
+    return this.uploadService.uploadWithProgress<Lesson>(url, formData, 'lesson_upload').pipe(
+      filter(event => event.response !== undefined),
+      map(event => event.response!)
+    );
+  }
+
+  /**
+   * Get lesson upload progress
+   */
+  getLessonUploadProgress() {
+    return this.uploadService.getProgress('lesson_upload');
   }
 
   updateLesson(
@@ -448,12 +475,12 @@ export class ContentService {
     orderIndex?: number
   ): Observable<Lesson> {
     const formData = new FormData();
-    
+
     // Only append files if they are provided
     if (posterFile && posterFile instanceof File) {
       formData.append('PosterFile', posterFile, posterFile.name);
     }
-    
+
     if (videoFile && videoFile instanceof File) {
       formData.append('VideoFile', videoFile, videoFile.name);
     }
@@ -467,12 +494,24 @@ export class ContentService {
     if (duration !== undefined && duration !== null) {
       params = params.set('Duration', duration.toString());
     }
-    
+
     if (orderIndex !== undefined && orderIndex !== null) {
       params = params.set('OrderIndex', orderIndex.toString());
     }
 
-    return this.http.put<Lesson>(`${this.apiUrl}/Lessons/${id}`, formData, { params });
+    // Use upload service with progress tracking for updates
+    const url = `${this.apiUrl}/Lessons/${id}?${params.toString()}`;
+    return this.uploadService.uploadWithProgressPut<Lesson>(url, formData, 'lesson_update').pipe(
+      filter(event => event.response !== undefined),
+      map(event => event.response!)
+    );
+  }
+
+  /**
+   * Get lesson update progress
+   */
+  getLessonUpdateProgress() {
+    return this.uploadService.getProgress('lesson_update');
   }
 
   deleteLesson(id: number): Observable<void> {
@@ -486,7 +525,7 @@ export class ContentService {
   // ===== Resources =====
   addResource(title: string, lessonId: number, file: File): Observable<Resource> {
     console.log('🔵 addResource called with:', { title, lessonId, file: { name: file.name, size: file.size, type: file.type } });
-    
+
     const formData = new FormData();
     formData.append('File', file, file.name);
 
@@ -500,7 +539,19 @@ export class ContentService {
     });
     console.log('📦 Params:', params.toString());
 
-    return this.http.post<Resource>(`${this.apiUrl}/Resources`, formData, { params });
+    // Use upload service with progress tracking
+    const url = `${this.apiUrl}/Resources?${params.toString()}`;
+    return this.uploadService.uploadWithProgress<Resource>(url, formData, 'resource_upload').pipe(
+      filter(event => event.response !== undefined),
+      map(event => event.response!)
+    );
+  }
+
+  /**
+   * Get resource upload progress
+   */
+  getResourceUploadProgress() {
+    return this.uploadService.getProgress('resource_upload');
   }
 
   deleteResource(id: number): Observable<void> {
@@ -516,7 +567,7 @@ export class ContentService {
   addLessonQuestion(lessonId: number, questionText: string, questionType: string, points: number, options: any[]): Observable<any> {
     // API expects: { lessonId, questionText, isMultipleChoice, videoMinute, explanation, options: [{ text, isCorrect }] }
     const isMultipleChoice = questionType === 'MultipleChoice';
-    
+
     const body = {
       lessonId,
       questionText,
@@ -528,7 +579,7 @@ export class ContentService {
         isCorrect: opt.isCorrect || false
       }))
     };
-    
+
     console.log('🔵 Creating question:', body);
     return this.http.post<any>(`${this.apiUrl}/LessonQuestions`, body);
   }
@@ -536,7 +587,7 @@ export class ContentService {
   updateLessonQuestion(id: number, questionText: string, questionType: string, points: number, options: any[]): Observable<any> {
     // API expects: { questionText, isMultipleChoice, videoMinute, explanation, options: [{ text, isCorrect }] }
     const isMultipleChoice = questionType === 'MultipleChoice';
-    
+
     const body = {
       questionText,
       isMultipleChoice,
@@ -547,7 +598,7 @@ export class ContentService {
         isCorrect: opt.isCorrect || false
       }))
     };
-    
+
     console.log('🔵 Updating question:', id, body);
     return this.http.put<any>(`${this.apiUrl}/LessonQuestions/${id}`, body);
   }
@@ -561,11 +612,10 @@ export class ContentService {
     return this.http.get<any[]>(`${this.apiUrl}/Discussions/lessons/${lessonId}`);
   }
 
-  addLessonDiscussion(lessonId: number, question: string, details: string): Observable<any> {
+  addLessonDiscussion(lessonId: number, question: string, videoTimestamp?: number): Observable<any> {
     const body = {
-      lessonId,
       question,
-      details
+      videoTimestamp: videoTimestamp || null
     };
     return this.http.post<any>(`${this.apiUrl}/Discussions/lessons/${lessonId}`, body);
   }
@@ -576,11 +626,27 @@ export class ContentService {
 
   // ===== Lesson Resources =====
   addLessonResource(lessonId: number, title: string, description: string, resourceType: string, file: File): Observable<any> {
-    console.log('🔵 addLessonResource called with:', { lessonId, title, fileName: file.name, fileSize: file.size, fileType: file.type });
-    
+    console.log('🔵 addLessonResource called with:', { lessonId, title, fileName: file?.name, fileSize: file?.size, fileType: file?.type });
+
+    if (!file) {
+      console.error('🔴 ERROR: File is null or undefined!');
+      throw new Error('File is required but was not provided');
+    }
+
+    if (!(file instanceof File)) {
+      console.error('🔴 ERROR: file is not an instance of File!', typeof file, file);
+      throw new Error('Invalid file object provided');
+    }
+
     const formData = new FormData();
     // IMPORTANT: The parameter name MUST be 'File' (capital F) to match backend expectation
     formData.append('File', file, file.name);
+
+    // Debug: Log FormData contents
+    console.log('🔵 FormData entries:');
+    formData.forEach((value, key) => {
+      console.log(`  ${key}:`, value);
+    });
 
     // API only accepts Title and LessonId as query params (based on Swagger)
     const params = new HttpParams()
@@ -601,8 +667,8 @@ export class ContentService {
 
   // ===== Notes Management =====
   getLessonNotes(lessonId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/Notes`, { 
-      params: { lessonId: lessonId.toString() } 
+    return this.http.get<any[]>(`${this.apiUrl}/Notes`, {
+      params: { lessonId: lessonId.toString() }
     });
   }
 
@@ -674,7 +740,7 @@ export class ContentService {
   addChapter(lessonId: number, title: string, description: string, startTime: string, endTime: string, orderIndex: number): Observable<any> {
     // Convert time string (HH:MM:SS) to seconds timestamp
     const timestamp = this.convertTimeToSeconds(startTime);
-    
+
     const body = {
       lessonId,
       title,
@@ -682,7 +748,7 @@ export class ContentService {
       timestamp, // Required: time in seconds
       order: orderIndex
     };
-    
+
     console.log('🔵 Creating VideoChapter:', body);
     return this.http.post<any>(`${this.apiUrl}/VideoChapters`, body);
   }
@@ -694,7 +760,7 @@ export class ContentService {
       timestamp: this.convertTimeToSeconds(startTime),
       order: orderIndex
     };
-    
+
     console.log('🔵 Updating VideoChapter:', id, body);
     return this.http.put<any>(`${this.apiUrl}/VideoChapters/${id}`, body);
   }
@@ -706,7 +772,7 @@ export class ContentService {
   // Helper method to convert HH:MM:SS to seconds
   private convertTimeToSeconds(timeString: string): number {
     if (!timeString) return 0;
-    
+
     const parts = timeString.split(':');
     if (parts.length === 3) {
       const hours = parseInt(parts[0]) || 0;

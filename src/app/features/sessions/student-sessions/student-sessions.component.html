@@ -56,10 +56,38 @@
           'bg-gradient-to-r from-red-400 to-rose-500': getSessionStatus(session) === 'starting-soon',
           'bg-gradient-to-r from-orange-400 to-amber-500': getSessionStatus(session) === 'upcoming',
           'bg-gradient-to-r from-blue-400 to-cyan-500': getSessionStatus(session) === 'scheduled',
-          'bg-gradient-to-r from-gray-400 to-slate-500': getSessionStatus(session) === 'past'
+          'bg-gradient-to-r from-gray-400 to-slate-500': getSessionStatus(session) === 'past',
+          'bg-gradient-to-r from-orange-500 to-red-500': getReadableStatus(session.status) === 'Pending Payment'
         }"></div>
 
         <div class="p-6 md:p-8">
+
+          <!-- Pending Payment Notice for Student -->
+          <div *ngIf="getReadableStatus(session.status) === 'Pending Payment'"
+               class="mb-6 bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-orange-600 text-xl"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="font-bold text-orange-800 mb-1 flex items-center gap-2">
+                  <span>💳 Awaiting Payment</span>
+                </h4>
+                <p class="text-sm text-orange-700 mb-2">
+                  This session is pending payment confirmation. Please ask your parent to complete the payment.
+                </p>
+                <div class="bg-white/70 rounded-lg p-3 text-xs text-orange-600">
+                  <p class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                    </svg>
+                    <strong>Note:</strong> Payment must be completed within 24 hours or the session will be automatically cancelled.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Session Header -->
           <div class="flex items-start justify-between mb-6">
             <div class="flex items-center gap-4">
@@ -81,11 +109,14 @@
             <span class="px-4 py-2 rounded-xl text-sm font-bold shadow-md"
                   [ngClass]="{
                     'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200': getSessionStatus(session) === 'starting-soon',
-                    'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-200': getSessionStatus(session) === 'upcoming',
+                    'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-200': getSessionStatus(session) === 'upcoming' || getReadableStatus(session.status) === 'Pending Payment',
                     'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200': getSessionStatus(session) === 'scheduled',
                     'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border border-gray-200': getSessionStatus(session) === 'past'
                   }">
-              <ng-container [ngSwitch]="getSessionStatus(session)">
+              <ng-container *ngIf="getReadableStatus(session.status) === 'Pending Payment'">
+                <span>{{ getStatusText(session.status) }}</span>
+              </ng-container>
+              <ng-container *ngIf="getReadableStatus(session.status) !== 'Pending Payment'" [ngSwitch]="getSessionStatus(session)">
                 <span *ngSwitchCase="'starting-soon'">🔴 Starting Soon</span>
                 <span *ngSwitchCase="'upcoming'">⏰ Upcoming</span>
                 <span *ngSwitchCase="'scheduled'">📅 Scheduled</span>
@@ -146,7 +177,7 @@
           <div class="flex flex-col sm:flex-row gap-3">
             <!-- Join Button -->
             <button
-              *ngIf="canJoinSession(session)"
+              *ngIf="canJoinSession(session) && getReadableStatus(session.status) !== 'Pending Payment'"
               (click)="joinSession(session)"
               class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-bold text-lg">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,9 +189,22 @@
               </svg>
             </button>
 
+            <!-- Disabled Button for Pending Payment -->
+            <button
+              *ngIf="getReadableStatus(session.status) === 'Pending Payment'"
+              disabled
+              class="flex-1 px-6 py-4 bg-orange-100 text-orange-700 rounded-xl cursor-not-allowed font-medium border-2 border-orange-300">
+              <div class="flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span>Payment Required</span>
+              </div>
+            </button>
+
             <!-- Disabled Button -->
             <button
-              *ngIf="!canJoinSession(session)"
+              *ngIf="!canJoinSession(session) && getReadableStatus(session.status) !== 'Pending Payment'"
               disabled
               class="flex-1 px-6 py-4 bg-gray-100 text-gray-500 rounded-xl cursor-not-allowed font-medium opacity-60">
               <div class="flex items-center justify-center gap-2">
@@ -173,7 +217,7 @@
 
             <!-- Copy Link Button -->
             <button
-              *ngIf="canJoinSession(session) && session.googleMeetLink"
+              *ngIf="canJoinSession(session) && session.googleMeetLink && getReadableStatus(session.status) !== 'Pending Payment'"
               (click)="copyMeetLink(session.googleMeetLink)"
               class="px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg font-semibold">
               <div class="flex items-center justify-center gap-2">

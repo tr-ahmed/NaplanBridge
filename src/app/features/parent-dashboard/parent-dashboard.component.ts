@@ -14,7 +14,9 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { UserService, ChildDto } from '../../core/services/user.service';
 import { OrderService, ParentOrderSummary } from '../../core/services/order.service';
 import { StudentService } from '../../core/services/student.service';
+import { AuthService } from '../../core/services/auth.service';
 import { forkJoin, catchError, of, map } from 'rxjs';
+import { SessionService } from '../../core/services/session.service';
 
 // Interfaces
 interface Child {
@@ -23,6 +25,9 @@ interface Child {
   grade: string;
   avatar?: string;
   overallProgress: number;
+  completedLessons?: number;  // ✅ NEW: From backend summary
+  totalLessons?: number;      // ✅ NEW: From backend summary
+  averageScore?: number;      // ✅ NEW: From backend summary
   activeSubscription: string;
   upcomingExams: number;
   recentActivity: Activity[];
@@ -69,6 +74,8 @@ export class ParentDashboardComponent implements OnInit {
   private userService = inject(UserService);
   private orderService = inject(OrderService);
   private studentService = inject(StudentService);
+  private authService = inject(AuthService);
+  private sessionService = inject(SessionService);
 
   // Signals
   dashboardData = signal<ParentDashboardData>({
@@ -83,9 +90,11 @@ export class ParentDashboardComponent implements OnInit {
   loading = signal(true);
   selectedChild = signal<Child | null>(null);
   parentId = signal<number | null>(null);
+  parentUsername = signal<string>('');  // ✅ New signal for parent's username
 
   ngOnInit(): void {
     this.getParentIdFromToken();
+    this.getParentUsernameFromAuth();
     this.loadDashboardData();
   }
 
@@ -105,6 +114,16 @@ export class ParentDashboardComponent implements OnInit {
   }
 
   /**
+   * Get parent username from auth service
+   */
+  private getParentUsernameFromAuth(): void {
+    const user = this.authService.getCurrentUser();
+    if (user && user.userName) {
+      this.parentUsername.set(user.userName);
+    }
+  }
+
+  /**
    * Load all dashboard data from API
    */
   private loadDashboardData(): void {
@@ -117,7 +136,7 @@ export class ParentDashboardComponent implements OnInit {
       return;
     }
 
-    // Load parent dashboard data, children, and order summary
+    // Load parent dashboard data, children, order summary, and session bookings
     forkJoin({
       dashboard: this.dashboardService.getParentDashboard().pipe(
         catchError(error => {
@@ -142,9 +161,15 @@ export class ParentDashboardComponent implements OnInit {
           console.error('Error loading monthly orders:', error);
           return of({ totalSpent: 0, totalOrderCount: 0, lastOrderDate: null, orders: [], currentPage: 1, pageSize: 10, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
         })
+      ),
+      parentBookings: this.sessionService.getParentBookings().pipe(
+        catchError(error => {
+          console.error('Error loading parent bookings:', error);
+          return of({ success: false, message: 'error', data: [] });
+        })
       )
     }).subscribe({
-      next: ({ dashboard, children, orderSummary, monthlyOrders }) => {
+      next: ({ dashboard, children, orderSummary, monthlyOrders, parentBookings }) => {
         console.log('💰 Order Summary Received:', {
           totalSpent: orderSummary.totalSpent,
           orderCount: orderSummary.orderCount,
@@ -152,7 +177,22 @@ export class ParentDashboardComponent implements OnInit {
           ordersCount: orderSummary.orders?.length || 0,
           monthlySpent: monthlyOrders.totalSpent
         });
-        this.loadChildrenDetails(children, orderSummary, monthlyOrders.totalSpent);
+        // Calculate current month session spending (Confirmed/Completed only)
+        const bookings = Array.isArray((parentBookings as any).data) ? (parentBookings as any).data : [];
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        const monthlySessionsSpent = bookings
+          .filter((b: any) => {
+            const dt = new Date(b.scheduledDateTime);
+            const status = (b.status || '').toString().toLowerCase();
+            const isPaidStatus = status === 'confirmed' || status === 'completed';
+            return isPaidStatus && dt >= firstDay && dt <= lastDay;
+          })
+          .reduce((sum: number, b: any) => sum + (Number(b.price) || 0), 0);
+
+        const combinedMonthlySpent = (monthlyOrders.totalSpent || 0) + monthlySessionsSpent;
+        this.loadChildrenDetails(children, orderSummary, combinedMonthlySpent);
       },
       error: (error) => {
         console.error('Error loading dashboard data:', error);
@@ -183,8 +223,17 @@ export class ParentDashboardComponent implements OnInit {
     const childRequests = children.map(child => {
       return forkJoin({
         child: of(child),
-        progress: this.progressService.getStudentProgress(child.id).pipe(
-          catchError(() => of(null))
+        // ✅ NEW: Using new summary endpoint from backend
+        progressSummary: this.progressService.getStudentProgressSummary(child.id).pipe(
+          catchError(() => of({
+            studentId: child.id,
+            overallProgress: 0,
+            completedLessons: 0,
+            totalLessons: 0,
+            averageScore: 0,
+            totalTimeSpent: 0,
+            lastActivityDate: null
+          }))
         ),
         subscriptions: this.dashboardService.getStudentSubscriptionsSummary(child.id).pipe(
           catchError(() => of([]))
@@ -204,7 +253,10 @@ export class ParentDashboardComponent implements OnInit {
 
         const processedChildren: Child[] = childrenData.map(data => {
           const child = data.child;
-          const progress = data.progress;
+          // ✅ NEW: Use progressSummary from backend API
+          const progressSummary = data.progressSummary;
+
+          console.log(`📊 Progress Summary for ${child.userName}:`, progressSummary);
 
           // ✅ NEW: API now returns { totalActiveSubscriptions, subscriptions: [...] }
           let subscriptions: any[] = [];
@@ -231,8 +283,8 @@ export class ParentDashboardComponent implements OnInit {
             }))
           });
 
-          // Calculate overall progress
-          const overallProgress = progress?.overallProgress || 0;
+          // ✅ NEW: Get overall progress from backend summary
+          const overallProgress = progressSummary.overallProgress || 0;
 
           // Get active subscription - filter for active subscriptions only
           const activeSubscriptions = subscriptions.filter((sub: any) => sub.isActive === true);
@@ -269,6 +321,9 @@ export class ParentDashboardComponent implements OnInit {
             grade: `Year ${child.year || 'N/A'}`,
             avatar: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
             overallProgress,
+            completedLessons: progressSummary.completedLessons,  // ✅ NEW: From backend
+            totalLessons: progressSummary.totalLessons,          // ✅ NEW: From backend
+            averageScore: progressSummary.averageScore,          // ✅ NEW: From backend
             activeSubscription,
             upcomingExams,
             recentActivity
@@ -366,7 +421,7 @@ export class ParentDashboardComponent implements OnInit {
         alerts.push({
           type: 'warning',
           message: `${child.name}'s progress is below 50%`,
-          actionUrl: '/student/dashboard',
+          actionUrl: `/parent/student/${child.id}`,
           actionText: 'View Details'
         });
       }
@@ -386,7 +441,7 @@ export class ParentDashboardComponent implements OnInit {
         alerts.push({
           type: 'success',
           message: `${child.name} is doing great with ${child.overallProgress}% progress! 🎉`,
-          actionUrl: '/student/dashboard',
+          actionUrl: `/parent/student/${child.id}`,
           actionText: 'View Progress'
         });
       }

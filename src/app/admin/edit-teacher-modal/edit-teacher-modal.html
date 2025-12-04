@@ -1,0 +1,108 @@
+<!-- Modal Overlay -->
+<div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-8 relative max-h-[90vh] overflow-y-auto">
+    <button class="absolute top-3 right-4 text-2xl text-gray-400 hover:text-red-500" (click)="close.emit()">×</button>
+    <h2 class="text-xl font-bold mb-6 text-blue-900 text-center">Edit Teacher Details</h2>
+
+    <form [formGroup]="editTeacherForm" (ngSubmit)="onSubmit()" autocomplete="off">
+      <div class="mb-4">
+        <label class="block mb-1 font-semibold">Username</label>
+        <input formControlName="userName" class="w-full border rounded px-3 py-2 bg-gray-100" readonly />
+        <small class="text-gray-500">Username cannot be changed</small>
+      </div>
+
+      <div class="mb-4">
+        <label class="block mb-1 font-semibold">Email</label>
+        <input formControlName="email" type="email" class="w-full border rounded px-3 py-2"
+               autocomplete="email"
+               [class.border-red-500]="validationErrors['email']" />
+        @if (editTeacherForm.get('email')?.hasError('required') && editTeacherForm.get('email')?.touched) {
+          <small class="text-red-500">Email is required.</small>
+        }
+        @if (editTeacherForm.get('email')?.hasError('email') && editTeacherForm.get('email')?.touched) {
+          <small class="text-red-500">Invalid email.</small>
+        }
+        @if (validationErrors['email']) {
+          @for (error of validationErrors['email']; track error) {
+            <small class="block text-red-500 mt-1">{{ error }}</small>
+          }
+        }
+      </div>
+
+      <div class="mb-4">
+        <label class="block mb-1 font-semibold">Phone Number</label>
+        <input formControlName="phoneNumber" class="w-full border rounded px-3 py-2"
+               [class.border-red-500]="validationErrors['phoneNumber']" />
+        @if (editTeacherForm.get('phoneNumber')?.invalid && editTeacherForm.get('phoneNumber')?.touched) {
+          <small class="text-red-500">Phone number is required.</small>
+        }
+        @if (validationErrors['phoneNumber']) {
+          @for (error of validationErrors['phoneNumber']; track error) {
+            <small class="block text-red-500 mt-1">{{ error }}</small>
+          }
+        }
+      </div>
+
+      <div class="mb-4">
+        <label class="block mb-1 font-semibold">Age</label>
+        <input formControlName="age" type="number" class="w-full border rounded px-3 py-2" />
+        @if (editTeacherForm.get('age')?.hasError('required') && editTeacherForm.get('age')?.touched) {
+          <small class="text-red-500">Age is required.</small>
+        }
+        @if (editTeacherForm.get('age')?.hasError('min') && editTeacherForm.get('age')?.touched) {
+          <small class="text-red-500">Age must be at least 18.</small>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label class="block mb-1 font-semibold">Salary (Optional)</label>
+        <input formControlName="salary" type="number" class="w-full border rounded px-3 py-2"
+               placeholder="Enter teacher's salary"
+               [class.border-red-500]="validationErrors['salary']" />
+        @if (editTeacherForm.get('salary')?.hasError('min') && editTeacherForm.get('salary')?.touched) {
+          <small class="text-red-500">Salary must be a positive number.</small>
+        }
+        @if (validationErrors['salary']) {
+          @for (error of validationErrors['salary']; track error) {
+            <small class="block text-red-500 mt-1">{{ error }}</small>
+          }
+        }
+      </div>
+
+      <div class="mb-6">
+        <label class="block mb-1 font-semibold">IBAN (Optional)</label>
+        <input formControlName="iban" type="text" class="w-full border rounded px-3 py-2"
+               placeholder="Enter IBAN number"
+               [class.border-red-500]="validationErrors['iban']" />
+        @if (editTeacherForm.get('iban')?.hasError('pattern') && editTeacherForm.get('iban')?.touched) {
+          <small class="text-red-500">Invalid IBAN format.</small>
+        }
+        @if (validationErrors['iban']) {
+          @for (error of validationErrors['iban']; track error) {
+            <small class="block text-red-500 mt-1">{{ error }}</small>
+          }
+        }
+      </div>
+
+      <div class="flex gap-3">
+        <button type="button" (click)="close.emit()"
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-semibold">
+          Cancel
+        </button>
+        <button type="submit"
+                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg"
+                [disabled]="loading">
+          @if (!loading) {
+            <span>Update Teacher</span>
+          } @else {
+            <span>Updating...</span>
+          }
+        </button>
+      </div>
+
+      @if (error) {
+        <div class="text-red-600 mt-3 text-center">{{ error }}</div>
+      }
+    </form>
+  </div>
+</div>

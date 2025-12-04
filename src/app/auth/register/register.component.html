@@ -26,12 +26,18 @@
               'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
             placeholder="Enter your username"
           />
-          @if (hasFieldError('userName')) {
-            <small class="text-red-500 text-xs mt-1 block">{{ getFieldError('userName') }}</small>
+          @if (registerForm.get('userName')?.hasError('required') && registerForm.get('userName')?.touched) {
+            <small class="text-red-500 text-xs mt-1 block">Username is required.</small>
           }
-          <small class="text-gray-500 text-xs block mt-1">
-            Only letters and numbers (no spaces or special characters)
-          </small>
+          @if (registerForm.get('userName')?.hasError('minlength') && registerForm.get('userName')?.touched) {
+            <small class="text-red-500 text-xs mt-1 block">Username must be at least 4 characters.</small>
+          }
+          @if (registerForm.get('userName')?.hasError('numbersOnly') && registerForm.get('userName')?.touched) {
+            <small class="text-red-500 text-xs mt-1 block">Username cannot be only numbers.</small>
+          }
+          @if (registerForm.get('userName')?.hasError('invalidChars') && registerForm.get('userName')?.touched) {
+            <small class="text-red-500 text-xs mt-1 block">Username can only contain letters, numbers, and underscores.</small>
+          }
         </div>
 
         <!-- Phone number -->
@@ -61,8 +67,14 @@
               'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
             placeholder="Enter your email"
           />
-          @if (hasFieldError('email')) {
-            <small class="text-red-500 text-xs mt-1">{{ getFieldError('email') }}</small>
+          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+            <small class="text-gray-500 text-xs block mt-1">Please enter a valid email address (e.g. user@example.com).</small>
+          }
+          @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
+            <small class="text-red-500 text-xs mt-1">Email is required.</small>
+          }
+          @if (registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched) {
+            <small class="text-red-500 text-xs mt-1">Please enter a valid email address.</small>
           }
         </div>
 
@@ -95,11 +107,17 @@
               'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
             placeholder="Enter password"
           />
+          @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
+            <small class="text-red-500 text-xs mt-1 block">Password is required.</small>
+          }
+          @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
+            <small class="text-red-500 text-xs mt-1 block">Password must be at least 8 characters.</small>
+          }
           @if (hasFieldError('password')) {
             <small class="text-red-500 text-xs mt-1 block">{{ getFieldError('password') }}</small>
           }
           <small class="text-gray-500 text-xs block mt-1">
-            Password must contain: uppercase, lowercase, and be at least 8 characters
+            Password must be at least 8 characters
           </small>
         </div>
 

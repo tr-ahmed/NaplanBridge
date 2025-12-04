@@ -244,17 +244,6 @@
                   </svg>
                   Download Invoice
                 </button>
-
-                @if (subscription.status === 'Active') {
-                  <button
-                    (click)="openCancelModal(subscription)"
-                    class="px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl transition-all duration-300 text-sm font-semibold flex items-center gap-2 hover:shadow-lg hover:-translate-y-1">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    Cancel Subscription
-                  </button>
-                }
               </div>
 
               <!-- Notes -->

@@ -4,14 +4,17 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../core/services/toast.service';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 import { Lesson, LessonResource, StudentLesson, LessonProgress } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
 import { ContentService } from '../../core/services/content.service';
 import { AuthService } from '../../core/services/auth.service';
 import { VideoService } from '../../core/services/video.service';
-import { LessonQaComponent } from './lesson-qa/lesson-qa.component';
+import { DiscussionService, DiscussionDto, CreateDiscussionDto, CreateReplyDto } from '../../core/services/discussion.service';
+
+// Type alias for Discussion
+type Discussion = DiscussionDto;
 
 interface Quiz {
   id: number;
@@ -72,7 +75,7 @@ interface TeacherQuestion {
 @Component({
   selector: 'app-lesson-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LessonQaComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './lesson-detail.component.html',
   styleUrls: ['./lesson-detail.component.scss']
 })
@@ -86,6 +89,10 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   studentLesson = signal<StudentLesson | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
+
+  // Navigation context (for going back)
+  private subjectId?: number;
+  private studentId?: number;
 
   // Lesson navigation
   nextLesson = signal<Lesson | null>(null);
@@ -128,8 +135,15 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   questionForm: FormGroup;
   isAskingQuestion = signal(false);
 
+  // Discussions state
+  discussions = signal<DiscussionDto[]>([]);
+  discussionForm: FormGroup;
+  isAddingDiscussion = signal(false);
+  isLoadingDiscussions = signal(false);
+  replyTexts: { [discussionId: number]: string } = {};
+
   // Active tab
-  activeTab = signal<'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker' | 'qa'>('video');
+  activeTab = signal<'video' | 'resources' | 'quiz' | 'discussions' | 'teacher' | 'chapters' | 'quiz-maker'>('video');
 
   // Computed values
   currentQuiz = computed(() => {
@@ -164,6 +178,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     private contentService: ContentService,
     private authService: AuthService,
     private videoService: VideoService,
+    private discussionService: DiscussionService,
     private fb: FormBuilder,
     private toastService: ToastService,
     private cdr: ChangeDetectorRef
@@ -173,6 +188,10 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.questionForm = this.fb.group({
+      question: ['', [Validators.required, Validators.minLength(10)]]
+    });
+
+    this.discussionForm = this.fb.group({
       question: ['', [Validators.required, Validators.minLength(10)]]
     });
 
@@ -204,6 +223,18 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Save navigation context from query params
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(queryParams => {
+        if (queryParams['subjectId']) {
+          this.subjectId = parseInt(queryParams['subjectId']);
+        }
+        if (queryParams['studentId']) {
+          this.studentId = parseInt(queryParams['studentId']);
+        }
+      });
+
     this.route.params
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
@@ -236,6 +267,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Load lesson details
+   * ✅ SECURITY: Handles 403 Forbidden when student has no subscription
    */
   private loadLesson(lessonId: number): void {
     this.loading.set(true);
@@ -259,6 +291,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
             this.loadQuizzes(lessonId);  // Changed from loadMockQuizzes
             this.loadMockNotes(lessonId);
             this.loadMockTeacherQuestions(lessonId);
+            this.loadDiscussions();
             this.loadAdjacentLessons(lessonId);
             this.loadVideoChapters(lessonId);
             this.loadQuizMakers(lessonId);
@@ -289,9 +322,44 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
           this.loading.set(false);
         },
         error: (error) => {
-          this.error.set('Failed to load lesson');
           this.loading.set(false);
           console.error('Error loading lesson:', error);
+
+          // ✅ SECURITY: Handle 403 Forbidden - No subscription access
+          if (error.status === 403) {
+            const errorMessage = error.error?.message || 'You need an active subscription to access this lesson';
+            this.error.set(errorMessage);
+            this.toastService.showWarning(errorMessage);
+
+            // Log the access attempt
+            console.warn('🔒 Access denied - No subscription:', {
+              lessonId,
+              details: error.error?.details
+            });
+
+            // Redirect to lessons page after a short delay
+            setTimeout(() => {
+              this.router.navigate(['/lessons'], {
+                queryParams: {
+                  subjectId: this.subjectId,
+                  accessDenied: true
+                }
+              });
+            }, 2000);
+            return;
+          }
+
+          // Handle 404 - Lesson not found
+          if (error.status === 404) {
+            this.error.set('Lesson not found');
+            this.toastService.showError('The requested lesson does not exist');
+            this.router.navigate(['/lessons']);
+            return;
+          }
+
+          // Handle other errors
+          this.error.set('Failed to load lesson. Please try again.');
+          this.toastService.showError('Error loading lesson');
         }
       });
   }
@@ -555,7 +623,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Set active tab
    */
-  setActiveTab(tab: 'video' | 'resources' | 'quiz' | 'notes' | 'teacher' | 'chapters' | 'quiz-maker' | 'qa'): void {
+  setActiveTab(tab: 'video' | 'resources' | 'quiz' | 'discussions' | 'teacher' | 'chapters' | 'quiz-maker'): void {
     this.activeTab.set(tab);
 
     // Re-initialize video player when switching back to video tab
@@ -811,6 +879,11 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     const lesson = this.lesson();
     if (!lesson || !this.authService.isAuthenticated()) return;
 
+    // Skip progress tracking for admin and teacher roles
+    if (this.authService.hasAnyRole(['admin', 'teacher'])) {
+      return;
+    }
+
     // Get the actual student ID from authenticated user
     const studentId = this.authService.getStudentId();
     if (!studentId) {
@@ -928,25 +1001,193 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
    * Teacher interaction methods
    */
   askTeacher(): void {
-    if (this.questionForm.valid) {
-      this.isAskingQuestion.set(true);
+    if (this.questionForm.invalid) return;
 
-      const newQuestion: TeacherQuestion = {
-        id: Date.now(),
-        question: this.questionForm.value.question,
-        isAnswered: false,
-        askedAt: new Date()
-      };
+    const lessonId = this.lesson()?.id;
+    if (!lessonId) return;
 
-      const currentQuestions = this.teacherQuestions();
-      this.teacherQuestions.set([...currentQuestions, newQuestion]);
+    this.isAskingQuestion.set(true);
 
-      this.questionForm.reset();
-      this.isAskingQuestion.set(false);
+    // Get current video time for context
+    const currentTime = this.videoCurrentTime();
+    const timestamp = currentTime > 0 ? Math.floor(currentTime) : undefined;
 
-      // Show success message
-      this.toastService.showSuccess('Your question has been sent to the teacher. You will be notified when they respond.');
-    }
+    const discussionData: CreateDiscussionDto = {
+      question: this.questionForm.value.question,
+      videoTimestamp: timestamp
+    };
+
+    this.discussionService.createDiscussion(lessonId, discussionData)
+      .pipe(
+        finalize(() => this.isAskingQuestion.set(false)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (discussion) => {
+          // Add to local list
+          const currentQuestions = this.teacherQuestions();
+          const newQuestion: TeacherQuestion = {
+            id: discussion.id,
+            question: discussion.question,
+            isAnswered: discussion.isAnswered,
+            askedAt: new Date(discussion.createdAt),
+            answer: discussion.replies && discussion.replies.length > 0
+              ? discussion.replies[0].reply
+              : undefined,
+            answeredAt: discussion.replies && discussion.replies.length > 0
+              ? new Date(discussion.replies[0].createdAt)
+              : undefined
+          };
+          this.teacherQuestions.set([newQuestion, ...currentQuestions]);
+
+          this.questionForm.reset();
+          this.toastService.showSuccess('Your question has been sent to the teacher. You will be notified when they respond.');
+        },
+        error: (error) => {
+          console.error('Error asking teacher:', error);
+          this.toastService.showError('Failed to send question. Please try again.');
+        }
+      });
+  }
+
+  /**
+   * Discussion methods
+   */
+  loadDiscussions(): void {
+    const lessonId = this.lesson()?.id;
+    if (!lessonId) return;
+
+    this.isLoadingDiscussions.set(true);
+
+    // Get student ID if authenticated
+    const studentId = this.authService.isAuthenticated()
+      ? this.authService.getCurrentUser()?.studentId
+      : undefined;
+
+    this.discussionService.getDiscussionsForLesson(lessonId, studentId).subscribe({
+      next: (discussions) => {
+        this.discussions.set(discussions);
+
+        // Also load teacher questions from the same API
+        this.loadTeacherQuestions(discussions);
+
+        this.isLoadingDiscussions.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading discussions:', error);
+        this.toastService.showError('Failed to load discussions');
+        this.isLoadingDiscussions.set(false);
+      }
+    });
+  }
+
+  /**
+   * Load teacher questions from discussions
+   */
+  private loadTeacherQuestions(discussions: Discussion[]): void {
+    const currentStudentId = this.authService.getCurrentUser()?.studentId;
+    if (!currentStudentId) return;
+
+    // Filter discussions created by current student
+    const myQuestions = discussions
+      .filter(d => d.studentId === currentStudentId)
+      .map(d => ({
+        id: d.id,
+        question: d.question,
+        isAnswered: d.isAnswered,
+        askedAt: new Date(d.createdAt),
+        answer: d.replies && d.replies.length > 0
+          ? d.replies.find(r => r.isTeacherReply)?.reply
+          : undefined,
+        answeredAt: d.replies && d.replies.length > 0
+          ? new Date(d.replies.find(r => r.isTeacherReply)?.createdAt || d.createdAt)
+          : undefined
+      }));
+
+    this.teacherQuestions.set(myQuestions);
+  }
+
+  addDiscussion(): void {
+    if (this.discussionForm.invalid) return;
+
+    const lessonId = this.lesson()?.id;
+    if (!lessonId) return;
+
+    this.isAddingDiscussion.set(true);
+
+    // Get current video time and convert to integer seconds
+    const currentTime = this.videoCurrentTime();
+    const timestamp = currentTime > 0 ? Math.floor(currentTime) : undefined;
+
+    const discussionData: CreateDiscussionDto = {
+      question: this.discussionForm.value.question,
+      videoTimestamp: timestamp
+    };
+
+    this.discussionService.createDiscussion(lessonId, discussionData).subscribe({
+      next: (discussion) => {
+        const current = this.discussions();
+        this.discussions.set([discussion, ...current]);
+        this.discussionForm.reset();
+        this.isAddingDiscussion.set(false);
+        this.toastService.showSuccess('Discussion posted successfully!');
+      },
+      error: (error) => {
+        console.error('Error adding discussion:', error);
+        this.toastService.showError('Failed to post discussion');
+        this.isAddingDiscussion.set(false);
+      }
+    });
+  }
+
+  addReply(discussionId: number): void {
+    const replyText = this.replyTexts[discussionId];
+    if (!replyText || replyText.trim() === '') return;
+
+    const replyData: CreateReplyDto = {
+      reply: replyText
+    };
+
+    this.discussionService.addReply(discussionId, replyData).subscribe({
+      next: (reply) => {
+        const discussions = this.discussions();
+        const discussion = discussions.find(d => d.id === discussionId);
+        if (discussion) {
+          discussion.replies.push(reply);
+          discussion.repliesCount++;
+          this.discussions.set([...discussions]);
+        }
+        this.replyTexts[discussionId] = '';
+        this.toastService.showSuccess('Reply added successfully!');
+      },
+      error: (error) => {
+        console.error('Error adding reply:', error);
+        this.toastService.showError('Failed to add reply');
+      }
+    });
+  }
+
+  markHelpful(discussionId: number): void {
+    this.discussionService.markAsHelpful(discussionId).subscribe({
+      next: () => {
+        const discussions = this.discussions();
+        const discussion = discussions.find(d => d.id === discussionId);
+        if (discussion) {
+          discussion.isHelpful = true;
+          discussion.helpfulCount++;
+          this.discussions.set([...discussions]);
+        }
+        this.toastService.showSuccess('Marked as helpful!');
+      },
+      error: (error) => {
+        console.error('Error marking helpful:', error);
+        this.toastService.showError('Failed to mark as helpful');
+      }
+    });
+  }
+
+  seekToDiscussionTime(timestamp: number): void {
+    this.seekToTime(timestamp);
   }
 
   /**
@@ -965,16 +1206,37 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
    * Navigation methods
    */
   goBack(): void {
-    const lesson = this.lesson();
-    if (lesson) {
-      this.router.navigate(['/lessons'], {
-        queryParams: {
-          subject: lesson.subject,
-          courseId: lesson.courseId
-        }
-      });
+    // Use saved subjectId from navigation context
+    if (this.subjectId) {
+      const queryParams: any = {
+        subjectId: this.subjectId
+      };
+
+      // Add studentId if available
+      if (this.studentId) {
+        queryParams.studentId = this.studentId;
+      }
+
+      // Add subject name if available from lesson
+      const lesson = this.lesson();
+      if (lesson?.subject) {
+        queryParams.subject = lesson.subject;
+      }
+
+      this.router.navigate(['/lessons'], { queryParams });
     } else {
-      this.router.navigate(['/courses']);
+      // Fallback: try to get from lesson object or go to courses
+      const lesson = this.lesson();
+      if (lesson) {
+        this.router.navigate(['/lessons'], {
+          queryParams: {
+            subject: lesson.subject,
+            courseId: lesson.courseId
+          }
+        });
+      } else {
+        this.router.navigate(['/courses']);
+      }
     }
   }
 

@@ -1,13 +1,13 @@
 <!-- Overlay -->
 @if (isOpen()) {
-  <div 
+  <div
     class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
     (click)="closeSidebar()">
   </div>
 }
 
 <!-- Sidebar -->
-<aside 
+<aside
   class="sidebar fixed lg:static top-0 left-0 h-full lg:h-screen w-72 transform transition-transform duration-300 ease-in-out z-50 overflow-y-auto"
   [class.collapsed]="collapsed"
   [class.-translate-x-full]="!isOpen()"
@@ -15,18 +15,17 @@
   [class.lg:translate-x-0]="true"
   id="sidebar"
   style="background:linear-gradient(135deg,#1e293b 0%,#2563eb 100%);box-shadow:0 8px 32px rgba(31,38,135,.37);border-top-right-radius:2rem;border-bottom-right-radius:2rem;">
-  
+
   <!-- Close Button (Mobile Only) -->
-  <button 
+  <button
     (click)="closeSidebar()"
     class="lg:hidden absolute top-4 right-4 text-white hover:text-gray-300 transition-colors">
     <i class="fas fa-times text-2xl"></i>
   </button>
 
   <div class="sidebar-logo d-flex align-items-center py-4 px-3">
-    <div class="me-3" style="background:rgba(255,255,255,0.2);width:48px;height:48px;"
-      class="rounded-circle d-flex align-items-center justify-content-center shadow">
-      <span class="fw-bold fs-4 text-blue-700">N</span>
+    <div class="me-3">
+      <img src="assets/img/logo.png" alt="NAPLAN Bridge Logo" class="w-12 h-12 object-contain">
     </div>
     <div class="fw-bold fs-5 text-white">NAPLAN<span class="text-warning">Bridge</span></div>
   </div>
@@ -108,27 +107,27 @@
       <span>Notification Templates</span>
     </a>
   </nav>
-  
+
   <!-- Profile Section -->
   <div class="sidebar-profile mt-auto px-4 py-4 border-top border-white/10">
-    <div class="d-flex align-items-center gap-3 cursor-pointer" 
-      (click)="navigateToProfile(); closeSidebar()" 
-      [style.opacity]="profileHovered() ? '0.8' : '1'" 
-      (mouseenter)="profileHovered.set(true)" 
+    <div class="d-flex align-items-center gap-3 cursor-pointer"
+      (click)="navigateToProfile(); closeSidebar()"
+      [style.opacity]="profileHovered() ? '0.8' : '1'"
+      (mouseenter)="profileHovered.set(true)"
       (mouseleave)="profileHovered.set(false)">
-      <img 
-        [src]="userAvatar" 
-        [alt]="userName" 
-        class="rounded-circle shadow-sm object-cover" 
-        width="48" 
+      <img
+        [src]="userAvatar"
+        [alt]="userName"
+        class="rounded-circle shadow-sm object-cover"
+        width="48"
         height="48"
-        style="border: 2px solid rgba(96, 165, 250, 0.5);">
+        style="border: 2px solid rgba(96, 165, 250, 0.5); border-radius: 50%; aspect-ratio: 1/1; object-fit: cover;">
       <div>
         <div class="fw-semibold text-white">{{ userName }}</div>
         <small class="text-white-50">{{ userRole }}</small>
       </div>
     </div>
-    <a (click)="handleLogout(); closeSidebar()" 
+    <a (click)="handleLogout(); closeSidebar()"
       class="d-block mt-3 text-white-50 small cursor-pointer hover:text-white transition-colors">
       <i class="fas fa-sign-out-alt me-2"></i>Logout
     </a>

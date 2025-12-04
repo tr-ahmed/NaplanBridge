@@ -66,15 +66,6 @@
           (input)="onSearch()">
       </div>
 
-      <!-- Category Filter -->
-      <select
-        class="filter-select"
-        [(ngModel)]="selectedCategory"
-        (change)="onFilterChange()">
-        <option value="all">All Categories</option>
-        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-      </select>
-
       <!-- Channel Filter -->
       <select
         class="filter-select"

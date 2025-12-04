@@ -115,24 +115,64 @@ export class DashboardService {
 
   /**
    * Get Student Subscriptions Summary
-   * ✅ UPDATED: Use Parent endpoint with full payment and usage data
-   * Endpoint: GET /api/Parent/student/{studentId}/subscriptions
+   * ✅ UPDATED: Use StudentSubjects endpoint for students
+   * Endpoint: GET /api/StudentSubjects/student/{studentId}/subscriptions-summary
    */
   getStudentSubscriptionsSummary(studentId: number): Observable<any> {
-    return this.api.get(`Parent/student/${studentId}/subscriptions`).pipe(
+    return this.api.get(`StudentSubjects/student/${studentId}/subscriptions-summary`).pipe(
+      map((response: any) => {
+        // ✅ Response format: { totalActiveSubscriptions: number, subscriptions: [...] }
+        if (response) {
+          return {
+            subscriptions: response.subscriptions || [],
+            totalActiveSubscriptions: response.totalActiveSubscriptions || 0
+          };
+        }
+        return { subscriptions: [], totalActiveSubscriptions: 0 };
+      }),
+      catchError(error => {
+        console.warn('Subscriptions endpoint error:', error);
+        return of({ subscriptions: [], totalActiveSubscriptions: 0 });
+      })
+    );
+  }
+
+  /**
+   * Get Student Subscriptions for Parent
+   * ✅ NEW: Use Parent endpoint with full payment and usage data (requires Parent role)
+   * Endpoint: GET /api/Parent/student/{studentId}/subscriptions
+   */
+  getParentStudentSubscriptions(studentId: number, includeExpired: boolean = false): Observable<any> {
+    const params = includeExpired ? { includeExpired: 'true' } : {};
+    return this.api.get(`Parent/student/${studentId}/subscriptions`, params).pipe(
       map((response: any) => {
         // ✅ Extract data from { success: true, data: {...} } structure
         if (response && response.data) {
           return {
             subscriptions: response.data.active || [],
-            totalActiveSubscriptions: response.data.totalActive || 0
+            expired: response.data.expired || [],
+            totalActiveSubscriptions: response.data.totalActive || 0,
+            totalExpired: response.data.totalExpired || 0,
+            totalSpent: response.data.totalSpent || 0
           };
         }
-        return response || [];
+        return {
+          subscriptions: [],
+          expired: [],
+          totalActiveSubscriptions: 0,
+          totalExpired: 0,
+          totalSpent: 0
+        };
       }),
       catchError(error => {
-        console.warn('Subscriptions endpoint error:', error);
-        return of({ subscriptions: [], totalActiveSubscriptions: 0 });
+        console.warn('Parent subscriptions endpoint error:', error);
+        return of({
+          subscriptions: [],
+          expired: [],
+          totalActiveSubscriptions: 0,
+          totalExpired: 0,
+          totalSpent: 0
+        });
       })
     );
   }

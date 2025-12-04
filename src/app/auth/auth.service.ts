@@ -62,13 +62,12 @@ export class AuthService {
     const loginData: LoginRequest = { identifier, password };
     const loginUrl = `${environment.apiBaseUrl}/Account/login`;
 
-    console.log('🔍 Attempting API Login...');
-    console.log('API URL:', loginUrl);
+
 
     const apiCall = this.http.post<LoginResponse>(loginUrl, loginData).pipe(
       timeout(environment.apiTimeout || 10000),
       map((response: LoginResponse) => {
-        console.log('✅ API Login Successful');
+
         this.storeAuthData(response, identifier, rememberMe);
         return true;
       }),
@@ -108,8 +107,7 @@ export class AuthService {
     try {
       const payload = JSON.parse(atob(response.token.split('.')[1]));
 
-      console.log('🔓 Decoding JWT Token...');
-      console.log('📦 Raw token payload:', payload);
+
 
       const userData = {
         id: payload.nameid || payload.sub,  // User.Id (AspNetUsers.Id) for authentication
@@ -124,12 +122,9 @@ export class AuthService {
       if (!environment.production) {
         const isStudent = response.roles.includes('Student');
         if (isStudent) {
-          console.log('🎓 Student logged in:', userData.userName);
-          if (!userData.studentId) {
-            console.warn('⚠️ Student role but no studentId in token! Cart may not work.');
-          }
+
         } else {
-          console.log('👤 User logged in:', userData.userName, '| Role:', response.roles.join(', '));
+
         }
       }
 

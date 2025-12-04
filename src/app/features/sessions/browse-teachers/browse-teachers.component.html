@@ -71,12 +71,17 @@
               </svg>
               Teaching Subjects
             </p>
-            <div class="flex flex-wrap gap-2">
+
+            <div *ngIf="teacher.subjects && teacher.subjects.length > 0; else noSubjects" class="flex flex-wrap gap-2">
               <span *ngFor="let subject of teacher.subjects"
                     class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium border border-blue-100">
                 {{ subject }}
               </span>
             </div>
+
+            <ng-template #noSubjects>
+              <p class="text-sm text-gray-500 italic">No subjects assigned</p>
+            </ng-template>
           </div>
 
           <!-- Session Info Grid -->

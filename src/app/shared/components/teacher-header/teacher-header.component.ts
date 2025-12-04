@@ -29,7 +29,7 @@ interface UserProfileResponse {
 })
 export class TeacherHeaderComponent implements OnInit, OnDestroy {
   @Output() toggleSidebar = new EventEmitter<void>();
-  
+
   fullProfile = signal<UserProfileResponse | null>(null);
 
   // Notifications
@@ -176,7 +176,7 @@ export class TeacherHeaderComponent implements OnInit, OnDestroy {
   }
 
   markAllAsRead(): void {
-    this.http.post(`${environment.apiBaseUrl}/Notifications/mark-all-read`, {}).subscribe({
+    this.http.put(`${environment.apiBaseUrl}/Notifications/read-all`, {}).subscribe({
       next: () => {
         this.notifications.update(notifications =>
           notifications.map(n => ({ ...n, isRead: true }))

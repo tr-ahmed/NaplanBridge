@@ -96,6 +96,15 @@ export class LessonService {
   }
 
   /**
+   * Get in-progress lessons for student
+   * Endpoint: GET /api/Lessons/student/{studentId}/in-progress
+   * Returns lessons with 0 < progress < 100
+   */
+  getInProgressLessons(studentId: number): Observable<any> {
+    return this.api.get(`Lessons/student/${studentId}/in-progress`);
+  }
+
+  /**
    * Create new lesson
    * Endpoint: POST /api/lessons
    * Content-Type: multipart/form-data

@@ -1,1 +1,53 @@
-// Student Subscriptions Component Styles
+/* Student Subscriptions Component - Enhanced Styles */
+
+// Smooth animations
+.group {
+  &:hover {
+    .group-hover\:scale-110 {
+      transform: scale(1.1);
+    }
+
+    .group-hover\:scale-150 {
+      transform: scale(1.5);
+    }
+  }
+}
+
+// Subscription card hover effects
+.subscription-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+// Status badges with animation
+.status-badge {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Progress bar animation
+.progress-fill {
+  transition: width 1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .subscription-card {
+    h3 {
+      font-size: 1.25rem;
+    }
+  }
+}

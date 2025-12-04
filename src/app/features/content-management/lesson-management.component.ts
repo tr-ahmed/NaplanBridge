@@ -25,7 +25,7 @@ import { AdminHeaderComponent } from '../../shared/components/admin-header/admin
   selector: 'app-lesson-management',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule
   ],
   templateUrl: './lesson-management.component.html',
@@ -63,7 +63,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     title: '',
     description: '',
     resourceType: 'pdf',
-    file: null
+    file: null,
+    currentFileUrl: null
   };
   isResourceFormOpen = false;
   editingResource: any = null;
@@ -104,7 +105,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   discussions: any[] = [];
   discussionForm: any = {
     question: '',
-    details: ''
+    videoTimestamp: null
   };
   isDiscussionFormOpen = false;
   editingDiscussion: any = null;
@@ -183,7 +184,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   // ============================================
   // Role Checking
   // ============================================
-  
+
   isStudent(): boolean {
     return this.authService.hasRole('Student');
   }
@@ -194,7 +195,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
   async loadAllData(): Promise<void> {
     await this.loadLesson();
-    
+
     // Build array of promises - only include notes for students
     const promises: Promise<void>[] = [
       this.loadResources(),
@@ -203,12 +204,12 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       this.loadExams(),
       this.loadChapters()
     ];
-    
+
     // Only load notes if user is a student (notes are student-specific)
     if (this.authService.hasRole('Student')) {
       promises.push(this.loadNotes());
     }
-    
+
     await Promise.all(promises);
   }
 
@@ -449,19 +450,23 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       title: '',
       description: '',
       resourceType: 'pdf',
-      file: null
+      file: null,
+      currentFileUrl: null
     };
     this.isResourceFormOpen = true;
   }
 
   openEditResource(resource: any): void {
+    console.log('📝 Opening edit for resource:', resource);
     this.editingResource = resource;
     this.resourceForm = {
       title: resource.title || '',
       description: resource.description || '',
-      resourceType: resource.resourceType || 'pdf',
-      file: null
+      resourceType: resource.resourceType || resource.type || 'pdf',
+      file: null,
+      currentFileUrl: resource.fileUrl || resource.url || null
     };
+    console.log('📝 Form populated with:', this.resourceForm);
     this.isResourceFormOpen = true;
   }
 
@@ -472,7 +477,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       title: '',
       description: '',
       resourceType: 'pdf',
-      file: null
+      file: null,
+      currentFileUrl: null
     };
   }
 
@@ -485,6 +491,17 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
       if (!this.editingResource && !this.resourceForm.file) {
         Swal.fire('Error', 'Please select a file', 'error');
+        return;
+      }
+
+      // Additional validation for file object
+      console.log('🟢 saveResource - resourceForm:', this.resourceForm);
+      console.log('🟢 saveResource - file:', this.resourceForm.file);
+      console.log('🟢 saveResource - file type:', typeof this.resourceForm.file);
+      console.log('🟢 saveResource - file instanceof File:', this.resourceForm.file instanceof File);
+
+      if (!this.editingResource && !(this.resourceForm.file instanceof File)) {
+        Swal.fire('Error', 'Invalid file selected. Please select a file again.', 'error');
         return;
       }
 
@@ -504,6 +521,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
           this.resourceForm.file
         ).toPromise();
       } else {
+        console.log('🟢 Calling addLessonResource with file:', this.resourceForm.file.name);
         await this.contentService.addLessonResource(
           this.lessonId,
           this.resourceForm.title,
@@ -660,12 +678,12 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     } catch (error: any) {
       console.error('Note save error:', error);
       let errorMessage = this.extractErrorMessage(error);
-      
+
       // Handle 403 Forbidden specifically
       if (error?.status === 403) {
         errorMessage = 'You do not have permission to add/edit notes. Please contact your administrator.';
       }
-      
+
       Swal.fire('Error', errorMessage, 'error');
     }
   }
@@ -885,7 +903,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     this.editingDiscussion = null;
     this.discussionForm = {
       question: '',
-      details: ''
+      videoTimestamp: null
     };
     this.isDiscussionFormOpen = true;
   }
@@ -912,7 +930,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       await this.contentService.addLessonDiscussion(
         this.lessonId,
         this.discussionForm.question,
-        this.discussionForm.details
+        this.discussionForm.videoTimestamp
       ).toPromise();
 
       await this.loadDiscussions();
@@ -1105,14 +1123,25 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   openEditChapter(chapter: any): void {
+    console.log('📝 Opening edit for chapter:', chapter);
     this.editingChapter = chapter;
+
+    // Convert timestamp (seconds) to HH:MM:SS format if needed
+    let startTimeStr = '00:00:00';
+    if (chapter.startTime) {
+      startTimeStr = chapter.startTime;
+    } else if (chapter.timestamp !== undefined && chapter.timestamp !== null) {
+      startTimeStr = this.formatTimestamp(chapter.timestamp);
+    }
+
     this.chapterForm = {
       title: chapter.title || '',
       description: chapter.description || '',
-      startTime: chapter.startTime || '00:00:00',
+      startTime: startTimeStr,
       endTime: chapter.endTime || '00:00:00',
-      orderIndex: chapter.orderIndex || 0
+      orderIndex: chapter.order !== undefined ? chapter.order : (chapter.orderIndex || 0)
     };
+    console.log('📝 Form populated with:', this.chapterForm);
     this.isChapterFormOpen = true;
   }
 
@@ -1212,14 +1241,19 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
   onFileChange(event: any, field: string): void {
     const file = event.target.files?.[0];
+    console.log('🟡 onFileChange called - field:', field, 'file:', file);
     if (file) {
+      console.log('🟡 File details:', { name: file.name, size: file.size, type: file.type });
       if (field === 'resource') {
         this.resourceForm.file = file;
+        console.log('🟡 Set resourceForm.file to:', this.resourceForm.file);
       } else if (field === 'posterFile') {
         this.lessonEditForm.posterFile = file;
       } else if (field === 'videoFile') {
         this.lessonEditForm.videoFile = file;
       }
+    } else {
+      console.log('🔴 No file selected or event.target.files is empty');
     }
   }
 

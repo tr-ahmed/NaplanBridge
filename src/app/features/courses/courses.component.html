@@ -235,11 +235,11 @@
 
   <!-- Subjects Grid -->
   @if (!loading() && paginatedCourses().length > 0) {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mb-8">
       @for (course of paginatedCourses(); track course.id) {
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col h-full">
           <!-- Subject Image -->
-          <div class="relative h-48 overflow-hidden bg-gray-200">
+          <div class="relative h-40 sm:h-44 md:h-48 lg:h-52 overflow-hidden bg-gray-200 flex-shrink-0">
             <img
               [src]="course.imageUrl || course.posterUrl || 'https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80'"
               [alt]="course.name || course.subjectName"
@@ -248,7 +248,7 @@
 
             <!-- Discount Badge -->
             @if ((course.originalPrice && course.originalPrice > course.price) || course.discountPercentage > 0) {
-              <div class="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+              <div class="absolute top-2 left-2 sm:top-3 sm:left-3 bg-red-500 text-white px-2 py-0.5 sm:px-2 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold">
                 @if (course.discountPercentage > 0) {
                   -{{ course.discountPercentage }}%
                 } @else {
@@ -258,41 +258,35 @@
             }
 
             <!-- Year & Term Badge -->
-            <div class="absolute top-3 right-3 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white shadow-md">
+            <div class="absolute top-2 right-2 sm:top-3 sm:right-3 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-blue-600 text-white shadow-md">
               {{ getYearName(course.yearId) }} - {{ course.termNumber }} Terms
             </div>
           </div>
 
           <!-- Subject Content -->
-          <div class="p-6">
+          <div class="p-4 sm:p-5 lg:p-6 flex flex-col flex-grow">
             <!-- Subject Name & Category -->
-            <div class="mb-3">
-              <h3 class="text-xl font-bold text-gray-900 mb-1">
+            <div class="mb-2 sm:mb-3">
+              <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-1 line-clamp-2">
                 {{ course.name || course.subjectName }}
               </h3>
-              <p class="text-sm text-blue-600 font-medium">
+              <p class="text-xs sm:text-sm text-blue-600 font-medium">
                 {{ course.categoryName || 'Subject' }}
               </p>
             </div>
 
             <!-- Subject Description -->
-            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+            <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
               {{ course.description || course.categoryDescription || 'Comprehensive course covering all essential topics' }}
             </p>
 
             <!-- Subject Stats -->
-            <div class="flex items-center gap-4 text-xs text-gray-600 mb-4 pb-4 border-b border-gray-100">
-              <div class="flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-gray-600 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-gray-100">
+              <div class="flex items-center gap-1 sm:gap-1.5">
+                <svg class="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                 </svg>
                 <span>{{ course.weekNumber }} Weeks</span>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-                <span>{{ course.studentCount || 0 }} Students</span>
               </div>
             </div>
 
@@ -324,10 +318,10 @@
             } -->
 
             <!-- Price and Discount -->
-            <div class="mb-4">
-              <div class="flex items-baseline gap-2">
-                <span class="text-sm text-gray-500">Starting from</span>
-                <span class="text-2xl font-bold text-green-600">
+            <div class="mb-3 sm:mb-4 mt-auto flex-grow-0">
+              <div class="flex items-baseline gap-1 sm:gap-2">
+                <span class="text-[10px] sm:text-sm text-gray-500">Starting from</span>
+                <span class="text-xl sm:text-2xl font-bold text-green-600">
                   AUD {{ getMinPrice(course) }}
                 </span>
               </div>
@@ -347,13 +341,13 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="mt-4">
+            <div class="mt-3 sm:mt-4">
               @if (isEnrolled(course)) {
                 <!-- Already Enrolled - Show Continue Learning and View Lessons -->
-                <div class="flex gap-2">
+                <div class="flex flex-col xs:flex-row gap-2">
                   <button
                     (click)="continueLearning(course)"
-                    class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300 hover:scale-[1.02] text-sm flex items-center justify-center gap-2">
+                    class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-medium hover:shadow-lg transition-all duration-300 hover:scale-[1.02] text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
@@ -361,7 +355,7 @@
                   </button>
                   <button
                     (click)="viewLessons(course)"
-                    class="flex-1 bg-gradient-to-r from-emerald-600 to-green-700 text-white px-4 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300 hover:scale-[1.02] text-sm flex items-center justify-center gap-2">
+                    class="flex-1 bg-gradient-to-r from-emerald-600 to-green-700 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-medium hover:shadow-lg transition-all duration-300 hover:scale-[1.02] text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -373,10 +367,10 @@
                 <!-- Not Enrolled - Show Cart/Enrollment Options -->
                 <div class="flex flex-col gap-2">
                   <!-- Primary Actions Row -->
-                  <div class="flex gap-2">
+                  <div class="flex flex-col xs:flex-row gap-2">
                     <button
                       (click)="viewLessons(course)"
-                      class="flex-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-4 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300 hover:scale-[1.02] text-sm flex items-center justify-center gap-2">
+                      class="flex-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-medium hover:shadow-lg transition-all duration-300 hover:scale-[1.02] text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -388,7 +382,7 @@
                       <!-- In Cart -->
                       <button
                         (click)="removeFromCart(course.id)"
-                        class="flex-1 bg-gradient-to-r from-red-100 to-rose-200 text-red-700 px-4 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300 hover:scale-[1.02] text-sm flex items-center justify-center gap-2">
+                        class="flex-1 bg-gradient-to-r from-red-100 to-rose-200 text-red-700 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-medium hover:shadow-lg transition-all duration-300 hover:scale-[1.02] text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
@@ -398,7 +392,7 @@
                       <!-- Not in Cart -->
                       <button
                         (click)="addToCart(course)"
-                        class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300 hover:scale-[1.02] text-sm flex items-center justify-center gap-2">
+                        class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-medium hover:shadow-lg transition-all duration-300 hover:scale-[1.02] text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>

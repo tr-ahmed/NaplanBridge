@@ -58,7 +58,9 @@ export interface Lesson {
   subject?: string; // subject name
   term?: number;
   termId?: number;
+  termNumber?: number; // Term number (1-4)
   week?: number;
+  weekNumber?: number; // Week number
 
   // Resources
   resources: Resource[];

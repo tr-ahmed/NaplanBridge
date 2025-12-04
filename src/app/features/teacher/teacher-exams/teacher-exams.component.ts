@@ -112,11 +112,20 @@ export class TeacherExamsComponent implements OnInit {
   /**
    * Navigate to create exam
    */
-  /**
-   * Navigate to create exam
-   */
   createExam() {
-    this.router.navigate(['/teacher/exam/create']);
+    console.log('🔵 Create Exam button clicked');
+    console.log('🔵 Current user:', this.auth.getCurrentUser());
+    console.log('🔵 Has teacher role:', this.auth.hasRole('teacher'));
+    console.log('🔵 Navigating to: /teacher/exam/create');
+
+    this.router.navigate(['/teacher/exam/create'])
+      .then(success => {
+        console.log('✅ Navigation successful:', success);
+      })
+      .catch(error => {
+        console.error('❌ Navigation failed:', error);
+        this.toast.showError('Failed to navigate to create exam page');
+      });
   }
 
   /**

@@ -184,6 +184,21 @@ export interface StudentProgressSummary {
   status: 'OnTrack' | 'NeedsAttention' | 'Excellent';
 }
 
+/**
+ * ✅ NEW: Student Progress Summary from Backend
+ * Endpoint: GET /api/Progress/by-student/{id}/summary
+ * Returns overall progress calculation from backend
+ */
+export interface StudentProgressSummaryDto {
+  studentId: number;
+  overallProgress: number;      // Percentage (0-100)
+  completedLessons: number;     // Number of completed lessons
+  totalLessons: number;         // Total accessible lessons
+  averageScore: number;         // Average exam score percentage
+  totalTimeSpent: number;       // Total minutes spent on lessons
+  lastActivityDate: string | null; // ISO date string
+}
+
 export interface RecentActivity {
   id: number;
   type: 'LessonCompleted' | 'ExamTaken' | 'ResourceAccessed' | 'SubscriptionPurchased';

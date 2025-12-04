@@ -10,7 +10,10 @@ import {
   ApiErrorResponse,
   ValidationError,
   PasswordResetRequest,
-  PasswordResetConfirmation
+  PasswordResetConfirmation,
+  VerifyEmailDto,
+  ResendVerificationDto,
+  ApiResponse
 } from '../../models/auth.models';
 
 /**
@@ -57,24 +60,30 @@ export class ParentApiService {
   login(loginData: LoginRequest): Observable<ApiResult<AuthResponse>> {
     const url = `${this.baseUrl}/Account/login`;
 
-    console.log('🔍 API Debug Info:');
-    console.log('Base URL:', this.baseUrl);
-    console.log('Full URL:', url);
-    console.log('Login Data:', loginData);
+    // Add header to skip toast notification in interceptor
+    const headers = { 'X-Skip-Toast': 'true' };
 
-    return this.http.post<AuthResponse>(url, loginData).pipe(
+    return this.http.post<AuthResponse>(url, loginData, { headers }).pipe(
       map((response: AuthResponse) => {
-        console.log('✅ Login Success Response:', response);
         return {
           success: true as const,
           data: response
         };
       }),
       catchError((error) => {
-        console.error('❌ Login Error:', error);
-        console.error('Error Status:', error.status);
-        console.error('Error Message:', error.message);
-        console.error('Error Body:', error.error);
+        // ✅ Handle 401 Email Not Verified - Pass it to component for special handling
+        const isEmailNotVerified = error.status === 401 &&
+            (error.error?.requiresVerification === true || error.error?.error === 'Email not verified');
+
+        if (isEmailNotVerified) {
+          return of({
+            success: false as const,
+            error: error.error?.message || 'Please verify your email address before logging in.',
+            requiresVerification: true,
+            email: error.error?.email,
+            statusCode: 401
+          });
+        }
 
         // ✅ Handle 403 Forbidden - Account Deactivated
         if (error.status === 403) {
@@ -131,6 +140,16 @@ export class ParentApiService {
       return { message: errorResponse.title };
     }
 
+    // Use common fields when present
+    if (typeof errorResponse === 'string') {
+      return { message: errorResponse };
+    }
+    if (errorResponse?.message) {
+      return { message: errorResponse.message };
+    }
+    if (errorResponse?.error) {
+      return { message: errorResponse.error };
+    }
     return { message: 'An unexpected error occurred' };
   }
 
@@ -220,6 +239,50 @@ export class ParentApiService {
           error: errorResult.message,
           validationErrors: errorResult.validationErrors
         });
+      })
+    );
+  }
+
+  /**
+   * Verify email with token
+   * @param dto Email verification data (email and token)
+   * @returns Observable with API result
+   */
+  verifyEmail(dto: VerifyEmailDto): Observable<ApiResponse<boolean>> {
+    const url = `${this.baseUrl}/Account/verify-email`;
+
+    console.log('🔍 Email Verification Request:', { email: dto.email });
+
+    return this.http.post<ApiResponse<boolean>>(url, dto).pipe(
+      map((response: ApiResponse<boolean>) => {
+        console.log('✅ Email Verified Successfully');
+        return response;
+      }),
+      catchError((error) => {
+        console.error('❌ Email Verification Error:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Resend verification email
+   * @param dto Resend verification data (email)
+   * @returns Observable with API result
+   */
+  resendVerificationEmail(dto: ResendVerificationDto): Observable<ApiResponse<boolean>> {
+    const url = `${this.baseUrl}/Account/resend-verification-email`;
+
+    console.log('🔍 Resend Verification Email Request:', { email: dto.email });
+
+    return this.http.post<ApiResponse<boolean>>(url, dto).pipe(
+      map((response: ApiResponse<boolean>) => {
+        console.log('✅ Verification Email Sent');
+        return response;
+      }),
+      catchError((error) => {
+        console.error('❌ Resend Verification Email Error:', error);
+        throw error;
       })
     );
   }

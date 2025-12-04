@@ -1,0 +1,211 @@
+<!-- User Details Modal Fragment -->
+<!-- This content should be added to the end of user-managment.html -->
+
+@if (isUserDetailsModalOpen && selectedUserDetails) {
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+     (click)="closeUserDetailsModal()">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+       (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="bg-gradient-to-r from-cyan-500 to-blue-600 p-6 rounded-t-2xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+            <i class="fas fa-user text-3xl text-white"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-white">User Details</h2>
+            <p class="text-cyan-100 text-sm mt-1">Complete user information</p>
+          </div>
+        </div>
+        <button (click)="closeUserDetailsModal()"
+                class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-6 space-y-4">
+      <!-- User ID & Username -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-id-badge text-blue-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">User ID</p>
+              <p class="text-lg font-bold text-gray-900 truncate">{{ selectedUserDetails.id }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-user text-purple-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Username</p>
+              <p class="text-lg font-bold text-gray-900 truncate">{{ selectedUserDetails.userName }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email & Phone -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-envelope text-green-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Email</p>
+              <p class="text-sm font-semibold text-gray-900 truncate" [title]="selectedUserDetails.email || 'Not set'">
+                {{ selectedUserDetails.email || 'Not set' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-phone text-orange-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Phone Number</p>
+              <p class="text-sm font-semibold text-gray-900 truncate">
+                {{ selectedUserDetails.phoneNumber || 'Not set' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Age & Status -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-birthday-cake text-pink-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Age</p>
+              <p class="text-lg font-bold text-gray-900">
+                {{ selectedUserDetails.age || 'Not set' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+                 [class]="selectedUserDetails.isActive ? 'bg-green-100' : 'bg-red-100'">
+              <i class="fas text-lg"
+                 [class]="selectedUserDetails.isActive ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600'"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Status</p>
+              <p class="text-lg font-bold"
+                 [class]="selectedUserDetails.isActive ? 'text-green-600' : 'text-red-600'">
+                {{ selectedUserDetails.isActive ? 'Active' : 'Inactive' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Last Login & Email Confirmed -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+              <i class="fas fa-clock text-indigo-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Last Login</p>
+              <p class="text-sm font-semibold text-gray-900">
+                {{ formatDate(selectedUserDetails.lastLoginDate) }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+                 [class]="selectedUserDetails.emailConfirmed ? 'bg-teal-100' : 'bg-yellow-100'">
+              <i class="fas text-lg"
+                 [class]="selectedUserDetails.emailConfirmed ? 'fa-check-double text-teal-600' : 'fa-exclamation-triangle text-yellow-600'"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Email Verified</p>
+              <p class="text-lg font-bold"
+                 [class]="selectedUserDetails.emailConfirmed ? 'text-teal-600' : 'text-yellow-600'">
+                {{ selectedUserDetails.emailConfirmed ? 'Yes' : 'No' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roles -->
+      <div class="bg-gradient-to-br from-gray-50 to-blue-50 p-4 rounded-xl border border-blue-200">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-user-shield text-blue-600"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs text-gray-600 uppercase tracking-wide mb-2">User Roles</p>
+            <div class="flex flex-wrap gap-2">
+              @if (selectedUserDetails.roles && selectedUserDetails.roles.length > 0) {
+                @for (role of selectedUserDetails.roles; track role) {
+                  <span class="px-3 py-1.5 text-sm font-semibold rounded-full"
+                        [class]="role === 'Admin' ? 'bg-purple-100 text-purple-800' :
+                                 role === 'Teacher' ? 'bg-blue-100 text-blue-800' :
+                                 role === 'Student' ? 'bg-green-100 text-green-800' :
+                                 role === 'Parent' ? 'bg-yellow-100 text-yellow-800' :
+                                 'bg-gray-100 text-gray-800'">
+                    {{ role }}
+                  </span>
+                }
+              } @else {
+                <span class="text-gray-500 italic">No roles assigned</span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Created At -->
+      <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+            <i class="fas fa-calendar-plus text-gray-600"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs text-gray-500 uppercase tracking-wide">Account Created</p>
+            <p class="text-sm font-semibold text-gray-900">
+              {{ formatDate(selectedUserDetails.createdAt) }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end gap-3">
+      <button (click)="closeUserDetailsModal()"
+              class="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium transition-colors">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+}

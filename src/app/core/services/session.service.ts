@@ -189,6 +189,14 @@ export class SessionService {
     return this.api.post<SessionApiResponse<boolean>>(`Sessions/confirm-payment/${stripeSessionId}`, {});
   }
 
+  /**
+   * Cancel unpaid session booking
+   * POST /api/Sessions/cancel-payment/{stripeSessionId}
+   */
+  cancelPayment(stripeSessionId: string): Observable<SessionApiResponse<boolean>> {
+    return this.api.post<SessionApiResponse<boolean>>(`Sessions/cancel-payment/${stripeSessionId}`, {});
+  }
+
   // ============================================
   // Helper Methods
   // ============================================
@@ -255,7 +263,7 @@ export class SessionService {
     const dt = new Date(dateTime);
     const date = dt.toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric'
     });
     const time = dt.toLocaleTimeString('en-US', {

@@ -798,17 +798,25 @@
                 <tbody>
                   <tr *ngFor="let l of pagedLessons; let i = index; trackBy: trackById">
                     <td>{{ (lessonPage - 1) * pageSize + i + 1 }}</td>
-                    <td class="fw-semibold">{{ l.title }}</td>
+                    <td class="fw-semibold">
+                      <strong
+                        class="lesson-title-link"
+                        (click)="openLessonPreview(l)"
+                        style="cursor: pointer; color: #6366f1; text-decoration: underline;"
+                        title="Click to view lesson details">
+                        {{ l.title }}
+                      </strong>
+                    </td>
                     <td>Week {{ numberWeek(l.weekId) }}</td>
                     <td>{{ nameSubject(l.subjectId) }}</td>
                     <td class="text-end">
-                      <button class="btn btn-sm btn-outline-primary me-1" (click)="openLessonPreview(l)"><i
+                      <button type="button" class="btn btn-sm btn-outline-primary me-1" (click)="openLessonPreview(l)" title="View Lesson Details"><i
                           class="fas fa-eye"></i></button>
-                      <button class="btn btn-sm btn-outline-info me-1" (click)="manageResources(l)"><i
+                      <button type="button" class="btn btn-sm btn-outline-info me-1" (click)="manageResources(l)"><i
                           class="fas fa-paperclip"></i></button>
-                      <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('lesson', l)"><i
+                      <button type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit('lesson', l)"><i
                           class="fas fa-edit"></i></button>
-                      <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete('lesson', l)"><i
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="confirmDelete('lesson', l)"><i
                           class="fas fa-trash-alt"></i></button>
                     </td>
                   </tr>

@@ -16,12 +16,7 @@ import { Subscription, filter } from 'rxjs';
   styleUrls: ['./header.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  navigationItems = [
-    { id: 1, label: 'Home', route: '/', icon: 'home' },
-    { id: 2, label: 'About Us', route: '/about', icon: 'info', isAboutSection: true },
-    { id: 5, label: 'Subjects', route: '/courses', icon: 'book' },
-    { id: 7, label: 'Contact', route: '/contact', icon: 'mail' }
-  ];
+  navigationItems: any[] = [];
 
   isMobileMenuOpen = false;
   isLoggedIn = false;
@@ -52,8 +47,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.userName = user?.userName || '';
         this.userRole = this.authService.getPrimaryRole();
 
-        // Initialize services when user is logged in
-        if (this.isLoggedIn) {
+        // Update navigation items based on user role
+        this.updateNavigationItems();
+
+        // Initialize services when user is logged in AND not on login page
+        if (this.isLoggedIn && !this.isLoginPage) {
           this.initializeCartAndNotifications();
         }
       })
@@ -70,6 +68,30 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     // ✅ Initial value for isLoginPage
     this.isLoginPage = this.router.url.includes('/auth/login');
+
+    // Set initial navigation items
+    this.updateNavigationItems();
+  }
+
+  /**
+   * Update navigation items based on user role
+   * Shows Subjects for everyone except Students
+   */
+  private updateNavigationItems(): void {
+    const baseItems = [
+      { id: 1, label: 'Home', route: '/', icon: 'home' },
+      { id: 2, label: 'About Us', route: '/about', icon: 'info', isAboutSection: true }
+    ];
+
+    // Add Subjects for everyone except Students
+    if (this.userRole !== 'Student') {
+      baseItems.push({ id: 3, label: 'Subjects', route: '/courses', icon: 'book' });
+    }
+
+    // Add Contact
+    baseItems.push({ id: 7, label: 'Contact', route: '/contact', icon: 'mail' });
+
+    this.navigationItems = baseItems;
   }
 
   /**
@@ -99,7 +121,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.notificationService.getUnreadCount().subscribe({
           next: (count) => {
             this.unreadNotificationsCount = count.count || 0;
-            console.log('🔔 Header - Unread count:', count.count);
           },
           error: (err) => {
             console.error('❌ Header - Failed to load unread count:', err);
@@ -111,13 +132,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       // Subscribe to notifications for dropdown preview
       this.subscriptions.add(
         this.notificationService.notifications$.subscribe(notifications => {
-          console.log('🔔 Header - Notifications received:', notifications);
           // Get the 5 most recent notifications for dropdown preview
           if (notifications && Array.isArray(notifications)) {
             this.recentNotifications = notifications
               .sort((a: any, b: any) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
               .slice(0, 5);
-            console.log('🔔 Header - Recent notifications:', this.recentNotifications);
           } else {
             this.recentNotifications = [];
           }
@@ -126,7 +145,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
       // Load initial notifications data
       this.notificationService.getNotifications().subscribe({
-        next: (data) => console.log('🔔 Header - Initial load:', data),
+        next: (data) => {}, // Silent success
         error: (err) => {
           console.error('❌ Header - Failed to load notifications:', err);
           // Don't show error to user, just log it
@@ -150,6 +169,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  /**
+   * Close mobile menu if it's open (for dropdown items)
+   */
+  closeMobileMenuIfOpen(): void {
+    if (this.isMobileMenuOpen) {
+      this.isMobileMenuOpen = false;
+    }
   }
 
   navigateToAboutSection() {

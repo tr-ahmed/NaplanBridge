@@ -1,0 +1,51 @@
+<div class="verify-email-container">
+  <div class="verify-card">
+    <!-- Verifying State -->
+    <div *ngIf="verifying()" class="text-center">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Verifying...</span>
+      </div>
+      <h3>Verifying Your Email</h3>
+      <p>Please wait while we verify your email address...</p>
+    </div>
+
+
+    <!-- Success State -->
+    <div *ngIf="verified() && !verifying()" class="text-center">
+      <div class="success-icon mb-3">
+        <i class="fas fa-check-circle fa-5x text-success"></i>
+      </div>
+      <h3>Email Verified! ✓</h3>
+      <p class="text-success">Your email has been successfully verified.</p>
+      <p>Redirecting to login page...</p>
+      <a routerLink="/auth/login" class="btn btn-primary mt-3">
+        Go to Login Page
+      </a>
+    </div>
+
+
+    <!-- Error State -->
+    <div *ngIf="error() && !verifying()" class="text-center">
+      <div class="error-icon mb-3">
+        <i class="fas fa-times-circle fa-5x text-danger"></i>
+      </div>
+      <h3>Verification Failed</h3>
+      <p class="text-danger">{{ error() }}</p>
+
+
+      <div class="mt-4">
+        <p>The verification link may have expired.</p>
+        <button class="btn btn-primary" (click)="resendVerification()">
+          <i class="fas fa-envelope"></i> Resend Verification Email
+        </button>
+      </div>
+
+
+      <div class="mt-3">
+        <a routerLink="/auth/login" class="btn btn-outline-secondary">
+          Back to Login Page
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

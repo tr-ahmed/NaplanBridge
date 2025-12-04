@@ -25,15 +25,27 @@ export class RegisterComponent {
   // Reactive form for parent registration
   registerForm: FormGroup = this.fb.group({
     userName: ['', [
-      Validators.required,
-      Validators.minLength(3),
-      Validators.pattern(/^[a-zA-Z0-9]+$/) // Only letters and digits, no spaces or special chars
+      (control: any) => {
+        const value = control.value || '';
+        if (!value) return { required: true };
+        if (value.length < 4) return { minlength: true };
+        if (/^\d+$/.test(value)) return { numbersOnly: true };
+        if (!/^[A-Za-z0-9_]+$/.test(value)) return { invalidChars: true };
+        return null;
+      }
     ]],
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [
+      (control: any) => {
+        const value = control.value || '';
+        if (!value) return { required: true };
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        if (!emailRegex.test(value)) return { email: true };
+        return null;
+      }
+    ]],
     password: ['', [
       Validators.required,
-      Validators.minLength(8),
-      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z]).{8,}$/) // Must contain uppercase and lowercase, min 8 chars
+      Validators.minLength(8)
     ]],
     confirmPassword: ['', [Validators.required]],
     // Allow international formats with optional leading + and 9-15 digits
@@ -88,11 +100,24 @@ export class RegisterComponent {
           this.isLoading.set(false);
 
           if (result.success) {
-            const currentUser = this.authService.currentUser();
-            this.toastService.showSuccess('Registration successful! Welcome to NaplanBridge.');
+            // ✅ NEW: Show verification message instead of auto-login
+            this.toastService.showSuccess(
+              'Registration successful! Please check your email to verify your account.',
+              8000
+            );
 
-            // Navigate to appropriate dashboard
-            this.authService.navigateToUserDashboard();
+            // Show additional info message
+            this.toastService.showInfo(
+              `We've sent a verification link to ${formValue.email}. Click the link in the email to verify your account.`,
+              10000
+            );
+
+            // Redirect to login after 5 seconds
+            setTimeout(() => {
+              this.router.navigate(['/auth/login'], {
+                queryParams: { email: formValue.email }
+              });
+            }, 5000);
           } else {
             this.handleRegistrationError(result.message || 'Registration failed', undefined);
           }

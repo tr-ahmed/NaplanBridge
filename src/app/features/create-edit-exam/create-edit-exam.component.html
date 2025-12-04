@@ -1,6 +1,6 @@
 <!-- Main Content -->
 <main class="px-4 sm:px-6 lg:px-8 py-8">
-    
+
     <!-- Page Title -->
     <div class="mb-8">
       <div class="flex items-center justify-between">
@@ -292,11 +292,10 @@
                 @if (question.get('marks')?.touched && question.get('marks')?.errors?.['min']) {
                 <p class="mt-1 text-sm text-red-500">Minimum marks is 1</p>
                 }
-              </div>
             </div>
+          </div>
 
             <!-- Options (for MCQ, MultiSelect, TrueFalse) -->
-            @if (question.get('questionType')?.value !== 'Text') {
             <div class="mt-4 p-4 bg-gray-50 rounded-lg">
               <div class="flex items-center justify-between mb-3">
                 <label class="block text-sm font-medium text-gray-700">
@@ -309,9 +308,8 @@
                 </button>
                 }
               </div>
-
               <div class="space-y-2" formArrayName="options">
-                @for (option of getOptions(i).controls; track $index; let j = $index) {
+                @for (option of getOptions(i).controls; track option; let j = $index) {
                 <div [formGroupName]="j" class="flex items-center gap-3">
                   <!-- Use radio for TrueFalse and MultipleChoice, checkbox for MultipleSelect -->
                   @if (question.get('questionType')?.value === 'MultipleSelect') {
@@ -327,7 +325,9 @@
                       class="border-gray-300 text-blue-600 focus:ring-blue-500">
                   }
                   <input type="text" formControlName="optionText"
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    [class.border-red-500]="option.get('optionText')?.invalid && option.get('optionText')?.touched"
+                    [class.border-gray-300]="!(option.get('optionText')?.invalid && option.get('optionText')?.touched)"
                     placeholder="Option text">
                   @if (question.get('questionType')?.value !== 'TrueFalse') {
                   <button type="button" (click)="removeOption(i, j)" class="text-red-600 hover:text-red-700 p-2">
@@ -338,6 +338,9 @@
                   </button>
                   }
                 </div>
+                @if (option.get('optionText')?.invalid && option.get('optionText')?.touched) {
+                <p class="text-xs text-red-500 ml-8">Option text is required</p>
+                }
                 }
               </div>
               <p class="text-xs text-gray-600 mt-2">
@@ -348,7 +351,6 @@
                 }
               </p>
             </div>
-            }
           </div>
           }
         </div>

@@ -27,11 +27,10 @@ export class TemplateListComponent implements OnInit {
   templates = signal<NotificationTemplateDto[]>([]);
   counts = signal<TemplateCounts | null>(null);
 
-  // Filters
-  selectedCategory = signal<string>('all');
-  selectedChannel = signal<string>('all');
-  selectedStatus = signal<string>('all');
-  searchQuery = signal<string>('');
+  // Filters - using regular properties for ngModel compatibility
+  selectedChannel = 'all';
+  selectedStatus = 'all';
+  searchQuery = '';
 
   // UI State
   loading = signal(false);
@@ -93,38 +92,29 @@ export class TemplateListComponent implements OnInit {
   /**
    * Build filter parameters
    */
-  private buildFilters(): TemplateFilterParams {
-    const filters: TemplateFilterParams = {};
-
-    if (this.selectedCategory() !== 'all') {
-      filters.category = this.selectedCategory();
-    }
-
-    if (this.selectedChannel() !== 'all') {
-      filters.channel = this.selectedChannel() as NotificationChannel;
-    }
-
-    if (this.selectedStatus() !== 'all') {
-      filters.isActive = this.selectedStatus() === 'active';
-    }
-
-    return filters;
+  private buildFilters(): TemplateFilterParams | undefined {
+    // All filters are now handled client-side for better performance
+    // and more reliable filtering
+    return undefined;
   }
 
   /**
-   * Filter change handler
+   * Filter change handler - all filters are client-side now
    */
   onFilterChange() {
-    this.loadTemplates();
+    console.log('Filter changed:', {
+      channel: this.selectedChannel,
+      status: this.selectedStatus
+    });
+    // All filtering is handled in filteredTemplates getter
   }
 
   /**
    * Search handler
    */
   onSearch() {
-    // Filter templates locally by search query
-    // Or implement server-side search
-    this.loadTemplates();
+    console.log('Search query:', this.searchQuery);
+    // Search is done client-side in filteredTemplates getter
   }
 
   /**
@@ -207,13 +197,38 @@ export class TemplateListComponent implements OnInit {
   get filteredTemplates(): NotificationTemplateDto[] {
     let filtered = this.templates();
 
+    // Apply status filter client-side
+    if (this.selectedStatus !== 'all') {
+      const isActive = this.selectedStatus === 'active';
+      filtered = filtered.filter(t => t.isActive === isActive);
+    }
+
+    // Apply channel filter client-side
+    if (this.selectedChannel !== 'all') {
+      filtered = filtered.filter(t => {
+        switch (this.selectedChannel) {
+          case 'Email':
+            return t.sendEmail;
+          case 'SMS':
+            return t.sendSMS;
+          case 'InApp':
+            return t.sendInApp;
+          case 'Push':
+            return t.sendPush;
+          default:
+            return true;
+        }
+      });
+    }
+
     // Apply search filter
-    const query = this.searchQuery().toLowerCase();
+    const query = this.searchQuery.toLowerCase().trim();
     if (query) {
       filtered = filtered.filter(t =>
         t.eventName.toLowerCase().includes(query) ||
         t.eventKey.toLowerCase().includes(query) ||
-        t.eventCategory?.toLowerCase().includes(query)
+        (t.eventCategory?.toLowerCase() || '').includes(query) ||
+        (t.eventDescription?.toLowerCase() || '').includes(query)
       );
     }
 

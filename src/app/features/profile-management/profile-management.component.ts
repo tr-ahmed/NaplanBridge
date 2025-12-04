@@ -9,6 +9,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { UploadProgressComponent } from '../../shared/components/upload-progress/upload-progress.component';
 import { AuthService } from '../../core/services/auth.service';
 import { ProfileService, UserProfile } from '../../core/services/profile.service';
 import { ChangePasswordDto } from '../../models/user.models';
@@ -25,7 +26,7 @@ interface PasswordChange {
 @Component({
   selector: 'app-profile-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, UploadProgressComponent],
   templateUrl: './profile-management.component.html',
   styleUrl: './profile-management.component.scss'
 })

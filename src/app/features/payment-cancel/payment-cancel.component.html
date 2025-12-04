@@ -6,16 +6,64 @@
         <!-- Cancel Banner -->
         <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 p-8 text-center text-white">
           <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Show loading spinner while cancelling session -->
+            <svg *ngIf="cancellingSession()" class="animate-spin h-12 w-12 text-yellow-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <!-- Show warning icon when not cancelling -->
+            <svg *ngIf="!cancellingSession()" class="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
             </svg>
           </div>
-          <h1 class="text-3xl font-bold mb-2">Payment Cancelled</h1>
-          <p class="text-lg opacity-90">Your order was not completed</p>
+          <h1 class="text-3xl font-bold mb-2">
+            {{ cancellingSession() ? 'Cancelling...' : 'Payment Cancelled' }}
+          </h1>
+          <p class="text-lg opacity-90">
+            {{ paymentType() === 'session-booking'
+               ? 'Your session booking was not completed'
+               : 'Your order was not completed' }}
+          </p>
         </div>
 
         <!-- Content -->
         <div class="p-8">
+          <!-- Session Cancellation Status -->
+          <div *ngIf="paymentType() === 'session-booking' && sessionCancelled()"
+               class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-green-800">Session booking cancelled</h3>
+                <div class="mt-2 text-sm text-green-700">
+                  <p>The session booking has been successfully removed. You can book another session at any time.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cancellation Error -->
+          <div *ngIf="cancellationError()"
+               class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Cancellation Error</h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <p>{{ cancellationError() }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Info Message -->
           <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
             <div class="flex">
@@ -27,7 +75,12 @@
               <div class="ml-3">
                 <h3 class="text-sm font-medium text-yellow-800">No charges were made</h3>
                 <div class="mt-2 text-sm text-yellow-700">
-                  <p>Your payment was cancelled and no charges were applied to your card. Your items are still in your cart if you'd like to try again.</p>
+                  <p *ngIf="paymentType() === 'session-booking'">
+                    Your payment was cancelled and no charges were applied to your card. You can browse available teachers and book another session.
+                  </p>
+                  <p *ngIf="paymentType() !== 'session-booking'">
+                    Your payment was cancelled and no charges were applied to your card. Your items are still in your cart if you'd like to try again.
+                  </p>
                 </div>
               </div>
             </div>
@@ -78,7 +131,12 @@
                 <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                 </svg>
-                <span>Review your cart and make changes if needed</span>
+                <span *ngIf="paymentType() === 'session-booking'">
+                  Browse available teachers and try booking again
+                </span>
+                <span *ngIf="paymentType() !== 'session-booking'">
+                  Review your cart and make changes if needed
+                </span>
               </li>
               <li class="flex items-start gap-2">
                 <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -93,17 +151,28 @@
           <div class="flex flex-col sm:flex-row gap-4">
             <button
               (click)="tryAgain()"
-              class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
-              Try Again
+              [disabled]="cancellingSession()"
+              class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ paymentType() === 'session-booking' ? 'Browse Teachers' : 'Try Again' }}
             </button>
             <button
+              *ngIf="paymentType() === 'session-booking'"
+              (click)="goToBookings()"
+              [disabled]="cancellingSession()"
+              class="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              My Bookings
+            </button>
+            <button
+              *ngIf="paymentType() !== 'session-booking'"
               (click)="backToCart()"
-              class="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold">
+              [disabled]="cancellingSession()"
+              class="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               Back to Cart
             </button>
             <button
               (click)="goHome()"
-              class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold">
+              [disabled]="cancellingSession()"
+              class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               Go Home
             </button>
           </div>
@@ -122,3 +191,5 @@
     </div>
   </div>
 </div>
+
+

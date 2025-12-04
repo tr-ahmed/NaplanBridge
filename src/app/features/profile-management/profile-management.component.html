@@ -41,8 +41,8 @@
             <button
               (click)="switchTab('profile')"
               class="w-full text-left px-3 sm:px-4 py-3 rounded-xl transition-all duration-300 font-semibold flex items-center gap-3 group hover:-translate-y-1"
-              [class]="activeTab() === 'profile' 
-                ? 'bg-blue-600 text-white shadow-lg' 
+              [class]="activeTab() === 'profile'
+                ? 'bg-blue-600 text-white shadow-lg'
                 : 'text-gray-700 hover:bg-gray-50'">
               <svg class="w-5 h-5" [class.text-white]="activeTab() === 'profile'" [class.text-blue-600]="activeTab() !== 'profile'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -53,8 +53,8 @@
             <button
               (click)="switchTab('password')"
               class="w-full text-left px-3 sm:px-4 py-3 rounded-xl transition-all duration-300 font-semibold flex items-center gap-3 group hover:-translate-y-1"
-              [class]="activeTab() === 'password' 
-                ? 'bg-blue-600 text-white shadow-lg' 
+              [class]="activeTab() === 'password'
+                ? 'bg-blue-600 text-white shadow-lg'
                 : 'text-gray-700 hover:bg-gray-50'">
               <svg class="w-5 h-5" [class.text-white]="activeTab() === 'password'" [class.text-blue-600]="activeTab() !== 'password'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
@@ -141,6 +141,16 @@
                       }
                       <p class="text-xs text-gray-500 self-center">JPG, PNG or GIF • Max 5MB</p>
                     </div>
+
+                    <!-- Upload Progress Indicator -->
+                    @if (uploadingAvatar) {
+                      <div class="mt-4">
+                        <app-upload-progress
+                          trackingKey="avatar_upload"
+                          containerClass="bg-blue-50 p-3 rounded-lg">
+                        </app-upload-progress>
+                      </div>
+                    }
                   </div>
                 </div>
               </div>

@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
+import { UploadService } from './upload.service';
 
 /**
  * User Profile Interfaces
@@ -87,7 +89,8 @@ export class ProfileService {
   private accountApiUrl = 'https://naplan2.runasp.net/api/account';
   private mediaApiUrl = 'https://naplan2.runasp.net/api/media';
 
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
+  private uploadService = inject(UploadService);
 
   /**
    * Get current authenticated user's profile
@@ -128,7 +131,7 @@ export class ProfileService {
 
   /**
    * Upload avatar using new backend API (Bunny.net CDN)
-   * Automatically replaces old avatar
+   * Automatically replaces old avatar with progress tracking
    * @param file Image file (JPG, PNG, GIF - max 5MB)
    * @returns Observable<AvatarUploadResponse>
    */
@@ -136,10 +139,22 @@ export class ProfileService {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post<AvatarUploadResponse>(
+    return this.uploadService.uploadWithProgress<AvatarUploadResponse>(
       `${this.apiUrl}/profile/avatar`,
-      formData
+      formData,
+      'avatar_upload'
+    ).pipe(
+      filter(event => event.response !== undefined),
+      map(event => event.response!)
     );
+  }
+
+  /**
+   * Get avatar upload progress
+   * @returns Current upload progress or undefined
+   */
+  getAvatarUploadProgress() {
+    return this.uploadService.getProgress('avatar_upload');
   }
 
   /**

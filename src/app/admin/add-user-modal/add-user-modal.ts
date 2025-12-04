@@ -17,26 +17,52 @@ export class AddUserModalComponent {
 
   loading = false;
   error: string | null = null;
+  validationErrors: { [key: string]: string[] } = {};
 
   addUserForm: ReturnType<FormBuilder['group']>;
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
+    // Custom username validator: must be at least 4 chars, not all numbers, only letters/numbers/underscores
+    const usernameValidator = (control: any) => {
+      const value = control.value || '';
+      if (!value) return { required: true };
+      if (value.length < 4) return { minlength: true };
+      if (/^\d+$/.test(value)) return { numbersOnly: true };
+      if (!/^[A-Za-z0-9_]+$/.test(value)) return { invalidChars: true };
+      return null;
+    };
+
+    // Custom email validator: must match natural email syntax
+    const emailValidator = (control: any) => {
+      const value = control.value || '';
+      if (!value) return { required: true };
+      // RFC 5322 simple regex
+      const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (!emailRegex.test(value)) return { email: true };
+      return null;
+    };
+
     // Initialize the form after fb is available
     this.addUserForm = this.fb.group({
-      userName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      userName: ['', [usernameValidator]],
+      email: ['', [emailValidator]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
       phoneNumber: ['', Validators.required],
-      age: [null, [Validators.required, Validators.min(18)]]
+      age: [null, [Validators.required, Validators.min(18)]],
+      salary: [null, [Validators.min(0)]],
+      iban: ['', [Validators.pattern(/^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/)]]
     });
   }
 
   onSubmit() {
     this.error = null;
+    this.validationErrors = {};
+
     if (this.addUserForm.invalid) {
       this.addUserForm.markAllAsTouched();
       return;
     }
+
     this.loading = true;
     const payload = this.addUserForm.value;
     const token = localStorage.getItem('authToken');
@@ -54,10 +80,116 @@ export class AddUserModalComponent {
           this.loading = false;
         },
         error: (err) => {
-          this.error = err?.error?.message || 'Failed to add teacher.';
-          Swal.fire({ icon: 'error', title: 'Error', text: this.error ?? 'Failed to add teacher.' });
           this.loading = false;
+
+          console.log('Error response:', err); // Debug log
+
+          // Handle direct array of errors (ASP.NET Identity format)
+          if (Array.isArray(err?.error)) {
+            // Format: [{ code: "InvalidUserName", description: "..." }]
+            const backendErrors = err.error;
+            let errorMessages: string[] = [];
+
+            backendErrors.forEach((error: any) => {
+              const fieldName = this.mapErrorCodeToField(error.code);
+              const message = error.description || error.message || 'Validation error';
+
+              if (fieldName) {
+                if (!this.validationErrors[fieldName]) {
+                  this.validationErrors[fieldName] = [];
+                }
+                this.validationErrors[fieldName].push(message);
+              }
+
+              errorMessages.push(message);
+            });
+
+            // Show all errors in SweetAlert
+            Swal.fire({
+              icon: 'error',
+              title: 'Validation Errors',
+              html: '<ul style="text-align: left; margin: 0; padding-left: 20px;">' +
+                    errorMessages.map(msg => `<li style="margin-bottom: 8px;">${msg}</li>`).join('') +
+                    '</ul>',
+              confirmButtonText: 'OK'
+            });
+          }
+          // Handle ASP.NET Identity validation errors in object
+          else if (err?.error?.errors && Array.isArray(err.error.errors)) {
+            // Format: { errors: [{ code: "InvalidUserName", description: "..." }] }
+            const backendErrors = err.error.errors;
+            let errorMessages: string[] = [];
+
+            backendErrors.forEach((error: any) => {
+              const fieldName = this.mapErrorCodeToField(error.code);
+              const message = error.description || error.message || 'Validation error';
+
+              if (fieldName) {
+                if (!this.validationErrors[fieldName]) {
+                  this.validationErrors[fieldName] = [];
+                }
+                this.validationErrors[fieldName].push(message);
+              }
+
+              errorMessages.push(message);
+            });
+
+            // Show all errors in SweetAlert
+            Swal.fire({
+              icon: 'error',
+              title: 'Validation Errors',
+              html: '<ul style="text-align: left; margin: 0; padding-left: 20px;">' +
+                    errorMessages.map(msg => `<li style="margin-bottom: 8px;">${msg}</li>`).join('') +
+                    '</ul>',
+              confirmButtonText: 'OK'
+            });
+          }
+          // Handle standard error format { message: "...", errors: { field: ["error1"] } }
+          else if (err?.error?.errors && typeof err.error.errors === 'object') {
+            this.validationErrors = err.error.errors;
+
+            const errorList = Object.entries(this.validationErrors)
+              .map(([field, errors]) => `<strong>${field}:</strong> ${(errors as string[]).join(', ')}`)
+              .join('<br>');
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Validation Errors',
+              html: errorList,
+              confirmButtonText: 'OK'
+            });
+          }
+          // Generic error message
+          else {
+            this.error = err?.error?.message || err?.error?.title || 'Failed to add teacher.';
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: this.error ?? 'Failed to add teacher.'
+            });
+          }
         }
       });
+  }
+
+  // Map ASP.NET Identity error codes to form field names
+  private mapErrorCodeToField(errorCode: string): string | null {
+    const errorMap: { [key: string]: string } = {
+      'InvalidUserName': 'userName',
+      'DuplicateUserName': 'userName',
+      'InvalidEmail': 'email',
+      'DuplicateEmail': 'email',
+      'PasswordTooShort': 'password',
+      'PasswordRequiresNonAlphanumeric': 'password',
+      'PasswordRequiresDigit': 'password',
+      'PasswordRequiresUpper': 'password',
+      'PasswordRequiresLower': 'password',
+      'InvalidPhoneNumber': 'phoneNumber',
+      'DuplicatePhoneNumber': 'phoneNumber',
+      'InvalidIBAN': 'iban',
+      'InvalidSalary': 'salary'
+    };
+
+    return errorMap[errorCode] || null;
   }
 }

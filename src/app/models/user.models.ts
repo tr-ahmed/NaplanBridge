@@ -47,6 +47,8 @@ export interface TeacherRegisterDto {
   password: string;
   age: number;
   phoneNumber: string;
+  salary?: number;
+  iban?: string;
 }
 
 export interface StudentRegisterDto {

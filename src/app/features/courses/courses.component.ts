@@ -108,22 +108,18 @@ export class CoursesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // ✅ IMPORTANT: Load years FIRST - they will trigger filtering when loaded
-    this.loadAvailableYears(); // Load years from database first
-
-    // ✅ Then load user info - parent students will be loaded
-    this.loadUserInfo(); // This will load parent students and trigger loadCourses for parents
-
-    this.loadStudentSubscriptions(); // Load enrollment status
-    this.subscribeToCart();
-    this.subscribeToPlanModal();
-    this.subscribeToSearch(); // Subscribe to search with debounce
-    this.handleQueryParameters();
-
-    // ✅ Load courses will be called from filterYearsForParent for parents
-    // For non-parents, load courses now
+    // Check if user is logged in
     const user = this.authService.getCurrentUser();
+
     if (user) {
+      // ✅ IMPORTANT: Load years FIRST - they will trigger filtering when loaded (only for logged-in users)
+      this.loadAvailableYears(); // Load years from database first
+
+      // ✅ Then load user info - parent students will be loaded
+      this.loadUserInfo(); // This will load parent students and trigger loadCourses for parents
+
+      this.loadStudentSubscriptions(); // Load enrollment status
+
       const userRoles = user.role || user.roles || user.Role || user.Roles;
       const rolesArray = Array.isArray(userRoles) ? userRoles : (userRoles ? [userRoles] : []);
       const isParent = rolesArray.some((r: string) => r?.toLowerCase() === 'parent');
@@ -134,9 +130,23 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.loadCourses();
       }
     } else {
-      // Guest user - load courses
-      this.loadCourses();
+      // Guest user - load years from database and filter by available subjects
+      this.loadAvailableYearsForGuest();
     }
+
+    this.subscribeToCart();
+    this.subscribeToPlanModal();
+    this.subscribeToSearch(); // Subscribe to search with debounce
+    this.handleQueryParameters();
+  }
+
+  /**
+   * Set default years for guests or when API fails
+   */
+  private setDefaultYears(): void {
+    const defaultYears = this.getDefaultYears();
+    this.availableYears.set(defaultYears);
+    this.logger.log('✅ Using default years:', defaultYears);
   }
 
   /**
@@ -170,14 +180,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('❌ Failed to load years:', err);
         // Fallback to default years
-        this.availableYears.set([
-          { id: 1, yearNumber: 7, name: 'Year 7' },
-          { id: 2, yearNumber: 8, name: 'Year 8' },
-          { id: 3, yearNumber: 9, name: 'Year 9' },
-          { id: 4, yearNumber: 10, name: 'Year 10' },
-          { id: 5, yearNumber: 11, name: 'Year 11' },
-          { id: 6, yearNumber: 12, name: 'Year 12' }
-        ]);
+        this.setDefaultYears();
       }
     });
   }
@@ -246,6 +249,58 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.loadCourses(); // Load courses without year filter
       }
     }
+  }
+
+  /**
+   * Load available years for guest users and filter by subjects that exist
+   */
+  private loadAvailableYearsForGuest(): void {
+    // For guests, load all courses first to find which years have subjects
+    this.coursesService.getCourses({ pageSize: 10000 }).subscribe({
+      next: (response) => {
+        // Extract unique yearIds from courses
+        const uniqueYearIds = [...new Set(response.courses.map(c => c.yearId))].sort((a, b) => a - b);
+
+        // Map yearIds to year objects with proper names
+        const yearsWithSubjects = uniqueYearIds.map(yearId => {
+          // Find the year number from default years or calculate from ID
+          const defaultYear = this.getDefaultYears().find(y => y.id === yearId);
+          const yearNumber = defaultYear ? defaultYear.yearNumber : yearId + 6; // Fallback calculation
+
+          return {
+            id: yearId,
+            yearNumber: yearNumber,
+            name: `Year ${yearNumber}`
+          };
+        });
+
+        this.availableYears.set(yearsWithSubjects);
+        this.logger.log('✅ Guest - Loaded years with subjects:', yearsWithSubjects);
+
+        // Now load courses with pagination
+        this.loadCourses();
+      },
+      error: (err) => {
+        console.error('❌ Failed to load courses for guest year filter:', err);
+        // Fallback to default years
+        this.setDefaultYears();
+        this.loadCourses();
+      }
+    });
+  }
+
+  /**
+   * Get default years array (helper method)
+   */
+  private getDefaultYears() {
+    return [
+      { id: 1, yearNumber: 7, name: 'Year 7' },
+      { id: 2, yearNumber: 8, name: 'Year 8' },
+      { id: 3, yearNumber: 9, name: 'Year 9' },
+      { id: 4, yearNumber: 10, name: 'Year 10' },
+      { id: 5, yearNumber: 11, name: 'Year 11' },
+      { id: 6, yearNumber: 12, name: 'Year 12' }
+    ];
   }
 
   /**
@@ -539,11 +594,20 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     this.coursesService.getCourses(filter)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(response => {
-        this.logger.log('📚 Received courses from API:', response.courses.length, response);
-        this.courses.set(response.courses);
-        this.totalCount.set(response.totalCount);
-        this.applyFilters();
+      .subscribe({
+        next: (response) => {
+          this.logger.log('📚 Received courses from API:', response.courses.length, response);
+          this.courses.set(response.courses);
+          this.totalCount.set(response.totalCount);
+          this.applyFilters();
+        },
+        error: (error) => {
+          this.logger.error('❌ Failed to load courses:', error);
+          // For guests or unauthorized responses, show an empty list gracefully
+          this.courses.set([]);
+          this.totalCount.set(0);
+          this.applyFilters();
+        }
       });
   }  /**
    * Subscribe to cart changes
@@ -676,6 +740,19 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Cart management methods
    */
   addToCart(course: Course): void {
+    // ✅ Check if user is logged in (not a guest)
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      // Guest user - show message and redirect to login
+      this.toastService.showWarning('Please login first to add items to your cart');
+      this.logger.log('🚫 Guest tried to add to cart - redirecting to login');
+      // Redirect to login page after a short delay so user sees the message
+      setTimeout(() => {
+        this.router.navigate(['/auth/login']);
+      }, 1500);
+      return;
+    }
+
     this.coursesService.addToCart(course)
       .pipe(takeUntil(this.destroy$))
       .subscribe(success => {
@@ -1163,68 +1240,91 @@ export class CoursesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.logger.log('📚 Fetching current term/week for student:', studentId, 'subject:', course.id);
+    this.logger.log('📚 Fetching term access status for student:', studentId, 'subject:', course.id);
 
-    // ✅ Use backend endpoint to get current term/week
-    this.coursesService.getCurrentTermWeek(studentId, course.id)
+    // ✅ Use getTermAccessStatus to get correct current term and access info
+    this.coursesService.getTermAccessStatus(studentId, course.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (termWeek: any) => {
-          this.logger.log('✅ Term/Week info received:', {
+        next: (termAccess: any) => {
+          console.log('🔍 RAW API Response from getTermAccessStatus:', termAccess);
+
+          this.logger.log('✅ Term access info received:', {
             courseId: course.id,
             courseName: course.name || course.subjectName,
-            hasAccess: termWeek.hasAccess,
-            currentTerm: termWeek.currentTermName,
-            currentWeek: termWeek.currentWeekNumber,
-            progress: `${termWeek.progressPercentage}%`
+            currentTermNumber: termAccess.currentTermNumber,
+            totalTerms: termAccess.terms?.length || 0,
+            accessibleTerms: termAccess.terms?.filter((t: any) => t.hasAccess).map((t: any) => t.termNumber) || []
           });
 
-          // ✅ FIX: Use termNumber instead of termId for cross-subject navigation
-          // This fixes the issue where different subjects have different term IDs
-          // for the same term number (e.g., Algebra Term 3 = ID 3, Reading Term 3 = ID 11)
+          // ✅ Find first accessible term or use current term
+          let accessibleTerm = termAccess.terms?.find((t: any) => t.hasAccess);
 
-          // ✅ FREEMIUM MODEL: Always navigate to lessons (even without subscription)
-          // User can see lesson names and terms, but lessons are locked
+          // ⚠️ WORKAROUND: If no term has access but currentTermNumber is set,
+          // assume student has access to current term (backend bug)
+          if (!accessibleTerm && termAccess.currentTermNumber) {
+            console.warn('⚠️ Backend bug: No accessible terms found, but currentTermNumber is set');
+            console.log('🔧 Workaround: Assuming access to current term', termAccess.currentTermNumber);
+
+            // Find current term and assume it has access
+            accessibleTerm = termAccess.terms?.find((t: any) =>
+              t.termNumber === termAccess.currentTermNumber || t.isCurrentTerm
+            );
+
+            if (accessibleTerm) {
+              // Override hasAccess for workaround
+              accessibleTerm = { ...accessibleTerm, hasAccess: true };
+            }
+          }
+
+          const targetTermNumber = accessibleTerm?.termNumber || termAccess.currentTermNumber || 1;
+          const hasAnyAccess = accessibleTerm?.hasAccess || (termAccess.currentTermNumber !== null);
+
+          console.log('🎯 Navigation decision:', {
+            targetTermNumber,
+            hasAccess: hasAnyAccess,
+            reason: accessibleTerm?.hasAccess ? 'Found accessible term' : 'Using current term (workaround)'
+          });
+
+          // ✅ Navigate to the term (accessible or current)
           this.router.navigate(['/lessons'], {
             queryParams: {
               subjectId: course.subjectNameId,
               subject: course.subject || course.subjectName,
               courseId: course.id,
               yearId: course.yearId,
-              termNumber: termWeek.currentTermNumber || 3,  // Default to term 3 if not available
-              weekNumber: termWeek.currentWeekNumber || 1,  // Default to week 1 if not available
-              hasAccess: termWeek.hasAccess,  // ✅ Pass access status to lessons component
-              studentId: studentId  // ✅ NEW: Pass student ID for parent access
+              termNumber: targetTermNumber,
+              weekNumber: 1,
+              hasAccess: hasAnyAccess,
+              studentId: studentId
             }
           });
 
-          // ⚠️ Show info message if no subscription (non-blocking)
-          if (!termWeek.hasAccess) {
-            console.warn('⚠️ No subscription:', termWeek.message);
-            // Show message after navigation completes
+          // ⚠️ Show info message only if really no access
+          if (!hasAnyAccess) {
+            console.warn('⚠️ No access to any term');
             setTimeout(() => {
               this.coursesService['toastService'].showInfo(
-                '🔒 Subscribe to unlock all lessons and features for this subject',
+                '🔒 Subscribe to unlock lessons for this subject',
                 5000
               );
             }, 500);
           }
         },
         error: (error: any) => {
-          console.error('❌ Error fetching current term/week:', error);
+          console.error('❌ Error fetching term access status:', error);
 
           // ✅ Still navigate to lessons even on error (with defaults)
-          // Better UX: Let user see the interface even if API fails
           this.router.navigate(['/lessons'], {
             queryParams: {
               subjectId: course.subjectNameId,
               subject: course.subject || course.subjectName,
               courseId: course.id,
               yearId: course.yearId,
-              termNumber: 3,  // Default term
-              weekNumber: 1,  // Default week
-              hasAccess: false,  // Assume no access on error
-              studentId: studentId  // ✅ NEW: Pass student ID for parent access
+              termNumber: 1,  // Default to term 1 on error
+              weekNumber: 1,
+              hasAccess: false,
+              studentId: studentId
             }
           });
 
