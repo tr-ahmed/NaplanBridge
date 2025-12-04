@@ -32,6 +32,7 @@ export class StudentExamsComponent implements OnInit {
   historyLoading = signal(false);
   activeTab = signal<'upcoming' | 'history'>('upcoming');
   selectedSubjectId = signal<number | null>(null);
+  startingExam = signal(false); // ✅ Prevent double-click on start exam
 
   // Computed filtered lists
   filteredUpcoming = computed(() => {
@@ -248,8 +249,16 @@ export class StudentExamsComponent implements OnInit {
 
   /**
    * Start exam - ✅ UPDATED: Now checks backend for in-progress exam first
+   * ✅ Added double-click protection
    */
   startExam(examId: number, title: string) {
+    // ✅ Prevent double-click
+    if (this.startingExam()) {
+      console.log('⚠️ Already starting exam, ignoring duplicate click');
+      return;
+    }
+    this.startingExam.set(true);
+
     // ✅ STEP 1: Check backend for in-progress exam
     this.examApi.checkInProgressExam(examId).subscribe({
       next: (response) => {
@@ -259,6 +268,7 @@ export class StudentExamsComponent implements OnInit {
         if (data.hasInProgressExam && data.studentExamId) {
           // ✅ Found in-progress exam on backend
           console.log('✅ Found in-progress exam:', data.studentExamId);
+          this.startingExam.set(false);
 
           if (confirm(`You have an incomplete exam "${title}" (${data.answeredQuestions || 0}/${data.totalQuestions || 0} questions answered).\n\nRemaining time: ${Math.floor((data.remainingTimeSeconds || 0) / 60)} minutes\n\nDo you want to continue?`)) {
             // Navigate to resume exam
@@ -270,6 +280,7 @@ export class StudentExamsComponent implements OnInit {
         if (data.previousAttemptExpired && data.studentExamId) {
           // ❌ Previous attempt expired
           console.log('⚠️ Previous attempt expired');
+          this.startingExam.set(false);
           this.toast.showWarning('Your previous attempt has expired and was auto-submitted.');
           this.router.navigate(['/student/exam-result', data.studentExamId]);
           return;
@@ -301,6 +312,7 @@ export class StudentExamsComponent implements OnInit {
           const state = JSON.parse(localStorage.getItem(key) || '{}');
           if (state.exam?.id === examId) {
             hasExistingExam = true;
+            this.startingExam.set(false);
 
             // Ask if user wants to continue
             if (confirm(`You have an incomplete exam "${title}".\nDo you want to continue from where you left off?`)) {
@@ -321,6 +333,7 @@ export class StudentExamsComponent implements OnInit {
     // Start new exam
     if (!hasExistingExam) {
       if (!confirm(`Do you want to start the exam "${title}"?\nThe timer will start immediately.`)) {
+        this.startingExam.set(false);
         return;
       }
     }
@@ -335,6 +348,7 @@ export class StudentExamsComponent implements OnInit {
     this.examApi.startExam(examId).subscribe({
       next: (response: any) => {
         console.log('✅ Exam started successfully:', response);
+        this.startingExam.set(false);
 
         if (response.questions && response.questions.length > 0) {
           console.log('✅ Questions received:', response.questions.length);
@@ -355,10 +369,40 @@ export class StudentExamsComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Failed to start exam:', error);
-        if (error.error?.existingStudentExamId) {
-          this.router.navigate(['/student/exam', error.error.existingStudentExamId]);
+        this.startingExam.set(false);
+
+        // ✅ Better error handling
+        if (error.status === 400) {
+          const errorMessage = error.error?.message || error.error?.Message || 'Cannot start exam';
+          console.log('📋 400 Error details:', error.error);
+
+          // Check for existing exam
+          if (error.error?.existingStudentExamId) {
+            this.toast.showInfo('You already have an exam in progress');
+            this.router.navigate(['/student/exam', error.error.existingStudentExamId]);
+            return;
+          }
+
+          // Check for completed exam
+          if (errorMessage.toLowerCase().includes('already completed') || errorMessage.toLowerCase().includes('already submitted')) {
+            this.toast.showWarning('You have already completed this exam');
+            return;
+          }
+
+          // Check for time issues
+          if (errorMessage.toLowerCase().includes('not started') || errorMessage.toLowerCase().includes('not yet')) {
+            this.toast.showWarning('This exam has not started yet');
+            return;
+          }
+
+          if (errorMessage.toLowerCase().includes('ended') || errorMessage.toLowerCase().includes('expired')) {
+            this.toast.showWarning('This exam has already ended');
+            return;
+          }
+
+          this.toast.showError(errorMessage);
         } else {
-          this.toast.showError('Failed to start exam');
+          this.toast.showError('Failed to start exam. Please try again.');
         }
       }
     });
