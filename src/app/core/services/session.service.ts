@@ -100,11 +100,11 @@ export class SessionService {
   }
 
   /**
-   * Mark session as completed
+   * Mark a session as completed
    * PUT /api/Sessions/{sessionId}/complete
    */
   markSessionAsCompleted(sessionId: number): Observable<SessionApiResponse<boolean>> {
-    return this.api.put<SessionApiResponse<boolean>>(`Sessions/${sessionId}/complete`, {});
+    return this.api.put<SessionApiResponse<boolean>>(`Sessions/${sessionId}/complete`, null);
   }
 
   // ============================================
