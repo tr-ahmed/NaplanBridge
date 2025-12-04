@@ -6,6 +6,7 @@ import { takeUntil, catchError, map, switchMap } from 'rxjs/operators';
 
 import { Lesson, StudentLesson } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
+import { SubscriptionService } from '../../core/services/subscription.service';
 import { CoursesService } from '../../core/services/courses.service';
 import { AuthService } from '../../auth/auth.service';
 import { CartService } from '../../core/services/cart.service';
@@ -88,7 +89,8 @@ export class LessonsComponent implements OnInit, OnDestroy {
     private coursesService: CoursesService,
     private authService: AuthService,
     private cartService: CartService,
-    private plansService: SubscriptionPlansService
+    private plansService: SubscriptionPlansService,
+    private subscriptionService: SubscriptionService
   ) {}
 
   ngOnInit(): void {
@@ -129,6 +131,31 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
           // Load terms first
           this.loadAvailableTerms(parseInt(subjectId));
+
+          // 🔒 Parent access check: require active subscription for selected child
+          const currentUser = this.authService.getCurrentUser();
+          const isParent = Array.isArray(currentUser?.role) && currentUser.role.includes('Parent');
+          if (isParent) {
+            const childId = this.selectedStudentId();
+            if (!childId) {
+              // No child context → deny access and show subscription banner
+              this.hasAccess.set(false);
+              this.showSubscriptionBanner.set(true);
+              this.toastService.showWarning('Please select a student to view lessons.');
+            } else {
+              // Verify subscription access for subject
+              this.subscriptionService.hasAccessToSubject(childId, parseInt(subjectId))
+                .pipe(takeUntil(this.destroy$))
+                .subscribe(result => {
+                  const allowed = !!result?.hasAccess;
+                  this.hasAccess.set(allowed);
+                  this.showSubscriptionBanner.set(!allowed);
+                  if (!allowed) {
+                    this.toastService.showWarning(result?.reason || 'Subscription required to view lessons');
+                  }
+                });
+            }
+          }
 
           // ✅ PRIORITY: Use termNumber if available (new fix)
           if (termNumber) {
@@ -334,7 +361,8 @@ export class LessonsComponent implements OnInit, OnDestroy {
     }
 
     // Pass studentId if authenticated
-    const studentId = this.authService.getCurrentUser()?.studentId;
+    // Prefer selected student (parent context); fallback to authenticated student
+    const studentId = this.selectedStudentId() || this.authService.getCurrentUser()?.studentId;
     if (studentId) {
       queryParams.studentId = studentId;
     }

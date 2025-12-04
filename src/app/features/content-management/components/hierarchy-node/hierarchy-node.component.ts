@@ -21,6 +21,7 @@ export class HierarchyNodeComponent implements OnChanges {
   @Input() expandedSubjects: Set<number> = new Set();
   @Input() expandedTerms: Set<number> = new Set();
   @Input() expandedWeeks: Set<number> = new Set();
+  @Input() isTeacherView: boolean = false;
 
   @Output() add = new EventEmitter<{ type: EntityType; entity: any }>();
   @Output() edit = new EventEmitter<{ type: EntityType; entity: any }>();

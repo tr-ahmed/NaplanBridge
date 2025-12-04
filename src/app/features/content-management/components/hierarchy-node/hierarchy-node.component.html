@@ -6,14 +6,16 @@
       <strong>Year {{ year.yearNumber }}</strong>
       <span class="badge bg-info ms-2">{{ getSubjectsForYear().length }} Subjects</span>
 
-      <div class="actions ms-auto">
-        <button
-          class="btn btn-sm btn-outline-success"
-          (click)="onAdd('subject', { year: year })"
-          title="Add Subject for this Year">
-          <i class="fas fa-plus"></i> Subject
-        </button>
-      </div>
+      @if (!isTeacherView) {
+        <div class="actions ms-auto">
+          <button
+            class="btn btn-sm btn-outline-success"
+            (click)="onAdd('subject', { year: year })"
+            title="Add Subject for this Year">
+            <i class="fas fa-plus"></i> Subject
+          </button>
+        </div>
+      }
     </div>
   </div>
 
@@ -147,8 +149,8 @@
                                 <div class="actions ms-auto">
                                   <button
                                     class="btn btn-sm btn-outline-info me-1"
-                                    (click)="onPreviewLesson(lesson)"
-                                    title="Preview Lesson">
+                                    (click)="onLessonClick(lesson)"
+                                    title="Manage Lesson">
                                     <i class="fas fa-eye"></i>
                                   </button>
                                   <button

@@ -71,13 +71,6 @@ export class AuthService {
           localStorage.setItem('yearId', yearId);
         }
 
-        console.log('🔐 Decoded JWT Token:', {
-          userId: decoded.nameid,
-          userName: decoded.unique_name,
-          studentId: decoded.studentId,
-          yearId: decoded.yearId,
-          roles: decoded.role
-        });
       } catch (error) {
         console.error('❌ Failed to decode JWT token:', error);
       }
@@ -153,13 +146,6 @@ export class AuthService {
         user.yearId = parseInt(decoded.yearId);
       }
 
-      console.log('🔐 Decoded JWT Token:', {
-        userId: decoded.nameid,
-        userName: decoded.unique_name,
-        studentId: decoded.studentId,
-        yearId: decoded.yearId,
-        roles: decoded.role
-      });
     } catch (error) {
       console.error('❌ Failed to decode JWT token:', error);
     }

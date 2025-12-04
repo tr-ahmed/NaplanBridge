@@ -263,7 +263,7 @@ export class SessionService {
     const dt = new Date(dateTime);
     const date = dt.toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric'
     });
     const time = dt.toLocaleTimeString('en-US', {

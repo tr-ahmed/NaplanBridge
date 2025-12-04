@@ -843,6 +843,11 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     const lesson = this.lesson();
     if (!lesson || !this.authService.isAuthenticated()) return;
 
+    // Skip progress tracking for admin and teacher roles
+    if (this.authService.hasAnyRole(['admin', 'teacher'])) {
+      return;
+    }
+
     // Get the actual student ID from authenticated user
     const studentId = this.authService.getStudentId();
     if (!studentId) {

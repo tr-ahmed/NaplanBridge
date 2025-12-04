@@ -20,6 +20,7 @@
       <input
         type="text"
         formControlName="identifier"
+        autocomplete="username"
         [class]="hasFieldError('identifier') ?
           'w-full px-3 py-2 border border-red-500 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-red-200' :
           'w-full px-3 py-2 border border-gray-300 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-200'"
@@ -35,6 +36,7 @@
       <input
         type="password"
         formControlName="password"
+        autocomplete="current-password"
         [class]="hasFieldError('password') ?
           'w-full px-3 py-2 border border-red-500 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-red-200' :
           'w-full px-3 py-2 border border-gray-300 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-200'"

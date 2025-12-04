@@ -21,6 +21,9 @@ export class NotificationService {
   private readonly apiUrl = `${environment.apiBaseUrl}/Notifications`;
   private readonly ordersUrl = `${environment.apiBaseUrl}/Orders`;
 
+  // ✅ Feature flag: Disable unread-count endpoint if backend doesn't support it yet
+  private readonly UNREAD_COUNT_ENABLED = false; // Set to true when backend adds the endpoint
+
   // Observable streams
   public unreadCount$ = new BehaviorSubject<number>(0);
   public notifications$ = new BehaviorSubject<Notification[]>([]);
@@ -62,7 +65,6 @@ export class NotificationService {
 
     return this.http.get<any>(this.apiUrl, { params: httpParams }).pipe(
       tap(response => {
-        console.log('🔔 Service received:', response);
         // Handle both array and paginated response
         if (Array.isArray(response)) {
           // Direct array response
@@ -91,9 +93,19 @@ export class NotificationService {
    * Get unread notification count
    */
   getUnreadCount(): Observable<{count: number}> {
+    // ✅ If endpoint is disabled, return 0 immediately without making HTTP call
+    if (!this.UNREAD_COUNT_ENABLED) {
+      return of({ count: 0 });
+    }
+
     return this.http.get<{count: number}>(`${this.apiUrl}/unread-count`).pipe(
       catchError((error: HttpErrorResponse) => {
-        console.error('Failed to get unread count:', error);
+        // ✅ Silently handle missing endpoint (404) - backend may not have this endpoint yet
+        if (error.status === 404) {
+          console.warn('⚠️ Notifications/unread-count endpoint not found (404) - returning 0');
+        } else {
+          console.error('Failed to get unread count:', error);
+        }
         return of({ count: 0 });
       })
     );

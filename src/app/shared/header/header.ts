@@ -50,8 +50,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         // Update navigation items based on user role
         this.updateNavigationItems();
 
-        // Initialize services when user is logged in
-        if (this.isLoggedIn) {
+        // Initialize services when user is logged in AND not on login page
+        if (this.isLoggedIn && !this.isLoginPage) {
           this.initializeCartAndNotifications();
         }
       })
@@ -121,7 +121,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.notificationService.getUnreadCount().subscribe({
           next: (count) => {
             this.unreadNotificationsCount = count.count || 0;
-            console.log('🔔 Header - Unread count:', count.count);
           },
           error: (err) => {
             console.error('❌ Header - Failed to load unread count:', err);
@@ -133,13 +132,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       // Subscribe to notifications for dropdown preview
       this.subscriptions.add(
         this.notificationService.notifications$.subscribe(notifications => {
-          console.log('🔔 Header - Notifications received:', notifications);
           // Get the 5 most recent notifications for dropdown preview
           if (notifications && Array.isArray(notifications)) {
             this.recentNotifications = notifications
               .sort((a: any, b: any) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
               .slice(0, 5);
-            console.log('🔔 Header - Recent notifications:', this.recentNotifications);
           } else {
             this.recentNotifications = [];
           }
@@ -148,7 +145,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
       // Load initial notifications data
       this.notificationService.getNotifications().subscribe({
-        next: (data) => console.log('🔔 Header - Initial load:', data),
+        next: (data) => {}, // Silent success
         error: (err) => {
           console.error('❌ Header - Failed to load notifications:', err);
           // Don't show error to user, just log it

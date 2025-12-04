@@ -16,6 +16,7 @@ import { OrderService, ParentOrderSummary } from '../../core/services/order.serv
 import { StudentService } from '../../core/services/student.service';
 import { AuthService } from '../../core/services/auth.service';
 import { forkJoin, catchError, of, map } from 'rxjs';
+import { SessionService } from '../../core/services/session.service';
 
 // Interfaces
 interface Child {
@@ -74,6 +75,7 @@ export class ParentDashboardComponent implements OnInit {
   private orderService = inject(OrderService);
   private studentService = inject(StudentService);
   private authService = inject(AuthService);
+  private sessionService = inject(SessionService);
 
   // Signals
   dashboardData = signal<ParentDashboardData>({
@@ -134,7 +136,7 @@ export class ParentDashboardComponent implements OnInit {
       return;
     }
 
-    // Load parent dashboard data, children, and order summary
+    // Load parent dashboard data, children, order summary, and session bookings
     forkJoin({
       dashboard: this.dashboardService.getParentDashboard().pipe(
         catchError(error => {
@@ -159,9 +161,15 @@ export class ParentDashboardComponent implements OnInit {
           console.error('Error loading monthly orders:', error);
           return of({ totalSpent: 0, totalOrderCount: 0, lastOrderDate: null, orders: [], currentPage: 1, pageSize: 10, totalPages: 0, hasPreviousPage: false, hasNextPage: false });
         })
+      ),
+      parentBookings: this.sessionService.getParentBookings().pipe(
+        catchError(error => {
+          console.error('Error loading parent bookings:', error);
+          return of({ success: false, message: 'error', data: [] });
+        })
       )
     }).subscribe({
-      next: ({ dashboard, children, orderSummary, monthlyOrders }) => {
+      next: ({ dashboard, children, orderSummary, monthlyOrders, parentBookings }) => {
         console.log('💰 Order Summary Received:', {
           totalSpent: orderSummary.totalSpent,
           orderCount: orderSummary.orderCount,
@@ -169,7 +177,22 @@ export class ParentDashboardComponent implements OnInit {
           ordersCount: orderSummary.orders?.length || 0,
           monthlySpent: monthlyOrders.totalSpent
         });
-        this.loadChildrenDetails(children, orderSummary, monthlyOrders.totalSpent);
+        // Calculate current month session spending (Confirmed/Completed only)
+        const bookings = Array.isArray((parentBookings as any).data) ? (parentBookings as any).data : [];
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        const monthlySessionsSpent = bookings
+          .filter((b: any) => {
+            const dt = new Date(b.scheduledDateTime);
+            const status = (b.status || '').toString().toLowerCase();
+            const isPaidStatus = status === 'confirmed' || status === 'completed';
+            return isPaidStatus && dt >= firstDay && dt <= lastDay;
+          })
+          .reduce((sum: number, b: any) => sum + (Number(b.price) || 0), 0);
+
+        const combinedMonthlySpent = (monthlyOrders.totalSpent || 0) + monthlySessionsSpent;
+        this.loadChildrenDetails(children, orderSummary, combinedMonthlySpent);
       },
       error: (error) => {
         console.error('Error loading dashboard data:', error);
