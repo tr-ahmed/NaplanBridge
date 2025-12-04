@@ -51,9 +51,7 @@
       @if (loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched) {
         <small class="text-red-500 text-xs mb-2 block">Password must be at least 8 characters.</small>
       }
-      @if (hasFieldError('password')) {
-        <small class="text-red-500 text-xs mb-2 block">{{ getFieldError('password') }}</small>
-      }
+      <!-- Generic field error removed to avoid duplicate messages; specific errors are shown above -->
       <div class="mb-4"></div>
 
       <!-- Remember Me and Forgot Password -->
