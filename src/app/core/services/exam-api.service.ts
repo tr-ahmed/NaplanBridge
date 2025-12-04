@@ -179,6 +179,14 @@ export class ExamApiService {
   }
 
   /**
+   * Get all exams for student (upcoming + in-progress)
+   * This combines upcoming and in-progress exams
+   */
+  getAllStudentExams(studentId: number): Observable<ApiResponse<AllExamsResponse>> {
+    return this.http.get<ApiResponse<AllExamsResponse>>(`${this.apiUrl}/student/${studentId}/all`);
+  }
+
+  /**
    * Start exam (Student)
    */
   startExam(examId: number): Observable<StartExamResponseDto> {
@@ -195,9 +203,10 @@ export class ExamApiService {
   /**
    * Get exam result (Student, Parent, Admin)
    * GET /api/Exam/{studentExamId}/result
+   * ✅ Returns backend format - component will transform it
    */
-  getExamResult(studentExamId: number): Observable<ExamResultDto> {
-    return this.http.get<ExamResultDto>(`${this.apiUrl}/${studentExamId}/result`);
+  getExamResult(studentExamId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${studentExamId}/result`);
   }
 
   // ============================================

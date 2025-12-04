@@ -44,14 +44,14 @@ export class StudentExamsComponent implements OnInit {
     return exams;
   });
 
-  // ✅ Computed: Check if any exam is currently available
+  // ✅ Computed: Check if any exam is currently available or in progress
   hasLiveExams = computed(() => {
-    return this.upcomingExams().some(exam => this.isExamAvailable(exam));
+    return this.upcomingExams().some(exam => this.isExamAvailable(exam) || exam.isInProgress);
   });
 
-  // ✅ Computed: Count of live exams
+  // ✅ Computed: Count of live exams (available + in-progress)
   liveExamsCount = computed(() => {
-    return this.upcomingExams().filter(exam => this.isExamAvailable(exam)).length;
+    return this.upcomingExams().filter(exam => this.isExamAvailable(exam) || exam.isInProgress).length;
   });
 
   // ✅ Computed: Check if has upcoming exams but none are live
@@ -103,23 +103,55 @@ export class StudentExamsComponent implements OnInit {
   }
 
   /**
-   * Load upcoming exams
+   * Load upcoming exams (including in-progress)
    */
   loadUpcomingExams(studentId: number) {
     this.loading.set(true);
 
-    this.examApi.getUpcomingExams(studentId).subscribe({
+    // ✅ Use /all endpoint to get both upcoming AND in-progress exams
+    this.examApi.getAllStudentExams(studentId).subscribe({
       next: (response: any) => {
-        console.log('📚 Upcoming Exams Data:', response.data.exams);
+        console.log('📚 All Exams Data:', response.data);
+
+        // Extract exams from response
+        const exams = response.data?.exams || response.data || [];
+        console.log('📚 Exams array:', exams);
+
+        // ✅ Filter to show only:
+        // 1. Exams that haven't been completed (no submittedAt)
+        // 2. OR exams that are InProgress
+        const now = new Date();
+        const upcomingAndInProgress = exams.filter((exam: any) => {
+          const startDate = new Date(exam.startDate || exam.startTime);
+          const endDate = new Date(exam.endDate || exam.endTime);
+
+          // Check if exam is InProgress (from student_exams table)
+          const hasInProgressAttempt = exam.status === 'InProgress' || exam.studentExamStatus === 'InProgress';
+
+          // Check if exam hasn't been submitted
+          const notSubmitted = !exam.submittedAt && !exam.completedDate;
+
+          // Check if exam is still within time window
+          const withinTimeWindow = endDate > now;
+
+          // Show if:
+          // - Has in-progress attempt, OR
+          // - Not submitted AND still within time window
+          return hasInProgressAttempt || (notSubmitted && withinTimeWindow);
+        });
+
+        console.log('📚 Filtered upcoming + in-progress:', upcomingAndInProgress.length, 'exams');
 
         // Process exams and calculate availability
-        const processedExams = response.data.exams?.map((exam: any) => {
-          const now = new Date();
-          const startDate = new Date(exam.startDate);
-          const endDate = new Date(exam.endDate);
+        const processedExams = upcomingAndInProgress.map((exam: any) => {
+          const startDate = new Date(exam.startDate || exam.startTime);
+          const endDate = new Date(exam.endDate || exam.endTime);
 
           // Calculate if available now
           const isAvailableNow = now >= startDate && now <= endDate;
+
+          // Check if it's in progress
+          const isInProgress = exam.status === 'InProgress' || exam.studentExamStatus === 'InProgress';
 
           // Calculate remaining time
           let remainingTime = '';
@@ -151,17 +183,18 @@ export class StudentExamsComponent implements OnInit {
           }
 
           console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-          console.log(`📋 Exam: ${exam.title}`);
+          console.log(`📋 Exam: ${exam.title || exam.examTitle}`);
           console.log(`🕐 Current Time: ${now.toLocaleString()}`);
           console.log(`📅 Start Time: ${startDate.toLocaleString()}`);
           console.log(`📅 End Time: ${endDate.toLocaleString()}`);
-          console.log(`${isAvailableNow ? '🟢' : '🔴'} Available Now: ${isAvailableNow}`);
+          console.log(`${isInProgress ? '🔄' : isAvailableNow ? '🟢' : '🔴'} Status: ${isInProgress ? 'In Progress' : isAvailableNow ? 'Available' : 'Not Started'}`);
           console.log(`⏱️  Remaining Time: ${remainingTime}`);
           console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
 
           return {
             ...exam,
             isAvailableNow,
+            isInProgress,
             remainingTime
           };
         });
@@ -213,19 +246,26 @@ export class StudentExamsComponent implements OnInit {
 
         // ✅ FIX: Filter out exams that are still available (not actually completed)
         // Backend bug: Sometimes returns exams in history that haven't been taken yet
+        // Also, InProgress exams should be in Upcoming, not History
         const now = new Date();
         const validHistory = history.filter((exam: any) => {
           // Check if exam has a valid completedDate that's in the past
           const completedDate = exam.completedDate ? new Date(exam.completedDate) : null;
           const endDate = exam.endDate ? new Date(exam.endDate) : null;
 
+          // ❌ Exclude InProgress exams - they belong in Upcoming tab
+          if (exam.status === 'InProgress') {
+            console.log(`⚠️ Filtering out InProgress exam from history: "${exam.examTitle}" - should be in Upcoming`);
+            return false;
+          }
+
           // ✅ Check 1: If exam has submittedAt, it's definitely completed
           if (exam.submittedAt) {
             return true;
           }
 
-          // ✅ Check 2: If status is 'Graded' or 'Submitted', it's completed
-          if (exam.status === 'Graded' || exam.status === 'Submitted') {
+          // ✅ Check 2: If status is 'Graded', 'Submitted', or 'Completed', show it
+          if (exam.status === 'Graded' || exam.status === 'Submitted' || exam.status === 'Completed') {
             return true;
           }
 
@@ -379,6 +419,21 @@ export class StudentExamsComponent implements OnInit {
     }
 
     this.doStartExam(examId);
+  }
+
+  /**
+   * ✅ Continue an in-progress exam
+   */
+  continueExam(exam: any) {
+    console.log('🔄 Continuing exam:', exam);
+
+    // Navigate directly to the exam using studentExamId if available
+    if (exam.studentExamId) {
+      this.router.navigate(['/student/exam', exam.studentExamId]);
+    } else {
+      // Fallback: start the exam normally
+      this.startExam(exam.id, exam.title || exam.examTitle);
+    }
   }
 
   /**

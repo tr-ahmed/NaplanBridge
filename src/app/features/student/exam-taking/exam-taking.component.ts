@@ -189,20 +189,28 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       startTime: status.startedAt,
       endTime: '',
       isPublished: true,
-      questions: examData.questions?.map((q: any) => ({
-        id: q.questionId || q.id || q.examQuestionId,
-        questionText: q.questionText || q.text || '',
-        questionType: this.normalizeQuestionType(q.questionType),
-        marks: q.marks || q.mark || 1,
-        order: q.order || 0,
-        isMultipleSelect: q.isMultipleSelect || false,
-        options: (q.options || q.questionOptions || []).map((o: any) => ({
-          id: o.optionId || o.id || o.questionOptionId,
-          optionText: o.optionText || o.text || '',
-          isCorrect: false,
-          order: o.order || 0
-        }))
-      })) || []
+      questions: examData.questions?.map((q: any) => {
+        // ✅ Determine question type based on isMultipleSelect flag
+        let questionType = this.normalizeQuestionType(q.questionType);
+        if (q.isMultipleSelect === true) {
+          questionType = QuestionType.MultipleSelect;
+        }
+
+        return {
+          id: q.questionId || q.id || q.examQuestionId,
+          questionText: q.questionText || q.text || '',
+          questionType: questionType,
+          marks: q.marks || q.mark || 1,
+          order: q.order || 0,
+          isMultipleSelect: q.isMultipleSelect || false,
+          options: (q.options || q.questionOptions || []).map((o: any) => ({
+            id: o.optionId || o.id || o.questionOptionId,
+            optionText: o.optionText || o.text || '',
+            isCorrect: false,
+            order: o.order || 0
+          }))
+        };
+      }) || []
     };
 
     this.exam.set(exam);
@@ -304,20 +312,28 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       startTime: status.startedAt,
       endTime: '',
       isPublished: true,
-      questions: examData.questions?.map((q: any) => ({
-        id: q.questionId || q.id || q.examQuestionId,
-        questionText: q.questionText || q.text || '',
-        questionType: this.normalizeQuestionType(q.questionType),
-        marks: q.marks || q.mark || 1,
-        order: q.order || 0,
-        isMultipleSelect: q.isMultipleSelect || false,
-        options: (q.options || q.questionOptions || []).map((o: any) => ({
-          id: o.optionId || o.id || o.questionOptionId,
-          optionText: o.optionText || o.text || '',
-          isCorrect: false,
-          order: o.order || 0
-        }))
-      })) || []
+      questions: examData.questions?.map((q: any) => {
+        // ✅ Determine question type based on isMultipleSelect flag
+        let questionType = this.normalizeQuestionType(q.questionType);
+        if (q.isMultipleSelect === true) {
+          questionType = QuestionType.MultipleSelect;
+        }
+
+        return {
+          id: q.questionId || q.id || q.examQuestionId,
+          questionText: q.questionText || q.text || '',
+          questionType: questionType,
+          marks: q.marks || q.mark || 1,
+          order: q.order || 0,
+          isMultipleSelect: q.isMultipleSelect || false,
+          options: (q.options || q.questionOptions || []).map((o: any) => ({
+            id: o.optionId || o.id || o.questionOptionId,
+            optionText: o.optionText || o.text || '',
+            isCorrect: false,
+            order: o.order || 0
+          }))
+        };
+      }) || []
     };
 
     this.exam.set(exam);
@@ -374,11 +390,28 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       }));
 
       console.log(`   Options for Q${index + 1}:`, mappedOptions);
+      console.log(`   isMultipleSelect for Q${index + 1}:`, q.isMultipleSelect);
+
+      // ✅ FIX: Determine question type based on isMultipleSelect flag
+      let questionType = this.normalizeQuestionType(q.questionType);
+
+      // Override if isMultipleSelect is explicitly set
+      if (q.isMultipleSelect === true) {
+        questionType = QuestionType.MultipleSelect;
+        console.log(`   ✅ Overriding type to MultipleSelect for Q${index + 1}`);
+      } else if (q.isMultipleSelect === false && rawOptions.length === 2) {
+        // Check if it's True/False based on options
+        const optionTexts = rawOptions.map((o: any) => (o.optionText || '').toLowerCase());
+        if (optionTexts.includes('true') && optionTexts.includes('false')) {
+          questionType = QuestionType.TrueFalse;
+          console.log(`   ✅ Detected True/False question for Q${index + 1}`);
+        }
+      }
 
       return {
         id: q.id || q.questionId || q.examQuestionId,
         questionText: q.questionText || q.text || q.question || '',
-        questionType: this.normalizeQuestionType(q.questionType),
+        questionType: questionType,
         marks: q.marks || q.mark || q.points || 1,
         order: q.order || q.displayOrder || index,
         isMultipleSelect: q.isMultipleSelect || false,
