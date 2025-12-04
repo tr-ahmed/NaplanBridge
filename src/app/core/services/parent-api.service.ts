@@ -60,41 +60,22 @@ export class ParentApiService {
   login(loginData: LoginRequest): Observable<ApiResult<AuthResponse>> {
     const url = `${this.baseUrl}/Account/login`;
 
-    console.log('🔍 API Debug Info:');
-    console.log('Base URL:', this.baseUrl);
-    console.log('Full URL:', url);
-    console.log('Login Data:', loginData);
-
     // Add header to skip toast notification in interceptor
     const headers = { 'X-Skip-Toast': 'true' };
 
     return this.http.post<AuthResponse>(url, loginData, { headers }).pipe(
       map((response: AuthResponse) => {
-        console.log('✅ Login Success Response:', response);
         return {
           success: true as const,
           data: response
         };
       }),
       catchError((error) => {
-        console.error('❌ Login Error:', error);
-        console.error('Error Status:', error.status);
-        console.error('Error Message:', error.message);
-        console.error('Error Body:', error.error);
-
         // ✅ Handle 401 Email Not Verified - Pass it to component for special handling
         const isEmailNotVerified = error.status === 401 &&
             (error.error?.requiresVerification === true || error.error?.error === 'Email not verified');
 
-        console.log('🔍 Is Email Not Verified?', isEmailNotVerified);
-        console.log('🔍 Condition Details:', {
-          status: error.status,
-          requiresVerification: error.error?.requiresVerification,
-          errorField: error.error?.error
-        });
-
         if (isEmailNotVerified) {
-          console.log('✅ Returning email verification error result');
           return of({
             success: false as const,
             error: error.error?.message || 'Please verify your email address before logging in.',

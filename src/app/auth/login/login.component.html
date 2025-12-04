@@ -16,7 +16,7 @@
 
       <!-- Email / Username / Phone -->
       <label class="text-sm text-blue-900 font-medium mb-1 block">Email, Username, or Phone</label>
-      <p class="text-xs text-gray-500 mb-2"> You can login using your email, username, or phone number</p>
+      <p class="text-xs text-gray-500 mb-2">You can login using your email, username, or phone number</p>
       <input
         type="text"
         formControlName="identifier"
@@ -26,6 +26,9 @@
           'w-full px-3 py-2 border border-gray-300 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-200'"
         placeholder="Enter your email, username, or phone"
       />
+      @if (loginForm.get('identifier')?.invalid && loginForm.get('identifier')?.touched) {
+        <small class="text-red-500 text-xs mb-2 block">Enter a valid email, username or phone.</small>
+      }
       @if (hasFieldError('identifier')) {
         <small class="text-red-500 text-xs mb-2 block">{{ getFieldError('identifier') }}</small>
       }
@@ -42,9 +45,13 @@
           'w-full px-3 py-2 border border-gray-300 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-200'"
         placeholder="Enter your password"
       />
-      @if (hasFieldError('password')) {
-        <small class="text-red-500 text-xs mb-2 block">{{ getFieldError('password') }}</small>
+      @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
+        <small class="text-red-500 text-xs mb-2 block">Password is required.</small>
       }
+      @if (loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched) {
+        <small class="text-red-500 text-xs mb-2 block">Password must be at least 8 characters.</small>
+      }
+      <!-- Generic field error removed to avoid duplicate messages; specific errors are shown above -->
       <div class="mb-4"></div>
 
       <!-- Remember Me and Forgot Password -->

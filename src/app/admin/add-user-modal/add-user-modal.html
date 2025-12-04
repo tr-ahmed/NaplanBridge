@@ -9,8 +9,17 @@
         <input formControlName="userName" class="w-full border rounded px-3 py-2"
                autocomplete="new-username"
                [class.border-red-500]="validationErrors['userName']" />
-        @if (addUserForm.get('userName')?.invalid && addUserForm.get('userName')?.touched) {
+        @if (addUserForm.get('userName')?.hasError('required') && addUserForm.get('userName')?.touched) {
           <small class="text-red-500">Username is required.</small>
+        }
+        @if (addUserForm.get('userName')?.hasError('minlength') && addUserForm.get('userName')?.touched) {
+          <small class="text-red-500">Username must be at least 4 characters.</small>
+        }
+        @if (addUserForm.get('userName')?.hasError('numbersOnly') && addUserForm.get('userName')?.touched) {
+          <small class="text-red-500">Username cannot be only numbers.</small>
+        }
+        @if (addUserForm.get('userName')?.hasError('invalidChars') && addUserForm.get('userName')?.touched) {
+          <small class="text-red-500">Username can only contain letters, numbers, and underscores.</small>
         }
         @if (validationErrors['userName']) {
           @for (error of validationErrors['userName']; track error) {
@@ -26,7 +35,7 @@
           <small class="text-red-500">Email is required.</small>
         }
         @if (addUserForm.get('email')?.hasError('email') && addUserForm.get('email')?.touched) {
-          <small class="text-red-500">Invalid email.</small>
+          <small class="text-red-500">Please enter a valid email address (e.g. user@example.com).</small>
         }
         @if (validationErrors['email']) {
           @for (error of validationErrors['email']; track error) {

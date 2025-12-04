@@ -17,7 +17,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       // Skip error handling for blob responses (file downloads)
       // These are handled by the component directly
       if (error.error instanceof Blob) {
-        console.log('⚠️ Blob response detected in error handler, passing through...');
         return throwError(() => error);
       }
 
@@ -26,10 +25,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.error instanceof ErrorEvent) {
         // Client-side or network error
         errorMessage = `Network Error: ${error.error.message}`;
-        console.error('Client-side error:', error.error);
       } else {
         // Backend returned an error response
-        console.error(`Backend error ${error.status}:`, error.error);
 
         // Handle specific error status codes
         switch (error.status) {
@@ -67,8 +64,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
 
           case 404:
-            // Log to console only, don't show toast for 404
-            console.warn('404 Resource not found:', error.url);
+            // Don't show toast for 404
             errorMessage = error.error?.message || 'Resource not found.';
             break;
 

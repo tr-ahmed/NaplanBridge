@@ -28,8 +28,30 @@ export class LoginComponent implements OnInit {
 
   // Reactive form for login
   loginForm: FormGroup = this.fb.group({
-    identifier: ['', [Validators.required]], // Can be email, username, or phone
-    password: ['', [Validators.required]],
+    identifier: ['', [
+      (control: any) => {
+        const value = control.value || '';
+        if (!value) return { required: true };
+
+        // Check if it's a valid email
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        const isEmail = emailRegex.test(value);
+
+        // Check if it's a valid username (4+ chars, letters/numbers/underscores)
+        const isValidUsername = /^[A-Za-z0-9_]{4,}$/.test(value);
+
+        // Check if it's a valid phone (9-15 digits, optional +)
+        const isValidPhone = /^\+?[0-9]{9,15}$/.test(value);
+
+        // At least one format must be valid
+        if (!isEmail && !isValidUsername && !isValidPhone) {
+          return { invalidIdentifier: true };
+        }
+
+        return null;
+      }
+    ]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
     rememberMe: [false]
   });
 
