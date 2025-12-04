@@ -17,7 +17,7 @@ export const guestGuard: CanActivateFn = () => {
   } else {
     // User is already logged in, redirect to appropriate dashboard
     const user = authService.getCurrentUser();
-    
+
     switch (user?.role) {
       case 'Admin':
         router.navigate(['/admin/dashboard']);
@@ -34,7 +34,7 @@ export const guestGuard: CanActivateFn = () => {
       default:
         router.navigate(['/']);
     }
-    
+
     return false; // ❌ Prevent access to login/register
   }
 };

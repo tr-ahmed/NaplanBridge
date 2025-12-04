@@ -12,7 +12,6 @@ export const teacherGuard: CanActivateFn = () => {
 
   // Check if authenticated
   if (!authService.isAuthenticated()) {
-    console.warn('⚠️ User not authenticated, redirecting to login');
     router.navigate(['/auth/login']);
     return false;
   }
@@ -21,13 +20,9 @@ export const teacherGuard: CanActivateFn = () => {
   const hasTeacherRole = authService.hasRole('teacher');
 
   if (!hasTeacherRole) {
-    console.warn('⚠️ User does not have teacher role');
-    console.log('Current user:', authService.getCurrentUser());
-    console.log('User roles:', authService.userRoles());
     router.navigate(['/']);
     return false;
   }
 
-  console.log('✅ Teacher guard passed');
   return true;
 };

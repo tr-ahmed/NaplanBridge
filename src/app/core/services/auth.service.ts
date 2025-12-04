@@ -256,7 +256,6 @@ export class AuthService {
     // Fallback: Decode token again
     const token = this.getToken();
     if (!token) {
-      console.warn('⚠️ No auth token found');
       return null;
     }
 
@@ -265,14 +264,11 @@ export class AuthService {
 
       if (decoded.studentId) {
         const studentId = parseInt(decoded.studentId);
-        console.log('✅ Student.Id from token:', studentId);
         return studentId;
       }
 
-      console.warn('⚠️ studentId claim not found in token');
       return null;
     } catch (error) {
-      console.error('❌ Failed to decode token for studentId:', error);
       return null;
     }
   }

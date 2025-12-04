@@ -9,7 +9,7 @@ export const environment = {
   stripePublishableKey: 'pk_test_YOUR_STRIPE_PUBLISHABLE_KEY_HERE', // Replace with your actual Stripe key
 
   // 🔇 Debug Logging Configuration
-  enableDebugLogging: true, // Enable console.log for development
+  enableDebugLogging: false, // Disable console.log for cleaner development experience
 
 
 };
