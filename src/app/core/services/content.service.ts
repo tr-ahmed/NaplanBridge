@@ -612,17 +612,21 @@ export class ContentService {
     return this.http.get<any[]>(`${this.apiUrl}/Discussions/lessons/${lessonId}`);
   }
 
-  addLessonDiscussion(lessonId: number, question: string, details: string): Observable<any> {
+  addLessonDiscussion(lessonId: number, question: string, videoTimestamp?: number): Observable<any> {
     const body = {
-      lessonId,
       question,
-      details
+      videoTimestamp: videoTimestamp || null
     };
     return this.http.post<any>(`${this.apiUrl}/Discussions/lessons/${lessonId}`, body);
   }
 
   deleteLessonDiscussion(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/Discussions/${id}`);
+  }
+
+  addDiscussionReply(discussionId: number, reply: string): Observable<any> {
+    const body = { reply };
+    return this.http.post<any>(`${this.apiUrl}/Discussions/${discussionId}/replies`, body);
   }
 
   // ===== Lesson Resources =====

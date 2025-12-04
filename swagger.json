@@ -807,6 +807,106 @@
         }
       }
     },
+    "/api/Account/verify-email": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Verify email address using token",
+        "requestBody": {
+          "description": "Email and verification token",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.VerifyEmailDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.VerifyEmailDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.VerifyEmailDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Account/resend-verification-email": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Resend email verification token",
+        "requestBody": {
+          "description": "Email address",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ResendVerificationEmailDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ResendVerificationEmailDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ResendVerificationEmailDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Achievements": {
       "get": {
         "tags": [
@@ -1009,6 +1109,80 @@
         ],
         "responses": {
           "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.UserWithRolesDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.UserWithRolesDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.UserWithRolesDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/activate-user/{userId}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Activate a user account (Admin only)",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Admin/deactivate-user/{userId}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Deactivate a user account (Admin only)",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
             "description": "OK"
           }
         }
@@ -1040,6 +1214,197 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Admin/update-teacher/{username}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Teacher.UpdateTeacherDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Teacher.UpdateTeacherDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Teacher.UpdateTeacherDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Admin/change-user-email/{userId}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Change user email (Admin only)",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The ID of the user",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "New email address",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ChangeUserEmailDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ChangeUserEmailDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ChangeUserEmailDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Admin/change-user-password/{userId}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Change user password (Admin only)",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "The ID of the user",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "New password",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ChangeUserPasswordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ChangeUserPasswordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.ChangeUserPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Admin/sessions/cleanup-stats": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get session cleanup statistics (Admin only)\r\nShows how many pending sessions need cleanup",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.Services.Background.SessionCleanupStats, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.Services.Background.SessionCleanupStats, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[API.Services.Background.SessionCleanupStats, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Admin/sessions/cleanup-now": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Manually trigger session cleanup (Admin only)\r\nUseful for testing or immediate cleanup",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
           }
         }
       }
@@ -2939,6 +3304,98 @@
         }
       }
     },
+    "/api/Discussions/subject/{subjectId}": {
+      "get": {
+        "tags": [
+          "Discussions"
+        ],
+        "parameters": [
+          {
+            "name": "subjectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "IsAnswered",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "IsHelpful",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "SubjectId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortOrder",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Discussion.PagedDiscussionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Discussion.PagedDiscussionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Discussion.PagedDiscussionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Exam": {
       "get": {
         "tags": [
@@ -3365,6 +3822,38 @@
         }
       }
     },
+    "/api/Exam/debug/student/{studentId}/exam/{examId}/score": {
+      "get": {
+        "tags": [
+          "Exam"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "examId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Exam/my-exams": {
       "get": {
         "tags": [
@@ -3454,6 +3943,108 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/API.DTOs.ExamDTOs.GradeSubmissionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Exam/student-exam/{studentExamId}/status": {
+      "get": {
+        "tags": [
+          "Exam"
+        ],
+        "summary": "✅ NEW: Get the status of a student's exam attempt\r\nUsed for resuming exams after page refresh or reconnection",
+        "parameters": [
+          {
+            "name": "studentExamId",
+            "in": "path",
+            "description": "The student exam attempt ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Exam/{examId}/check-in-progress": {
+      "get": {
+        "tags": [
+          "Exam"
+        ],
+        "summary": "✅ NEW: Check if student has an in-progress exam for a specific exam ID\r\nUsed before starting a new exam attempt",
+        "parameters": [
+          {
+            "name": "examId",
+            "in": "path",
+            "description": "The exam ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Exam/student-exam/{studentExamId}/save-answers": {
+      "post": {
+        "tags": [
+          "Exam"
+        ],
+        "summary": "✅ NEW: Save answers during exam (for auto-save functionality)",
+        "parameters": [
+          {
+            "name": "studentExamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/API.DTOs.ExamDTOs.AnswerSubmissionDto"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/API.DTOs.ExamDTOs.AnswerSubmissionDto"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/API.DTOs.ExamDTOs.AnswerSubmissionDto"
+                }
               }
             }
           }
@@ -4326,7 +4917,7 @@
         "tags": [
           "Lessons"
         ],
-        "summary": "Get all lessons for a subject with student progress embedded\r\n✅ GUEST MODE: When studentId is not provided, returns lesson previews with default values",
+        "summary": "Get all lessons for a subject with student progress embedded\r\n? GUEST MODE: When studentId is not provided, returns lesson previews with default values",
         "parameters": [
           {
             "name": "subjectId",
@@ -4386,7 +4977,7 @@
         "tags": [
           "Lessons"
         ],
-        "summary": "✅ NEW: Get lessons by term NUMBER (not ID) with student progress\r\nThis handles cross-subject navigation where different subjects have different term IDs for the same term number\r\n✅ PREVIEW MODE: Returns lesson previews for non-subscribed students or guests",
+        "summary": "? NEW: Get lessons by term NUMBER (not ID) with student progress\r\nThis handles cross-subject navigation where different subjects have different term IDs for the same term number\r\n? PREVIEW MODE: Returns lesson previews for non-subscribed students or guests",
         "parameters": [
           {
             "name": "subjectId",
@@ -4456,7 +5047,7 @@
         "tags": [
           "Lessons"
         ],
-        "summary": "Get all lessons for a term with student progress embedded\r\n✅ GUEST MODE: When studentId is not provided, returns lesson previews with default values",
+        "summary": "Get all lessons for a term with student progress embedded\r\n? GUEST MODE: When studentId is not provided, returns lesson previews with default values",
         "parameters": [
           {
             "name": "termId",
@@ -4503,6 +5094,55 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/API.DTOs.Lesson.LessonWithProgressDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Lessons/student/{studentId}/in-progress": {
+      "get": {
+        "tags": [
+          "Lessons"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Lesson.InProgressLessonDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Lesson.InProgressLessonDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Lesson.InProgressLessonDto"
                   }
                 }
               }
@@ -6794,6 +7434,46 @@
         }
       }
     },
+    "/api/Progress/by-student/{id}/summary": {
+      "get": {
+        "tags": [
+          "Progress"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Progress.StudentProgressSummaryDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Progress.StudentProgressSummaryDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Progress.StudentProgressSummaryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Progress/by-lesson/{id}": {
       "get": {
         "tags": [
@@ -7059,6 +7739,490 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PromotionCodes": {
+      "get": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Get all promotion codes (Admin only)",
+        "parameters": [
+          {
+            "name": "isActive",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "includeExpired",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Create a new promotion code (Admin only)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Promotion.CreatePromotionCodeDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Promotion.CreatePromotionCodeDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Promotion.CreatePromotionCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PromotionCodes/{id}": {
+      "get": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Get promotion code by ID (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Update promotion code (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Promotion.UpdatePromotionCodeDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Promotion.UpdatePromotionCodeDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Promotion.UpdatePromotionCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Delete promotion code (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PromotionCodes/by-code/{code}": {
+      "get": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Get promotion code by code string (Admin only)",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionCodeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PromotionCodes/{id}/deactivate": {
+      "patch": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Deactivate promotion code (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PromotionCodes/validate": {
+      "post": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Validate a promotion code (Authenticated users)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Promotion.ValidatePromotionCodeDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Promotion.ValidatePromotionCodeDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/API.DTOs.Promotion.ValidatePromotionCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionValidationResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionValidationResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionValidationResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PromotionCodes/{id}/usage-history": {
+      "get": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Get promotion usage history (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionUsageDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionUsageDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionUsageDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PromotionCodes/usages": {
+      "get": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Get all promotion usages (Admin only)",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionUsageDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionUsageDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/API.DTOs.Promotion.PromotionUsageDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PromotionCodes/statistics": {
+      "get": {
+        "tags": [
+          "PromotionCodes"
+        ],
+        "summary": "Get promotion statistics (Admin only)",
+        "parameters": [
+          {
+            "name": "promotionCodeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.Services.Interfaces.PromotionStatisticsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.Services.Interfaces.PromotionStatisticsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.Services.Interfaces.PromotionStatisticsDto"
+                }
+              }
+            }
           }
         }
       }
@@ -8151,6 +9315,46 @@
         }
       }
     },
+    "/api/Sessions/{sessionId}/complete": {
+      "put": {
+        "tags": [
+          "Sessions"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Sessions/student/upcoming": {
       "get": {
         "tags": [
@@ -8255,6 +9459,1353 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/Sessions/cancel-payment/{stripeSessionId}": {
+      "post": {
+        "tags": [
+          "Sessions"
+        ],
+        "parameters": [
+          {
+            "name": "stripeSessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/category/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/category/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/category/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subjectname/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subjectname/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subjectname/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subject/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subject/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subject/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/year/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/year/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/year/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/term/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/term/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/term/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/week/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/week/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/week/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/lesson/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/lesson/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/lesson/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/resource/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/resource/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/resource/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/exam/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/exam/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/exam/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/achievement/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/achievement/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/achievement/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/certificate/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/certificate/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/certificate/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/notification/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/notification/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/notification/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/order/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/order/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/order/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/payment/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/payment/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/payment/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subscription/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subscription/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subscription/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subscriptionplan/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subscriptionplan/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/subscriptionplan/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/lessonquestion/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/lessonquestion/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/lessonquestion/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/examquestion/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/examquestion/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/examquestion/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/privatesession/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/privatesession/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/privatesession/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/lessondiscussion/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/lessondiscussion/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/lessondiscussion/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/refundrequest/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/refundrequest/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/refundrequest/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/academicterm/{id}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/academicterm/{id}/restore": {
+      "post": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/academicterm/deleted": {
+      "get": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SoftDelete/cleanup/{entityType}": {
+      "delete": {
+        "tags": [
+          "SoftDelete"
+        ],
+        "summary": "Permanently delete entities that have been soft deleted for more than X days\r\nThis is useful for GDPR compliance or data retention policies",
+        "parameters": [
+          {
+            "name": "entityType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "daysOld",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -14368,6 +16919,32 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ApiResponse`1[[API.Services.Background.SessionCleanupStats, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "required": [
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/API.Services.Background.SessionCleanupStats"
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.ApiResponse`1[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
         "required": [
           "message"
@@ -15385,6 +17962,34 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ChangeUserEmailDto": {
+        "required": [
+          "newEmail"
+        ],
+        "type": "object",
+        "properties": {
+          "newEmail": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.ChangeUserPasswordDto": {
+        "required": [
+          "newPassword"
+        ],
+        "type": "object",
+        "properties": {
+          "newPassword": {
+            "maxLength": 100,
+            "minLength": 6,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.Common.PagedResult`1[[API.DTOs.LessonManagement.LessonDetailsDto, API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
         "type": "object",
         "properties": {
@@ -16200,6 +18805,20 @@
           "phoneNumber": {
             "type": "string",
             "nullable": true
+          },
+          "salary": {
+            "minimum": 0,
+            "type": "number",
+            "description": "✅ Teacher's salary (Optional - for Teachers only)",
+            "format": "double",
+            "nullable": true
+          },
+          "iban": {
+            "maxLength": 34,
+            "pattern": "^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$",
+            "type": "string",
+            "description": "✅ Teacher's IBAN (Optional - for Teachers only)",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -16555,6 +19174,77 @@
         },
         "additionalProperties": false,
         "description": "Request model for forgot password"
+      },
+      "API.DTOs.Lesson.InProgressLessonDto": {
+        "type": "object",
+        "properties": {
+          "lessonId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "subjectName": {
+            "type": "string",
+            "nullable": true
+          },
+          "termId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "termNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "weekId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "weekNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "progress": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastAccessedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "duration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "timeSpent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "posterUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "videoUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "API.DTOs.Lesson.LessonWithProgressDto": {
         "required": [
@@ -17557,6 +20247,28 @@
           "price": {
             "type": "number",
             "format": "double"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "completedLessons": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalLessons": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "progressPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "lastAccessDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -18002,6 +20714,28 @@
           },
           "autoRenew": {
             "type": "boolean"
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "completedLessons": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalLessons": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "progressPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "lastAccessDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -18155,6 +20889,47 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.Progress.StudentProgressSummaryDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overallProgress": {
+            "type": "number",
+            "description": "Overall progress percentage (completed lessons / total accessible lessons * 100)",
+            "format": "float"
+          },
+          "completedLessons": {
+            "type": "integer",
+            "description": "Number of lessons with 100% progress",
+            "format": "int32"
+          },
+          "totalLessons": {
+            "type": "integer",
+            "description": "Total number of lessons the student has access to (based on active subscriptions)",
+            "format": "int32"
+          },
+          "averageScore": {
+            "type": "number",
+            "description": "Average exam score across all submitted exams",
+            "format": "float"
+          },
+          "totalTimeSpent": {
+            "type": "integer",
+            "description": "Total time spent on lessons in minutes",
+            "format": "int32"
+          },
+          "lastActivityDate": {
+            "type": "string",
+            "description": "Date of last learning activity (lesson progress or exam submission)",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.Progress.UpdateProgressDto": {
         "type": "object",
         "properties": {
@@ -18175,6 +20950,317 @@
           }
         },
         "additionalProperties": false
+      },
+      "API.DTOs.Promotion.CreatePromotionCodeDto": {
+        "required": [
+          "code",
+          "discountType",
+          "discountValue"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "maxLength": 50,
+            "minLength": 3,
+            "pattern": "^[A-Z0-9_-]+$",
+            "type": "string",
+            "description": "The promo code (e.g., \"SUMMER2024\", \"WELCOME20\")"
+          },
+          "discountType": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Discount type: \"percentage\" or \"fixed_amount\""
+          },
+          "discountValue": {
+            "maximum": 100,
+            "minimum": 0.01,
+            "type": "number",
+            "description": "Discount value (e.g., 20 for 20%, or 50 for $50 off)",
+            "format": "double"
+          },
+          "maxDiscountAmount": {
+            "minimum": 0,
+            "type": "number",
+            "description": "Maximum discount amount (for percentage discounts)",
+            "format": "double",
+            "nullable": true
+          },
+          "minimumOrderAmount": {
+            "minimum": 0,
+            "type": "number",
+            "description": "Minimum order amount required",
+            "format": "double",
+            "nullable": true
+          },
+          "maxRedemptions": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Maximum number of times this code can be used (null = unlimited)",
+            "format": "int32",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Start date for the promotion",
+            "format": "date-time",
+            "nullable": true
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date",
+            "format": "date-time",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "description": "Description/Notes about this promotion",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for creating a new promotion code"
+      },
+      "API.DTOs.Promotion.PromotionCodeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "discountType": {
+            "type": "string",
+            "nullable": true
+          },
+          "discountValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "maxDiscountAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "minimumOrderAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "maxRedemptions": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "timesUsed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "stripePromotionCodeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "stripeCouponId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isExpired": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "isRedeemable": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "remainingUses": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for promotion code response"
+      },
+      "API.DTOs.Promotion.PromotionUsageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "promotionCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "userEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "orderId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "stripeSessionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "discountAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "originalTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "finalTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "usedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for promotion usage response"
+      },
+      "API.DTOs.Promotion.PromotionValidationResultDto": {
+        "type": "object",
+        "properties": {
+          "isValid": {
+            "type": "boolean"
+          },
+          "errorMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "discountType": {
+            "type": "string",
+            "nullable": true
+          },
+          "discountValue": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "discountAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "finalTotal": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "stripePromotionCodeId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for promotion code validation result"
+      },
+      "API.DTOs.Promotion.UpdatePromotionCodeDto": {
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean",
+            "description": "Is this code active?",
+            "nullable": true
+          },
+          "maxRedemptions": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Maximum number of times this code can be used",
+            "format": "int32",
+            "nullable": true
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "Expiration date",
+            "format": "date-time",
+            "nullable": true
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "description": "Description/Notes",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for updating an existing promotion code"
+      },
+      "API.DTOs.Promotion.ValidatePromotionCodeDto": {
+        "required": [
+          "code",
+          "orderTotal"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "orderTotal": {
+            "minimum": 0.01,
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for validating a promotion code"
       },
       "API.DTOs.Reports.DetailedFinancialReportDto": {
         "type": "object",
@@ -19012,6 +22098,20 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.ResendVerificationEmailDto": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.ResetPasswordDto": {
         "required": [
           "email",
@@ -19666,6 +22766,13 @@
               "$ref": "#/components/schemas/API.DTOs.Subject.SubjectSubscriptionPlanDto"
             },
             "nullable": true
+          },
+          "teachers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/API.DTOs.Subject.TeacherInfoDto"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -19699,6 +22806,24 @@
           "durationInDays": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "API.DTOs.Subject.TeacherInfoDto": {
+        "type": "object",
+        "properties": {
+          "teacherId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "teacherName": {
+            "type": "string",
+            "nullable": true
+          },
+          "teacherEmail": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -20059,6 +23184,50 @@
         },
         "additionalProperties": false
       },
+      "API.DTOs.Teacher.UpdateTeacherDto": {
+        "required": [
+          "age",
+          "email",
+          "phoneNumber",
+          "userName"
+        ],
+        "type": "object",
+        "properties": {
+          "userName": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "phoneNumber": {
+            "minLength": 1,
+            "type": "string",
+            "format": "tel"
+          },
+          "age": {
+            "maximum": 100,
+            "minimum": 18,
+            "type": "integer",
+            "format": "int32"
+          },
+          "salary": {
+            "minimum": 0,
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "iban": {
+            "maxLength": 34,
+            "pattern": "^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "API.DTOs.TeacherContent.ApprovalActionDto": {
         "required": [
           "action",
@@ -20333,6 +23502,25 @@
             "type": "string",
             "format": "email",
             "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "salary": {
+            "type": "number",
+            "description": "✅ Teacher's salary (Optional)",
+            "format": "double",
+            "nullable": true
+          },
+          "iban": {
+            "type": "string",
+            "description": "✅ Teacher's IBAN for salary payments (Optional)",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -20462,6 +23650,7 @@
       },
       "API.DTOs.TeacherRegisterDto": {
         "required": [
+          "age",
           "email",
           "password",
           "phoneNumber",
@@ -20470,27 +23659,42 @@
         "type": "object",
         "properties": {
           "userName": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "email": {
+            "minLength": 1,
             "type": "string",
-            "format": "email",
-            "nullable": true
+            "format": "email"
           },
           "password": {
             "maxLength": 100,
             "minLength": 8,
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "phoneNumber": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "age": {
+            "maximum": 100,
+            "minimum": 18,
             "type": "integer",
             "format": "int32"
+          },
+          "salary": {
+            "minimum": 0,
+            "type": "number",
+            "description": "✅ NEW: Teacher's salary (Optional)\r\nراتب المعلم (اختياري)",
+            "format": "double",
+            "nullable": true
+          },
+          "iban": {
+            "maxLength": 34,
+            "pattern": "^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$",
+            "type": "string",
+            "description": "✅ NEW: Teacher's IBAN for salary payments (Optional)\r\nرقم الآيبان للمعلم لتحويل الراتب (اختياري)\r\nExample: SA0380000000608010167519",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -20901,6 +24105,12 @@
             "type": "string",
             "format": "date-time"
           },
+          "lastLoginDate": {
+            "type": "string",
+            "description": "Last login date (null if user has never logged in)\r\nتاريخ آخر تسجيل دخول",
+            "format": "date-time",
+            "nullable": true
+          },
           "roles": {
             "type": "array",
             "items": {
@@ -20914,6 +24124,77 @@
         },
         "additionalProperties": false,
         "description": "User profile response DTO\r\nUsed for displaying user profile information"
+      },
+      "API.DTOs.UserWithRolesDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the user account is active (not locked out)"
+          },
+          "emailConfirmed": {
+            "type": "boolean",
+            "description": "Whether the user has confirmed their email"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastLoginDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "DTO for user with roles - includes all user properties needed by frontend"
+      },
+      "API.DTOs.VerifyEmailDto": {
+        "required": [
+          "email",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "token": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
       },
       "API.DTOs.VideoChapter.CreateVideoChapterDto": {
         "required": [
@@ -21185,8 +24466,35 @@
         "properties": {
           "id": {
             "type": "integer",
-            "description": "Primary key",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "termNumber": {
             "type": "integer",
@@ -21217,11 +24525,6 @@
             "type": "boolean",
             "description": "Whether this term is currently active and visible to users"
           },
-          "createdAt": {
-            "type": "string",
-            "description": "When this term was created",
-            "format": "date-time"
-          },
           "description": {
             "type": "string",
             "description": "Optional description for the term (e.g., \"Summer Term\", \"Fall Term\")",
@@ -21248,7 +24551,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "name": {
             "type": "string",
@@ -21374,7 +24705,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "name": {
             "type": "string",
@@ -21404,7 +24763,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "studentId": {
             "type": "integer",
@@ -21484,7 +24871,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "title": {
             "type": "string",
@@ -21528,15 +24943,6 @@
           "isPublished": {
             "type": "boolean",
             "description": "?? ???????? ????? ??????"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
           },
           "subjectId": {
             "type": "integer",
@@ -21623,7 +25029,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "questionText": {
             "type": "string",
@@ -21689,7 +25123,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "title": {
             "type": "string",
@@ -21827,17 +25289,6 @@
             "type": "string",
             "description": "Reason for rejection (if status is Rejected)",
             "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "When this lesson was created",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "When this lesson was last updated",
-            "format": "date-time",
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -21847,7 +25298,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "lessonId": {
             "type": "integer",
@@ -21871,10 +25350,6 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           },
           "isAnswered": {
             "type": "boolean"
@@ -21957,7 +25432,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "lessonId": {
             "type": "integer",
@@ -22012,7 +25515,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "title": {
             "type": "string",
@@ -22076,7 +25607,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "totalAmount": {
             "type": "number",
@@ -22098,10 +25657,6 @@
           "stripeSessionId": {
             "type": "string",
             "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           },
           "userId": {
             "type": "integer",
@@ -22198,7 +25753,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "amount": {
             "type": "number",
@@ -22243,7 +25826,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "teacherId": {
             "type": "integer",
@@ -22309,10 +25920,6 @@
             "type": "string",
             "nullable": true
           },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
           "cancelledAt": {
             "type": "string",
             "format": "date-time",
@@ -22357,6 +25964,18 @@
           "currentPosition": {
             "type": "integer",
             "format": "int32"
+          },
+          "completionNotificationSent": {
+            "type": "boolean"
+          },
+          "progress75NotificationSent": {
+            "type": "boolean"
+          },
+          "progress50NotificationSent": {
+            "type": "boolean"
+          },
+          "progress25NotificationSent": {
+            "type": "boolean"
           },
           "lessonId": {
             "type": "integer",
@@ -22436,7 +26055,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "title": {
             "type": "string",
@@ -22496,17 +26143,6 @@
           "rejectionReason": {
             "type": "string",
             "description": "Reason for rejection (if status is Rejected)",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "When this resource was created",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "When this resource was last updated",
-            "format": "date-time",
             "nullable": true
           }
         },
@@ -22769,7 +26405,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "description": {
             "type": "string",
@@ -22889,7 +26553,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "name": {
             "type": "string",
@@ -22917,7 +26609,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "startDate": {
             "type": "string",
@@ -23010,7 +26730,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "name": {
             "type": "string",
@@ -23262,7 +27010,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "termNumber": {
             "type": "integer",
@@ -23406,17 +27182,6 @@
             "type": "string",
             "description": "Reason for rejection (if status is Rejected)",
             "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "When this term was created",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "When this term was last updated",
-            "format": "date-time",
-            "nullable": true
           }
         },
         "additionalProperties": false,
@@ -23524,9 +27289,26 @@
             "type": "string",
             "format": "date-time"
           },
+          "lastLoginDate": {
+            "type": "string",
+            "description": "✅ NEW: Tracks when the user last successfully logged in\r\nتتبع آخر تسجيل دخول ناجح للمستخدم",
+            "format": "date-time",
+            "nullable": true
+          },
           "avatarUrl": {
             "type": "string",
             "description": "✅ NEW: User's profile picture URL (from Bunny CDN)\r\nرابط صورة البروفايل (مخزنة على Bunny.net CDN)\r\nExample: https://naplan.b-cdn.net/avatars/user-123-abc456.jpg",
+            "nullable": true
+          },
+          "salary": {
+            "type": "number",
+            "description": "✅ NEW: Teacher's salary (Optional - for Teachers only)\r\nراتب المعلم (اختياري - للمعلمين فقط)",
+            "format": "double",
+            "nullable": true
+          },
+          "iban": {
+            "type": "string",
+            "description": "✅ NEW: Teacher's IBAN for salary payments (Optional - for Teachers only)\r\nرقم الآيبان للمعلم لتحويل الراتب (اختياري - للمعلمين فقط)",
             "nullable": true
           },
           "student": {
@@ -23765,7 +27547,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "weekNumber": {
             "type": "integer",
@@ -23825,17 +27635,6 @@
             "type": "string",
             "description": "Reason for rejection (if status is Rejected)",
             "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "When this week was created",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "When this week was last updated",
-            "format": "date-time",
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -23845,7 +27644,35 @@
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Primary Key",
             "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "Whether this entity is deleted (Soft Delete)"
+          },
+          "deletedAt": {
+            "type": "string",
+            "description": "When this entity was deleted",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "integer",
+            "description": "User who deleted this entity (optional)",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When this entity was created",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "When this entity was last updated",
+            "format": "date-time",
+            "nullable": true
           },
           "yearNumber": {
             "type": "integer",
@@ -23881,6 +27708,85 @@
           }
         },
         "additionalProperties": false
+      },
+      "API.Services.Background.SessionCleanupStats": {
+        "type": "object",
+        "properties": {
+          "totalPendingSessions": {
+            "type": "integer",
+            "description": "Total number of sessions currently pending payment",
+            "format": "int32"
+          },
+          "expiredSessions": {
+            "type": "integer",
+            "description": "Number of sessions that should be cleaned up (>24 hours old)",
+            "format": "int32"
+          },
+          "recentPendingSessions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "oldestPendingSession": {
+            "type": "string",
+            "description": "Creation date of the oldest pending session",
+            "format": "date-time",
+            "nullable": true
+          },
+          "checkedAt": {
+            "type": "string",
+            "description": "When these statistics were calculated",
+            "format": "date-time"
+          },
+          "oldestSessionAgeHours": {
+            "type": "number",
+            "description": "Age of oldest pending session in hours",
+            "format": "double",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Statistics about session cleanup for monitoring"
+      },
+      "API.Services.Interfaces.PromotionStatisticsDto": {
+        "type": "object",
+        "properties": {
+          "totalPromotions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activePromotions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expiredPromotions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalUsages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalDiscountGiven": {
+            "type": "number",
+            "format": "double"
+          },
+          "averageDiscountAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "mostUsedCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "mostUsedCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Promotion statistics DTO"
       },
       "Microsoft.AspNetCore.Mvc.ProblemDetails": {
         "type": "object",
