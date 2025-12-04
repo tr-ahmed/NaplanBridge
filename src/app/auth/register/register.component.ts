@@ -25,15 +25,27 @@ export class RegisterComponent {
   // Reactive form for parent registration
   registerForm: FormGroup = this.fb.group({
     userName: ['', [
-      Validators.required,
-      Validators.minLength(3),
-      Validators.pattern(/^[a-zA-Z0-9]+$/) // Only letters and digits, no spaces or special chars
+      (control: any) => {
+        const value = control.value || '';
+        if (!value) return { required: true };
+        if (value.length < 4) return { minlength: true };
+        if (/^\d+$/.test(value)) return { numbersOnly: true };
+        if (!/^[A-Za-z0-9_]+$/.test(value)) return { invalidChars: true };
+        return null;
+      }
     ]],
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [
+      (control: any) => {
+        const value = control.value || '';
+        if (!value) return { required: true };
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        if (!emailRegex.test(value)) return { email: true };
+        return null;
+      }
+    ]],
     password: ['', [
       Validators.required,
-      Validators.minLength(8),
-      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z]).{8,}$/) // Must contain uppercase and lowercase, min 8 chars
+      Validators.minLength(8)
     ]],
     confirmPassword: ['', [Validators.required]],
     // Allow international formats with optional leading + and 9-15 digits

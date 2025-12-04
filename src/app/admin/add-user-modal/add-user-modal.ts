@@ -22,11 +22,31 @@ export class AddUserModalComponent {
   addUserForm: ReturnType<FormBuilder['group']>;
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
+    // Custom username validator: must be at least 4 chars, not all numbers, only letters/numbers/underscores
+    const usernameValidator = (control: any) => {
+      const value = control.value || '';
+      if (!value) return { required: true };
+      if (value.length < 4) return { minlength: true };
+      if (/^\d+$/.test(value)) return { numbersOnly: true };
+      if (!/^[A-Za-z0-9_]+$/.test(value)) return { invalidChars: true };
+      return null;
+    };
+
+    // Custom email validator: must match natural email syntax
+    const emailValidator = (control: any) => {
+      const value = control.value || '';
+      if (!value) return { required: true };
+      // RFC 5322 simple regex
+      const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (!emailRegex.test(value)) return { email: true };
+      return null;
+    };
+
     // Initialize the form after fb is available
     this.addUserForm = this.fb.group({
-      userName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      userName: ['', [usernameValidator]],
+      email: ['', [emailValidator]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
       phoneNumber: ['', Validators.required],
       age: [null, [Validators.required, Validators.min(18)]],
       salary: [null, [Validators.min(0)]],
