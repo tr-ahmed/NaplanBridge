@@ -103,7 +103,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
         const courseId = params['courseId'];
         const termNumber = params['termNumber'];  // ✅ NEW: Use termNumber instead of termId
         const termId = params['termId'];          // Keep for backward compatibility
-        const hasAccessParam = params['hasAccess']; // ✅ NEW: Get access status from params
+        // 🔒 SECURITY: Removed hasAccess from query params - always verify from backend
         const studentIdParam = params['studentId']; // ✅ NEW: Get studentId from URL
 
         if (studentIdParam) {
@@ -114,13 +114,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
           }
         }
 
-        // ✅ Set access status (convert string to boolean)
-        if (hasAccessParam !== undefined) {
-          const accessStatus = hasAccessParam === 'true' || hasAccessParam === true;
-          this.hasAccess.set(accessStatus);
-          this.showSubscriptionBanner.set(!accessStatus);
-          console.log('🔒 Access status:', accessStatus ? 'Granted' : 'Denied');
-        }
+        // 🔒 SECURITY: Access status is now determined by API response only, not from URL params
 
         if (subject) {
           this.currentSubject.set(subject);
@@ -367,10 +361,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
       queryParams.studentId = studentId;
     }
 
-    // ✅ NEW: Pass hasAccess to skip subscription guard API call
-    if (this.hasAccess()) {
-      queryParams.hasAccess = 'true';
-    }
+    // 🔒 SECURITY: Removed hasAccess from query params - subscription guard will verify from backend
 
     if (isPreviewMode) {
       queryParams.preview = 'true';

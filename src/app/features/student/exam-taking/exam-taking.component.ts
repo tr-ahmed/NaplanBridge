@@ -174,39 +174,40 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    */
   private initializeFromBackendResume(status: any, savedState: any) {
     const examData = status.examData;
+    const durationMinutes = examData.durationInMinutes || examData.durationMinutes || 60;
 
-    // Convert backend data to ExamDto format
+    // Convert backend data to ExamDto format with proper field mapping
     const exam: ExamDto = {
       id: status.examId,
-      title: examData.examTitle,
+      title: examData.examTitle || examData.title || 'Exam',
       description: '',
       examType: 'Lesson' as any,
       subjectId: 0,
-      durationInMinutes: examData.durationInMinutes,
-      totalMarks: examData.totalMarks,
+      durationInMinutes: durationMinutes,
+      totalMarks: examData.totalMarks || 0,
       passingMarks: 0,
       startTime: status.startedAt,
       endTime: '',
       isPublished: true,
       questions: examData.questions?.map((q: any) => ({
-        id: q.questionId,
-        questionText: q.questionText,
-        questionType: q.questionType,
-        marks: q.marks,
-        order: 0,
-        isMultipleSelect: q.isMultipleSelect,
-        options: q.options?.map((o: any) => ({
-          id: o.optionId,
-          optionText: o.optionText,
+        id: q.questionId || q.id || q.examQuestionId,
+        questionText: q.questionText || q.text || '',
+        questionType: this.normalizeQuestionType(q.questionType),
+        marks: q.marks || q.mark || 1,
+        order: q.order || 0,
+        isMultipleSelect: q.isMultipleSelect || false,
+        options: (q.options || q.questionOptions || []).map((o: any) => ({
+          id: o.optionId || o.id || o.questionOptionId,
+          optionText: o.optionText || o.text || '',
           isCorrect: false,
-          order: 0
-        })) || []
+          order: o.order || 0
+        }))
       })) || []
     };
 
     this.exam.set(exam);
     this.examStartTime.set(new Date(status.startedAt));
-    this.timeRemaining.set(status.remainingTimeSeconds);
+    this.timeRemaining.set(status.remainingTimeSeconds || durationMinutes * 60);
 
     // Restore answers - prefer backend saved answers, fallback to local
     const answersMap = new Map<number, ExamAnswerDto>();
@@ -289,38 +290,39 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    */
   private initializeFromBackendOnly(status: any) {
     const examData = status.examData;
+    const durationMinutes = examData.durationInMinutes || examData.durationMinutes || 60;
 
     const exam: ExamDto = {
       id: status.examId,
-      title: examData.examTitle,
+      title: examData.examTitle || examData.title || 'Exam',
       description: '',
       examType: 'Lesson' as any,
       subjectId: 0,
-      durationInMinutes: examData.durationInMinutes,
-      totalMarks: examData.totalMarks,
+      durationInMinutes: durationMinutes,
+      totalMarks: examData.totalMarks || 0,
       passingMarks: 0,
       startTime: status.startedAt,
       endTime: '',
       isPublished: true,
       questions: examData.questions?.map((q: any) => ({
-        id: q.questionId,
-        questionText: q.questionText,
-        questionType: q.questionType,
-        marks: q.marks,
-        order: 0,
-        isMultipleSelect: q.isMultipleSelect,
-        options: q.options?.map((o: any) => ({
-          id: o.optionId,
-          optionText: o.optionText,
+        id: q.questionId || q.id || q.examQuestionId,
+        questionText: q.questionText || q.text || '',
+        questionType: this.normalizeQuestionType(q.questionType),
+        marks: q.marks || q.mark || 1,
+        order: q.order || 0,
+        isMultipleSelect: q.isMultipleSelect || false,
+        options: (q.options || q.questionOptions || []).map((o: any) => ({
+          id: o.optionId || o.id || o.questionOptionId,
+          optionText: o.optionText || o.text || '',
           isCorrect: false,
-          order: 0
-        })) || []
+          order: o.order || 0
+        }))
       })) || []
     };
 
     this.exam.set(exam);
     this.examStartTime.set(new Date(status.startedAt));
-    this.timeRemaining.set(status.remainingTimeSeconds);
+    this.timeRemaining.set(status.remainingTimeSeconds || durationMinutes * 60);
 
     // Load saved answers from backend
     const answersMap = new Map<number, ExamAnswerDto>();
@@ -348,9 +350,45 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
    * ✅ NEW: Initialize from navigation state (fresh exam start)
    */
   private initializeFromNavigationState(examData: any) {
+    // ✅ FIX: Map backend field names to frontend field names
+    const durationMinutes = examData.durationInMinutes || examData.durationMinutes || 60; // Default 60 minutes if missing
+
+    console.log('🔍 Raw exam data from navigation:', JSON.stringify(examData, null, 2));
+    console.log('⏱️ Duration from backend:', {
+      durationInMinutes: examData.durationInMinutes,
+      durationMinutes: examData.durationMinutes,
+      resolved: durationMinutes
+    });
+
+    // ✅ FIX: Map questions with correct option field names
+    const mappedQuestions = (examData.questions || []).map((q: any, index: number) => {
+      console.log(`📝 Question ${index + 1} raw data:`, JSON.stringify(q, null, 2));
+
+      // Map options - handle both 'options' and 'questionOptions' field names
+      const rawOptions = q.options || q.questionOptions || [];
+      const mappedOptions = rawOptions.map((o: any) => ({
+        id: o.id || o.optionId || o.questionOptionId,
+        optionText: o.optionText || o.text || o.option || '',
+        isCorrect: o.isCorrect || false,
+        order: o.order || o.displayOrder || 0
+      }));
+
+      console.log(`   Options for Q${index + 1}:`, mappedOptions);
+
+      return {
+        id: q.id || q.questionId || q.examQuestionId,
+        questionText: q.questionText || q.text || q.question || '',
+        questionType: this.normalizeQuestionType(q.questionType),
+        marks: q.marks || q.mark || q.points || 1,
+        order: q.order || q.displayOrder || index,
+        isMultipleSelect: q.isMultipleSelect || false,
+        options: mappedOptions
+      };
+    });
+
     const exam: ExamDto = {
-      id: examData.examId,
-      title: examData.examTitle || examData.title,
+      id: examData.examId || examData.id,
+      title: examData.examTitle || examData.title || 'Exam',
       description: examData.description || '',
       examType: examData.examType || 'Lesson',
       subjectId: examData.subjectId || 0,
@@ -359,17 +397,25 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       lessonId: examData.lessonId,
       weekId: examData.weekId,
       yearId: examData.yearId,
-      durationInMinutes: examData.durationInMinutes,
-      totalMarks: examData.totalMarks,
+      durationInMinutes: durationMinutes,
+      totalMarks: examData.totalMarks || 0,
       passingMarks: examData.passingMarks || 0,
       startTime: examData.startedAt || new Date().toISOString(),
       endTime: examData.endTime || new Date().toISOString(),
       isPublished: true,
-      questions: examData.questions || []
+      questions: mappedQuestions
     };
 
     console.log('📚 Exam loaded from navigation:', exam);
     console.log('📝 Questions count:', exam.questions?.length || 0);
+
+    // Log each question's options for debugging
+    exam.questions?.forEach((q, i) => {
+      console.log(`📋 Q${i + 1} (${q.questionType}): "${q.questionText}" - ${q.options?.length || 0} options`);
+      q.options?.forEach((opt, j) => {
+        console.log(`   Option ${j + 1}: [id=${opt.id}] "${opt.optionText}"`);
+      });
+    });
 
     if (!exam.questions || exam.questions.length === 0) {
       console.error('❌ No questions in exam data!');
@@ -383,12 +429,65 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
 
     this.exam.set(exam);
     this.examStartTime.set(new Date());
-    this.timeRemaining.set(exam.durationInMinutes * 60);
+
+    // ✅ FIX: Ensure duration is valid before setting timer
+    const timeInSeconds = durationMinutes * 60;
+    console.log('⏱️ Setting timer to:', timeInSeconds, 'seconds (', durationMinutes, 'minutes)');
+    this.timeRemaining.set(timeInSeconds);
+
     this.startTimer();
     this.startAutoSave();
     this.startServerAutoSave(); // ✅ NEW: Also save to server
     this.saveExamState();
     this.loading.set(false);
+  }
+
+  /**
+   * Normalize question type from various backend formats
+   */
+  private normalizeQuestionType(type: any): QuestionType {
+    console.log('🔄 Normalizing question type:', type, typeof type);
+
+    // If it's already a valid QuestionType string
+    if (type === QuestionType.MultipleChoice || type === 'MultipleChoice') return QuestionType.MultipleChoice;
+    if (type === QuestionType.MultipleSelect || type === 'MultipleSelect') return QuestionType.MultipleSelect;
+    if (type === QuestionType.TrueFalse || type === 'TrueFalse') return QuestionType.TrueFalse;
+    if (type === QuestionType.Text || type === 'Text') return QuestionType.Text;
+
+    // Handle numeric values (backend might send 0, 1, 2, 3)
+    if (typeof type === 'number') {
+      switch (type) {
+        case 0: return QuestionType.Text;
+        case 1: return QuestionType.MultipleChoice;
+        case 2: return QuestionType.MultipleSelect;
+        case 3: return QuestionType.TrueFalse;
+        default: return QuestionType.MultipleChoice;
+      }
+    }
+
+    if (typeof type === 'string') {
+      const typeStr = type.toLowerCase();
+
+      // Try numeric string first
+      const num = parseInt(type, 10);
+      if (!isNaN(num)) {
+        switch (num) {
+          case 0: return QuestionType.Text;
+          case 1: return QuestionType.MultipleChoice;
+          case 2: return QuestionType.MultipleSelect;
+          case 3: return QuestionType.TrueFalse;
+        }
+      }
+
+      // Match by name
+      if (typeStr.includes('multiplechoice') || typeStr === 'mcq') return QuestionType.MultipleChoice;
+      if (typeStr.includes('multipleselect')) return QuestionType.MultipleSelect;
+      if (typeStr.includes('truefalse') || typeStr === 'tf' || typeStr === 'boolean') return QuestionType.TrueFalse;
+      if (typeStr.includes('text') || typeStr.includes('essay') || typeStr === 'open') return QuestionType.Text;
+    }
+
+    console.warn('⚠️ Unknown question type, defaulting to MultipleChoice:', type);
+    return QuestionType.MultipleChoice; // Default
   }
 
   /**

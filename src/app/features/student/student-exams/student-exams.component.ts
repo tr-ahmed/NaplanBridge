@@ -348,6 +348,20 @@ export class StudentExamsComponent implements OnInit {
     this.examApi.startExam(examId).subscribe({
       next: (response: any) => {
         console.log('✅ Exam started successfully:', response);
+        console.log('📋 Full response structure:', JSON.stringify(response, null, 2));
+        console.log('⏱️ Duration fields:', {
+          durationMinutes: response.durationMinutes,
+          durationInMinutes: response.durationInMinutes,
+          duration: response.duration
+        });
+        console.log('📝 Questions:', response.questions?.length || 0);
+        if (response.questions?.length > 0) {
+          console.log('📋 First question:', JSON.stringify(response.questions[0], null, 2));
+          if (response.questions[0].options?.length > 0) {
+            console.log('🔘 First option:', JSON.stringify(response.questions[0].options[0], null, 2));
+          }
+        }
+
         this.startingExam.set(false);
 
         if (response.questions && response.questions.length > 0) {

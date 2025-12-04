@@ -31,12 +31,8 @@ export const subscriptionGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
-  // ✅ NEW: Check if hasAccess is passed via query params (already verified by lessons component)
-  const hasAccessParam = route.queryParams['hasAccess'];
-  if (hasAccessParam === 'true' || hasAccessParam === true) {
-    console.log('✅ Subscription guard: Access pre-verified via query params');
-    return true;
-  }
+  // 🔒 SECURITY: Always verify access from backend - never trust query params
+  // hasAccess query param is removed to prevent URL manipulation attacks
 
   // Get content type and ID from route params
   const contentType = route.data['contentType'] as 'subject' | 'term' | 'lesson' | 'exam';
