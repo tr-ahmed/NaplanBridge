@@ -211,24 +211,64 @@ export class StudentExamsComponent implements OnInit {
         console.log('📊 [HISTORY DEBUG] Parsed history array:', history);
         console.log('📊 [HISTORY DEBUG] History length:', history.length);
 
-        // Log first item details if exists
-        if (history.length > 0) {
-          console.log('📊 [HISTORY DEBUG] First exam details:', history[0]);
-          console.log('📊 [HISTORY DEBUG] First exam keys:', Object.keys(history[0]));
+        // ✅ FIX: Filter out exams that are still available (not actually completed)
+        // Backend bug: Sometimes returns exams in history that haven't been taken yet
+        const now = new Date();
+        const validHistory = history.filter((exam: any) => {
+          // Check if exam has a valid completedDate that's in the past
+          const completedDate = exam.completedDate ? new Date(exam.completedDate) : null;
+          const endDate = exam.endDate ? new Date(exam.endDate) : null;
 
-          // ⚠️ Check if backend bug exists
-          if (history[0].score === 0 && history[0].status === 'Completed') {
-            console.error('🐛 [BACKEND BUG DETECTED] Score is 0 but exam is completed!');
-            console.error('🐛 Backend endpoint /api/exam/student/{studentId}/history is broken');
-            console.error('🐛 See BACKEND_REPORT_EXAM_HISTORY_WRONG_SCORE.md for fix');
+          // ✅ Check 1: If exam has submittedAt, it's definitely completed
+          if (exam.submittedAt) {
+            return true;
           }
+
+          // ✅ Check 2: If status is 'Graded' or 'Submitted', it's completed
+          if (exam.status === 'Graded' || exam.status === 'Submitted') {
+            return true;
+          }
+
+          // ✅ Check 3: If score > 0 or correctAnswers > 0, student took the exam
+          if ((exam.score && exam.score > 0) || (exam.correctAnswers && exam.correctAnswers > 0)) {
+            return true;
+          }
+
+          // ✅ Check 4: If totalQuestions exists and correctAnswers is defined (even if 0), student took it
+          if (exam.totalQuestions && exam.correctAnswers !== undefined && exam.correctAnswers !== null) {
+            // But make sure it's not an active exam that was auto-started by backend bug
+            if (endDate && endDate > now && exam.score === 0 && exam.correctAnswers === 0) {
+              console.warn(`⚠️ Filtering out exam "${exam.examTitle}" - still available (ends ${endDate.toLocaleString()}) with 0 score`);
+              return false;
+            }
+            return true;
+          }
+
+          // ❌ Check 5: If exam end date is in the future and score is 0, it's probably a backend bug
+          if (endDate && endDate > now && exam.score === 0) {
+            console.warn(`⚠️ Filtering out exam "${exam.examTitle}" - still available and not attempted`);
+            return false;
+          }
+
+          // Default: include it
+          return true;
+        });
+
+        console.log('📊 [HISTORY DEBUG] Valid history after filtering:', validHistory.length);
+
+        // Log first item details if exists
+        if (validHistory.length > 0) {
+          console.log('📊 [HISTORY DEBUG] First exam details:', validHistory[0]);
+          console.log('📊 [HISTORY DEBUG] First exam keys:', Object.keys(validHistory[0]));
         }
 
-        this.allExamHistory.set(history);
+        this.allExamHistory.set(validHistory);
         this.examHistory.set(this.filteredHistory());
-        this.historyLoading.set(false);        console.log('✅ Loaded exam history:', {
+        this.historyLoading.set(false);
+
+        console.log('✅ Loaded exam history:', {
           total: history.length,
-          filtered: this.filteredHistory().length,
+          filtered: validHistory.length,
           subjectFilter: this.selectedSubjectId(),
           examHistorySignal: this.examHistory()
         });
