@@ -183,20 +183,24 @@ export class TeacherSessionsComponent implements OnInit {
    * Mark session as completed
    */
   markAsCompleted(session: PrivateSessionDto): void {
+    console.log('🔵 Attempting to complete session:', session);
+    
     if (!confirm(`Mark this session with ${session.studentName} as completed?`)) {
       return;
     }
 
     this.sessionService.markSessionAsCompleted(session.id).subscribe({
       next: (response) => {
+        console.log('✅ Session completed response:', response);
         if (response.success) {
           this.toastService.showSuccess('Session marked as completed!');
           this.loadSessions();
         }
       },
       error: (error) => {
-        console.error('Error marking session as completed:', error);
-        this.toastService.showError('Failed to mark session as completed');
+        console.error('❌ Error marking session as completed:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
+        this.toastService.showError(error.message || 'Failed to mark session as completed');
       }
     });
   }

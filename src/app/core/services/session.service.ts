@@ -4,8 +4,11 @@
  */
 
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ApiService } from './base-api.service';
+import { environment } from '../../../environments/environment';
 import {
   PrivateSession,
   TeacherSessionSettings,
@@ -30,6 +33,8 @@ import {
 })
 export class SessionService {
   private api = inject(ApiService);
+  private http = inject(HttpClient);
+  private baseUrl = environment.apiUrl;
 
   // ============================================
   // Teacher Endpoints - للمعلمين
@@ -104,7 +109,8 @@ export class SessionService {
    * PUT /api/Sessions/{sessionId}/complete
    */
   markSessionAsCompleted(sessionId: number): Observable<SessionApiResponse<boolean>> {
-    return this.api.put<SessionApiResponse<boolean>>(`Sessions/${sessionId}/complete`, null);
+    // PUT endpoint without body - try with empty object as backend might expect something
+    return this.api.put<SessionApiResponse<boolean>>(`Sessions/${sessionId}/complete`, {});
   }
 
   // ============================================
