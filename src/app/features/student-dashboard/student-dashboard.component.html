@@ -609,7 +609,7 @@
 
             @if (examHistory().length > 0) {
               <div class="space-y-2">
-                @for (exam of examHistory().slice(0, 3); track exam.examId) {
+                @for (exam of examHistory().slice(0, 3); track $index) {
                   <div
                     (click)="viewExam(exam.examId)"
                     class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">

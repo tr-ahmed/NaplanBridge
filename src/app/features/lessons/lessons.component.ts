@@ -168,10 +168,10 @@ export class LessonsComponent implements OnInit, OnDestroy {
             this.selectedTermId.set(parseInt(termId));
             this.loadLessonsByTerm(parseInt(termId));
           }
-          // ❌ LAST RESORT: Load all lessons for subject
+          // ✅ NEW: Wait for terms to load then auto-select current term
           else {
-            console.warn('⚠️ No termNumber or termId provided, loading all lessons');
-            this.loadLessonsForSubjectId(parseInt(subjectId));
+            console.log('⏳ No termNumber provided - waiting for terms to load and auto-selecting current term');
+            this.autoSelectCurrentTermAndLoadLessons(parseInt(subjectId));
           }
         } else if (subject) {
           // Fallback: try to load by subject name (for backward compatibility)
@@ -365,6 +365,11 @@ export class LessonsComponent implements OnInit, OnDestroy {
     const studentId = this.selectedStudentId() || this.authService.getCurrentUser()?.studentId;
     if (studentId) {
       queryParams.studentId = studentId;
+    }
+
+    // ✅ NEW: Pass hasAccess to skip subscription guard API call
+    if (this.hasAccess()) {
+      queryParams.hasAccess = 'true';
     }
 
     if (isPreviewMode) {
@@ -609,10 +614,58 @@ export class LessonsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Load lessons by term
-   * ✅ Backend endpoint fixed (Nov 3, 2025) - now stable and performant
-   * Fallback mechanism kept as safety net for edge cases
+   * ✅ NEW: Auto-select current term and load its lessons
+   * Called when no termNumber is provided in URL
    */
+  private autoSelectCurrentTermAndLoadLessons(subjectId: number): void {
+    this.loading.set(true);
+
+    const user = this.authService.getCurrentUser();
+    let studentId = user?.studentId || this.selectedStudentId();
+
+    if (!studentId) {
+      console.warn('⚠️ No studentId - loading all lessons for subject');
+      this.loadLessonsForSubjectId(subjectId);
+      return;
+    }
+
+    // Get term access status to find current term
+    this.coursesService.getTermAccessStatus(studentId, subjectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (termAccessStatus: any) => {
+          const currentTermNumber = termAccessStatus.currentTermNumber || 1;
+          const termsData = termAccessStatus.terms || [];
+
+          // Find current term in accessible terms
+          const currentTerm = termsData.find((t: any) =>
+            t.isCurrentTerm || t.termNumber === currentTermNumber
+          );
+
+          if (currentTerm && currentTerm.hasAccess) {
+            console.log('✅ Auto-selecting current term:', currentTerm.termNumber);
+            this.selectedTermId.set(currentTerm.termId || currentTerm.termNumber);
+            this.loadLessonsByTermNumber(subjectId, currentTerm.termNumber);
+          } else {
+            // Find first accessible term
+            const firstAccessibleTerm = termsData.find((t: any) => t.hasAccess);
+            if (firstAccessibleTerm) {
+              console.log('✅ Auto-selecting first accessible term:', firstAccessibleTerm.termNumber);
+              this.selectedTermId.set(firstAccessibleTerm.termId || firstAccessibleTerm.termNumber);
+              this.loadLessonsByTermNumber(subjectId, firstAccessibleTerm.termNumber);
+            } else {
+              console.log('⚠️ No accessible terms - loading current term preview');
+              this.loadLessonsByTermNumber(subjectId, currentTermNumber);
+            }
+          }
+        },
+        error: (error: any) => {
+          console.error('❌ Error getting term access - falling back to term 1:', error);
+          this.loadLessonsByTermNumber(subjectId, 1);
+        }
+      });
+  }
+
   /**
    * ✅ UPDATED: Load lessons by term (supports guest mode)
    */
