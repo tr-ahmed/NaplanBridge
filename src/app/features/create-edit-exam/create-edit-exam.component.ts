@@ -918,6 +918,12 @@ export class CreateEditExamComponent implements OnInit {
       startTime: formValue.startTime ? new Date(formValue.startTime).toISOString() : null,
       endTime: formValue.endTime ? new Date(formValue.endTime).toISOString() : null,
       isPublished: publish,
+      // ✅ ADD: Exam Settings
+      allowLateSubmission: formValue.allowLateSubmission ?? false,
+      shuffleQuestions: formValue.shuffleQuestions ?? false,
+      showResults: formValue.showResults ?? true,
+      allowReview: formValue.allowReview ?? true,
+      maxAttempts: Number(formValue.maxAttempts) || 1,
       questions: formValue.questions.map((q: any, index: number) => ({
         questionText: q.questionText,
         questionType: q.questionType,
@@ -935,7 +941,7 @@ export class CreateEditExamComponent implements OnInit {
     console.log('💾 Saving Exam Data:', examData);
 
     if (this.isEditMode() && this.examId) {
-      // ✅ UPDATE exam - use UpdateExamDto structure
+      // ✅ UPDATE exam - include ALL exam settings
       const updateData: any = {
         title: examData.title,
         description: examData.description,
@@ -944,7 +950,13 @@ export class CreateEditExamComponent implements OnInit {
         passingMarks: examData.passingMarks,
         startTime: examData.startTime,
         endTime: examData.endTime,
-        isPublished: publish  // ✅ Explicitly set publish status
+        isPublished: publish,
+        // ✅ ADD: Exam Settings
+        allowLateSubmission: formValue.allowLateSubmission ?? false,
+        shuffleQuestions: formValue.shuffleQuestions ?? false,
+        showResults: formValue.showResults ?? true,
+        allowReview: formValue.allowReview ?? true,
+        maxAttempts: Number(formValue.maxAttempts) || 1
       };
 
       console.log('📤 Updating exam with data:', updateData);

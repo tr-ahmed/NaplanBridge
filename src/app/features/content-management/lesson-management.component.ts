@@ -109,7 +109,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   };
   isDiscussionFormOpen = false;
   editingDiscussion: any = null;
-  
+
   // Reply management
   replyForm: any = {};
   showReplyForm: any = {};
@@ -748,6 +748,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       questionText: '',
       questionType: 'MultipleChoice',
       points: 1,
+      explanation: '',
+      incorrectAnswerMessage: '',
       options: [
         { optionText: '', isCorrect: false },
         { optionText: '', isCorrect: false },
@@ -782,6 +784,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       questionText: question.questionText || '',
       questionType: question.isMultipleChoice ? 'MultipleChoice' : 'TrueFalse',
       points: 1, // Not stored in API, default to 1
+      explanation: question.explanation || '',
+      incorrectAnswerMessage: question.incorrectAnswerMessage || '',
       options: mappedOptions
     };
 
@@ -837,7 +841,9 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
           this.questionForm.questionText,
           this.questionForm.questionType,
           this.questionForm.points,
-          this.questionForm.options.filter((opt: any) => opt.optionText.trim())
+          this.questionForm.options.filter((opt: any) => opt.optionText.trim()),
+          this.questionForm.explanation,
+          this.questionForm.incorrectAnswerMessage
         ).toPromise();
       } else {
         await this.contentService.addLessonQuestion(
@@ -845,7 +851,9 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
           this.questionForm.questionText,
           this.questionForm.questionType,
           this.questionForm.points,
-          this.questionForm.options.filter((opt: any) => opt.optionText.trim())
+          this.questionForm.options.filter((opt: any) => opt.optionText.trim()),
+          this.questionForm.explanation,
+          this.questionForm.incorrectAnswerMessage
         ).toPromise();
       }
 
@@ -1002,7 +1010,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
   async submitReply(discussionId: number): Promise<void> {
     const reply = this.replyForm[discussionId]?.trim();
-    
+
     if (!reply) {
       Swal.fire('Warning', 'Please enter a reply', 'warning');
       return;
@@ -1018,7 +1026,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
       await this.contentService.addDiscussionReply(discussionId, reply).toPromise();
       await this.loadDiscussions();
-      
+
       this.showReplyForm[discussionId] = false;
       this.replyForm[discussionId] = '';
 

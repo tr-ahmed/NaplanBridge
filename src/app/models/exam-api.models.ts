@@ -84,6 +84,14 @@ export interface CreateExamDto {
   passingMarks: number;
   startTime: string | null;  // ✅ Can be null for exams without time restrictions
   endTime: string | null;    // ✅ Can be null for exams without time restrictions
+
+  // ========== EXAM SETTINGS ==========
+  allowLateSubmission?: boolean;
+  shuffleQuestions?: boolean;
+  showResults?: boolean;
+  allowReview?: boolean;
+  maxAttempts?: number;
+
   isPublished: boolean;
   questions: CreateQuestionDto[];
 }
@@ -111,6 +119,14 @@ export interface UpdateExamDto {
   passingMarks?: number;
   startTime?: string | null;  // ✅ Can be null or undefined
   endTime?: string | null;    // ✅ Can be null or undefined
+
+  // ========== EXAM SETTINGS ==========
+  allowLateSubmission?: boolean;
+  shuffleQuestions?: boolean;
+  showResults?: boolean;
+  allowReview?: boolean;
+  maxAttempts?: number;
+
   isPublished?: boolean;
 }
 

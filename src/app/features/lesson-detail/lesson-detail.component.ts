@@ -220,6 +220,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       option4: ['', [Validators.required]],
       correctAnswer: [0, [Validators.required, Validators.min(0), Validators.max(3)]],
       explanation: [''],
+      incorrectAnswerMessage: [''],
       points: [1, [Validators.required, Validators.min(1)]]
     });
   }
