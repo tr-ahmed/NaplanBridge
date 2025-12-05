@@ -739,8 +739,13 @@ export class UserManagmentComponent implements OnInit, OnDestroy {
   /**
    * Toggle user active/inactive status
    */
-  toggleUserStatus(user: any) {
-    if (user.isActive) {
+  toggleUserStatus(user: any, event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    // Keep UI in sync with actual state until action succeeds
+    const originalState = !!user.isActive;
+    checkbox.checked = originalState;
+
+    if (originalState) {
       this.deactivateUser(user);
     } else {
       this.activateUser(user);

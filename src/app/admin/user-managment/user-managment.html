@@ -186,7 +186,7 @@
                         <label class="toggle-switch" [attr.title]="user.isActive ? 'Active - Click to deactivate' : 'Inactive - Click to activate'">
                           <input type="checkbox"
                                  [checked]="user.isActive"
-                                 (change)="toggleUserStatus(user)"
+                                 (change)="toggleUserStatus(user, $event)"
                                  class="toggle-input">
                           <span class="toggle-slider"></span>
                         </label>
@@ -266,7 +266,7 @@
                     [class.bg-blue-600]="page === currentPage()"
                     [class.text-white]="page === currentPage()"
                     [class.border-blue-600]="page === currentPage()"
-                    class="min-w-[2rem] h-8 sm:min-w-[2.5rem] sm:h-10 flex items-center justify-center rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-xs sm:text-sm font-semibold transition-colors">
+                    class="min-w-[2rem] h-8 sm:min-w-[2.5rem] sm:h-10 flex items-center justify-center rounded-lg border border-gray-300 bg-blue-600] hover:bg-blue-400 text-xs sm:text-sm font-semibold transition-colors">
               {{ page }}
             </button>
             }
