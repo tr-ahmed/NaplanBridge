@@ -23,7 +23,7 @@
           *ngIf="!showAddForm"
           (click)="openAddForm()"
           class="btn btn-primary">
-          <span class="icon">+</span>
+          <i class="fas fa-plus"></i>
           Add Term
         </button>
       </div>
@@ -32,12 +32,16 @@
 
   <!-- Messages -->
   <div *ngIf="successMessage" class="alert alert-success">
-    <span class="icon">✅</span>
+    <span class="icon">
+      <i class="fas fa-check-circle"></i>
+    </span>
     {{ successMessage }}
   </div>
 
   <div *ngIf="errorMessage" class="alert alert-error">
-    <span class="icon">⚠️</span>
+    <span class="icon">
+      <i class="fas fa-exclamation-circle"></i>
+    </span>
     {{ errorMessage }}
   </div>
 
@@ -140,7 +144,9 @@
     </div>
 
     <div *ngIf="!isLoading && terms.length === 0" class="empty-state">
-      <div class="empty-icon">📅</div>
+      <div class="empty-icon">
+        <i class="fas fa-calendar-times"></i>
+      </div>
       <h3>No Terms Found</h3>
       <p>No academic terms have been configured for year {{ selectedYear }}.</p>
       <button (click)="openAddForm()" class="btn btn-primary">
@@ -181,7 +187,7 @@
             (click)="editTerm(term)"
             class="btn-icon btn-edit"
             title="Edit">
-            ✏️
+            <i class="fas fa-edit"></i>
           </button>
           <button
             (click)="toggleActive(term)"
@@ -189,13 +195,14 @@
             [class.btn-activate]="!term.isActive"
             [class.btn-deactivate]="term.isActive"
             [title]="term.isActive ? 'Deactivate' : 'Activate'">
-            {{ term.isActive ? '🔓' : '🔒' }}
+            <i *ngIf="term.isActive" class="fas fa-lock-open"></i>
+            <i *ngIf="!term.isActive" class="fas fa-lock"></i>
           </button>
           <button
             (click)="deleteTerm(term)"
-            class="btn-icon btn-delete"
+            class="btn-icon btn-delete btn-danger"
             title="Delete">
-            🗑️
+            <i class="fas fa-trash-alt"></i>
           </button>
         </div>
       </div>
