@@ -62,37 +62,59 @@
         <!-- Username Field -->
         <div class="form-group">
           <label for="userName">Username</label>
-          <input
-            id="userName"
-            type="text"
-            class="form-control"
-            formControlName="userName"
-            [disabled]="isSaving"
-            placeholder="Enter your username">
+          <div style="position: relative;">
+            <input
+              id="userName"
+              type="text"
+              class="form-control"
+              formControlName="userName"
+              [disabled]="isSaving"
+              placeholder="Enter your username">
+            <div *ngIf="checkingUsername()" style="position: absolute; right: 10px; top: 10px;">
+              <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            </div>
+          </div>
           <div class="error-message" *ngIf="hasError('userName', 'required')">
             <small><i class="fas fa-exclamation-circle"></i> Username is required</small>
           </div>
           <div class="error-message" *ngIf="hasError('userName', 'minlength')">
             <small><i class="fas fa-exclamation-circle"></i> Username must be at least 3 characters</small>
           </div>
+          <div class="error-message" *ngIf="hasError('userName', 'usernameTaken')">
+            <small><i class="fas fa-exclamation-circle"></i> ❌ This username is already taken</small>
+          </div>
+          <small class="text-success" *ngIf="!hasError('userName', 'usernameTaken') && !checkingUsername() && profileForm.get('userName')?.valid && profileForm.get('userName')?.touched && profileForm.get('userName')?.value !== originalUsername">
+            <i class="fas fa-check-circle"></i> ✅
+          </small>
         </div>
 
         <!-- Email Field -->
         <div class="form-group">
           <label for="email">Email Address</label>
-          <input
-            id="email"
-            type="email"
-            class="form-control"
-            formControlName="email"
-            [disabled]="isSaving"
-            placeholder="Enter your email address">
+          <div style="position: relative;">
+            <input
+              id="email"
+              type="email"
+              class="form-control"
+              formControlName="email"
+              [disabled]="isSaving"
+              placeholder="Enter your email address">
+            <div *ngIf="checkingEmail()" style="position: absolute; right: 10px; top: 10px;">
+              <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            </div>
+          </div>
           <div class="error-message" *ngIf="hasError('email', 'required')">
             <small><i class="fas fa-exclamation-circle"></i> Email is required</small>
           </div>
           <div class="error-message" *ngIf="hasError('email', 'email')">
             <small><i class="fas fa-exclamation-circle"></i> Please enter a valid email address</small>
           </div>
+          <div class="error-message" *ngIf="hasError('email', 'emailTaken')">
+            <small><i class="fas fa-exclamation-circle"></i> ❌ This email is already registered</small>
+          </div>
+          <small class="text-success" *ngIf="!hasError('email', 'emailTaken') && !checkingEmail() && profileForm.get('email')?.valid && profileForm.get('email')?.touched && profileForm.get('email')?.value !== originalEmail">
+            <i class="fas fa-check-circle"></i> ✅
+          </small>
         </div>
 
         <!-- Age Field -->
@@ -118,16 +140,27 @@
         <!-- Phone Number Field -->
         <div class="form-group">
           <label for="phoneNumber">Phone Number</label>
-          <input
-            id="phoneNumber"
-            type="tel"
-            class="form-control"
-            formControlName="phoneNumber"
-            [disabled]="isSaving"
-            placeholder="Enter your phone number">
+          <div style="position: relative;">
+            <input
+              id="phoneNumber"
+              type="tel"
+              class="form-control"
+              formControlName="phoneNumber"
+              [disabled]="isSaving"
+              placeholder="Enter your phone number">
+            <div *ngIf="checkingPhone()" style="position: absolute; right: 10px; top: 10px;">
+              <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            </div>
+          </div>
           <div class="error-message" *ngIf="hasError('phoneNumber', 'required')">
             <small><i class="fas fa-exclamation-circle"></i> Phone number is required</small>
           </div>
+          <div class="error-message" *ngIf="hasError('phoneNumber', 'phoneTaken')">
+            <small><i class="fas fa-exclamation-circle"></i> ❌ This phone number is already registered</small>
+          </div>
+          <small class="text-success" *ngIf="!hasError('phoneNumber', 'phoneTaken') && !checkingPhone() && profileForm.get('phoneNumber')?.valid && profileForm.get('phoneNumber')?.touched && profileForm.get('phoneNumber')?.value !== originalPhone">
+            <i class="fas fa-check-circle"></i> ✅
+          </small>
         </div>
       </div>
 

@@ -18,14 +18,24 @@
         <!-- Username -->
         <div>
           <label class="block text-sm font-medium text-blue-900 mb-1">Username</label>
-          <input
-            type="text"
-            formControlName="userName"
-            [class]="hasFieldError('userName') ?
-              'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
-              'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
-            placeholder="Enter your username"
-          />
+          <div class="relative">
+            <input
+              type="text"
+              formControlName="userName"
+              [class]="hasFieldError('userName') ?
+                'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+                'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+              placeholder="Enter your username"
+            />
+            @if (checkingUsername()) {
+              <div class="absolute right-3 top-2.5">
+                <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            }
+          </div>
           @if (registerForm.get('userName')?.hasError('required') && registerForm.get('userName')?.touched) {
             <small class="text-red-500 text-xs mt-1 block">Username is required.</small>
           }
@@ -38,43 +48,75 @@
           @if (registerForm.get('userName')?.hasError('invalidChars') && registerForm.get('userName')?.touched) {
             <small class="text-red-500 text-xs mt-1 block">Username can only contain letters, numbers, and underscores.</small>
           }
+          @if (registerForm.get('userName')?.hasError('usernameTaken') && registerForm.get('userName')?.touched) {
+            <small class="text-red-500 text-xs mt-1 block">❌ This username is already taken. Please choose another one.</small>
+          }
+          @if (!registerForm.get('userName')?.hasError('usernameTaken') && !checkingUsername() && registerForm.get('userName')?.valid && registerForm.get('userName')?.touched) {
+            <small class="text-green-600 text-xs mt-1 block">✅</small>
+          }
         </div>
 
         <!-- Phone number -->
         <div>
           <label class="block text-sm font-medium text-blue-900 mb-1">Phone Number</label>
-          <input
-            type="text"
-            formControlName="phoneNumber"
-            [class]="hasFieldError('phoneNumber') ?
-              'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
-              'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
-            placeholder="Enter Your Phone Number"
-          />
+          <div class="relative">
+            <input
+              type="text"
+              formControlName="phoneNumber"
+              [class]="hasFieldError('phoneNumber') ?
+                'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+                'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+              placeholder="Enter Your Phone Number"
+            />
+            @if (checkingPhone()) {
+              <div class="absolute right-3 top-2.5">
+                <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            }
+          </div>
           @if (hasFieldError('phoneNumber')) {
-            <small class="text-red-500 text-xs mt-1">{{ getFieldError('phoneNumber') }}</small>
+            <small class="text-red-500 text-xs mt-1 block">{{ getFieldError('phoneNumber') }}</small>
+          }
+          @if (!registerForm.get('phoneNumber')?.hasError('phoneTaken') && !checkingPhone() && registerForm.get('phoneNumber')?.valid && registerForm.get('phoneNumber')?.touched) {
+            <small class="text-green-600 text-xs mt-1 block">✅</small>
           }
         </div>
 
         <!-- Email -->
         <div>
           <label class="block text-sm font-medium text-blue-900 mb-1">Email Address</label>
-          <input
-            type="email"
-            formControlName="email"
-            [class]="hasFieldError('email') ?
-              'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
-              'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
-            placeholder="Enter your email"
-          />
-          <!-- @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-            <small class="text-gray-500 text-xs block mt-1">Please enter a valid email address (e.g. user@example.com).</small>
-          } -->
+          <div class="relative">
+            <input
+              type="email"
+              formControlName="email"
+              [class]="hasFieldError('email') ?
+                'w-full px-3 py-2 border border-red-500 rounded focus:outline-none focus:ring-2 focus:ring-red-200' :
+                'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
+              placeholder="Enter your email"
+            />
+            @if (checkingEmail()) {
+              <div class="absolute right-3 top-2.5">
+                <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            }
+          </div>
           @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
-            <small class="text-red-500 text-xs mt-1">Email is required.</small>
+            <small class="text-red-500 text-xs mt-1 block">Email is required.</small>
           }
           @if (registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched) {
-            <small class="text-red-500 text-xs mt-1">Please enter a valid email address (e.g. user@example.com).</small>
+            <small class="text-red-500 text-xs mt-1 block">Please enter a valid email address (e.g. user@example.com).</small>
+          }
+          @if (registerForm.get('email')?.hasError('emailTaken') && registerForm.get('email')?.touched) {
+            <small class="text-red-500 text-xs mt-1 block">❌ This email is already registered. Please use another email or login.</small>
+          }
+          @if (!registerForm.get('email')?.hasError('emailTaken') && !checkingEmail() && registerForm.get('email')?.valid && registerForm.get('email')?.touched) {
+            <small class="text-green-600 text-xs mt-1 block">✅</small>
           }
         </div>
 

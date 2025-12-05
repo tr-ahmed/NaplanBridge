@@ -286,4 +286,105 @@ export class ParentApiService {
       })
     );
   }
+
+  /**
+   * Check if username already exists
+   * GET /api/User/check-username?username={username}
+   * @param username Username to check
+   * @returns Observable<boolean> - true if available (not taken), false if already exists
+   */
+  checkUsername(username: string): Observable<boolean> {
+    const url = `${this.baseUrl}/User/check-username`;
+    return this.http.get<any>(url, { params: { username } }).pipe(
+      map((response: any) => {
+        console.log('✅ Check Username Response:', { username, response });
+        // Backend returns { exists: true } if username exists
+        // We need to return true if AVAILABLE (not exists) and false if TAKEN (exists)
+        if (typeof response === 'boolean') {
+          return response; // Direct boolean response
+        }
+        if (typeof response === 'object' && response !== null) {
+          // If exists: true → username is taken → return false (not available)
+          // If exists: false → username is available → return true
+          if ('exists' in response) {
+            return !response.exists; // Invert: !true = false (taken), !false = true (available)
+          }
+          // Fallback for other response formats
+          return response.available !== false && response.success !== false;
+        }
+        return false; // Assume unavailable on uncertain response
+      }),
+      catchError((error) => {
+        console.error('❌ Check Username Error:', error);
+        return of(false); // Assume unavailable on error
+      })
+    );
+  }
+
+  /**
+   * Check if email already exists
+   * GET /api/User/check-email?email={email}
+   * @param email Email to check
+   * @returns Observable<boolean> - true if available (not taken), false if already exists
+   */
+  checkEmail(email: string): Observable<boolean> {
+    const url = `${this.baseUrl}/User/check-email`;
+    return this.http.get<any>(url, { params: { email } }).pipe(
+      map((response: any) => {
+        console.log('✅ Check Email Response:', { email, response });
+        // Backend returns { exists: true } if email exists
+        if (typeof response === 'boolean') {
+          return response; // Direct boolean response
+        }
+        if (typeof response === 'object' && response !== null) {
+          // If exists: true → email is taken → return false (not available)
+          // If exists: false → email is available → return true
+          if ('exists' in response) {
+            return !response.exists; // Invert: !true = false (taken), !false = true (available)
+          }
+          // Fallback for other response formats
+          return response.available !== false && response.success !== false;
+        }
+        return false; // Assume unavailable on uncertain response
+      }),
+      catchError((error) => {
+        console.error('❌ Check Email Error:', error);
+        return of(false); // Assume unavailable on error
+      })
+    );
+  }
+
+  /**
+   * Check if phone number already exists
+   * GET /api/User/check-phone?phoneNumber={phoneNumber}
+   * @param phoneNumber Phone number to check
+   * @returns Observable<boolean> - true if available (not taken), false if already exists
+   */
+  checkPhoneNumber(phoneNumber: string): Observable<boolean> {
+    const url = `${this.baseUrl}/User/check-phone`;
+    return this.http.get<any>(url, { params: { phoneNumber } }).pipe(
+      map((response: any) => {
+        console.log('✅ Check Phone Response:', { phoneNumber, response });
+        // Backend returns { exists: true } if phone exists
+        if (typeof response === 'boolean') {
+          return response; // Direct boolean response
+        }
+        if (typeof response === 'object' && response !== null) {
+          // If exists: true → phone is taken → return false (not available)
+          // If exists: false → phone is available → return true
+          if ('exists' in response) {
+            return !response.exists; // Invert: !true = false (taken), !false = true (available)
+          }
+          // Fallback for other response formats
+          return response.available !== false && response.success !== false;
+        }
+        return false; // Assume unavailable on uncertain response
+      }),
+      catchError((error) => {
+        console.error('❌ Check Phone Error:', error);
+        return of(false); // Assume unavailable on error
+      })
+    );
+  }
 }
+

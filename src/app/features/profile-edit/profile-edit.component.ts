@@ -1,10 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { ProfileService, UpdateProfileRequest } from '../../core/services/profile.service';
 import { ToastService } from '../../core/services/toast.service';
+import { AuthService } from '../../core/services/auth.service';
 import Swal from 'sweetalert2';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-profile-edit',
@@ -16,6 +18,7 @@ import Swal from 'sweetalert2';
 export class ProfileEditComponent implements OnInit {
   private profileService = inject(ProfileService);
   private toastService = inject(ToastService);
+  private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
   profileForm!: FormGroup;
@@ -25,9 +28,119 @@ export class ProfileEditComponent implements OnInit {
   isSaving = false;
   currentUserData: any = null;
 
+  // Validation loading states
+  checkingUsername = signal(false);
+  checkingEmail = signal(false);
+  checkingPhone = signal(false);
+
+  // Store original values to skip validation on unchanged fields
+  originalUsername = '';
+  originalEmail = '';
+  originalPhone = '';
+
   ngOnInit(): void {
     this.initializeForm();
     this.loadCurrentProfile();
+  }
+
+  /**
+   * Setup real-time validation after profile is loaded
+   */
+  private setupRealTimeValidation(): void {
+    // Username availability check
+    this.profileForm.get('userName')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((username: string) => {
+        const control = this.profileForm.get('userName');
+        // Skip if unchanged or invalid
+        if (!username || username === this.originalUsername || control?.hasError('minlength')) {
+          this.checkingUsername.set(false);
+          return [];
+        }
+
+        this.checkingUsername.set(true);
+        return this.authService.checkUsername(username);
+      })
+    ).subscribe({
+      next: (isAvailable: boolean) => {
+        this.checkingUsername.set(false);
+        const control = this.profileForm.get('userName');
+        if (!isAvailable) {
+          control?.setErrors({ ...control.errors, usernameTaken: true });
+        } else {
+          if (control?.hasError('usernameTaken')) {
+            const errors = { ...control.errors };
+            delete errors['usernameTaken'];
+            control.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      },
+      error: () => this.checkingUsername.set(false)
+    });
+
+    // Email availability check
+    this.profileForm.get('email')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((email: string) => {
+        const control = this.profileForm.get('email');
+        // Skip if unchanged or invalid
+        if (!email || email === this.originalEmail || control?.hasError('email')) {
+          this.checkingEmail.set(false);
+          return [];
+        }
+
+        this.checkingEmail.set(true);
+        return this.authService.checkEmail(email);
+      })
+    ).subscribe({
+      next: (isAvailable: boolean) => {
+        this.checkingEmail.set(false);
+        const control = this.profileForm.get('email');
+        if (!isAvailable) {
+          control?.setErrors({ ...control.errors, emailTaken: true });
+        } else {
+          if (control?.hasError('emailTaken')) {
+            const errors = { ...control.errors };
+            delete errors['emailTaken'];
+            control.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      },
+      error: () => this.checkingEmail.set(false)
+    });
+
+    // Phone availability check
+    this.profileForm.get('phoneNumber')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((phoneNumber: string) => {
+        // Skip if unchanged
+        if (!phoneNumber || phoneNumber === this.originalPhone) {
+          this.checkingPhone.set(false);
+          return [];
+        }
+
+        this.checkingPhone.set(true);
+        return this.authService.checkPhoneNumber(phoneNumber);
+      })
+    ).subscribe({
+      next: (isAvailable: boolean) => {
+        this.checkingPhone.set(false);
+        const control = this.profileForm.get('phoneNumber');
+        if (!isAvailable) {
+          control?.setErrors({ ...control.errors, phoneTaken: true });
+        } else {
+          if (control?.hasError('phoneTaken')) {
+            const errors = { ...control.errors };
+            delete errors['phoneTaken'];
+            control.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      },
+      error: () => this.checkingPhone.set(false)
+    });
   }
 
   /**
@@ -81,6 +194,11 @@ export class ProfileEditComponent implements OnInit {
    * Patch form with user data
    */
   private patchFormWithUserData(userData: any): void {
+    // Store original values
+    this.originalUsername = userData.userName || '';
+    this.originalEmail = userData.email || '';
+    this.originalPhone = userData.phoneNumber || '';
+
     this.profileForm.patchValue({
       userName: userData.userName || '',
       email: userData.email || '',
@@ -95,6 +213,9 @@ export class ProfileEditComponent implements OnInit {
     } else {
       this.avatarPreview = 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg';
     }
+
+    // Setup validation after data is loaded
+    this.setupRealTimeValidation();
   }
 
   /**

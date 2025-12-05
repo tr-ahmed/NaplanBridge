@@ -1,9 +1,11 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../core/services/auth.service';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-add-user-modal',
@@ -11,13 +13,20 @@ import { environment } from '../../../environments/environment';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './add-user-modal.html'
 })
-export class AddUserModalComponent {
+export class AddUserModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
   @Output() userCreated = new EventEmitter<any>();
+
+  private authService = inject(AuthService);
 
   loading = false;
   error: string | null = null;
   validationErrors: { [key: string]: string[] } = {};
+
+  // Validation loading states
+  checkingUsername = signal(false);
+  checkingEmail = signal(false);
+  checkingPhone = signal(false);
 
   addUserForm: ReturnType<FormBuilder['group']>;
 
@@ -51,6 +60,108 @@ export class AddUserModalComponent {
       age: [null, [Validators.required, Validators.min(18)]],
       salary: [null, [Validators.min(0)]],
       iban: ['', [Validators.pattern(/^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/)]]
+    });
+  }
+
+  ngOnInit(): void {
+    this.setupRealTimeValidation();
+  }
+
+  /**
+   * Setup real-time validation for username, email, and phone
+   */
+  private setupRealTimeValidation(): void {
+    // Username availability check
+    this.addUserForm.get('userName')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((username: string) => {
+        const control = this.addUserForm.get('userName');
+        if (!username || username.length < 4 || control?.hasError('numbersOnly') || control?.hasError('invalidChars')) {
+          this.checkingUsername.set(false);
+          return [];
+        }
+
+        this.checkingUsername.set(true);
+        return this.authService.checkUsername(username);
+      })
+    ).subscribe({
+      next: (isAvailable: boolean) => {
+        this.checkingUsername.set(false);
+        const control = this.addUserForm.get('userName');
+        if (!isAvailable) {
+          control?.setErrors({ ...control.errors, usernameTaken: true });
+        } else {
+          if (control?.hasError('usernameTaken')) {
+            const errors = { ...control.errors };
+            delete errors['usernameTaken'];
+            control.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      },
+      error: () => this.checkingUsername.set(false)
+    });
+
+    // Email availability check
+    this.addUserForm.get('email')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((email: string) => {
+        const control = this.addUserForm.get('email');
+        if (!email || control?.hasError('email')) {
+          this.checkingEmail.set(false);
+          return [];
+        }
+
+        this.checkingEmail.set(true);
+        return this.authService.checkEmail(email);
+      })
+    ).subscribe({
+      next: (isAvailable: boolean) => {
+        this.checkingEmail.set(false);
+        const control = this.addUserForm.get('email');
+        if (!isAvailable) {
+          control?.setErrors({ ...control.errors, emailTaken: true });
+        } else {
+          if (control?.hasError('emailTaken')) {
+            const errors = { ...control.errors };
+            delete errors['emailTaken'];
+            control.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      },
+      error: () => this.checkingEmail.set(false)
+    });
+
+    // Phone number availability check
+    this.addUserForm.get('phoneNumber')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((phoneNumber: string) => {
+        const control = this.addUserForm.get('phoneNumber');
+        if (!phoneNumber) {
+          this.checkingPhone.set(false);
+          return [];
+        }
+
+        this.checkingPhone.set(true);
+        return this.authService.checkPhoneNumber(phoneNumber);
+      })
+    ).subscribe({
+      next: (isAvailable: boolean) => {
+        this.checkingPhone.set(false);
+        const control = this.addUserForm.get('phoneNumber');
+        if (!isAvailable) {
+          control?.setErrors({ ...control.errors, phoneTaken: true });
+        } else {
+          if (control?.hasError('phoneTaken')) {
+            const errors = { ...control.errors };
+            delete errors['phoneTaken'];
+            control.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      },
+      error: () => this.checkingPhone.set(false)
     });
   }
 

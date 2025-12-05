@@ -6,20 +6,36 @@
     <form [formGroup]="addUserForm" (ngSubmit)="onSubmit()" autocomplete="off">
       <div class="mb-4">
         <label class="block mb-1 font-semibold">Username</label>
-        <input formControlName="userName" class="w-full border rounded px-3 py-2"
-               autocomplete="new-username"
-               [class.border-red-500]="validationErrors['userName']" />
+        <div class="relative">
+          <input formControlName="userName" class="w-full border rounded px-3 py-2"
+                 autocomplete="new-username"
+                 [class.border-red-500]="validationErrors['userName']" />
+          @if (checkingUsername()) {
+            <div class="absolute right-3 top-2.5">
+              <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          }
+        </div>
         @if (addUserForm.get('userName')?.hasError('required') && addUserForm.get('userName')?.touched) {
-          <small class="text-red-500">Username is required.</small>
+          <small class="text-red-500 block mt-1">Username is required.</small>
         }
         @if (addUserForm.get('userName')?.hasError('minlength') && addUserForm.get('userName')?.touched) {
-          <small class="text-red-500">Username must be at least 4 characters.</small>
+          <small class="text-red-500 block mt-1">Username must be at least 4 characters.</small>
         }
         @if (addUserForm.get('userName')?.hasError('numbersOnly') && addUserForm.get('userName')?.touched) {
-          <small class="text-red-500">Username cannot be only numbers.</small>
+          <small class="text-red-500 block mt-1">Username cannot be only numbers.</small>
         }
         @if (addUserForm.get('userName')?.hasError('invalidChars') && addUserForm.get('userName')?.touched) {
-          <small class="text-red-500">Username can only contain letters, numbers, and underscores.</small>
+          <small class="text-red-500 block mt-1">Username can only contain letters, numbers, and underscores.</small>
+        }
+        @if (addUserForm.get('userName')?.hasError('usernameTaken') && addUserForm.get('userName')?.touched) {
+          <small class="text-red-500 block mt-1">❌ This username is already taken.</small>
+        }
+        @if (!addUserForm.get('userName')?.hasError('usernameTaken') && !checkingUsername() && addUserForm.get('userName')?.valid && addUserForm.get('userName')?.touched) {
+          <small class="text-green-600 block mt-1">✅</small>
         }
         @if (validationErrors['userName']) {
           @for (error of validationErrors['userName']; track error) {
@@ -29,14 +45,30 @@
       </div>
       <div class="mb-4">
         <label class="block mb-1 font-semibold">Email</label>
-        <input formControlName="email" type="email" class="w-full border rounded px-3 py-2"
-               autocomplete="email"
-               [class.border-red-500]="validationErrors['email']" />
+        <div class="relative">
+          <input formControlName="email" type="email" class="w-full border rounded px-3 py-2"
+                 autocomplete="email"
+                 [class.border-red-500]="validationErrors['email']" />
+          @if (checkingEmail()) {
+            <div class="absolute right-3 top-2.5">
+              <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          }
+        </div>
         @if (addUserForm.get('email')?.hasError('required') && addUserForm.get('email')?.touched) {
-          <small class="text-red-500">Email is required.</small>
+          <small class="text-red-500 block mt-1">Email is required.</small>
         }
         @if (addUserForm.get('email')?.hasError('email') && addUserForm.get('email')?.touched) {
-          <small class="text-red-500">Please enter a valid email address (e.g. user@example.com).</small>
+          <small class="text-red-500 block mt-1">Please enter a valid email address (e.g. user@example.com).</small>
+        }
+        @if (addUserForm.get('email')?.hasError('emailTaken') && addUserForm.get('email')?.touched) {
+          <small class="text-red-500 block mt-1">❌ This email is already registered.</small>
+        }
+        @if (!addUserForm.get('email')?.hasError('emailTaken') && !checkingEmail() && addUserForm.get('email')?.valid && addUserForm.get('email')?.touched) {
+          <small class="text-green-600 block mt-1">✅</small>
         }
         @if (validationErrors['email']) {
           @for (error of validationErrors['email']; track error) {
@@ -63,10 +95,26 @@
       </div>
       <div class="mb-4">
         <label class="block mb-1 font-semibold">Phone Number</label>
-        <input formControlName="phoneNumber" class="w-full border rounded px-3 py-2"
-               [class.border-red-500]="validationErrors['phoneNumber']" />
+        <div class="relative">
+          <input formControlName="phoneNumber" class="w-full border rounded px-3 py-2"
+                 [class.border-red-500]="validationErrors['phoneNumber']" />
+          @if (checkingPhone()) {
+            <div class="absolute right-3 top-2.5">
+              <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          }
+        </div>
         @if (addUserForm.get('phoneNumber')?.invalid && addUserForm.get('phoneNumber')?.touched) {
-          <small class="text-red-500">Phone number is required.</small>
+          <small class="text-red-500 block mt-1">Phone number is required.</small>
+        }
+        @if (addUserForm.get('phoneNumber')?.hasError('phoneTaken') && addUserForm.get('phoneNumber')?.touched) {
+          <small class="text-red-500 block mt-1">❌ This phone number is already registered.</small>
+        }
+        @if (!addUserForm.get('phoneNumber')?.hasError('phoneTaken') && !checkingPhone() && addUserForm.get('phoneNumber')?.valid && addUserForm.get('phoneNumber')?.touched) {
+          <small class="text-green-600 block mt-1">✅</small>
         }
         @if (validationErrors['phoneNumber']) {
           @for (error of validationErrors['phoneNumber']; track error) {

@@ -459,4 +459,31 @@ navigateToUserDashboard(): void {
   resendVerificationEmail(dto: ResendVerificationDto): Observable<ApiResponse<boolean>> {
     return this.parentApiService.resendVerificationEmail(dto);
   }
+
+  /**
+   * Check if username already exists
+   * @param username Username to check
+   * @returns Observable<boolean> - true if available, false if already taken
+   */
+  checkUsername(username: string): Observable<boolean> {
+    return this.parentApiService.checkUsername(username);
+  }
+
+  /**
+   * Check if email already exists
+   * @param email Email to check
+   * @returns Observable<boolean> - true if available, false if already taken
+   */
+  checkEmail(email: string): Observable<boolean> {
+    return this.parentApiService.checkEmail(email);
+  }
+
+  /**
+   * Check if phone number already exists
+   * @param phoneNumber Phone number to check
+   * @returns Observable<boolean> - true if available, false if already taken
+   */
+  checkPhoneNumber(phoneNumber: string): Observable<boolean> {
+    return this.parentApiService.checkPhoneNumber(phoneNumber);
+  }
 }
