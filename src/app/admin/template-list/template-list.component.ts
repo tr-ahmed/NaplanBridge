@@ -81,12 +81,31 @@ export class TemplateListComponent implements OnInit {
   loadCounts() {
     this.templateService.getTemplateCounts().subscribe({
       next: (response: any) => {
-        this.counts.set(response.data);
+        this.counts.set(response?.data || this.getDefaultCounts());
       },
       error: (error: any) => {
-        console.error('Failed to load counts:', error);
+        if (error?.status === 404) {
+          // Endpoint not available yet on backend; fall back silently to zeros
+          this.counts.set(this.getDefaultCounts());
+        } else {
+          console.error('Failed to load counts:', error);
+        }
       }
     });
+  }
+
+  /**
+   * Default counts when endpoint is missing
+   */
+  private getDefaultCounts(): TemplateCounts {
+    return {
+      totalTemplates: 0,
+      activeTemplates: 0,
+      inactiveTemplates: 0,
+      pendingReview: 0,
+      byCategory: {},
+      byChannel: { email: 0, sms: 0, inApp: 0, push: 0 }
+    };
   }
 
   /**
