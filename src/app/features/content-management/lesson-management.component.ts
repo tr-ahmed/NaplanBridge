@@ -746,7 +746,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     this.editingQuestion = null;
     this.questionForm = {
       questionText: '',
-      questionType: 'MultipleChoice',
+      isMultipleChoice: true,  // true = single answer, false = multiple answers
       points: 1,
       explanation: '',
       incorrectAnswerMessage: '',
@@ -782,7 +782,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
     this.questionForm = {
       questionText: question.questionText || '',
-      questionType: question.isMultipleChoice ? 'MultipleChoice' : 'TrueFalse',
+      isMultipleChoice: question.isMultipleChoice !== false,  // Default to true if not specified
       points: 1, // Not stored in API, default to 1
       explanation: question.explanation || '',
       incorrectAnswerMessage: question.incorrectAnswerMessage || '',
@@ -808,6 +808,29 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     }
   }
 
+  /**
+   * Select single correct answer (for radio button behavior)
+   * Uncheck all others when one is selected
+   */
+  selectSingleCorrectAnswer(selectedIndex: number): void {
+    this.questionForm.options.forEach((opt: any, i: number) => {
+      opt.isCorrect = (i === selectedIndex);
+    });
+  }
+
+  /**
+   * Handle answer type change and reset correct answers
+   */
+  onAnswerTypeChange(value: any): void {
+    // Convert string to boolean if needed
+    this.questionForm.isMultipleChoice = (value === true || value === 'true');
+
+    // Reset all correct answers when switching between single/multiple
+    this.questionForm.options.forEach((opt: any) => {
+      opt.isCorrect = false;
+    });
+  }
+
   async saveQuestion(): Promise<void> {
     try {
       if (!this.questionForm.questionText?.trim()) {
@@ -815,17 +838,27 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
         return;
       }
 
-      if (this.questionForm.questionType === 'MultipleChoice') {
-        const validOptions = this.questionForm.options.filter((opt: any) => opt.optionText.trim());
-        if (validOptions.length < 2) {
-          Swal.fire('Error', 'Please add at least 2 options', 'error');
-          return;
-        }
-        const correctOptions = this.questionForm.options.filter((opt: any) => opt.isCorrect);
-        if (correctOptions.length === 0) {
-          Swal.fire('Error', 'Please mark at least one option as correct', 'error');
-          return;
-        }
+      const validOptions = this.questionForm.options.filter((opt: any) => opt.optionText.trim());
+      if (validOptions.length < 2) {
+        Swal.fire('Error', 'Please add at least 2 options', 'error');
+        return;
+      }
+
+      const correctOptions = this.questionForm.options.filter((opt: any) => opt.isCorrect);
+      if (correctOptions.length === 0) {
+        Swal.fire('Error', 'Please mark at least one option as correct', 'error');
+        return;
+      }
+
+      // Validate based on isMultipleChoice
+      if (this.questionForm.isMultipleChoice && correctOptions.length > 1) {
+        Swal.fire('Error', 'Single Answer mode: Please select only ONE correct answer', 'error');
+        return;
+      }
+
+      if (!this.questionForm.isMultipleChoice && correctOptions.length < 2) {
+        Swal.fire('Error', 'Multiple Answers mode: Please select at least TWO correct answers', 'error');
+        return;
       }
 
       Swal.fire({
@@ -839,7 +872,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
         await this.contentService.updateLessonQuestion(
           this.editingQuestion.id,
           this.questionForm.questionText,
-          this.questionForm.questionType,
+          this.questionForm.isMultipleChoice,
           this.questionForm.points,
           this.questionForm.options.filter((opt: any) => opt.optionText.trim()),
           this.questionForm.explanation,
@@ -849,7 +882,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
         await this.contentService.addLessonQuestion(
           this.lessonId,
           this.questionForm.questionText,
-          this.questionForm.questionType,
+          this.questionForm.isMultipleChoice,
           this.questionForm.points,
           this.questionForm.options.filter((opt: any) => opt.optionText.trim()),
           this.questionForm.explanation,

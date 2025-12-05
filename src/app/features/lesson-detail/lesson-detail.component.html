@@ -395,7 +395,7 @@
                   <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ currentQuiz()!.question }}</h4>
                     <p class="text-sm text-gray-500 mb-4">
-                      {{ currentQuiz()!.isMultipleChoice ? 'Select all correct answers' : 'Select one answer' }}
+                      {{ currentQuiz()!.isMultipleChoice ? 'Select one answer' : 'Select all correct answers' }}
                     </p>
 
                     <div class="space-y-3">
@@ -407,8 +407,8 @@
                           [class.border-gray-300]="!isAnswerSelected(i)"
                           class="w-full text-left p-4 border-2 rounded-lg hover:border-blue-300 transition-colors duration-200">
                           <div class="flex items-center">
-                            @if (currentQuiz()!.isMultipleChoice) {
-                              <!-- Checkbox for multiple choice -->
+                            @if (!currentQuiz()!.isMultipleChoice) {
+                              <!-- Checkbox for multiple answers -->
                               <span class="flex-shrink-0 w-6 h-6 rounded border-2 mr-3 flex items-center justify-center text-sm font-medium"
                                     [class.border-blue-500]="isAnswerSelected(i)"
                                     [class.bg-blue-500]="isAnswerSelected(i)"
@@ -419,7 +419,7 @@
                                 }
                               </span>
                             } @else {
-                              <!-- Radio button for single choice -->
+                              <!-- Radio button for single answer -->
                               <span class="flex-shrink-0 w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center"
                                     [class.border-blue-500]="isAnswerSelected(i)"
                                     [class.border-gray-300]="!isAnswerSelected(i)">

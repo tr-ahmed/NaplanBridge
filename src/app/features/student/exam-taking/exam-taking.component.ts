@@ -190,9 +190,11 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       endTime: '',
       isPublished: true,
       questions: examData.questions?.map((q: any) => {
-        // ✅ Determine question type based on isMultipleSelect flag
+        // ✅ Determine question type based on isMultipleChoice flag
+        // isMultipleChoice: true = سؤال له إجابة واحدة (radio)
+        // isMultipleChoice: false = سؤال له أكثر من إجابة (checkbox)
         let questionType = this.normalizeQuestionType(q.questionType);
-        if (q.isMultipleSelect === true) {
+        if (q.isMultipleChoice === false) {
           questionType = QuestionType.MultipleSelect;
         }
 
@@ -202,7 +204,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
           questionType: questionType,
           marks: q.marks || q.mark || 1,
           order: q.order || 0,
-          isMultipleSelect: q.isMultipleSelect || false,
+          isMultipleSelect: q.isMultipleChoice === false,
           options: (q.options || q.questionOptions || []).map((o: any) => ({
             id: o.optionId || o.id || o.questionOptionId,
             optionText: o.optionText || o.text || '',
@@ -313,9 +315,11 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       endTime: '',
       isPublished: true,
       questions: examData.questions?.map((q: any) => {
-        // ✅ Determine question type based on isMultipleSelect flag
+        // ✅ Determine question type based on isMultipleChoice flag
+        // isMultipleChoice: true = سؤال له إجابة واحدة (radio)
+        // isMultipleChoice: false = سؤال له أكثر من إجابة (checkbox)
         let questionType = this.normalizeQuestionType(q.questionType);
-        if (q.isMultipleSelect === true) {
+        if (q.isMultipleChoice === false) {
           questionType = QuestionType.MultipleSelect;
         }
 
@@ -325,7 +329,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
           questionType: questionType,
           marks: q.marks || q.mark || 1,
           order: q.order || 0,
-          isMultipleSelect: q.isMultipleSelect || false,
+          isMultipleSelect: q.isMultipleChoice === false,
           options: (q.options || q.questionOptions || []).map((o: any) => ({
             id: o.optionId || o.id || o.questionOptionId,
             optionText: o.optionText || o.text || '',
@@ -390,16 +394,18 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
       }));
 
       console.log(`   Options for Q${index + 1}:`, mappedOptions);
-      console.log(`   isMultipleSelect for Q${index + 1}:`, q.isMultipleSelect);
+      console.log(`   isMultipleChoice for Q${index + 1}:`, q.isMultipleChoice);
 
-      // ✅ FIX: Determine question type based on isMultipleSelect flag
+      // ✅ FIX: Determine question type based on isMultipleChoice flag
+      // isMultipleChoice: true = سؤال له إجابة واحدة (radio)
+      // isMultipleChoice: false = سؤال له أكثر من إجابة (checkbox)
       let questionType = this.normalizeQuestionType(q.questionType);
 
-      // Override if isMultipleSelect is explicitly set
-      if (q.isMultipleSelect === true) {
+      // Override if isMultipleChoice is explicitly set
+      if (q.isMultipleChoice === false) {
         questionType = QuestionType.MultipleSelect;
         console.log(`   ✅ Overriding type to MultipleSelect for Q${index + 1}`);
-      } else if (q.isMultipleSelect === false && rawOptions.length === 2) {
+      } else if (q.isMultipleChoice === true && rawOptions.length === 2) {
         // Check if it's True/False based on options
         const optionTexts = rawOptions.map((o: any) => (o.optionText || '').toLowerCase());
         if (optionTexts.includes('true') && optionTexts.includes('false')) {
@@ -414,7 +420,7 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
         questionType: questionType,
         marks: q.marks || q.mark || q.points || 1,
         order: q.order || q.displayOrder || index,
-        isMultipleSelect: q.isMultipleSelect || false,
+        isMultipleSelect: q.isMultipleChoice === false,
         options: mappedOptions
       };
     });

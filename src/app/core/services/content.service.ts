@@ -564,14 +564,12 @@ export class ContentService {
     return this.http.get<any[]>(`${this.apiUrl}/LessonQuestions/lesson/${lessonId}`);
   }
 
-  addLessonQuestion(lessonId: number, questionText: string, questionType: string, points: number, options: any[], explanation?: string, incorrectAnswerMessage?: string): Observable<any> {
+  addLessonQuestion(lessonId: number, questionText: string, isMultipleChoice: boolean, points: number, options: any[], explanation?: string, incorrectAnswerMessage?: string): Observable<any> {
     // API expects: { lessonId, questionText, isMultipleChoice, videoMinute, explanation, incorrectAnswerMessage, options: [{ text, isCorrect }] }
-    const isMultipleChoice = questionType === 'MultipleChoice';
-
     const body = {
       lessonId,
       questionText,
-      isMultipleChoice,
+      isMultipleChoice,  // true = single answer, false = multiple answers
       videoMinute: 0, // Default, can be enhanced later
       explanation: explanation || null,
       incorrectAnswerMessage: incorrectAnswerMessage || null,
@@ -585,13 +583,11 @@ export class ContentService {
     return this.http.post<any>(`${this.apiUrl}/LessonQuestions`, body);
   }
 
-  updateLessonQuestion(id: number, questionText: string, questionType: string, points: number, options: any[], explanation?: string, incorrectAnswerMessage?: string): Observable<any> {
+  updateLessonQuestion(id: number, questionText: string, isMultipleChoice: boolean, points: number, options: any[], explanation?: string, incorrectAnswerMessage?: string): Observable<any> {
     // API expects: { questionText, isMultipleChoice, videoMinute, explanation, incorrectAnswerMessage, options: [{ text, isCorrect }] }
-    const isMultipleChoice = questionType === 'MultipleChoice';
-
     const body = {
       questionText,
-      isMultipleChoice,
+      isMultipleChoice,  // true = single answer, false = multiple answers
       videoMinute: 0,
       explanation: explanation || null,
       incorrectAnswerMessage: incorrectAnswerMessage || null,

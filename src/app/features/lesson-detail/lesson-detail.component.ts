@@ -956,8 +956,9 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     const currentQuiz = this.quizzes()[this.currentQuizIndex()];
     const currentAnswers = answers[this.currentQuizIndex()] || [];
 
-    if (currentQuiz?.isMultipleChoice) {
+    if (!currentQuiz?.isMultipleChoice) {
       // Checkbox mode: Toggle selection (multiple answers allowed)
+      // isMultipleChoice: false = multiple answers
       const indexInArray = currentAnswers.indexOf(answerIndex);
       if (indexInArray > -1) {
         currentAnswers.splice(indexInArray, 1); // Remove if already selected
@@ -967,6 +968,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       answers[this.currentQuizIndex()] = currentAnswers;
     } else {
       // Radio mode: Replace with single selection (only one answer allowed)
+      // isMultipleChoice: true = single answer
       answers[this.currentQuizIndex()] = [answerIndex];
     }
 
