@@ -547,40 +547,53 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(): void {
-    const q = (this.searchTerm || '').toLowerCase();
+    const q = (this.searchTerm || '').toLowerCase().trim();
 
     // Convert string filter values to numbers for comparison
     const yearIdNum = this.filters.yearId ? Number(this.filters.yearId) : null;
     const categoryIdNum = this.filters.categoryId ? Number(this.filters.categoryId) : null;
     const subjectIdNum = this.filters.subjectId ? Number(this.filters.subjectId) : null;
     const termIdNum = this.filters.termId ? Number(this.filters.termId) : null;
-    const weekIdNum = this.filters.weekId ? Number(this.filters.weekId) : null;
-
-    // Filter Years - Apply year filter for hierarchy view
+    const weekIdNum = this.filters.weekId ? Number(this.filters.weekId) : null;    // Filter Years - Apply year filter for hierarchy view
+    // When searching, include years that have matching subjects
     this.filteredYears = this.years.filter(y => {
-      const matchesSearch = !q || y.yearNumber.toString().includes(q);
+      if (!y) return false;
+
+      // If searching, check if this year has any subjects that match by subject name only
+      let hasMatchingSubjects = false;
+      if (q) {
+        hasMatchingSubjects = this.subjects.some(s => {
+          if (s.yearId !== y.id) return false;
+          return (s.subjectName && s.subjectName.toLowerCase().includes(q));
+        });
+      }
+
+      const matchesSearch = !q || hasMatchingSubjects;
       const matchesYearFilter = !yearIdNum || y.id === yearIdNum;
+
       return matchesSearch && matchesYearFilter;
     });
 
-    // Filter Categories
-    this.filteredCategories = this.categories.filter(c =>
-      !q || c.name.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q)
-    );
-
-    // Filter Subject Names
-    this.filteredSubjectNames = this.subjectNames.filter(sn => {
-      const matchesSearch = !q || sn.name?.toLowerCase().includes(q);
-      const matchesCategory = !categoryIdNum || sn.categoryId === categoryIdNum;
-      return matchesSearch && matchesCategory;
+    // Filter Categories - no search applied, only filter
+    this.filteredCategories = this.categories.filter(c => {
+      if (!c) return false;
+      return true; // Show all categories when no category filter is applied
     });
 
-    // Filter Subjects
+    // Filter Subject Names - no search applied, only filter
+    this.filteredSubjectNames = this.subjectNames.filter(sn => {
+      if (!sn) return false;
+      const matchesCategory = !categoryIdNum || sn.categoryId === categoryIdNum;
+      return matchesCategory;
+    });
+
+    // Filter Subjects - search by subject name only
     const subjectsArr = Array.isArray(this.subjects) ? this.subjects : [];
     this.filteredSubjects = subjectsArr.filter((s: Subject) => {
-      const matchesSearch = !q ||
-        s.subjectName?.toLowerCase().includes(q) ||
-        s.categoryName?.toLowerCase().includes(q);
+      if (!s) return false;
+
+      // Search by subject name only
+      const matchesSearch = !q || (s.subjectName && s.subjectName.toLowerCase().includes(q));
 
       const matchesYear = !yearIdNum || s.yearId === yearIdNum;
       const matchesCategory = !categoryIdNum || s.categoryId === categoryIdNum;
@@ -588,25 +601,59 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       return matchesSearch && matchesYear && matchesCategory;
     });
 
-    // Filter Terms
+    // Filter Terms - search by related subject name only
     this.filteredTerms = this.terms.filter(t => {
-      const matchesSearch = !q || t.termNumber.toString().includes(q);
+      if (!t) return false;
+
+      // Get subject details if searching
+      let subjectMatches = false;
+      if (q && t.subjectId) {
+        const subject = this.subjects.find(s => s.id === t.subjectId);
+        if (subject) {
+          subjectMatches = !!(subject.subjectName && subject.subjectName.toLowerCase().includes(q));
+        }
+      }
+
+      const matchesSearch = !q || subjectMatches;
       const matchesSubject = !subjectIdNum || t.subjectId === subjectIdNum;
       return matchesSearch && matchesSubject;
     });
 
-    // Filter Weeks
+    // Filter Weeks - search by related subject name only
     this.filteredWeeks = this.weeks.filter(w => {
-      const matchesSearch = !q || w.weekNumber.toString().includes(q);
+      if (!w) return false;
+
+      // Get term and subject details if searching
+      let subjectMatches = false;
+      if (q && w.termId) {
+        const term = this.terms.find(t => t.id === w.termId);
+        if (term && term.subjectId) {
+          const subject = this.subjects.find(s => s.id === term.subjectId);
+          if (subject) {
+            subjectMatches = !!(subject.subjectName && subject.subjectName.toLowerCase().includes(q));
+          }
+        }
+      }
+
+      const matchesSearch = !q || subjectMatches;
       const matchesTerm = !termIdNum || w.termId === termIdNum;
       return matchesSearch && matchesTerm;
     });
 
-    // Filter Lessons
+    // Filter Lessons - search by related subject name only
     this.filteredLessons = this.lessons.filter((l: any) => {
-      const matchesSearch = !q ||
-        l.title?.toLowerCase().includes(q) ||
-        l.description?.toLowerCase().includes(q);
+      if (!l) return false;
+
+      // Get subject details if searching
+      let subjectMatches = false;
+      if (q && l.subjectId) {
+        const subject = this.subjects.find(s => s.id === l.subjectId);
+        if (subject) {
+          subjectMatches = !!(subject.subjectName && subject.subjectName.toLowerCase().includes(q));
+        }
+      }
+
+      const matchesSearch = !q || subjectMatches;
 
       const matchesWeek = !weekIdNum || l.weekId === weekIdNum;
       const matchesTerm = !termIdNum || this.getTermIdFromWeekId(l.weekId) === termIdNum;
@@ -614,9 +661,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
 
       return matchesSearch && matchesWeek && matchesTerm && matchesSubject;
     });
-  }
-
-  updatePaged(): void {
+  }  updatePaged(): void {
     this.pagedYears = this.slicePage(this.filteredYears, this.yearPage);
     this.pagedCategories = this.slicePage(this.filteredCategories, this.categoryPage);
     this.pagedSubjectNames = this.slicePage(this.filteredSubjectNames, this.subjectNamePage);
@@ -771,7 +816,9 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.form = this.getEmptyForm(type);
 
     // Pre-fill based on hierarchy context
-    if (type === 'term' && contextData?.subject) {
+    if (type === 'subject' && contextData?.year) {
+      this.form.yearId = contextData.year.id;
+    } else if (type === 'term' && contextData?.subject) {
       this.form.subjectId = contextData.subject.id;
     } else if (type === 'week' && contextData?.term) {
       this.form.termId = contextData.term.id;
@@ -790,12 +837,12 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.formMode = 'edit';
     this.entityType = type;
     this.form = { ...entity };
-    
+
     // Ensure numeric fields are properly typed for subject edit
     if (type === 'subject' && this.form.teacherId) {
       this.form.teacherId = Number(this.form.teacherId);
     }
-    
+
     console.log('📝 Opening edit for', type, ':', this.form);
     this.isFormOpen = true;
   }
@@ -810,7 +857,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     try {
       // Merge formData from modal with existing form data
       let finalData = { ...this.form };
-      
+
       if (modalFormData) {
         finalData = { ...finalData, ...modalFormData };
         // Store files in formData for access in createEntity/updateEntity
@@ -907,8 +954,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         discountPercentage: 0,
         level: 'Beginner',
         duration: 0,
-        teacherId: 1, // Default teacher ID
-        startDate: new Date().toISOString().split('T')[0], // Default to today
+        teacherId: null,
+        startDate: new Date().toISOString().split('T')[0],
         posterFile: null
       },
       'term': { subjectId: null, termNumber: 1, startDate: new Date().toISOString().split('T')[0] },
@@ -966,8 +1013,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           data.discountPercentage || 0,
           data.level,
           data.duration || 0,
-          data.teacherId || 1, // Use default teacher ID if not provided
-          data.startDate || new Date().toISOString().split('T')[0], // Default to today
+          data.teacherId,
+          data.startDate,
           data.posterFile
         ).toPromise();
         break;
@@ -1066,7 +1113,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       case 'subject':
         // Get poster file from formData (file upload) or data object
         const posterFileForUpdate = this.formData['posterFile'] || data.posterFile;
-        
+
         console.log('📝 Updating subject:', {
           id: data.id,
           originalPrice: data.originalPrice,
@@ -1076,17 +1123,19 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           teacherId: data.teacherId,
           posterFile: posterFileForUpdate ? 'File selected' : 'No file'
         });
-        
-        // Use default teacherId if not provided
-        const teacherId = data.teacherId || 1; // Default teacher ID
-        
+
+        // Validate required fields according to Swagger spec
+        if (!data.teacherId) {
+          throw new Error('Teacher is required');
+        }
+
         await this.contentService.updateSubject(
           data.id,
           Number(data.originalPrice) || 0,
           Number(data.discountPercentage) || 0,
           data.level || 'Beginner',
           Number(data.duration) || 0,
-          Number(teacherId),
+          Number(data.teacherId),
           posterFileForUpdate
         ).toPromise();
         break;
@@ -1208,7 +1257,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         this.selectedLesson.id,
         data.file
       ).toPromise();
-      
+
       Swal.fire({
         icon: 'success',
         title: 'Resource Uploaded',
@@ -1251,7 +1300,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         });
 
         await this.contentService.deleteResource(resource.id).toPromise();
-        
+
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
@@ -1311,7 +1360,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     // Force re-render
     this.refreshAll();
   }
-  
+
   // Handle expand state changes from child components
   onExpandStateChange(event: { type: 'subject' | 'term' | 'week'; id: number; expanded: boolean }): void {
     if (event.type === 'subject') {
@@ -1337,7 +1386,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
 
   // State for hierarchy expansion
   hierarchyExpandedState: 'expanded' | 'collapsed' | 'default' = 'default';
-  
+
   // Store expanded state to persist across re-renders
   expandedSubjects: Set<number> = new Set();
   expandedTerms: Set<number> = new Set();
@@ -1522,7 +1571,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           lesson.duration,
           lesson.orderIndex
         ).toPromise();
-        
+
         await this.loadAllData();
 
         Swal.fire({
@@ -1578,7 +1627,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           lesson.duration,
           lesson.orderIndex
         ).toPromise();
-        
+
         await this.loadAllData();
 
         Swal.fire({

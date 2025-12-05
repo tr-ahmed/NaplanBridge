@@ -1,21 +1,21 @@
 <!-- header.component.html -->
 <header class="bg-white shadow-lg fixed top-0 left-0 w-full z-50">
-  <div class="w-full px-2 sm:px-4 lg:px-6">
-    <nav class="flex justify-between items-center py-2 min-h-[3.5rem] sm:min-h-[4rem]">
+  <div class="w-full px-3 sm:px-4 lg:px-6">
+    <nav class="flex justify-between items-center py-2.5 sm:py-2 min-h-[3.5rem] sm:min-h-[4rem]">
       <!-- Logo (far left) -->
       <div class="flex-shrink-0 order-1 min-w-0">
         <a routerLink="/" class="flex items-center text-decoration-none">
-          <img src="assets/img/logo.png" alt="NAPLAN Bridge Logo" class="w-auto mr-2 sm:mr-3 h-10 sm:h-12 lg:h-14"
+          <img src="assets/img/logo.png" alt="NAPLAN Bridge Logo" class="w-auto mr-1.5 sm:mr-3 h-9 sm:h-12 lg:h-14"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
           <div class="text-center" style="display: none;">
-            <span class="text-lg sm:text-xl font-bold text-primary-500 leading-none whitespace-nowrap">NAPLAN</span>
+            <span class="text-base sm:text-xl font-bold text-primary-500 leading-none whitespace-nowrap">NAPLAN</span>
             <span class="text-xs sm:text-sm text-gray-600 font-medium -mt-1 block whitespace-nowrap">Bridge</span>
           </div>
         </a>
       </div>
 
       <!-- Navigation (center) -->
-      <ul class="hidden lg:flex xl:space-x-6 lg:space-x-4 list-none order-2 items-center">
+      <ul class="hidden md:flex xl:space-x-6 lg:space-x-4 md:space-x-3 list-none order-2 items-center">
         @for (item of navigationItems; track item.id) {
           @if (item.label === 'Subjects') {
             <li class="relative group">
@@ -28,23 +28,23 @@
                 {{ item.label }}
               </button>
               <ul class="absolute left-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <li><a (click)="navigateToCoursesWithFilter('mathematics')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                <li><a (click)="navigateToCoursesWithFilter('mathematics'); closeMobileMenuIfOpen()" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
                   <i class="fas fa-calculator text-blue-600"></i>
                   Mathematics
                 </a></li>
-                <li><a (click)="navigateToCoursesWithFilter('reading')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                <li><a (click)="navigateToCoursesWithFilter('reading'); closeMobileMenuIfOpen()" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
                   <i class="fas fa-book-open text-green-600"></i>
                   Reading
                 </a></li>
-                <li><a (click)="navigateToCoursesWithFilter('writing')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                <li><a (click)="navigateToCoursesWithFilter('writing'); closeMobileMenuIfOpen()" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
                   <i class="fas fa-pen text-purple-600"></i>
                   Writing
                 </a></li>
-                <li><a (click)="navigateToCoursesWithFilter('language')" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
+                <li><a (click)="navigateToCoursesWithFilter('language'); closeMobileMenuIfOpen()" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 cursor-pointer flex items-center gap-2 whitespace-nowrap text-sm">
                   <i class="fas fa-language text-orange-600"></i>
                   Language Conventions
                 </a></li>
-                <li><a routerLink="/courses" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 border-t border-gray-100 mt-1 pt-3 flex items-center gap-2 whitespace-nowrap text-sm">
+                <li><a (click)="closeMobileMenuIfOpen()" routerLink="/courses" class="block px-4 py-2 hover:bg-blue-50 hover:text-primary-500 border-t border-gray-100 mt-1 pt-3 flex items-center gap-2 whitespace-nowrap text-sm">
                   <i class="fas fa-list text-gray-600"></i>
                   View All Subjects
                 </a></li>
@@ -78,19 +78,21 @@
         <!-- Desktop Login/Logout Button -->
         @if (isLoggedIn) {
           <div class="hidden md:flex items-center space-x-2 xl:space-x-3">
-            <!-- Cart Icon -->
-            <button
-              (click)="navigateToCart()"
-              class="relative p-1.5 xl:p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0">
-              <svg class="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
-              </svg>
-              @if (cartItemCount > 0) {
-                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 xl:w-5 xl:h-5 flex items-center justify-center text-[10px] xl:text-xs">
-                  {{ cartItemCount }}
-                </span>
-              }
-            </button>
+            <!-- Cart Icon - Hidden for Students -->
+            @if (userRole !== 'Student') {
+              <button
+                (click)="navigateToCart()"
+                class="relative p-1.5 xl:p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 flex-shrink-0">
+                <svg class="w-5 h-5 xl:w-6 xl:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
+                </svg>
+                @if (cartItemCount > 0) {
+                  <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 xl:w-5 xl:h-5 flex items-center justify-center text-[10px] xl:text-xs">
+                    {{ cartItemCount }}
+                  </span>
+                }
+              </button>
+            }
 
             <!-- Notifications Icon -->
             <div class="relative" clickOutside (clickOutside)="closeNotificationsDropdown()">
@@ -188,8 +190,8 @@
               <div class="relative group">
                 <button
                   (click)="navigateToProfile()"
-                  class="user-welcome hidden lg:block text-gray-700 font-medium whitespace-nowrap truncate hover:text-primary-500 transition-colors duration-200 cursor-pointer bg-transparent border-none px-2 py-1 rounded hover:bg-blue-50">
-                  <i class="fas fa-user-circle me-1"></i> Welcome, {{ userName }}
+                  class="user-welcome hidden lg:block text-gray-600 font-medium whitespace-nowrap truncate hover:text-primary-500 transition-colors duration-200 cursor-pointer bg-transparent border-none px-2 py-2 rounded hover:bg-blue-50">
+                  <i class="fas fa-user-circle me-1 text-lg"></i>{{ userName }}
                 </button>
 
                 <!-- User Profile Dropdown Menu -->
@@ -269,7 +271,7 @@
               Register
             </a>
           } @else {
-            <a routerLink="/auth/register" class="action-button hidden lg:block bg-primary-500 hover:bg-primary-600 text-white px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold whitespace-nowrap">
+            <a routerLink="/auth/register" class="action-button hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-3 py-1.5 xl:px-4 xl:py-2 rounded-lg font-semibold whitespace-nowrap">
               Register
             </a>
             <a routerLink="/auth/login" class="action-button hidden md:block bg-primary-500 hover:bg-primary-600 text-white px-4 py-1.5 xl:px-6 xl:py-2 rounded-lg font-semibold whitespace-nowrap">
@@ -280,16 +282,16 @@
 
         <!-- Mobile Menu Toggle -->
         <button
-          class="md:hidden lg:hidden flex flex-col space-y-1 p-2 flex-shrink-0"
+          class="md:hidden flex flex-col justify-center items-center space-y-1 p-1.5 flex-shrink-0 w-9 h-9 rounded-lg hover:bg-gray-100 transition-colors"
           (click)="toggleMobileMenu()"
           [class.active]="isMobileMenuOpen"
           aria-label="Toggle navigation">
-          <span class="block w-5 h-0.5 sm:w-6 sm:h-0.5 bg-gray-600 transition-transform duration-300"
+          <span class="block w-5 h-0.5 bg-gray-700 transition-transform duration-300"
                 [class.rotate-45]="isMobileMenuOpen"
                 [class.translate-y-1.5]="isMobileMenuOpen"></span>
-          <span class="block w-5 h-0.5 sm:w-6 sm:h-0.5 bg-gray-600 transition-opacity duration-300"
+          <span class="block w-5 h-0.5 bg-gray-700 transition-opacity duration-300"
                 [class.opacity-0]="isMobileMenuOpen"></span>
-          <span class="block w-5 h-0.5 sm:w-6 sm:h-0.5 bg-gray-600 transition-transform duration-300"
+          <span class="block w-5 h-0.5 bg-gray-700 transition-transform duration-300"
                 [class.-rotate-45]="isMobileMenuOpen"
                 [class.-translate-y-1.5]="isMobileMenuOpen"></span>
         </button>
@@ -298,52 +300,65 @@
 
     <!-- Mobile Navigation -->
     @if (isMobileMenuOpen) {
-      <div class="md:hidden lg:hidden bg-white border-t border-gray-200 py-4">
-        <ul class="space-y-2 list-none">
+      <div class="md:hidden lg:hidden bg-white border-t border-gray-200 py-3 max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <ul class="space-y-1.5 list-none px-3">
           @for (item of navigationItems; track item.id) {
-            <li>
-              <a
-                [routerLink]="item.route"
-                routerLinkActive="text-primary-500 bg-blue-50 font-semibold"
-                [routerLinkActiveOptions]="{ exact: item.route === '/' }"
-                class="block text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-all duration-300 no-underline whitespace-nowrap"
-                (click)="toggleMobileMenu()">
-                {{ item.label }}
-              </a>
-            </li>
+            @if (item.label === 'Subjects') {
+              <!-- Subjects without subcategories for Mobile -->
+              <li>
+                <button
+                  (click)="navigateToCourses(); toggleMobileMenu()"
+                  class="w-full text-left block text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-3 py-2.5 rounded-lg font-medium transition-all duration-200 text-sm">
+                  {{ item.label }}
+                </button>
+              </li>
+            } @else {
+              <li>
+                <a
+                  [routerLink]="item.route"
+                  routerLinkActive="text-primary-500 bg-blue-50 font-semibold"
+                  [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+                  class="block text-gray-700 hover:text-primary-500 hover:bg-blue-50 px-3 py-2.5 rounded-lg font-medium transition-all duration-200 no-underline text-sm"
+                  (click)="toggleMobileMenu()">
+                  {{ item.label }}
+                </a>
+              </li>
+            }
           }
-          <li class="pt-2">
+          <li class="pt-1 border-t border-gray-100 mt-1.5">
             @if (isLoggedIn) {
-              <div class="space-y-2">
+              <div class="space-y-2 pt-2">
                 @if (userName) {
-                  <div class="text-center text-gray-700 font-medium px-4 py-1 text-sm">
+                  <div class="text-center text-gray-700 font-semibold px-3 py-1.5 text-sm bg-gray-50 rounded-lg">
                     Welcome, {{ userName }}
                   </div>
                 }
 
                 <!-- Mobile Cart and Notifications -->
-                <div class="flex justify-center space-x-4 px-4 py-2">
-                  <button
-                    (click)="navigateToCart(); toggleMobileMenu()"
-                    class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
-                    </svg>
-                    @if (cartItemCount > 0) {
-                      <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {{ cartItemCount }}
-                      </span>
-                    }
-                  </button>
+                <div class="flex justify-center gap-3 py-2">
+                  @if (userRole !== 'Student') {
+                    <button
+                      (click)="navigateToCart(); toggleMobileMenu()"
+                      class="relative p-2.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 border border-gray-200">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H21M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6"></path>
+                      </svg>
+                      @if (cartItemCount > 0) {
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                          {{ cartItemCount }}
+                        </span>
+                      }
+                    </button>
+                  }
 
                   <button
                     (click)="navigateToNotifications(); toggleMobileMenu()"
-                    class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="relative p-2.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 border border-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                     </svg>
                     @if (unreadNotificationsCount > 0) {
-                      <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
                         {{ unreadNotificationsCount }}
                       </span>
                     }
@@ -351,59 +366,69 @@
                 </div>
 
                 <!-- Mobile Role-based buttons -->
-                @if (userRole === 'Admin') {
-                  <a
-                    routerLink="/admin/users"
-                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap"
-                    (click)="toggleMobileMenu()">
-                    Admin Panel
-                  </a>
-                }
+                <div class="space-y-2">
+                  @if (userRole === 'Admin') {
+                    <a
+                      routerLink="/admin/users"
+                      class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-2.5 rounded-lg font-semibold transition-all duration-200 text-sm"
+                      (click)="toggleMobileMenu()">
+                      <i class="fas fa-cog mr-1"></i> Admin Panel
+                    </a>
+                  }
 
-                <!-- Profile Edit Link (Mobile) -->
-                <a
-                  routerLink="/profile/edit"
-                  class="block w-full text-center border border-blue-500 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap"
-                  (click)="toggleMobileMenu()">
-                  <i class="fas fa-edit me-1"></i> Edit Profile
-                </a>
-                @if (userRole === 'Teacher') {
+                  <!-- Profile Edit Link (Mobile) -->
+                  <a
+                    routerLink="/profile/edit"
+                    class="block w-full text-center border border-blue-500 text-blue-600 hover:bg-blue-50 px-3 py-2.5 rounded-lg font-semibold transition-all duration-200 text-sm"
+                    (click)="toggleMobileMenu()">
+                    <i class="fas fa-edit mr-1"></i> Edit Profile
+                  </a>
+                  @if (userRole === 'Teacher') {
+                    <button
+                      (click)="navigateToTeacherDashboard(); toggleMobileMenu()"
+                      class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-2.5 rounded-lg font-semibold transition-all duration-200 text-sm">
+                      <i class="fas fa-chalkboard-teacher mr-1"></i> Teacher Panel
+                    </button>
+                  }
+                  @if (userRole === 'Parent') {
+                    <a
+                      routerLink="/parent/dashboard"
+                      class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-2.5 rounded-lg font-semibold transition-all duration-200 text-sm"
+                      (click)="toggleMobileMenu()">
+                      <i class="fas fa-users mr-1"></i> My Children
+                    </a>
+                  }
+                  @if (userRole === 'Student') {
+                    <a
+                      routerLink="/student/dashboard"
+                      class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-2.5 rounded-lg font-semibold transition-all duration-200 text-sm"
+                      (click)="toggleMobileMenu()">
+                      <i class="fas fa-tachometer-alt mr-1"></i> My Dashboard
+                    </a>
+                  }
+
                   <button
-                    (click)="navigateToTeacherDashboard(); toggleMobileMenu()"
-                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap">
-                    Teacher Panel
+                    (click)="handleLogout()"
+                    class="w-full bg-red-500 hover:bg-red-600 text-white px-3 py-2.5 rounded-lg font-semibold transition-colors duration-200 text-sm">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
                   </button>
-                }
-                @if (userRole === 'Parent') {
-                  <a
-                    routerLink="/parent/dashboard"
-                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap"
-                    (click)="toggleMobileMenu()">
-                    My Children
-                  </a>
-                }
-                @if (userRole === 'Student') {
-                  <a
-                    routerLink="/student/dashboard"
-                    class="block w-full text-center border border-primary-500 text-primary-500 hover:bg-primary-50 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm whitespace-nowrap"
-                    (click)="toggleMobileMenu()">
-                    My Dashboard
-                  </a>
-                }
-
-                <button
-                  (click)="handleLogout()"
-                  class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300 text-sm whitespace-nowrap">
-                  Logout
-                </button>
+                </div>
               </div>
             } @else {
-              <a
-                routerLink="/auth/login"
-                class="block w-full bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-300 text-center text-sm whitespace-nowrap"
-                (click)="toggleMobileMenu()">
-                Login
-              </a>
+              <div class="space-y-2 pt-2">
+                <a
+                  routerLink="/auth/login"
+                  class="block w-full bg-primary-500 hover:bg-primary-600 text-white px-3 py-2.5 rounded-lg font-semibold transition-colors duration-200 text-center text-sm"
+                  (click)="toggleMobileMenu()">
+                  <i class="fas fa-sign-in-alt mr-1"></i> Login
+                </a>
+                <a
+                  routerLink="/auth/register"
+                  class="block w-full border border-primary-500 text-primary-500 hover:bg-primary-50 px-3 py-2.5 rounded-lg font-semibold transition-all duration-200 text-center text-sm"
+                  (click)="toggleMobileMenu()">
+                  <i class="fas fa-user-plus mr-1"></i> Register
+                </a>
+              </div>
             }
           </li>
         </ul>

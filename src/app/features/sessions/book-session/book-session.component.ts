@@ -29,6 +29,7 @@ export class BookSessionComponent implements OnInit {
   private router = inject(Router);
 
   teacherId = signal<number | null>(null);
+  teacherPrice = signal<number>(50); // Default price, will be updated from API
   selectedStudentId = signal<number | null>(null);
   selectedDate = signal<Date>(new Date());
   selectedSlot = signal<AvailableSlotDto | null>(null);
@@ -46,8 +47,34 @@ export class BookSessionComponent implements OnInit {
       const id = +params['teacherId'];
       if (id) {
         this.teacherId.set(id);
+        this.loadTeacherPrice(id);
         this.loadStudents();
         this.loadAvailableSlots();
+      }
+    });
+  }
+
+  /**
+   * Load teacher price from API
+   */
+  private loadTeacherPrice(teacherId: number): void {
+    console.log('🔍 Loading teacher price for teacher ID:', teacherId);
+
+    this.sessionService.getAvailableTeachers().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          const teacher = response.data.find(t => t.teacherId === teacherId);
+          if (teacher) {
+            this.teacherPrice.set(teacher.pricePerSession);
+            console.log('✅ Teacher price loaded:', teacher.pricePerSession);
+          } else {
+            console.warn('⚠️ Teacher not found in available teachers list');
+          }
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error loading teacher price:', error);
+        // Keep default price of $50
       }
     });
   }

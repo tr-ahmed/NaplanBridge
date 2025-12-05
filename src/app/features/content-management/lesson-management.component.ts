@@ -25,7 +25,7 @@ import { AdminHeaderComponent } from '../../shared/components/admin-header/admin
   selector: 'app-lesson-management',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule
   ],
   templateUrl: './lesson-management.component.html',
@@ -63,7 +63,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     title: '',
     description: '',
     resourceType: 'pdf',
-    file: null
+    file: null,
+    currentFileUrl: null
   };
   isResourceFormOpen = false;
   editingResource: any = null;
@@ -104,10 +105,15 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   discussions: any[] = [];
   discussionForm: any = {
     question: '',
-    details: ''
+    videoTimestamp: null
   };
   isDiscussionFormOpen = false;
   editingDiscussion: any = null;
+
+  // Reply management
+  replyForm: any = {};
+  showReplyForm: any = {};
+  expandedDiscussions: any = {};
 
   // ============================================
   // Exams Management
@@ -183,7 +189,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   // ============================================
   // Role Checking
   // ============================================
-  
+
   isStudent(): boolean {
     return this.authService.hasRole('Student');
   }
@@ -194,7 +200,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
   async loadAllData(): Promise<void> {
     await this.loadLesson();
-    
+
     // Build array of promises - only include notes for students
     const promises: Promise<void>[] = [
       this.loadResources(),
@@ -203,12 +209,12 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       this.loadExams(),
       this.loadChapters()
     ];
-    
+
     // Only load notes if user is a student (notes are student-specific)
     if (this.authService.hasRole('Student')) {
       promises.push(this.loadNotes());
     }
-    
+
     await Promise.all(promises);
   }
 
@@ -449,19 +455,23 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       title: '',
       description: '',
       resourceType: 'pdf',
-      file: null
+      file: null,
+      currentFileUrl: null
     };
     this.isResourceFormOpen = true;
   }
 
   openEditResource(resource: any): void {
+    console.log('📝 Opening edit for resource:', resource);
     this.editingResource = resource;
     this.resourceForm = {
       title: resource.title || '',
       description: resource.description || '',
-      resourceType: resource.resourceType || 'pdf',
-      file: null
+      resourceType: resource.resourceType || resource.type || 'pdf',
+      file: null,
+      currentFileUrl: resource.fileUrl || resource.url || null
     };
+    console.log('📝 Form populated with:', this.resourceForm);
     this.isResourceFormOpen = true;
   }
 
@@ -472,7 +482,8 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       title: '',
       description: '',
       resourceType: 'pdf',
-      file: null
+      file: null,
+      currentFileUrl: null
     };
   }
 
@@ -496,6 +507,16 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
       if (!this.editingResource && !(this.resourceForm.file instanceof File)) {
         Swal.fire('Error', 'Invalid file selected. Please select a file again.', 'error');
+        return;
+      }
+
+      // Validate file is not empty
+      if (!this.editingResource && this.resourceForm.file && this.resourceForm.file.size === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Empty File',
+          text: 'The selected file is empty (0 bytes). Please select a file with content.',
+        });
         return;
       }
 
@@ -536,6 +557,12 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
         showConfirmButton: false
       });
     } catch (error: any) {
+      console.error('🔴 Full error object:', error);
+      console.error('🔴 Error status:', error?.status);
+      console.error('🔴 Error response:', error?.error);
+      console.error('🔴 Error message:', error?.error?.message);
+      console.error('🔴 Error details:', error?.error?.details);
+      
       const errorMessage = this.extractErrorMessage(error);
 
       // Check if it's the known backend 500 error
@@ -672,12 +699,12 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     } catch (error: any) {
       console.error('Note save error:', error);
       let errorMessage = this.extractErrorMessage(error);
-      
+
       // Handle 403 Forbidden specifically
       if (error?.status === 403) {
         errorMessage = 'You do not have permission to add/edit notes. Please contact your administrator.';
       }
-      
+
       Swal.fire('Error', errorMessage, 'error');
     }
   }
@@ -735,8 +762,10 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     this.editingQuestion = null;
     this.questionForm = {
       questionText: '',
-      questionType: 'MultipleChoice',
+      isMultipleChoice: true,  // true = single answer, false = multiple answers
       points: 1,
+      explanation: '',
+      incorrectAnswerMessage: '',
       options: [
         { optionText: '', isCorrect: false },
         { optionText: '', isCorrect: false },
@@ -769,8 +798,10 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
 
     this.questionForm = {
       questionText: question.questionText || '',
-      questionType: question.isMultipleChoice ? 'MultipleChoice' : 'TrueFalse',
+      isMultipleChoice: question.isMultipleChoice !== false,  // Default to true if not specified
       points: 1, // Not stored in API, default to 1
+      explanation: question.explanation || '',
+      incorrectAnswerMessage: question.incorrectAnswerMessage || '',
       options: mappedOptions
     };
 
@@ -793,6 +824,29 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     }
   }
 
+  /**
+   * Select single correct answer (for radio button behavior)
+   * Uncheck all others when one is selected
+   */
+  selectSingleCorrectAnswer(selectedIndex: number): void {
+    this.questionForm.options.forEach((opt: any, i: number) => {
+      opt.isCorrect = (i === selectedIndex);
+    });
+  }
+
+  /**
+   * Handle answer type change and reset correct answers
+   */
+  onAnswerTypeChange(value: any): void {
+    // Convert string to boolean if needed
+    this.questionForm.isMultipleChoice = (value === true || value === 'true');
+
+    // Reset all correct answers when switching between single/multiple
+    this.questionForm.options.forEach((opt: any) => {
+      opt.isCorrect = false;
+    });
+  }
+
   async saveQuestion(): Promise<void> {
     try {
       if (!this.questionForm.questionText?.trim()) {
@@ -800,17 +854,27 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
         return;
       }
 
-      if (this.questionForm.questionType === 'MultipleChoice') {
-        const validOptions = this.questionForm.options.filter((opt: any) => opt.optionText.trim());
-        if (validOptions.length < 2) {
-          Swal.fire('Error', 'Please add at least 2 options', 'error');
-          return;
-        }
-        const correctOptions = this.questionForm.options.filter((opt: any) => opt.isCorrect);
-        if (correctOptions.length === 0) {
-          Swal.fire('Error', 'Please mark at least one option as correct', 'error');
-          return;
-        }
+      const validOptions = this.questionForm.options.filter((opt: any) => opt.optionText.trim());
+      if (validOptions.length < 2) {
+        Swal.fire('Error', 'Please add at least 2 options', 'error');
+        return;
+      }
+
+      const correctOptions = this.questionForm.options.filter((opt: any) => opt.isCorrect);
+      if (correctOptions.length === 0) {
+        Swal.fire('Error', 'Please mark at least one option as correct', 'error');
+        return;
+      }
+
+      // Validate based on isMultipleChoice
+      if (this.questionForm.isMultipleChoice && correctOptions.length > 1) {
+        Swal.fire('Error', 'Single Answer mode: Please select only ONE correct answer', 'error');
+        return;
+      }
+
+      if (!this.questionForm.isMultipleChoice && correctOptions.length < 2) {
+        Swal.fire('Error', 'Multiple Answers mode: Please select at least TWO correct answers', 'error');
+        return;
       }
 
       Swal.fire({
@@ -824,17 +888,21 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
         await this.contentService.updateLessonQuestion(
           this.editingQuestion.id,
           this.questionForm.questionText,
-          this.questionForm.questionType,
+          this.questionForm.isMultipleChoice,
           this.questionForm.points,
-          this.questionForm.options.filter((opt: any) => opt.optionText.trim())
+          this.questionForm.options.filter((opt: any) => opt.optionText.trim()),
+          this.questionForm.explanation,
+          this.questionForm.incorrectAnswerMessage
         ).toPromise();
       } else {
         await this.contentService.addLessonQuestion(
           this.lessonId,
           this.questionForm.questionText,
-          this.questionForm.questionType,
+          this.questionForm.isMultipleChoice,
           this.questionForm.points,
-          this.questionForm.options.filter((opt: any) => opt.optionText.trim())
+          this.questionForm.options.filter((opt: any) => opt.optionText.trim()),
+          this.questionForm.explanation,
+          this.questionForm.incorrectAnswerMessage
         ).toPromise();
       }
 
@@ -897,7 +965,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
     this.editingDiscussion = null;
     this.discussionForm = {
       question: '',
-      details: ''
+      videoTimestamp: null
     };
     this.isDiscussionFormOpen = true;
   }
@@ -924,7 +992,7 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       await this.contentService.addLessonDiscussion(
         this.lessonId,
         this.discussionForm.question,
-        this.discussionForm.details
+        this.discussionForm.videoTimestamp
       ).toPromise();
 
       await this.loadDiscussions();
@@ -975,6 +1043,51 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       } catch (error: any) {
         Swal.fire('Error', this.extractErrorMessage(error), 'error');
       }
+    }
+  }
+
+  toggleDiscussion(discussionId: number): void {
+    this.expandedDiscussions[discussionId] = !this.expandedDiscussions[discussionId];
+  }
+
+  toggleReplyForm(discussionId: number): void {
+    this.showReplyForm[discussionId] = !this.showReplyForm[discussionId];
+    if (this.showReplyForm[discussionId]) {
+      this.replyForm[discussionId] = '';
+    }
+  }
+
+  async submitReply(discussionId: number): Promise<void> {
+    const reply = this.replyForm[discussionId]?.trim();
+
+    if (!reply) {
+      Swal.fire('Warning', 'Please enter a reply', 'warning');
+      return;
+    }
+
+    try {
+      Swal.fire({
+        title: 'Sending...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      await this.contentService.addDiscussionReply(discussionId, reply).toPromise();
+      await this.loadDiscussions();
+
+      this.showReplyForm[discussionId] = false;
+      this.replyForm[discussionId] = '';
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Reply added successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error: any) {
+      Swal.fire('Error', this.extractErrorMessage(error), 'error');
     }
   }
 
@@ -1117,14 +1230,25 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   openEditChapter(chapter: any): void {
+    console.log('📝 Opening edit for chapter:', chapter);
     this.editingChapter = chapter;
+
+    // Convert timestamp (seconds) to HH:MM:SS format if needed
+    let startTimeStr = '00:00:00';
+    if (chapter.startTime) {
+      startTimeStr = chapter.startTime;
+    } else if (chapter.timestamp !== undefined && chapter.timestamp !== null) {
+      startTimeStr = this.formatTimestamp(chapter.timestamp);
+    }
+
     this.chapterForm = {
       title: chapter.title || '',
       description: chapter.description || '',
-      startTime: chapter.startTime || '00:00:00',
+      startTime: startTimeStr,
       endTime: chapter.endTime || '00:00:00',
-      orderIndex: chapter.orderIndex || 0
+      orderIndex: chapter.order !== undefined ? chapter.order : (chapter.orderIndex || 0)
     };
+    console.log('📝 Form populated with:', this.chapterForm);
     this.isChapterFormOpen = true;
   }
 

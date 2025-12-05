@@ -10,7 +10,8 @@
     </button>
   </div>
 
-  <div class="table-responsive">
+  <!-- Desktop table -->
+  <div class="table-responsive d-none d-md-block">
     <table class="table table-hover">
       <thead>
         <tr>
@@ -25,7 +26,11 @@
             <td>
               <strong class="text-success">{{ category.name }}</strong>
             </td>
-            <td>{{ category.description || '-' }}</td>
+            <td class="description-cell">
+              <span class="text-truncate" [title]="category.description || '-'">
+                {{ category.description || '-' }}
+              </span>
+            </td>
             <td class="text-end">
               <div class="btn-group" role="group">
                 <button 
@@ -35,7 +40,7 @@
                   <i class="fas fa-edit"></i>
                 </button>
                 <button 
-                  class="btn btn-sm btn-outline-danger" 
+                  class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1" 
                   (click)="onDelete(category)"
                   title="Delete">
                   <i class="fas fa-trash"></i>
@@ -54,6 +59,38 @@
         }
       </tbody>
     </table>
+  </div>
+
+  <!-- Mobile cards -->
+  <div class="d-block d-md-none mobile-cards">
+    @for (category of categories; track category.id) {
+      <div class="category-card">
+        <div class="card-header">
+          <div>
+            <p class="label">Name</p>
+            <p class="value text-success fw-semibold">{{ category.name }}</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-sm btn-outline-secondary" (click)="onEdit(category)" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="onDelete(category)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-row">
+          <p class="label">Description</p>
+          <p class="value">{{ category.description || '-' }}</p>
+        </div>
+      </div>
+    }
+    @empty {
+      <div class="empty-card text-center text-muted py-4">
+        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+        No categories found
+      </div>
+    }
   </div>
 
   <!-- Pagination -->

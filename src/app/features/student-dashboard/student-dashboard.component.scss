@@ -1,37 +1,251 @@
-/* Student Dashboard Styles */
+/* Student Dashboard Styles - Enhanced & Redesigned */
 
 .dashboard-container {
   min-height: 100vh;
+  position: relative;
+
+  // Smooth background gradient animation
+  background: linear-gradient(-45deg, #f9fafb, #eff6ff, #faf5ff, #f9fafb);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
 }
 
-/* Stats card hover animation */
-.stats-card {
-  transition: all 0.3s ease;
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.stats-card:hover {
-  transform: translateY(-4px);
+// Enhanced card animations
+.group {
+  &:hover {
+    .group-hover\:scale-110 {
+      transform: scale(1.1);
+    }
+
+    .group-hover\:scale-150 {
+      transform: scale(1.5);
+    }
+
+    .group-hover\:rotate-6 {
+      transform: rotate(6deg);
+    }
+  }
 }
 
-/* Progress bar animation */
+// Smooth transition for all interactive elements
+button, a, .transition-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Enhanced progress bar animation
 .progress-bar {
-  transition: width 0.8s ease-out;
+  transition: width 1s cubic-bezier(0.65, 0, 0.35, 1);
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
 }
 
-/* Subject card hover */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+// Stats cards with enhanced shadow
+.stats-card {
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background: linear-gradient(135deg, rgba(255,255,255,0.5), transparent);
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+// Subject card with slide animation
 .subject-card {
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  }
 }
 
-.subject-card:hover {
-  transform: translateX(4px);
-}
-
-/* Exam result card hover */
+// Exam result card
 .exam-card {
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+    transform: scale(1.02);
+  }
 }
 
-.exam-card:hover {
-  border-color: #3b82f6;
+// Activity card hover effect
+.activity-card {
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #f3f4f6;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+// Pulse animation for new activities
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// Gradient text effect
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Loading spinner enhancement
+@keyframes spin-smooth {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin-smooth 1s linear infinite;
+}
+
+// Quick action button hover glow effect
+.quick-action-btn {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+}
+
+// Subscription card enhanced styling
+.subscription-card {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+  }
+
+  &.active {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+  }
+}
+
+// Responsive typography scaling
+@media (max-width: 640px) {
+  .dashboard-container {
+    h1 { font-size: 1.875rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+  }
+}
+
+// Custom scrollbar for dashboard
+.dashboard-container {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+
+    &:hover {
+      background: linear-gradient(135deg, #764ba2, #667eea);
+    }
+  }
+}
+
+// Floating animation for decorative elements
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+// Fade in animation for content loading
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+// Stagger animation for list items
+@for $i from 1 through 10 {
+  .fade-in-up:nth-child(#{$i}) {
+    animation-delay: #{$i * 0.1}s;
+  }
 }

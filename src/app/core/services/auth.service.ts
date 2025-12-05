@@ -3,7 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, map } from 'rxjs';
 import { ParentApiService } from './parent-api.service';
-import { LoginRequest, ParentRegisterRequest, AuthResponse } from '../../models/auth.models';
+import { LoginRequest, ParentRegisterRequest, AuthResponse, VerifyEmailDto, ResendVerificationDto, ApiResponse } from '../../models/auth.models';
 import { jwtDecode } from 'jwt-decode';
 
 /**
@@ -71,13 +71,6 @@ export class AuthService {
           localStorage.setItem('yearId', yearId);
         }
 
-        console.log('🔐 Decoded JWT Token:', {
-          userId: decoded.nameid,
-          userName: decoded.unique_name,
-          studentId: decoded.studentId,
-          yearId: decoded.yearId,
-          roles: decoded.role
-        });
       } catch (error) {
         console.error('❌ Failed to decode JWT token:', error);
       }
@@ -110,6 +103,15 @@ export class AuthService {
           this.setCurrentUser(result.data);
           return { success: true };
         } else {
+          // ✅ Pass through requiresVerification and email for email verification errors
+          if ('requiresVerification' in result && result.requiresVerification) {
+            return {
+              success: false,
+              message: result.error,
+              requiresVerification: true,
+              email: 'email' in result ? result.email : undefined
+            };
+          }
           return { success: false, message: result.error };
         }
       })
@@ -144,13 +146,6 @@ export class AuthService {
         user.yearId = parseInt(decoded.yearId);
       }
 
-      console.log('🔐 Decoded JWT Token:', {
-        userId: decoded.nameid,
-        userName: decoded.unique_name,
-        studentId: decoded.studentId,
-        yearId: decoded.yearId,
-        roles: decoded.role
-      });
     } catch (error) {
       console.error('❌ Failed to decode JWT token:', error);
     }
@@ -261,7 +256,6 @@ export class AuthService {
     // Fallback: Decode token again
     const token = this.getToken();
     if (!token) {
-      console.warn('⚠️ No auth token found');
       return null;
     }
 
@@ -270,14 +264,11 @@ export class AuthService {
 
       if (decoded.studentId) {
         const studentId = parseInt(decoded.studentId);
-        console.log('✅ Student.Id from token:', studentId);
         return studentId;
       }
 
-      console.warn('⚠️ studentId claim not found in token');
       return null;
     } catch (error) {
-      console.error('❌ Failed to decode token for studentId:', error);
       return null;
     }
   }
@@ -451,5 +442,48 @@ navigateToUserDashboard(): void {
         }
       })
     );
+  }
+
+  /**
+   * Verify email with token
+   * @param dto Email verification data (email and token)
+   */
+  verifyEmail(dto: VerifyEmailDto): Observable<ApiResponse<boolean>> {
+    return this.parentApiService.verifyEmail(dto);
+  }
+
+  /**
+   * Resend verification email
+   * @param dto Resend verification data (email)
+   */
+  resendVerificationEmail(dto: ResendVerificationDto): Observable<ApiResponse<boolean>> {
+    return this.parentApiService.resendVerificationEmail(dto);
+  }
+
+  /**
+   * Check if username already exists
+   * @param username Username to check
+   * @returns Observable<boolean> - true if available, false if already taken
+   */
+  checkUsername(username: string): Observable<boolean> {
+    return this.parentApiService.checkUsername(username);
+  }
+
+  /**
+   * Check if email already exists
+   * @param email Email to check
+   * @returns Observable<boolean> - true if available, false if already taken
+   */
+  checkEmail(email: string): Observable<boolean> {
+    return this.parentApiService.checkEmail(email);
+  }
+
+  /**
+   * Check if phone number already exists
+   * @param phoneNumber Phone number to check
+   * @returns Observable<boolean> - true if available, false if already taken
+   */
+  checkPhoneNumber(phoneNumber: string): Observable<boolean> {
+    return this.parentApiService.checkPhoneNumber(phoneNumber);
   }
 }

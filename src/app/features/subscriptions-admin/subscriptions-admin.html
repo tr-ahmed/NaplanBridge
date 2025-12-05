@@ -435,7 +435,7 @@
                     <td>{{ p.userName }}</td>
                     <td>{{ p.amount | currency:currencyCode }}</td>
                     <td>{{ p.method }}</td>
-                    <td>{{ p.date | date:'medium' }}</td>
+                    <td>{{ p.date | date:'d MMM yyyy' }}</td>
                     <td>
                       <span class="badge rounded-pill" [class.bg-success]="p.status==='Paid'"
                         [class.bg-danger]="p.status==='Failed'" [class.bg-warning]="p.status==='Pending'"
@@ -776,7 +776,7 @@
             <div class="mb-2"><strong>Amount:</strong> {{ preview.amount | currency:currencyCode }}</div>
             <div class="mb-2"><strong>Status:</strong> {{ preview.status }}</div>
             <div class="mb-2"><strong>Txn ID:</strong> {{ preview.txnId || 'N/A' }}</div>
-            <div class="text-muted small">Date: {{ preview.date | date:'medium' }} • Method: {{ preview.method }}</div>
+            <div class="text-muted small">Date: {{ preview.date | date:'d MMM yyyy' }} • Method: {{ preview.method }}</div>
           </div>
 
           <div *ngIf="preview.type==='subscription'">

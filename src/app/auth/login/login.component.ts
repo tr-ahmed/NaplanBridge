@@ -22,10 +22,36 @@ export class LoginComponent implements OnInit {
   // Loading state signal
   isLoading = signal(false);
 
+  // Email verification states
+  showResendVerification = signal(false);
+  unverifiedEmail = signal('');
+
   // Reactive form for login
   loginForm: FormGroup = this.fb.group({
-    identifier: ['', [Validators.required]], // Can be email, username, or phone
-    password: ['', [Validators.required]],
+    identifier: ['', [
+      (control: any) => {
+        const value = control.value || '';
+        if (!value) return { required: true };
+
+        // Check if it's a valid email
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        const isEmail = emailRegex.test(value);
+
+        // Check if it's a valid username (4+ chars, letters/numbers/underscores)
+        const isValidUsername = /^[A-Za-z0-9_]{4,}$/.test(value);
+
+        // Check if it's a valid phone (9-15 digits, optional +)
+        const isValidPhone = /^\+?[0-9]{9,15}$/.test(value);
+
+        // At least one format must be valid
+        if (!isEmail && !isValidUsername && !isValidPhone) {
+          return { invalidIdentifier: true };
+        }
+
+        return null;
+      }
+    ]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
     rememberMe: [false]
   });
 
@@ -38,6 +64,13 @@ export class LoginComponent implements OnInit {
         rememberMe: true
       });
     }
+
+    // Pre-fill email if coming from verify page
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    if (email) {
+      this.loginForm.patchValue({ identifier: email });
+    }
   }
 
   /**
@@ -46,6 +79,7 @@ export class LoginComponent implements OnInit {
 onLogin(): void {
   if (this.loginForm.valid) {
     this.isLoading.set(true);
+    this.showResendVerification.set(false);
 
     // Extract form data and prepare API request
     const formValue = this.loginForm.value;
@@ -96,13 +130,62 @@ onLogin(): void {
             }
           }
         } else {
-          this.handleLoginError(result.message || 'Login failed');
+          // result.success is false, extract error message safely
+          const errorMessage: string = ('message' in result && typeof result.message === 'string')
+            ? result.message
+            : (('error' in result && typeof result.error === 'string') ? result.error : 'Login failed');
+
+          // ✅ Check if email verification is required
+          if ('requiresVerification' in result && result.requiresVerification === true) {
+            this.showResendVerification.set(true);
+
+            // Extract email from result or use identifier if it's an email
+            const errorEmail = ('email' in result && typeof result.email === 'string') ? result.email : undefined;
+            const identifierIsEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValue.identifier);
+
+            this.unverifiedEmail.set(errorEmail || (identifierIsEmail ? formValue.identifier : ''));
+
+            // Show warning toast
+            this.toastService.showWarning(
+              errorMessage,
+              10000
+            );
+          } else {
+            // Handle other login errors
+            this.handleLoginError(errorMessage);
+          }
         }
       },
       error: (error) => {
         this.isLoading.set(false);
-        console.error('Login error:', error);
-        this.toastService.showError('Login failed. Please try again.');
+        console.error('Login error response:', error);
+
+        // Prefer backend-provided structured error
+        const backend = error?.error || {};
+        const code: string | undefined = backend.code || backend.errorCode || backend.type;
+        const message: string | undefined = backend.message || backend.error || error?.statusText;
+
+        let friendly = 'Login failed. Please try again.';
+        if (code === 'USER_NOT_FOUND') {
+          friendly = message || 'The email, username, or phone number you entered is incorrect. Please check and try again.';
+        } else if (code === 'INVALID_PASSWORD') {
+          friendly = message || 'Incorrect password. Please try again.';
+        } else if (code === 'EMAIL_NOT_VERIFIED') {
+          friendly = message || 'Email is not verified. Please verify your email to continue.';
+          this.showResendVerification.set(true);
+          const identifierValue = this.loginForm.get('identifier')?.value;
+          const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifierValue);
+          this.unverifiedEmail.set(backend.email || (isEmail ? identifierValue : ''));
+        } else if (error?.status === 401) {
+          // Generic unauthorized without specific code
+          friendly = message || 'Invalid email/username or password. Please check your credentials and try again.';
+        } else if (error?.status === 0) {
+          friendly = 'Network error. Please check your connection and try again.';
+        } else if (message) {
+          friendly = message;
+        }
+
+        this.handleLoginError(friendly);
       }
     });
   } else {
@@ -171,5 +254,38 @@ onLogin(): void {
   hasFieldError(fieldName: string): boolean {
     const control = this.loginForm.get(fieldName);
     return !!(control?.errors && control.touched);
+  }
+
+  /**
+   * Resend verification email
+   */
+  resendVerification(): void {
+    let email = this.unverifiedEmail();
+
+    // If email is empty, prompt the user to enter it
+    if (!email) {
+      const identifierValue = this.loginForm.get('identifier')?.value;
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifierValue);
+
+      if (isEmail) {
+        email = identifierValue;
+      } else {
+        this.toastService.showError('Please enter your email address in the login field to resend verification email');
+        return;
+      }
+    }
+
+    this.authService.resendVerificationEmail({ email }).subscribe({
+      next: (response) => {
+        this.toastService.showSuccess(
+          response.message || 'Verification email sent! Please check your inbox.',
+          8000
+        );
+        this.showResendVerification.set(false);
+      },
+      error: (error) => {
+        this.toastService.showError('Failed to send verification email. Please make sure you entered the correct email address.');
+      }
+    });
   }
 }

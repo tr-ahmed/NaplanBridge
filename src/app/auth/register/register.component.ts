@@ -5,6 +5,7 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ParentRegisterRequest } from '../../models/auth.models';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -22,18 +23,35 @@ export class RegisterComponent {
   // Loading state signal
   isLoading = signal(false);
 
+  // Validation loading states
+  checkingUsername = signal(false);
+  checkingEmail = signal(false);
+  checkingPhone = signal(false);
+
   // Reactive form for parent registration
   registerForm: FormGroup = this.fb.group({
     userName: ['', [
-      Validators.required,
-      Validators.minLength(3),
-      Validators.pattern(/^[a-zA-Z0-9]+$/) // Only letters and digits, no spaces or special chars
+      (control: any) => {
+        const value = control.value || '';
+        if (!value) return { required: true };
+        if (value.length < 4) return { minlength: true };
+        if (/^\d+$/.test(value)) return { numbersOnly: true };
+        if (!/^[A-Za-z0-9_]+$/.test(value)) return { invalidChars: true };
+        return null;
+      }
     ]],
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [
+      (control: any) => {
+        const value = control.value || '';
+        if (!value) return { required: true };
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        if (!emailRegex.test(value)) return { email: true };
+        return null;
+      }
+    ]],
     password: ['', [
       Validators.required,
-      Validators.minLength(8),
-      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z]).{8,}$/) // Must contain uppercase and lowercase, min 8 chars
+      Validators.minLength(8)
     ]],
     confirmPassword: ['', [Validators.required]],
     // Allow international formats with optional leading + and 9-15 digits
@@ -43,6 +61,114 @@ export class RegisterComponent {
   }, {
     validators: this.passwordMatchValidator
   });
+
+  ngOnInit(): void {
+    this.setupRealTimeValidation();
+  }
+
+  /**
+   * Setup real-time validation for username, email, and phone
+   */
+  private setupRealTimeValidation(): void {
+    // Username availability check
+    this.registerForm.get('userName')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((username: string) => {
+        // Only check if username passes basic validation
+        const control = this.registerForm.get('userName');
+        if (!username || username.length < 4 || control?.hasError('numbersOnly') || control?.hasError('invalidChars')) {
+          this.checkingUsername.set(false);
+          return [];
+        }
+
+        this.checkingUsername.set(true);
+        return this.authService.checkUsername(username);
+      })
+    ).subscribe({
+      next: (isAvailable: boolean) => {
+        this.checkingUsername.set(false);
+        const control = this.registerForm.get('userName');
+        if (!isAvailable) {
+          control?.setErrors({ ...control.errors, usernameTaken: true });
+        } else {
+          // Remove usernameTaken error if exists
+          if (control?.hasError('usernameTaken')) {
+            const errors = { ...control.errors };
+            delete errors['usernameTaken'];
+            control.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      },
+      error: () => this.checkingUsername.set(false)
+    });
+
+    // Email availability check
+    this.registerForm.get('email')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((email: string) => {
+        // Only check if email passes basic validation
+        const control = this.registerForm.get('email');
+        if (!email || control?.hasError('email')) {
+          this.checkingEmail.set(false);
+          return [];
+        }
+
+        this.checkingEmail.set(true);
+        return this.authService.checkEmail(email);
+      })
+    ).subscribe({
+      next: (isAvailable: boolean) => {
+        this.checkingEmail.set(false);
+        const control = this.registerForm.get('email');
+        if (!isAvailable) {
+          control?.setErrors({ ...control.errors, emailTaken: true });
+        } else {
+          // Remove emailTaken error if exists
+          if (control?.hasError('emailTaken')) {
+            const errors = { ...control.errors };
+            delete errors['emailTaken'];
+            control.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      },
+      error: () => this.checkingEmail.set(false)
+    });
+
+    // Phone number availability check
+    this.registerForm.get('phoneNumber')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((phoneNumber: string) => {
+        // Only check if phone passes basic validation
+        const control = this.registerForm.get('phoneNumber');
+        if (!phoneNumber || control?.hasError('pattern')) {
+          this.checkingPhone.set(false);
+          return [];
+        }
+
+        this.checkingPhone.set(true);
+        return this.authService.checkPhoneNumber(phoneNumber);
+      })
+    ).subscribe({
+      next: (isAvailable: boolean) => {
+        this.checkingPhone.set(false);
+        const control = this.registerForm.get('phoneNumber');
+        if (!isAvailable) {
+          control?.setErrors({ ...control.errors, phoneTaken: true });
+        } else {
+          // Remove phoneTaken error if exists
+          if (control?.hasError('phoneTaken')) {
+            const errors = { ...control.errors };
+            delete errors['phoneTaken'];
+            control.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      },
+      error: () => this.checkingPhone.set(false)
+    });
+  }
 
   /**
    * Custom validator to check if passwords match
@@ -88,11 +214,24 @@ export class RegisterComponent {
           this.isLoading.set(false);
 
           if (result.success) {
-            const currentUser = this.authService.currentUser();
-            this.toastService.showSuccess('Registration successful! Welcome to NaplanBridge.');
+            // ✅ NEW: Show verification message instead of auto-login
+            this.toastService.showSuccess(
+              'Registration successful! Please check your email to verify your account.',
+              8000
+            );
 
-            // Navigate to appropriate dashboard
-            this.authService.navigateToUserDashboard();
+            // Show additional info message
+            this.toastService.showInfo(
+              `We've sent a verification link to ${formValue.email}. Click the link in the email to verify your account.`,
+              10000
+            );
+
+            // Redirect to login after 5 seconds
+            setTimeout(() => {
+              this.router.navigate(['/auth/login'], {
+                queryParams: { email: formValue.email }
+              });
+            }, 5000);
           } else {
             this.handleRegistrationError(result.message || 'Registration failed', undefined);
           }
@@ -218,6 +357,15 @@ export class RegisterComponent {
       }
       if (control.errors['email']) {
         return 'Please enter a valid email address';
+      }
+      if (control.errors['usernameTaken']) {
+        return 'This username is already taken. Please choose another one.';
+      }
+      if (control.errors['emailTaken']) {
+        return 'This email is already registered. Please use another email or login.';
+      }
+      if (control.errors['phoneTaken']) {
+        return 'This phone number is already registered. Please use another number.';
       }
       if (control.errors['minlength']) {
         return `${this.getFieldDisplayName(fieldName)} must be at least ${control.errors['minlength'].requiredLength} characters`;

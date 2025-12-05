@@ -47,26 +47,58 @@ export class ExamResultComponent implements OnInit {
     this.loading.set(true);
 
     this.examApi.getExamResult(studentExamId).subscribe({
-      next: (result) => {
-        console.log('📊 Exam Result Loaded:', result);
-        console.log('📝 Question Results:', result.questionResults);
+      next: (response: any) => {
+        console.log('📊 Raw Backend Response:', response);
 
-        // Debug: Print each question in detail
-        if (result.questionResults && result.questionResults.length > 0) {
-          result.questionResults.forEach((q: any, i: number) => {
-            console.log(`Question ${i + 1}:`, {
-              questionId: q.questionId,
-              questionText: q.questionText,
-              studentAnswer: q.studentAnswer,
-              correctAnswer: q.correctAnswer,
-              isCorrect: q.isCorrect,
-              earnedScore: q.earnedScore,
-              marks: q.marks
-            });
-          });
-        } else {
-          console.warn('⚠️ No questionResults found or empty array');
-        }
+        // ✅ Transform backend response to frontend format
+        const backendData = response.data || response;
+        console.log('📊 Backend Data:', backendData);
+
+        // Calculate correct/wrong answers count
+        const correctCount = backendData.questionResults?.filter((q: any) => q.isCorrect === true).length || 0;
+        const totalQuestions = backendData.questionResults?.length || 0;
+        const wrongCount = totalQuestions - correctCount;
+
+        // Calculate percentage
+        const scorePercentage = backendData.totalMarks > 0
+          ? (backendData.score / backendData.totalMarks) * 100
+          : 0;
+
+        // Transform question results
+        const transformedQuestions = backendData.questionResults?.map((q: any) => ({
+          questionId: q.questionId,
+          questionText: q.questionText,
+          questionType: q.questionType || QuestionType.MultipleChoice,
+          marks: q.maxMarks || q.marks || 0,
+          earnedScore: q.awardedMarks || q.earnedScore || 0,
+          studentAnswer: q.selectedOptions?.join(', ') || q.studentAnswer || 'Not Answered',
+          correctAnswer: q.correctOptions?.join(', ') || q.correctAnswer || '',
+          isCorrect: q.isCorrect,
+          feedback: q.feedback || q.teacherFeedback
+        })) || [];
+
+        // Build complete result object
+        const result: ExamResultDto = {
+          studentExamId: backendData.studentExamId,
+          examId: backendData.examId,
+          examTitle: backendData.examTitle,
+          subjectName: backendData.subjectName || 'Subject',
+          submittedAt: backendData.submittedAt || new Date().toISOString(),
+          gradedAt: backendData.gradedAt,
+          totalScore: backendData.score || 0,
+          totalMarks: backendData.totalMarks || 0,
+          scorePercentage: scorePercentage,
+          passingMarks: backendData.passingMarks || 0,
+          isPassed: backendData.isPassed ?? (scorePercentage >= 50),
+          grade: this.calculateGrade(scorePercentage),
+          correctAnswersCount: correctCount,
+          wrongAnswersCount: wrongCount,
+          generalFeedback: backendData.generalFeedback,
+          questionResults: transformedQuestions
+        };
+
+        console.log('✅ Transformed Result:', result);
+        console.log('📝 Question Results:', result.questionResults);
 
         this.result.set(result);
         this.loading.set(false);
@@ -77,6 +109,21 @@ export class ExamResultComponent implements OnInit {
         this.router.navigate(['/student/exams']);
       }
     });
+  }
+
+  /**
+   * Calculate grade from percentage
+   */
+  private calculateGrade(percentage: number): string {
+    if (percentage >= 90) return 'A+';
+    if (percentage >= 85) return 'A';
+    if (percentage >= 80) return 'B+';
+    if (percentage >= 75) return 'B';
+    if (percentage >= 70) return 'C+';
+    if (percentage >= 65) return 'C';
+    if (percentage >= 60) return 'D+';
+    if (percentage >= 50) return 'D';
+    return 'F';
   }
 
   /**

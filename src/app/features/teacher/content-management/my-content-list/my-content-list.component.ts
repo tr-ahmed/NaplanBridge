@@ -82,7 +82,7 @@ import { ToastService } from '../../../../core/services/toast.service';
                 <p *ngIf="item.description" class="text-gray-600 text-sm mb-2">{{ item.description }}</p>
                 <div class="flex gap-4 text-xs text-gray-500">
                   <span>Type: {{ item.itemType }}</span>
-                  <span>Created: {{ item.createdAt | date:'short' }}</span>
+                  <span>Created: {{ item.createdAt | date:'d MMM yyyy' }}</span>
                   <span *ngIf="item.rejectionReason">Reason: {{ item.rejectionReason }}</span>
                 </div>
               </div>

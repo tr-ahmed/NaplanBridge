@@ -125,6 +125,16 @@
   border-color: #f44336;
 }
 
+.btn-danger {
+  color: #dc2626;
+
+  &:hover {
+    color: #991b1b;
+    background: #fee2e2;
+    border-color: #dc2626;
+  }
+}
+
 .btn-activate:hover {
   background: #e8f5e9;
   border-color: #4caf50;

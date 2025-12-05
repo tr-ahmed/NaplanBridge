@@ -10,7 +10,10 @@ import {
   ApiErrorResponse,
   ValidationError,
   PasswordResetRequest,
-  PasswordResetConfirmation
+  PasswordResetConfirmation,
+  VerifyEmailDto,
+  ResendVerificationDto,
+  ApiResponse
 } from '../../models/auth.models';
 
 /**
@@ -57,24 +60,30 @@ export class ParentApiService {
   login(loginData: LoginRequest): Observable<ApiResult<AuthResponse>> {
     const url = `${this.baseUrl}/Account/login`;
 
-    console.log('🔍 API Debug Info:');
-    console.log('Base URL:', this.baseUrl);
-    console.log('Full URL:', url);
-    console.log('Login Data:', loginData);
+    // Add header to skip toast notification in interceptor
+    const headers = { 'X-Skip-Toast': 'true' };
 
-    return this.http.post<AuthResponse>(url, loginData).pipe(
+    return this.http.post<AuthResponse>(url, loginData, { headers }).pipe(
       map((response: AuthResponse) => {
-        console.log('✅ Login Success Response:', response);
         return {
           success: true as const,
           data: response
         };
       }),
       catchError((error) => {
-        console.error('❌ Login Error:', error);
-        console.error('Error Status:', error.status);
-        console.error('Error Message:', error.message);
-        console.error('Error Body:', error.error);
+        // ✅ Handle 401 Email Not Verified - Pass it to component for special handling
+        const isEmailNotVerified = error.status === 401 &&
+            (error.error?.requiresVerification === true || error.error?.error === 'Email not verified');
+
+        if (isEmailNotVerified) {
+          return of({
+            success: false as const,
+            error: error.error?.message || 'Please verify your email address before logging in.',
+            requiresVerification: true,
+            email: error.error?.email,
+            statusCode: 401
+          });
+        }
 
         // ✅ Handle 403 Forbidden - Account Deactivated
         if (error.status === 403) {
@@ -131,6 +140,16 @@ export class ParentApiService {
       return { message: errorResponse.title };
     }
 
+    // Use common fields when present
+    if (typeof errorResponse === 'string') {
+      return { message: errorResponse };
+    }
+    if (errorResponse?.message) {
+      return { message: errorResponse.message };
+    }
+    if (errorResponse?.error) {
+      return { message: errorResponse.error };
+    }
     return { message: 'An unexpected error occurred' };
   }
 
@@ -223,4 +242,149 @@ export class ParentApiService {
       })
     );
   }
+
+  /**
+   * Verify email with token
+   * @param dto Email verification data (email and token)
+   * @returns Observable with API result
+   */
+  verifyEmail(dto: VerifyEmailDto): Observable<ApiResponse<boolean>> {
+    const url = `${this.baseUrl}/Account/verify-email`;
+
+    console.log('🔍 Email Verification Request:', { email: dto.email });
+
+    return this.http.post<ApiResponse<boolean>>(url, dto).pipe(
+      map((response: ApiResponse<boolean>) => {
+        console.log('✅ Email Verified Successfully');
+        return response;
+      }),
+      catchError((error) => {
+        console.error('❌ Email Verification Error:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Resend verification email
+   * @param dto Resend verification data (email)
+   * @returns Observable with API result
+   */
+  resendVerificationEmail(dto: ResendVerificationDto): Observable<ApiResponse<boolean>> {
+    const url = `${this.baseUrl}/Account/resend-verification-email`;
+
+    console.log('🔍 Resend Verification Email Request:', { email: dto.email });
+
+    return this.http.post<ApiResponse<boolean>>(url, dto).pipe(
+      map((response: ApiResponse<boolean>) => {
+        console.log('✅ Verification Email Sent');
+        return response;
+      }),
+      catchError((error) => {
+        console.error('❌ Resend Verification Email Error:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Check if username already exists
+   * GET /api/User/check-username?username={username}
+   * @param username Username to check
+   * @returns Observable<boolean> - true if available (not taken), false if already exists
+   */
+  checkUsername(username: string): Observable<boolean> {
+    const url = `${this.baseUrl}/User/check-username`;
+    return this.http.get<any>(url, { params: { username } }).pipe(
+      map((response: any) => {
+        console.log('✅ Check Username Response:', { username, response });
+        // Backend returns { exists: true } if username exists
+        // We need to return true if AVAILABLE (not exists) and false if TAKEN (exists)
+        if (typeof response === 'boolean') {
+          return response; // Direct boolean response
+        }
+        if (typeof response === 'object' && response !== null) {
+          // If exists: true → username is taken → return false (not available)
+          // If exists: false → username is available → return true
+          if ('exists' in response) {
+            return !response.exists; // Invert: !true = false (taken), !false = true (available)
+          }
+          // Fallback for other response formats
+          return response.available !== false && response.success !== false;
+        }
+        return false; // Assume unavailable on uncertain response
+      }),
+      catchError((error) => {
+        console.error('❌ Check Username Error:', error);
+        return of(false); // Assume unavailable on error
+      })
+    );
+  }
+
+  /**
+   * Check if email already exists
+   * GET /api/User/check-email?email={email}
+   * @param email Email to check
+   * @returns Observable<boolean> - true if available (not taken), false if already exists
+   */
+  checkEmail(email: string): Observable<boolean> {
+    const url = `${this.baseUrl}/User/check-email`;
+    return this.http.get<any>(url, { params: { email } }).pipe(
+      map((response: any) => {
+        console.log('✅ Check Email Response:', { email, response });
+        // Backend returns { exists: true } if email exists
+        if (typeof response === 'boolean') {
+          return response; // Direct boolean response
+        }
+        if (typeof response === 'object' && response !== null) {
+          // If exists: true → email is taken → return false (not available)
+          // If exists: false → email is available → return true
+          if ('exists' in response) {
+            return !response.exists; // Invert: !true = false (taken), !false = true (available)
+          }
+          // Fallback for other response formats
+          return response.available !== false && response.success !== false;
+        }
+        return false; // Assume unavailable on uncertain response
+      }),
+      catchError((error) => {
+        console.error('❌ Check Email Error:', error);
+        return of(false); // Assume unavailable on error
+      })
+    );
+  }
+
+  /**
+   * Check if phone number already exists
+   * GET /api/User/check-phone?phoneNumber={phoneNumber}
+   * @param phoneNumber Phone number to check
+   * @returns Observable<boolean> - true if available (not taken), false if already exists
+   */
+  checkPhoneNumber(phoneNumber: string): Observable<boolean> {
+    const url = `${this.baseUrl}/User/check-phone`;
+    return this.http.get<any>(url, { params: { phoneNumber } }).pipe(
+      map((response: any) => {
+        console.log('✅ Check Phone Response:', { phoneNumber, response });
+        // Backend returns { exists: true } if phone exists
+        if (typeof response === 'boolean') {
+          return response; // Direct boolean response
+        }
+        if (typeof response === 'object' && response !== null) {
+          // If exists: true → phone is taken → return false (not available)
+          // If exists: false → phone is available → return true
+          if ('exists' in response) {
+            return !response.exists; // Invert: !true = false (taken), !false = true (available)
+          }
+          // Fallback for other response formats
+          return response.available !== false && response.success !== false;
+        }
+        return false; // Assume unavailable on uncertain response
+      }),
+      catchError((error) => {
+        console.error('❌ Check Phone Error:', error);
+        return of(false); // Assume unavailable on error
+      })
+    );
+  }
 }
+

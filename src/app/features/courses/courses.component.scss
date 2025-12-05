@@ -154,6 +154,22 @@ input[type="text"] {
   }
 }
 
+/* Extra small screens - custom breakpoint for very small devices */
+@media (max-width: 479px) {
+  /* Force buttons to stack on very small screens */
+  .xs\:flex-row {
+    flex-direction: column !important;
+  }
+}
+
+/* Small screens breakpoint */
+@media (min-width: 480px) {
+  /* Enable row layout for xs: prefix */
+  .xs\:flex-row {
+    flex-direction: row !important;
+  }
+}
+
 /* Print styles */
 @media print {
   .floating-cart,

@@ -521,25 +521,36 @@ export class CreateEditExamComponent implements OnInit {
     const questionGroup = this.createQuestionGroup();
     this.questions.push(questionGroup);
 
-    // Add default options for MCQ, MultiSelect, and TrueFalse
+    // Add default options for MCQ, MultipleSelect, and TrueFalse
     const questionType = questionGroup.get('questionType')?.value;
     const questionIndex = this.questions.length - 1;
+    const options = this.getOptions(questionIndex);
 
     if (questionType === 'MultipleChoice' || questionType === 'MultipleSelect') {
-      this.addOption(questionIndex);
-      this.addOption(questionIndex);
+      // Add 4 empty options directly to the FormArray
+      for (let i = 0; i < 4; i++) {
+        options.push(this.fb.group({
+          optionText: ['', Validators.required],
+          isCorrect: [false]
+        }));
+      }
     } else if (questionType === 'TrueFalse') {
       // Add True and False options for TrueFalse questions
-      const options = this.getOptions(questionIndex);
       options.push(this.fb.group({
-        optionText: ['True'],
+        optionText: ['True', Validators.required],
         isCorrect: [false]
       }));
       options.push(this.fb.group({
-        optionText: ['False'],
+        optionText: ['False', Validators.required],
         isCorrect: [false]
       }));
     }
+
+    // Force update to ensure proper binding
+    setTimeout(() => {
+      questionGroup.updateValueAndValidity();
+      options.updateValueAndValidity();
+    }, 0);
   }
 
   /**
@@ -615,6 +626,12 @@ export class CreateEditExamComponent implements OnInit {
       }));
     }
     // Text type removed - no longer available
+
+    // Force update to ensure proper binding
+    setTimeout(() => {
+      question.updateValueAndValidity();
+      options.updateValueAndValidity();
+    }, 0);
   }
 
   /**
@@ -688,6 +705,23 @@ export class CreateEditExamComponent implements OnInit {
   }
 
   /**
+   * Clean up empty options from all questions (just clears errors, doesn't delete)
+   */
+  private cleanupEmptyOptions(): void {
+    this.questions.controls.forEach((question, questionIndex) => {
+      const options = this.getOptions(questionIndex);
+      // Clear validation errors for empty options so they don't block save
+      options.controls.forEach((option) => {
+        const optionText = option.get('optionText');
+        if (optionText && (!optionText.value || optionText.value.trim() === '')) {
+          optionText.setErrors(null);
+          option.get('isCorrect')?.setValue(false);
+        }
+      });
+    });
+  }
+
+  /**
    * Validate questions
    */
   private validateQuestions(): boolean {
@@ -696,7 +730,12 @@ export class CreateEditExamComponent implements OnInit {
       return false;
     }
 
+    // First, clean up empty options from all questions
+    this.cleanupEmptyOptions();
+
     let isValid = true;
+    const errors: string[] = [];
+
     this.questions.controls.forEach((question, index) => {
       const questionFormGroup = question as FormGroup;
 
@@ -715,6 +754,54 @@ export class CreateEditExamComponent implements OnInit {
           const control = questionFormGroup.get(key);
           if (control?.invalid) {
             console.warn(`  ❌ ${key}: invalid=${control.invalid}, errors=`, control.errors);
+
+            // If it's the options array, check each option
+            if (key === 'options' && control instanceof FormArray) {
+              console.warn(`  📋 ALL Options for Question ${index + 1}:`, control.value);
+              control.controls.forEach((optControl, optIndex) => {
+                console.warn(`    Option ${optIndex + 1} RAW:`, {
+                  valid: optControl.valid,
+                  invalid: optControl.invalid,
+                  value: optControl.value,
+                  formControlValue: optControl.get('optionText')?.value,
+                  errors: optControl.errors
+                });
+
+                if (optControl.invalid) {
+                  console.warn(`    ❌ Option ${optIndex + 1}:`, {
+                    invalid: optControl.invalid,
+                    errors: optControl.errors,
+                    value: optControl.value
+                  });
+
+                  // Check each field in the option
+                  if (optControl instanceof FormGroup) {
+                    Object.keys((optControl as FormGroup).controls).forEach(optKey => {
+                      const optField = optControl.get(optKey);
+                      if (optField?.invalid) {
+                        console.warn(`      ❌ ${optKey}:`, {
+                          value: optField.value,
+                          errors: optField.errors
+                        });
+
+                        // Add specific error message
+                        if (optKey === 'optionText' && optField.errors?.['required']) {
+                          errors.push(`Question ${index + 1}: Option ${optIndex + 1} text is required`);
+                        }
+                      }
+                    });
+                  }
+                }
+              });
+            } else if (key === 'questionText' && control.errors?.['required']) {
+              errors.push(`Question ${index + 1}: Question text is required`);
+            } else if (key === 'questionText' && control.errors?.['minlength']) {
+              errors.push(`Question ${index + 1}: Question text must be at least 5 characters`);
+            } else if (key === 'marks' && control.errors?.['required']) {
+              errors.push(`Question ${index + 1}: Marks are required`);
+            } else if (key === 'marks' && control.errors?.['min']) {
+              errors.push(`Question ${index + 1}: Marks must be at least 1`);
+            }
           }
         });
 
@@ -743,7 +830,14 @@ export class CreateEditExamComponent implements OnInit {
     });
 
     if (!isValid) {
-      this.toastService.showError('Please fix question errors');
+      // Show specific errors if any
+      if (errors.length > 0) {
+        const errorMessage = errors.slice(0, 3).join('\n'); // Show first 3 errors
+        const remaining = errors.length > 3 ? `\n...and ${errors.length - 3} more errors` : '';
+        this.toastService.showError(errorMessage + remaining);
+      } else {
+        this.toastService.showError('Please fix question errors before continuing');
+      }
     }
 
     return isValid;
@@ -824,6 +918,12 @@ export class CreateEditExamComponent implements OnInit {
       startTime: formValue.startTime ? new Date(formValue.startTime).toISOString() : null,
       endTime: formValue.endTime ? new Date(formValue.endTime).toISOString() : null,
       isPublished: publish,
+      // ✅ ADD: Exam Settings
+      allowLateSubmission: formValue.allowLateSubmission ?? false,
+      shuffleQuestions: formValue.shuffleQuestions ?? false,
+      showResults: formValue.showResults ?? true,
+      allowReview: formValue.allowReview ?? true,
+      maxAttempts: Number(formValue.maxAttempts) || 1,
       questions: formValue.questions.map((q: any, index: number) => ({
         questionText: q.questionText,
         questionType: q.questionType,
@@ -841,8 +941,27 @@ export class CreateEditExamComponent implements OnInit {
     console.log('💾 Saving Exam Data:', examData);
 
     if (this.isEditMode() && this.examId) {
-      // ✅ UPDATE exam
-      this.examApi.updateExam(this.examId, examData).subscribe({
+      // ✅ UPDATE exam - include ALL exam settings
+      const updateData: any = {
+        title: examData.title,
+        description: examData.description,
+        durationInMinutes: examData.durationInMinutes,
+        totalMarks: examData.totalMarks,
+        passingMarks: examData.passingMarks,
+        startTime: examData.startTime,
+        endTime: examData.endTime,
+        isPublished: publish,
+        // ✅ ADD: Exam Settings
+        allowLateSubmission: formValue.allowLateSubmission ?? false,
+        shuffleQuestions: formValue.shuffleQuestions ?? false,
+        showResults: formValue.showResults ?? true,
+        allowReview: formValue.allowReview ?? true,
+        maxAttempts: Number(formValue.maxAttempts) || 1
+      };
+
+      console.log('📤 Updating exam with data:', updateData);
+
+      this.examApi.updateExam(this.examId, updateData).subscribe({
         next: (response) => {
           console.log('✅ Exam updated successfully:', response);
 
@@ -987,7 +1106,11 @@ export class CreateEditExamComponent implements OnInit {
         marks: questionValue.marks,
         order: this.originalQuestionsCount + index + 1,
         isMultipleSelect: questionValue.questionType === 'MultipleSelect',
-        options: questionValue.options || []
+        options: (questionValue.options || []).map((opt: any, optIndex: number) => ({
+          optionText: opt.optionText,
+          isCorrect: opt.isCorrect,
+          order: optIndex + 1
+        }))
       };
 
       console.log(`➕ Adding new question ${index + 1}:`, questionData);

@@ -414,14 +414,38 @@ export class SubscriptionManagementComponent implements OnInit {
   }
 
   openEditPlan(plan: PlanWithStatus) {
+    console.log('📝 Opening edit for plan:', plan);
+
     this.formMode = 'edit';
     this.formEntity = 'plan';
     this.formTitle = 'Edit Subscription Plan';
-    this.form = { ...plan };
+
+    // Explicitly map each field to ensure correct types
+    this.form = {
+      id: plan.id,
+      name: plan.name || '',
+      description: plan.description || '',
+      planType: plan.planType,
+      price: plan.price || 0,
+      durationInDays: plan.durationInDays || 90,
+      subjectId: plan.subjectId || null,
+      termId: plan.termId || null,
+      yearId: plan.yearId || null,
+      includedTermIds: plan.includedTermIds || '',
+      isActive: plan.isActive ?? true
+    };
+
+    console.log('📝 Form populated with:', {
+      yearId: this.form.yearId,
+      subjectId: this.form.subjectId,
+      termId: this.form.termId,
+      planType: this.form.planType
+    });
 
     // Load selected terms for MultiTerm plans
     if (plan.planType === PlanType.MultiTerm && plan.includedTermIds) {
       this.selectedTermIds = plan.includedTermIds.split(',').map(id => parseInt(id.trim()));
+      console.log('📝 Selected terms:', this.selectedTermIds);
     } else {
       this.selectedTermIds = [];
     }

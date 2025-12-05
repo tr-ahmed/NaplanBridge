@@ -17,8 +17,8 @@ import { TeacherHeaderComponent } from '../../../shared/components/teacher-heade
   selector: 'app-teacher-sessions',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterLink, 
+    CommonModule,
+    RouterLink,
     FormsModule
   ],
   templateUrl: './teacher-sessions.component.html',
@@ -78,6 +78,7 @@ export class TeacherSessionsComponent implements OnInit {
   /**
    * Convert status number to readable text
    * 0 = Pending, 1 = Confirmed, 2 = Completed, 3 = Cancelled
+   * Unknown/null/undefined = Pending Payment (حجز تم إنشاؤه لكن لم يتم الدفع)
    */
   getReadableStatus(status: any): string {
     const statusStr = status?.toString();
@@ -90,10 +91,13 @@ export class TeacherSessionsComponent implements OnInit {
       'Pending': 'Pending',
       'Confirmed': 'Confirmed',
       'Completed': 'Completed',
-      'Cancelled': 'Cancelled'
+      'Cancelled': 'Cancelled',
+      'Unknown': 'Pending Payment',
+      'null': 'Pending Payment',
+      'undefined': 'Pending Payment'
     };
 
-    return statusMap[statusStr] || 'Unknown';
+    return statusMap[statusStr] || 'Pending Payment';
   }
 
   getStatusClass(status: any): string {
@@ -103,9 +107,10 @@ export class TeacherSessionsComponent implements OnInit {
       'Confirmed': 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200',
       'Completed': 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200',
       'Cancelled': 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200',
-      'Pending': 'bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border border-yellow-200'
+      'Pending': 'bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border border-yellow-200',
+      'Pending Payment': 'bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border border-orange-200'
     };
-    return classes[readableStatus] || 'bg-gray-100 text-gray-800 border border-gray-200';
+    return classes[readableStatus] || 'bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border border-orange-200';
   }
 
   getStatusText(status: any): string {
@@ -115,9 +120,10 @@ export class TeacherSessionsComponent implements OnInit {
       'Confirmed': '✅ Confirmed',
       'Completed': '✔️ Completed',
       'Cancelled': '❌ Cancelled',
-      'Pending': '⏳ Pending'
+      'Pending': '⏳ Pending',
+      'Pending Payment': '💳 Pending Payment'
     };
-    return texts[readableStatus] || readableStatus;
+    return texts[readableStatus] || '💳 ' + readableStatus;
   }  setTab(tab: 'upcoming' | 'history'): void {
     this.activeTab.set(tab);
   }
@@ -177,20 +183,48 @@ export class TeacherSessionsComponent implements OnInit {
    * Mark session as completed
    */
   markAsCompleted(session: PrivateSessionDto): void {
+    console.log('🔵 Attempting to complete session:', session);
+    
+    // Validate session can be completed
+    if (session.status === 'Completed') {
+      this.toastService.showWarning('This session is already completed');
+      return;
+    }
+    
+    if (session.status === 'PendingPayment') {
+      this.toastService.showWarning('Cannot complete session - payment is pending');
+      return;
+    }
+    
+    if (session.status === 'Cancelled' || session.status === 'NoShow') {
+      this.toastService.showWarning(`Cannot complete ${session.status.toLowerCase()} session`);
+      return;
+    }
+    
+    // Check if session has started
+    const sessionStart = new Date(session.scheduledDateTime);
+    const now = new Date();
+    if (sessionStart > now) {
+      this.toastService.showWarning('Cannot complete session that has not started yet');
+      return;
+    }
+    
     if (!confirm(`Mark this session with ${session.studentName} as completed?`)) {
       return;
     }
 
     this.sessionService.markSessionAsCompleted(session.id).subscribe({
       next: (response) => {
+        console.log('✅ Session completed response:', response);
         if (response.success) {
           this.toastService.showSuccess('Session marked as completed!');
           this.loadSessions();
         }
       },
       error: (error) => {
-        console.error('Error marking session as completed:', error);
-        this.toastService.showError('Failed to mark session as completed');
+        console.error('❌ Error marking session as completed:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
+        this.toastService.showError(error.message || 'Failed to mark session as completed');
       }
     });
   }
@@ -246,5 +280,33 @@ export class TeacherSessionsComponent implements OnInit {
     if (hours > 0) return `in ${hours} hour${hours > 1 ? 's' : ''}`;
     if (minutes > 0) return `in ${minutes} min`;
     return 'Now';
+  }
+
+  /**
+   * Get remaining time for payment (24 hours from creation)
+   */
+  getPaymentTimeRemaining(createdAt: string): string {
+    const now = new Date();
+    const createdTime = new Date(createdAt);
+    const expiryTime = new Date(createdTime.getTime() + (24 * 60 * 60 * 1000)); // 24 hours
+    const diff = expiryTime.getTime() - now.getTime();
+
+    if (diff <= 0) return 'Expired';
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (hours > 0) return `${hours}h ${minutes}m remaining`;
+    return `${minutes}m remaining`;
+  }
+
+  /**
+   * Check if payment has expired (more than 24 hours since creation)
+   */
+  isPaymentExpired(createdAt: string): boolean {
+    const now = new Date();
+    const createdTime = new Date(createdAt);
+    const expiryTime = new Date(createdTime.getTime() + (24 * 60 * 60 * 1000)); // 24 hours
+    return now.getTime() > expiryTime.getTime();
   }
 }

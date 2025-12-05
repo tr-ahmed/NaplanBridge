@@ -733,17 +733,18 @@ export class LessonsService {
 
   /**
    * Submit answer to a lesson question
+   * POST /api/LessonQuestions/answer
    */
-  submitQuestionAnswer(questionId: number, selectedAnswer: string): Observable<any> {
+  submitQuestionAnswer(questionId: number, selectedOptionIds: number[]): Observable<any> {
     const url = `${this.baseUrl}/LessonQuestions/answer`;
 
     return this.http.post<any>(url, {
       questionId,
-      selectedAnswer
+      selectedOptionIds
     }).pipe(
       catchError((error: HttpErrorResponse) => {
         console.error('Error submitting answer:', error);
-        return of({ success: false, error: error.message });
+        return of({ success: false, isCorrect: false, error: error.message });
       })
     );
   }

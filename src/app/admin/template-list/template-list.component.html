@@ -13,11 +13,11 @@
 
 <div class="template-list-container">
   <!-- Header with Stats -->
-  <div class="page-header">
+  <!-- <div class="page-header">
     <div class="header-content">
 
       <!-- Stats Cards -->
-      @if (counts()) {
+      <!-- @if (counts()) {
         <div class="stats-cards">
           <div class="stat-card">
             <div class="stat-icon total">
@@ -51,7 +51,7 @@
         </div>
       }
     </div>
-  </div>
+  </div> -->
 
   <!-- Filters & Search -->
   <div class="filters-section">
@@ -65,15 +65,6 @@
           [(ngModel)]="searchQuery"
           (input)="onSearch()">
       </div>
-
-      <!-- Category Filter -->
-      <select
-        class="filter-select"
-        [(ngModel)]="selectedCategory"
-        (change)="onFilterChange()">
-        <option value="all">All Categories</option>
-        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-      </select>
 
       <!-- Channel Filter -->
       <select

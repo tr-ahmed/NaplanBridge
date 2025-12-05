@@ -6,6 +6,7 @@ import { takeUntil, catchError, map, switchMap } from 'rxjs/operators';
 
 import { Lesson, StudentLesson } from '../../models/lesson.models';
 import { LessonsService } from '../../core/services/lessons.service';
+import { SubscriptionService } from '../../core/services/subscription.service';
 import { CoursesService } from '../../core/services/courses.service';
 import { AuthService } from '../../auth/auth.service';
 import { CartService } from '../../core/services/cart.service';
@@ -60,7 +61,6 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   // ✅ NEW: Student selection (for parents)
   selectedStudentId = signal<number | null>(null);
-  isBrowseMode = signal<boolean>(false);
 
   // ✅ NEW: Plan selection modal (using PlanSelectionModalComponent)
   showPlanModal = signal<boolean>(false);
@@ -89,7 +89,8 @@ export class LessonsComponent implements OnInit, OnDestroy {
     private coursesService: CoursesService,
     private authService: AuthService,
     private cartService: CartService,
-    private plansService: SubscriptionPlansService
+    private plansService: SubscriptionPlansService,
+    private subscriptionService: SubscriptionService
   ) {}
 
   ngOnInit(): void {
@@ -102,12 +103,8 @@ export class LessonsComponent implements OnInit, OnDestroy {
         const courseId = params['courseId'];
         const termNumber = params['termNumber'];  // ✅ NEW: Use termNumber instead of termId
         const termId = params['termId'];          // Keep for backward compatibility
-        const hasAccessParam = params['hasAccess']; // ✅ NEW: Get access status from params
-        const browseMode = params['browseMode'] === 'true'; // ✅ NEW: Check if in browse mode
+        // 🔒 SECURITY: Removed hasAccess from query params - always verify from backend
         const studentIdParam = params['studentId']; // ✅ NEW: Get studentId from URL
-
-        // ✅ Set browse mode and student ID
-        this.isBrowseMode.set(browseMode);
 
         if (studentIdParam) {
           const studentId = parseInt(studentIdParam, 10);
@@ -117,13 +114,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
           }
         }
 
-        // ✅ Set access status (convert string to boolean)
-        if (hasAccessParam !== undefined) {
-          const accessStatus = hasAccessParam === 'true' || hasAccessParam === true;
-          this.hasAccess.set(accessStatus);
-          this.showSubscriptionBanner.set(!accessStatus);
-          console.log('🔒 Access status:', accessStatus ? 'Granted' : 'Denied');
-        }
+        // 🔒 SECURITY: Access status is now determined by API response only, not from URL params
 
         if (subject) {
           this.currentSubject.set(subject);
@@ -134,6 +125,31 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
           // Load terms first
           this.loadAvailableTerms(parseInt(subjectId));
+
+          // 🔒 Parent access check: require active subscription for selected child
+          const currentUser = this.authService.getCurrentUser();
+          const isParent = Array.isArray(currentUser?.role) && currentUser.role.includes('Parent');
+          if (isParent) {
+            const childId = this.selectedStudentId();
+            if (!childId) {
+              // No child context → deny access and show subscription banner
+              this.hasAccess.set(false);
+              this.showSubscriptionBanner.set(true);
+              this.toastService.showWarning('Please select a student to view lessons.');
+            } else {
+              // Verify subscription access for subject
+              this.subscriptionService.hasAccessToSubject(childId, parseInt(subjectId))
+                .pipe(takeUntil(this.destroy$))
+                .subscribe(result => {
+                  const allowed = !!result?.hasAccess;
+                  this.hasAccess.set(allowed);
+                  this.showSubscriptionBanner.set(!allowed);
+                  if (!allowed) {
+                    this.toastService.showWarning(result?.reason || 'Subscription required to view lessons');
+                  }
+                });
+            }
+          }
 
           // ✅ PRIORITY: Use termNumber if available (new fix)
           if (termNumber) {
@@ -146,10 +162,10 @@ export class LessonsComponent implements OnInit, OnDestroy {
             this.selectedTermId.set(parseInt(termId));
             this.loadLessonsByTerm(parseInt(termId));
           }
-          // ❌ LAST RESORT: Load all lessons for subject
+          // ✅ NEW: Wait for terms to load then auto-select current term
           else {
-            console.warn('⚠️ No termNumber or termId provided, loading all lessons');
-            this.loadLessonsForSubjectId(parseInt(subjectId));
+            console.log('⏳ No termNumber provided - waiting for terms to load and auto-selecting current term');
+            this.autoSelectCurrentTermAndLoadLessons(parseInt(subjectId));
           }
         } else if (subject) {
           // Fallback: try to load by subject name (for backward compatibility)
@@ -187,21 +203,35 @@ export class LessonsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
+          // ✅ WORKAROUND: If hasAccess=true, unlock all lessons
+          // Backend still returns locked lessons despite valid subscription
+          if (this.hasAccess()) {
+            console.log('🔓 WORKAROUND: Unlocking all lessons (hasAccess=true)');
+            lessons = lessons.map((lesson: any) => ({
+              ...lesson,
+              hasAccess: true,
+              isLocked: false
+            }));
+          }
+
           this.lessons.set(lessons);
           this.loading.set(false);
 
-          // Check if any lessons have access
-          const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
-          this.hasAccess.set(hasAnyAccess);
+          // ✅ Don't override hasAccess if it was set from query params
+          if (!this.hasAccess()) {
+            // Check if any lessons have access
+            const hasAnyAccess = lessons.some((l: any) => l.hasAccess === true);
+            this.hasAccess.set(hasAnyAccess);
 
-          // Show subscription banner if no access
-          if (!hasAnyAccess && this.authService.isAuthenticated()) {
-            this.showSubscriptionBanner.set(true);
+            // Show subscription banner if no access
+            if (!hasAnyAccess && this.authService.isAuthenticated()) {
+              this.showSubscriptionBanner.set(true);
+            }
           }
 
           console.log('✅ Lessons loaded:', {
             count: lessons.length,
-            hasAccess: hasAnyAccess,
+            hasAccess: this.hasAccess(),
             isGuest: !studentId
           });
         },
@@ -319,6 +349,20 @@ export class LessonsComponent implements OnInit, OnDestroy {
   private navigateToLesson(lessonId: number, isPreviewMode: boolean = false): void {
     const queryParams: any = {};
 
+    // Pass subjectId for proper navigation back
+    if (this.currentSubjectId()) {
+      queryParams.subjectId = this.currentSubjectId();
+    }
+
+    // Pass studentId if authenticated
+    // Prefer selected student (parent context); fallback to authenticated student
+    const studentId = this.selectedStudentId() || this.authService.getCurrentUser()?.studentId;
+    if (studentId) {
+      queryParams.studentId = studentId;
+    }
+
+    // 🔒 SECURITY: Removed hasAccess from query params - subscription guard will verify from backend
+
     if (isPreviewMode) {
       queryParams.preview = 'true';
     }
@@ -340,7 +384,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
       queryParams.subject = this.currentSubject();
     }
 
-    this.router.navigate(['/courses'], { queryParams });
+    this.router.navigate(['/student/subjects'], { queryParams });
   }
 
   /**
@@ -434,10 +478,10 @@ export class LessonsComponent implements OnInit, OnDestroy {
     const user = this.authService.getCurrentUser();
     let studentId = user?.studentId || this.selectedStudentId();
 
-    // ✅ If still no studentId, load terms without access info (browse mode)
+    // ✅ If no studentId, don't load terms (student must be logged in)
     if (!studentId) {
-      console.warn('⚠️ No studentId found - loading terms in browse mode');
-      this.loadTermsForBrowseMode(subjectId);
+      console.warn('⚠️ No studentId found - cannot load terms');
+      this.availableTerms.set([]);
       return;
     }
 
@@ -517,39 +561,40 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
           console.log('📋 Mapped Terms:', terms.map(t => ({ id: t.id, termNumber: t.termNumber, name: t.name, hasAccess: t.hasAccess })));
 
-          this.availableTerms.set(terms);
-
-          // Find and set current term
-          const currentTerm = terms.find(t => t.isCurrentTerm);
-          if (currentTerm) {
-            this.currentTermId.set(currentTerm.id);
-
-            // If no term is selected yet, select the current term if accessible
-            if (!this.selectedTermId()) {
-              if (currentTerm.hasAccess) {
-                this.selectedTermId.set(currentTerm.id);
-              } else {
-                // Current term not accessible, select first accessible term
-                const firstAccessibleTerm = terms.find(t => t.hasAccess);
-                if (firstAccessibleTerm) {
-                  this.selectedTermId.set(firstAccessibleTerm.id);
-                }
-              }
-            }
-          } else {
-            // No current term, default to first accessible term
-            const firstAccessibleTerm = terms.find(t => t.hasAccess);
-            if (firstAccessibleTerm && !this.selectedTermId()) {
-              this.selectedTermId.set(firstAccessibleTerm.id);
-            }
-          }
+          // ✅ FILTER: Only show terms that student has access to
+          const accessibleTerms = terms.filter(t => t.hasAccess);
 
           console.log('✅ Terms loaded with backend access control:', {
             totalTerms: terms.length,
-            accessibleTerms: terms.filter(t => t.hasAccess).map(t => t.termNumber),
+            accessibleTerms: accessibleTerms.map(t => t.termNumber),
             lockedTerms: terms.filter(t => !t.hasAccess).map(t => t.termNumber),
             currentTermNumber: termAccessStatus.currentTermNumber,
-            selectedTermId: this.selectedTermId()
+            filtered: `Showing ${accessibleTerms.length} of ${terms.length} terms`
+          });
+
+          // Set only accessible terms
+          this.availableTerms.set(accessibleTerms);
+
+          // Find and set current term (from accessible terms only)
+          const currentTerm = accessibleTerms.find(t => t.isCurrentTerm);
+          if (currentTerm) {
+            this.currentTermId.set(currentTerm.id);
+
+            // If no term is selected yet, select the current term
+            if (!this.selectedTermId()) {
+              this.selectedTermId.set(currentTerm.id);
+            }
+          } else {
+            // No current term in accessible terms, select first accessible term
+            if (accessibleTerms.length > 0 && !this.selectedTermId()) {
+              this.selectedTermId.set(accessibleTerms[0].id);
+            }
+          }
+
+          console.log('✅ Selected term:', {
+            currentTermId: this.currentTermId(),
+            selectedTermId: this.selectedTermId(),
+            availableCount: accessibleTerms.length
           });
         },
         error: (error: any) => {
@@ -560,34 +605,58 @@ export class LessonsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * ✅ NEW: Load terms in browse mode (without student ID)
-   * Shows all 4 terms as locked for preview
+   * ✅ NEW: Auto-select current term and load its lessons
+   * Called when no termNumber is provided in URL
    */
-  private loadTermsForBrowseMode(subjectId: number): void {
-    console.log('👀 Loading terms for browse mode (no student ID)');
+  private autoSelectCurrentTermAndLoadLessons(subjectId: number): void {
+    this.loading.set(true);
 
-    // ✅ Fallback: Create default 4 terms (all locked for preview)
-    const defaultTerms: Term[] = [
-      { id: 1, termNumber: 1, name: 'Term 1', isCurrentTerm: false, hasAccess: false },
-      { id: 2, termNumber: 2, name: 'Term 2', isCurrentTerm: false, hasAccess: false },
-      { id: 3, termNumber: 3, name: 'Term 3', isCurrentTerm: false, hasAccess: false },
-      { id: 4, termNumber: 4, name: 'Term 4', isCurrentTerm: false, hasAccess: false }
-    ];
+    const user = this.authService.getCurrentUser();
+    let studentId = user?.studentId || this.selectedStudentId();
 
-    this.availableTerms.set(defaultTerms);
-
-    // Select first term by default
-    if (!this.selectedTermId()) {
-      this.selectedTermId.set(1);
-      console.log('✅ Selected Term 1 for browse mode');
+    if (!studentId) {
+      console.warn('⚠️ No studentId - loading all lessons for subject');
+      this.loadLessonsForSubjectId(subjectId);
+      return;
     }
+
+    // Get term access status to find current term
+    this.coursesService.getTermAccessStatus(studentId, subjectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (termAccessStatus: any) => {
+          const currentTermNumber = termAccessStatus.currentTermNumber || 1;
+          const termsData = termAccessStatus.terms || [];
+
+          // Find current term in accessible terms
+          const currentTerm = termsData.find((t: any) =>
+            t.isCurrentTerm || t.termNumber === currentTermNumber
+          );
+
+          if (currentTerm && currentTerm.hasAccess) {
+            console.log('✅ Auto-selecting current term:', currentTerm.termNumber);
+            this.selectedTermId.set(currentTerm.termId || currentTerm.termNumber);
+            this.loadLessonsByTermNumber(subjectId, currentTerm.termNumber);
+          } else {
+            // Find first accessible term
+            const firstAccessibleTerm = termsData.find((t: any) => t.hasAccess);
+            if (firstAccessibleTerm) {
+              console.log('✅ Auto-selecting first accessible term:', firstAccessibleTerm.termNumber);
+              this.selectedTermId.set(firstAccessibleTerm.termId || firstAccessibleTerm.termNumber);
+              this.loadLessonsByTermNumber(subjectId, firstAccessibleTerm.termNumber);
+            } else {
+              console.log('⚠️ No accessible terms - loading current term preview');
+              this.loadLessonsByTermNumber(subjectId, currentTermNumber);
+            }
+          }
+        },
+        error: (error: any) => {
+          console.error('❌ Error getting term access - falling back to term 1:', error);
+          this.loadLessonsByTermNumber(subjectId, 1);
+        }
+      });
   }
 
-  /**
-   * Load lessons by term
-   * ✅ Backend endpoint fixed (Nov 3, 2025) - now stable and performant
-   * Fallback mechanism kept as safety net for edge cases
-   */
   /**
    * ✅ UPDATED: Load lessons by term (supports guest mode)
    */
@@ -654,22 +723,18 @@ export class LessonsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (lessons) => {
+          this.lessons.set(lessons);
+          this.loading.set(false);
+
+          const currentAccess = this.hasAccess();
+
           console.log('📦 Lessons loaded:', {
             count: lessons.length,
             subjectId,
             termNumber,
-            isGuest: !studentId,
-            currentHasAccess: this.hasAccess()  // Current term access status
+            hasAccess: currentAccess,
+            isGuest: !studentId
           });
-
-          this.lessons.set(lessons);
-          this.loading.set(false);
-
-          // ⚠️ DON'T update hasAccess from lessons - trust the term's hasAccess value
-          // The backend may return hasAccess:true for lessons even in locked terms
-          const currentAccess = this.hasAccess();
-
-          console.log(`✅ Loaded ${lessons.length} lessons for term ${termNumber} (Term Access: ${currentAccess})`);
 
           if (!currentAccess) {
             console.log('🔒 Preview mode - Lessons shown but locked (no subscription for this term)');

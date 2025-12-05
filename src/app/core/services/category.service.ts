@@ -6,6 +6,7 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { ApiService } from './base-api.service';
 import {
   Category,
@@ -83,7 +84,10 @@ export class CategoryService {
    * Cache: 24 hours
    */
   getYears(): Observable<Year[]> {
-    return this.api.get<Year[]>('years');
+    console.log('📞 CategoryService.getYears() - Calling API /api/years');
+    return this.api.get<Year[]>('years').pipe(
+      tap(response => console.log('📥 CategoryService.getYears() - API Response:', response))
+    );
   }
 
   /**

@@ -19,14 +19,14 @@ export class ContactComponent {
     {
       icon: 'fas fa-envelope',
       title: 'Email',
-      value: 'support@naplanbridge.com',
-      link: 'mailto:support@naplanbridge.com'
+      value: 'info@naplanbridge.com',
+      link: 'mailto:info@naplanbridge.com'
     },
     {
       icon: 'fas fa-phone',
       title: 'Phone',
-      value: '+61 2 1234 5678',
-      link: 'tel:+61212345678'
+      value: '+61 406 010 040',
+      link: 'tel:+6406010040'
     },
     {
       icon: 'fas fa-map-marker-alt',
@@ -109,5 +109,18 @@ export class ContactComponent {
       return `Minimum ${minLength} characters required`;
     }
     return '';
+  }
+
+  // Build a cross-platform WhatsApp link from our contact info
+  getWhatsappHref(prefilledMessage = 'Hello NaplanBridge, I need some help'): string {
+    const phoneItem = this.contactInfo.find(i => i.title === 'Phone');
+    if (!phoneItem) return 'https://wa.me/';
+    // Prefer the displayed value if available, otherwise fall back to link
+    const raw = (phoneItem.value || phoneItem.link || '').toString();
+    // Extract digits only (remove spaces, plus signs, parentheses, etc.)
+    const digits = raw.replace(/\D+/g, '');
+    if (!digits) return 'https://wa.me/';
+    const encoded = encodeURIComponent(prefilledMessage);
+    return `https://wa.me/${digits}?text=${encoded}`;
   }
 }

@@ -80,7 +80,7 @@
         <i class="fas fa-calendar-check"></i>
         <div>
           <span class="date-label">Submitted:</span>
-          <span class="date-value">{{ res.submittedAt | date:'medium' }}</span>
+          <span class="date-value">{{ res.submittedAt | date:'d MMM yyyy' }}</span>
         </div>
       </div>
       @if (res.gradedAt) {
@@ -88,7 +88,7 @@
           <i class="fas fa-calendar-alt"></i>
           <div>
             <span class="date-label">Graded:</span>
-            <span class="date-value">{{ res.gradedAt | date:'medium' }}</span>
+            <span class="date-value">{{ res.gradedAt | date:'d MMM yyyy' }}</span>
           </div>
         </div>
       }

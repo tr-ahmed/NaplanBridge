@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-reset-password',
@@ -25,6 +26,10 @@ export class ResetPasswordComponent implements OnInit {
   email = signal<string>('');
   resetToken = signal<string>('');
 
+  // Email validation state
+  checkingEmail = signal(false);
+  emailNotFound = signal(false);
+
   // Request form (step 1: enter email)
   requestForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]]
@@ -43,6 +48,55 @@ export class ResetPasswordComponent implements OnInit {
         this.resetToken.set(params['token']);
         this.email.set(params['email']);
         this.resetStep.set('reset');
+      }
+    });
+
+    // Setup real-time email validation
+    this.setupEmailValidation();
+  }
+
+  /**
+   * Setup real-time email validation to check if it exists in the system
+   */
+  private setupEmailValidation(): void {
+    this.requestForm.get('email')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      switchMap((email: string) => {
+        const control = this.requestForm.get('email');
+        // Skip if email format is invalid
+        if (!email || control?.hasError('email')) {
+          this.checkingEmail.set(false);
+          this.emailNotFound.set(false);
+          return [];
+        }
+
+        this.checkingEmail.set(true);
+        return this.authService.checkEmail(email);
+      })
+    ).subscribe({
+      next: (isAvailable: boolean) => {
+        this.checkingEmail.set(false);
+        const control = this.requestForm.get('email');
+
+        // isAvailable = true means email NOT registered (not available for signup)
+        // isAvailable = false means email IS registered (available for reset)
+        if (isAvailable) {
+          // Email is NOT registered
+          this.emailNotFound.set(true);
+          control?.setErrors({ ...control.errors, notRegistered: true });
+        } else {
+          // Email IS registered (can reset password)
+          this.emailNotFound.set(false);
+          if (control?.hasError('notRegistered')) {
+            const errors = { ...control.errors };
+            delete errors['notRegistered'];
+            control.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      },
+      error: () => {
+        this.checkingEmail.set(false);
       }
     });
   }
@@ -66,6 +120,12 @@ export class ResetPasswordComponent implements OnInit {
   requestReset(): void {
     if (this.requestForm.invalid) {
       this.markFormGroupTouched(this.requestForm);
+      return;
+    }
+
+    // Check if email is not found in system
+    if (this.emailNotFound()) {
+      this.toastService.showError('This email is not registered in the system.');
       return;
     }
 
@@ -153,9 +213,15 @@ export class ResetPasswordComponent implements OnInit {
   /**
    * Check if field has error
    */
-  hasFieldError(fieldName: string): boolean {
+  hasFieldError(fieldName: string, errorType?: string): boolean {
     const control = this.requestForm.get(fieldName);
-    return !!(control?.errors && control.touched);
+    if (!control?.errors || !control.touched) {
+      return false;
+    }
+    if (errorType) {
+      return !!control.errors[errorType];
+    }
+    return true;
   }
 
   /**

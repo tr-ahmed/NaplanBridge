@@ -108,22 +108,22 @@ export class CoursesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // ✅ IMPORTANT: Load years FIRST - they will trigger filtering when loaded
-    this.loadAvailableYears(); // Load years from database first
+    console.log('🚀 CoursesComponent ngOnInit - Starting...');
 
-    // ✅ Then load user info - parent students will be loaded
-    this.loadUserInfo(); // This will load parent students and trigger loadCourses for parents
-
-    this.loadStudentSubscriptions(); // Load enrollment status
-    this.subscribeToCart();
-    this.subscribeToPlanModal();
-    this.subscribeToSearch(); // Subscribe to search with debounce
-    this.handleQueryParameters();
-
-    // ✅ Load courses will be called from filterYearsForParent for parents
-    // For non-parents, load courses now
+    // Check if user is logged in
     const user = this.authService.getCurrentUser();
+    console.log('👤 Current user:', user ? 'Logged in' : 'Guest', user);
+
     if (user) {
+      console.log('✅ User is logged in - Loading years from API...');
+      // ✅ IMPORTANT: Load years FIRST - they will trigger filtering when loaded (only for logged-in users)
+      this.loadAvailableYears(); // Load years from database first
+
+      // ✅ Then load user info - parent students will be loaded
+      this.loadUserInfo(); // This will load parent students and trigger loadCourses for parents
+
+      this.loadStudentSubscriptions(); // Load enrollment status
+
       const userRoles = user.role || user.roles || user.Role || user.Roles;
       const rolesArray = Array.isArray(userRoles) ? userRoles : (userRoles ? [userRoles] : []);
       const isParent = rolesArray.some((r: string) => r?.toLowerCase() === 'parent');
@@ -134,9 +134,24 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.loadCourses();
       }
     } else {
-      // Guest user - load courses
-      this.loadCourses();
+      console.log('🔓 Guest user - Loading years for guest...');
+      // Guest user - load years from database and filter by available subjects
+      this.loadAvailableYearsForGuest();
     }
+
+    this.subscribeToCart();
+    this.subscribeToPlanModal();
+    this.subscribeToSearch(); // Subscribe to search with debounce
+    this.handleQueryParameters();
+  }
+
+  /**
+   * Set default years for guests or when API fails
+   */
+  private setDefaultYears(): void {
+    const defaultYears = this.getDefaultYears();
+    this.availableYears.set(defaultYears);
+    this.logger.log('✅ Using default years:', defaultYears);
   }
 
   /**
@@ -145,13 +160,20 @@ export class CoursesComponent implements OnInit, OnDestroy {
   private loadAvailableYears(): void {
     this.categoryService.getYears().subscribe({
       next: (years) => {
-        const formattedYears = years.map(year => ({
-          id: year.id,
-          yearNumber: year.yearNumber, // ✅ Store yearNumber for filtering
-          name: `Year ${year.yearNumber}`
-        }));
+        console.log('🔍 RAW API Response from /api/Years:', years);
+
+        const formattedYears = years.map(year => {
+          console.log(`📊 Mapping year: id=${year.id}, yearNumber=${year.yearNumber}`);
+          return {
+            id: year.id,                    // ✅ Database ID (e.g., 11)
+            yearNumber: year.yearNumber,    // ✅ Display number (e.g., 8)
+            name: `Year ${year.yearNumber}` // ✅ Display name (e.g., "Year 8")
+          };
+        });
+
+        console.log('✅ Formatted years for UI:', formattedYears);
         this.availableYears.set(formattedYears);
-        this.logger.log('✅ Loaded years from database:', formattedYears);
+        this.logger.log('✅ Loaded years from API /api/Years:', formattedYears);
 
         // ✅ After loading years, check if we need to filter for parent
         const user = this.currentUser();
@@ -170,14 +192,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('❌ Failed to load years:', err);
         // Fallback to default years
-        this.availableYears.set([
-          { id: 1, yearNumber: 7, name: 'Year 7' },
-          { id: 2, yearNumber: 8, name: 'Year 8' },
-          { id: 3, yearNumber: 9, name: 'Year 9' },
-          { id: 4, yearNumber: 10, name: 'Year 10' },
-          { id: 5, yearNumber: 11, name: 'Year 11' },
-          { id: 6, yearNumber: 12, name: 'Year 12' }
-        ]);
+        this.setDefaultYears();
       }
     });
   }
@@ -246,6 +261,57 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.loadCourses(); // Load courses without year filter
       }
     }
+  }
+
+  /**
+   * Load available years for guest users
+   * ✅ UPDATED (Dec 5, 2025): Use /api/Years API instead of extracting from subjects
+   */
+  private loadAvailableYearsForGuest(): void {
+    console.log('📞 Guest - Loading years from /api/Years...');
+
+    // ✅ Use the same API as logged-in users
+    this.categoryService.getYears().subscribe({
+      next: (years) => {
+        console.log('🔍 Guest - RAW API Response from /api/Years:', years);
+
+        const formattedYears = years.map(year => {
+          console.log(`📊 Guest - Mapping year: id=${year.id}, yearNumber=${year.yearNumber}`);
+          return {
+            id: year.id,                    // ✅ Database ID (e.g., 11)
+            yearNumber: year.yearNumber,    // ✅ Display number (e.g., 8)
+            name: `Year ${year.yearNumber}` // ✅ Display name (e.g., "Year 8")
+          };
+        });
+
+        console.log('✅ Guest - Formatted years for UI:', formattedYears);
+        this.availableYears.set(formattedYears);
+        this.logger.log('✅ Guest - Loaded years from API /api/Years:', formattedYears);
+
+        // Now load courses with pagination
+        this.loadCourses();
+      },
+      error: (err) => {
+        console.error('❌ Guest - Failed to load years from API:', err);
+        // Fallback to default years
+        this.setDefaultYears();
+        this.loadCourses();
+      }
+    });
+  }
+
+  /**
+   * Get default years array (helper method)
+   */
+  private getDefaultYears() {
+    return [
+      { id: 1, yearNumber: 7, name: 'Year 7' },
+      { id: 2, yearNumber: 8, name: 'Year 8' },
+      { id: 3, yearNumber: 9, name: 'Year 9' },
+      { id: 4, yearNumber: 10, name: 'Year 10' },
+      { id: 5, yearNumber: 11, name: 'Year 11' },
+      { id: 6, yearNumber: 12, name: 'Year 12' }
+    ];
   }
 
   /**
@@ -509,17 +575,17 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   /**
    * Load courses from service
-   * ✅ NEW (Jan 27, 2025): Use yearIds for parents with multiple children
+   * ✅ UPDATED (Dec 5, 2025): Use yearId from database (not yearNumber)
    */
   loadCourses(): void {
-    // ✅ Determine which years to filter
+    // ✅ Determine which years to filter - USING DATABASE IDs (not yearNumber)
     let yearsToFilter: number[] = [];
 
     if (this.selectedYearId()) {
-      // ✅ If a specific year is selected (parent clicked on a year button), use only that year
+      // ✅ If a specific year is selected (parent clicked on a year button), use only that year ID
       yearsToFilter = [this.selectedYearId()!];
     } else if (this.isParent() && this.availableYears().length > 0) {
-      // ✅ If no year selected and user is parent, show all children's years
+      // ✅ If no year selected and user is parent, show all children's years IDs
       yearsToFilter = this.availableYears().map(y => y.id);
     }
 
@@ -531,7 +597,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       page: this.currentPage(),
       pageSize: this.itemsPerPage,
       search: this.searchQuery() || undefined,
-      // ✅ Send yearIds if parent (single or multiple)
+      // ✅ Send yearIds (database IDs) - backend expects yearId not yearNumber
       yearIds: yearsToFilter.length > 0 ? yearsToFilter : undefined
     };
 
@@ -539,11 +605,25 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     this.coursesService.getCourses(filter)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(response => {
-        this.logger.log('📚 Received courses from API:', response.courses.length, response);
-        this.courses.set(response.courses);
-        this.totalCount.set(response.totalCount);
-        this.applyFilters();
+      .subscribe({
+        next: (response) => {
+          this.logger.log('📚 API returned courses:', {
+            count: response.courses.length,
+            filter: filter,
+            yearIds: filter.yearIds,
+            totalCount: response.totalCount
+          });
+          this.courses.set(response.courses);
+          this.totalCount.set(response.totalCount);
+          this.applyFilters();
+        },
+        error: (error) => {
+          this.logger.error('❌ Failed to load courses:', error);
+          // For guests or unauthorized responses, show an empty list gracefully
+          this.courses.set([]);
+          this.totalCount.set(0);
+          this.applyFilters();
+        }
       });
   }  /**
    * Subscribe to cart changes
@@ -676,6 +756,19 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * Cart management methods
    */
   addToCart(course: Course): void {
+    // ✅ Check if user is logged in (not a guest)
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      // Guest user - show message and redirect to login
+      this.toastService.showWarning('Please login first to add items to your cart');
+      this.logger.log('🚫 Guest tried to add to cart - redirecting to login');
+      // Redirect to login page after a short delay so user sees the message
+      setTimeout(() => {
+        this.router.navigate(['/auth/login']);
+      }, 1500);
+      return;
+    }
+
     this.coursesService.addToCart(course)
       .pipe(takeUntil(this.destroy$))
       .subscribe(success => {

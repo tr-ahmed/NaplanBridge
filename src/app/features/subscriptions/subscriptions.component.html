@@ -230,7 +230,7 @@
                   }
                 </span>
               </td>
-              <td class="px-6 py-4 text-center text-sm text-gray-600">{{ plan.coverageDescription }}</td>
+              <td class="px-6 py-4 text-center text-sm text-gray-600">{{ getCoverageDescription(plan) }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
                   <button
@@ -378,7 +378,7 @@
                   {{ order.status || 'Unknown' }}
                 </span>
               </td>
-              <td class="px-6 py-4 text-center text-sm text-gray-600">{{ (order.orderDate || order.createdAt) | date:'short' }}</td>
+              <td class="px-6 py-4 text-center text-sm text-gray-600">{{ (order.orderDate || order.createdAt) | date:'d MMM yyyy' }}</td>
             </tr>
             }
             @if (pagedOrders.length === 0) {

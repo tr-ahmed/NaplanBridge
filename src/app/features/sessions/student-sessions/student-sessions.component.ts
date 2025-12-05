@@ -43,9 +43,7 @@ export class StudentSessionsComponent implements OnInit {
         this.loading.set(false);
       }
     });
-  }
-
-  /**
+  }  /**
    * Format date time for display
    */
   formatDateTime(dateTime: string): string {
@@ -55,7 +53,7 @@ export class StudentSessionsComponent implements OnInit {
 
   /**
    * Convert status number to readable text
-   * 0 = Pending, 1 = Confirmed, 2 = Completed, 3 = Cancelled
+   * 0 = Pending, 1 = Confirmed, 2 = Completed, 3 = Cancelled, 4 = Pending Payment
    */
   getReadableStatus(status: any): string {
     const statusStr = status?.toString();
@@ -65,13 +63,18 @@ export class StudentSessionsComponent implements OnInit {
       '1': 'Confirmed',
       '2': 'Completed',
       '3': 'Cancelled',
+      '4': 'Pending Payment',
       'Pending': 'Pending',
       'Confirmed': 'Confirmed',
       'Completed': 'Completed',
-      'Cancelled': 'Cancelled'
+      'Cancelled': 'Cancelled',
+      'PendingPayment': 'Pending Payment',
+      'Unknown': 'Pending Payment',
+      'null': 'Pending Payment',
+      'undefined': 'Pending Payment'
     };
 
-    return statusMap[statusStr] || 'Unknown';
+    return statusMap[statusStr] || 'Pending Payment';
   }
 
   /**
@@ -84,7 +87,8 @@ export class StudentSessionsComponent implements OnInit {
       'Confirmed': '✅ Confirmed',
       'Completed': '✔️ Completed',
       'Cancelled': '❌ Cancelled',
-      'Pending': '⏳ Pending'
+      'Pending': '⏳ Pending',
+      'Pending Payment': '💳 Awaiting Payment'
     };
     return texts[readableStatus] || readableStatus;
   }  /**

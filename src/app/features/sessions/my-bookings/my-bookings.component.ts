@@ -5,7 +5,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { SessionService } from '../../../core/services/session.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { PrivateSessionDto } from '../../../models/session.models';
@@ -20,10 +20,13 @@ import { PrivateSessionDto } from '../../../models/session.models';
 export class MyBookingsComponent implements OnInit {
   private sessionService = inject(SessionService);
   private toastService = inject(ToastService);
+  private router = inject(Router);
 
   bookings = signal<PrivateSessionDto[]>([]);
   loading = signal<boolean>(true);
   filter = signal<'all' | 'upcoming' | 'completed' | 'cancelled'>('all');
+  selectedBooking = signal<PrivateSessionDto | null>(null);
+  showDetailsModal = signal<boolean>(false);
 
   ngOnInit(): void {
     this.loadBookings();
@@ -122,6 +125,7 @@ export class MyBookingsComponent implements OnInit {
   /**
    * Convert status number to readable text
    * 0 = Pending, 1 = Confirmed, 2 = Completed, 3 = Cancelled
+   * Unknown status = Pending Payment (حجز تم إنشاؤه لكن لم يتم الدفع)
    */
   getReadableStatus(status: any): string {
     // Convert to string if it's a number
@@ -135,10 +139,13 @@ export class MyBookingsComponent implements OnInit {
       'Pending': 'Pending',
       'Confirmed': 'Confirmed',
       'Completed': 'Completed',
-      'Cancelled': 'Cancelled'
+      'Cancelled': 'Cancelled',
+      'Unknown': 'Pending Payment',
+      'null': 'Pending Payment',
+      'undefined': 'Pending Payment'
     };
 
-    return statusMap[statusStr] || 'Unknown';
+    return statusMap[statusStr] || 'Pending Payment';
   }
 
   /**
@@ -151,9 +158,10 @@ export class MyBookingsComponent implements OnInit {
       'Confirmed': 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200',
       'Completed': 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200',
       'Cancelled': 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200',
-      'Pending': 'bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border border-yellow-200'
+      'Pending': 'bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border border-yellow-200',
+      'Pending Payment': 'bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border border-orange-200'
     };
-    return classes[readableStatus] || 'bg-gray-100 text-gray-800 border border-gray-200';
+    return classes[readableStatus] || 'bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border border-orange-200';
   }
 
   /**
@@ -166,9 +174,10 @@ export class MyBookingsComponent implements OnInit {
       'Confirmed': '✅ Confirmed',
       'Completed': '✔️ Completed',
       'Cancelled': '❌ Cancelled',
-      'Pending': '⏳ Pending'
+      'Pending': '⏳ Pending',
+      'Pending Payment': '💳 Pending Payment'
     };
-    return texts[readableStatus] || readableStatus;
+    return texts[readableStatus] || '💳 ' + readableStatus;
   }  /**
    * Get count of upcoming sessions
    */
@@ -258,5 +267,36 @@ export class MyBookingsComponent implements OnInit {
     if (hours > 0) return `in ${hours} hour${hours > 1 ? 's' : ''}`;
     if (minutes > 0) return `in ${minutes} min`;
     return 'Now';
+  }
+
+  /**
+   * Show booking details modal
+   */
+  showDetails(booking: PrivateSessionDto): void {
+    this.selectedBooking.set(booking);
+    this.showDetailsModal.set(true);
+  }
+
+  /**
+   * Close details modal
+   */
+  closeDetailsModal(): void {
+    this.showDetailsModal.set(false);
+    this.selectedBooking.set(null);
+  }
+
+  /**
+   * Complete payment for pending payment bookings
+   * Re-initiate the booking flow since we can't retrieve original Stripe session
+   */
+  completePayment(booking: PrivateSessionDto): void {
+    this.toastService.showInfo('Please book the session again to complete payment');
+
+    // Navigate to browse sessions page to re-book
+    // User will need to select the teacher and time slot again
+    this.router.navigate(['/sessions/browse']);
+
+    console.log('⚠️ User needs to re-book session:', booking);
+    console.log('💡 Original booking will be cleaned up by backend if expired');
   }
 }

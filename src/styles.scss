@@ -76,6 +76,13 @@
 }
 
 /* Reset only for elements that don't have Tailwind classes */
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd {
   margin: 0;
   padding: 0;
@@ -87,6 +94,8 @@ body {
   line-height: 1.6;
   color: var(--text-primary);
   background-color: var(--background-white);
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Container class for consistent layout */

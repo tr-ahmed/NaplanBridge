@@ -1,8 +1,11 @@
-import { Routes } from '@angular/router';
+import { Routes, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
 import { authGuard } from './auth/auth.guard';
+import { guestGuard } from './auth/guest.guard';
+import { teacherGuard } from './auth/teacher.guard';
 import { RoleSelectionGuard } from './auth/role-selection/role-selection.guard';
+import { subscriptionGuard } from './core/guards/subscription.guard';
 import { StudentDetailsComponent } from './features/student-details/student-details';
 import { UserProfileComponent } from './features/user-profile/user-profile';
 import { UserEditComponent } from './features/user-edit/user-edit';
@@ -21,15 +24,21 @@ export const routes: Routes = [
   // Authentication routes
   {
     path: 'auth/login',
-    loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent)
+    loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent),
+    canActivate: [guestGuard]
   },
   {
     path: 'auth/register',
-    loadComponent: () => import('./auth/register/register.component').then(m => m.RegisterComponent)
+    loadComponent: () => import('./auth/register/register.component').then(m => m.RegisterComponent),
+    canActivate: [guestGuard]
   },
   {
     path: 'auth/reset-password',
     loadComponent: () => import('./auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
+  {
+    path: 'auth/verify-email',
+    loadComponent: () => import('./auth/verify-email/verify-email.component').then(m => m.VerifyEmailComponent)
   },
 
   // Role selection route (important: place before other protected routes)
@@ -76,7 +85,18 @@ export const routes: Routes = [
   },
   {
     path: 'courses',
-    loadComponent: () => import('./features/courses/courses.component').then(m => m.CoursesComponent)
+    loadComponent: () => import('./features/courses/courses.component').then(m => m.CoursesComponent),
+    // Allow guests to view courses. Only block users with the 'student' role.
+    canActivate: [() => {
+      const authService = inject(AuthService);
+      const router = inject(Router);
+      // Prevent students from accessing the public courses page
+      if (authService.hasRole('student')) {
+        router.navigate(['/student/dashboard']);
+        return false;
+      }
+      return true;
+    }]
   },
   {
     path: 'lessons',
@@ -84,11 +104,23 @@ export const routes: Routes = [
   },
   {
     path: 'lesson/:id',
-    loadComponent: () => import('./features/lesson-detail/lesson-detail.component').then(m => m.LessonDetailComponent)
+    loadComponent: () => import('./features/lesson-detail/lesson-detail.component').then(m => m.LessonDetailComponent),
+    canActivate: [authGuard, subscriptionGuard],
+    data: { contentType: 'lesson' }
   },
   {
     path: 'cart',
-    loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent)
+    loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent),
+    canActivate: [authGuard, () => {
+      const authService = inject(AuthService);
+      const router = inject(Router);
+      // منع الطلاب من الوصول للسلة
+      if (authService.hasRole('student')) {
+        router.navigate(['/student/dashboard']);
+        return false;
+      }
+      return true;
+    }]
   },
   {
     path: 'notifications',
@@ -175,6 +207,13 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
   },
 
+  // Student Subjects (My Subjects)
+  {
+    path: 'student/subjects',
+    loadComponent: () => import('./features/student-subjects/student-subjects.component').then(m => m.StudentSubjectsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
+
   // Admin Dashboard
   {
     path: 'admin/dashboard',
@@ -201,6 +240,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/exam-management/exam-management.component').then(m => m.ExamManagementComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
       ,  data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'admin/discussions',
+    loadComponent: () => import('./features/admin/admin-discussions/admin-discussions.component').then(m => m.AdminDiscussionsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: false, hideFooter: false }
   },
   {
     path: 'admin/exam/create',
@@ -292,14 +337,22 @@ export const routes: Routes = [
   {
     path: 'teacher/dashboard',
     loadComponent: () => import('./features/teacher-dashboard/teacher-dashboard.component').then(m => m.TeacherDashboardComponent),
-    canActivate: [authGuard]
+    canActivate: [teacherGuard]
   },
 
   // Teacher Questions Dashboard
   {
     path: 'teacher/questions',
     loadComponent: () => import('./features/teacher/student-questions/student-questions.component').then(m => m.StudentQuestionsComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
+    data: { hideHeader: false, hideFooter: false }
+  },
+
+  // Teacher Discussions Dashboard (New Discussion API)
+  {
+    path: 'teacher/discussions',
+    loadComponent: () => import('./features/teacher/teacher-discussions/teacher-discussions.component').then(m => m.TeacherDiscussionsComponent),
+    canActivate: [teacherGuard],
     data: { hideHeader: false, hideFooter: false }
   },
 
@@ -307,25 +360,25 @@ export const routes: Routes = [
   {
     path: 'teacher/exams',
     loadComponent: () => import('./features/teacher/teacher-exam-management/teacher-exam-management.component').then(m => m.TeacherExamManagementComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'teacher/exam/create',
     loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'teacher/exam/edit/:id',
     loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'teacher/exams/:id/submissions',
     loadComponent: () => import('./features/teacher/exam-grading/exam-grading.component').then(m => m.ExamGradingComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
 
@@ -333,7 +386,7 @@ export const routes: Routes = [
   {
     path: 'teacher/content-management',
     loadComponent: () => import('./features/teacher/content-management/teacher-content-management-redesigned').then(m => m.TeacherContentManagementRedesignedComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
 
@@ -341,7 +394,7 @@ export const routes: Routes = [
   {
     path: 'teacher/content-management-old',
     loadComponent: () => import('./features/teacher/content-management/teacher-content-management.component').then(m => m.TeacherContentManagementComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')],
+    canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
 

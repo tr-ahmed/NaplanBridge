@@ -1,6 +1,6 @@
 <!-- Main Content -->
 <main class="px-4 sm:px-6 lg:px-8 py-8">
-    
+
     <!-- Page Title -->
     <div class="mb-8">
       <div class="flex items-center justify-between">
@@ -344,8 +344,10 @@
                     </div>
                   </td>
                   <td class="px-4 py-4">
-                    <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded font-medium">
-                      {{ getExamTypeIcon(exam.examType) }} {{ getExamTypeLabel(exam.examType) }}
+                    <span
+                      class="text-xs font-semibold px-2 py-1 rounded"
+                      [ngClass]="getExamTypeBadge(exam.examType)">
+                      {{ exam.examType || 'Unknown' }}
                     </span>
                   </td>
                   <td class="px-4 py-4">

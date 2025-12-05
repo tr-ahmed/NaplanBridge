@@ -1,7 +1,7 @@
 <!-- Lesson Detail Page -->
 <div class="lesson-detail-container min-h-screen bg-gray-50 py-8">
   <div class="container mx-auto px-4">
-    
+
     <!-- Header with Back Button -->
     <div class="flex items-center justify-between mb-8">
       <div class="flex items-center gap-4">
@@ -33,7 +33,7 @@
       <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
         <div class="border-b border-gray-200">
           <nav class="flex space-x-2 px-4" aria-label="Tabs">
-            <button 
+            <button
               type="button"
               class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
               [class.border-blue-500]="activeTab === 'overview'"
@@ -45,7 +45,7 @@
               Overview
             </button>
 
-            <button 
+            <button
               type="button"
               class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
               [class.border-blue-500]="activeTab === 'questions'"
@@ -57,7 +57,7 @@
               Quiz Questions ({{ lessonQuestions.length }})
             </button>
 
-            <button 
+            <button
               type="button"
               class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
               [class.border-blue-500]="activeTab === 'discussions'"
@@ -69,7 +69,7 @@
               Discussions ({{ discussions.length }})
             </button>
 
-            <button 
+            <button
               type="button"
               class="group inline-flex items-center px-4 py-3 text-sm font-medium border-b-2 transition-all cursor-pointer"
               [class.border-blue-500]="activeTab === 'resources'"
@@ -85,7 +85,7 @@
 
         <!-- Tab Content -->
         <div class="p-6">
-          
+
           <!-- Overview Tab -->
           @if (activeTab === 'overview') {
             <div class="space-y-6">
@@ -132,7 +132,7 @@
                         </div>
                       </div>
                     </div>
-                    
+
                     <div class="bg-white p-4 rounded-lg">
                       <div class="flex items-center">
                         <div class="p-3 rounded-full bg-green-100 text-green-600 mr-3">
@@ -144,7 +144,7 @@
                         </div>
                       </div>
                     </div>
-                    
+
                     <div class="bg-white p-4 rounded-lg">
                       <div class="flex items-center">
                         <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-3">
@@ -193,7 +193,7 @@
                 </div>
               } @else {
                 <div class="space-y-4">
-                  <div *ngFor="let question of lessonQuestions; let i = index" 
+                  <div *ngFor="let question of lessonQuestions; let i = index"
                        class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div class="flex justify-between items-start mb-3">
                       <div class="flex-1">
@@ -217,7 +217,7 @@
                         <i class="fas fa-trash"></i>
                       </button>
                     </div>
-                    
+
                     @if (question.options && question.options.length > 0) {
                       <div class="mt-4 space-y-2">
                         <p class="text-sm text-gray-600 font-medium">Options:</p>
@@ -246,7 +246,7 @@
                   (click)="openAddDiscussion()"
                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
                   <i class="fas fa-plus mr-2"></i>
-                  Add Discussion
+                  Ask Question
                 </button>
               </div>
 
@@ -257,42 +257,173 @@
               } @else if (discussions.length === 0) {
                 <div class="text-center py-12 bg-gray-50 rounded-lg">
                   <i class="fas fa-comments text-gray-400 text-5xl mb-4"></i>
-                  <p class="text-gray-600">No discussions started yet</p>
+                  <p class="text-gray-600">No questions asked yet</p>
                   <button
                     type="button"
                     (click)="openAddDiscussion()"
                     class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    Start First Discussion
+                    Ask First Question
                   </button>
                 </div>
               } @else {
                 <div class="space-y-4">
-                  <div *ngFor="let discussion of discussions" 
-                       class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                    <div class="flex justify-between items-start">
+                  <div *ngFor="let discussion of discussions"
+                       class="bg-white border-l-4 rounded-lg p-6 hover:shadow-md transition-shadow"
+                       [class.border-green-500]="discussion.isAnswered"
+                       [class.border-orange-500]="!discussion.isAnswered">
+
+                    <!-- Discussion Header -->
+                    <div class="flex items-start gap-4 mb-4">
+                      <img
+                        [src]="discussion.studentAvatar || 'assets/images/default-avatar.png'"
+                        class="w-10 h-10 rounded-full object-cover"
+                        [alt]="discussion.studentName">
+
                       <div class="flex-1">
-                        <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ discussion.question }}</h4>
-                        @if (discussion.details) {
-                          <p class="text-gray-600 mb-3">{{ discussion.details }}</p>
-                        }
-                        <div class="flex items-center gap-4 text-sm text-gray-500">
-                          <span>
-                            <i class="fas fa-user mr-1"></i>
-                            {{ discussion.studentName || 'Unknown' }}
-                          </span>
-                          <span>
-                            <i class="fas fa-clock mr-1"></i>
-                            {{ discussion.createdAt | date:'short' }}
+                        <div class="flex items-center gap-2 mb-1">
+                          <span class="font-semibold text-gray-900">{{ discussion.studentName }}</span>
+                          <span
+                            class="text-xs px-2 py-1 rounded-full font-medium"
+                            [class.bg-green-100]="discussion.isAnswered"
+                            [class.text-green-800]="discussion.isAnswered"
+                            [class.bg-orange-100]="!discussion.isAnswered"
+                            [class.text-orange-800]="!discussion.isAnswered">
+                            {{ discussion.isAnswered ? '✅ Answered' : '⏳ Pending' }}
                           </span>
                         </div>
+                        <p class="text-sm text-gray-500">
+                          <i class="fas fa-clock mr-1"></i>
+                          {{ discussion.createdAt | date:'d MMM yyyy, HH:mm' }}
+                        </p>
                       </div>
-                      <button
-                        type="button"
-                        (click)="deleteDiscussion(discussion.id)"
-                        class="p-2 text-red-600 hover:bg-red-50 rounded">
-                        <i class="fas fa-trash"></i>
-                      </button>
+
+                      <!-- Delete Button (Admin Only) -->
+                      @if (isAdmin) {
+                        <button
+                          type="button"
+                          (click)="deleteDiscussion(discussion.id)"
+                          class="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                          title="Delete Discussion (Admin Only)">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      }
                     </div>
+
+                    <!-- Question Text -->
+                    <div class="mb-4">
+                      <h4 class="text-lg font-semibold text-gray-900 mb-2">{{ discussion.question }}</h4>
+
+                      <!-- Video Timestamp Link -->
+                      @if (discussion.videoTimestamp) {
+                        <button
+                          type="button"
+                          (click)="jumpToTimestamp(discussion.videoTimestamp)"
+                          class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium">
+                          <i class="fas fa-video"></i>
+                          <span>At {{ formatVideoTimestamp(discussion.videoTimestamp) }}</span>
+                        </button>
+                      }
+                    </div>
+
+                    <!-- Discussion Stats -->
+                    <div class="flex items-center gap-6 mb-4 text-sm text-gray-600">
+                      <span class="flex items-center gap-1">
+                        <i class="fas fa-comment"></i>
+                        {{ discussion.repliesCount }} Replies
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <i class="fas fa-thumbs-up"></i>
+                        {{ discussion.helpfulCount }} Helpful
+                      </span>
+                    </div>
+
+                    <!-- Helpful Button (Students Only) -->
+                    @if (isStudent) {
+                      <div class="mb-4">
+                        @if (discussion.isHelpful) {
+                          <button
+                            type="button"
+                            (click)="unmarkAsHelpful(discussion.id)"
+                            class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium text-sm transition-colors">
+                            <i class="fas fa-check mr-2"></i>
+                            Marked as Helpful
+                          </button>
+                        } @else {
+                          <button
+                            type="button"
+                            (click)="markAsHelpful(discussion.id)"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium text-sm transition-colors">
+                            <i class="far fa-thumbs-up mr-2"></i>
+                            Mark as Helpful
+                          </button>
+                        }
+                      </div>
+                    }
+
+                    <!-- Replies Section -->
+                    @if (discussion.replies && discussion.replies.length > 0) {
+                      <div class="border-t border-gray-200 pt-4 mt-4">
+                        <h5 class="font-semibold text-gray-900 mb-3">Replies ({{ discussion.replies.length }})</h5>
+                        <div class="space-y-3">
+                          <div *ngFor="let reply of discussion.replies"
+                               class="p-4 rounded-lg"
+                               [class.bg-blue-50]="reply.isTeacherReply"
+                               [class.bg-gray-50]="!reply.isTeacherReply">
+
+                            <div class="flex items-start gap-3">
+                              <img
+                                [src]="reply.userAvatar || 'assets/images/default-avatar.png'"
+                                class="w-8 h-8 rounded-full object-cover"
+                                [alt]="reply.userName">
+
+                              <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                  <span class="font-semibold text-gray-900">{{ reply.userName }}</span>
+                                  <span
+                                    class="text-xs px-2 py-0.5 rounded-full font-medium"
+                                    [class.bg-blue-200]="reply.isTeacherReply"
+                                    [class.text-blue-900]="reply.isTeacherReply"
+                                    [class.bg-gray-200]="!reply.isTeacherReply"
+                                    [class.text-gray-900]="!reply.isTeacherReply">
+                                    {{ reply.userRole }}
+                                  </span>
+                                  @if (reply.isTeacherReply) {
+                                    <span class="text-xs text-blue-600 font-medium">
+                                      <i class="fas fa-check-circle"></i> Teacher Answer
+                                    </span>
+                                  }
+                                </div>
+                                <p class="text-sm text-gray-500 mb-2">
+                                  <i class="fas fa-clock mr-1"></i>
+                                  {{ reply.createdAt | date:'d MMM yyyy, HH:mm' }}
+                                </p>
+                                <p class="text-gray-800">{{ reply.reply }}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                    <!-- Reply Form -->
+                    <div class="border-t border-gray-200 pt-4 mt-4">
+                      <h5 class="font-semibold text-gray-900 mb-3">Add Reply</h5>
+                      <div class="flex gap-3">
+                        <textarea
+                          [(ngModel)]="replyTexts[discussion.id]"
+                          rows="2"
+                          class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Write your reply..."></textarea>
+                        <button
+                          type="button"
+                          (click)="addReply(discussion.id)"
+                          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap self-end">
+                          <i class="fas fa-paper-plane mr-2"></i>
+                          Reply
+                        </button>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               }
@@ -330,7 +461,7 @@
                 </div>
               } @else {
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div *ngFor="let resource of resources" 
+                  <div *ngFor="let resource of resources"
                        class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div class="flex items-start justify-between mb-3">
                       <div class="flex items-center gap-3">
@@ -352,7 +483,7 @@
                       </button>
                     </div>
                     @if (resource.fileUrl) {
-                      <a [href]="resource.fileUrl" target="_blank" 
+                      <a [href]="resource.fileUrl" target="_blank"
                          class="block w-full text-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm font-medium">
                         <i class="fas fa-download mr-2"></i>
                         Download
@@ -381,7 +512,7 @@
           <i class="fas fa-times text-xl"></i>
         </button>
       </div>
-      
+
       <div class="p-6">
         <div class="space-y-4">
           <div>
@@ -474,30 +605,50 @@
   <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
       <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <h2 class="text-2xl font-bold text-gray-900">Start Discussion</h2>
+        <h2 class="text-2xl font-bold text-gray-900">
+          <i class="fas fa-question-circle text-blue-600 mr-2"></i>
+          Ask a Question
+        </h2>
         <button type="button" (click)="closeDiscussionForm()" class="text-gray-400 hover:text-gray-600">
           <i class="fas fa-times text-xl"></i>
         </button>
       </div>
-      
+
       <div class="p-6">
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Question *</label>
-            <input
-              type="text"
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Your Question *
+            </label>
+            <textarea
               [(ngModel)]="discussionForm.question"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter discussion question">
+              rows="4"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="What would you like to know about this lesson?"></textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Details</label>
-            <textarea
-              [(ngModel)]="discussionForm.details"
-              rows="4"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Add additional details or context"></textarea>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Video Timestamp (Optional)
+            </label>
+            <div class="flex items-center gap-3">
+              <input
+                type="number"
+                [(ngModel)]="discussionForm.videoTimestamp"
+                min="0"
+                class="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="0">
+              <span class="text-sm text-gray-600">seconds</span>
+              @if (discussionForm.videoTimestamp) {
+                <span class="text-sm text-blue-600 font-medium">
+                  = {{ formatVideoTimestamp(discussionForm.videoTimestamp) }}
+                </span>
+              }
+            </div>
+            <p class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-info-circle mr-1"></i>
+              If your question is about a specific moment in the video, enter the time in seconds
+            </p>
           </div>
         </div>
       </div>
@@ -513,7 +664,8 @@
           type="button"
           (click)="saveDiscussion()"
           class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
-          Start Discussion
+          <i class="fas fa-paper-plane mr-2"></i>
+          Post Question
         </button>
       </div>
     </div>
@@ -530,7 +682,7 @@
           <i class="fas fa-times text-xl"></i>
         </button>
       </div>
-      
+
       <div class="p-6">
         <div class="space-y-4">
           <div>
@@ -550,7 +702,7 @@
               (change)="onResourceFileChange($event)"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip">
-            
+
             @if (resourceForm.file) {
               <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <div class="flex items-center gap-2 text-sm">
@@ -560,7 +712,7 @@
                 </div>
               </div>
             }
-            
+
             <p class="text-xs text-gray-500 mt-2">
               <i class="fas fa-info-circle mr-1"></i>
               Supported: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, ZIP (Max 10MB)

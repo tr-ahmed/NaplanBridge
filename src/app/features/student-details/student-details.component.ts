@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ParentStudentService } from '../../core/services/parent-student.service';
+import { ProgressService } from '../../core/services/progress.service';
 import { CategoryService } from '../../core/services/category.service';
 import { Year } from '../../models/category.models';
 import {
@@ -18,6 +19,7 @@ import {
   StudentSubscriptionsForParent,
   StudentProgressBySubject
 } from '../../models/student-details.models';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-student-details',
@@ -69,6 +71,7 @@ export class StudentDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private parentService: ParentStudentService,
+    private progressService: ProgressService,
     private categoryService: CategoryService
   ) {}
 
@@ -109,15 +112,41 @@ export class StudentDetailsComponent implements OnInit {
 
   /**
    * Load student details from API
+   * ✅ Uses both endpoints:
+   * - /api/Parent/student/{id}/details (student info, subscriptions, exams, etc.)
+   * - /api/Progress/by-student/{id}/summary (accurate overall progress from backend)
    */
   loadStudentDetails(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.parentService.getStudentDetails(this.studentId()).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.studentDetails.set(response.data);
+    // ✅ Load both student details and accurate progress summary
+    forkJoin({
+      details: this.parentService.getStudentDetails(this.studentId()),
+      progressSummary: this.progressService.getStudentProgressSummary(this.studentId())
+    }).subscribe({
+      next: ({ details, progressSummary }) => {
+        if (details.success) {
+          const studentData = details.data;
+
+          // ✅ Update progress with accurate data from backend summary
+          studentData.progress = {
+            overallProgress: progressSummary.overallProgress,
+            completedLessons: progressSummary.completedLessons,
+            totalLessons: progressSummary.totalLessons,
+            averageScore: progressSummary.averageScore,
+            timeSpent: progressSummary.totalTimeSpent,
+            lastActivityDate: progressSummary.lastActivityDate
+          };
+
+          console.log('📊 Updated student details with accurate progress:', {
+            studentId: this.studentId(),
+            overallProgress: progressSummary.overallProgress,
+            completedLessons: progressSummary.completedLessons,
+            totalLessons: progressSummary.totalLessons
+          });
+
+          this.studentDetails.set(studentData);
           this.initializeEditForm();
         } else {
           this.error.set('Failed to load student details');
@@ -285,11 +314,23 @@ export class StudentDetailsComponent implements OnInit {
   }
 
   /**
-   * Navigate to subject progress
+   * Navigate to subject progress details
+   * Uses the ParentStudentService to get detailed progress for a specific subject
    */
   viewSubjectProgress(subjectId: number): void {
-    // TODO: Implement subject progress view
-    console.log('View subject progress:', subjectId);
+    const studentId = this.studentId();
+
+    // Navigate to a detailed subject progress page
+    // Option 1: Navigate to lessons page filtered by subject
+    this.router.navigate(['/lessons'], {
+      queryParams: {
+        subjectId: subjectId,
+        studentId: studentId
+      }
+    });
+
+    // Option 2: Could implement a dedicated progress details modal/page
+    // For now, we navigate to lessons where they can see detailed progress
   }
 
   /**

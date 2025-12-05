@@ -10,6 +10,7 @@ import { TeacherSidebarComponent } from './shared/components/teacher-sidebar/tea
 import { ToastContainerComponent } from './components/toast-container.component';
 import { ScrollToTopComponent } from "./shared/scroll-to-top/scroll-to-top.component";
 import { GlobalConfirmationDialogComponent } from './shared/components/confirmation-dialog/global-confirmation-dialog.component';
+import { UploadProgressComponent } from './shared/components/upload-progress/upload-progress.component';
 import { AuthService } from './core/services/auth.service';
 import { filter } from 'rxjs/operators';
 
@@ -18,16 +19,17 @@ import { filter } from 'rxjs/operators';
   standalone: true,
   imports: [
     CommonModule,
-    RouterOutlet, 
-    HeaderComponent, 
-    FooterComponent, 
+    RouterOutlet,
+    HeaderComponent,
+    FooterComponent,
     AdminHeaderComponent,
     AdminSidebarComponent,
     TeacherHeaderComponent,
     TeacherSidebarComponent,
-    ToastContainerComponent, 
-    ScrollToTopComponent, 
-    GlobalConfirmationDialogComponent
+    ToastContainerComponent,
+    ScrollToTopComponent,
+    GlobalConfirmationDialogComponent,
+    UploadProgressComponent
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'
@@ -43,7 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
   showAdminLayout = signal(false);
   showTeacherLayout = signal(false);
   showPublicLayout = signal(true);
-  
+
   private routerEventsSubscription: any;
 
   constructor(
