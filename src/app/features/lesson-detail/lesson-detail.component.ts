@@ -23,6 +23,7 @@ interface Quiz {
   correctAnswer: number;
   explanation?: string;
   timeLimit?: number; // in minutes
+  isMultipleChoice?: boolean; // true = checkbox (multiple answers), false = radio (single answer)
 }
 
 interface VideoChapter {
@@ -112,8 +113,9 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Quiz state
   quizzes = signal<Quiz[]>([]);
+  originalQuestions: any[] = []; // Store original API response with option IDs
   currentQuizIndex = signal(0);
-  quizAnswers = signal<number[]>([]);
+  quizAnswers = signal<number[][]>([]); // Changed to array of arrays for multiple selections
   showQuizResults = signal(false);
   quizScore = signal(0);
 
@@ -288,6 +290,7 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
             }
 
             this.lesson.set(lesson);
+            this.loadResources(lessonId);  // Load resources from API
             this.loadQuizzes(lessonId);  // Changed from loadMockQuizzes
             this.loadMockNotes(lessonId);
             this.loadMockTeacherQuestions(lessonId);
@@ -398,22 +401,51 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (questions) => {
+          console.log('📜Raw API questions:', questions);
+
+          // Store original questions with option IDs
+          this.originalQuestions = questions;
+
           // Transform API response to Quiz format
+          // API returns: { id, lessonId, questionText, isMultipleChoice, videoMinute, options: [{id, text}] }
           const quizzes: Quiz[] = questions.map(q => ({
             id: q.id,
-            question: q.question,
-            options: q.options || [],
-            correctAnswer: q.correctAnswerIndex || 0,
-            explanation: q.explanation || ''
+            question: q.questionText || q.question,
+            options: q.options?.map((opt: any) => opt.text) || [],
+            correctAnswer: 0, // Won't be sent to students for security
+            explanation: q.explanation || '',
+            isMultipleChoice: q.isMultipleChoice // true = multiple answers allowed
           }));
 
+          console.log('✅ Transformed quizzes:', quizzes);
           this.quizzes.set(quizzes);
-          this.quizAnswers.set(new Array(quizzes.length).fill(-1));
+          this.quizAnswers.set(new Array(quizzes.length).fill(null).map(() => [])); // Array of empty arrays
         },
         error: (error) => {
           console.error('Error loading quiz questions:', error);
           // Fallback to mock data if API fails
           this.loadMockQuizzes(lessonId);
+        }
+      });
+  }
+
+  /**
+   * Load resources from API for the lesson
+   */
+  private loadResources(lessonId: number): void {
+    this.contentService.getLessonResources(lessonId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (resources) => {
+          console.log('✅ Resources loaded from API:', resources);
+          const lesson = this.lesson();
+          if (lesson) {
+            lesson.resources = resources;
+            this.lesson.set({ ...lesson });
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error loading resources:', error);
         }
       });
   }
@@ -549,8 +581,9 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
           const videoChapters: VideoChapter[] = chapters.map((ch: any) => ({
             id: ch.id,
             title: ch.title,
-            startTime: this.parseTimeToSeconds(ch.startTime),
-            endTime: this.parseTimeToSeconds(ch.endTime),
+            startTime: this.normalizeToSeconds(ch.startTime ?? ch.timestamp ?? ch.time ?? ch.start ?? ch.start_time),
+            endTime: this.normalizeToSeconds(ch.endTime ?? ch.end_time ?? ch.endTimestamp ?? ch.end_timestamp ?? ch.timestamp)
+              || this.normalizeToSeconds(ch.startTime ?? ch.timestamp ?? ch.time ?? ch.start ?? ch.start_time),
             description: ch.description || ''
           }));
 
@@ -566,16 +599,28 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Parse time string (mm:ss) to seconds
+   * Parse time string (mm:ss or HH:mm:ss) or numeric seconds to seconds
    */
-  private parseTimeToSeconds(timeStr: string): number {
-    if (!timeStr) return 0;
-    const parts = timeStr.split(':');
-    if (parts.length === 2) {
-      const minutes = parseInt(parts[0], 10) || 0;
-      const seconds = parseInt(parts[1], 10) || 0;
-      return minutes * 60 + seconds;
+  private normalizeToSeconds(value: any): number {
+    if (value === null || value === undefined) return 0;
+
+    const numeric = typeof value === 'number' ? value : Number(value);
+    if (!Number.isNaN(numeric) && Number.isFinite(numeric)) {
+      return Math.max(0, Math.floor(numeric));
     }
+
+    if (typeof value === 'string') {
+      const parts = value.split(':').map(part => parseInt(part, 10) || 0);
+      if (parts.length === 3) {
+        const [hours, minutes, seconds] = parts;
+        return Math.max(0, (hours * 3600) + (minutes * 60) + seconds);
+      }
+      if (parts.length === 2) {
+        const [minutes, seconds] = parts;
+        return Math.max(0, (minutes * 60) + seconds);
+      }
+    }
+
     return 0;
   }
 
@@ -907,8 +952,30 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   selectQuizAnswer(answerIndex: number): void {
     const answers = [...this.quizAnswers()];
-    answers[this.currentQuizIndex()] = answerIndex;
+    const currentQuiz = this.quizzes()[this.currentQuizIndex()];
+    const currentAnswers = answers[this.currentQuizIndex()] || [];
+
+    if (currentQuiz?.isMultipleChoice) {
+      // Checkbox mode: Toggle selection (multiple answers allowed)
+      const indexInArray = currentAnswers.indexOf(answerIndex);
+      if (indexInArray > -1) {
+        currentAnswers.splice(indexInArray, 1); // Remove if already selected
+      } else {
+        currentAnswers.push(answerIndex); // Add if not selected
+      }
+      answers[this.currentQuizIndex()] = currentAnswers;
+    } else {
+      // Radio mode: Replace with single selection (only one answer allowed)
+      answers[this.currentQuizIndex()] = [answerIndex];
+    }
+
     this.quizAnswers.set(answers);
+  }
+
+  // Check if an answer is selected
+  isAnswerSelected(answerIndex: number): boolean {
+    const currentAnswers = this.quizAnswers()[this.currentQuizIndex()] || [];
+    return currentAnswers.includes(answerIndex);
   }
 
   nextQuiz(): void {
@@ -932,38 +999,71 @@ export class LessonDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   finishQuiz(): void {
     const answers = this.quizAnswers();
     const quizzes = this.quizzes();
-    let correct = 0;
 
-    // Submit answers to API
-    answers.forEach((answer, index) => {
-      const quiz = quizzes[index];
-      if (quiz && answer !== -1) {
-        // Submit each answer to the API
-        this.lessonsService.submitQuestionAnswer(
-          quiz.id,
-          quiz.options[answer]
-        ).subscribe({
-          next: (response) => {
-            console.log('Answer submitted:', response);
-          },
-          error: (error) => {
-            console.error('Error submitting answer:', error);
-          }
-        });
-      }
+    let submittedCount = 0;
+    let correctCount = 0;
+    const totalQuestions = quizzes.length;
 
-      if (answer === quiz?.correctAnswer) {
-        correct++;
+    // Submit each answer and get result from backend
+    answers.forEach((answerIndices, questionIndex) => {
+      const quiz = quizzes[questionIndex];
+      const originalQuestion = this.originalQuestions[questionIndex];
+
+      if (quiz && answerIndices && answerIndices.length > 0 && originalQuestion) {
+        // Get all selected option IDs
+        const selectedOptionIds = answerIndices
+          .map(idx => originalQuestion.options?.[idx]?.id)
+          .filter(id => id !== undefined);
+
+        if (selectedOptionIds.length > 0) {
+          // Submit answer: POST /api/LessonQuestions/answer { questionId, selectedOptionIds: [ids] }
+          this.lessonsService.submitQuestionAnswer(
+            quiz.id,
+            selectedOptionIds
+          ).subscribe({
+            next: (response) => {
+              console.log('✅ Answer submitted:', response);
+              submittedCount++;
+
+              // Check if correct from backend response
+              if (response?.isCorrect === true || response?.correct === true) {
+                correctCount++;
+              }
+
+              // Show results when all submitted
+              if (submittedCount === totalQuestions) {
+                this.quizScore.set(Math.round((correctCount / totalQuestions) * 100));
+                this.showQuizResults.set(true);
+              }
+            },
+            error: (error) => {
+              console.error('❌ Error submitting answer:', error);
+              submittedCount++;
+
+              // Still show results if error
+              if (submittedCount === totalQuestions) {
+                this.quizScore.set(Math.round((correctCount / totalQuestions) * 100));
+                this.showQuizResults.set(true);
+              }
+            }
+          });
+        } else {
+          submittedCount++;
+        }
+      } else {
+        // Unanswered question
+        submittedCount++;
       }
     });
 
-    this.quizScore.set(Math.round((correct / quizzes.length) * 100));
-    this.showQuizResults.set(true);
-  }
-
-  resetQuiz(): void {
+    // If all unanswered, show results immediately
+    if (submittedCount === totalQuestions) {
+      this.quizScore.set(0);
+      this.showQuizResults.set(true);
+    }
+  }  resetQuiz(): void {
     this.currentQuizIndex.set(0);
-    this.quizAnswers.set(new Array(this.quizzes().length).fill(-1));
+    this.quizAnswers.set(new Array(this.quizzes().length).fill(null).map(() => []));
     this.showQuizResults.set(false);
     this.quizScore.set(0);
   }

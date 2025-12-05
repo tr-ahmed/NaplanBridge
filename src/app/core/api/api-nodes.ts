@@ -274,7 +274,7 @@ export const ApiNodes = {
 
   // Get student lessons
   getStudentLessons: {
-    url: '/Lessons/student/:studentId',
+    url: '/Lessons/student/:studentId/in-progress',
     method: 'GET' as const,
     mockData: [] as any[]
   },

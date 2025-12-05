@@ -41,7 +41,7 @@ import { ToastService } from '../../../../core/services/toast.service';
               </div>
               <div>
                 <p class="text-xs text-gray-600">Created</p>
-                <p class="font-semibold text-gray-900">{{ content()!.createdAt | date:'short' }}</p>
+                <p class="font-semibold text-gray-900">{{ content()!.createdAt | date:'d MMM yyyy' }}</p>
               </div>
               <div>
                 <p class="text-xs text-gray-600">By</p>
@@ -73,7 +73,7 @@ import { ToastService } from '../../../../core/services/toast.service';
                 <div class="bg-white border rounded-lg p-4">
                   <div class="flex justify-between items-start mb-2">
                     <h4 class="font-semibold text-gray-900">{{ item.action }}</h4>
-                    <span class="text-xs text-gray-500">{{ item.actionDate | date:'medium' }}</span>
+                    <span class="text-xs text-gray-500">{{ item.actionDate | date:'d MMM yyyy' }}</span>
                   </div>
 
                   <p class="text-sm text-gray-600 mb-2">By: <strong>{{ item.actionBy }}</strong></p>

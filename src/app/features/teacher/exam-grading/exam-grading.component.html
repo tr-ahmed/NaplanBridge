@@ -61,7 +61,7 @@
             <div class="submission-meta">
               <span class="time">
                 <i class="fas fa-clock"></i>
-                {{ submission.submittedAt | date:'short' }}
+                {{ submission.submittedAt | date:'d MMM yyyy' }}
               </span>
 
               @if (submission.isGraded) {
@@ -113,7 +113,7 @@
           <div class="student-header">
             <h2>{{ submission.studentName }}</h2>
             <div class="submission-info">
-              <span><i class="fas fa-calendar"></i> {{ submission.submittedAt | date:'medium' }}</span>
+              <span><i class="fas fa-calendar"></i> {{ submission.submittedAt | date:'d MMM yyyy' }}</span>
               <span><i class="fas fa-star"></i> {{ submission.totalMarks }} points</span>
             </div>
           </div>

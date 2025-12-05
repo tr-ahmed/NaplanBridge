@@ -138,10 +138,11 @@ export interface Resource {
   title: string;
   name?: string; // alias for title
   description?: string;
-  resourceType: ResourceType;
+  resourceType?: ResourceType;
   type?: ResourceType; // alias for resourceType
-  resourceUrl: string;
-  url?: string; // alias for resourceUrl
+  fileUrl?: string; // API returns this
+  resourceUrl?: string; // Legacy field
+  url?: string; // alias
   fileSize?: number;
   uploadedAt?: string | Date;
   downloadable?: boolean;
