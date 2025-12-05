@@ -1163,68 +1163,91 @@ export class CoursesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.logger.log('📚 Fetching current term/week for student:', studentId, 'subject:', course.id);
+    this.logger.log('📚 Fetching term access status for student:', studentId, 'subject:', course.id);
 
-    // ✅ Use backend endpoint to get current term/week
-    this.coursesService.getCurrentTermWeek(studentId, course.id)
+    // ✅ Use getTermAccessStatus to get correct current term and access info
+    this.coursesService.getTermAccessStatus(studentId, course.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (termWeek: any) => {
-          this.logger.log('✅ Term/Week info received:', {
+        next: (termAccess: any) => {
+          console.log('🔍 RAW API Response from getTermAccessStatus:', termAccess);
+
+          this.logger.log('✅ Term access info received:', {
             courseId: course.id,
             courseName: course.name || course.subjectName,
-            hasAccess: termWeek.hasAccess,
-            currentTerm: termWeek.currentTermName,
-            currentWeek: termWeek.currentWeekNumber,
-            progress: `${termWeek.progressPercentage}%`
+            currentTermNumber: termAccess.currentTermNumber,
+            totalTerms: termAccess.terms?.length || 0,
+            accessibleTerms: termAccess.terms?.filter((t: any) => t.hasAccess).map((t: any) => t.termNumber) || []
           });
 
-          // ✅ FIX: Use termNumber instead of termId for cross-subject navigation
-          // This fixes the issue where different subjects have different term IDs
-          // for the same term number (e.g., Algebra Term 3 = ID 3, Reading Term 3 = ID 11)
+          // ✅ Find first accessible term or use current term
+          let accessibleTerm = termAccess.terms?.find((t: any) => t.hasAccess);
 
-          // ✅ FREEMIUM MODEL: Always navigate to lessons (even without subscription)
-          // User can see lesson names and terms, but lessons are locked
+          // ⚠️ WORKAROUND: If no term has access but currentTermNumber is set,
+          // assume student has access to current term (backend bug)
+          if (!accessibleTerm && termAccess.currentTermNumber) {
+            console.warn('⚠️ Backend bug: No accessible terms found, but currentTermNumber is set');
+            console.log('🔧 Workaround: Assuming access to current term', termAccess.currentTermNumber);
+
+            // Find current term and assume it has access
+            accessibleTerm = termAccess.terms?.find((t: any) =>
+              t.termNumber === termAccess.currentTermNumber || t.isCurrentTerm
+            );
+
+            if (accessibleTerm) {
+              // Override hasAccess for workaround
+              accessibleTerm = { ...accessibleTerm, hasAccess: true };
+            }
+          }
+
+          const targetTermNumber = accessibleTerm?.termNumber || termAccess.currentTermNumber || 1;
+          const hasAnyAccess = accessibleTerm?.hasAccess || (termAccess.currentTermNumber !== null);
+
+          console.log('🎯 Navigation decision:', {
+            targetTermNumber,
+            hasAccess: hasAnyAccess,
+            reason: accessibleTerm?.hasAccess ? 'Found accessible term' : 'Using current term (workaround)'
+          });
+
+          // ✅ Navigate to the term (accessible or current)
           this.router.navigate(['/lessons'], {
             queryParams: {
               subjectId: course.subjectNameId,
               subject: course.subject || course.subjectName,
               courseId: course.id,
               yearId: course.yearId,
-              termNumber: termWeek.currentTermNumber || 3,  // Default to term 3 if not available
-              weekNumber: termWeek.currentWeekNumber || 1,  // Default to week 1 if not available
-              hasAccess: termWeek.hasAccess,  // ✅ Pass access status to lessons component
-              studentId: studentId  // ✅ NEW: Pass student ID for parent access
+              termNumber: targetTermNumber,
+              weekNumber: 1,
+              hasAccess: hasAnyAccess,
+              studentId: studentId
             }
           });
 
-          // ⚠️ Show info message if no subscription (non-blocking)
-          if (!termWeek.hasAccess) {
-            console.warn('⚠️ No subscription:', termWeek.message);
-            // Show message after navigation completes
+          // ⚠️ Show info message only if really no access
+          if (!hasAnyAccess) {
+            console.warn('⚠️ No access to any term');
             setTimeout(() => {
               this.coursesService['toastService'].showInfo(
-                '🔒 Subscribe to unlock all lessons and features for this subject',
+                '🔒 Subscribe to unlock lessons for this subject',
                 5000
               );
             }, 500);
           }
         },
         error: (error: any) => {
-          console.error('❌ Error fetching current term/week:', error);
+          console.error('❌ Error fetching term access status:', error);
 
           // ✅ Still navigate to lessons even on error (with defaults)
-          // Better UX: Let user see the interface even if API fails
           this.router.navigate(['/lessons'], {
             queryParams: {
               subjectId: course.subjectNameId,
               subject: course.subject || course.subjectName,
               courseId: course.id,
               yearId: course.yearId,
-              termNumber: 3,  // Default term
-              weekNumber: 1,  // Default week
-              hasAccess: false,  // Assume no access on error
-              studentId: studentId  // ✅ NEW: Pass student ID for parent access
+              termNumber: 1,  // Default to term 1 on error
+              weekNumber: 1,
+              hasAccess: false,
+              studentId: studentId
             }
           });
 

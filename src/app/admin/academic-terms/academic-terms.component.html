@@ -1,0 +1,204 @@
+<div class="academic-terms-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div>
+        <h1 class="title">Academic Terms Management</h1>
+        <p class="subtitle">Configure and manage academic terms for the system</p>
+      </div>
+
+      <div class="header-actions">
+        <!-- Year Selector -->
+        <select
+          [(ngModel)]="selectedYear"
+          (change)="onYearChange()"
+          class="year-select">
+          <option *ngFor="let year of getYears()" [value]="year">
+            {{ year }}
+          </option>
+        </select>
+
+        <!-- Add Term Button -->
+        <button
+          *ngIf="!showAddForm"
+          (click)="openAddForm()"
+          class="btn btn-primary">
+          <span class="icon">+</span>
+          Add Term
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span class="icon">✅</span>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <span class="icon">⚠️</span>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Add/Edit Form -->
+  <div *ngIf="showAddForm" class="form-section">
+    <div class="form-card">
+      <h2 class="form-title">{{ editMode ? 'Edit Term' : 'Add New Term' }}</h2>
+
+      <form (ngSubmit)="saveTerm()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Term Name *</label>
+            <input
+              type="text"
+              [(ngModel)]="currentTerm.name"
+              name="name"
+              placeholder="e.g., Term 1"
+              required
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Term Number *</label>
+            <select
+              [(ngModel)]="currentTerm.termNumber"
+              name="termNumber"
+              required
+              class="form-control">
+              <option [value]="1">1</option>
+              <option [value]="2">2</option>
+              <option [value]="3">3</option>
+              <option [value]="4">4</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Start Date *</label>
+            <input
+              type="date"
+              [(ngModel)]="currentTerm.startDate"
+              name="startDate"
+              required
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>End Date *</label>
+            <input
+              type="date"
+              [(ngModel)]="currentTerm.endDate"
+              name="endDate"
+              required
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Academic Year *</label>
+            <input
+              type="number"
+              [(ngModel)]="currentTerm.academicYear"
+              name="academicYear"
+              required
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="currentTerm.isActive"
+                name="isActive"
+                class="checkbox">
+              <span>Active</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <span *ngIf="!isLoading">{{ editMode ? 'Update' : 'Create' }}</span>
+            <span *ngIf="isLoading">
+              <span class="spinner"></span> Saving...
+            </span>
+          </button>
+          <button type="button" (click)="cancelEdit()" class="btn btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Terms List -->
+  <div class="terms-section">
+    <h2 class="section-title">Academic Terms for {{ selectedYear }}</h2>
+
+    <div *ngIf="isLoading && terms.length === 0" class="loading">
+      <span class="spinner"></span>
+      Loading terms...
+    </div>
+
+    <div *ngIf="!isLoading && terms.length === 0" class="empty-state">
+      <div class="empty-icon">📅</div>
+      <h3>No Terms Found</h3>
+      <p>No academic terms have been configured for year {{ selectedYear }}.</p>
+      <button (click)="openAddForm()" class="btn btn-primary">
+        Add New Term
+      </button>
+    </div>
+
+    <div *ngIf="terms.length > 0" class="terms-grid">
+      <div *ngFor="let term of terms" class="term-card" [class.inactive]="!term.isActive">
+        <div class="term-header">
+          <div>
+            <h3 class="term-name">{{ term.name }}</h3>
+            <span class="term-number">Term {{ term.termNumber }}</span>
+          </div>
+          <div class="term-status">
+            <span *ngIf="term.isActive" class="badge badge-success">Active</span>
+            <span *ngIf="!term.isActive" class="badge badge-inactive">Inactive</span>
+          </div>
+        </div>
+
+        <div class="term-details">
+          <div class="detail-row">
+            <span class="label">Start Date:</span>
+            <span class="value">{{ formatDate(term.startDate) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">End Date:</span>
+            <span class="value">{{ formatDate(term.endDate) }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Academic Year:</span>
+            <span class="value">{{ term.academicYear }}</span>
+          </div>
+        </div>
+
+        <div class="term-actions">
+          <button
+            (click)="editTerm(term)"
+            class="btn-icon btn-edit"
+            title="Edit">
+            ✏️
+          </button>
+          <button
+            (click)="toggleActive(term)"
+            class="btn-icon"
+            [class.btn-activate]="!term.isActive"
+            [class.btn-deactivate]="term.isActive"
+            [title]="term.isActive ? 'Deactivate' : 'Activate'">
+            {{ term.isActive ? '🔓' : '🔒' }}
+          </button>
+          <button
+            (click)="deleteTerm(term)"
+            class="btn-icon btn-delete"
+            title="Delete">
+            🗑️
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
