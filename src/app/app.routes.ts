@@ -389,19 +389,17 @@ export const routes: Routes = [
     canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
+  {
+    path: 'teacher/lesson-management/:id',
+    loadComponent: () => import('./features/content-management/lesson-management.component').then(m => m.LessonManagementComponent),
+    canActivate: [teacherGuard],
+    data: { hideHeader: true, hideFooter: true }
+  },
 
   // Teacher Content Management - Old (redirect to new)
   {
     path: 'teacher/content-management-old',
     loadComponent: () => import('./features/teacher/content-management/teacher-content-management.component').then(m => m.TeacherContentManagementComponent),
-    canActivate: [teacherGuard],
-    data: { hideHeader: true, hideFooter: true }
-  },
-
-  // Teacher Lesson Management (same as admin)
-  {
-    path: 'teacher/lesson-management/:id',
-    loadComponent: () => import('./features/content-management/lesson-management.component').then(m => m.LessonManagementComponent),
     canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },

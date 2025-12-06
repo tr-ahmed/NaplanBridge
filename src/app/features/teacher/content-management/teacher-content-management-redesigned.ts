@@ -1044,24 +1044,9 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
   // ============================================
 
   async openLessonPreview(lesson: Lesson): Promise<void> {
-    try {
-      // Load lesson resources before opening preview
-      if (lesson.id) {
-        await this.loadLessonResources(lesson.id);
-      }
-
-      // Include resources in the preview data
-      this.preview = {
-        type: 'lesson',
-        ...lesson,
-        resources: this.lessonResources
-      };
-      this.previewOpen = true;
-    } catch (error) {
-      console.error('Error loading lesson preview:', error);
-      // Still show preview even if resources fail to load
-      this.preview = { type: 'lesson', ...lesson };
-      this.previewOpen = true;
+    // Navigate to lesson management page (same as admin)
+    if (lesson.id) {
+      this.router.navigate(['/teacher/lesson-management', lesson.id]);
     }
   }
 
