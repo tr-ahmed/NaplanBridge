@@ -398,6 +398,14 @@ export const routes: Routes = [
     data: { hideHeader: true, hideFooter: true }
   },
 
+  // Teacher Lesson Management (same as admin)
+  {
+    path: 'teacher/lesson-management/:id',
+    loadComponent: () => import('./features/content-management/lesson-management.component').then(m => m.LessonManagementComponent),
+    canActivate: [teacherGuard],
+    data: { hideHeader: true, hideFooter: true }
+  },
+
   // Student Exams
   {
     path: 'student/exams',
