@@ -384,9 +384,27 @@ export class StudentDashboardComponent implements OnInit {
       this.dashboardService.getStudentExamHistory(this.studentId).subscribe({
         next: (response) => {
           if (response && response.data) {
-            this.examHistory.set(response.data);
-            console.log('✅ Exam history loaded:', response.data.length, 'exams');
-            resolve(response.data);
+            console.log('🔍 RAW Exam History from API:', response.data);
+
+            // ✅ FIX (Dec 6, 2025): ALWAYS calculate percentage from correctAnswers/totalQuestions
+            const normalizedData = response.data.map((exam: any) => {
+              let calculatedScore = 0;
+
+              // Calculate percentage from answers (most reliable method)
+              if (exam.totalQuestions > 0) {
+                calculatedScore = Math.round((exam.correctAnswers / exam.totalQuestions) * 100);
+                console.log(`📊 Exam "${exam.examTitle}": ${exam.correctAnswers}/${exam.totalQuestions} = ${calculatedScore}% (backend sent: ${exam.score})`);
+              }
+
+              return {
+                ...exam,
+                score: calculatedScore
+              };
+            });
+
+            this.examHistory.set(normalizedData);
+            console.log('✅ Exam history loaded:', normalizedData.length, 'exams with corrected scores');
+            resolve(normalizedData);
           } else {
             this.examHistory.set([]);
             resolve([]);
@@ -556,7 +574,22 @@ export class StudentDashboardComponent implements OnInit {
 
     // Set exam history
     if (data.examHistory) {
-      this.examHistory.set(data.examHistory);
+      // ✅ FIX (Dec 6, 2025): Normalize scores before setting
+      const normalizedExams = data.examHistory.map((exam: any) => {
+        let calculatedScore = 0;
+
+        if (exam.totalQuestions > 0) {
+          calculatedScore = Math.round((exam.correctAnswers / exam.totalQuestions) * 100);
+          console.log(`📊 [processRealDashboardData] Exam "${exam.examTitle}": ${exam.correctAnswers}/${exam.totalQuestions} = ${calculatedScore}%`);
+        }
+
+        return {
+          ...exam,
+          score: calculatedScore
+        };
+      });
+
+      this.examHistory.set(normalizedExams);
     }
 
     // Set recent activities
