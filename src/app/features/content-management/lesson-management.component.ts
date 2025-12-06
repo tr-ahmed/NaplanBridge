@@ -228,7 +228,24 @@ export class LessonManagementComponent implements OnInit, OnDestroy, AfterViewIn
       }
     } catch (error: any) {
       console.error('Error loading lesson:', error);
-      Swal.fire('Error', 'Failed to load lesson details', 'error');
+      
+      // Check if it's a 403 Forbidden error (permission issue)
+      if (error?.status === 403) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          html: `
+            <p><strong>You don't have permission to access this lesson.</strong></p>
+            <p class="mt-2 text-sm text-gray-600">This is a backend permission issue. The lesson access endpoint requires Admin role.</p>
+            <p class="mt-2 text-sm"><strong>Temporary Solution:</strong> Please contact the administrator to grant you access to this lesson or use the Admin account.</p>
+          `,
+          confirmButtonText: 'Go Back'
+        });
+        // Navigate back to the previous page
+        window.history.back();
+      } else {
+        Swal.fire('Error', 'Failed to load lesson details', 'error');
+      }
     } finally {
       this.isLoading = false;
     }
