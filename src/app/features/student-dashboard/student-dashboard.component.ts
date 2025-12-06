@@ -223,8 +223,11 @@ export class StudentDashboardComponent implements OnInit {
     return new Promise((resolve) => {
       this.progressService.getStudentProgressSummary(this.studentId).subscribe({
         next: (summary) => {
-          console.log('📊 [STUDENT DASHBOARD] Progress Summary:', summary);
+          console.log('📊 [STUDENT DASHBOARD] Progress Summary Raw Response:', summary);
+          console.log('📊 [STUDENT DASHBOARD] completedLessons value:', summary?.completedLessons);
+          console.log('📊 [STUDENT DASHBOARD] totalLessons value:', summary?.totalLessons);
           this.progressSummary.set(summary);
+          console.log('📊 [STUDENT DASHBOARD] Progress Summary Signal Set:', this.progressSummary());
           resolve(summary);
         },
         error: (err) => {
@@ -529,9 +532,11 @@ export class StudentDashboardComponent implements OnInit {
     // ✅ Get completed lessons from progress summary
     const completedLessons = summary?.completedLessons || 0;
 
-    console.log('📊 Calculating stats - Active Subscriptions:', activeSubs);
-    console.log('📊 Calculating stats - Upcoming Exams:', upcomingCount);
-    console.log('📊 Calculating stats - Completed Lessons:', completedLessons);
+    console.log('📊 [STATS] Progress Summary Object:', summary);
+    console.log('📊 [STATS] completedLessons from summary:', summary?.completedLessons);
+    console.log('📊 [STATS] Calculated completedLessons:', completedLessons);
+    console.log('📊 [STATS] Active Subscriptions:', activeSubs);
+    console.log('📊 [STATS] Upcoming Exams:', upcomingCount);
 
     this.stats.set({
       totalLessonsCompleted: completedLessons, // ✅ Now using progress API data
