@@ -140,12 +140,31 @@ export class StudentExamsComponent implements OnInit {
         
         this.enrolledSubjectIds.set(subjectIds);
         console.log('✅ Enrolled Subject IDs:', subjectIds);
+        
+        // ✅ Update displayed exams after loading enrolled subjects
+        this.updateDisplayedExams();
       },
       error: (error) => {
         console.error('❌ Error loading enrolled subjects:', error);
         // Continue without filtering - show all exams as fallback
         this.toast.showError('Could not load your enrolled subjects.');
       }
+    });
+  }
+
+  /**
+   * Update displayed exams based on current filters
+   */
+  updateDisplayedExams() {
+    this.upcomingExams.set(this.filteredUpcoming());
+    this.examHistory.set(this.filteredHistory());
+    
+    console.log('🔄 Updated displayed exams:', {
+      enrolledSubjects: this.enrolledSubjectIds().length,
+      allUpcoming: this.allUpcomingExams().length,
+      filteredUpcoming: this.upcomingExams().length,
+      allHistory: this.allExamHistory().length,
+      filteredHistory: this.examHistory().length
     });
   }
 
@@ -247,12 +266,14 @@ export class StudentExamsComponent implements OnInit {
         });
 
         this.allUpcomingExams.set(processedExams || []);
-        this.upcomingExams.set(this.filteredUpcoming());
+        // ✅ Update displayed exams after filtering
+        this.updateDisplayedExams();
         this.loading.set(false);
 
         console.log('✅ Loaded upcoming exams:', {
           total: processedExams?.length || 0,
-          filtered: this.filteredUpcoming().length,
+          enrolled: this.enrolledSubjectIds().length,
+          filtered: this.upcomingExams().length,
           subjectFilter: this.selectedSubjectId()
         });
       },
@@ -350,14 +371,15 @@ export class StudentExamsComponent implements OnInit {
         }
 
         this.allExamHistory.set(validHistory);
-        this.examHistory.set(this.filteredHistory());
+        // ✅ Update displayed exams after filtering
+        this.updateDisplayedExams();
         this.historyLoading.set(false);
 
         console.log('✅ Loaded exam history:', {
           total: history.length,
-          filtered: validHistory.length,
-          subjectFilter: this.selectedSubjectId(),
-          examHistorySignal: this.examHistory()
+          filtered: this.examHistory().length,
+          enrolled: this.enrolledSubjectIds().length,
+          subjectFilter: this.selectedSubjectId()
         });
       },
       error: (error: any) => {
