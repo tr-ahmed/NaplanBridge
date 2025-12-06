@@ -611,7 +611,7 @@
               <div class="space-y-2">
                 @for (exam of examHistory().slice(0, 3); track $index) {
                   <div
-                    (click)="viewExam(exam.examId)"
+                    (click)="exam.studentExamId ? viewExamResult(exam.studentExamId) : viewExam(exam.examId)"
                     class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                     <div class="flex-1">
                       <p class="font-medium text-gray-900 text-sm">{{ exam.examTitle }}</p>

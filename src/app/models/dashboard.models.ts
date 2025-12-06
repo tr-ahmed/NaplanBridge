@@ -4,6 +4,7 @@
  */
 
 export interface ExamHistory {
+  studentExamId?: number;  // ✅ Added for navigating to result page
   examId: number;
   examTitle: string;
   completedDate: string;

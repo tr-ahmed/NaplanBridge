@@ -546,7 +546,7 @@ export class StudentDashboardComponent implements OnInit {
     // Use the activeSubsCount computed property for accurate count
     const activeSubs = this.activeSubsCount();
     const upcomingCount = Array.isArray(upcoming) ? upcoming.length : 0;
-    
+
     // ✅ Get completed lessons from progress summary
     const completedLessons = summary?.completedLessons || 0;
 
@@ -683,9 +683,11 @@ export class StudentDashboardComponent implements OnInit {
 
   /**
    * Navigate to exam result
+   * ✅ FIX (Dec 6, 2025): Corrected route to match app.routes.ts
    */
   viewExamResult(studentExamId: number): void {
-    this.router.navigate(['/student/exam/result', studentExamId]);
+    console.log('🔍 Navigating to exam result:', studentExamId);
+    this.router.navigate(['/student/exam-result', studentExamId]);
   }
 
   /**
