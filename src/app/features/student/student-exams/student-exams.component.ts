@@ -28,6 +28,7 @@ export class StudentExamsComponent implements OnInit {
   allUpcomingExams = signal<UpcomingExamDto[]>([]); // Store all exams
   allExamHistory = signal<any[]>([]); // ✅ Changed to any[] to support actual API response
   enrolledSubjectIds = signal<number[]>([]); // Store student's enrolled subject IDs
+  enrolledSubjectNames = signal<string[]>([]); // Store student's enrolled subject names for filtering
 
   // UI State
   loading = signal(false);
@@ -40,11 +41,17 @@ export class StudentExamsComponent implements OnInit {
   filteredUpcoming = computed(() => {
     const subjectId = this.selectedSubjectId();
     const exams = this.allUpcomingExams();
-    const enrolledIds = this.enrolledSubjectIds();
+    const enrolledNames = this.enrolledSubjectNames();
 
-    // Filter by enrolled subjects first
-    let filtered = enrolledIds.length > 0 
-      ? exams.filter(exam => enrolledIds.includes(exam.subjectId))
+    // Filter by enrolled subject names (API returns 'subject' field as name, not subjectId)
+    let filtered = enrolledNames.length > 0 
+      ? exams.filter(exam => {
+          const examSubject = exam.subject || exam.subjectName || '';
+          return enrolledNames.some(name => 
+            examSubject.toLowerCase().includes(name.toLowerCase()) ||
+            name.toLowerCase().includes(examSubject.toLowerCase())
+          );
+        })
       : exams;
 
     // Then filter by selected subject if any
@@ -73,11 +80,17 @@ export class StudentExamsComponent implements OnInit {
   filteredHistory = computed(() => {
     const subjectId = this.selectedSubjectId();
     const history = this.allExamHistory();
-    const enrolledIds = this.enrolledSubjectIds();
+    const enrolledNames = this.enrolledSubjectNames();
 
-    // Filter by enrolled subjects first
-    let filtered = enrolledIds.length > 0 
-      ? history.filter(exam => exam.subjectId && enrolledIds.includes(exam.subjectId))
+    // Filter by enrolled subject names (API returns 'subject' field as name, not subjectId)
+    let filtered = enrolledNames.length > 0 
+      ? history.filter(exam => {
+          const examSubject = exam.subject || exam.subjectName || exam.examSubject || '';
+          return enrolledNames.some(name => 
+            examSubject.toLowerCase().includes(name.toLowerCase()) ||
+            name.toLowerCase().includes(examSubject.toLowerCase())
+          );
+        })
       : history;
 
     // Then filter by selected subject if any
@@ -134,12 +147,14 @@ export class StudentExamsComponent implements OnInit {
       next: (response: any) => {
         console.log('📚 Student Subscriptions:', response);
         
-        // Extract subject IDs from subscriptions
+        // Extract subject IDs and names from subscriptions
         const subscriptions = response.subscriptions || [];
         const subjectIds = subscriptions.map((sub: any) => sub.subjectId).filter((id: number) => id);
+        const subjectNames = subscriptions.map((sub: any) => sub.subjectName).filter((name: string) => name);
         
         this.enrolledSubjectIds.set(subjectIds);
-        console.log('✅ Enrolled Subject IDs:', subjectIds);
+        this.enrolledSubjectNames.set(subjectNames);
+        console.log('✅ Enrolled Subjects:', { ids: subjectIds, names: subjectNames });
         
         // ✅ Update displayed exams after loading enrolled subjects
         this.updateDisplayedExams();
@@ -161,6 +176,7 @@ export class StudentExamsComponent implements OnInit {
     
     console.log('🔄 Updated displayed exams:', {
       enrolledSubjects: this.enrolledSubjectIds().length,
+      enrolledNames: this.enrolledSubjectNames(),
       allUpcoming: this.allUpcomingExams().length,
       filteredUpcoming: this.upcomingExams().length,
       allHistory: this.allExamHistory().length,
