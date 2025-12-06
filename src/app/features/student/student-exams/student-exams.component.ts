@@ -4,6 +4,7 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { ExamApiService } from '../../../core/services/exam-api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { DashboardService } from '../../../core/services/dashboard.service';
 import {
   UpcomingExamDto,
   ExamHistoryDto,
@@ -26,6 +27,7 @@ export class StudentExamsComponent implements OnInit {
   examHistory = signal<any[]>([]); // ✅ Changed to any[] to support actual API response
   allUpcomingExams = signal<UpcomingExamDto[]>([]); // Store all exams
   allExamHistory = signal<any[]>([]); // ✅ Changed to any[] to support actual API response
+  enrolledSubjectIds = signal<number[]>([]); // Store student's enrolled subject IDs
 
   // UI State
   loading = signal(false);
@@ -38,10 +40,19 @@ export class StudentExamsComponent implements OnInit {
   filteredUpcoming = computed(() => {
     const subjectId = this.selectedSubjectId();
     const exams = this.allUpcomingExams();
-    if (!subjectId) return exams;
-    // Note: We can't filter by subjectId since the API doesn't return it
-    // The filtering would need to be done on the backend or we need subject names
-    return exams;
+    const enrolledIds = this.enrolledSubjectIds();
+
+    // Filter by enrolled subjects first
+    let filtered = enrolledIds.length > 0 
+      ? exams.filter(exam => enrolledIds.includes(exam.subjectId))
+      : exams;
+
+    // Then filter by selected subject if any
+    if (subjectId) {
+      filtered = filtered.filter(exam => exam.subjectId === subjectId);
+    }
+
+    return filtered;
   });
 
   // ✅ Computed: Check if any exam is currently available or in progress
@@ -62,10 +73,19 @@ export class StudentExamsComponent implements OnInit {
   filteredHistory = computed(() => {
     const subjectId = this.selectedSubjectId();
     const history = this.allExamHistory();
-    if (!subjectId) return history;
-    // Note: We can't filter by subjectId since the API doesn't return it
-    // The filtering would need to be done on the backend or we need subject names
-    return history;
+    const enrolledIds = this.enrolledSubjectIds();
+
+    // Filter by enrolled subjects first
+    let filtered = enrolledIds.length > 0 
+      ? history.filter(exam => exam.subjectId && enrolledIds.includes(exam.subjectId))
+      : history;
+
+    // Then filter by selected subject if any
+    if (subjectId) {
+      filtered = filtered.filter(exam => exam.subjectId === subjectId);
+    }
+
+    return filtered;
   });
 
   constructor(
@@ -73,7 +93,8 @@ export class StudentExamsComponent implements OnInit {
     private auth: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private toast: ToastService
+    private toast: ToastService,
+    private dashboardService: DashboardService
   ) {}
 
   ngOnInit() {
@@ -87,6 +108,8 @@ export class StudentExamsComponent implements OnInit {
     // Use correct studentId from AuthService
     const studentId = this.auth.getStudentId();
     if (studentId) {
+      // Load student's enrolled subjects first
+      this.loadEnrolledSubjects(studentId);
       this.loadUpcomingExams(studentId);
       this.loadExamHistory(studentId);
     } else {
@@ -94,12 +117,36 @@ export class StudentExamsComponent implements OnInit {
       const userId = this.auth.getUserId();
       if (userId) {
         console.warn('⚠️ Using userId instead of studentId');
+        this.loadEnrolledSubjects(userId);
         this.loadUpcomingExams(userId);
         this.loadExamHistory(userId);
       } else {
         this.toast.showError('Student ID not found. Please login again.');
       }
     }
+  }
+
+  /**
+   * Load student's enrolled subjects to filter exams
+   */
+  loadEnrolledSubjects(studentId: number) {
+    this.dashboardService.getStudentSubscriptionsSummary(studentId).subscribe({
+      next: (response: any) => {
+        console.log('📚 Student Subscriptions:', response);
+        
+        // Extract subject IDs from subscriptions
+        const subscriptions = response.subscriptions || [];
+        const subjectIds = subscriptions.map((sub: any) => sub.subjectId).filter((id: number) => id);
+        
+        this.enrolledSubjectIds.set(subjectIds);
+        console.log('✅ Enrolled Subject IDs:', subjectIds);
+      },
+      error: (error) => {
+        console.error('❌ Error loading enrolled subjects:', error);
+        // Continue without filtering - show all exams as fallback
+        this.toast.showError('Could not load your enrolled subjects.');
+      }
+    });
   }
 
   /**
