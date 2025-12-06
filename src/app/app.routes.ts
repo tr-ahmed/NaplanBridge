@@ -333,11 +333,11 @@ export const routes: Routes = [
     data: { hideHeader: true, hideFooter: true }
   },
 
-  // Teacher Dashboard
+  // Teacher Dashboard - Redirect to Content Management
   {
     path: 'teacher/dashboard',
-    loadComponent: () => import('./features/teacher-dashboard/teacher-dashboard.component').then(m => m.TeacherDashboardComponent),
-    canActivate: [teacherGuard]
+    redirectTo: 'teacher/content-management',
+    pathMatch: 'full'
   },
 
   // Teacher Questions Dashboard
