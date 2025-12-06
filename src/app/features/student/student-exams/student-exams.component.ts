@@ -27,9 +27,7 @@ export class StudentExamsComponent implements OnInit {
   examHistory = signal<any[]>([]); // ✅ Changed to any[] to support actual API response
   allUpcomingExams = signal<UpcomingExamDto[]>([]); // Store all exams
   allExamHistory = signal<any[]>([]); // ✅ Changed to any[] to support actual API response
-  enrolledSubjectIds = signal<number[]>([]); // Store student's enrolled subject IDs
-  enrolledSubjectNames = signal<string[]>([]); // Store student's enrolled subject names for filtering
-  enrolledYearNames = signal<string[]>([]); // Store student's year names (e.g., "Year 7", "Year 8")
+  // ✅ Backend now filters - no need to store enrolled subjects/years for filtering
 
   // UI State
   loading = signal(false);
@@ -39,37 +37,20 @@ export class StudentExamsComponent implements OnInit {
   startingExam = signal(false); // ✅ Prevent double-click on start exam
 
   // Computed filtered lists
+  // ✅ Backend now filters by subscriptions and year - frontend only needs UI-level filtering
   filteredUpcoming = computed(() => {
     const subjectId = this.selectedSubjectId();
     const exams = this.allUpcomingExams();
-    const enrolledNames = this.enrolledSubjectNames();
-    const enrolledYears = this.enrolledYearNames();
 
-    // Filter by enrolled subject names (API returns 'subject' field as name, not subjectId)
-    let filtered = enrolledNames.length > 0 
-      ? exams.filter(exam => {
-          const examSubject = exam.subject || exam.subjectName || '';
-          const subjectMatch = enrolledNames.some(name => 
-            examSubject.toLowerCase().includes(name.toLowerCase()) ||
-            name.toLowerCase().includes(examSubject.toLowerCase())
-          );
-          
-          // Also check if exam's subject contains student's year
-          // (e.g., "Linear Algebra Year 8" should match "Year 8")
-          const yearMatch = enrolledYears.length === 0 || enrolledYears.some(year => 
-            examSubject.toLowerCase().includes(year.toLowerCase())
-          );
-          
-          return subjectMatch && yearMatch;
-        })
-      : exams;
-
-    // Then filter by selected subject if any
+    // Backend already filtered by:
+    // - Student's subscribed subjects
+    // - Student's year level
+    // Frontend only filters by UI selection (optional)
     if (subjectId) {
-      filtered = filtered.filter(exam => exam.subjectId === subjectId);
+      return exams.filter(exam => exam.subjectId === subjectId);
     }
 
-    return filtered;
+    return exams;
   });
 
   // ✅ Computed: Check if any exam is currently available or in progress
@@ -90,33 +71,14 @@ export class StudentExamsComponent implements OnInit {
   filteredHistory = computed(() => {
     const subjectId = this.selectedSubjectId();
     const history = this.allExamHistory();
-    const enrolledNames = this.enrolledSubjectNames();
-    const enrolledYears = this.enrolledYearNames();
 
-    // Filter by enrolled subject names (API returns 'subject' field as name, not subjectId)
-    let filtered = enrolledNames.length > 0 
-      ? history.filter(exam => {
-          const examSubject = exam.subject || exam.subjectName || exam.examSubject || '';
-          const subjectMatch = enrolledNames.some(name => 
-            examSubject.toLowerCase().includes(name.toLowerCase()) ||
-            name.toLowerCase().includes(examSubject.toLowerCase())
-          );
-          
-          // Also check if exam's subject contains student's year
-          const yearMatch = enrolledYears.length === 0 || enrolledYears.some(year => 
-            examSubject.toLowerCase().includes(year.toLowerCase())
-          );
-          
-          return subjectMatch && yearMatch;
-        })
-      : history;
-
-    // Then filter by selected subject if any
+    // History includes all past exams (regardless of current subscription status)
+    // Backend provides subjectId for filtering
     if (subjectId) {
-      filtered = filtered.filter(exam => exam.subjectId === subjectId);
+      return history.filter(exam => exam.subjectId === subjectId);
     }
 
-    return filtered;
+    return history;
   });
 
   constructor(
@@ -139,8 +101,7 @@ export class StudentExamsComponent implements OnInit {
     // Use correct studentId from AuthService
     const studentId = this.auth.getStudentId();
     if (studentId) {
-      // Load student's enrolled subjects first
-      this.loadEnrolledSubjects(studentId);
+      // ✅ Backend now filters exams - just load them
       this.loadUpcomingExams(studentId);
       this.loadExamHistory(studentId);
     } else {
@@ -148,7 +109,6 @@ export class StudentExamsComponent implements OnInit {
       const userId = this.auth.getUserId();
       if (userId) {
         console.warn('⚠️ Using userId instead of studentId');
-        this.loadEnrolledSubjects(userId);
         this.loadUpcomingExams(userId);
         this.loadExamHistory(userId);
       } else {
@@ -158,34 +118,12 @@ export class StudentExamsComponent implements OnInit {
   }
 
   /**
-   * Load student's enrolled subjects to filter exams
+   * ✅ REMOVED - Backend now filters exams automatically
+   * No need to load enrolled subjects for filtering
+   * Backend filters by:
+   * - Active subscriptions
+   * - Student's year level
    */
-  loadEnrolledSubjects(studentId: number) {
-    this.dashboardService.getStudentSubscriptionsSummary(studentId).subscribe({
-      next: (response: any) => {
-        console.log('📚 Student Subscriptions:', response);
-        
-        // Extract subject IDs, names, and year names from subscriptions
-        const subscriptions = response.subscriptions || [];
-        const subjectIds = subscriptions.map((sub: any) => sub.subjectId).filter((id: number) => id);
-        const subjectNames = subscriptions.map((sub: any) => sub.subjectName).filter((name: string) => name);
-        const yearNames: string[] = [...new Set(subscriptions.map((sub: any) => sub.yearName).filter((name: string) => name))];
-        
-        this.enrolledSubjectIds.set(subjectIds);
-        this.enrolledSubjectNames.set(subjectNames);
-        this.enrolledYearNames.set(yearNames);
-        console.log('✅ Enrolled Subjects:', { ids: subjectIds, names: subjectNames, years: yearNames });
-        
-        // ✅ Update displayed exams after loading enrolled subjects
-        this.updateDisplayedExams();
-      },
-      error: (error) => {
-        console.error('❌ Error loading enrolled subjects:', error);
-        // Continue without filtering - show all exams as fallback
-        this.toast.showError('Could not load your enrolled subjects.');
-      }
-    });
-  }
 
   /**
    * Update displayed exams based on current filters
@@ -195,13 +133,11 @@ export class StudentExamsComponent implements OnInit {
     this.examHistory.set(this.filteredHistory());
     
     console.log('🔄 Updated displayed exams:', {
-      enrolledSubjects: this.enrolledSubjectIds().length,
-      enrolledNames: this.enrolledSubjectNames(),
-      enrolledYears: this.enrolledYearNames(),
       allUpcoming: this.allUpcomingExams().length,
       filteredUpcoming: this.upcomingExams().length,
       allHistory: this.allExamHistory().length,
-      filteredHistory: this.examHistory().length
+      filteredHistory: this.examHistory().length,
+      note: 'Backend already filtered by subscriptions and year'
     });
   }
 
@@ -309,9 +245,9 @@ export class StudentExamsComponent implements OnInit {
 
         console.log('✅ Loaded upcoming exams:', {
           total: processedExams?.length || 0,
-          enrolled: this.enrolledSubjectIds().length,
-          filtered: this.upcomingExams().length,
-          subjectFilter: this.selectedSubjectId()
+          displayed: this.upcomingExams().length,
+          subjectFilter: this.selectedSubjectId(),
+          note: 'Backend filtered by subscriptions and year'
         });
       },
       error: (error: any) => {
@@ -414,9 +350,9 @@ export class StudentExamsComponent implements OnInit {
 
         console.log('✅ Loaded exam history:', {
           total: history.length,
-          filtered: this.examHistory().length,
-          enrolled: this.enrolledSubjectIds().length,
-          subjectFilter: this.selectedSubjectId()
+          displayed: this.examHistory().length,
+          subjectFilter: this.selectedSubjectId(),
+          note: 'History shows all past exams (backend does not filter history)'
         });
       },
       error: (error: any) => {

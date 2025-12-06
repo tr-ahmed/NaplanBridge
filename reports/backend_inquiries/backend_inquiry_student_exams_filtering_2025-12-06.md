@@ -2,7 +2,7 @@
 
 **Date**: December 6, 2025  
 **Priority**: HIGH  
-**Status**: Awaiting Backend Response
+**Status**: ✅ **RESOLVED** - See: `reports/backend_changes/backend_change_student_exams_filtering_2025-12-06.md`
 
 ---
 

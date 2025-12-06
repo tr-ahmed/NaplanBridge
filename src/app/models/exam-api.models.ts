@@ -248,11 +248,15 @@ export interface UpcomingExamDto {
   studentExamStatus?: string; // Alternative field name
 }
 
-// ✅ Updated to match ACTUAL backend response
+// ✅ Updated to match ACTUAL backend response (December 6, 2025)
 export interface ExamHistoryDto {
   studentExamId: number;         // ✅ REQUIRED - Primary key for viewing results
   examId: number;
   examTitle: string;
+  subjectId: number;             // ✅ NEW - December 6, 2025
+  subjectName?: string;          // ✅ NEW - December 6, 2025
+  yearId?: number;               // ✅ NEW - December 6, 2025
+  yearNumber?: number;           // ✅ NEW - December 6, 2025
   completedDate: string;        // Backend sends this (not submittedAt)
   score: number;                 // Decimal (0.75 for 75%)
   totalMarks: number;
