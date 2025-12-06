@@ -223,8 +223,11 @@ export class StudentDashboardComponent implements OnInit {
     return new Promise((resolve) => {
       this.progressService.getStudentProgressSummary(this.studentId).subscribe({
         next: (summary) => {
-          console.log('📊 [STUDENT DASHBOARD] Progress Summary:', summary);
+          console.log('📊 [STUDENT DASHBOARD] Progress Summary Raw Response:', summary);
+          console.log('📊 [STUDENT DASHBOARD] completedLessons value:', summary?.completedLessons);
+          console.log('📊 [STUDENT DASHBOARD] totalLessons value:', summary?.totalLessons);
           this.progressSummary.set(summary);
+          console.log('📊 [STUDENT DASHBOARD] Progress Summary Signal Set:', this.progressSummary());
           resolve(summary);
         },
         error: (err) => {
@@ -532,6 +535,7 @@ export class StudentDashboardComponent implements OnInit {
     const subs = this.subscriptions();
     const examHist = this.examHistory();
     const upcoming = this.upcomingExams();
+    const summary = this.progressSummary();
 
     // Calculate stats from available data
     const totalExams = Array.isArray(examHist) ? examHist.length : 0;
@@ -542,12 +546,18 @@ export class StudentDashboardComponent implements OnInit {
     // Use the activeSubsCount computed property for accurate count
     const activeSubs = this.activeSubsCount();
     const upcomingCount = Array.isArray(upcoming) ? upcoming.length : 0;
+    
+    // ✅ Get completed lessons from progress summary
+    const completedLessons = summary?.completedLessons || 0;
 
-    console.log('📊 Calculating stats - Active Subscriptions:', activeSubs);
-    console.log('📊 Calculating stats - Upcoming Exams:', upcomingCount);
+    console.log('📊 [STATS] Progress Summary Object:', summary);
+    console.log('📊 [STATS] completedLessons from summary:', summary?.completedLessons);
+    console.log('📊 [STATS] Calculated completedLessons:', completedLessons);
+    console.log('📊 [STATS] Active Subscriptions:', activeSubs);
+    console.log('📊 [STATS] Upcoming Exams:', upcomingCount);
 
     this.stats.set({
-      totalLessonsCompleted: 0, // Will be updated when progress API is available
+      totalLessonsCompleted: completedLessons, // ✅ Now using progress API data
       totalExamsTaken: totalExams,
       averageScore: avgScore,
       currentStreak: 0,
