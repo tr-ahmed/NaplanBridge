@@ -491,7 +491,7 @@
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                  @for (exam of completedExams(); track exam.examId) {
+                  @for (exam of completedExams(); track exam.studentExamId) {
                     <tr class="hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 transition-colors duration-150">
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
@@ -542,7 +542,7 @@
 
             <!-- Mobile Card View -->
             <div class="lg:hidden divide-y divide-gray-200">
-              @for (exam of completedExams(); track exam.examId) {
+              @for (exam of completedExams(); track exam.studentExamId) {
                 <div class="p-6 hover:bg-gray-50 transition-colors">
                   <div class="flex items-start justify-between mb-4">
                     <div class="flex-1">
