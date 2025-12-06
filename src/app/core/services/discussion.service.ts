@@ -183,8 +183,16 @@ export class DiscussionService {
    * @returns Observable<DiscussionDto[]>
    */
   getTeacherPendingDiscussions(): Observable<DiscussionDto[]> {
-    return this.http.get<DiscussionDto[]>(
-      `${this.apiUrl}/teacher/pending`
+    const url = `${this.apiUrl}/teacher/pending`;
+    console.log('🌐 [DISCUSSION SERVICE] GET Request URL:', url);
+    console.log('🔑 [DISCUSSION SERVICE] Full API URL:', this.apiUrl);
+    
+    return this.http.get<DiscussionDto[]>(url).pipe(
+      map(response => {
+        console.log('📥 [DISCUSSION SERVICE] Raw response from backend:', response);
+        console.log('📊 [DISCUSSION SERVICE] Response length:', Array.isArray(response) ? response.length : 'NOT ARRAY');
+        return response;
+      })
     );
   }
 

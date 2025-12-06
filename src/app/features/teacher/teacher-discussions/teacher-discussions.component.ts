@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { RouterModule } from '@angular/router';
 import { DiscussionService, DiscussionDto, CreateReplyDto, DiscussionFilterParams } from '../../../core/services/discussion.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 /**
  * Teacher dashboard for managing lesson discussions
@@ -20,6 +21,7 @@ export class TeacherDiscussionsComponent implements OnInit {
   private discussionService = inject(DiscussionService);
   private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
 
   // State
   pendingDiscussions = signal<DiscussionDto[]>([]);
@@ -38,6 +40,13 @@ export class TeacherDiscussionsComponent implements OnInit {
   Math = Math;
 
   ngOnInit(): void {
+    // Log teacher info for debugging
+    const currentUser = this.authService.currentUser();
+    console.log('👤 [TEACHER DISCUSSIONS] Current User:', currentUser);
+    console.log('👤 [TEACHER DISCUSSIONS] User ID:', this.authService.getUserId());
+    console.log('👤 [TEACHER DISCUSSIONS] User Roles:', this.authService.userRoles());
+    console.log('👤 [TEACHER DISCUSSIONS] Token:', this.authService.getToken()?.substring(0, 50) + '...');
+    
     this.loadPendingDiscussions();
   }
 
@@ -45,24 +54,43 @@ export class TeacherDiscussionsComponent implements OnInit {
    * Load pending (unanswered) discussions
    */
   loadPendingDiscussions(): void {
+    console.log('🔄 [TEACHER DISCUSSIONS] Loading pending discussions...');
     this.loading.set(true);
     this.error.set(null);
 
     this.discussionService.getTeacherPendingDiscussions().subscribe({
       next: (discussions) => {
-        this.pendingDiscussions.set(discussions);
+        console.log('📥 [TEACHER DISCUSSIONS] Raw API response:', discussions);
+        console.log('📊 [TEACHER DISCUSSIONS] Response type:', typeof discussions, 'Is array?', Array.isArray(discussions));
+        console.log('📊 [TEACHER DISCUSSIONS] Discussions count:', Array.isArray(discussions) ? discussions.length : 'NOT AN ARRAY');
+        
+        // Check if response is wrapped in data property
+        let discussionsArray = discussions;
+        if (discussions && typeof discussions === 'object' && 'data' in discussions) {
+          console.log('🔧 [TEACHER DISCUSSIONS] Response has data property, extracting...');
+          discussionsArray = (discussions as any).data;
+          console.log('📊 [TEACHER DISCUSSIONS] Extracted array:', discussionsArray);
+        }
+
+        this.pendingDiscussions.set(discussionsArray);
+        console.log('✅ [TEACHER DISCUSSIONS] Set discussions signal with:', discussionsArray);
 
         // Initialize reply forms for each discussion
-        discussions.forEach((discussion) => {
-          if (!this.answerForms[discussion.id]) {
-            this.answerForms[discussion.id] = this.createReplyForm();
-          }
-        });
+        if (Array.isArray(discussionsArray)) {
+          discussionsArray.forEach((discussion) => {
+            if (!this.answerForms[discussion.id]) {
+              this.answerForms[discussion.id] = this.createReplyForm();
+            }
+          });
+        }
 
         this.loading.set(false);
+        console.log('✅ [TEACHER DISCUSSIONS] Loading complete. Total discussions:', this.pendingDiscussions().length);
       },
       error: (err) => {
-        console.error('Error loading pending discussions:', err);
+        console.error('❌ [TEACHER DISCUSSIONS] Error loading pending discussions:', err);
+        console.error('❌ [TEACHER DISCUSSIONS] Error status:', err.status);
+        console.error('❌ [TEACHER DISCUSSIONS] Error message:', err.error?.message || err.message);
         this.error.set('Failed to load discussions. Please try again.');
         this.toastService.showError('Failed to load discussions');
         this.loading.set(false);
