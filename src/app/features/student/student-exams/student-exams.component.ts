@@ -29,6 +29,7 @@ export class StudentExamsComponent implements OnInit {
   allExamHistory = signal<any[]>([]); // ✅ Changed to any[] to support actual API response
   enrolledSubjectIds = signal<number[]>([]); // Store student's enrolled subject IDs
   enrolledSubjectNames = signal<string[]>([]); // Store student's enrolled subject names for filtering
+  enrolledYearNames = signal<string[]>([]); // Store student's year names (e.g., "Year 7", "Year 8")
 
   // UI State
   loading = signal(false);
@@ -42,15 +43,24 @@ export class StudentExamsComponent implements OnInit {
     const subjectId = this.selectedSubjectId();
     const exams = this.allUpcomingExams();
     const enrolledNames = this.enrolledSubjectNames();
+    const enrolledYears = this.enrolledYearNames();
 
     // Filter by enrolled subject names (API returns 'subject' field as name, not subjectId)
     let filtered = enrolledNames.length > 0 
       ? exams.filter(exam => {
           const examSubject = exam.subject || exam.subjectName || '';
-          return enrolledNames.some(name => 
+          const subjectMatch = enrolledNames.some(name => 
             examSubject.toLowerCase().includes(name.toLowerCase()) ||
             name.toLowerCase().includes(examSubject.toLowerCase())
           );
+          
+          // Also check if exam's subject contains student's year
+          // (e.g., "Linear Algebra Year 8" should match "Year 8")
+          const yearMatch = enrolledYears.length === 0 || enrolledYears.some(year => 
+            examSubject.toLowerCase().includes(year.toLowerCase())
+          );
+          
+          return subjectMatch && yearMatch;
         })
       : exams;
 
@@ -81,15 +91,23 @@ export class StudentExamsComponent implements OnInit {
     const subjectId = this.selectedSubjectId();
     const history = this.allExamHistory();
     const enrolledNames = this.enrolledSubjectNames();
+    const enrolledYears = this.enrolledYearNames();
 
     // Filter by enrolled subject names (API returns 'subject' field as name, not subjectId)
     let filtered = enrolledNames.length > 0 
       ? history.filter(exam => {
           const examSubject = exam.subject || exam.subjectName || exam.examSubject || '';
-          return enrolledNames.some(name => 
+          const subjectMatch = enrolledNames.some(name => 
             examSubject.toLowerCase().includes(name.toLowerCase()) ||
             name.toLowerCase().includes(examSubject.toLowerCase())
           );
+          
+          // Also check if exam's subject contains student's year
+          const yearMatch = enrolledYears.length === 0 || enrolledYears.some(year => 
+            examSubject.toLowerCase().includes(year.toLowerCase())
+          );
+          
+          return subjectMatch && yearMatch;
         })
       : history;
 
@@ -147,14 +165,16 @@ export class StudentExamsComponent implements OnInit {
       next: (response: any) => {
         console.log('📚 Student Subscriptions:', response);
         
-        // Extract subject IDs and names from subscriptions
+        // Extract subject IDs, names, and year names from subscriptions
         const subscriptions = response.subscriptions || [];
         const subjectIds = subscriptions.map((sub: any) => sub.subjectId).filter((id: number) => id);
         const subjectNames = subscriptions.map((sub: any) => sub.subjectName).filter((name: string) => name);
+        const yearNames = [...new Set(subscriptions.map((sub: any) => sub.yearName).filter((name: string) => name))];
         
         this.enrolledSubjectIds.set(subjectIds);
         this.enrolledSubjectNames.set(subjectNames);
-        console.log('✅ Enrolled Subjects:', { ids: subjectIds, names: subjectNames });
+        this.enrolledYearNames.set(yearNames);
+        console.log('✅ Enrolled Subjects:', { ids: subjectIds, names: subjectNames, years: yearNames });
         
         // ✅ Update displayed exams after loading enrolled subjects
         this.updateDisplayedExams();
@@ -177,6 +197,7 @@ export class StudentExamsComponent implements OnInit {
     console.log('🔄 Updated displayed exams:', {
       enrolledSubjects: this.enrolledSubjectIds().length,
       enrolledNames: this.enrolledSubjectNames(),
+      enrolledYears: this.enrolledYearNames(),
       allUpcoming: this.allUpcomingExams().length,
       filteredUpcoming: this.upcomingExams().length,
       allHistory: this.allExamHistory().length,
