@@ -437,6 +437,14 @@ export class StudentDashboardComponent implements OnInit {
         next: (response) => {
           console.log('📥 Recent activities response:', response);
           if (response && response.data) {
+            // ✅ Log first exam activity to check for studentExamId
+            const firstExamActivity = response.data.find((a: any) => a.type === 'ExamTaken');
+            if (firstExamActivity) {
+              console.log('🔍 First ExamTaken activity:', firstExamActivity);
+              console.log('🔍 Has studentExamId?', firstExamActivity.studentExamId);
+              console.log('🔍 Has examId?', firstExamActivity.examId);
+            }
+
             this.recentActivities.set(response.data);
             console.log('✅ Recent activities loaded:', response.data.length, 'activities');
             console.log('📊 Activities breakdown:', {
@@ -822,6 +830,7 @@ export class StudentDashboardComponent implements OnInit {
 
   /**
    * Handle activity click with proper navigation
+   * ✅ FIX (Dec 6, 2025): Navigate to exam result page for completed exams
    */
   handleActivityClick(activity: RecentActivity): void {
     if (!activity) return;
@@ -837,9 +846,24 @@ export class StudentDashboardComponent implements OnInit {
         break;
 
       case 'ExamTaken':
-        if (activity.examId) {
-          this.router.navigate(['/student/exam', activity.examId]);
-        } else {
+        // ✅ If studentExamId exists, go to result page (exam already completed)
+        if (activity.studentExamId) {
+          console.log('🔍 Navigating to exam result from activity:', activity.studentExamId);
+          this.router.navigate(['/student/exam-result', activity.studentExamId]);
+        }
+        // Backend doesn't send studentExamId in activities, so cross-reference with exam history
+        else if (activity.examId) {
+          const historyEntry = this.examHistory().find(exam => exam.examId === activity.examId);
+
+          if (historyEntry?.studentExamId) {
+            console.log('🔍 Found studentExamId from exam history, navigating to result:', historyEntry.studentExamId);
+            this.router.navigate(['/student/exam-result', historyEntry.studentExamId]);
+          } else {
+            console.log('🔍 No matching exam in history, navigating to exam page:', activity.examId);
+            this.router.navigate(['/student/exam', activity.examId]);
+          }
+        }
+        else {
           this.toastService.showWarning('Exam not available');
         }
         break;

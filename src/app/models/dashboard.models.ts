@@ -26,7 +26,8 @@ export interface RecentActivity {
   date: string;
   description: string;
   lessonId?: number;      // For navigation to lesson
-  examId?: number;        // For navigation to exam
+  examId?: number;        // For navigation to exam (or re-taking)
+  studentExamId?: number; // ✅ Added for navigating to exam result page
   subjectId?: number;     // For filtering
   subjectName?: string;   // For display
   progress?: number;      // Lesson progress (0-100)
