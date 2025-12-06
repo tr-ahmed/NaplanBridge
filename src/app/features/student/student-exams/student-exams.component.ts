@@ -169,7 +169,7 @@ export class StudentExamsComponent implements OnInit {
         const subscriptions = response.subscriptions || [];
         const subjectIds = subscriptions.map((sub: any) => sub.subjectId).filter((id: number) => id);
         const subjectNames = subscriptions.map((sub: any) => sub.subjectName).filter((name: string) => name);
-        const yearNames = [...new Set(subscriptions.map((sub: any) => sub.yearName).filter((name: string) => name))];
+        const yearNames: string[] = [...new Set(subscriptions.map((sub: any) => sub.yearName).filter((name: string) => name))];
         
         this.enrolledSubjectIds.set(subjectIds);
         this.enrolledSubjectNames.set(subjectNames);
