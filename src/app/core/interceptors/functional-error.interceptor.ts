@@ -14,6 +14,16 @@ export const functionalErrorInterceptor: HttpInterceptorFn = (req, next) => {
       switch (error.status) {
         case 400:
           // Bad Request - usually validation errors
+          // ✅ Skip showing popup for Cart API errors (handled in service)
+          if (req.url.includes('/Cart/')) {
+            console.warn('⚠️ Cart API 400 error - handled by service, skipping popup');
+            return throwError(() => ({
+              status: error.status,
+              message: error.error?.message || 'Invalid request',
+              originalError: error
+            }));
+          }
+
           if (error.error?.errors) {
             const validationErrors = error.error.errors;
             const messages = Object.values(validationErrors).flat() as string[];

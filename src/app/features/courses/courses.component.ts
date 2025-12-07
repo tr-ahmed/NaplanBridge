@@ -771,10 +771,17 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     this.coursesService.addToCart(course)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(success => {
-        if (success) {
-          // Could show a toast notification here
-          this.logger.log(`Added ${course.name} to cart`);
+      .subscribe({
+        next: (success) => {
+          if (success) {
+            // Could show a toast notification here
+            this.logger.log(`Added ${course.name} to cart`);
+          }
+        },
+        error: (err) => {
+          // ✅ Error already handled in service, just log it here
+          this.logger.error('Add to cart failed:', err);
+          // Don't show toast here - service already showed it
         }
       });
   }
