@@ -35,6 +35,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
 
           case 400:
+            // ✅ Skip showing toast for Cart API errors (handled in service)
+            if (req.url.includes('/Cart/')) {
+              console.warn('⚠️ Cart API 400 error - handled by service, skipping toast');
+              return throwError(() => error);
+            }
+
             // Bad Request - Show validation errors if available
             if (error.error?.errors) {
               const validationErrors = Object.values(error.error.errors).flat();

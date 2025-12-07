@@ -65,6 +65,12 @@ export class ToastService {
    * Add a new toast to the list
    */
   private addToast(message: string, type: ToastMessage['type'], duration: number): void {
+    // ✅ Prevent duplicate toasts with same message
+    const existingToast = this.toasts().find(t => t.message === message && t.type === type);
+    if (existingToast) {
+      return; // Silently skip duplicate
+    }
+
     const id = ++this.toastId;
     const toast: ToastMessage = { id, message, type, duration };
 
