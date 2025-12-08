@@ -77,7 +77,7 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
       newPassword: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]]
     }, {
-      validators: this.passwordMatchValidator
+      validators: [this.passwordMatchValidator, this.newPasswordNotSameAsCurrentValidator]
     });
   }
 
@@ -88,6 +88,16 @@ export class ProfileManagementComponent implements OnInit, OnDestroy {
     const newPassword = group.get('newPassword')?.value;
     const confirmPassword = group.get('confirmPassword')?.value;
     return newPassword === confirmPassword ? null : { passwordMismatch: true };
+  }
+
+  /**
+   * Validator: new password must not be same as current password
+   */
+  private newPasswordNotSameAsCurrentValidator(group: FormGroup): { [key: string]: boolean } | null {
+    const currentPassword = group.get('currentPassword')?.value;
+    const newPassword = group.get('newPassword')?.value;
+    if (!currentPassword || !newPassword) return null;
+    return currentPassword === newPassword ? { newPasswordSameAsCurrent: true } : null;
   }
 
   /**
