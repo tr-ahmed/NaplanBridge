@@ -300,7 +300,15 @@
 
     <!-- Mobile Navigation -->
     @if (isMobileMenuOpen) {
-      <div class="md:hidden lg:hidden bg-white border-t border-gray-200 py-3 max-h-[calc(100vh-4rem)] overflow-y-auto">
+      <!-- Backdrop/Overlay -->
+      <div
+        class="fixed inset-0 bg-black/20 md:hidden z-40"
+        (click)="toggleMobileMenu()"
+        aria-hidden="true">
+      </div>
+
+      <!-- Menu Content -->
+      <div class="md:hidden lg:hidden bg-white border-t border-gray-200 py-3 max-h-[calc(100vh-4rem)] overflow-y-auto relative z-50">
         <ul class="space-y-1.5 list-none px-3">
           @for (item of navigationItems; track item.id) {
             @if (item.label === 'Subjects') {

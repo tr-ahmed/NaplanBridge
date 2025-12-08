@@ -155,26 +155,26 @@
       </div>
 
       <!-- Overall Progress Section -->
-      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6 lg:p-8 mb-6 sm:mb-8">
+        <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
           </div>
-          <div class="flex-1">
-            <h2 class="text-xl md:text-2xl font-bold text-gray-900">Overall Progress</h2>
-            <p class="text-sm text-gray-600">Track your learning journey</p>
+          <div class="flex-1 min-w-0">
+            <h2 class="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900 break-words">Overall Progress</h2>
+            <p class="text-[10px] sm:text-xs md:text-sm text-gray-600 leading-tight">Track your learning journey</p>
           </div>
         </div>
 
-        <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border-2 border-blue-100">
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-base font-semibold text-gray-700">Completion Progress</span>
-            <span class="text-lg font-bold text-blue-600">{{ overallProgress() }}%</span>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 lg:p-6 border-2 border-blue-100 overflow-hidden">
+          <div class="flex justify-between items-center mb-2 sm:mb-3 gap-2">
+            <span class="text-xs sm:text-sm md:text-base font-semibold text-gray-700 truncate">Completion Progress</span>
+            <span class="text-sm sm:text-base md:text-lg font-bold text-blue-600 flex-shrink-0">{{ overallProgress() }}%</span>
           </div>
 
-          <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner mb-4">
+          <div class="w-full bg-gray-200 rounded-full h-2 sm:h-3 md:h-4 overflow-hidden shadow-inner mb-3 sm:mb-4">
             <div
               [class]="'h-full rounded-full transition-all duration-500 ' + getProgressColor(overallProgress())"
               [style.width.%]="overallProgress()">
@@ -182,14 +182,14 @@
           </div>
 
           @if (completedLessons() !== undefined && totalLessons() !== undefined) {
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2 text-sm text-gray-600">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+              <div class="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs md:text-sm text-gray-600">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <span class="font-medium">{{ completedLessons() }} of {{ totalLessons() }} lessons completed</span>
+                <span class="font-medium truncate">{{ completedLessons() }} of {{ totalLessons() }} lessons completed</span>
               </div>
-              <div class="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+              <div class="text-[10px] sm:text-xs md:text-sm font-semibold text-blue-600 bg-blue-100 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full whitespace-nowrap flex-shrink-0">
                 @if (overallProgress() >= 80) {
                   <span>🎉 Excellent!</span>
                 } @else if (overallProgress() >= 60) {
@@ -234,9 +234,9 @@
               class="group relative bg-white rounded-lg sm:rounded-xl transition-all duration-300 hover:shadow-2xl border-2 border-transparent hover:border-white/50 p-2.5 sm:p-3 lg:p-4 flex flex-col items-center overflow-hidden">
               <div class="text-center w-full flex flex-col items-center">
                 <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mb-1 sm:mb-1.5 lg:mb-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md sm:rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                  <span class="text-base sm:text-lg lg:text-xl">📚</span>
+                  <span class="text-sm sm:text-base lg:text-lg">📚</span>
                 </div>
-                <h3 class="font-bold text-gray-900 text-[10px] sm:text-xs lg:text-sm leading-tight w-full break-words">My Subjects</h3>
+                <h3 class="font-bold text-gray-900 text-[9px] sm:text-[10px] lg:text-xs leading-tight w-full break-words">My Subjects</h3>
                 <div class="h-0.5 sm:h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-1 sm:mt-1.5">
                   <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" style="width: 100%"></div>
                 </div>
@@ -249,9 +249,9 @@
               class="group relative bg-white rounded-lg sm:rounded-xl transition-all duration-300 hover:shadow-2xl border-2 border-transparent hover:border-white/50 p-2.5 sm:p-3 lg:p-4 flex flex-col items-center overflow-hidden">
               <div class="text-center w-full flex flex-col items-center">
                 <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mb-1 sm:mb-1.5 lg:mb-2 bg-gradient-to-br from-green-500 to-green-600 rounded-md sm:rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                  <span class="text-base sm:text-lg lg:text-xl">📝</span>
+                  <span class="text-sm sm:text-base lg:text-lg">📝</span>
                 </div>
-                <h3 class="font-bold text-gray-900 text-[10px] sm:text-xs lg:text-sm leading-tight w-full break-words">Take Exam</h3>
+                <h3 class="font-bold text-gray-900 text-[9px] sm:text-[10px] lg:text-xs leading-tight w-full break-words">Take Exam</h3>
                 <div class="h-0.5 sm:h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-1 sm:mt-1.5">
                   <div class="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full" style="width: 100%"></div>
                 </div>
@@ -264,9 +264,9 @@
               class="group relative bg-white rounded-lg sm:rounded-xl transition-all duration-300 hover:shadow-2xl border-2 border-transparent hover:border-white/50 p-2.5 sm:p-3 lg:p-4 flex flex-col items-center overflow-hidden">
               <div class="text-center w-full flex flex-col items-center">
                 <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mb-1 sm:mb-1.5 lg:mb-2 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-md sm:rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                  <span class="text-base sm:text-lg lg:text-xl">⭐</span>
+                  <span class="text-sm sm:text-base lg:text-lg">⭐</span>
                 </div>
-                <h3 class="font-bold text-gray-900 text-[10px] sm:text-xs lg:text-sm leading-tight w-full break-words">My Plans</h3>
+                <h3 class="font-bold text-gray-900 text-[9px] sm:text-[10px] lg:text-xs leading-tight w-full break-words">My Plans</h3>
                 <div class="h-0.5 sm:h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-1 sm:mt-1.5">
                   <div class="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full" style="width: 100%"></div>
                 </div>
@@ -279,9 +279,9 @@
               class="group relative bg-white rounded-lg sm:rounded-xl transition-all duration-300 hover:shadow-2xl border-2 border-transparent hover:border-white/50 p-2.5 sm:p-3 lg:p-4 flex flex-col items-center overflow-hidden">
               <div class="text-center w-full flex flex-col items-center">
                 <div class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mb-1 sm:mb-1.5 lg:mb-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-md sm:rounded-lg lg:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                  <span class="text-base sm:text-lg lg:text-xl">🎓</span>
+                  <span class="text-sm sm:text-base lg:text-lg">🎓</span>
                 </div>
-                <h3 class="font-bold text-gray-900 text-[10px] sm:text-xs lg:text-sm leading-tight w-full break-words">My Sessions</h3>
+                <h3 class="font-bold text-gray-900 text-[9px] sm:text-[10px] lg:text-xs leading-tight w-full break-words">My Sessions</h3>
                 <div class="h-0.5 sm:h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-1 sm:mt-1.5">
                   <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full" style="width: 100%"></div>
                 </div>
