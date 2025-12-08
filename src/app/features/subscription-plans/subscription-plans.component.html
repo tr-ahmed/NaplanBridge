@@ -104,19 +104,18 @@
 
     <!-- Plans Grid -->
     @if (!loading() && filteredPlans().length > 0) {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-12">
         @for (plan of filteredPlans(); track plan.id) {
           <div
-            class="relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
-            [class.ring-4]="plan.mostPopular"
-            [class.ring-blue-500]="plan.mostPopular"
-            [class.transform]="plan.mostPopular"
-            [class.scale-105]="plan.mostPopular">
+            class="relative bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col"
+            [class.ring-2]="plan.mostPopular"
+            [class.sm:ring-4]="plan.mostPopular"
+            [class.ring-blue-500]="plan.mostPopular">
 
             <!-- Most Popular Badge -->
             @if (plan.mostPopular) {
-              <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1.5 sm:px-6 sm:py-2 rounded-full text-xs sm:text-sm font-semibold shadow-lg">
+              <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 sm:px-6 sm:py-2 rounded-full text-xs sm:text-sm font-semibold shadow-lg whitespace-nowrap">
                   🌟 Most Popular
                 </div>
               </div>
@@ -124,8 +123,8 @@
 
             <!-- Recommended Badge -->
             @if (plan.recommended && !plan.mostPopular) {
-              <div class="absolute top-2 right-2 sm:top-4 sm:right-4">
-                <div class="bg-green-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-semibold">
+              <div class="absolute top-2 right-2 sm:top-4 sm:right-4 z-10">
+                <div class="bg-green-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-semibold whitespace-nowrap">
                   ✨ Recommended
                 </div>
               </div>
@@ -133,18 +132,18 @@
 
             <!-- Discount Badge -->
             @if (hasDiscount(plan)) {
-              <div class="absolute top-2 left-2 sm:top-4 sm:left-4">
-                <div class="bg-red-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-semibold">
+              <div class="absolute top-2 left-2 sm:top-4 sm:left-4 z-10">
+                <div class="bg-red-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-semibold whitespace-nowrap">
                   {{ plan.currentDiscountPercentage }}% OFF
                 </div>
               </div>
             }
 
-            <div class="p-4 sm:p-6 lg:p-8">
+            <div class="p-4 sm:p-6 lg:p-8 flex-1 flex flex-col">
               <!-- Plan Header -->
               <div class="text-center mb-4 sm:mb-6">
-                <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2">{{ plan.name }}</h3>
-                <p class="text-sm sm:text-base lg:text-lg font-semibold text-gray-600 mb-3 sm:mb-4">{{ plan.nameAr }}</p>
+                <h3 class="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 mb-1 sm:mb-2 leading-tight px-2">{{ plan.name }}</h3>
+                <p class="text-sm sm:text-base lg:text-lg font-semibold text-gray-600 mb-3 sm:mb-4 leading-tight px-2">{{ plan.nameAr }}</p>
 
                 <!-- Pricing -->
                 <div class="mb-3 sm:mb-4">

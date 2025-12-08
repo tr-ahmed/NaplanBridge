@@ -1,6 +1,9 @@
 /* Import shared admin styles */
 @use './app/shared/styles/admin-layout.scss';
 
+/* Import global responsive utilities */
+@import './styles/responsive-global.scss';
+
 /* Hero Section Interactive Animations */
 .hero-image {
   transition: transform 0.1s ease-out, box-shadow 0.3s ease;

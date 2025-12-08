@@ -2,17 +2,17 @@
 <main class="px-4 sm:px-6 lg:px-8 py-8">
 
     <!-- Page Title -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900">Teacher Dashboard</h1>
-          <p class="text-gray-600 mt-1">Manage your classes, students, and exams</p>
+    <div class="mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex-1">
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Teacher Dashboard</h1>
+          <p class="text-gray-600 mt-1 text-sm sm:text-base">Manage your classes, students, and exams</p>
         </div>
         <button
           (click)="refresh()"
           [disabled]="loading()"
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center gap-2">
-          <svg class="w-5 h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 flex items-center justify-center gap-2 text-sm sm:text-base font-medium whitespace-nowrap flex-shrink-0">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" [class.animate-spin]="loading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
           <span>Refresh</span>
@@ -33,78 +33,78 @@
     <!-- Main Content -->
     @if (!loading()) {
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <!-- Total Students -->
-        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-lg sm:rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
               </svg>
             </div>
           </div>
-          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().totalStudents }}</p>
-          <p class="text-sm text-gray-600">Total Students</p>
+          <p class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{{ stats().totalStudents }}</p>
+          <p class="text-xs sm:text-sm text-gray-600">Total Students</p>
         </div>
 
         <!-- Active Classes -->
-        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-lg sm:rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
               </svg>
             </div>
           </div>
-          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().activeClasses }}</p>
-          <p class="text-sm text-gray-600">Active Classes</p>
+          <p class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{{ stats().activeClasses }}</p>
+          <p class="text-xs sm:text-sm text-gray-600">Active Classes</p>
         </div>
 
         <!-- Pending Questions -->
-        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer" (click)="goToExamManagement()">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-lg sm:rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-4 sm:p-6 cursor-pointer" (click)="goToExamManagement()">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
             @if (hasPendingGrading()) {
-              <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded-full">
+              <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0">
                 {{ stats().pendingGrading }}
               </span>
             }
           </div>
-          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().pendingGrading }}</p>
-          <p class="text-sm text-gray-600">Pending Questions</p>
+          <p class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{{ stats().pendingGrading }}</p>
+          <p class="text-xs sm:text-sm text-gray-600">Pending Questions</p>
         </div>
 
         <!-- Average Progress -->
-        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-lg sm:rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
               </svg>
             </div>
           </div>
-          <p class="text-3xl font-bold text-gray-900 mb-1">{{ stats().averageClassScore.toFixed(1) }}%</p>
-          <p class="text-sm text-gray-600">Average Student Progress</p>
+          <p class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{{ stats().averageClassScore.toFixed(1) }}%</p>
+          <p class="text-xs sm:text-sm text-gray-600">Average Student Progress</p>
         </div>
       </div>
 
       <!-- Pending Questions Alert -->
       @if (hasPendingGrading()) {
-        <div class="bg-orange-50 border-l-4 border-orange-400 p-6 mb-8 rounded-lg">
-          <div class="flex items-start">
+        <div class="bg-orange-50 border-l-4 border-orange-400 p-4 sm:p-6 mb-6 sm:mb-8 rounded-lg">
+          <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
             <svg class="w-6 h-6 text-orange-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
             </svg>
-            <div class="ml-4 flex-1">
-              <h3 class="text-lg font-semibold text-orange-800 mb-2">Pending Student Questions</h3>
-              <p class="text-orange-700 mb-4">You have {{ stats().pendingGrading }} student questions waiting for your response.</p>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base sm:text-lg font-semibold text-orange-800 mb-2">Pending Student Questions</h3>
+              <p class="text-sm sm:text-base text-orange-700 mb-4">You have {{ stats().pendingGrading }} student questions waiting for your response.</p>
               <button
                 (click)="goToExamManagement()"
-                class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium">
+                class="w-full sm:w-auto px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium text-sm sm:text-base whitespace-nowrap flex-shrink-0">
                 Answer Questions
               </button>
             </div>

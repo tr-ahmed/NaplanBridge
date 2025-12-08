@@ -1,25 +1,31 @@
-<div class="my-bookings-container min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 lg:p-8">
+<div class="my-bookings-container min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-3 sm:p-4 md:p-6 lg:p-8">
   <!-- Header -->
-  <div class="max-w-7xl mx-auto mb-8">
-    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div class="max-w-7xl mx-auto mb-6 sm:mb-8">
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 md:p-8">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
           </div>
-          <div>
-            <h1 class="text-3xl md:text-4xl font-bold text-primary-800">
+          <div class="flex-1 min-w-0">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-800 truncate">
               My Bookings
             </h1>
-            <p class="text-gray-600 mt-2 text-sm md:text-base">Manage and track your private session bookings</p>
+            <p class="text-gray-600 mt-1 sm:mt-2 text-xs sm:text-sm md:text-base leading-tight">Manage and track your private session bookings</p>
           </div>
         </div>
-        <div class="hidden md:flex items-center gap-3">
-          <div class="bg-blue-600 text-white px-6 py-3 rounded-xl shadow-lg">
-            <div class="text-2xl font-bold">{{ bookings().length }}</div>
+        <div class="w-full sm:w-auto flex sm:hidden items-center justify-center gap-3">
+          <div class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex-1 sm:flex-initial text-center">
+            <div class="text-xl sm:text-2xl font-bold">{{ bookings().length }}</div>
             <div class="text-xs opacity-90">Total Bookings</div>
+          </div>
+        </div>
+        <div class="hidden sm:flex items-center gap-3 flex-shrink-0">
+          <div class="bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-lg">
+            <div class="text-xl sm:text-2xl font-bold">{{ bookings().length }}</div>
+            <div class="text-xs opacity-90 whitespace-nowrap">Total Bookings</div>
           </div>
         </div>
       </div>
@@ -27,22 +33,22 @@
   </div>
 
   <!-- Filter Tabs -->
-  <div class="max-w-7xl mx-auto mb-6">
-    <div class="bg-white rounded-2xl shadow-lg p-3">
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+  <div class="max-w-7xl mx-auto mb-4 sm:mb-6">
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-2 sm:p-3">
+      <div class="grid grid-cols-3 gap-2 sm:gap-3">
         <button
           (click)="setFilter('all')"
           [class]="filter() === 'all'
             ? 'bg-blue-600 text-white shadow-lg'
             : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'"
-          class="px-4 py-3 rounded-xl transition-all duration-300 hover:-translate-y-1 font-semibold flex flex-col items-center gap-1 group">
-          <div class="flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 font-semibold flex flex-col items-center gap-1 text-xs sm:text-sm whitespace-nowrap">
+          <div class="flex items-center gap-1 sm:gap-2">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
             </svg>
-            <span>All</span>
+            <span class="hidden sm:inline">All</span>
           </div>
-          <span class="text-xs opacity-80">({{ bookings().length }})</span>
+          <span class="text-[10px] sm:text-xs opacity-80">({{ bookings().length }})</span>
         </button>
 
         <button
@@ -50,14 +56,14 @@
           [class]="filter() === 'upcoming'
             ? 'bg-green-600 text-white shadow-lg'
             : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'"
-          class="px-4 py-3 rounded-xl transition-all duration-300 hover:-translate-y-1 font-semibold flex flex-col items-center gap-1">
-          <div class="flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 font-semibold flex flex-col items-center gap-1 text-xs sm:text-sm whitespace-nowrap">
+          <div class="flex items-center gap-1 sm:gap-2">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <span>Upcoming</span>
+            <span class="hidden sm:inline">Upcoming</span>
           </div>
-          <span class="text-xs opacity-80">({{ getUpcomingCount() }})</span>
+          <span class="text-[10px] sm:text-xs opacity-80">({{ getUpcomingCount() }})</span>
         </button>
 
         <button
@@ -65,14 +71,14 @@
           [class]="filter() === 'completed'
             ? 'bg-blue-600 text-white shadow-lg'
             : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'"
-          class="px-4 py-3 rounded-xl transition-all duration-300 hover:-translate-y-1 font-semibold flex flex-col items-center gap-1">
-          <div class="flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 font-semibold flex flex-col items-center gap-1 text-xs sm:text-sm whitespace-nowrap">
+          <div class="flex items-center gap-1 sm:gap-2">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <span>Completed</span>
+            <span class="hidden sm:inline">Completed</span>
           </div>
-          <span class="text-xs opacity-80">({{ getCompletedCount() }})</span>
+          <span class="text-[10px] sm:text-xs opacity-80">({{ getCompletedCount() }})</span>
         </button>
       </div>
     </div>

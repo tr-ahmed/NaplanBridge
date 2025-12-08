@@ -95,74 +95,73 @@
 
     @if (!loading()) {
       <!-- Users Table -->
-      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full min-w-[640px]">
+      <div class="bg-white rounded-lg sm:rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+        <div class="overflow-x-auto -webkit-overflow-scrolling-touch">
+          <table class="w-full" style="min-width: 640px;">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th class="px-3 sm:px-6 py-3 text-left">
+                <th class="px-3 sm:px-4 lg:px-6 py-3 text-left">
                   <input
                     type="checkbox"
                     [checked]="selectedUsers().length === filteredUsers().length && filteredUsers().length > 0"
                     (change)="selectedUsers().length === filteredUsers().length ? clearSelection() : selectAll()"
                     class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                 </th>
-                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Created</th>
-                <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th class="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th class="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                <th class="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Created</th>
+                <th class="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               @for (user of filteredUsers(); track user.id) {
                 <tr class="hover:bg-gray-50 transition-colors">
-                  <td class="px-3 sm:px-6 py-3 sm:py-4">
+                  <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                     <input
                       type="checkbox"
                       [checked]="selectedUsers().includes(user.id)"
                       (change)="toggleUserSelection(user.id)"
-                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0">
                   </td>
-                  <td class="px-3 sm:px-6 py-3 sm:py-4">
-                    <div>
-                      <p class="text-sm sm:text-base font-medium text-gray-900 truncate max-w-[150px] sm:max-w-none">{{ user.name }}</p>
-                      <p class="text-xs sm:text-sm text-gray-600 truncate max-w-[150px] sm:max-w-none">{{ user.email }}</p>
+                  <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+                    <div class="min-w-0">
+                      <p class="text-sm sm:text-base font-medium text-gray-900 truncate" style="max-width: 200px;">{{ user.name }}</p>
+                      <p class="text-xs sm:text-sm text-gray-600 truncate" style="max-width: 200px;">{{ user.email }}</p>
                     </div>
                   </td>
-                  <td class="px-3 sm:px-6 py-3 sm:py-4">
+                  <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                     <span
-                      class="px-2 sm:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                      class="px-2 sm:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block"
                       [ngClass]="getRoleBadgeClass(user.role)">
                       {{ user.role }}
                     </span>
                   </td>
-                  <td class="px-3 sm:px-6 py-3 sm:py-4">
+                  <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                     <span
-                      class="px-2 sm:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                      class="px-2 sm:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block"
                       [ngClass]="getStatusBadgeClass(user.status)">
                       {{ user.status }}
                     </span>
                   </td>
-                  <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 hidden md:table-cell">
+                  <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 hidden md:table-cell whitespace-nowrap">
                     {{ user.createdAt | date:'MMM d, y' }}
                   </td>
-                  <td class="px-3 sm:px-6 py-3 sm:py-4 w-20 sm:w-auto">
-                    <div class="flex items-center gap-1">
-                      <!-- Mobile: Icon only with tooltips -->
+                  <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+                    <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                       <button
                         (click)="editUser(user)"
-                        class="text-blue-600 hover:text-blue-900 p-1.5 hover:bg-blue-50 rounded-md transition-all active:scale-95 touch-manipulation"
+                        class="text-blue-600 hover:text-blue-900 p-1.5 hover:bg-blue-50 rounded-md transition-all active:scale-95 touch-manipulation flex-shrink-0"
                         title="Edit">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
                       </button>
                       <button
                         (click)="deleteUser(user.id)"
-                        class="text-red-600 hover:text-red-900 p-1.5 hover:bg-red-50 rounded-md transition-all active:scale-95 touch-manipulation"
+                        class="text-red-600 hover:text-red-900 p-1.5 hover:bg-red-50 rounded-md transition-all active:scale-95 touch-manipulation flex-shrink-0"
                         title="Delete">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
                       </button>
