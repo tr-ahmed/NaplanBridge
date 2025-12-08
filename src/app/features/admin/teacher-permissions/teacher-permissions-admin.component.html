@@ -1,21 +1,21 @@
 <!-- Main Content with Modern Gradient Background -->
 <main class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">
   <!-- Modern Page Header with Gradient -->
-  <div class="mb-6 md:mb-8">
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 md:p-8">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div class="flex-1">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+  <div class="mb-4 sm:mb-6 md:mb-8">
+    <div class="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-white/20 p-4 sm:p-6 md:p-8">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div class="flex-1 min-w-0 w-full">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
               <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
               </svg>
             </div>
-            <div>
-              <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <div class="flex-1 min-w-0">
+              <h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate">
                 Teacher Management
               </h1>
-              <p class="text-gray-600 text-sm md:text-base mt-1">Manage teacher permissions and content approvals</p>
+              <p class="text-gray-600 text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 truncate">Manage teacher permissions and content approvals</p>
             </div>
           </div>
         </div>
@@ -23,12 +23,12 @@
         @if (activeTab() === 'permissions') {
           <button
             (click)="openGrantModal()"
-            class="group relative px-4 py-2.5 sm:px-5 sm:py-3 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-medium flex items-center gap-2 shadow-md overflow-hidden">
+            class="group relative w-full sm:w-auto px-4 py-2.5 sm:px-5 sm:py-3 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-medium flex items-center justify-center gap-2 shadow-md overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 relative z-10 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
-            <span class="relative z-10 text-sm sm:text-base">Grant Permission</span>
+            <span class="relative z-10 text-sm sm:text-base whitespace-nowrap">Grant Permission</span>
           </button>
         }
       </div>
@@ -36,36 +36,36 @@
   </div>
 
   <!-- Modern Pill-Style Tabs -->
-  <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 mb-6 p-2">
-    <nav class="flex gap-2">
+  <div class="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-white/20 mb-4 sm:mb-6 p-1.5 sm:p-2">
+    <nav class="flex gap-1.5 sm:gap-2">
       <button
         (click)="switchTab('permissions')"
-        class="flex-1 py-4 px-4 md:px-6 text-center font-semibold transition-all duration-300 rounded-xl relative overflow-hidden group"
+        class="flex-1 py-2.5 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 text-center font-semibold transition-all duration-300 rounded-lg sm:rounded-xl relative overflow-hidden group"
         [class]="activeTab() === 'permissions'
           ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg scale-105'
           : 'text-gray-600 hover:bg-gray-50'">
-        <div class="flex items-center justify-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
           </svg>
-          <span class="hidden sm:inline">Permissions Management</span>
-          <span class="sm:hidden">Permissions</span>
+          <span class="hidden sm:inline text-sm md:text-base">Permissions Management</span>
+          <span class="sm:hidden text-xs">Permissions</span>
         </div>
       </button>
       <button
         (click)="switchTab('approvals')"
-        class="flex-1 py-4 px-4 md:px-6 text-center font-semibold transition-all duration-300 rounded-xl relative overflow-hidden group"
+        class="flex-1 py-2.5 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 text-center font-semibold transition-all duration-300 rounded-lg sm:rounded-xl relative overflow-hidden group"
         [class]="activeTab() === 'approvals'
           ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg scale-105'
           : 'text-gray-600 hover:bg-gray-50'">
-        <div class="flex items-center justify-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <span class="hidden sm:inline">Pending Approvals</span>
-          <span class="sm:hidden">Approvals</span>
+          <span class="hidden sm:inline text-sm md:text-base">Pending Approvals</span>
+          <span class="sm:hidden text-xs">Approvals</span>
           @if (pendingApprovals().length > 0) {
-            <span class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-pulse">
+            <span class="absolute top-0.5 sm:top-1 right-0.5 sm:right-1 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center font-bold shadow-lg animate-pulse">
               {{ pendingApprovals().length }}
             </span>
           }
@@ -111,18 +111,18 @@
               <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl transform translate-x-32 -translate-y-32 group-hover:scale-150 transition-transform duration-500"></div>
 
               <div class="relative z-10">
-                <div class="flex flex-col sm:flex-row items-start justify-between gap-4">
+                <div class="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
                   <div class="flex-1 w-full">
-                    <div class="flex items-start gap-3 sm:gap-4 mb-4">
-                      <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                        <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-start gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4">
+                      <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                       </div>
                       <div class="flex-1 min-w-0">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-1 truncate">{{ teacher.teacherName || 'Unknown' }}</h3>
-                        <p class="text-gray-500 text-xs sm:text-sm truncate">{{ teacher.email || 'No email' }}</p>
-                        <div class="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md">
+                        <h3 class="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-0.5 sm:mb-1 truncate">{{ teacher.teacherName || 'Unknown' }}</h3>
+                        <p class="text-gray-500 text-[10px] sm:text-xs md:text-sm truncate">{{ teacher.email || 'No email' }}</p>
+                        <div class="mt-1.5 sm:mt-2 inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs md:text-sm font-bold bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md">
                           <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                           </svg>
@@ -133,18 +133,18 @@
 
                     <!-- Subjects Grid -->
                     @if (teacher.subjects && teacher.subjects.length > 0) {
-                      <div class="flex flex-wrap gap-2 mt-4">
+                      <div class="flex flex-wrap gap-1.5 sm:gap-2 mt-3 sm:mt-4">
                         @for (subject of teacher.subjects; track $index) {
-                          <span class="group/subject relative px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 rounded-xl text-xs sm:text-sm font-semibold border-2 border-green-200 hover:border-green-400 transition-all duration-300 hover:scale-105 hover:shadow-md flex items-center gap-2">
-                            <svg class="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <span class="group/subject relative px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 rounded-lg sm:rounded-xl text-[10px] sm:text-xs md:text-sm font-semibold border-2 border-green-200 hover:border-green-400 transition-all duration-300 hover:scale-105 hover:shadow-md flex items-center gap-1 sm:gap-1.5 md:gap-2">
+                            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                             </svg>
                             <span class="truncate">{{ subject || 'Unknown Subject' }}</span>
                             <button
                               (click)="revokeSingleSubject(teacher.teacherId, subject, $event)"
-                              class="ml-1 p-1 hover:bg-red-100 rounded-full transition-colors duration-200 flex-shrink-0"
+                              class="ml-0.5 sm:ml-1 p-0.5 sm:p-1 hover:bg-red-100 rounded-full transition-colors duration-200 flex-shrink-0"
                               title="Revoke permission for this subject">
-                              <svg class="w-3 h-3 sm:w-4 sm:h-4 text-red-600 hover:text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 text-red-600 hover:text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                               </svg>
                             </button>
@@ -162,9 +162,9 @@
                     <button
                       (click)="revokeAllPermissions(teacher.teacherId)"
                       title="Revoke all permissions for this teacher"
-                      class="group/btn flex-1 sm:flex-none px-3 py-2 sm:px-4 sm:py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold flex items-center justify-center gap-2 overflow-hidden relative text-sm sm:text-base">
+                      class="group/btn flex-1 sm:flex-none px-3 py-2 sm:px-4 sm:py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-semibold flex items-center justify-center gap-1.5 sm:gap-2 overflow-hidden relative text-xs sm:text-sm md:text-base">
                       <div class="absolute inset-0 bg-gradient-to-r from-rose-600 to-red-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                      <svg class="w-4 h-4 sm:w-5 sm:h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4 sm:w-5 sm:h-5 relative z-10 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                       </svg>
                       <span class="relative z-10">Revoke All</span>

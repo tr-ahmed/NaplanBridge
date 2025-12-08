@@ -5,13 +5,13 @@
       <i class="fas fa-envelope-open-text"></i>
     </div>
     <div class="header-text">
-      <h1>Notification Templates</h1>
-      <p>Manage notification messages for all system events</p>
+      <h1 class="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold break-words leading-tight">Notification Templates</h1>
+      <p class="text-xs sm:text-sm md:text-base break-words">Manage notification messages for all system events</p>
     </div>
   </div>
 </div>
 
-<div class="template-list-container">
+<div class="template-list-container overflow-x-hidden">
   <!-- Header with Stats -->
   <!-- <div class="page-header">
     <div class="header-content">
@@ -54,21 +54,22 @@
   </div> -->
 
   <!-- Filters & Search -->
-  <div class="filters-section">
-    <div class="filters-row">
+  <div class="filters-section p-3 sm:p-4 md:p-6 w-full overflow-hidden">
+    <div class="filters-row flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 w-full">
       <!-- Search -->
-      <div class="search-box">
-        <i class="fas fa-search"></i>
+      <div class="search-box flex-1 min-w-0">
+        <i class="fas fa-search text-xs sm:text-sm flex-shrink-0"></i>
         <input
           type="text"
           placeholder="Search templates..."
           [(ngModel)]="searchQuery"
-          (input)="onSearch()">
+          (input)="onSearch()"
+          class="text-xs sm:text-sm w-full min-w-0">
       </div>
 
       <!-- Channel Filter -->
       <select
-        class="filter-select"
+        class="filter-select text-xs sm:text-sm md:text-base px-2 sm:px-3 py-2 min-w-0 flex-shrink-0"
         [(ngModel)]="selectedChannel"
         (change)="onFilterChange()">
         <option value="all">All Channels</option>
@@ -77,7 +78,7 @@
 
       <!-- Status Filter -->
       <select
-        class="filter-select"
+        class="filter-select text-xs sm:text-sm md:text-base px-2 sm:px-3 py-2 min-w-0 flex-shrink-0"
         [(ngModel)]="selectedStatus"
         (change)="onFilterChange()">
         <option value="all">All Status</option>
@@ -86,18 +87,20 @@
       </select>
 
       <!-- View Mode Toggle -->
-      <div class="view-toggle">
+      <div class="view-toggle flex gap-1 sm:gap-2 flex-shrink-0">
         <button
           [class.active]="viewMode() === 'grid'"
           (click)="setViewMode('grid')"
-          title="Grid View">
-          <i class="fas fa-th"></i>
+          title="Grid View"
+          class="p-2 sm:p-2.5 flex-shrink-0">
+          <i class="fas fa-th text-xs sm:text-sm"></i>
         </button>
         <button
           [class.active]="viewMode() === 'list'"
           (click)="setViewMode('list')"
-          title="List View">
-          <i class="fas fa-list"></i>
+          title="List View"
+          class="p-2 sm:p-2.5 flex-shrink-0">
+          <i class="fas fa-list text-xs sm:text-sm"></i>
         </button>
       </div>
     </div>
@@ -105,46 +108,46 @@
 
   <!-- Loading State -->
   @if (loading()) {
-    <div class="loading-state">
-      <i class="fas fa-spinner fa-spin fa-3x"></i>
-      <p>Loading templates...</p>
+    <div class="loading-state p-8 sm:p-12 md:p-16">
+      <i class="fas fa-spinner fa-spin text-3xl sm:text-4xl md:text-5xl"></i>
+      <p class="text-sm sm:text-base md:text-lg mt-3 sm:mt-4">Loading templates...</p>
     </div>
   }
 
   <!-- Error State -->
   @if (error()) {
-    <div class="error-state">
-      <i class="fas fa-exclamation-circle fa-3x"></i>
-      <p>{{ error() }}</p>
-      <button class="retry-btn" (click)="loadTemplates()">
-        <i class="fas fa-redo"></i> Retry
+    <div class="error-state p-8 sm:p-12 md:p-16">
+      <i class="fas fa-exclamation-circle text-3xl sm:text-4xl md:text-5xl"></i>
+      <p class="text-sm sm:text-base md:text-lg mt-3 sm:mt-4">{{ error() }}</p>
+      <button class="retry-btn px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm md:text-base mt-3 sm:mt-4" (click)="loadTemplates()">
+        <i class="fas fa-redo text-xs sm:text-sm"></i> <span class="ml-1 sm:ml-2">Retry</span>
       </button>
     </div>
   }
 
   <!-- Templates Grid/List -->
   @if (!loading() && !error()) {
-    <div [class]="'templates-' + viewMode()">
+    <div [class]="'templates-' + viewMode()" class="w-full overflow-x-hidden px-2 sm:px-0">
       @for (template of filteredTemplates; track template.id) {
-        <div class="template-card" (click)="editTemplate(template)">
+        <div class="template-card p-3 sm:p-4 md:p-5 lg:p-6 w-full overflow-hidden" (click)="editTemplate(template)">
           <!-- Card Header -->
-          <div class="card-header">
-            <div class="event-info">
+          <div class="card-header flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4 w-full">
+            <div class="event-info flex items-center gap-2 sm:gap-3 min-w-0 flex-1 max-w-full overflow-hidden">
               <div
-                class="category-icon"
+                class="category-icon w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex-shrink-0"
                 [style.background-color]="getCategoryColor(template.eventCategory)">
-                <i class="fas" [ngClass]="getCategoryIcon(template.eventCategory)"></i>
+                <i class="fas text-xs sm:text-sm md:text-base" [ngClass]="getCategoryIcon(template.eventCategory)"></i>
               </div>
-              <div class="event-details">
-                <h3>{{ template.eventName }}</h3>
-                <span class="event-key">{{ template.eventKey }}</span>
+              <div class="event-details min-w-0 flex-1 max-w-full overflow-hidden">
+                <h3 class="text-sm sm:text-base md:text-lg font-semibold truncate w-full">{{ template.eventName }}</h3>
+                <span class="event-key text-[10px] sm:text-xs md:text-sm truncate block w-full">{{ template.eventKey }}</span>
               </div>
             </div>
 
             <!-- Status Badge -->
-            <div class="status-section">
+            <div class="status-section flex-shrink-0 w-auto max-w-full">
               <span
-                class="status-badge"
+                class="status-badge px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs md:text-sm whitespace-nowrap"
                 [class.active]="template.isActive"
                 [class.inactive]="!template.isActive">
                 {{ template.isActive ? 'Active' : 'Inactive' }}
@@ -153,79 +156,80 @@
           </div>
 
           <!-- Card Body -->
-          <div class="card-body">
+          <div class="card-body space-y-2 sm:space-y-3 w-full overflow-hidden">
             <!-- Category Badge -->
             @if (template.eventCategory) {
-              <span class="category-badge">
-                <i class="fas" [ngClass]="getCategoryIcon(template.eventCategory)"></i>
-                {{ template.eventCategory }}
-              </span>
+              <div class="category-badge px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs md:text-sm inline-flex items-center gap-1 sm:gap-2 max-w-full overflow-hidden">
+                <i class="fas text-[9px] sm:text-[10px] md:text-xs flex-shrink-0" [ngClass]="getCategoryIcon(template.eventCategory)"></i>
+                <span class="truncate">{{ template.eventCategory }}</span>
+              </div>
             }
 
             <!-- Description Preview -->
             @if (template.eventDescription) {
-              <p class="description">{{ template.eventDescription }}</p>
+              <p class="description text-xs sm:text-sm line-clamp-2">{{ template.eventDescription }}</p>
             }
 
             <!-- Channels -->
-            <div class="channels">
-              <span class="channels-label">Channels:</span>
-              <div class="channel-badges">
+            <div class="channels w-full overflow-hidden">
+              <span class="channels-label text-[10px] sm:text-xs md:text-sm font-medium">Channels:</span>
+              <div class="channel-badges flex flex-wrap gap-1 sm:gap-2 mt-1 sm:mt-1.5 w-full">
                 @for (channel of getEnabledChannels(template); track channel) {
                   <span
-                    class="channel-badge"
+                    class="channel-badge px-2 py-1 sm:px-2.5 sm:py-1 text-[9px] sm:text-[10px] md:text-xs inline-flex items-center gap-1 whitespace-nowrap flex-shrink-0"
                     [style.color]="getChannelColor(channel)">
-                    <i class="fas" [ngClass]="getChannelIcon(channel)"></i>
-                    {{ channel }}
+                    <i class="fas text-[8px] sm:text-[9px] md:text-[10px] flex-shrink-0" [ngClass]="getChannelIcon(channel)"></i>
+                    <span>{{ channel }}</span>
                   </span>
                 }
                 @if (getEnabledChannels(template).length === 0) {
-                  <span class="no-channels">No channels enabled</span>
+                  <span class="no-channels text-[10px] sm:text-xs">No channels enabled</span>
                 }
               </div>
             </div>
 
             <!-- Variables Info -->
             @if (template.availableVariables && template.availableVariables.length > 0) {
-              <div class="variables-info">
-                <i class="fas fa-code"></i>
-                {{ template.availableVariables.length }} variables available
+              <div class="variables-info flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs md:text-sm w-full overflow-hidden">
+                <i class="fas fa-code text-[9px] sm:text-[10px] md:text-xs flex-shrink-0"></i>
+                <span class="truncate">{{ template.availableVariables.length }} variables available</span>
               </div>
             }
           </div>
 
           <!-- Card Actions -->
-          <div class="card-actions">
+          <div class="card-actions flex flex-wrap gap-2 sm:gap-3 mt-3 sm:mt-4 w-full">
             <button
-              class="action-btn"
+              class="action-btn flex-1 sm:flex-initial px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm md:text-base min-w-0"
               (click)="editTemplate(template)"
               title="Edit Template">
-              <i class="fas fa-edit"></i>
-              Edit
+              <i class="fas fa-edit text-[10px] sm:text-xs md:text-sm flex-shrink-0"></i>
+              <span class="ml-1 sm:ml-2 truncate">Edit</span>
             </button>
 
             <button
-              class="action-btn"
+              class="action-btn flex-1 sm:flex-initial px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm md:text-base min-w-0"
               (click)="toggleStatus(template, $event)"
               [title]="template.isActive ? 'Deactivate' : 'Activate'">
-              <i class="fas" [ngClass]="template.isActive ? 'fa-pause' : 'fa-play'"></i>
-              {{ template.isActive ? 'Deactivate' : 'Activate' }}
+              <i class="fas text-[10px] sm:text-xs md:text-sm flex-shrink-0" [ngClass]="template.isActive ? 'fa-pause' : 'fa-play'"></i>
+              <span class="ml-1 sm:ml-2 hidden sm:inline truncate">{{ template.isActive ? 'Deactivate' : 'Activate' }}</span>
+              <span class="ml-1 sm:hidden">{{ template.isActive ? 'Off' : 'On' }}</span>
             </button>
 
             <button
-              class="action-btn reset"
+              class="action-btn reset w-full sm:w-auto px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm md:text-base min-w-0"
               (click)="resetTemplate(template, $event)"
               title="Reset to Default">
-              <i class="fas fa-undo"></i>
-              Reset
+              <i class="fas fa-undo text-[10px] sm:text-xs md:text-sm flex-shrink-0"></i>
+              <span class="ml-1 sm:ml-2 truncate">Reset</span>
             </button>
           </div>
         </div>
       } @empty {
-        <div class="empty-state">
-          <i class="fas fa-inbox fa-3x"></i>
-          <h3>No templates found</h3>
-          <p>Try adjusting your filters</p>
+        <div class="empty-state p-8 sm:p-12 md:p-16">
+          <i class="fas fa-inbox text-3xl sm:text-4xl md:text-5xl"></i>
+          <h3 class="text-base sm:text-lg md:text-xl font-semibold mt-3 sm:mt-4">No templates found</h3>
+          <p class="text-xs sm:text-sm md:text-base mt-1 sm:mt-2">Try adjusting your filters</p>
         </div>
       }
     </div>

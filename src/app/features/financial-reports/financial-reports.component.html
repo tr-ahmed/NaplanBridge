@@ -1,17 +1,17 @@
 <!-- Financial Reports Component -->
-<main class="px-4 sm:px-6 lg:px-8 py-8">
+<main class="px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
 
     <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">Financial Reports</h1>
-      <p class="text-gray-600 mt-1">Detailed transaction history with payment source breakdown</p>
+    <div class="mb-4 sm:mb-6 md:mb-8">
+      <h1 class="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 leading-tight break-words">Financial Reports</h1>
+      <p class="text-gray-600 text-xs sm:text-sm md:text-base mt-1 break-words">Detailed transaction history with payment source breakdown</p>
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
-      <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Filters</h2>
+    <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
+      <h2 class="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3 md:mb-4">Filters</h2>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
         <!-- Start Date -->
         <div>
           <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2">Start Date</label>
@@ -100,16 +100,16 @@
 
     <!-- Summary Cards -->
     @if (report()?.summary) {
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
         <!-- Total Revenue -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-600 text-sm mb-1">Total Revenue</p>
-              <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(report()!.summary.totalRevenue) }}</p>
+            <div class="min-w-0 flex-1">
+              <p class="text-gray-600 text-xs sm:text-sm mb-0.5 sm:mb-1 truncate">Total Revenue</p>
+              <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">{{ formatCurrency(report()!.summary.totalRevenue) }}</p>
             </div>
-            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 sm:p-2.5 md:p-3 rounded-full bg-purple-100 text-purple-600 flex-shrink-0 ml-2">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
@@ -117,15 +117,15 @@
         </div>
 
         <!-- Sessions Revenue -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-600 text-sm mb-1">Sessions Revenue</p>
-              <p class="text-3xl font-bold text-blue-600">{{ formatCurrency(report()!.summary.sessionsRevenue) }}</p>
-              <p class="text-sm text-gray-500 mt-1">{{ report()!.summary.totalSessions }} sessions</p>
+            <div class="min-w-0 flex-1">
+              <p class="text-gray-600 text-xs sm:text-sm mb-0.5 sm:mb-1 truncate">Sessions Revenue</p>
+              <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-blue-600">{{ formatCurrency(report()!.summary.sessionsRevenue) }}</p>
+              <p class="text-[10px] sm:text-xs md:text-sm text-gray-500 mt-0.5 sm:mt-1 truncate">{{ report()!.summary.totalSessions }} sessions</p>
             </div>
-            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 sm:p-2.5 md:p-3 rounded-full bg-blue-100 text-blue-600 flex-shrink-0 ml-2">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
               </svg>
             </div>
@@ -133,15 +133,15 @@
         </div>
 
         <!-- Subscriptions Revenue -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6">
           <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-600 text-sm mb-1">Subscriptions Revenue</p>
-              <p class="text-3xl font-bold text-green-600">{{ formatCurrency(report()!.summary.subscriptionsRevenue) }}</p>
-              <p class="text-sm text-gray-500 mt-1">{{ report()!.summary.totalSubscriptions }} subscriptions</p>
+            <div class="min-w-0 flex-1">
+              <p class="text-gray-600 text-xs sm:text-sm mb-0.5 sm:mb-1 truncate">Subscriptions Revenue</p>
+              <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-green-600">{{ formatCurrency(report()!.summary.subscriptionsRevenue) }}</p>
+              <p class="text-[10px] sm:text-xs md:text-sm text-gray-500 mt-0.5 sm:mt-1 truncate">{{ report()!.summary.totalSubscriptions }} subscriptions</p>
             </div>
-            <div class="p-3 rounded-full bg-green-100 text-green-600">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-2 sm:p-2.5 md:p-3 rounded-full bg-green-100 text-green-600 flex-shrink-0 ml-2">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
               </svg>
             </div>
@@ -159,95 +159,99 @@
     } @else if (report()?.transactions && report()!.transactions.length > 0) {
       <div class="bg-white rounded-lg shadow-sm overflow-hidden">
         <!-- Table Header -->
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h2 class="text-xl font-semibold text-gray-900">Transactions</h2>
-          <p class="text-sm text-gray-600 mt-1">
+        <div class="px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gray-50">
+          <h2 class="text-base sm:text-lg md:text-xl font-semibold text-gray-900">Transactions</h2>
+          <p class="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
             Showing {{ report()!.transactions.length }} of {{ report()!.pagination.totalItems }} transactions
           </p>
         </div>
 
         <!-- Table -->
-        <div class="overflow-x-auto">
-          <table class="w-full">
+        <div class="overflow-x-auto -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6">
+          <div class="inline-block min-w-full align-middle">
+          <table class="min-w-full">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Date</th>
+                <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Student</th>
+                <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Source</th>
+                <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Details</th>
+                <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-right text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Amount</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               @for (transaction of report()!.transactions; track $index) {
                 <tr class="hover:bg-gray-50">
                   <!-- Date -->
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap text-[10px] sm:text-xs md:text-sm text-gray-900">
                     {{ formatDate(transaction.date) }}
                   </td>
 
                   <!-- Student -->
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">{{ transaction.student.fullName }}</div>
-                    <div class="text-sm text-gray-500">{{ transaction.student.email }}</div>
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap">
+                    <div class="text-[10px] sm:text-xs md:text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">{{ transaction.student.fullName }}</div>
+                    <div class="text-[9px] sm:text-[10px] md:text-xs text-gray-500 truncate max-w-[120px] sm:max-w-none">{{ transaction.student.email }}</div>
                   </td>
 
                   <!-- Source -->
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span [class]="'px-2 py-1 text-xs font-semibold rounded-full ' + getSourceBadgeClass(transaction.paymentSource)">
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap">
+                    <span [class]="'px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-[10px] md:text-xs font-semibold rounded-full whitespace-nowrap ' + getSourceBadgeClass(transaction.paymentSource)">
                       {{ transaction.paymentSource }}
                     </span>
                   </td>
 
                   <!-- Details -->
-                  <td class="px-6 py-4">
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 md:py-4">
                     @if (transaction.paymentSource === 'Session' && transaction.sessionDetails) {
-                      <div class="text-sm">
-                        <div class="font-medium text-gray-900">{{ transaction.sessionDetails.subject }} - {{ transaction.sessionDetails.year }}</div>
-                        <div class="text-gray-500">Teacher: {{ transaction.sessionDetails.teacher.fullName }}</div>
-                        <div class="text-gray-400 text-xs">{{ formatDate(transaction.sessionDetails.sessionDate) }} ({{ transaction.sessionDetails.duration }} min)</div>
+                      <div class="text-[10px] sm:text-xs md:text-sm">
+                        <div class="font-medium text-gray-900 truncate max-w-[150px] sm:max-w-none">{{ transaction.sessionDetails.subject }} - {{ transaction.sessionDetails.year }}</div>
+                        <div class="text-gray-500 truncate max-w-[150px] sm:max-w-none">Teacher: {{ transaction.sessionDetails.teacher.fullName }}</div>
+                        <div class="text-gray-400 text-[9px] sm:text-[10px] md:text-xs truncate">{{ formatDate(transaction.sessionDetails.sessionDate) }} ({{ transaction.sessionDetails.duration }} min)</div>
                       </div>
                     }
                     @if (transaction.paymentSource === 'Subscription' && transaction.subscriptionDetails) {
-                      <div class="text-sm">
-                        <div class="font-medium text-gray-900">{{ transaction.subscriptionDetails.subject }} - {{ transaction.subscriptionDetails.year }}</div>
-                        <div class="text-gray-500">{{ transaction.subscriptionDetails.planName }}</div>
-                        <div class="text-gray-400 text-xs">Term {{ transaction.subscriptionDetails.termNumber }} • {{ transaction.subscriptionDetails.planType }}</div>
+                      <div class="text-[10px] sm:text-xs md:text-sm">
+                        <div class="font-medium text-gray-900 truncate max-w-[150px] sm:max-w-none">{{ transaction.subscriptionDetails.subject }} - {{ transaction.subscriptionDetails.year }}</div>
+                        <div class="text-gray-500 truncate max-w-[150px] sm:max-w-none">{{ transaction.subscriptionDetails.planName }}</div>
+                        <div class="text-gray-400 text-[9px] sm:text-[10px] md:text-xs truncate">Term {{ transaction.subscriptionDetails.termNumber }} • {{ transaction.subscriptionDetails.planType }}</div>
                       </div>
                     }
                   </td>
 
                   <!-- Amount -->
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap text-right text-[10px] sm:text-xs md:text-sm font-medium text-gray-900">
                     {{ formatCurrency(transaction.amount) }}
                   </td>
                 </tr>
               }
             </tbody>
           </table>
+          </div>
         </div>
 
         <!-- Pagination -->
         @if (report()?.pagination) {
-          <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-            <div class="text-sm text-gray-700">
-              Showing page {{ report()!.pagination.currentPage }} of {{ report()!.pagination.totalPages }}
+          <div class="px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3">
+            <div class="text-xs sm:text-sm text-gray-700">
+              <span class="hidden sm:inline">Showing page </span><span class="font-semibold">{{ report()!.pagination.currentPage }}</span><span class="hidden sm:inline"> of </span><span class="sm:hidden">/</span><span class="font-semibold">{{ report()!.pagination.totalPages }}</span>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex gap-1 sm:gap-2">
               <!-- Previous Button -->
               <button
                 (click)="changePage(report()!.pagination.currentPage - 1)"
                 [disabled]="report()!.pagination.currentPage === 1"
-                class="px-3 py-1 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-2 sm:px-3 py-1 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Previous
+                <span class="hidden sm:inline">Previous</span>
+                <span class="sm:hidden"><i class="fas fa-chevron-left"></i></span>
               </button>
 
               <!-- Page Numbers -->
+              <div class="hidden md:flex gap-1">
               @for (page of getPageNumbers(); track page) {
                 @if (page === -1) {
-                  <span class="px-3 py-1 text-gray-500">...</span>
+                  <span class="px-2 sm:px-3 py-1 text-gray-500 text-xs sm:text-sm">...</span>
                 } @else {
                   <button
                     (click)="changePage(page)"
@@ -255,20 +259,22 @@
                     [class.text-white]="page === report()!.pagination.currentPage"
                     [class.border-gray-300]="page !== report()!.pagination.currentPage"
                     [class.text-gray-700]="page !== report()!.pagination.currentPage"
-                    class="px-3 py-1 border rounded-lg text-sm font-medium hover:bg-gray-100"
+                    class="px-2 sm:px-3 py-1 border rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-100"
                   >
                     {{ page }}
                   </button>
                 }
               }
+              </div>
 
               <!-- Next Button -->
               <button
                 (click)="changePage(report()!.pagination.currentPage + 1)"
                 [disabled]="report()!.pagination.currentPage === report()!.pagination.totalPages"
-                class="px-3 py-1 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-2 sm:px-3 py-1 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
+                <span class="hidden sm:inline">Next</span>
+                <span class="sm:hidden"><i class="fas fa-chevron-right"></i></span>
               </button>
             </div>
           </div>

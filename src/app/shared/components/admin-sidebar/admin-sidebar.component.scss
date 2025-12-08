@@ -5,9 +5,11 @@
   width: 280px;
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 40;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  max-width: 100vw;
 
   &.collapsed {
     width: 80px;
@@ -49,6 +51,8 @@
   text-decoration: none;
   margin: 0 12px 6px;
   border-radius: 12px;
+  white-space: nowrap;
+  overflow: hidden;
 
   &:hover {
     background: rgba(255, 255, 255, 0.12) !important;
@@ -67,9 +71,199 @@
     min-width: 24px;
     text-align: center;
     font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.sidebar-logo {
+  overflow: hidden;
+  white-space: nowrap;
+
+  img {
+    flex-shrink: 0;
+  }
+
+  .fw-bold {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.sidebar-profile {
+  overflow: hidden;
+
+  img {
+    flex-shrink: 0;
+  }
+
+  .fw-semibold,
+  small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
 .cursor-pointer {
   cursor: pointer;
 }
+
+// ============================================
+// RESPONSIVE DESIGN
+// ============================================
+
+// Large tablets (< 1280px)
+@media (max-width: 1279px) {
+  .sidebar {
+    .nav-link {
+      font-size: 0.9375rem;
+      padding: 0.75rem 1rem;
+    }
+  }
+}
+
+// Tablets and below (< 1024px)
+@media (max-width: 1023px) {
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+
+    &.show,
+    &.translate-x-0 {
+      transform: translateX(0);
+    }
+
+    &.-translate-x-full {
+      transform: translateX(-100%);
+    }
+  }
+}
+
+// Medium tablets (< 768px)
+@media (max-width: 768px) {
+  .sidebar {
+    width: 280px;
+
+    .sidebar-logo {
+      padding: 1.25rem 1rem;
+
+      img {
+        width: 2.75rem;
+        height: 2.75rem;
+      }
+    }
+
+    .nav-link {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      margin: 0 10px 5px;
+    }
+  }
+}
+
+// Mobile devices (< 640px)
+@media (max-width: 640px) {
+  .sidebar {
+    width: 100%;
+    max-width: 280px;
+    border-radius: 0;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+
+    .sidebar-logo {
+      padding: 1rem 0.75rem;
+
+      img {
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+
+      .fw-bold {
+        font-size: 1rem;
+      }
+    }
+
+    .nav-link {
+      padding: 0.625rem 1rem;
+      font-size: 0.875rem;
+      margin: 0 8px 4px;
+
+      i {
+        font-size: 1rem;
+        min-width: 20px;
+      }
+    }
+
+    .px-4 {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+
+      small {
+        font-size: 0.7rem;
+      }
+    }
+
+    .sidebar-profile {
+      padding: 0.75rem 1rem;
+
+      img {
+        width: 40px !important;
+        height: 40px !important;
+      }
+
+      .fw-semibold {
+        font-size: 0.875rem;
+      }
+
+      small {
+        font-size: 0.75rem;
+      }
+    }
+  }
+}
+
+// Extra small devices (< 380px)
+@media (max-width: 380px) {
+  .sidebar {
+    width: 100%;
+    max-width: 260px;
+
+    .sidebar-logo {
+      padding: 0.75rem 0.5rem;
+
+      img {
+        width: 2rem;
+        height: 2rem;
+      }
+
+      .fw-bold {
+        font-size: 0.875rem;
+      }
+    }
+
+    .nav-link {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8125rem;
+
+      i {
+        font-size: 0.875rem;
+      }
+    }
+
+    .sidebar-profile {
+      padding: 0.5rem 0.75rem;
+
+      img {
+        width: 36px !important;
+        height: 36px !important;
+      }
+    }
+  }
+}
+
