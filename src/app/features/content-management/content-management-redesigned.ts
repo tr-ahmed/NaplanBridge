@@ -58,7 +58,7 @@ type EntityType = 'year' | 'subjectName' | 'subject' | 'term' | 'week' | 'lesson
     PreviewModalComponent
   ],
   templateUrl: './content-management-redesigned.html',
-  styleUrls: ['./content-management-redesigned.scss'],
+  styleUrls: ['./content-management-redesigned.scss', './responsive-fixes.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class ContentManagementComponent implements OnInit, OnDestroy {

@@ -3,24 +3,24 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- Header -->
-    <div class="mb-8">
-      <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 rounded-2xl shadow-2xl p-8 text-white relative overflow-hidden">
+    <div class="mb-6 sm:mb-8">
+      <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 text-white relative overflow-hidden">
         <!-- Decorative Elements -->
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
-        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
+        <div class="absolute top-0 right-0 w-32 sm:w-64 h-32 sm:h-64 bg-white opacity-5 rounded-full -mr-16 sm:-mr-32 -mt-16 sm:-mt-32"></div>
+        <div class="absolute bottom-0 left-0 w-24 sm:w-48 h-24 sm:h-48 bg-white opacity-5 rounded-full -ml-12 sm:-ml-24 -mb-12 sm:-mb-24"></div>
 
         <div class="relative z-10">
-          <div class="flex items-center justify-between flex-col sm:flex-row gap-4">
-            <div class="flex-1">
-              <h1 class="text-4xl font-bold mb-2 flex items-center gap-3">
-                <span class="text-5xl">👨‍👩‍👧‍👦</span>
-                Welcome {{ parentUsername() }}!
+          <div class="flex items-center justify-between flex-col sm:flex-row gap-3 sm:gap-4">
+            <div class="flex-1 w-full sm:w-auto">
+              <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 flex items-center gap-2 sm:gap-3">
+                <span class="text-3xl sm:text-4xl lg:text-5xl">👨‍👩‍👧‍👦</span>
+                <span class="truncate">Welcome {{ parentUsername() }}!</span>
               </h1>
-              <p class="text-indigo-100 text-lg mb-4">Monitor and manage your children's learning progress</p>
+              <p class="text-indigo-100 text-sm sm:text-base lg:text-lg">Monitor and manage your children's learning progress</p>
             </div>
             <button
               (click)="refreshDashboard()"
-              class="px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-xl hover:bg-white/30 flex items-center gap-3 text-base font-semibold transition-all duration-300 border border-white/30 hover:scale-105">
+              class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg sm:rounded-xl hover:bg-white/30 flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base font-semibold transition-all duration-300 border border-white/30 hover:scale-105 flex-shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
@@ -32,19 +32,19 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="mb-8 flex gap-2 sm:gap-3">
+    <div class="mb-6 sm:mb-8 flex flex-wrap gap-2 sm:gap-3">
       <button
         routerLink="/profile"
-        class="px-4 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 flex items-center gap-2 hover:shadow-lg font-semibold border border-gray-200">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        class="px-3 sm:px-4 py-2 sm:py-3 bg-white text-gray-700 rounded-lg sm:rounded-xl hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg font-semibold border border-gray-200 text-sm sm:text-base flex-shrink-0">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
         </svg>
-        <span class="hidden sm:inline text-sm">Settings</span>
+        <span class="hidden sm:inline">Settings</span>
       </button>
       <button
         (click)="addNewChild()"
-        class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-xl transition-all duration-300 flex items-center gap-2 hover:shadow-lg hover:-translate-y-1 font-semibold">
+        class="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:-translate-y-1 font-semibold text-sm sm:text-base flex-shrink-0">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -65,21 +65,21 @@
     <!-- Dashboard Content -->
     @if (!loading()) {
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 items-stretch">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 items-stretch">
         <!-- Total Children -->
-        <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
+          <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
           <div class="relative z-10 flex flex-col h-full">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                 </svg>
               </div>
-              <span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-3 py-1 rounded-full">Family</span>
+              <span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 sm:px-3 py-1 rounded-full">Family</span>
             </div>
-            <p class="text-4xl font-bold text-gray-900 mb-2">{{ dashboardData().children.length }}</p>
-            <p class="text-sm text-gray-600 font-medium">Total Children</p>
+            <p class="text-3xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{{ dashboardData().children.length }}</p>
+            <p class="text-xs sm:text-sm text-gray-600 font-medium">Total Children</p>
             <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-auto">
               <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all" style="width: 100%"></div>
             </div>
@@ -87,12 +87,12 @@
         </div>
 
         <!-- Active Subscriptions -->
-        <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
+          <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
           <div class="relative z-10 flex flex-col h-full">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                 </svg>
               </div>
@@ -107,12 +107,12 @@
         </div>
 
         <!-- Monthly Spending -->
-        <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-100 to-purple-50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
+          <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-purple-100 to-purple-50 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
           <div class="relative z-10 flex flex-col h-full">
-            <div class="flex items-center justify-between mb-4">
-              <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
               </div>
@@ -132,11 +132,11 @@
 
       <!-- Alerts Section -->
       @if (dashboardData().alerts.length > 0) {
-        <div class="mb-8 space-y-4">
+        <div class="mb-6 sm:mb-8 space-y-3 sm:space-y-4">
           @for (alert of dashboardData().alerts; track alert.message) {
-            <div [class]="'rounded-xl border-2 p-4 flex items-start justify-between bg-white shadow-lg hover:shadow-xl transition-all duration-300 ' + getAlertClass(alert.type)">
-              <div class="flex items-start gap-3">
-                <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl" [ngClass]="{
+            <div [class]="'rounded-lg sm:rounded-xl border-2 p-3 sm:p-4 flex flex-col sm:flex-row items-start gap-3 sm:justify-between bg-white shadow-lg hover:shadow-xl transition-all duration-300 ' + getAlertClass(alert.type)">
+              <div class="flex items-start gap-2 sm:gap-3 flex-1">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 flex items-center justify-center rounded-lg sm:rounded-xl" [ngClass]="{
                   'bg-yellow-100': alert.type === 'warning',
                   'bg-red-100': alert.type === 'danger',
                   'bg-blue-100': alert.type === 'info',
@@ -165,7 +165,7 @@
               @if (alert.actionUrl) {
                 <a
                   [routerLink]="alert.actionUrl"
-                  class="text-sm font-semibold hover:underline whitespace-nowrap ml-4 text-blue-600 hover:text-blue-700 transition-colors">
+                  class="text-xs sm:text-sm font-semibold hover:underline whitespace-nowrap text-blue-600 hover:text-blue-700 transition-colors flex-shrink-0 self-start sm:self-auto">
                   {{ alert.actionText || 'View' }} →
                 </a>
               }
@@ -175,31 +175,30 @@
       }
 
       <!-- Children Grid -->
-<div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
   @for (child of dashboardData().children; track child.id) {
-    <!-- ✅ أضفت: h-full flex flex-col -->
-    <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden hover:-translate-y-1 h-full flex flex-col">
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden hover:-translate-y-1 h-full flex flex-col">
 
       <!-- Card Header -->
-      <div class="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 text-white relative overflow-hidden flex-shrink-0">
+      <div class="bg-gradient-to-r from-indigo-600 to-blue-600 p-4 sm:p-6 text-white relative overflow-hidden flex-shrink-0">
         <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-        <div class="flex items-center gap-4 relative z-10">
-          <div class="relative">
+        <div class="flex items-center gap-3 sm:gap-4 relative z-10">
+          <div class="relative flex-shrink-0">
             <img
               [src]="child.avatar"
               [alt]="child.name"
-              class="w-16 h-16 rounded-full border-4 border-white shadow-lg"
+              class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 sm:border-4 border-white shadow-lg"
               onerror="this.src='assets/images/default-avatar.png'">
           </div>
-          <div>
-            <h3 class="text-xl font-bold">{{ child.name }}</h3>
-            <p class="text-blue-100 text-sm">{{ child.grade }}</p>
+          <div class="min-w-0 flex-1">
+            <h3 class="text-lg sm:text-xl font-bold truncate">{{ child.name }}</h3>
+            <p class="text-blue-100 text-xs sm:text-sm truncate">{{ child.grade }}</p>
           </div>
         </div>
       </div>
 
       <!-- Card Body -->
-      <div class="p-6 flex-1 flex flex-col space-y-4">
+      <div class="p-4 sm:p-6 flex-1 flex flex-col space-y-3 sm:space-y-4">
 
         <!-- Overall Progress -->
         <!-- ✅ أضفت: flex-shrink-0 -->
@@ -223,11 +222,10 @@
         </div>
 
         <!-- Subscriptions Section -->
-        <!-- ✅ أضفت: flex-shrink-0 -->
-        <div class="mb-6 flex-shrink-0">
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex-shrink-0">
+          <div class="flex items-center justify-between mb-2 sm:mb-3">
+            <h4 class="text-xs sm:text-sm font-semibold text-gray-900 flex items-center gap-1 sm:gap-2">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
               </svg>
               <span>Subscriptions</span>
@@ -313,17 +311,16 @@
         <div class="flex-1"></div>
 
         <!-- Actions -->
-        <!-- ✅ أضفت: flex-shrink-0 وشلت mb-6 من Recent Activity عشان Actions تبقى ملصقة تحت -->
-        <div class="flex gap-2 flex-shrink-0 pt-4 border-t border-gray-100">
+        <div class="flex gap-2 flex-shrink-0 pt-3 sm:pt-4 border-t border-gray-100">
           <button
             (click)="viewChildDashboard(child.id)"
-            class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 text-sm font-semibold hover:shadow-lg hover:-translate-y-1">
+            class="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg sm:rounded-xl transition-all duration-300 text-xs sm:text-sm font-semibold hover:shadow-lg hover:-translate-y-1 whitespace-nowrap">
             View Details
           </button>
           <button
             (click)="selectChild(child)"
-            class="px-4 py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-all duration-300 text-sm hover:-translate-y-1">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="px-3 sm:px-4 py-2 sm:py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-xs sm:text-sm hover:-translate-y-1 flex-shrink-0">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
@@ -357,7 +354,7 @@
       }
 
       <!-- Quick Actions -->
-      <div class="mt-8 group bg-white rounded-2xl shadow-lg hover:shadow-2xl p-6 relative overflow-hidden transform hover:-translate-y-1 border-2 border-gray-100">
+      <div class="mt-6 sm:mt-8 group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-1 border-2 border-gray-100">
         <!-- Decorative Elements -->
         <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-100 to-blue-50 opacity-40 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-cyan-100 to-purple-50 opacity-40 rounded-full -ml-12 -mb-12 group-hover:scale-125 transition-transform duration-500"></div>
@@ -368,72 +365,72 @@
           </svg>
           <span class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">Quick Actions</span>
         </h2>
-        <div class="relative z-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           <button
             (click)="viewSubscriptionPlans()"
-            class="p-4 border-2 border-blue-600 bg-white rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1">
-            <div class="w-12 h-12 mx-auto mb-2 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
               </svg>
             </div>
-            <p class="text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">Browse Plans</p>
+            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">Browse Plans</p>
           </button>
 
           <button
             (click)="manageSubscriptions()"
-            class="p-4 border-2 border-blue-600 bg-white rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1">
-            <div class="w-12 h-12 mx-auto mb-2 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
               </svg>
             </div>
-            <p class="text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">Manage Subs</p>
+            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">Manage Subs</p>
           </button>
 
           <button
             (click)="addNewChild()"
-            class="p-4 border-2 border-blue-600 bg-white rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1">
-            <div class="w-12 h-12 mx-auto mb-2 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
               </svg>
             </div>
-            <p class="text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">Add Child</p>
+            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">Add Child</p>
           </button>
 
           <a
             routerLink="/cart"
-            class="p-4 border-2 border-blue-600 bg-white rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 block">
-            <div class="w-12 h-12 mx-auto mb-2 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
               </svg>
             </div>
-            <p class="text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">View Cart</p>
+            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">View Cart</p>
           </a>
 
           <a
             routerLink="/sessions/browse"
-            class="p-4 border-2 border-emerald-600 bg-white rounded-xl hover:bg-emerald-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 block">
-            <div class="w-12 h-12 mx-auto mb-2 bg-emerald-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="p-3 sm:p-4 border-2 border-emerald-600 bg-white rounded-lg sm:rounded-xl hover:bg-emerald-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-emerald-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
             </div>
-            <p class="text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors">Book Session</p>
+            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors px-1 leading-tight">Book Session</p>
           </a>
 
           <a
             routerLink="/sessions/my-bookings"
-            class="p-4 border-2 border-blue-600 bg-white rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 block">
-            <div class="w-12 h-12 mx-auto mb-2 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
               </svg>
             </div>
-            <p class="text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">My Bookings</p>
+            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">My Bookings</p>
           </a>
         </div>
       </div>
