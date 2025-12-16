@@ -380,6 +380,11 @@ export class ParentPackageSelectionComponent implements OnInit {
     return this.availableSubjects.filter(s => this.selectedSubjectNames.includes(s.name));
   }
 
+  // Back-compat getter used by older templates expecting numeric IDs
+  get selectedSubjectIds(): number[] {
+    return this.getSelectedSubjects().map(s => s.id);
+  }
+
   getSelectedStudents(): ChildDto[] {
     return this.availableStudents.filter(s => this.selectedStudentIds.includes(s.id));
   }

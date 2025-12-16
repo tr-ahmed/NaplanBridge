@@ -2,7 +2,7 @@
 @use './app/shared/styles/admin-layout.scss';
 
 /* Import global responsive utilities */
-@import './styles/responsive-global.scss';
+@use './styles/responsive-global.scss';
 
 /* Hero Section Interactive Animations */
 .hero-image {
