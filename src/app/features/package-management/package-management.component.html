@@ -1,0 +1,328 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800">📦 Package Management</h1>
+          <p class="text-gray-600 mt-1">Smart Package Pricing System - Manage all subscription packages</p>
+        </div>
+        <button
+          (click)="openGenerateModal()"
+          class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-semibold transition-colors shadow-md hover:shadow-lg flex items-center gap-2"
+        >
+          <span>✨</span>
+          <span>Generate Packages</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- View Tabs -->
+    <div class="bg-white rounded-2xl shadow-lg mb-6">
+      <div class="border-b border-gray-200">
+        <div class="flex gap-2 p-2">
+          <button
+            (click)="switchTab('oneToOne')"
+            [class]="currentTab === 'oneToOne'
+              ? 'bg-primary text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="flex-1 py-3 px-6 rounded-xl font-semibold transition-all"
+          >
+            👤 One-to-One Packages
+          </button>
+          <button
+            (click)="switchTab('group')"
+            [class]="currentTab === 'group'
+              ? 'bg-accent text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="flex-1 py-3 px-6 rounded-xl font-semibold transition-all"
+          >
+            👥 Group Tutoring Packages
+          </button>
+        </div>
+      </div>
+
+      <!-- Bulk Edit Controls -->
+      <div class="p-4 bg-gray-50 border-b border-gray-200" *ngIf="bulkEditMode">
+        <div class="flex flex-wrap items-center gap-4">
+          <span class="text-sm font-semibold text-gray-700">
+            Selected: {{ selectedPackages.size }} packages
+          </span>
+          <input
+            type="number"
+            [(ngModel)]="bulkEditPrice"
+            placeholder="Enter price..."
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+          <button
+            (click)="applyBulkUpdate()"
+            [disabled]="selectedPackages.size === 0 || bulkEditPrice === null"
+            class="bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+          >
+            ✅ Apply to Selected
+          </button>
+          <button
+            (click)="toggleBulkEdit()"
+            class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+          >
+            ❌ Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="p-4 bg-gray-50 border-b border-gray-200" *ngIf="!bulkEditMode">
+        <div class="flex flex-wrap gap-3 items-center">
+          <button
+            (click)="toggleBulkEdit()"
+            class="bg-accent hover:bg-accent/90 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2"
+          >
+            <span>📝</span>
+            <span>Bulk Edit</span>
+          </button>
+          <button
+            (click)="loadMatrixData()"
+            class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2"
+          >
+            <span>🔄</span>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="p-12 text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+        <p class="mt-4 text-gray-600 font-semibold">Loading packages...</p>
+      </div>
+
+      <!-- One-to-One Matrix -->
+      <div *ngIf="!loading && currentTab === 'oneToOne' && oneToOneMatrix" class="p-6">
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-primary text-white">
+                <th class="px-4 py-3 text-left font-semibold rounded-tl-lg" *ngIf="bulkEditMode">
+                  <input type="checkbox" class="w-5 h-5" />
+                </th>
+                <th class="px-4 py-3 text-left font-semibold" [class.rounded-tl-lg]="!bulkEditMode">Package / Subjects</th>
+                <th class="px-4 py-3 text-center font-semibold" *ngFor="let count of getStudentCounts(oneToOneMatrix)">
+                  {{ count }} Student{{ count > 1 ? 's' : '' }}
+                </th>
+                <th class="px-4 py-3 text-center font-semibold rounded-tr-lg">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let row of oneToOneMatrix.rows; trackBy: trackByPackageId"
+                class="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                [class.bg-blue-50]="selectedPackages.has(row.packageId)"
+              >
+                <td class="px-4 py-3" *ngIf="bulkEditMode">
+                  <input
+                    type="checkbox"
+                    [checked]="selectedPackages.has(row.packageId)"
+                    (change)="togglePackageSelection(row.packageId)"
+                    class="w-5 h-5"
+                  />
+                </td>
+                <td class="px-4 py-3 font-semibold text-gray-700">
+                  {{ row.packageName }}
+                </td>
+                <td
+                  *ngFor="let count of getStudentCounts(oneToOneMatrix)"
+                  class="px-4 py-3 text-center"
+                >
+                  <input
+                    type="number"
+                    [value]="getPrice(row, count)"
+                    (blur)="updatePrice(row.packageId, $any($event.target).value, count)"
+                    placeholder="--"
+                    class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-primary focus:border-transparent"
+                    [disabled]="bulkEditMode"
+                  />
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <button
+                    (click)="deletePackage(row.packageId)"
+                    class="text-red-600 hover:text-red-800 font-semibold"
+                    title="Delete package"
+                    [disabled]="bulkEditMode"
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="oneToOneMatrix.rows.length === 0" class="text-center py-12">
+            <p class="text-gray-500 text-lg">No packages found. Generate packages to get started!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group Tutoring Matrix -->
+      <div *ngIf="!loading && currentTab === 'group' && groupMatrix" class="p-6">
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-accent text-white">
+                <th class="px-4 py-3 text-left font-semibold rounded-tl-lg" *ngIf="bulkEditMode">
+                  <input type="checkbox" class="w-5 h-5" />
+                </th>
+                <th class="px-4 py-3 text-left font-semibold" [class.rounded-tl-lg]="!bulkEditMode">Package / Subjects</th>
+                <th class="px-4 py-3 text-center font-semibold" *ngFor="let count of getStudentCounts(groupMatrix)">
+                  {{ count }} Student{{ count > 1 ? 's' : '' }}
+                </th>
+                <th class="px-4 py-3 text-center font-semibold rounded-tr-lg">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let row of groupMatrix.rows; trackBy: trackByPackageId"
+                class="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                [class.bg-yellow-50]="selectedPackages.has(row.packageId)"
+              >
+                <td class="px-4 py-3" *ngIf="bulkEditMode">
+                  <input
+                    type="checkbox"
+                    [checked]="selectedPackages.has(row.packageId)"
+                    (change)="togglePackageSelection(row.packageId)"
+                    class="w-5 h-5"
+                  />
+                </td>
+                <td class="px-4 py-3 font-semibold text-gray-700">
+                  {{ row.packageName }}
+                </td>
+                <td
+                  *ngFor="let count of getStudentCounts(groupMatrix)"
+                  class="px-4 py-3 text-center"
+                >
+                  <input
+                    type="number"
+                    [value]="getPrice(row, count)"
+                    (blur)="updatePrice(row.packageId, $any($event.target).value, count)"
+                    placeholder="--"
+                    class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-accent focus:border-transparent"
+                    [disabled]="bulkEditMode"
+                  />
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <button
+                    (click)="deletePackage(row.packageId)"
+                    class="text-red-600 hover:text-red-800 font-semibold"
+                    title="Delete package"
+                    [disabled]="bulkEditMode"
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="groupMatrix.rows.length === 0" class="text-center py-12">
+            <p class="text-gray-500 text-lg">No packages found. Generate packages to get started!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generate Packages Modal -->
+    <div
+      *ngIf="showGenerateModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      (click)="closeGenerateModal()"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8"
+        (click)="$event.stopPropagation()"
+      >
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">✨ Generate Package Mixes</h2>
+
+        <form [formGroup]="generateForm" (ngSubmit)="generatePackages()">
+          <!-- Year Selection -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Academic Year</label>
+            <input
+              type="number"
+              formControlName="yearId"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+          </div>
+
+          <!-- Teaching Types -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-3">Teaching Types</label>
+            <div class="space-y-2">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" formControlName="includeOneToOne" class="w-5 h-5" />
+                <span class="text-gray-700">One-to-One</span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" formControlName="includeGroupTutoring" class="w-5 h-5" />
+                <span class="text-gray-700">Group Tutoring</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Student Count Range -->
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Min Students</label>
+              <input
+                type="number"
+                formControlName="minStudents"
+                min="1"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Max Students</label>
+              <input
+                type="number"
+                formControlName="maxStudents"
+                min="1"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <!-- Max Subjects -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Max Subjects Per Package</label>
+            <input
+              type="number"
+              formControlName="maxSubjectsPerPackage"
+              min="1"
+              max="10"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+            <p class="text-sm text-gray-500 mt-2">System will generate all combinations up to this number</p>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-4 justify-end">
+            <button
+              type="button"
+              (click)="closeGenerateModal()"
+              class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-semibold transition-colors"
+              [disabled]="generating"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl font-semibold transition-colors disabled:bg-gray-300 flex items-center gap-2"
+              [disabled]="generateForm.invalid || generating"
+            >
+              <span *ngIf="generating" class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></span>
+              <span>{{ generating ? 'Generating...' : '🚀 Generate Packages' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

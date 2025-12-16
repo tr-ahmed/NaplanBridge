@@ -38,6 +38,7 @@ export class PaymentSuccessComponent implements OnInit {
   orderId = signal<number | null>(null);
   loading = signal<boolean>(true);
   orderDetails = signal<any>(null);
+  private pendingOrder: { orderId: number; orderNumber?: string; amount?: number } | null = null;
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -45,10 +46,26 @@ export class PaymentSuccessComponent implements OnInit {
       const sessionId = params['session_id']; // From Stripe redirect
       const paymentType = params['type']; // 'session-booking' or undefined (default: cart)
 
+      // If coming from package checkout, we may have stored order info locally
+      const pendingOrderRaw = localStorage.getItem('pendingOrder');
+      if (pendingOrderRaw) {
+        try {
+          this.pendingOrder = JSON.parse(pendingOrderRaw);
+        } catch {
+          this.pendingOrder = null;
+        }
+      }
+
       if (orderId) {
         this.orderId.set(+orderId);
         this.loadOrderDetails(+orderId);
       } else if (sessionId) {
+        // If we have pending order, use it as a display fallback
+        if (!this.orderId() && this.pendingOrder?.orderId) {
+          this.orderId.set(this.pendingOrder.orderId);
+          this.loadOrderDetails(this.pendingOrder.orderId);
+        }
+
         // ✅ Route to correct payment handler based on type
         if (paymentType === 'session-booking') {
           console.log('🎓 Processing Session Booking payment');
@@ -67,17 +84,37 @@ export class PaymentSuccessComponent implements OnInit {
    * Load order details
    */
   private loadOrderDetails(orderId: number): void {
-    // Mock order details
-    const mockOrder: any = {
-      id: orderId,
-      total: 99.99,
-      items: [],
-      status: 'Completed',
-      createdAt: new Date()
-    };
+    this.loading.set(true);
+    this.paymentService.getOrderById(orderId).subscribe({
+      next: (order) => {
+        this.orderDetails.set({
+          id: order.id,
+          totalAmount: order.finalAmount ?? order.totalAmount,
+          items: (order.items ?? []).map(i => ({
+            id: i.id,
+            planName: i.subscriptionPlanName,
+            studentName: `Student #${i.studentId}`,
+            price: i.totalPrice ?? i.unitPrice
+          }))
+        });
 
-    this.orderDetails.set(mockOrder);
-    this.loading.set(false);
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('❌ Failed to load order details:', error);
+
+        // Fallback to pending order if available
+        if (this.pendingOrder) {
+          this.orderDetails.set({
+            id: this.pendingOrder.orderId,
+            totalAmount: this.pendingOrder.amount,
+            items: []
+          });
+        }
+
+        this.loading.set(false);
+      }
+    });
   }
 
   /**

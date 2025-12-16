@@ -170,6 +170,11 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
   },
   {
+    path: 'parent/packages',
+    loadComponent: () => import('./features/parent-package-selection/parent-package-selection.component').then(m => m.ParentPackageSelectionComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+  },
+  {
     path: 'parent/invoice/:orderId',
     loadComponent: () => import('./features/invoice/invoice.component').then(m => m.InvoiceComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
@@ -293,6 +298,12 @@ export const routes: Routes = [
   {
     path: 'admin/subscriptions',
     loadComponent: () => import('./features/subscriptions/subscriptions.component').then(m => m.SubscriptionsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
+    path: 'admin/packages',
+    loadComponent: () => import('./features/package-management/package-management.component').then(m => m.PackageManagementComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
     data: { hideHeader: true, hideFooter: true }
   },
