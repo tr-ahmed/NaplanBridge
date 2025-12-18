@@ -761,9 +761,12 @@
               </option>
               @for (subject of filteredSubjects; track subject.id) {
                 <option [ngValue]="subject.id">
-                  {{ subject.subjectName || subject.name }}
-                  @if (subject.yearId) {
+                  {{ getSubjectDisplayName(subject) }}
+                  @if (subject.yearId && !subject.isGlobal) {
                     <span class="text-gray-500"> - {{ getYearName(subject.yearId) }}</span>
+                  }
+                  @if (subject.isGlobal) {
+                    <span class="text-purple-600"> (All Years)</span>
                   }
                 </option>
               }

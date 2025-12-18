@@ -40,6 +40,16 @@
       <span>Content Management</span>
     </a>
 
+    <!-- Subject Names Management -->
+    <a routerLink="/admin/subject-names"
+      routerLinkActive="active"
+      (click)="closeSidebar()"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-layer-group"></i>
+      <span>Subject Names & Global</span>
+    </a>
+
     <!-- Exams Management -->
     <a routerLink="/admin/exams"
       routerLinkActive="active"

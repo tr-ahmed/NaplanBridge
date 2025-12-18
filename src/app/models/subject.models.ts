@@ -16,6 +16,9 @@ export interface Subject {
   categoryName: string;
   categoryDescription?: string;
 
+  // Global subject flag (available to all years)
+  isGlobal?: boolean;
+
   // Pricing
   price: number;
   originalPrice: number;
@@ -95,4 +98,28 @@ export interface SubjectEnrollment {
   totalStudents: number;
   activeSubscriptions: number;
   revenueGenerated: number;
+}
+
+// ============================================
+// Subject Names
+// ============================================
+
+export interface SubjectName {
+  id: number;
+  name: string;
+  categoryId: number;
+  categoryName: string;
+  isGlobal: boolean;
+}
+
+export interface CreateSubjectNameDto {
+  name: string;
+  categoryId: number;
+  isGlobal: boolean;
+}
+
+export interface UpdateSubjectNameDto {
+  name?: string;
+  categoryId?: number;
+  isGlobal?: boolean;
 }

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { PackagePricingService } from '../../core/services/package-pricing.service';
 import { UserService, ChildDto } from '../../core/services/user.service';
 import { ContentService, Year } from '../../core/services/content.service';
+import { SubjectUtilsService } from '../../core/services/subject-utils.service';
 import { AcademicTermsService, AcademicTermResponse } from '../../core/services/academic-terms.service';
 import {
   TeachingType,
@@ -69,7 +70,8 @@ export class ParentPackageSelectionComponent implements OnInit {
     private userService: UserService,
     private contentService: ContentService,
     private academicTermsService: AcademicTermsService,
-    private router: Router
+    private router: Router,
+    public subjectUtils: SubjectUtilsService
   ) {}
 
   ngOnInit(): void {

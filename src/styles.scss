@@ -154,3 +154,121 @@ body {
 .mb-sm { margin-bottom: var(--spacing-sm); }
 .mb-md { margin-bottom: var(--spacing-md); }
 .mb-lg { margin-bottom: var(--spacing-lg); }
+
+/* ============================================ */
+/* Global Subjects Badge Styles */
+/* ============================================ */
+
+/* Badge for global subjects (available to all years) */
+.badge-global {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.35rem 0.9rem;
+  border-radius: 16px;
+  font-size: 0.813rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+  }
+}
+
+/* Badge for year-specific subjects */
+.badge-year {
+  display: inline-block;
+  background: #edf2f7;
+  color: #4a5568;
+  padding: 0.35rem 0.9rem;
+  border-radius: 16px;
+  font-size: 0.813rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #e2e8f0;
+  }
+}
+
+/* Icon styles for badges */
+.badge-global::before,
+.badge-year::before {
+  margin-right: 0.25rem;
+}
+
+/* Text styles for inline badge mentions */
+.text-global {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.text-year-specific {
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* Background styles for global subject cards */
+.bg-global-gradient {
+  background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%);
+  border-left: 4px solid #9f7aea;
+}
+
+.bg-year-gradient {
+  background: linear-gradient(135deg, #ebf8ff 0%, #ffffff 100%);
+  border-left: 4px solid #4299e1;
+}
+
+/* Utility classes for global subject indicators */
+.is-global {
+  position: relative;
+
+  &::after {
+    content: '🌍';
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    font-size: 1rem;
+  }
+}
+
+/* Disabled state for year field when global subject selected */
+.year-field-disabled {
+  background-color: #f7fafc;
+  cursor: not-allowed;
+  opacity: 0.7;
+
+  &::placeholder {
+    color: #cbd5e0;
+  }
+}
+
+/* Info box for global subjects */
+.global-subject-info {
+  background: linear-gradient(135deg, #ebf8ff 0%, #ffffff 100%);
+  border-left: 4px solid #4299e1;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+
+  .info-icon {
+    color: #4299e1;
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+  }
+
+  .info-text {
+    color: #2d3748;
+    font-size: 0.875rem;
+    line-height: 1.5;
+
+    strong {
+      color: #2c5282;
+      font-weight: 600;
+    }
+  }
+}

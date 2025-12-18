@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 
 import { AuthService } from '../../../core/services/auth.service';
+import { SubjectUtilsService } from '../../../core/services/subject-utils.service';
 import {
   ContentService,
   Year,
@@ -236,7 +237,8 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
     private authService: AuthService,
     private contentService: ContentService,
     private teacherContentService: TeacherContentManagementService,
-    private router: Router
+    private router: Router,
+    public subjectUtils: SubjectUtilsService
   ) {}
 
   ngOnInit(): void {

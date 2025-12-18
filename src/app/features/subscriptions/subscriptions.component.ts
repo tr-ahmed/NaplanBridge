@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
 import { SubscriptionPlansService } from '../../core/services/subscription-plans.service';
+import { SubjectUtilsService } from '../../core/services/subject-utils.service';
 import {
   SubscriptionPlan,
   CreateSubscriptionPlanDto
@@ -61,6 +62,7 @@ interface Subject {
   subjectName: string;  // API returns 'subjectName' not 'name'
   categoryId?: number;
   yearId?: number;
+  isGlobal?: boolean;   // ✅ NEW: Global subject flag
   name?: string;  // Fallback for other components
 }
 
@@ -138,6 +140,8 @@ export class SubscriptionsComponent implements OnInit {
     pendingOrders: 0,
     paidOrders: 0
   };
+
+  private subjectUtils = inject(SubjectUtilsService);
 
   constructor(
     private http: HttpClient,
@@ -594,7 +598,7 @@ export class SubscriptionsComponent implements OnInit {
     });
   }
 
-  // ✅ Year filter change handler
+  // ✅ Year filter change handler (with Global Subjects support)
   onYearFilterChange(yearId: number): void {
     console.log('🔍 onYearFilterChange called with yearId:', yearId);
 
@@ -606,13 +610,23 @@ export class SubscriptionsComponent implements OnInit {
       return;
     }
 
-    // Filter subjects by selected year
-    this.filteredSubjects = this.subjects.filter(s => s.yearId === yearId);
-    console.log(`   → Filtered ${this.filteredSubjects.length} subjects for year ${yearId}`);
+    // ✅ Filter subjects by selected year OR global subjects
+    this.filteredSubjects = this.subjects.filter(s =>
+      s.yearId === yearId || s.isGlobal
+    );
+
+    // ✅ Sort: year-specific first, then global
+    this.filteredSubjects = this.subjectUtils.sortSubjectsYearFirst(
+      this.filteredSubjects as any[],
+      yearId
+    ) as Subject[];
+
+    console.log(`   → Filtered ${this.filteredSubjects.length} subjects for year ${yearId} (including global)`);
     console.log('   → Filtered subjects:', this.filteredSubjects.map(s => ({
       id: s.id,
       name: s.subjectName || s.name,
-      yearId: s.yearId
+      yearId: s.yearId,
+      isGlobal: s.isGlobal
     })));
 
     // Reset subject and term selections
@@ -622,6 +636,21 @@ export class SubscriptionsComponent implements OnInit {
 
     // Update plan name and price suggestions
     this.updatePlanSuggestions();
+  }
+
+  /**
+   * Get display name for subject (with global badge)
+   */
+  getSubjectDisplayName(subject: Subject): string {
+    const name = subject.subjectName || subject.name || 'Unknown';
+    return subject.isGlobal ? `🌍 ${name}` : name;
+  }
+
+  /**
+   * Check if subject is global
+   */
+  isSubjectGlobal(subject: Subject): boolean {
+    return subject.isGlobal || false;
   }
 
   // ============================================

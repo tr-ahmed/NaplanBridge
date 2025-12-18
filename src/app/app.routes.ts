@@ -174,6 +174,34 @@ export const routes: Routes = [
     loadComponent: () => import('./features/parent-package-selection/parent-package-selection.component').then(m => m.ParentPackageSelectionComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
   },
+
+  // Tutoring System Routes
+  {
+    path: 'parent/tutoring',
+    children: [
+      {
+        path: 'select',
+        loadComponent: () => import('./features/tutoring/tutoring-selection.component').then(m => m.TutoringSelectionComponent),
+        canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+      },
+      {
+        path: 'success',
+        loadComponent: () => import('./features/tutoring/steps/remaining-components').then(m => m.TutoringSuccessComponent),
+        canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+      },
+      {
+        path: 'cancel',
+        loadComponent: () => import('./features/tutoring/steps/remaining-components').then(m => m.TutoringCancelComponent),
+        canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+      },
+      {
+        path: '',
+        redirectTo: 'select',
+        pathMatch: 'full'
+      }
+    ]
+  },
+
   {
     path: 'parent/invoice/:orderId',
     loadComponent: () => import('./features/invoice/invoice.component').then(m => m.InvoiceComponent),
@@ -320,6 +348,12 @@ export const routes: Routes = [
     data: { hideHeader: true, hideFooter: true }
   },
   {
+    path: 'admin/subject-names',
+    loadComponent: () => import('./features/admin/subject-names/subject-names.component').then(m => m.SubjectNamesComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
+    data: { hideHeader: true, hideFooter: true }
+  },
+  {
     path: 'admin/video-settings',
     loadComponent: () => import('./admin/video-settings/video-settings.component').then(m => m.VideoSettingsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
@@ -413,6 +447,25 @@ export const routes: Routes = [
     loadComponent: () => import('./features/teacher/content-management/teacher-content-management.component').then(m => m.TeacherContentManagementComponent),
     canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
+  },
+
+  // Teacher Tutoring Sessions Management
+  {
+    path: 'teacher/tutoring-sessions',
+    loadComponent: () => import('./features/teacher-tutoring/teacher-tutoring-sessions.component').then(m => m.TeacherTutoringSessionsComponent),
+    canActivate: [teacherGuard]
+  },
+
+  // Admin Tutoring Management
+  {
+    path: 'admin/tutoring-reports',
+    loadComponent: () => import('./features/admin-tutoring/admin-tutoring-reports.component').then(m => m.AdminTutoringReportsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+  },
+  {
+    path: 'admin/tutoring-discounts',
+    loadComponent: () => import('./features/admin-tutoring/admin-discount-management.component').then(m => m.AdminDiscountManagementComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
   },
 
   // Student Exams

@@ -1,0 +1,257 @@
+<div class="subject-names-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="title-section">
+      <h1>📚 Subject Names Management</h1>
+      <p class="subtitle">Manage subject names and configure global availability</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      <span class="icon">➕</span>
+      Create New Subject Name
+    </button>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-cards">
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ getStatistics().total }}</div>
+        <div class="stat-label">Total Subjects</div>
+      </div>
+    </div>
+
+    <div class="stat-card global">
+      <div class="stat-icon">🌍</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ getStatistics().global }}</div>
+        <div class="stat-label">Global Subjects</div>
+      </div>
+    </div>
+
+    <div class="stat-card year-specific">
+      <div class="stat-icon">📅</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ getStatistics().yearSpecific }}</div>
+        <div class="stat-label">Year-Specific</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  @if (error()) {
+    <div class="alert alert-error">
+      <span class="alert-icon">⚠️</span>
+      {{ error() }}
+      <button class="alert-close" (click)="error.set(null)">×</button>
+    </div>
+  }
+
+  @if (success()) {
+    <div class="alert alert-success">
+      <span class="alert-icon">✅</span>
+      {{ success() }}
+      <button class="alert-close" (click)="success.set(null)">×</button>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading subject names...</p>
+    </div>
+  }
+
+  <!-- Subject Names Table -->
+  @if (!loading() && subjectNames().length > 0) {
+    <div class="table-container">
+      <table class="subjects-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th class="actions-column">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (subjectName of subjectNames(); track subjectName.id) {
+            <tr>
+              <td class="id-cell">{{ subjectName.id }}</td>
+              <td class="name-cell">
+                <strong>{{ subjectName.name }}</strong>
+              </td>
+              <td>
+                <span class="category-badge">
+                  {{ getCategoryName(subjectName.categoryId) }}
+                </span>
+              </td>
+              <td>
+                <span [class]="getBadgeClass(subjectName.isGlobal)">
+                  @if (subjectName.isGlobal) {
+                    🌍 Global
+                  } @else {
+                    📅 Year-Specific
+                  }
+                </span>
+              </td>
+              <td>
+                <button
+                  class="btn-toggle"
+                  [class.active]="subjectName.isGlobal"
+                  (click)="toggleGlobalStatus(subjectName)"
+                  [disabled]="loading()">
+                  @if (subjectName.isGlobal) {
+                    Make Year-Specific
+                  } @else {
+                    Make Global
+                  }
+                </button>
+              </td>
+              <td class="actions-cell">
+                <button
+                  class="btn-icon btn-edit"
+                  (click)="openEditModal(subjectName)"
+                  [disabled]="loading()"
+                  title="Edit">
+                  ✏️
+                </button>
+                <button
+                  class="btn-icon btn-delete"
+                  (click)="deleteSubjectName(subjectName)"
+                  [disabled]="loading()"
+                  title="Delete">
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && subjectNames().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📚</div>
+      <h3>No Subject Names Found</h3>
+      <p>Create your first subject name to get started</p>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        Create Subject Name
+      </button>
+    </div>
+  }
+
+  <!-- Modal -->
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>
+            @if (isEditMode()) {
+              ✏️ Edit Subject Name
+            } @else {
+              ➕ Create New Subject Name
+            }
+          </h2>
+          <button class="modal-close" (click)="closeModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <form [formGroup]="subjectNameForm" (ngSubmit)="onSubmit()">
+            <!-- Name Field -->
+            <div class="form-group">
+              <label for="name">Subject Name *</label>
+              <input
+                type="text"
+                id="name"
+                formControlName="name"
+                placeholder="e.g., Tajweed, Life Skills, Math"
+                class="form-control"
+                [class.error]="subjectNameForm.get('name')?.invalid && subjectNameForm.get('name')?.touched">
+              @if (subjectNameForm.get('name')?.hasError('required') && subjectNameForm.get('name')?.touched) {
+                <span class="error-message">Subject name is required</span>
+              }
+              @if (subjectNameForm.get('name')?.hasError('minlength')) {
+                <span class="error-message">Name must be at least 2 characters</span>
+              }
+            </div>
+
+            <!-- Category Field -->
+            <div class="form-group">
+              <label for="categoryId">Category *</label>
+              <select
+                id="categoryId"
+                formControlName="categoryId"
+                class="form-control"
+                [class.error]="subjectNameForm.get('categoryId')?.invalid && subjectNameForm.get('categoryId')?.touched">
+                <option [value]="null">Select Category</option>
+                @for (category of categories(); track category.id) {
+                  <option [value]="category.id">{{ category.name }}</option>
+                }
+              </select>
+              @if (subjectNameForm.get('categoryId')?.hasError('required') && subjectNameForm.get('categoryId')?.touched) {
+                <span class="error-message">Category is required</span>
+              }
+            </div>
+
+            <!-- isGlobal Checkbox -->
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  formControlName="isGlobal"
+                  class="checkbox-input">
+                <span class="checkbox-text">
+                  <strong>🌍 Make this subject available to all year levels</strong>
+                  <small>Global subjects can be selected by students in any year (e.g., Tajweed, Life Skills)</small>
+                </span>
+              </label>
+            </div>
+
+            <!-- Info Box -->
+            @if (subjectNameForm.get('isGlobal')?.value) {
+              <div class="info-box">
+                <span class="info-icon">ℹ️</span>
+                <div class="info-content">
+                  <strong>Global Subject</strong>
+                  <p>This subject will be available to all students regardless of their year level. Perfect for subjects like Quran, Languages, or Life Skills.</p>
+                </div>
+              </div>
+            }
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="closeModal()"
+                [disabled]="loading()">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="subjectNameForm.invalid || loading()">
+                @if (loading()) {
+                  <span class="spinner-small"></span>
+                  Saving...
+                } @else {
+                  @if (isEditMode()) {
+                    💾 Save Changes
+                  } @else {
+                    ➕ Create Subject
+                  }
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+</div>

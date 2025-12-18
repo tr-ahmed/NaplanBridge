@@ -6,16 +6,20 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { catchError, timeout, delay } from 'rxjs/operators';
+import { catchError, timeout, delay, map } from 'rxjs/operators';
 import { ApiService } from './base-api.service';
 import { MockDataService } from './mock-data.service';
+import { SubjectUtilsService } from './subject-utils.service';
 import { PagedResult } from '../../models/common.models';
 import {
   Subject,
   SubjectFilterParams,
   CreateSubjectDto,
   UpdateSubjectDto,
-  SubjectEnrollment
+  SubjectEnrollment,
+  SubjectName,
+  CreateSubjectNameDto,
+  UpdateSubjectNameDto
 } from '../../models/subject.models';
 import { environment } from '../../../environments/environment';
 
@@ -25,6 +29,7 @@ import { environment } from '../../../environments/environment';
 export class SubjectService {
   private api = inject(ApiService);
   private mockData = inject(MockDataService);
+  private subjectUtils = inject(SubjectUtilsService);
 
   /**
    * Get subjects with pagination and filters
@@ -149,11 +154,14 @@ export class SubjectService {
   }
 
   /**
-   * Get subjects by year
+   * Get subjects by year (includes global subjects)
    * Endpoint: GET /api/subjects/by-year/{yearId}
+   * Global subjects (isGlobal=true) are included for all years
    */
-  getSubjectsByYear(yearId: number): Observable<Subject[]> {
-    const mockSubjects = this.mockData.getMockSubjects().filter((s: any) => s.yearId === yearId);
+  getSubjectsByYear(yearId: number, includeGlobal: boolean = true): Observable<Subject[]> {
+    const mockSubjects = this.mockData.getMockSubjects().filter((s: any) =>
+      s.yearId === yearId || (includeGlobal && s.isGlobal)
+    );
 
     if (environment.useMock) {
       return this.mockData.mockSuccess(mockSubjects as any);
@@ -161,7 +169,13 @@ export class SubjectService {
 
     return this.mockData.withMockFallback(
       this.api.get<Subject[]>(`subjects/by-year/${yearId}`).pipe(
-        timeout(environment.apiTimeout || 10000)
+        timeout(environment.apiTimeout || 10000),
+        map(subjects => {
+          // Backend already includes global subjects, but we sort them
+          return includeGlobal
+            ? this.subjectUtils.sortSubjectsYearFirst(subjects, yearId)
+            : subjects.filter(s => !s.isGlobal);
+        })
       ),
       mockSubjects as any
     );
@@ -276,5 +290,80 @@ export class SubjectService {
     }
 
     return formData;
+  }
+
+  // ============================================
+  // SubjectNames Management (Admin Only)
+  // ============================================
+
+  /**
+   * Get all subject names with isGlobal flag
+   * Endpoint: GET /api/SubjectNames
+   */
+  getSubjectNames(): Observable<SubjectName[]> {
+    return this.api.get<SubjectName[]>('SubjectNames').pipe(
+      timeout(environment.apiTimeout || 10000)
+    );
+  }
+
+  /**
+   * Get subject name by ID
+   * Endpoint: GET /api/SubjectNames/{id}
+   */
+  getSubjectNameById(id: number): Observable<SubjectName> {
+    return this.api.get<SubjectName>(`SubjectNames/${id}`).pipe(
+      timeout(environment.apiTimeout || 10000)
+    );
+  }
+
+  /**
+   * Create new subject name (can be global)
+   * Endpoint: POST /api/SubjectNames
+   * Requires: Admin role
+   */
+  createSubjectName(dto: CreateSubjectNameDto): Observable<SubjectName> {
+    return this.api.post<SubjectName>('SubjectNames', dto).pipe(
+      timeout(environment.apiTimeout || 10000)
+    );
+  }
+
+  /**
+   * Update subject name (e.g., toggle isGlobal)
+   * Endpoint: PUT /api/SubjectNames/{id}
+   * Requires: Admin role
+   */
+  updateSubjectName(id: number, dto: UpdateSubjectNameDto): Observable<SubjectName> {
+    return this.api.put<SubjectName>(`SubjectNames/${id}`, dto).pipe(
+      timeout(environment.apiTimeout || 10000)
+    );
+  }
+
+  /**
+   * Delete subject name
+   * Endpoint: DELETE /api/SubjectNames/{id}
+   * Requires: Admin role
+   */
+  deleteSubjectName(id: number): Observable<void> {
+    return this.api.delete<void>(`SubjectNames/${id}`).pipe(
+      timeout(environment.apiTimeout || 10000)
+    );
+  }
+
+  /**
+   * Get only global subjects
+   * Helper method to filter global subjects
+   */
+  getGlobalSubjects(): Observable<Subject[]> {
+    return this.getAllSubjects().pipe(
+      map(response => response.items.filter(s => s.isGlobal))
+    );
+  }
+
+  /**
+   * Filter subjects by year including global subjects
+   * Helper method using SubjectUtilsService
+   */
+  filterSubjectsByYear(subjects: Subject[], yearId: number): Subject[] {
+    return this.subjectUtils.filterSubjectsByYear(subjects, yearId);
   }
 }

@@ -13,6 +13,7 @@ import { LessonService } from '../../core/services/lesson.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { SubjectUtilsService } from '../../core/services/subject-utils.service';
 import {
   StudentProgress,
   SubjectProgress
@@ -46,6 +47,7 @@ export class StudentDashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  public subjectUtils = inject(SubjectUtilsService);
 
   // State
   loading = signal<boolean>(true);

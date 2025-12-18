@@ -5,6 +5,7 @@ import { DashboardService } from '../../core/services/dashboard.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { CoursesService } from '../../core/services/courses.service';
+import { SubjectUtilsService } from '../../core/services/subject-utils.service';
 
 interface EnrolledSubject {
   subjectId?: number; // Optional for Full Year subscriptions
@@ -35,6 +36,7 @@ export class StudentSubjectsComponent implements OnInit {
   private toastService = inject(ToastService);
   private coursesService = inject(CoursesService);
   private router = inject(Router);
+  public subjectUtils = inject(SubjectUtilsService);
 
   loading = signal<boolean>(true);
   enrolledSubjects = signal<EnrolledSubject[]>([]);

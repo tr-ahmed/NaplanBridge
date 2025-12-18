@@ -1,8 +1,11 @@
-import { Component, Output, EventEmitter, Input, signal, inject } from '@angular/core';
+import { Component, Output, EventEmitter, Input, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TeacherContentManagementService } from '../../services/teacher-content-management.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { SubjectService } from '../../../../core/services/subject.service';
+import { SubjectUtilsService } from '../../../../core/services/subject-utils.service';
+import { SubjectName } from '../../../../models/subject.models';
 
 @Component({
   selector: 'app-subject-creation-modal',
@@ -24,29 +27,37 @@ import { ToastService } from '../../../../core/services/toast.service';
 
         <!-- Content -->
         <div class="p-6 space-y-4 max-h-96 overflow-y-auto" [formGroup]="subjectForm">
-          
+
           <!-- Subject Name ID (Required) -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Subject Name *</label>
             <select formControlName="subjectNameId"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
               <option value="">Select Subject</option>
-              <option value="1">English</option>
-              <option value="2">Mathematics</option>
-              <option value="3">Science</option>
-              <option value="4">History</option>
-              <option value="5">Geography</option>
-              <option value="6">Art</option>
-              <option value="7">Physical Education</option>
-              <option value="8">Computer Science</option>
+              <option *ngFor="let sn of subjectNames()" [value]="sn.id" [ngClass]="getSubjectBadgeClass(sn)">
+                {{ sn.name }} {{ sn.isGlobal ? '🌍' : '' }}
+              </option>
             </select>
-            <p class="text-xs text-gray-500 mt-1">Select the subject name</p>
+            <p class="text-xs text-gray-500 mt-1">
+              Select the subject name
+              <span *ngIf="isSelectedSubjectGlobal()" class="text-purple-600 font-semibold">
+                • Global (Available to all years)
+              </span>
+            </p>
           </div>
 
           <!-- Year Level (Required) -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Year Level *</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Year Level *
+              <span *ngIf="isSelectedSubjectGlobal()" class="text-xs text-purple-600 font-normal">
+                (Auto-set for global subjects)
+              </span>
+            </label>
             <select formControlName="yearId"
+                    [disabled]="isSelectedSubjectGlobal()"
+                    [class.bg-gray-100]="isSelectedSubjectGlobal()"
+                    [class.cursor-not-allowed]="isSelectedSubjectGlobal()"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
               <option value="">Select Year Level</option>
               <option value="1">Year 1</option>
@@ -62,6 +73,9 @@ import { ToastService } from '../../../../core/services/toast.service';
               <option value="11">Year 11</option>
               <option value="12">Year 12</option>
             </select>
+            <p *ngIf="isSelectedSubjectGlobal()" class="text-xs text-purple-600 mt-1">
+              ℹ️ This is a global subject - available to all year levels. Year field is set to default (Year 7) for database purposes only.
+            </p>
           </div>
 
           <!-- Pricing Information -->
@@ -70,7 +84,7 @@ import { ToastService } from '../../../../core/services/toast.service';
               <label class="block text-sm font-medium text-gray-700 mb-2">Original Price</label>
               <div class="relative">
                 <span class="absolute left-3 top-2 text-gray-500">$</span>
-                <input type="number" 
+                <input type="number"
                        step="0.01"
                        formControlName="originalPrice"
                        placeholder="0.00"
@@ -81,7 +95,7 @@ import { ToastService } from '../../../../core/services/toast.service';
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Discount Percentage</label>
               <div class="relative">
-                <input type="number" 
+                <input type="number"
                        step="0.01"
                        min="0"
                        max="100"
@@ -97,7 +111,7 @@ import { ToastService } from '../../../../core/services/toast.service';
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
-              <input type="number" 
+              <input type="number"
                      formControlName="duration"
                      placeholder="e.g., 120"
                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
@@ -119,7 +133,7 @@ import { ToastService } from '../../../../core/services/toast.service';
           <!-- Start Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-            <input type="date" 
+            <input type="date"
                    formControlName="startDate"
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
           </div>
@@ -129,10 +143,10 @@ import { ToastService } from '../../../../core/services/toast.service';
             <label class="block text-sm font-medium text-gray-700 mb-2">Subject Poster *</label>
             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-green-400 transition"
                  (click)="fileInput.click()">
-              <svg *ngIf="!subjectForm.get('posterFile')?.value" 
-                   class="mx-auto h-12 w-12 text-gray-400" 
-                   stroke="currentColor" 
-                   fill="none" 
+              <svg *ngIf="!subjectForm.get('posterFile')?.value"
+                   class="mx-auto h-12 w-12 text-gray-400"
+                   stroke="currentColor"
+                   fill="none"
                    viewBox="0 0 48 48">
                 <path d="M28 8H12a4 4 0 00-4 4v20a4 4 0 004 4h24a4 4 0 004-4V20m-14-8l-4-4m0 0l-4 4m4-4v16m8-8h-4m4 0h-4"/>
               </svg>
@@ -144,11 +158,18 @@ import { ToastService } from '../../../../core/services/toast.service';
               </p>
               <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
             </div>
-            <input #fileInput 
-                   type="file" 
-                   accept="image/*" 
-                   (change)="onFileSelected($event)" 
+            <input #fileInput
+                   type="file"
+                   accept="image/*"
+                   (change)="onFileSelected($event)"
                    style="display: none">
+          </div>
+
+          <!-- Global Subject Info Box -->
+          <div *ngIf="isSelectedSubjectGlobal()" class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3">
+            <p class="text-sm text-purple-800">
+              <strong>🌍 Global Subject:</strong> This subject will be available to students across all year levels. Perfect for subjects like Quran, Languages, or Life Skills.
+            </p>
           </div>
 
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -175,20 +196,24 @@ import { ToastService } from '../../../../core/services/toast.service';
   `,
   styles: []
 })
-export class SubjectCreationModalComponent {
+export class SubjectCreationModalComponent implements OnInit {
   @Input() isOpen = signal(false);
   @Output() onClose = new EventEmitter<void>();
   @Output() onSubmit = new EventEmitter<any>();
 
   private contentService = inject(TeacherContentManagementService);
+  private subjectService = inject(SubjectService);
+  private subjectUtils = inject(SubjectUtilsService);
   private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
 
   loading = signal(false);
+  subjectNames = signal<SubjectName[]>([]);
+  selectedSubjectName = signal<SubjectName | null>(null);
 
   subjectForm: FormGroup = this.fb.group({
     subjectNameId: ['', Validators.required],      // معرف اسم المادة (مطلوب)
-    yearId: ['', Validators.required],              // معرف السنة (مطلوب)
+    yearId: [7, Validators.required],              // معرف السنة (مطلوب، default = 7)
     originalPrice: [''],                            // السعر الأصلي (اختياري)
     discountPercentage: [''],                       // نسبة الخصم (اختياري)
     level: [''],                                    // المستوى (اختياري)
@@ -196,6 +221,60 @@ export class SubjectCreationModalComponent {
     startDate: [''],                                // تاريخ البداية (اختياري)
     posterFile: [null, Validators.required]         // صورة الغلاف (مطلوب)
   });
+
+  ngOnInit(): void {
+    this.loadSubjectNames();
+    this.setupSubjectNameListener();
+  }
+
+  /**
+   * Load subject names from API
+   */
+  loadSubjectNames(): void {
+    this.subjectService.getSubjectNames().subscribe({
+      next: (data) => {
+        this.subjectNames.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load subject names:', err);
+        this.toastService.showError('Failed to load subject names');
+      }
+    });
+  }
+
+  /**
+   * Setup listener for subjectNameId changes
+   * When a global subject is selected, disable year field and set default
+   */
+  setupSubjectNameListener(): void {
+    this.subjectForm.get('subjectNameId')?.valueChanges.subscribe(subjectNameId => {
+      const subjectName = this.subjectNames().find(sn => sn.id == subjectNameId);
+      this.selectedSubjectName.set(subjectName || null);
+
+      if (subjectName?.isGlobal) {
+        // Global subject: disable year field and set default value
+        this.subjectForm.get('yearId')?.setValue(7);
+        this.subjectForm.get('yearId')?.disable();
+      } else {
+        // Year-specific subject: enable year field
+        this.subjectForm.get('yearId')?.enable();
+      }
+    });
+  }
+
+  /**
+   * Check if selected subject is global
+   */
+  isSelectedSubjectGlobal(): boolean {
+    return this.selectedSubjectName()?.isGlobal || false;
+  }
+
+  /**
+   * Get badge class for subject name
+   */
+  getSubjectBadgeClass(subjectName: SubjectName): string {
+    return subjectName.isGlobal ? 'text-purple-600 font-semibold' : 'text-gray-600';
+  }
 
   submit(): void {
     if (!this.subjectForm.valid) {
@@ -205,19 +284,26 @@ export class SubjectCreationModalComponent {
 
     this.loading.set(true);
 
-    this.contentService.createSubject(this.subjectForm.value)
+    // Get form value including disabled fields (yearId)
+    const formValue = {
+      ...this.subjectForm.value,
+      yearId: this.subjectForm.get('yearId')?.value // Include even if disabled
+    };
+
+    this.contentService.createSubject(formValue)
       .subscribe({
         next: (subject: any) => {
           console.log('✅ Subject created successfully:', subject);
           this.toastService.showSuccess('✨ Subject created successfully!');
           this.onSubmit.emit(subject);
           this.onClose.emit();
-          this.subjectForm.reset();
+          this.subjectForm.reset({ yearId: 7 }); // Reset with default yearId
+          this.selectedSubjectName.set(null);
           this.loading.set(false);
         },
         error: (error: any) => {
           console.error('❌ Error creating subject:', error);
-          
+
           // Display meaningful error message from service or generic message
           const errorMessage = error?.message || 'Failed to create subject. Please try again.';
           this.toastService.showError(errorMessage);
