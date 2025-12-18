@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TutoringService } from '../../core/services/tutoring.service';
 
 interface DiscountRule {
   id: number;
@@ -737,15 +738,52 @@ export class AdminDiscountManagementComponent implements OnInit {
     }
   ];
 
-  constructor() {}
+  constructor(private tutoringService: TutoringService) {}
 
   ngOnInit(): void {
     this.loadDiscountSettings();
   }
 
   loadDiscountSettings(): void {
-    // Load from backend or localStorage
-    console.log('Loading discount settings...');
+    this.tutoringService.getDiscountSettings().subscribe({
+      next: (settings) => {
+        // Update group discount
+        if (settings.groupDiscount) {
+          this.groupDiscount.isActive = settings.groupDiscount.isActive;
+          this.groupDiscount.percentage = settings.groupDiscount.percentage;
+        }
+
+        // Update multiple students discount
+        if (settings.multipleStudentsDiscount) {
+          this.multipleStudentsDiscount.isActive = settings.multipleStudentsDiscount.isActive;
+          this.studentTiers = [
+            settings.multipleStudentsDiscount.twoStudentsPercentage,
+            settings.multipleStudentsDiscount.threeStudentsPercentage,
+            settings.multipleStudentsDiscount.fourPlusStudentsPercentage
+          ];
+          this.maxStudentDiscount = settings.multipleStudentsDiscount.maxPercentage;
+        }
+
+        // Update multiple subjects discount
+        if (settings.multipleSubjectsDiscount) {
+          this.multipleSubjectsDiscount.isActive = settings.multipleSubjectsDiscount.isActive;
+          this.subjectDiscountPerItem = settings.multipleSubjectsDiscount.percentagePerSubject;
+          this.maxSubjectDiscount = settings.multipleSubjectsDiscount.maxPercentage;
+        }
+
+        // Update plan discounts
+        if (settings.planDiscounts) {
+          this.plan20Discount.isActive = settings.planDiscounts.hours20IsActive;
+          this.plan20Discount.percentage = settings.planDiscounts.hours20Percentage;
+          this.plan30Discount.isActive = settings.planDiscounts.hours30IsActive;
+          this.plan30Discount.percentage = settings.planDiscounts.hours30Percentage;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading discount settings:', error);
+        alert('Failed to load discount settings. Using default values.');
+      }
+    });
   }
 
   calculateDiscount(basePrice: number, percentage: number): number {
@@ -753,27 +791,74 @@ export class AdminDiscountManagementComponent implements OnInit {
   }
 
   saveDiscount(discount: any): void {
-    console.log('Saving discount:', discount);
-    alert(`${discount.name} discount saved successfully!\nPercentage: ${discount.percentage}%`);
-    this.addToHistory('💾', `${discount.name} Saved`, `Set to ${discount.percentage}%`);
+    this.tutoringService.updateGroupDiscount(discount.isActive, discount.percentage).subscribe({
+      next: () => {
+        alert(`${discount.name} discount saved successfully!\nPercentage: ${discount.percentage}%`);
+        this.addToHistory('💾', `${discount.name} Saved`, `Set to ${discount.percentage}%`);
+      },
+      error: (error) => {
+        console.error('Error saving discount:', error);
+        alert('Failed to save discount. Please try again.');
+      }
+    });
   }
 
   saveStudentTiers(): void {
-    console.log('Saving student tiers:', this.studentTiers);
-    alert(`Multiple Students discount tiers saved!\n2 students: ${this.studentTiers[0]}%\n3 students: ${this.studentTiers[1]}%\n4+ students: ${this.studentTiers[2]}%`);
-    this.addToHistory('👨‍👩‍👧‍👦', 'Student Tiers Updated', 'New tier percentages applied');
+    const settings = {
+      isActive: this.multipleStudentsDiscount.isActive,
+      twoStudentsPercentage: this.studentTiers[0],
+      threeStudentsPercentage: this.studentTiers[1],
+      fourPlusStudentsPercentage: this.studentTiers[2],
+      maxPercentage: this.maxStudentDiscount
+    };
+
+    this.tutoringService.updateStudentsDiscount(settings).subscribe({
+      next: () => {
+        alert(`Multiple Students discount tiers saved!\n2 students: ${this.studentTiers[0]}%\n3 students: ${this.studentTiers[1]}%\n4+ students: ${this.studentTiers[2]}%`);
+        this.addToHistory('👨‍👩‍👧‍👦', 'Student Tiers Updated', 'New tier percentages applied');
+      },
+      error: (error) => {
+        console.error('Error saving student tiers:', error);
+        alert('Failed to save student tiers. Please try again.');
+      }
+    });
   }
 
   saveSubjectDiscount(): void {
-    console.log('Saving subject discount');
-    alert(`Multiple Subjects discount saved!\nPer subject: ${this.subjectDiscountPerItem}%\nMax cap: ${this.maxSubjectDiscount}%`);
-    this.addToHistory('📚', 'Subject Discount Updated', `${this.subjectDiscountPerItem}% per subject`);
+    this.tutoringService.updateSubjectsDiscount(
+      this.multipleSubjectsDiscount.isActive,
+      this.subjectDiscountPerItem,
+      this.maxSubjectDiscount
+    ).subscribe({
+      next: () => {
+        alert(`Multiple Subjects discount saved!\nPer subject: ${this.subjectDiscountPerItem}%\nMax cap: ${this.maxSubjectDiscount}%`);
+        this.addToHistory('📚', 'Subject Discount Updated', `${this.subjectDiscountPerItem}% per subject`);
+      },
+      error: (error) => {
+        console.error('Error saving subject discount:', error);
+        alert('Failed to save subject discount. Please try again.');
+      }
+    });
   }
 
   savePlanDiscount(discount: any): void {
-    console.log('Saving plan discount:', discount);
-    alert(`${discount.name} discount saved!\nPercentage: ${discount.percentage}%`);
-    this.addToHistory('⏱️', `${discount.name} Updated`, `Set to ${discount.percentage}%`);
+    const settings = {
+      hours20IsActive: this.plan20Discount.isActive,
+      hours20Percentage: this.plan20Discount.percentage,
+      hours30IsActive: this.plan30Discount.isActive,
+      hours30Percentage: this.plan30Discount.percentage
+    };
+
+    this.tutoringService.updatePlanDiscounts(settings).subscribe({
+      next: () => {
+        alert(`${discount.name} discount saved!\nPercentage: ${discount.percentage}%`);
+        this.addToHistory('⏱️', `${discount.name} Updated`, `Set to ${discount.percentage}%`);
+      },
+      error: (error) => {
+        console.error('Error saving plan discount:', error);
+        alert('Failed to save plan discount. Please try again.');
+      }
+    });
   }
 
   resetToDefaults(): void {

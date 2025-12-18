@@ -195,6 +195,7 @@ export interface TutoringSessionDto {
   subjectName: string;
   teacherName: string;
   dateTime: Date;
+  startTime: string; // Added for display purposes
   duration: number;
   status: TutoringSessionStatus;
   meetingLink?: string;

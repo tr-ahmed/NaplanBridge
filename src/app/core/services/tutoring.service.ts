@@ -10,7 +10,8 @@ import {
   CreateTutoringOrderRequest,
   CreateTutoringOrderResponse,
   BookingConfirmationDto,
-  TutoringPlanDto
+  TutoringPlanDto,
+  TutoringSessionDto
 } from '../../models/tutoring.models';
 
 @Injectable({
@@ -70,5 +71,148 @@ export class TutoringService {
    */
   getTutoringPlans(): Observable<TutoringPlanDto[]> {
     return this.http.get<TutoringPlanDto[]>(`${this.apiUrl}/plans`);
+  }
+
+  // ==================== TEACHER APIs ====================
+
+  /**
+   * Get teacher's tutoring sessions with optional filters
+   */
+  getTeacherSessions(status?: string, startDate?: string, endDate?: string): Observable<TutoringSessionDto[]> {
+    let params = new HttpParams();
+    if (status) params = params.set('status', status);
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+
+    return this.http.get<TutoringSessionDto[]>(`${this.apiUrl}/teacher/sessions`, { params });
+  }
+
+  /**
+   * Start a tutoring session
+   */
+  startSession(sessionId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/teacher/session/${sessionId}/start`, {});
+  }
+
+  /**
+   * Complete a tutoring session
+   */
+  completeSession(sessionId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/teacher/session/${sessionId}/complete`, {});
+  }
+
+  /**
+   * Cancel a tutoring session
+   */
+  cancelSession(sessionId: number, reason?: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/teacher/session/${sessionId}/cancel`, { reason });
+  }
+
+  /**
+   * Update meeting link for a session
+   */
+  updateMeetingLink(sessionId: number, meetingLink: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/teacher/session/${sessionId}/meeting-link`, { meetingLink });
+  }
+
+  /**
+   * Update session notes
+   */
+  updateSessionNotes(sessionId: number, notes: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/teacher/session/${sessionId}/notes`, { notes });
+  }
+
+  // ==================== ADMIN APIs ====================
+
+  /**
+   * Get admin reports with optional period filter
+   */
+  getAdminReports(period?: string, startDate?: string, endDate?: string): Observable<any> {
+    let params = new HttpParams();
+    if (period) params = params.set('period', period);
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+
+    return this.http.get(`${this.apiUrl}/admin/reports`, { params });
+  }
+
+  /**
+   * Get all orders with filters
+   */
+  getAdminOrders(status?: string, searchQuery?: string, pageNumber: number = 1, pageSize: number = 50): Observable<any> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (status) params = params.set('status', status);
+    if (searchQuery) params = params.set('searchQuery', searchQuery);
+
+    return this.http.get(`${this.apiUrl}/admin/orders`, { params });
+  }
+
+  /**
+   * Get top performing teachers
+   */
+  getTopTeachers(period?: string, top: number = 10): Observable<any> {
+    let params = new HttpParams().set('top', top.toString());
+    if (period) params = params.set('period', period);
+
+    return this.http.get(`${this.apiUrl}/admin/top-teachers`, { params });
+  }
+
+  /**
+   * Get popular subjects
+   */
+  getPopularSubjects(period?: string): Observable<any> {
+    let params = new HttpParams();
+    if (period) params = params.set('period', period);
+
+    return this.http.get(`${this.apiUrl}/admin/popular-subjects`, { params });
+  }
+
+  /**
+   * Get all discount settings
+   */
+  getDiscountSettings(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/admin/discounts`);
+  }
+
+  /**
+   * Update group discount
+   */
+  updateGroupDiscount(isActive: boolean, percentage: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/discounts/group`, { isActive, percentage });
+  }
+
+  /**
+   * Update multiple students discount
+   */
+  updateStudentsDiscount(settings: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/discounts/students`, settings);
+  }
+
+  /**
+   * Update multiple subjects discount
+   */
+  updateSubjectsDiscount(isActive: boolean, percentagePerSubject: number, maxPercentage: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/discounts/subjects`, {
+      isActive,
+      percentagePerSubject,
+      maxPercentage
+    });
+  }
+
+  /**
+   * Update plan discounts
+   */
+  updatePlanDiscounts(settings: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/discounts/plans`, settings);
+  }
+
+  /**
+   * Update order status (Admin only)
+   */
+  updateOrderStatus(orderId: number, status: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/order/${orderId}/status`, { status });
   }
 }

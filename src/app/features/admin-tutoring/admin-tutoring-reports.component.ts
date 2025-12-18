@@ -773,21 +773,52 @@ export class AdminTutoringReportsComponent implements OnInit {
   }
 
   loadReports(): void {
-    // Mock data
-    this.report = {
-      totalOrders: 156,
-      totalRevenue: 78450,
-      totalSessions: 624,
-      completedSessions: 542,
-      cancelledSessions: 28,
-      activeStudents: 89,
-      activeTeachers: 12,
-      averageOrderValue: 502.88,
-      conversionRate: 68.4
-    };
+    // Load reports from API
+    this.tutoringService.getAdminReports(this.selectedPeriod, this.customStartDate, this.customEndDate)
+      .subscribe({
+        next: (data) => {
+          this.report = {
+            totalOrders: data.totalOrders || 0,
+            totalRevenue: data.totalRevenue || 0,
+            totalSessions: data.totalSessions || 0,
+            completedSessions: data.completedSessions || 0,
+            cancelledSessions: data.cancelledSessions || 0,
+            activeStudents: data.activeStudents || 0,
+            activeTeachers: data.activeTeachers || 0,
+            averageOrderValue: data.averageOrderValue || 0,
+            conversionRate: data.conversionRate || 0
+          };
+        },
+        error: (error) => {
+          console.error('Error loading reports:', error);
+          // Use mock data as fallback
+          this.report = {
+            totalOrders: 156,
+            totalRevenue: 78450,
+            totalSessions: 624,
+            completedSessions: 542,
+            cancelledSessions: 28,
+            activeStudents: 89,
+            activeTeachers: 12,
+            averageOrderValue: 502.88,
+            conversionRate: 68.4
+          };
+        }
+      });
 
-    this.orders = this.generateMockOrders();
-    this.filteredOrders = [...this.orders];
+    // Load orders
+    this.tutoringService.getAdminOrders(this.statusFilter, this.searchQuery)
+      .subscribe({
+        next: (response) => {
+          this.orders = response.orders || [];
+          this.filteredOrders = [...this.orders];
+        },
+        error: (error) => {
+          console.error('Error loading orders:', error);
+          this.orders = this.generateMockOrders();
+          this.filteredOrders = [...this.orders];
+        }
+      });
   }
 
   generateMockOrders(): OrderStats[] {

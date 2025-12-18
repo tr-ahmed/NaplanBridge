@@ -653,13 +653,25 @@ export class TeacherTutoringSessionsComponent implements OnInit {
 
   loadSessions(): void {
     this.loading = true;
-    // Mock data for now
-    setTimeout(() => {
-      this.sessions = this.generateMockSessions();
-      this.filteredSessions = [...this.sessions];
-      this.calculateEarnings();
-      this.loading = false;
-    }, 500);
+
+    // Use real API
+    this.tutoringService.getTeacherSessions(this.selectedStatus, this.startDate, this.endDate)
+      .subscribe({
+        next: (sessions) => {
+          this.sessions = sessions;
+          this.filteredSessions = [...this.sessions];
+          this.calculateEarnings();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading sessions:', error);
+          // Fallback to mock data if API fails
+          this.sessions = this.generateMockSessions();
+          this.filteredSessions = [...this.sessions];
+          this.calculateEarnings();
+          this.loading = false;
+        }
+      });
   }
 
   generateMockSessions(): TutoringSessionDto[] {
@@ -676,7 +688,8 @@ export class TeacherTutoringSessionsComponent implements OnInit {
     for (let i = 0; i < 30; i++) {
       const date = new Date();
       date.setDate(date.getDate() + (i % 7));
-      date.setHours(9 + (i % 8));
+      const hour = 9 + (i % 8);
+      date.setHours(hour);
 
       sessions.push({
         id: i + 1,
@@ -684,6 +697,7 @@ export class TeacherTutoringSessionsComponent implements OnInit {
         subjectName: subjects[i % subjects.length],
         teacherName: 'Current Teacher',
         dateTime: date,
+        startTime: `${hour}:00`, // Added startTime
         duration: 60,
         status: statuses[i % statuses.length],
         meetingLink: i % 2 === 0 ? 'https://zoom.us/j/123456' : undefined,
@@ -757,42 +771,83 @@ export class TeacherTutoringSessionsComponent implements OnInit {
 
   saveSessionNotes(): void {
     if (this.selectedSession) {
-      const index = this.sessions.findIndex(s => s.id === this.selectedSession!.id);
-      if (index > -1) {
-        this.sessions[index].notes = this.selectedSession.notes;
-      }
-      alert('Notes saved successfully!');
-      this.closeModal();
+      this.tutoringService.updateSessionNotes(this.selectedSession.id, this.selectedSession.notes || '').subscribe({
+        next: () => {
+          const index = this.sessions.findIndex(s => s.id === this.selectedSession!.id);
+          if (index > -1 && this.selectedSession) {
+            this.sessions[index].notes = this.selectedSession.notes;
+          }
+          alert('Notes saved successfully!');
+          this.closeModal();
+        },
+        error: (error) => {
+          console.error('Error saving notes:', error);
+          alert('Failed to save notes. Please try again.');
+        }
+      });
     }
   }
 
   startSession(session: TutoringSessionDto): void {
     if (confirm(`Start session with ${session.studentName}?`)) {
-      session.status = TutoringSessionStatus.InProgress;
-      alert('Session started!');
+      this.tutoringService.startSession(session.id).subscribe({
+        next: () => {
+          session.status = TutoringSessionStatus.InProgress;
+          alert('Session started!');
+        },
+        error: (error) => {
+          console.error('Error starting session:', error);
+          alert('Failed to start session. Please try again.');
+        }
+      });
     }
   }
 
   completeSession(session: TutoringSessionDto): void {
     if (confirm(`Mark this session as completed?`)) {
-      session.status = TutoringSessionStatus.Completed;
-      alert('Session completed!');
-      this.calculateEarnings();
+      this.tutoringService.completeSession(session.id).subscribe({
+        next: () => {
+          session.status = TutoringSessionStatus.Completed;
+          alert('Session completed!');
+          this.calculateEarnings();
+        },
+        error: (error) => {
+          console.error('Error completing session:', error);
+          alert('Failed to complete session. Please try again.');
+        }
+      });
     }
   }
 
   cancelSession(session: TutoringSessionDto): void {
+    const reason = prompt('Reason for cancellation (optional):');
     if (confirm(`Cancel session with ${session.studentName}?`)) {
-      session.status = TutoringSessionStatus.Cancelled;
-      alert('Session cancelled!');
+      this.tutoringService.cancelSession(session.id, reason || undefined).subscribe({
+        next: () => {
+          session.status = TutoringSessionStatus.Cancelled;
+          alert('Session cancelled!');
+        },
+        error: (error) => {
+          console.error('Error cancelling session:', error);
+          alert('Failed to cancel session. Please try again.');
+        }
+      });
     }
   }
 
   addMeetingLink(session: TutoringSessionDto): void {
     const link = prompt('Enter meeting link (e.g., Zoom, Google Meet):');
     if (link) {
-      session.meetingLink = link;
-      alert('Meeting link added!');
+      this.tutoringService.updateMeetingLink(session.id, link).subscribe({
+        next: () => {
+          session.meetingLink = link;
+          alert('Meeting link added!');
+        },
+        error: (error) => {
+          console.error('Error adding meeting link:', error);
+          alert('Failed to add meeting link. Please try again.');
+        }
+      });
     }
   }
 

@@ -161,7 +161,7 @@ import { Subject } from '../../../models/package-pricing.model';
           [disabled]="!canProceed() || creatingOrder"
           class="btn btn-primary btn-large">
           <span *ngIf="!creatingOrder">
-            💳 Proceed to Payment (\${{ priceCalculation?.finalPrice.toFixed(2) || '0.00' }})
+            💳 Proceed to Payment (\${{ priceCalculation?.finalPrice?.toFixed(2) || '0.00' }})
           </span>
           <span *ngIf="creatingOrder">
             Processing...
