@@ -359,7 +359,8 @@ export class Step4PlansComponent implements OnInit {
 
   restoreState(): void {
     const state = this.stateService.getState();
-    this.students = state.students;
+    // Ensure students is always an array
+    this.students = Array.isArray(state.students) ? state.students : [];
     this.studentSubjectPlans = new Map(state.studentSubjectPlans);
   }
 

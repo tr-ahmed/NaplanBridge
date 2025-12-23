@@ -26,6 +26,7 @@ export interface Course {
   studentCount: number;
   termIds: number[];
   weekIds: number[];
+  isGlobal: boolean;  // ✅ Global courses available for all years
 
   // Subscription Plans (required for cart functionality)
   subscriptionPlans?: SubscriptionPlanSummary[];

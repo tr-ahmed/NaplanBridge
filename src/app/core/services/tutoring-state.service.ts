@@ -4,7 +4,8 @@ import {
   TutoringSelectionState,
   TeachingType,
   TutoringPlan,
-  TutoringPriceResponse
+  TutoringPriceResponse,
+  StudentInfo
 } from '../../models/tutoring.models';
 
 const STORAGE_KEY = 'tutoringSelectionState';
@@ -64,18 +65,18 @@ export class TutoringStateService {
   }
 
   getAcademicYear(): number | null {
-    return this.stateSubject.value.academicYearId;
+    return this.stateSubject.value.academicYearId ?? null;
   }
 
   // ============================================
   // Step 2: Students
   // ============================================
 
-  setStudents(students: { id: number; name: string }[]): void {
+  setStudents(students: StudentInfo[]): void {
     this.updateState({ students });
   }
 
-  getStudents(): { id: number; name: string }[] {
+  getStudents(): StudentInfo[] {
     return this.stateSubject.value.students;
   }
 
@@ -185,15 +186,20 @@ export class TutoringStateService {
       if (saved) {
         const parsed = JSON.parse(saved);
 
-        // Restore Maps from arrays
+        // Restore Maps from arrays (with safety checks)
         const studentSubjects = new Map(
-          parsed.studentSubjects?.map(([k, v]: [number, number[]]) => [k, new Set(v)])
+          (parsed.studentSubjects || []).map(([k, v]: [number, number[]]) => [k, new Set(v || [])])
         );
-        const studentSubjectPlans = new Map(parsed.studentSubjectPlans);
-        const studentSubjectTimeSlots = new Map(parsed.studentSubjectTimeSlots);
+        const studentSubjectPlans = new Map(parsed.studentSubjectPlans || []);
+        const studentSubjectTimeSlots = new Map(parsed.studentSubjectTimeSlots || []);
+
+        // Ensure students is an array
+        const students = Array.isArray(parsed.students) ? parsed.students : [];
 
         this.stateSubject.next({
+          ...this.getInitialState(), // Start with defaults
           ...parsed,
+          students,
           studentSubjects,
           studentSubjectPlans,
           studentSubjectTimeSlots
@@ -201,6 +207,8 @@ export class TutoringStateService {
       }
     } catch (error) {
       console.error('Failed to restore tutoring state:', error);
+      // Reset to initial state on error
+      this.stateSubject.next(this.getInitialState());
     }
   }
 

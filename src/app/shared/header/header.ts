@@ -133,13 +133,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.subscriptions.add(
         this.notificationService.notifications$.subscribe(notifications => {
           // Get the 5 most recent notifications for dropdown preview
-          if (notifications && Array.isArray(notifications)) {
-            this.recentNotifications = notifications
-              .sort((a: any, b: any) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
-              .slice(0, 5);
-          } else {
-            this.recentNotifications = [];
-          }
+          // Ensure notifications is always an array
+          const notificationsArray = Array.isArray(notifications) ? notifications : [];
+          this.recentNotifications = notificationsArray
+            .sort((a: any, b: any) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
+            .slice(0, 5);
         })
       );
 

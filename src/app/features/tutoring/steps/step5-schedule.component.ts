@@ -382,17 +382,20 @@ export class Step5ScheduleComponent implements OnInit {
 
   restoreState(): void {
     const state = this.stateService.getState();
-    this.students = state.students;
+    // Ensure students is always an array
+    this.students = Array.isArray(state.students) ? state.students : [];
     this.selectedSlots = new Map(state.studentSubjectTimeSlots);
   }
 
   loadSubjects(): void {
     this.contentService.getSubjects().subscribe({
       next: (subjects) => {
-        this.subjects = subjects;
+        // Ensure subjects is always an array
+        this.subjects = Array.isArray(subjects) ? subjects : [];
       },
       error: (error) => {
         console.error('Error loading subjects:', error);
+        this.subjects = [];
       }
     });
   }

@@ -206,13 +206,20 @@ export interface TutoringSessionDto {
 // Local State Management Models
 // ============================================
 
+export interface StudentInfo {
+  id: number;
+  name: string;
+  academicYearId: number;
+  yearNumber: number;
+}
+
 export interface TutoringSelectionState {
   // Step 1
   teachingType: TeachingType;
-  academicYearId: number | null;
+  academicYearId?: number | null; // Optional - each student has their own year
 
   // Step 2
-  students: { id: number; name: string; }[];
+  students: StudentInfo[];
 
   // Step 3
   studentSubjects: Map<number, Set<number>>; // studentId -> Set of subjectIds

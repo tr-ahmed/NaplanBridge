@@ -82,7 +82,16 @@ export class CoursesComponent implements OnInit, OnDestroy {
   );
 
   // ✅ API handles pagination for all users (including parents with multiple years)
-  paginatedCourses = computed(() => this.filteredCourses());  cartItemCount = computed(() => this.cart().totalItems);
+  // Sort courses: regular courses first, global courses at bottom
+  paginatedCourses = computed(() => {
+    const courses = [...this.filteredCourses()];
+    return courses.sort((a, b) => {
+      // Global courses go to bottom
+      if (a.isGlobal && !b.isGlobal) return 1;
+      if (!a.isGlobal && b.isGlobal) return -1;
+      return 0; // Keep original order for same type
+    });
+  });  cartItemCount = computed(() => this.cart().totalItems);
 
   // Display year name
   displayYearName = computed(() => {

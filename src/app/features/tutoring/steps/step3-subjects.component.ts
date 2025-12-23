@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TutoringStateService } from '../../../core/services/tutoring-state.service';
-import { ContentService } from '../../../core/services/content.service';
-import { Subject } from '../../../models/package-pricing.model';
+import { ContentService, Subject } from '../../../core/services/content.service';
+import { StudentInfo } from '../../../models/tutoring.models';
 
 @Component({
   selector: 'app-step3-subjects',
@@ -13,23 +13,30 @@ import { Subject } from '../../../models/package-pricing.model';
       <h2 class="step-title">Step 3: Select Subjects for Each Student</h2>
 
       <div *ngFor="let student of students; let i = index" class="student-section">
-        <h3 class="student-name">📚 {{ student.name }}'s Subjects</h3>
+        <h3 class="student-name">
+          📚 {{ student.name }}'s Subjects
+          <span class="year-badge">Year {{ student.yearNumber }}</span>
+        </h3>
 
         <!-- Subject Grid -->
         <div *ngIf="!loading" class="subjects-grid">
           <div
-            *ngFor="let subject of availableSubjects"
+            *ngFor="let subject of getSubjectsForStudent(student.academicYearId)"
             (click)="toggleSubject(student.id, subject)"
             [class.selected]="isSubjectSelected(student.id, subject.id)"
             class="subject-card">
-            <h4>{{ subject.name }}</h4>
-            <p class="arabic-name">{{ subject.arabicName }}</p>
+            <h4>{{ subject.subjectName }}</h4>
+            <p class="arabic-name">{{ subject.categoryName }}</p>
             <p class="price">From $100/10hrs</p>
             <div *ngIf="isSubjectSelected(student.id, subject.id)" class="checkmark">✓</div>
           </div>
         </div>
 
         <div *ngIf="loading" class="loading">Loading subjects...</div>
+
+        <div *ngIf="!loading && getSubjectsForStudent(student.academicYearId).length === 0" class="no-subjects">
+          No subjects available for Year {{ student.yearNumber }}
+        </div>
 
         <div class="selected-count">
           Selected: {{ getSelectedCount(student.id) }} / 5 subjects
@@ -87,6 +94,19 @@ import { Subject } from '../../../models/package-pricing.model';
       font-weight: 600;
       color: #108092;
       margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .year-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: #e3f2fd;
+      color: #1976d2;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
     }
 
     .subjects-grid {
@@ -159,6 +179,7 @@ import { Subject } from '../../../models/package-pricing.model';
       border-radius: 8px;
       font-weight: 600;
       color: #666;
+      text-align: center;
     }
 
     .discount-info {
@@ -166,10 +187,13 @@ import { Subject } from '../../../models/package-pricing.model';
       margin-left: 0.5rem;
     }
 
-    .loading {
+    .loading, .no-subjects {
       text-align: center;
       padding: 2rem;
       color: #666;
+      background: #f5f5f5;
+      border-radius: 8px;
+      margin-bottom: 1rem;
     }
 
     .nav-buttons {
@@ -214,8 +238,9 @@ import { Subject } from '../../../models/package-pricing.model';
   `]
 })
 export class Step3SubjectsComponent implements OnInit {
-  students: { id: number; name: string }[] = [];
-  availableSubjects: Subject[] = [];
+  students: StudentInfo[] = [];
+  allSubjects: Subject[] = [];
+  subjectsByYear = new Map<number, Subject[]>();
   studentSubjects = new Map<number, Set<number>>();
   loading = false;
 
@@ -231,7 +256,7 @@ export class Step3SubjectsComponent implements OnInit {
 
   restoreState(): void {
     const state = this.stateService.getState();
-    this.students = state.students;
+    this.students = Array.isArray(state.students) ? state.students : [];
     this.studentSubjects = new Map(state.studentSubjects);
 
     // Initialize empty sets for new students
@@ -244,16 +269,44 @@ export class Step3SubjectsComponent implements OnInit {
 
   loadSubjects(): void {
     this.loading = true;
-    this.contentService.getSubjects().subscribe({
-      next: (subjects) => {
-        this.availableSubjects = subjects;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading subjects:', error);
-        this.loading = false;
-      }
+
+    // Get unique year IDs from students
+    const uniqueYears = [...new Set(this.students.map(s => s.academicYearId))];
+
+    // Load subjects for each year
+    let loadedCount = 0;
+    uniqueYears.forEach(yearId => {
+      this.contentService.getSubjectsByYear(yearId).subscribe({
+        next: (subjects) => {
+          const subjectsArray = Array.isArray(subjects) ? subjects : [];
+          this.subjectsByYear.set(yearId, subjectsArray);
+          this.allSubjects.push(...subjectsArray);
+
+          loadedCount++;
+          if (loadedCount === uniqueYears.length) {
+            this.loading = false;
+          }
+        },
+        error: (error) => {
+          console.error(`Error loading subjects for year ${yearId}:`, error);
+          this.subjectsByYear.set(yearId, []);
+
+          loadedCount++;
+          if (loadedCount === uniqueYears.length) {
+            this.loading = false;
+          }
+        }
+      });
     });
+
+    // Handle case where there are no students
+    if (uniqueYears.length === 0) {
+      this.loading = false;
+    }
+  }
+
+  getSubjectsForStudent(academicYearId: number): Subject[] {
+    return this.subjectsByYear.get(academicYearId) || [];
   }
 
   toggleSubject(studentId: number, subject: Subject): void {

@@ -1,57 +1,82 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { TutoringStateService } from '../../../core/services/tutoring-state.service';
-import { TeachingType } from '../../../models/tutoring.models';
+import { UserService } from '../../../core/services/user.service';
+import { TeachingType, StudentInfo } from '../../../models/tutoring.models';
+
+interface StudentWithSelection extends StudentInfo {
+  selected: boolean;
+}
 
 @Component({
   selector: 'app-step2-students',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   template: `
     <div class="step-container">
-      <h2 class="step-title">Step 2: How Many Students?</h2>
+      <h2 class="step-title">Step 2: Select Students</h2>
 
-      <!-- Student Count Selection -->
-      <div class="form-section">
-        <label class="form-label">Number of Students</label>
-        <div class="student-count-grid">
-          <button
-            *ngFor="let count of allowedCounts"
-            type="button"
-            (click)="selectStudentCount(count)"
-            [class.active]="studentCount === count"
-            class="count-card">
-            <div class="count-number">{{ count }}</div>
-            <div class="count-label">Student{{ count > 1 ? 's' : '' }}</div>
-            <div *ngIf="count > 1 && getStudentDiscount(count) > 0" class="discount-badge">
-              {{ getStudentDiscount(count) }}% OFF
-            </div>
-          </button>
-        </div>
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading your students...</p>
       </div>
 
-      <!-- Student Names Input -->
-      <div *ngIf="studentCount > 0" class="form-section">
-        <label class="form-label">Student Names</label>
-        <div class="student-names-grid">
-          <div *ngFor="let i of getRange(studentCount); let idx = index" class="name-input-group">
-            <label class="input-label">Student {{ idx + 1 }}</label>
-            <input
-              type="text"
-              [(ngModel)]="studentNames[idx]"
-              placeholder="Enter student name"
-              class="form-input"
-              required>
+      <!-- Error State -->
+      <div *ngIf="error && !loading" class="error-box">
+        <div class="error-icon">⚠️</div>
+        <div>{{ error }}</div>
+      </div>
+
+      <!-- Students Selection -->
+      <div *ngIf="!loading && !error" class="form-section">
+        <label class="form-label">
+          Choose which students to enroll in tutoring
+          <span *ngIf="teachingType === TeachingType.GroupTutoring" class="info-text">
+            (Maximum 3 students for group tutoring)
+          </span>
+        </label>
+
+        <div *ngIf="availableStudents.length === 0" class="no-students">
+          <p>📚 No students found. Please add a student first.</p>
+          <a href="/parent/dashboard" class="btn btn-secondary">Go to Dashboard</a>
+        </div>
+
+        <div *ngIf="availableStudents.length > 0" class="students-grid">
+          <div
+            *ngFor="let student of availableStudents"
+            (click)="toggleStudent(student)"
+            [class.selected]="student.selected"
+            [class.disabled]="!canSelectStudent(student)"
+            class="student-card">
+            <div class="checkbox">
+              <input
+                type="checkbox"
+                [checked]="student.selected"
+                [disabled]="!canSelectStudent(student)"
+                (click)="$event.stopPropagation()">
+            </div>
+            <div class="student-info">
+              <h4>{{ student.name }}</h4>
+              <p class="year-info">📚 Year {{ student.yearNumber }}</p>
+            </div>
+            <div *ngIf="student.selected" class="checkmark">✓</div>
           </div>
+        </div>
+
+        <div *ngIf="selectedCount > 0" class="selection-summary">
+          Selected: {{ selectedCount }} student{{ selectedCount > 1 ? 's' : '' }}
+          <span *ngIf="teachingType === TeachingType.GroupTutoring && selectedCount > 1" class="discount-info">
+            ({{ getStudentDiscount(selectedCount) }}% multi-student discount!)
+          </span>
         </div>
       </div>
 
       <!-- Info Box -->
-      <div *ngIf="teachingType === TeachingType.GroupTutoring && studentCount > 1" class="info-box">
-        <div class="info-icon">ℹ️</div>
+      <div *ngIf="teachingType === TeachingType.GroupTutoring && !loading" class="info-box">
+        <div class="info-icon">💡</div>
         <div>
-          <strong>Group Tutoring Discount:</strong> You're getting 35% off + {{ getStudentDiscount(studentCount) }}% multi-student discount!
+          <strong>Group Tutoring Benefits:</strong> 35% base discount + additional multi-student discounts!
         </div>
       </div>
 
@@ -88,6 +113,42 @@ import { TeachingType } from '../../../models/tutoring.models';
       margin-bottom: 2rem;
     }
 
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #108092;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-box {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: #ffebee;
+      border-left: 4px solid #f44336;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      color: #c62828;
+    }
+
+    .error-icon {
+      font-size: 1.5rem;
+    }
+
     .form-section {
       margin-bottom: 2rem;
     }
@@ -96,92 +157,123 @@ import { TeachingType } from '../../../models/tutoring.models';
       display: block;
       font-weight: 600;
       color: #555;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       font-size: 1.125rem;
     }
 
-    .student-count-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1rem;
-      max-width: 600px;
+    .info-text {
+      font-size: 0.875rem;
+      color: #888;
+      font-weight: normal;
+      display: block;
+      margin-top: 0.5rem;
     }
 
-    .count-card {
+    .no-students {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: #f5f5f5;
+      border-radius: 12px;
+    }
+
+    .no-students p {
+      font-size: 1.125rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+
+    .students-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .student-card {
       background: white;
       border: 3px solid #e0e0e0;
       border-radius: 12px;
       padding: 1.5rem;
-      text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
 
-    .count-card:hover {
+    .student-card:hover:not(.disabled) {
       border-color: #108092;
       transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(16, 128, 146, 0.2);
     }
 
-    .count-card.active {
+    .student-card.selected {
       border-color: #108092;
       background: linear-gradient(135deg, #f0f9fa 0%, #fff 100%);
       box-shadow: 0 4px 12px rgba(16, 128, 146, 0.3);
     }
 
-    .count-number {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #108092;
-      margin-bottom: 0.5rem;
+    .student-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
-    .count-label {
+    .checkbox {
+      flex-shrink: 0;
+    }
+
+    .checkbox input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .student-info {
+      flex: 1;
+    }
+
+    .student-info h4 {
+      font-size: 1.125rem;
       font-weight: 600;
-      color: #666;
+      color: #333;
+      margin-bottom: 0.25rem;
     }
 
-    .discount-badge {
+    .year-info {
+      font-size: 0.875rem;
+      color: #666;
+      margin: 0;
+    }
+
+    .checkmark {
       position: absolute;
-      top: -10px;
-      right: -10px;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
       background: #4caf50;
       color: white;
-      padding: 0.25rem 0.5rem;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-
-    .student-names-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-
-    .name-input-group {
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
     }
 
-    .input-label {
-      font-size: 0.875rem;
+    .selection-summary {
+      padding: 1rem;
+      background: #f5f5f5;
+      border-radius: 8px;
       font-weight: 600;
       color: #666;
-      margin-bottom: 0.5rem;
+      margin-top: 1.5rem;
+      text-align: center;
     }
 
-    .form-input {
-      padding: 0.75rem 1rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: #108092;
+    .discount-info {
+      color: #4caf50;
+      margin-left: 0.5rem;
     }
 
     .info-box {
@@ -213,6 +305,8 @@ import { TeachingType } from '../../../models/tutoring.models';
       font-size: 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
     }
 
     .btn-secondary {
@@ -243,47 +337,71 @@ export class Step2StudentsComponent implements OnInit {
   TeachingType = TeachingType;
 
   teachingType: TeachingType = TeachingType.OneToOne;
-  studentCount = 1;
-  studentNames: string[] = [];
-  allowedCounts: number[] = [];
+  availableStudents: StudentWithSelection[] = [];
+  loading = false;
+  error: string | null = null;
 
-  constructor(private stateService: TutoringStateService) {}
+  constructor(
+    private stateService: TutoringStateService,
+    private userService: UserService
+  ) {}
 
   ngOnInit(): void {
     this.restoreState();
-    this.setAllowedCounts();
+    this.loadStudents();
   }
 
   restoreState(): void {
     const state = this.stateService.getState();
     this.teachingType = state.teachingType;
-
-    if (state.students.length > 0) {
-      this.studentCount = state.students.length;
-      this.studentNames = state.students.map(s => s.name);
-    }
   }
 
-  setAllowedCounts(): void {
-    this.allowedCounts = this.teachingType === TeachingType.OneToOne
-      ? [1]
-      : [1, 2, 3];
-  }
+  loadStudents(): void {
+    this.loading = true;
+    this.error = null;
 
-  selectStudentCount(count: number): void {
-    this.studentCount = count;
-    // Resize array
-    if (this.studentNames.length > count) {
-      this.studentNames = this.studentNames.slice(0, count);
-    } else {
-      while (this.studentNames.length < count) {
-        this.studentNames.push('');
+    this.userService.getMyStudents().subscribe({
+      next: (students) => {
+        const state = this.stateService.getState();
+        const selectedStudentIds = new Set(state.students.map(s => s.id));
+
+        this.availableStudents = students.map(student => ({
+          id: student.id,
+          name: student.userName,
+          academicYearId: student.year,
+          yearNumber: student.year,
+          selected: selectedStudentIds.has(student.id)
+        }));
+
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading students:', err);
+        this.error = 'Failed to load students. Please try again.';
+        this.loading = false;
       }
-    }
+    });
   }
 
-  getRange(n: number): number[] {
-    return Array(n).fill(0).map((_, i) => i);
+  toggleStudent(student: StudentWithSelection): void {
+    if (!this.canSelectStudent(student)) {
+      return;
+    }
+
+    student.selected = !student.selected;
+  }
+
+  canSelectStudent(student: StudentWithSelection): boolean {
+    if (student.selected) {
+      return true; // Can always deselect
+    }
+
+    const maxStudents = this.teachingType === TeachingType.OneToOne ? 1 : 3;
+    return this.selectedCount < maxStudents;
+  }
+
+  get selectedCount(): number {
+    return this.availableStudents.filter(s => s.selected).length;
   }
 
   getStudentDiscount(count: number): number {
@@ -292,7 +410,7 @@ export class Step2StudentsComponent implements OnInit {
   }
 
   canProceed(): boolean {
-    return this.studentNames.every(name => name.trim().length > 0);
+    return this.selectedCount > 0;
   }
 
   previousStep(): void {
@@ -301,11 +419,16 @@ export class Step2StudentsComponent implements OnInit {
 
   nextStep(): void {
     if (this.canProceed()) {
-      const students = this.studentNames.map((name, idx) => ({
-        id: idx + 1,
-        name: name.trim()
-      }));
-      this.stateService.setStudents(students);
+      const selectedStudents: StudentInfo[] = this.availableStudents
+        .filter(s => s.selected)
+        .map(s => ({
+          id: s.id,
+          name: s.name,
+          academicYearId: s.academicYearId,
+          yearNumber: s.yearNumber
+        }));
+
+      this.stateService.setStudents(selectedStudents);
       this.stateService.nextStep();
     }
   }
