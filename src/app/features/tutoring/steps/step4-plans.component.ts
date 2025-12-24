@@ -10,84 +10,70 @@ import { StudentInfo } from '../../../models/tutoring.models';
   imports: [CommonModule],
   template: `
     <div class="step-container">
-      <h2 class="step-title">Step 4: Select Hours for Each Subject</h2>
-      <p class="step-subtitle">Choose 10, 20, or 30 hours (get additional discounts)</p>
+      <div class="header">
+        <h2 class="step-title">Step 4: Select Hours for Each Subject</h2>
+        <p class="step-subtitle">Choose 10, 20, or 30 hours (get additional discounts)</p>
+      </div>
 
       <div *ngFor="let student of students" class="student-section">
-        <h3 class="student-name">🎓 {{ student.name }}'s Hours</h3>
+        <div class="student-header">
+          <span class="student-icon">🎓</span>
+          <h3 class="student-name">{{ student.name }}'s Hours</h3>
+        </div>
 
-        <div *ngFor="let subject of getStudentSubjects(student.id)" class="subject-plan-section">
-          <h4 class="subject-title">{{ getSubjectName(subject) }}</h4>
+        <div *ngFor="let subject of getStudentSubjects(student.id)" class="subject-row">
+          <div class="subject-info">
+            <h4 class="subject-title">{{ getSubjectName(subject) }}</h4>
+          </div>
 
-          <div class="plans-grid">
+          <div class="hours-options">
             <!-- 10 Hours -->
             <div
               (click)="selectHours(student.id, subject, 10)"
               [class.selected]="getSelectedHours(student.id, subject) === 10"
-              class="plan-card">
-              <div class="plan-header">
+              class="hours-option">
+              <div class="option-header">
                 <h5>10 Hours</h5>
-                <span class="badge">Standard</span>
+                <div *ngIf="getSelectedHours(student.id, subject) === 10" class="check">✓</div>
               </div>
-              <div class="plan-details">
-                <p class="duration">Over 12 weeks</p>
-                <p class="sessions">10 sessions × 1 hour</p>
-              </div>
-              <div class="plan-price">
-                <span class="price-amount">$<span>{{ calculatePrice(getSubjectPrice(subject), 10) }}</span></span>
-              </div>
-              <div *ngIf="getSelectedHours(student.id, subject) === 10" class="checkmark">✓</div>
+              <p class="duration">12 weeks</p>
+              <div class="price">\${{ calculatePrice(getSubjectPrice(subject), 10) }}</div>
             </div>
 
             <!-- 20 Hours -->
             <div
               (click)="selectHours(student.id, subject, 20)"
               [class.selected]="getSelectedHours(student.id, subject) === 20"
-              class="plan-card featured">
-              <div class="popular-badge">Most Popular</div>
-              <div class="plan-header">
+              class="hours-option featured">
+              <span class="badge">Popular</span>
+              <div class="option-header">
                 <h5>20 Hours</h5>
-                <span class="badge discount">5% OFF</span>
+                <div *ngIf="getSelectedHours(student.id, subject) === 20" class="check">✓</div>
               </div>
-              <div class="plan-details">
-                <p class="duration">Over 12 weeks</p>
-                <p class="sessions">20 sessions × 1 hour</p>
+              <p class="duration">12 weeks · 5% OFF</p>
+              <div class="price-wrapper">
+                <span class="original">\${{ getSubjectPrice(subject) * 2 }}</span>
+                <div class="price">\${{ calculatePrice(getSubjectPrice(subject), 20) }}</div>
               </div>
-              <div class="plan-price">
-                <span class="original-price">$<span>{{ getSubjectPrice(subject) * 2 }}</span></span>
-                <span class="price-amount">$<span>{{ calculatePrice(getSubjectPrice(subject), 20) }}</span></span>
-              </div>
-              <div *ngIf="getSelectedHours(student.id, subject) === 20" class="checkmark">✓</div>
             </div>
 
             <!-- 30 Hours -->
             <div
               (click)="selectHours(student.id, subject, 30)"
               [class.selected]="getSelectedHours(student.id, subject) === 30"
-              class="plan-card premium">
-              <div class="plan-header">
+              class="hours-option premium">
+              <span class="badge best">Best Value</span>
+              <div class="option-header">
                 <h5>30 Hours</h5>
-                <span class="badge discount">10% OFF</span>
+                <div *ngIf="getSelectedHours(student.id, subject) === 30" class="check">✓</div>
               </div>
-              <div class="plan-details">
-                <p class="duration">Over 12 weeks</p>
-                <p class="sessions">30 sessions × 1 hour</p>
+              <p class="duration">12 weeks · 10% OFF</p>
+              <div class="price-wrapper">
+                <span class="original">\${{ getSubjectPrice(subject) * 3 }}</span>
+                <div class="price">\${{ calculatePrice(getSubjectPrice(subject), 30) }}</div>
               </div>
-              <div class="plan-price">
-                <span class="original-price">$<span>{{ getSubjectPrice(subject) * 3 }}</span></span>
-                <span class="price-amount">$<span>{{ calculatePrice(getSubjectPrice(subject), 30) }}</span></span>
-              </div>
-              <div *ngIf="getSelectedHours(student.id, subject) === 30" class="checkmark">✓</div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Info Box -->
-      <div class="info-box">
-        <div class="info-icon">💡</div>
-        <div>
-          <strong>Hours Discounts:</strong> 20 hours = 5% OFF | 30 hours = 10% OFF
         </div>
       </div>
 
@@ -113,223 +99,219 @@ import { StudentInfo } from '../../../models/tutoring.models';
     .step-container {
       background: white;
       border-radius: 12px;
-      padding: 2rem;
+      padding: 1.5rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 1000px;
+      margin: 0 auto;
     }
 
-    .step-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #333;
+    .header {
+      text-align: center;
       margin-bottom: 2rem;
-    }
-
-    .student-section {
-      margin-bottom: 3rem;
-      padding-bottom: 2rem;
-      border-bottom: 2px solid #f0f0f0;
-    }
-
-    .student-section:last-of-type {
-      border-bottom: none;
-    }
-
-    .student-name {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #108092;
-      margin-bottom: 1.5rem;
-    }
-
-    .subject-plan-section {
-      margin-bottom: 2rem;
-    }
-
-    .subject-title {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: #555;
-      margin-bottom: 1rem;
-    }
-
-    .plans-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .plan-card {
-      background: white;
-      border: 3px solid #e0e0e0;
-      border-radius: 16px;
-      padding: 2rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      min-height: 280px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .plan-card:hover {
-      border-color: #108092;
-      transform: translateY(-6px);
-      box-shadow: 0 8px 24px rgba(16, 128, 146, 0.25);
-    }
-
-    .plan-card.selected {
-      border-color: #108092;
-      border-width: 4px;
-      background: linear-gradient(135deg, #e8f5f7 0%, #fff 100%);
-      box-shadow: 0 8px 28px rgba(16, 128, 146, 0.35);
-      transform: scale(1.02);
-    }
-
-    .plan-card.featured {
-      border-color: #bf942d;
-      position: relative;
-    }
-
-    .plan-card.featured.selected {
-      border-color: #bf942d;
-      border-width: 4px;
-      background: linear-gradient(135deg, #fffcf0 0%, #fff 100%);
-      box-shadow: 0 8px 28px rgba(191, 148, 45, 0.35);
-    }
-
-    .popular-badge {
-      position: absolute;
-      top: -14px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(135deg, #d4a839 0%, #bf942d 100%);
-      color: white;
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      box-shadow: 0 4px 12px rgba(191, 148, 45, 0.4);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.05); }
-    }
-
-    .plan-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.25rem;
       padding-bottom: 1rem;
       border-bottom: 2px solid #f0f0f0;
     }
 
-    .plan-header h5 {
+    .step-title {
       font-size: 1.5rem;
-      font-weight: 800;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-subtitle {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .student-section {
+      margin-bottom: 2rem;
+      padding: 1.25rem;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+
+    .student-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .student-icon {
+      font-size: 1.75rem;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #108092 0%, #0d6a7a 100%);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(16, 128, 146, 0.3);
+    }
+
+    .student-name {
+      font-size: 1.25rem;
+      font-weight: 600;
       color: #1a1a1a;
       margin: 0;
     }
 
-    .badge {
-      padding: 0.35rem 0.75rem;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      background: #f5f5f5;
-      color: #666;
-      letter-spacing: 0.5px;
+    .subject-row {
+      margin-bottom: 1.25rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
     }
 
-    .badge.discount {
-      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-      color: white;
-      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    .subject-row:last-child {
+      margin-bottom: 0;
     }
 
-    .plan-details {
-      margin-bottom: 1rem;
+    .subject-info {
+      margin-bottom: 0.75rem;
     }
 
-    .duration {
-      font-size: 0.875rem;
-      color: #666;
-      margin: 0.25rem 0;
-    }
-
-    .sessions {
-      font-size: 0.875rem;
-      color: #888;
-      margin: 0.25rem 0;
-    }
-
-    .plan-price {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      margin-top: auto;
-      padding-top: 1rem;
-    }
-
-    .original-price {
+    .subject-title {
       font-size: 1rem;
-      color: #999;
-      text-decoration: line-through;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
+      font-weight: 600;
+      color: #555;
+      margin: 0;
     }
 
-    .price-amount {
-      font-size: 2.25rem;
-      font-weight: 900;
-      color: #108092;
-      line-height: 1;
-      letter-spacing: -1px;
+    .hours-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
     }
 
-    .plan-card.featured .price-amount {
-      color: #bf942d;
+    .hours-option {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      text-align: center;
     }
 
-    .checkmark {
+    .hours-option:hover {
+      border-color: #108092;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 128, 146, 0.15);
+    }
+
+    .hours-option.selected {
+      border-color: #108092;
+      background: linear-gradient(135deg, #f0f9fa 0%, #fff 100%);
+      box-shadow: 0 4px 12px rgba(16, 128, 146, 0.2);
+    }
+
+    .hours-option.featured {
+      border-color: #bf942d;
+    }
+
+    .hours-option.featured.selected {
+      border-color: #bf942d;
+      background: linear-gradient(135deg, #fffcf0 0%, #fff 100%);
+    }
+
+    .hours-option.premium {
+      border-color: #4caf50;
+    }
+
+    .hours-option.premium.selected {
+      border-color: #4caf50;
+      background: linear-gradient(135deg, #f0fff4 0%, #fff 100%);
+    }
+
+    .badge {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 32px;
-      height: 32px;
+      top: -8px;
+      right: 8px;
+      background: linear-gradient(135deg, #bf942d 0%, #a07e26 100%);
+      color: white;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(191, 148, 45, 0.4);
+    }
+
+    .badge.best {
+      background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
+    }
+
+    .option-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      position: relative;
+    }
+
+    .option-header h5 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #333;
+      margin: 0;
+    }
+
+    .check {
+      position: absolute;
+      right: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+      background: #4caf50;
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 900;
-      font-size: 1.125rem;
-      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-      animation: checkmarkBounce 0.5s ease;
+      font-weight: 700;
+      font-size: 0.75rem;
+      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
     }
 
-    @keyframes checkmarkBounce {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
+    .duration {
+      font-size: 0.8rem;
+      color: #666;
+      margin: 0 0 0.75rem 0;
     }
 
-    .info-box {
+    .price-wrapper {
       display: flex;
-      gap: 1rem;
-      padding: 1rem;
-      background: #fff8e1;
-      border-left: 4px solid #ffc107;
-      border-radius: 8px;
-      margin-bottom: 2rem;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
     }
 
-    .info-icon {
+    .original {
+      font-size: 0.85rem;
+      color: #999;
+      text-decoration: line-through;
+    }
+
+    .price {
       font-size: 1.5rem;
+      font-weight: 700;
+      color: #108092;
+    }
+
+    .hours-option.featured .price {
+      color: #bf942d;
+    }
+
+    .hours-option.premium .price {
+      color: #4caf50;
     }
 
     .nav-buttons {
@@ -337,10 +319,12 @@ import { StudentInfo } from '../../../models/tutoring.models';
       justify-content: space-between;
       gap: 1rem;
       margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid #f0f0f0;
     }
 
     .btn {
-      padding: 0.75rem 2rem;
+      padding: 0.75rem 1.75rem;
       border: none;
       border-radius: 8px;
       font-weight: 600;
@@ -359,17 +343,36 @@ import { StudentInfo } from '../../../models/tutoring.models';
     }
 
     .btn-primary {
-      background: #108092;
+      background: linear-gradient(135deg, #108092 0%, #0d6a7a 100%);
       color: white;
+      box-shadow: 0 4px 12px rgba(16, 128, 146, 0.3);
     }
 
     .btn-primary:hover:not(:disabled) {
-      background: #0d6a7a;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(16, 128, 146, 0.4);
     }
 
     .btn-primary:disabled {
       background: #ccc;
       cursor: not-allowed;
+      box-shadow: none;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 768px) {
+      .step-container {
+        padding: 1rem;
+      }
+
+      .hours-options {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .nav-buttons {
+        flex-direction: column;
+      }
     }
   `]
 })

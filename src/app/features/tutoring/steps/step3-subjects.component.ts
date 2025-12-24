@@ -10,59 +10,52 @@ import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
   imports: [CommonModule],
   template: `
     <div class="step-container">
-      <h2 class="step-title">Step 3: Select Teaching Type for Each Subject</h2>
-      <p class="step-subtitle">Choose One-to-One or Group sessions (35% discount for Group)</p>
+      <div class="header">
+        <h2 class="step-title">Step 3: Select Teaching Type for Each Subject</h2>
+        <p class="step-subtitle">Choose One-to-One or Group sessions (35% discount for Group)</p>
+      </div>
 
       <div *ngFor="let student of students" class="student-section">
-        <h3 class="student-name">🎓 {{ student.name }}'s Teaching Types</h3>
+        <div class="student-header">
+          <span class="student-icon">🎓</span>
+          <h3 class="student-name">{{ student.name }}'s Teaching Types</h3>
+        </div>
 
-        <div *ngFor="let subjectId of getStudentSubjects(student.id)" class="subject-type-section">
-          <h4 class="subject-title">{{ getSubjectName(subjectId) }}</h4>
+        <div *ngFor="let subjectId of getStudentSubjects(student.id)" class="subject-row">
+          <div class="subject-info">
+            <h4 class="subject-title">{{ getSubjectName(subjectId) }}</h4>
+          </div>
 
-          <div class="teaching-type-grid">
+          <div class="teaching-type-options">
             <!-- One-to-One -->
             <div
               (click)="selectType(student.id, subjectId, TeachingType.OneToOne)"
               [class.selected]="getSelectedType(student.id, subjectId) === TeachingType.OneToOne"
-              class="type-card">
-              <div class="icon">👤</div>
-              <h5>One-to-One</h5>
-              <p>Private tutoring</p>
-              <ul class="benefits">
-                <li>✓ Full attention</li>
-                <li>✓ Flexible pace</li>
-                <li>✓ Customized learning</li>
-              </ul>
+              class="type-option">
+              <div class="option-header">
+                <span class="icon">👤</span>
+                <h5>One-to-One</h5>
+                <div *ngIf="getSelectedType(student.id, subjectId) === TeachingType.OneToOne" class="check">✓</div>
+              </div>
+              <p class="description">Private tutoring</p>
               <div class="price-tag">Standard Rate</div>
-              <div *ngIf="getSelectedType(student.id, subjectId) === TeachingType.OneToOne" class="checkmark">✓</div>
             </div>
 
             <!-- Group -->
             <div
               (click)="selectType(student.id, subjectId, TeachingType.GroupTutoring)"
               [class.selected]="getSelectedType(student.id, subjectId) === TeachingType.GroupTutoring"
-              class="type-card featured">
-              <div class="discount-badge">35% OFF</div>
-              <div class="icon">👥</div>
-              <h5>Group</h5>
-              <p>Small group (2-5 students)</p>
-              <ul class="benefits">
-                <li>✓ Interactive learning</li>
-                <li>✓ Peer collaboration</li>
-                <li>✓ Cost effective</li>
-              </ul>
+              class="type-option featured">
+              <span class="discount-badge">35% OFF</span>
+              <div class="option-header">
+                <span class="icon">👥</span>
+                <h5>Group</h5>
+                <div *ngIf="getSelectedType(student.id, subjectId) === TeachingType.GroupTutoring" class="check">✓</div>
+              </div>
+              <p class="description">Small group (2-5 students)</p>
               <div class="price-tag discount">35% Discount!</div>
-              <div *ngIf="getSelectedType(student.id, subjectId) === TeachingType.GroupTutoring" class="checkmark">✓</div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Info Box -->
-      <div class="info-box">
-        <div class="info-icon">💡</div>
-        <div>
-          <strong>Group Sessions:</strong> Save 35% on any subject with group tutoring! Perfect for learning with peers.
         </div>
       </div>
 
@@ -88,145 +81,160 @@ import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
     .step-container {
       background: white;
       border-radius: 12px;
-      padding: 2rem;
+      padding: 1.5rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 1000px;
+      margin: 0 auto;
     }
 
-    .step-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 0.5rem;
+    .header {
       text-align: center;
-    }
-
-    .step-subtitle {
-      text-align: center;
-      color: #666;
-      margin-bottom: 2.5rem;
-    }
-
-    .student-section {
-      margin-bottom: 3rem;
-      padding-bottom: 2rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
       border-bottom: 2px solid #f0f0f0;
     }
 
-    .student-section:last-of-type {
-      border-bottom: none;
+    .step-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-subtitle {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .student-section {
+      margin-bottom: 2rem;
+      padding: 1.25rem;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+
+    .student-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .student-icon {
+      font-size: 1.75rem;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #108092 0%, #0d6a7a 100%);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(16, 128, 146, 0.3);
     }
 
     .student-name {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 600;
-      color: #108092;
-      margin-bottom: 1.5rem;
+      color: #1a1a1a;
+      margin: 0;
     }
 
-    .subject-type-section {
-      margin-bottom: 2rem;
+    .subject-row {
+      margin-bottom: 1.25rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+    }
+
+    .subject-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .subject-info {
+      margin-bottom: 0.75rem;
     }
 
     .subject-title {
-      font-size: 1.125rem;
+      font-size: 1rem;
       font-weight: 600;
       color: #555;
-      margin-bottom: 1rem;
+      margin: 0;
     }
 
-    .teaching-type-grid {
+    .teaching-type-options {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
     }
 
-    .type-card {
+    .type-option {
       background: white;
-      border: 3px solid #e0e0e0;
-      border-radius: 16px;
-      padding: 2rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
-      text-align: center;
     }
 
-    .type-card:hover {
+    .type-option:hover {
       border-color: #108092;
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(16, 128, 146, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 128, 146, 0.15);
     }
 
-    .type-card.selected {
+    .type-option.selected {
       border-color: #108092;
       background: linear-gradient(135deg, #f0f9fa 0%, #fff 100%);
-      box-shadow: 0 8px 20px rgba(16, 128, 146, 0.3);
+      box-shadow: 0 4px 12px rgba(16, 128, 146, 0.2);
     }
 
-    .type-card.featured {
+    .type-option.featured {
+      border-color: #4caf50;
+    }
+
+    .type-option.featured.selected {
       border-color: #4caf50;
     }
 
     .discount-badge {
       position: absolute;
-      top: -12px;
-      right: 16px;
+      top: -10px;
+      right: 10px;
       background: linear-gradient(135deg, #4caf50, #2e7d32);
       color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-size: 0.875rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 15px;
+      font-size: 0.75rem;
       font-weight: 700;
+      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
     }
 
-    .icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .type-card h5 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #333;
+    .option-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       margin-bottom: 0.5rem;
     }
 
-    .type-card p {
-      color: #666;
-      margin-bottom: 1rem;
+    .icon {
+      font-size: 1.75rem;
     }
 
-    .benefits {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 1.5rem 0;
-      text-align: left;
+    .option-header h5 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #333;
+      margin: 0;
+      flex: 1;
     }
 
-    .benefits li {
-      padding: 0.25rem 0;
-      color: #555;
-    }
-
-    .price-tag {
-      background: #f5f5f5;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      font-weight: 600;
-      color: #666;
-    }
-
-    .price-tag.discount {
-      background: #e8f5e9;
-      color: #388e3c;
-    }
-
-    .checkmark {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 32px;
-      height: 32px;
+    .check {
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       background: #4caf50;
       color: white;
@@ -234,21 +242,29 @@ import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 1.25rem;
+      font-size: 0.875rem;
+      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
     }
 
-    .info-box {
-      display: flex;
-      gap: 1rem;
-      padding: 1.25rem;
+    .description {
+      color: #666;
+      font-size: 0.85rem;
+      margin: 0 0 0.75rem 0;
+    }
+
+    .price-tag {
+      background: #f5f5f5;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-weight: 600;
+      color: #666;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .price-tag.discount {
       background: #e8f5e9;
-      border-left: 4px solid #4caf50;
-      border-radius: 8px;
-      margin-bottom: 2rem;
-    }
-
-    .info-icon {
-      font-size: 1.5rem;
+      color: #388e3c;
     }
 
     .nav-buttons {
@@ -256,14 +272,16 @@ import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
       justify-content: space-between;
       gap: 1rem;
       margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid #f0f0f0;
     }
 
     .btn {
-      padding: 0.85rem 2rem;
+      padding: 0.75rem 1.75rem;
       border: none;
       border-radius: 8px;
       font-weight: 600;
-      font-size: 1.05rem;
+      font-size: 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
     }
@@ -278,19 +296,36 @@ import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
     }
 
     .btn-primary {
-      background: #108092;
+      background: linear-gradient(135deg, #108092 0%, #0d6a7a 100%);
       color: white;
+      box-shadow: 0 4px 12px rgba(16, 128, 146, 0.3);
     }
 
     .btn-primary:hover:not(:disabled) {
-      background: #0d6a7a;
       transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(16, 128, 146, 0.4);
+      box-shadow: 0 6px 16px rgba(16, 128, 146, 0.4);
     }
 
     .btn-primary:disabled {
       background: #ccc;
       cursor: not-allowed;
+      box-shadow: none;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 768px) {
+      .step-container {
+        padding: 1rem;
+      }
+
+      .teaching-type-options {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .nav-buttons {
+        flex-direction: column;
+      }
     }
   `]
 })
