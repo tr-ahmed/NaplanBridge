@@ -96,28 +96,31 @@ import { PriceSummaryComponent } from './steps/remaining-components';
       top: 20px;
       left: 50%;
       width: 100%;
-      height: 2px;
-      background: #e0e0e0;
-      z-index: -1;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.4);
+      z-index: 1;
     }
 
     .step-item.completed:not(:last-child)::after {
-      background: #108092;
+      background: rgba(255, 255, 255, 0.7);
     }
 
     .step-circle {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: #f5f5f5;
-      border: 2px solid #e0e0e0;
+      background: white;
+      border: 3px solid #cbd5e1;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      color: #999;
+      color: #475569;
       margin-bottom: 0.5rem;
       transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 2;
     }
 
     .step-item.active .step-circle {
@@ -135,12 +138,12 @@ import { PriceSummaryComponent } from './steps/remaining-components';
 
     .step-label {
       font-size: 0.875rem;
-      color: #666;
+      color: rgba(255, 255, 255, 0.8);
       text-align: center;
     }
 
     .step-item.active .step-label {
-      color: #108092;
+      color: white;
       font-weight: 600;
     }
 

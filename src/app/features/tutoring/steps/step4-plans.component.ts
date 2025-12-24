@@ -403,11 +403,12 @@ export class Step4PlansComponent implements OnInit {
     this.loading = true;
     this.contentService.getSubjects().subscribe({
       next: (subjects) => {
-        this.subjects = subjects;
+        this.subjects = Array.isArray(subjects) ? subjects : [];
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading subjects:', error);
+        this.subjects = [];
         this.loading = false;
       }
     });
@@ -420,11 +421,17 @@ export class Step4PlansComponent implements OnInit {
   }
 
   getSubjectName(subjectId: number): string {
+    if (!Array.isArray(this.subjects)) {
+      return `Subject ${subjectId}`;
+    }
     const subject = this.subjects.find(s => s.id === subjectId);
     return subject ? subject.subjectName : `Subject ${subjectId}`;
   }
 
   getSubjectPrice(subjectId: number): number {
+    if (!Array.isArray(this.subjects)) {
+      return 100;
+    }
     const subject = this.subjects.find(s => s.id === subjectId);
     return subject ? subject.price : 100;
   }

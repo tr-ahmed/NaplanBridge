@@ -188,6 +188,57 @@ If it references the API first → instructions are working.
 
 ---
 
+### 📤 Git Commit & Push Rules
+
+**CRITICAL: Never commit broken code**
+
+Before ANY commit:
+
+1. ✅ **Verify the application runs without errors**
+
+```bash
+ng serve
+```
+
+2. ✅ **Check for console errors** in browser DevTools
+3. ✅ **Test the feature with real API** (not just UI rendering)
+4. ✅ **Fix all blocking issues** before proceeding
+
+**Commit Workflow:**
+
+```bash
+# 1. Test first
+ng serve   # Make sure app compiles and runs
+
+# 2. If app works, stage changes
+git add .
+
+# 3. Commit with descriptive message
+git commit -m "feat: <feature-name> - working with real API"
+
+# 4. Push to remote
+git push origin main
+```
+
+**If issues are found:**
+
+* ❌ DO NOT commit
+* 🔧 Fix the issue first
+* ✅ Test again
+* ✅ Then commit
+
+**Commit Message Format:**
+
+```
+feat: <what was added>
+fix: <what was fixed>
+refactor: <what was refactored>
+chore: <maintenance tasks>
+```
+
+---
+
 ### Final Rule
 
 > **"If it doesn't work with the real backend, it is NOT done — no matter how good the UI looks."**
+> **"Never commit code that doesn't compile or run successfully."**
