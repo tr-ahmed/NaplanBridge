@@ -154,38 +154,29 @@ import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
     .type-card:hover {
       border-color: #108092;
       transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(16, 128, 146, 0.2);
+      box-shadow: 0 8px 20px rgba(16, 128, 146, 0.2);
     }
 
     .type-card.selected {
       border-color: #108092;
-      border-width: 4px;
-      background: linear-gradient(135deg, #e8f5f7 0%, #fff 100%);
-      box-shadow: 0 6px 16px rgba(16, 128, 146, 0.3);
+      background: linear-gradient(135deg, #f0f9fa 0%, #fff 100%);
+      box-shadow: 0 8px 20px rgba(16, 128, 146, 0.3);
     }
 
     .type-card.featured {
-      border-color: #bf942d;
-    }
-
-    .type-card.featured.selected {
-      border-color: #bf942d;
-      border-width: 4px;
-      background: linear-gradient(135deg, #fffcf0 0%, #fff 100%);
-      box-shadow: 0 6px 16px rgba(191, 148, 45, 0.3);
+      border-color: #4caf50;
     }
 
     .discount-badge {
       position: absolute;
       top: -12px;
-      right: 20px;
-      background: linear-gradient(135deg, #d4a839 0%, #bf942d 100%);
+      right: 16px;
+      background: linear-gradient(135deg, #4caf50, #2e7d32);
       color: white;
-      padding: 0.4rem 1rem;
+      padding: 0.5rem 1rem;
       border-radius: 20px;
-      font-size: 0.75rem;
+      font-size: 0.875rem;
       font-weight: 700;
-      box-shadow: 0 4px 12px rgba(191, 148, 45, 0.4);
     }
 
     .icon {
@@ -194,7 +185,7 @@ import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
     }
 
     .type-card h5 {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 700;
       color: #333;
       margin-bottom: 0.5rem;
@@ -208,61 +199,56 @@ import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
     .benefits {
       list-style: none;
       padding: 0;
-      margin: 1rem 0;
+      margin: 0 0 1.5rem 0;
       text-align: left;
     }
 
     .benefits li {
-      padding: 0.5rem 0;
+      padding: 0.25rem 0;
       color: #555;
-      font-size: 0.9rem;
     }
 
     .price-tag {
-      display: inline-block;
-      padding: 0.6rem 1.2rem;
-      border-radius: 25px;
-      font-weight: 600;
       background: #f5f5f5;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
       color: #666;
-      font-size: 0.9rem;
     }
 
     .price-tag.discount {
-      background: #4caf50;
-      color: white;
+      background: #e8f5e9;
+      color: #388e3c;
     }
 
     .checkmark {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      top: 16px;
+      right: 16px;
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+      background: #4caf50;
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 900;
-      font-size: 1.125rem;
-      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+      font-weight: 700;
+      font-size: 1.25rem;
     }
 
     .info-box {
       display: flex;
       gap: 1rem;
       padding: 1.25rem;
-      background: linear-gradient(135deg, #e3f2fd 0%, #f0f9fa 100%);
-      border-left: 4px solid #2196f3;
-      border-radius: 12px;
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+      border-radius: 8px;
       margin-bottom: 2rem;
     }
 
     .info-icon {
       font-size: 1.5rem;
-      flex-shrink: 0;
     }
 
     .nav-buttons {
@@ -273,9 +259,9 @@ import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
     }
 
     .btn {
-      padding: 0.875rem 2.5rem;
+      padding: 0.85rem 2rem;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       font-weight: 600;
       font-size: 1.05rem;
       cursor: pointer;
@@ -334,7 +320,7 @@ export class Step3TeachingTypeComponent implements OnInit {
 
   loadSubjects(): void {
     const uniqueYears = [...new Set(this.students.map(s => s.academicYearId))];
-    
+
     uniqueYears.forEach(yearId => {
       this.contentService.getSubjectsByYear(yearId).subscribe({
         next: (subjects) => {
@@ -379,181 +365,6 @@ export class Step3TeachingTypeComponent implements OnInit {
         return this.getSelectedType(student.id, subjectId) !== null;
       });
     });
-  }
-
-  previousStep(): void {
-    this.stateService.previousStep();
-  }
-
-  nextStep(): void {
-    if (this.canProceed()) {
-      this.stateService.nextStep();
-    }
-  }
-}
-      color: #666;
-      text-align: center;
-    }
-
-    .discount-info {
-      color: #4caf50;
-      margin-left: 0.5rem;
-    }
-
-    .loading, .no-subjects {
-      text-align: center;
-      padding: 2rem;
-      color: #666;
-      background: #f5f5f5;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-
-    .nav-buttons {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-
-    .btn {
-      padding: 0.75rem 2rem;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn-secondary {
-      background: #f5f5f5;
-      color: #666;
-    }
-
-    .btn-secondary:hover {
-      background: #e0e0e0;
-    }
-
-    .btn-primary {
-      background: #108092;
-      color: white;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      background: #0d6a7a;
-    }
-
-    .btn-primary:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-  `]
-})
-export class Step3SubjectsComponent implements OnInit {
-  students: StudentInfo[] = [];
-  allSubjects: Subject[] = [];
-  subjectsByYear = new Map<number, Subject[]>();
-  studentSubjects = new Map<number, Set<number>>();
-  loading = false;
-
-  constructor(
-    private stateService: TutoringStateService,
-    private contentService: ContentService
-  ) {}
-
-  ngOnInit(): void {
-    this.restoreState();
-    this.loadSubjects();
-  }
-
-  restoreState(): void {
-    const state = this.stateService.getState();
-    this.students = Array.isArray(state.students) ? state.students : [];
-    this.studentSubjects = new Map(state.studentSubjects);
-
-    // Initialize empty sets for new students
-    this.students.forEach(s => {
-      if (!this.studentSubjects.has(s.id)) {
-        this.studentSubjects.set(s.id, new Set());
-      }
-    });
-  }
-
-  loadSubjects(): void {
-    this.loading = true;
-
-    // Get unique year IDs from students
-    const uniqueYears = [...new Set(this.students.map(s => s.academicYearId))];
-
-    // Load subjects for each year
-    let loadedCount = 0;
-    uniqueYears.forEach(yearId => {
-      this.contentService.getSubjectsByYear(yearId).subscribe({
-        next: (subjects) => {
-          const subjectsArray = Array.isArray(subjects) ? subjects : [];
-          this.subjectsByYear.set(yearId, subjectsArray);
-          this.allSubjects.push(...subjectsArray);
-
-          loadedCount++;
-          if (loadedCount === uniqueYears.length) {
-            this.loading = false;
-          }
-        },
-        error: (error) => {
-          console.error(`Error loading subjects for year ${yearId}:`, error);
-          this.subjectsByYear.set(yearId, []);
-
-          loadedCount++;
-          if (loadedCount === uniqueYears.length) {
-            this.loading = false;
-          }
-        }
-      });
-    });
-
-    // Handle case where there are no students
-    if (uniqueYears.length === 0) {
-      this.loading = false;
-    }
-  }
-
-  getSubjectsForStudent(academicYearId: number): Subject[] {
-    return this.subjectsByYear.get(academicYearId) || [];
-  }
-
-  toggleSubject(studentId: number, subject: Subject): void {
-    const selected = this.studentSubjects.get(studentId)!;
-
-    if (selected.has(subject.id)) {
-      selected.delete(subject.id);
-    } else {
-      if (selected.size < 5) {
-        selected.add(subject.id);
-      } else {
-        alert('Maximum 5 subjects per student');
-        return;
-      }
-    }
-
-    this.stateService.setStudentSubjects(this.studentSubjects);
-  }
-
-  isSubjectSelected(studentId: number, subjectId: number): boolean {
-    return this.studentSubjects.get(studentId)?.has(subjectId) || false;
-  }
-
-  getSelectedCount(studentId: number): number {
-    return this.studentSubjects.get(studentId)?.size || 0;
-  }
-
-  getSubjectDiscount(count: number): number {
-    if (count <= 1) return 0;
-    return Math.min(count * 5, 20);
-  }
-
-  canProceed(): boolean {
-    return this.students.every(s => this.getSelectedCount(s.id) > 0);
   }
 
   previousStep(): void {

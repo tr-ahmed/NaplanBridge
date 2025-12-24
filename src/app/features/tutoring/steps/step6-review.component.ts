@@ -4,16 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TutoringStateService } from '../../../core/services/tutoring-state.service';
 import { TutoringService } from '../../../core/services/tutoring.service';
-import { ContentService } from '../../../core/services/content.service';
+import { ContentService, Subject } from '../../../core/services/content.service';
 import {
-  TutoringPlan,
-  TutoringPriceResponse,
-  StudentSubjectSelection,
-  SubjectWithPlan,
-  CreateTutoringOrderRequest,
-  TeachingType
+  TeachingType,
+  NewPriceCalculationRequest,
+  NewPriceCalculationResponse,
+  NewStudentSelectionDto,
+  NewSubjectSelectionDto,
+  HoursOption,
+  StudentInfo
 } from '../../../models/tutoring.models';
-import { Subject } from '../../../models/package-pricing.model';
 
 @Component({
   selector: 'app-step6-review',
@@ -22,120 +22,105 @@ import { Subject } from '../../../models/package-pricing.model';
   template: `
     <div class="step-container">
       <h2 class="step-title">Step 6: Review & Payment</h2>
+      <p class="step-subtitle">Review your selections and complete the booking</p>
 
-      <!-- Order Summary -->
-      <div class="summary-section">
-        <h3>Order Summary</h3>
-
-        <div class="summary-grid">
-          <div class="summary-item">
-            <span class="label">Teaching Type:</span>
-            <span class="value">{{ teachingType === TeachingType.OneToOne ? 'One-to-One' : 'Group Tutoring' }}</span>
-            <span *ngIf="teachingType === TeachingType.GroupTutoring" class="discount-badge">35% OFF</span>
-          </div>
-
-          <div class="summary-item">
-            <span class="label">Number of Students:</span>
-            <span class="value">{{ students.length }}</span>
-            <span *ngIf="students.length > 1" class="discount-badge">{{ getStudentDiscount() }}% OFF</span>
-          </div>
-
-          <div class="summary-item">
-            <span class="label">Total Subjects:</span>
-            <span class="value">{{ getTotalSubjects() }}</span>
-          </div>
-
-          <div class="summary-item">
-            <span class="label">Total Sessions:</span>
-            <span class="value">{{ getTotalSessions() }}</span>
-          </div>
-        </div>
+      <!-- Price Calculation Loading -->
+      <div *ngIf="calculatingPrice" class="loading">
+        <div class="spinner"></div>
+        <p>Calculating your discounts...</p>
       </div>
 
-      <!-- Students Details -->
-      <div class="students-details">
-        <h3>Students & Subjects</h3>
+      <!-- Price Breakdown -->
+      <div *ngIf="!calculatingPrice && priceResponse" class="price-section">
 
-        <div *ngFor="let student of students" class="student-card">
-          <h4 class="student-name">{{ student.name }}</h4>
+        <!-- Students Breakdown -->
+        <div *ngFor="let studentBreakdown of priceResponse.students" class="student-card">
+          <h3 class="student-name">👤 {{ studentBreakdown.studentName }}</h3>
 
           <table class="subjects-table">
             <thead>
               <tr>
                 <th>Subject</th>
-                <th>Plan</th>
-                <th>Sessions</th>
-                <th class="text-right">Price</th>
+                <th>Type</th>
+                <th>Hours</th>
+                <th>Base Price</th>
+                <th>Discounts</th>
+                <th class="text-right">Final</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let subject of getStudentSubjects(student.id)">
-                <td class="subject-name">{{ getSubjectName(subject) }}</td>
-                <td>{{ getPlanLabel(student.id, subject) }}</td>
-                <td>{{ getRequiredSlots(student.id, subject) }} sessions</td>
-                <td class="text-right price">\${{ calculateSubjectPrice(student.id, subject) }}</td>
+              <tr *ngFor="let subject of studentBreakdown.subjects">
+                <td class="subject-name">{{ subject.subjectName }}</td>
+                <td>
+                  <span class="type-badge" [class.group]="subject.teachingType === 'Group'">
+                    {{ subject.teachingType }}
+                  </span>
+                </td>
+                <td>{{ subject.hours }}h</td>
+                <td>\${{ subject.basePrice }}</td>
+                <td>
+                  <div class="discounts-list">
+                    <span *ngIf="subject.discounts.multiSubject.amount > 0" class="discount-item">
+                      📚 -\${{ subject.discounts.multiSubject.amount }} ({{ subject.discounts.multiSubject.reason }})
+                    </span>
+                    <span *ngIf="subject.discounts.group.amount > 0" class="discount-item group">
+                      👥 -\${{ subject.discounts.group.amount }} ({{ subject.discounts.group.reason }})
+                    </span>
+                    <span *ngIf="subject.discounts.hours.amount > 0" class="discount-item hours">
+                      ⏰ -\${{ subject.discounts.hours.amount }} ({{ subject.discounts.hours.reason }})
+                    </span>
+                  </div>
+                </td>
+                <td class="text-right final-price">\${{ subject.finalPrice }}</td>
               </tr>
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="3" class="text-right"><strong>Subtotal for {{ student.name }}:</strong></td>
-                <td class="text-right price"><strong>\${{ getStudentTotal(student.id) }}</strong></td>
+                <td colspan="5" class="text-right"><strong>Student Total:</strong></td>
+                <td class="text-right student-total">\${{ studentBreakdown.studentTotal }}</td>
               </tr>
             </tfoot>
           </table>
         </div>
+
+        <!-- Grand Total Section -->
+        <div class="grand-total-section">
+          <div class="savings-breakdown">
+            <h4>💰 Your Savings</h4>
+            <div class="savings-row">
+              <span>Multi-Subject Discount:</span>
+              <span class="savings-value">-\${{ priceResponse.breakdown.multiSubjectSavings }}</span>
+            </div>
+            <div class="savings-row">
+              <span>Group Sessions Discount:</span>
+              <span class="savings-value">-\${{ priceResponse.breakdown.groupSavings }}</span>
+            </div>
+            <div class="savings-row">
+              <span>Hours Package Discount:</span>
+              <span class="savings-value">-\${{ priceResponse.breakdown.hoursSavings }}</span>
+            </div>
+            <div class="savings-total">
+              <span>Total Savings:</span>
+              <span class="total-savings">-\${{ priceResponse.totalDiscount }} ({{ priceResponse.overallDiscountPercentage.toFixed(1) }}%)</span>
+            </div>
+          </div>
+
+          <div class="final-amount">
+            <div class="original-price">
+              Original: <span>\${{ priceResponse.grandTotal + priceResponse.totalDiscount }}</span>
+            </div>
+            <div class="grand-total">
+              <span>Total to Pay:</span>
+              <span class="amount">\${{ priceResponse.grandTotal }}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Price Breakdown -->
-      <div class="price-breakdown-section">
-        <h3>Price Breakdown</h3>
-
-        <div *ngIf="!calculatingPrice && priceCalculation" class="breakdown-details">
-          <div class="breakdown-row">
-            <span>Base Price:</span>
-            <span>\${{ priceCalculation.basePrice.toFixed(2) }}</span>
-          </div>
-
-          <div *ngIf="priceCalculation.groupDiscount > 0" class="breakdown-row discount">
-            <span>Group Tutoring Discount (35%):</span>
-            <span>-\${{ priceCalculation.groupDiscount.toFixed(2) }}</span>
-          </div>
-
-          <div *ngIf="priceCalculation.multipleStudentsDiscount > 0" class="breakdown-row discount">
-            <span>Multiple Students Discount ({{ getStudentDiscount() }}%):</span>
-            <span>-\${{ priceCalculation.multipleStudentsDiscount.toFixed(2) }}</span>
-          </div>
-
-          <div *ngIf="priceCalculation.multipleSubjectsDiscount > 0" class="breakdown-row discount">
-            <span>Multiple Subjects Discount:</span>
-            <span>-\${{ priceCalculation.multipleSubjectsDiscount.toFixed(2) }}</span>
-          </div>
-
-          <div *ngIf="priceCalculation.planDiscount > 0" class="breakdown-row discount">
-            <span>Plan Discounts (20hrs/30hrs):</span>
-            <span>-\${{ priceCalculation.planDiscount.toFixed(2) }}</span>
-          </div>
-
-          <div class="breakdown-row total-discount">
-            <span><strong>Total Discount:</strong></span>
-            <span><strong>-\${{ priceCalculation.totalDiscount.toFixed(2) }}</strong></span>
-          </div>
-
-          <div class="breakdown-row total">
-            <span><strong>Final Price:</strong></span>
-            <span><strong>\${{ priceCalculation.finalPrice.toFixed(2) }}</strong></span>
-          </div>
-        </div>
-
-        <div *ngIf="calculatingPrice" class="loading-price">
-          <div class="spinner"></div>
-          <p>Calculating price...</p>
-        </div>
-
-        <div *ngIf="priceError" class="error-box">
-          <span>❌ Error calculating price: {{ priceError }}</span>
-          <button (click)="calculatePrice()" class="btn btn-small">Retry</button>
-        </div>
+      <!-- Error -->
+      <div *ngIf="priceError" class="error-box">
+        <span>❌ {{ priceError }}</span>
+        <button (click)="calculatePrice()" class="btn btn-small">Retry</button>
       </div>
 
       <!-- Terms & Conditions -->
@@ -161,7 +146,7 @@ import { Subject } from '../../../models/package-pricing.model';
           [disabled]="!canProceed() || creatingOrder"
           class="btn btn-primary btn-large">
           <span *ngIf="!creatingOrder">
-            💳 Proceed to Payment (\${{ priceCalculation?.finalPrice?.toFixed(2) || '0.00' }})
+            💳 Proceed to Payment (\${{ priceResponse?.grandTotal?.toFixed(2) || '0.00' }})
           </span>
           <span *ngIf="creatingOrder">
             Processing...
@@ -463,10 +448,9 @@ import { Subject } from '../../../models/package-pricing.model';
 export class Step6ReviewComponent implements OnInit {
   TeachingType = TeachingType;
 
-  students: { id: number; name: string }[] = [];
+  students: StudentInfo[] = [];
   subjects: Subject[] = [];
-  teachingType: TeachingType = TeachingType.OneToOne;
-  priceCalculation: TutoringPriceResponse | null = null;
+  priceResponse: NewPriceCalculationResponse | null = null;
   agreedToTerms = false;
   calculatingPrice = false;
   creatingOrder = false;
@@ -482,25 +466,24 @@ export class Step6ReviewComponent implements OnInit {
   ngOnInit(): void {
     this.restoreState();
     this.loadSubjects();
-    this.calculatePrice();
   }
 
   restoreState(): void {
     const state = this.stateService.getState();
-    // Ensure students is always an array
     this.students = Array.isArray(state.students) ? state.students : [];
-    this.teachingType = state.teachingType;
   }
 
   loadSubjects(): void {
     this.contentService.getSubjects().subscribe({
       next: (subjects) => {
-        // Ensure subjects is always an array
         this.subjects = Array.isArray(subjects) ? subjects : [];
+        // Calculate price after subjects loaded
+        this.calculatePrice();
       },
       error: (error) => {
         console.error('Error loading subjects:', error);
         this.subjects = [];
+        this.calculatePrice();
       }
     });
   }
@@ -511,116 +494,52 @@ export class Step6ReviewComponent implements OnInit {
 
     const request = this.buildPriceRequest();
 
-    this.tutoringService.calculatePrice(request).subscribe({
+    this.tutoringService.calculatePriceV2(request).subscribe({
       next: (response) => {
-        this.priceCalculation = response;
-        this.stateService.setPriceCalculation(response);
+        this.priceResponse = response;
         this.calculatingPrice = false;
       },
       error: (error) => {
         console.error('Error calculating price:', error);
-        this.priceError = error.error?.error || 'Failed to calculate price';
+        this.priceError = error.error?.message || 'Failed to calculate price';
         this.calculatingPrice = false;
       }
     });
   }
 
-  buildPriceRequest(): any {
+  buildPriceRequest(): NewPriceCalculationRequest {
     const state = this.stateService.getState();
 
-    const studentSelections: StudentSubjectSelection[] = this.students.map(student => ({
-      studentId: student.id,
-      studentName: student.name,
-      subjects: this.getStudentSubjects(student.id).map(subjectId => ({
-        subjectId: subjectId,
-        subjectName: this.getSubjectName(subjectId),
-        plan: this.stateService.getPlan(student.id, subjectId) || TutoringPlan.Hours10,
-        basePrice: 100,
-        totalPrice: this.calculateSubjectPrice(student.id, subjectId),
-        selectedTimeSlotIds: this.stateService.getTimeSlots(student.id, subjectId),
-        requiredSlots: this.getRequiredSlots(student.id, subjectId)
-      }))
-    }));
+    const studentSelections: NewStudentSelectionDto[] = this.students.map(student => {
+      const subjectIds = state.studentSubjects.get(student.id) || new Set();
 
-    return {
-      teachingType: state.teachingType,
-      academicYearId: state.academicYearId!,
-      studentSelections
-    };
-  }
+      const subjects: NewSubjectSelectionDto[] = Array.from(subjectIds).map(subjectId => {
+        const key = `${student.id}_${subjectId}`;
+        const teachingType = state.subjectTeachingTypes.get(key) || TeachingType.OneToOne;
+        const hours = (state.subjectHours.get(key) || 10) as HoursOption;
+        const subjectInfo = this.subjects.find(s => s.id === subjectId);
 
-  getStudentSubjects(studentId: number): number[] {
-    const state = this.stateService.getState();
-    const subjectSet = state.studentSubjects.get(studentId);
-    return subjectSet ? Array.from(subjectSet) : [];
-  }
+        return {
+          subjectId,
+          subjectName: subjectInfo?.subjectName || `Subject ${subjectId}`,
+          basePrice: subjectInfo?.price || 100,
+          teachingType,
+          hours
+        };
+      });
 
-  getSubjectName(subjectId: number): string {
-    const subject = this.subjects.find(s => s.id === subjectId);
-    return subject ? subject.name : `Subject ${subjectId}`;
-  }
+      return {
+        studentId: student.id,
+        studentName: student.name,
+        subjects
+      };
+    });
 
-  getPlanLabel(studentId: number, subjectId: number): string {
-    const plan = this.stateService.getPlan(studentId, subjectId);
-    return plan || '10hrs';
-  }
-
-  getRequiredSlots(studentId: number, subjectId: number): number {
-    const plan = this.stateService.getPlan(studentId, subjectId);
-    switch (plan) {
-      case TutoringPlan.Hours10: return 10;
-      case TutoringPlan.Hours20: return 20;
-      case TutoringPlan.Hours30: return 30;
-      default: return 10;
-    }
-  }
-
-  calculateSubjectPrice(studentId: number, subjectId: number): number {
-    const basePrice = 100;
-    const plan = this.stateService.getPlan(studentId, subjectId);
-
-    switch (plan) {
-      case TutoringPlan.Hours10:
-        return basePrice;
-      case TutoringPlan.Hours20:
-        return Math.round(basePrice * 2 * 0.95);
-      case TutoringPlan.Hours30:
-        return Math.round(basePrice * 3 * 0.90);
-      default:
-        return basePrice;
-    }
-  }
-
-  getStudentTotal(studentId: number): number {
-    const subjects = this.getStudentSubjects(studentId);
-    return subjects.reduce((total, subjectId) =>
-      total + this.calculateSubjectPrice(studentId, subjectId), 0
-    );
-  }
-
-  getTotalSubjects(): number {
-    return this.students.reduce((total, student) =>
-      total + this.getStudentSubjects(student.id).length, 0
-    );
-  }
-
-  getTotalSessions(): number {
-    return this.students.reduce((total, student) => {
-      const subjects = this.getStudentSubjects(student.id);
-      return total + subjects.reduce((subTotal, subjectId) =>
-        subTotal + this.getRequiredSlots(student.id, subjectId), 0
-      );
-    }, 0);
-  }
-
-  getStudentDiscount(): number {
-    const count = this.students.length;
-    if (count <= 1) return 0;
-    return Math.min(count * 5, 20);
+    return { studentSelections };
   }
 
   canProceed(): boolean {
-    return this.agreedToTerms && this.priceCalculation !== null && !this.calculatingPrice;
+    return this.agreedToTerms && this.priceResponse !== null && !this.calculatingPrice;
   }
 
   previousStep(): void {
@@ -628,18 +547,17 @@ export class Step6ReviewComponent implements OnInit {
   }
 
   async proceedToPayment(): Promise<void> {
-    if (!this.canProceed() || !this.priceCalculation) return;
+    if (!this.canProceed() || !this.priceResponse) return;
 
     this.creatingOrder = true;
 
     const state = this.stateService.getState();
-    const orderRequest: CreateTutoringOrderRequest = {
-      teachingType: state.teachingType,
-      academicYearId: state.academicYearId!,
-      termId: 1, // TODO: Get from state
+
+    // Build order request with new structure
+    const orderRequest: any = {
       studentSelections: this.buildPriceRequest().studentSelections,
       totalStudents: this.students.length,
-      expectedPrice: this.priceCalculation.finalPrice
+      expectedPrice: this.priceResponse.grandTotal
     };
 
     this.tutoringService.createOrder(orderRequest).subscribe({
@@ -660,7 +578,7 @@ export class Step6ReviewComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error creating order:', error);
-        alert(error.error?.error || 'Failed to create order. Please try again.');
+        alert(error.error?.message || 'Failed to create order. Please try again.');
         this.creatingOrder = false;
       }
     });

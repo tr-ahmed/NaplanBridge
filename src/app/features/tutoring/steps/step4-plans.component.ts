@@ -464,35 +464,3 @@ export class Step4HoursComponent implements OnInit {
     }
   }
 }
-    switch (plan) {
-      case TutoringPlan.Hours10:
-        return basePrice;
-      case TutoringPlan.Hours20:
-        return Math.round(basePrice * 2 * 0.95); // 5% discount
-      case TutoringPlan.Hours30:
-        return Math.round(basePrice * 3 * 0.90); // 10% discount
-      default:
-        return basePrice;
-    }
-  }
-
-  canProceed(): boolean {
-    // All student subjects must have a plan selected
-    return this.students.every(student => {
-      const subjects = this.getStudentSubjects(student.id);
-      return subjects.every(subjectId => {
-        return this.getSelectedPlan(student.id, subjectId) !== null;
-      });
-    });
-  }
-
-  previousStep(): void {
-    this.stateService.previousStep();
-  }
-
-  nextStep(): void {
-    if (this.canProceed()) {
-      this.stateService.nextStep();
-    }
-  }
-}

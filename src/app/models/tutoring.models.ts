@@ -1,5 +1,5 @@
 // ============================================
-// Tutoring System Models
+// Tutoring System Models - v2.0 Flexible Booking
 // ============================================
 
 // Enums
@@ -30,7 +30,306 @@ export enum TutoringSessionStatus {
 
 export enum TeachingType {
   OneToOne = 'OneToOne',
-  GroupTutoring = 'GroupTutoring'
+  GroupTutoring = 'Group'
+}
+
+export enum SessionType {
+  OneToOne = 'OneToOne',
+  Group = 'Group',
+  BookingFirst = 'BookingFirst'
+}
+
+export type HoursOption = 10 | 20 | 30;
+
+// ============================================
+// Pagination
+// ============================================
+
+export interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalRecords: number;
+  pageSize: number;
+}
+
+// ============================================
+// Teacher Priority (Admin)
+// ============================================
+
+export interface UpdateTeacherPriorityDto {
+  priority: number; // 1-10
+}
+
+export interface TeacherWithPriorityDto {
+  id: number;
+  name: string;
+  email: string;
+  priority: number;
+  subjects: string[];
+  isActive: boolean;
+  totalBookings: number;
+  avgRating: number;
+}
+
+export interface TeachersWithPriorityResponse {
+  data: TeacherWithPriorityDto[];
+  pagination: PaginationInfo;
+}
+
+// ============================================
+// Teacher Availability
+// ============================================
+
+export interface CreateTeacherAvailabilityDto {
+  dayOfWeek: number; // 0-6
+  startTime: string; // "HH:mm:ss"
+  endTime: string;
+  sessionType: SessionType;
+  maxStudents?: number; // 2-10, required for Group
+  subjectId?: number;
+}
+
+export interface UpdateTeacherAvailabilityDto extends CreateTeacherAvailabilityDto {
+  isActive: boolean;
+}
+
+export interface UpcomingSessionDto {
+  date: string;
+  studentCount: number;
+  studentNames: string[];
+}
+
+export interface TeacherAvailabilityResponseDto {
+  id: number;
+  teacherId: number;
+  dayOfWeek: number;
+  dayName: string;
+  startTime: string;
+  endTime: string;
+  sessionType: string;
+  maxStudents?: number;
+  subjectId?: number;
+  subjectName?: string;
+  isActive: boolean;
+  currentBookings: number;
+  upcomingSessions: UpcomingSessionDto[];
+  createdAt: string;
+}
+
+export interface AvailabilityConflictDto {
+  id: number;
+  startTime: string;
+  endTime: string;
+}
+
+export interface AvailabilityOperationResponse {
+  success: boolean;
+  message: string;
+  data?: TeacherAvailabilityResponseDto;
+  conflicts?: AvailabilityConflictDto[];
+  upcomingBookingsCount?: number;
+  nextBookingDate?: string;
+  wasHardDeleted?: boolean;
+}
+
+// ============================================
+// Smart Scheduling (Parent)
+// ============================================
+
+export interface TimeRangePreference {
+  start: string; // "HH:mm:ss"
+  end: string;
+}
+
+export interface SmartSchedulingSubjectSelection {
+  subjectId: number;
+  teachingType: TeachingType;
+  hours: HoursOption;
+}
+
+export interface SmartSchedulingStudentSelection {
+  studentId: number;
+  subjects: SmartSchedulingSubjectSelection[];
+}
+
+export interface GetAvailableSlotsRequest {
+  studentSelections: SmartSchedulingStudentSelection[];
+  startDate: string;
+  endDate: string;
+  preferredDays?: number[];
+  preferredTimeRange?: TimeRangePreference;
+}
+
+export interface ScheduledSlotDto {
+  dateTime: string;
+  dayOfWeek: number;
+  isPreferred: boolean;
+  availabilityId: number;
+  conflictingBookings: number;
+}
+
+export interface SubjectScheduleDto {
+  subjectId: number;
+  subjectName: string;
+  teachingType: string;
+  totalSessions: number;
+  slots: ScheduledSlotDto[];
+}
+
+export interface ScheduledTeacherDto {
+  teacherId: number;
+  teacherName: string;
+  priority: number;
+  rating: number;
+  matchedSubjects: string[];
+  subjectSchedules: SubjectScheduleDto[];
+}
+
+export interface RecommendedScheduleDto {
+  teachers: ScheduledTeacherDto[];
+}
+
+export interface AlternativeTeacherDto {
+  teacherId: number;
+  teacherName: string;
+  priority: number;
+  rating: number;
+  matchedSubjects: string[];
+  availableSlots: number;
+}
+
+export interface SchedulingSummaryDto {
+  totalSessions: number;
+  matchedSessions: number;
+  unmatchedSessions: number;
+  sameTeacherForMultipleSubjects: boolean;
+}
+
+export interface SmartSchedulingResponse {
+  recommendedSchedule: RecommendedScheduleDto;
+  alternativeTeachers: AlternativeTeacherDto[];
+  summary: SchedulingSummaryDto;
+}
+
+// ============================================
+// New Price Calculation
+// ============================================
+
+export interface NewSubjectSelectionDto {
+  subjectId: number;
+  subjectName: string;
+  basePrice: number;
+  teachingType: TeachingType;
+  hours: HoursOption;
+}
+
+export interface NewStudentSelectionDto {
+  studentId: number;
+  studentName: string;
+  subjects: NewSubjectSelectionDto[];
+}
+
+export interface NewPriceCalculationRequest {
+  studentSelections: NewStudentSelectionDto[];
+}
+
+export interface DiscountDetailDto {
+  percentage: number;
+  amount: number;
+  reason: string;
+}
+
+export interface SubjectDiscountsDto {
+  multiSubject: DiscountDetailDto;
+  hours: DiscountDetailDto;
+  group: DiscountDetailDto;
+}
+
+export interface SubjectPriceBreakdownDto {
+  subjectId: number;
+  subjectName: string;
+  hours: number;
+  teachingType: string;
+  basePrice: number;
+  discounts: SubjectDiscountsDto;
+  totalDiscount: number;
+  finalPrice: number;
+}
+
+export interface StudentPriceBreakdownDto {
+  studentId: number;
+  studentName: string;
+  subjects: SubjectPriceBreakdownDto[];
+  studentSubtotal: number;
+  studentTotalDiscount: number;
+  studentTotal: number;
+}
+
+export interface DiscountBreakdownDto {
+  multiSubjectSavings: number;
+  groupSavings: number;
+  hoursSavings: number;
+}
+
+export interface NewPriceCalculationResponse {
+  students: StudentPriceBreakdownDto[];
+  grandTotal: number;
+  totalDiscount: number;
+  overallDiscountPercentage: number;
+  breakdown: DiscountBreakdownDto;
+}
+
+// ============================================
+// Session Management (Teacher)
+// ============================================
+
+export interface TeacherSessionDetailsDto {
+  id: number;
+  sessionType: string;
+  studentId?: number;
+  studentIds: number[];
+  studentName?: string;
+  studentNames: string[];
+  subjectId: number;
+  subjectName: string;
+  dateTime: string;
+  duration: number;
+  status: string;
+  meetingLink?: string;
+  studentCount: number;
+  maxStudents?: number;
+  notes?: string;
+}
+
+export interface TeacherSessionsResponse {
+  data: TeacherSessionDetailsDto[];
+  pagination: PaginationInfo;
+}
+
+export interface CancelSessionWithOptionsRequest {
+  reason: string;
+  notifyStudents: boolean;
+  offerReschedule: boolean;
+}
+
+export interface CancelSessionResponse {
+  success: boolean;
+  message: string;
+  studentsNotified: boolean;
+  refundInitiated: boolean;
+}
+
+export interface RescheduleSessionRequest {
+  newDateTime: string;
+  reason: string;
+  notifyStudents: boolean;
+}
+
+export interface RescheduleSessionResponse {
+  success: boolean;
+  message: string;
+  newDateTime: string;
+  requiresStudentConfirmation: boolean;
 }
 
 // ============================================

@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TutoringStateService } from '../../core/services/tutoring-state.service';
 import { Step1YearTypeComponent } from './steps/step1-year-type.component';
-import { Step2StudentsComponent } from './steps/step2-students.component';
-import { Step3SubjectsComponent } from './steps/step3-subjects.component';
-import { Step4PlansComponent } from './steps/step4-plans.component';
+import { Step2SubjectsComponent } from './steps/step2-students.component';
+import { Step3TeachingTypeComponent } from './steps/step3-subjects.component';
+import { Step4HoursComponent } from './steps/step4-plans.component';
 import { Step5ScheduleComponent } from './steps/step5-schedule.component';
 import { Step6ReviewComponent } from './steps/step6-review.component';
 import { PriceSummaryComponent } from './steps/remaining-components';
@@ -16,9 +16,9 @@ import { PriceSummaryComponent } from './steps/remaining-components';
   imports: [
     CommonModule,
     Step1YearTypeComponent,
-    Step2StudentsComponent,
-    Step3SubjectsComponent,
-    Step4PlansComponent,
+    Step2SubjectsComponent,
+    Step3TeachingTypeComponent,
+    Step4HoursComponent,
     Step5ScheduleComponent,
     Step6ReviewComponent,
     PriceSummaryComponent
@@ -42,7 +42,7 @@ import { PriceSummaryComponent } from './steps/remaining-components';
       <!-- Current Step Content -->
       <div class="step-content">
         <!-- Step 1 - Students -->
-        <app-step1-year-type *ngIf="currentStep === 1"></app-step1-year-type>
+        <app-step1-students *ngIf="currentStep === 1"></app-step1-students>
 
         <!-- Step 2 - Subjects -->
         <app-step2-subjects *ngIf="currentStep === 2"></app-step2-subjects>

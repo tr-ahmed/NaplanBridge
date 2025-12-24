@@ -456,12 +456,27 @@ export const routes: Routes = [
     canActivate: [teacherGuard]
   },
 
+  // Teacher Availability Management (NEW - v2.0)
+  {
+    path: 'teacher/availability',
+    loadComponent: () => import('./features/teacher/availability/teacher-availability.component').then(m => m.TeacherAvailabilityComponent),
+    canActivate: [teacherGuard]
+  },
+
   // Admin Tutoring Management
   {
     path: 'admin/tutoring-reports',
     loadComponent: () => import('./features/admin-tutoring/admin-tutoring-reports.component').then(m => m.AdminTutoringReportsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
   },
+
+  // Admin Teacher Priority Management (NEW - v2.0)
+  {
+    path: 'admin/teacher-priority',
+    loadComponent: () => import('./features/admin/teachers/admin-teacher-priority.component').then(m => m.AdminTeacherPriorityComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+  },
+
   {
     path: 'admin/tutoring-discounts',
     loadComponent: () => import('./features/admin-tutoring/admin-discount-management.component').then(m => m.AdminDiscountManagementComponent),

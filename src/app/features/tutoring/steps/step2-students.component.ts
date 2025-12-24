@@ -352,9 +352,9 @@ export class Step2SubjectsComponent implements OnInit {
 
   loadSubjects(): void {
     this.loading = true;
-    
+
     const uniqueYears = [...new Set(this.students.map(s => s.academicYearId))];
-    
+
     let loadedCount = 0;
     uniqueYears.forEach(yearId => {
       this.contentService.getSubjectsByYear(yearId).subscribe({
@@ -362,7 +362,7 @@ export class Step2SubjectsComponent implements OnInit {
           const subjectsArray = Array.isArray(subjects) ? subjects : [];
           this.subjectsByYear.set(yearId, subjectsArray);
           this.subjects.push(...subjectsArray);
-          
+
           loadedCount++;
           if (loadedCount === uniqueYears.length) {
             this.loading = false;
@@ -371,7 +371,7 @@ export class Step2SubjectsComponent implements OnInit {
         error: (error) => {
           console.error(`Error loading subjects for year ${yearId}:`, error);
           this.subjectsByYear.set(yearId, []);
-          
+
           loadedCount++;
           if (loadedCount === uniqueYears.length) {
             this.loading = false;
@@ -379,7 +379,7 @@ export class Step2SubjectsComponent implements OnInit {
         }
       });
     });
-    
+
     if (uniqueYears.length === 0) {
       this.loading = false;
     }

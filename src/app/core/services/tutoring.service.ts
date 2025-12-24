@@ -5,13 +5,29 @@ import { environment } from '../../../environments/environment';
 import {
   TimeSlot,
   GetTimeSlotsRequest,
-  CalculateTutoringPriceRequest,
   TutoringPriceResponse,
   CreateTutoringOrderRequest,
   CreateTutoringOrderResponse,
   BookingConfirmationDto,
   TutoringPlanDto,
-  TutoringSessionDto
+  TutoringSessionDto,
+  // New v2.0 imports
+  TeachersWithPriorityResponse,
+  UpdateTeacherPriorityDto,
+  CreateTeacherAvailabilityDto,
+  UpdateTeacherAvailabilityDto,
+  TeacherAvailabilityResponseDto,
+  AvailabilityOperationResponse,
+  GetAvailableSlotsRequest,
+  SmartSchedulingResponse,
+  NewPriceCalculationRequest,
+  NewPriceCalculationResponse,
+  TeacherSessionsResponse,
+  TeacherSessionDetailsDto,
+  CancelSessionWithOptionsRequest,
+  CancelSessionResponse,
+  RescheduleSessionRequest,
+  RescheduleSessionResponse
 } from '../../models/tutoring.models';
 
 @Injectable({
@@ -19,8 +35,133 @@ import {
 })
 export class TutoringService {
   private apiUrl = `${environment.apiBaseUrl}/Tutoring`;
+  private adminUrl = `${environment.apiBaseUrl}/Admin`;
+  private teacherUrl = `${environment.apiBaseUrl}/Teacher`;
 
   constructor(private http: HttpClient) {}
+
+  // ==================== ADMIN APIs - Teacher Priority ====================
+
+  /**
+   * Get all teachers with priority (Admin)
+   */
+  getTeachersWithPriority(
+    sortBy: string = 'priority',
+    orderBy: string = 'desc',
+    page: number = 1,
+    pageSize: number = 20
+  ): Observable<TeachersWithPriorityResponse> {
+    const params = new HttpParams()
+      .set('sortBy', sortBy)
+      .set('orderBy', orderBy)
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    return this.http.get<TeachersWithPriorityResponse>(`${this.adminUrl}/Teachers`, { params });
+  }
+
+  /**
+   * Update teacher priority (Admin)
+   */
+  updateTeacherPriority(teacherId: number, priority: number): Observable<any> {
+    const dto: UpdateTeacherPriorityDto = { priority };
+    return this.http.put(`${this.adminUrl}/Teachers/${teacherId}/Priority`, dto);
+  }
+
+  // ==================== TEACHER APIs - Availability ====================
+
+  /**
+   * Create availability slot (Teacher)
+   */
+  createAvailability(dto: CreateTeacherAvailabilityDto): Observable<AvailabilityOperationResponse> {
+    return this.http.post<AvailabilityOperationResponse>(`${this.teacherUrl}/Availability`, dto);
+  }
+
+  /**
+   * Get teacher's availability slots (Teacher)
+   */
+  getTeacherAvailability(
+    includeInactive: boolean = false,
+    dayOfWeek?: number,
+    subjectId?: number
+  ): Observable<{ data: TeacherAvailabilityResponseDto[] }> {
+    let params = new HttpParams().set('includeInactive', includeInactive.toString());
+    if (dayOfWeek !== undefined) params = params.set('dayOfWeek', dayOfWeek.toString());
+    if (subjectId !== undefined) params = params.set('subjectId', subjectId.toString());
+
+    return this.http.get<{ data: TeacherAvailabilityResponseDto[] }>(`${this.teacherUrl}/Availability`, { params });
+  }
+
+  /**
+   * Update availability slot (Teacher)
+   */
+  updateAvailability(id: number, dto: UpdateTeacherAvailabilityDto): Observable<AvailabilityOperationResponse> {
+    return this.http.put<AvailabilityOperationResponse>(`${this.teacherUrl}/Availability/${id}`, dto);
+  }
+
+  /**
+   * Delete availability slot (Teacher)
+   */
+  deleteAvailability(id: number): Observable<AvailabilityOperationResponse> {
+    return this.http.delete<AvailabilityOperationResponse>(`${this.teacherUrl}/Availability/${id}`);
+  }
+
+  // ==================== TEACHER APIs - Session Management ====================
+
+  /**
+   * Get teacher's sessions with filters (Teacher)
+   */
+  getTeacherSessionsV2(
+    status?: string,
+    startDate?: string,
+    endDate?: string,
+    sessionType?: string,
+    pageNumber: number = 1,
+    pageSize: number = 20
+  ): Observable<TeacherSessionsResponse> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (status) params = params.set('status', status);
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    if (sessionType) params = params.set('sessionType', sessionType);
+
+    return this.http.get<TeacherSessionsResponse>(`${this.apiUrl}/Teacher/Sessions`, { params });
+  }
+
+  /**
+   * Cancel session with options (Teacher)
+   */
+  cancelSessionWithOptions(sessionId: number, dto: CancelSessionWithOptionsRequest): Observable<CancelSessionResponse> {
+    return this.http.put<CancelSessionResponse>(`${this.apiUrl}/Teacher/Sessions/${sessionId}/Cancel`, dto);
+  }
+
+  /**
+   * Reschedule session (Teacher)
+   */
+  rescheduleSession(sessionId: number, dto: RescheduleSessionRequest): Observable<RescheduleSessionResponse> {
+    return this.http.put<RescheduleSessionResponse>(`${this.apiUrl}/Teacher/Sessions/${sessionId}/Reschedule`, dto);
+  }
+
+  // ==================== PARENT APIs - Smart Scheduling ====================
+
+  /**
+   * Get available slots with smart scheduling (Parent)
+   */
+  getAvailableSlotsSmart(request: GetAvailableSlotsRequest): Observable<SmartSchedulingResponse> {
+    return this.http.post<SmartSchedulingResponse>(`${this.apiUrl}/AvailableSlots`, request);
+  }
+
+  /**
+   * Calculate price with new discount structure (Parent)
+   */
+  calculatePriceV2(request: NewPriceCalculationRequest): Observable<NewPriceCalculationResponse> {
+    return this.http.post<NewPriceCalculationResponse>(`${this.apiUrl}/CalculatePrice`, request);
+  }
+
+  // ==================== LEGACY APIs (Keep for backward compatibility) ====================
 
   /**
    * Get available time slots for booking
@@ -46,9 +187,9 @@ export class TutoringService {
   }
 
   /**
-   * Calculate tutoring price with all discounts
+   * Calculate tutoring price (Legacy)
    */
-  calculatePrice(request: CalculateTutoringPriceRequest): Observable<TutoringPriceResponse> {
+  calculatePrice(request: any): Observable<TutoringPriceResponse> {
     return this.http.post<TutoringPriceResponse>(`${this.apiUrl}/calculate-price`, request);
   }
 
@@ -73,10 +214,10 @@ export class TutoringService {
     return this.http.get<TutoringPlanDto[]>(`${this.apiUrl}/plans`);
   }
 
-  // ==================== TEACHER APIs ====================
+  // ==================== TEACHER LEGACY APIs ====================
 
   /**
-   * Get teacher's tutoring sessions with optional filters
+   * Get teacher's tutoring sessions with optional filters (Legacy)
    */
   getTeacherSessions(status?: string, startDate?: string, endDate?: string): Observable<TutoringSessionDto[]> {
     let params = new HttpParams();

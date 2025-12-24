@@ -361,7 +361,15 @@ export class Step1YearTypeComponent implements OnInit {
 
     this.userService.getMyStudents().subscribe({
       next: (students) => {
-        this.availableStudents = students.map(s => ({ ...s, selected: false }));
+        // Map API response to StudentWithSelection interface
+        // ChildDto has: id, userName, email, age, year
+        this.availableStudents = students.map(s => ({
+          id: s.id,
+          name: s.userName || `Student ${s.id}`,
+          academicYearId: s.year || 1,
+          yearNumber: s.year || 1,
+          selected: false
+        }));
         this.restoreSelections();
         this.loading = false;
       },
