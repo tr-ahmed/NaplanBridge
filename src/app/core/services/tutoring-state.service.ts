@@ -166,7 +166,8 @@ export class TutoringStateService {
       const serializable = {
         ...state,
         studentSubjects: Array.from(state.studentSubjects.entries()).map(([k, v]) => [k, Array.from(v)]),
-        studentSubjectPlans: Array.from(state.studentSubjectPlans.entries()),
+        subjectTeachingTypes: Array.from(state.subjectTeachingTypes.entries()),
+        subjectHours: Array.from(state.subjectHours.entries()),
         studentSubjectTimeSlots: Array.from(state.studentSubjectTimeSlots.entries())
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(serializable));
@@ -185,7 +186,8 @@ export class TutoringStateService {
         const studentSubjects = new Map(
           (parsed.studentSubjects || []).map(([k, v]: [number, number[]]) => [k, new Set(v || [])])
         );
-        const studentSubjectPlans = new Map(parsed.studentSubjectPlans || []);
+        const subjectTeachingTypes = new Map(parsed.subjectTeachingTypes || []);
+        const subjectHours = new Map(parsed.subjectHours || []);
         const studentSubjectTimeSlots = new Map(parsed.studentSubjectTimeSlots || []);
 
         // Ensure students is an array
@@ -196,7 +198,8 @@ export class TutoringStateService {
           ...parsed,
           students,
           studentSubjects,
-          studentSubjectPlans,
+          subjectTeachingTypes,
+          subjectHours,
           studentSubjectTimeSlots
         });
       }
@@ -218,15 +221,10 @@ export class TutoringStateService {
 
   canProceedToStep2(): boolean {
     const state = this.stateSubject.value;
-    return state.teachingType !== null && state.academicYearId !== null;
-  }
-
-  canProceedToStep3(): boolean {
-    const state = this.stateSubject.value;
     return state.students.length > 0;
   }
 
-  canProceedToStep4(): boolean {
+  canProceedToStep3(): boolean {
     const state = this.stateSubject.value;
     // Each student must have at least 1 subject selected
     return state.students.every(s =>
@@ -234,14 +232,26 @@ export class TutoringStateService {
     );
   }
 
-  canProceedToStep5(): boolean {
+  canProceedToStep4(): boolean {
     const state = this.stateSubject.value;
-    // Each student's each subject must have a plan
+    // Each student's each subject must have a teaching type
     return state.students.every(student => {
       const subjects = state.studentSubjects.get(student.id) || new Set();
       return Array.from(subjects).every(subjectId => {
         const key = `${student.id}_${subjectId}`;
-        return state.studentSubjectPlans.has(key);
+        return state.subjectTeachingTypes.has(key);
+      });
+    });
+  }
+
+  canProceedToStep5(): boolean {
+    const state = this.stateSubject.value;
+    // Each student's each subject must have hours selected
+    return state.students.every(student => {
+      const subjects = state.studentSubjects.get(student.id) || new Set();
+      return Array.from(subjects).every(subjectId => {
+        const key = `${student.id}_${subjectId}`;
+        return state.subjectHours.has(key);
       });
     });
   }
@@ -253,23 +263,13 @@ export class TutoringStateService {
       const subjects = state.studentSubjects.get(student.id) || new Set();
       return Array.from(subjects).every(subjectId => {
         const key = `${student.id}_${subjectId}`;
-        const plan = state.studentSubjectPlans.get(key);
+        const hours = state.subjectHours.get(key);
         const slots = state.studentSubjectTimeSlots.get(key) || [];
 
-        if (!plan) return false;
+        if (!hours) return false;
 
-        const requiredSlots = this.getRequiredSlots(plan);
-        return slots.length === requiredSlots;
+        return slots.length === hours;
       });
     });
-  }
-
-  private getRequiredSlots(plan: TutoringPlan): number {
-    switch (plan) {
-      case TutoringPlan.Hours10: return 10;
-      case TutoringPlan.Hours20: return 20;
-      case TutoringPlan.Hours30: return 30;
-      default: return 10;
-    }
   }
 }
