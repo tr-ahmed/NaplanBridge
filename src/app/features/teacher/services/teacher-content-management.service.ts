@@ -494,6 +494,9 @@ export class TeacherContentManagementService {
     if (subjectData.discountPercentage !== undefined && subjectData.discountPercentage !== null) {
       formData.append('DiscountPercentage', subjectData.discountPercentage.toString());
     }
+    if (subjectData.tutoringPricePerHour !== undefined && subjectData.tutoringPricePerHour !== null && subjectData.tutoringPricePerHour !== '') {
+      formData.append('TutoringPricePerHour', subjectData.tutoringPricePerHour.toString());
+    }
     if (subjectData.level) {
       formData.append('Level', subjectData.level);
     }

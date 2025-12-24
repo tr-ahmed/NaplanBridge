@@ -79,30 +79,59 @@ import { SubjectName } from '../../../../models/subject.models';
           </div>
 
           <!-- Pricing Information -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">💰 Pricing</h3>
+
+            <!-- Self-Learning Pricing -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Original Price</label>
-              <div class="relative">
-                <span class="absolute left-3 top-2 text-gray-500">$</span>
-                <input type="number"
-                       step="0.01"
-                       formControlName="originalPrice"
-                       placeholder="0.00"
-                       class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <p class="text-xs font-medium text-gray-600 mb-2">📚 Self-Learning (Monthly Subscription)</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Original Price</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-2 text-gray-500">$</span>
+                    <input type="number"
+                           step="0.01"
+                           formControlName="originalPrice"
+                           placeholder="0.00"
+                           class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">Monthly subscription price</p>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Discount Percentage</label>
+                  <div class="relative">
+                    <input type="number"
+                           step="0.01"
+                           min="0"
+                           max="100"
+                           formControlName="discountPercentage"
+                           placeholder="0"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    <span class="absolute right-3 top-2 text-gray-500">%</span>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">Discount on subscription</p>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Discount Percentage</label>
-              <div class="relative">
-                <input type="number"
-                       step="0.01"
-                       min="0"
-                       max="100"
-                       formControlName="discountPercentage"
-                       placeholder="0"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                <span class="absolute right-3 top-2 text-gray-500">%</span>
+            <!-- Tutoring Pricing -->
+            <div class="border-t border-gray-200 pt-4">
+              <p class="text-xs font-medium text-gray-600 mb-2">🎓 Tutoring (Live Sessions)</p>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tutoring Price Per Hour</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-2 text-gray-500">$</span>
+                  <input type="number"
+                         step="0.01"
+                         min="0"
+                         formControlName="tutoringPricePerHour"
+                         placeholder="0.00"
+                         class="w-full pl-8 pr-16 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                  <span class="absolute right-3 top-2 text-gray-500">/hour</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Price per hour for live tutoring sessions (leave empty to disable tutoring)</p>
               </div>
             </div>
           </div>
@@ -214,8 +243,9 @@ export class SubjectCreationModalComponent implements OnInit {
   subjectForm: FormGroup = this.fb.group({
     subjectNameId: ['', Validators.required],      // معرف اسم المادة (مطلوب)
     yearId: [7, Validators.required],              // معرف السنة (مطلوب، default = 7)
-    originalPrice: [''],                            // السعر الأصلي (اختياري)
-    discountPercentage: [''],                       // نسبة الخصم (اختياري)
+    originalPrice: [''],                            // السعر الأصلي للاشتراك (اختياري)
+    discountPercentage: [''],                       // نسبة الخصم على الاشتراك (اختياري)
+    tutoringPricePerHour: [''],                     // ✅ NEW: سعر الساعة للدروس الخصوصية (اختياري)
     level: [''],                                    // المستوى (اختياري)
     duration: [''],                                 // المدة (اختياري)
     startDate: [''],                                // تاريخ البداية (اختياري)

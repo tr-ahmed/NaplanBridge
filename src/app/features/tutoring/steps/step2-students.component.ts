@@ -65,7 +65,8 @@ import { StudentInfo } from '../../../models/tutoring.models';
             <div class="card-footer">
               <div class="price-tag">
                 <span class="currency">$</span>
-                <span class="amount">{{ subject.price }}</span>
+                <span class="amount">{{ getTutoringPrice(subject) }}</span>
+                <span class="unit">/hr</span>
               </div>
               <div *ngIf="subject.discountPercentage > 0" class="subject-discount-badge">
                 -{{ subject.discountPercentage }}%
@@ -427,6 +428,12 @@ import { StudentInfo } from '../../../models/tutoring.models';
       color: #108092;
     }
 
+    .unit {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #666;
+    }
+
     .subject-discount-badge {
       background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
       color: white;
@@ -782,6 +789,11 @@ export class Step2SubjectsComponent implements OnInit {
     if (count === 3) return 10;
     if (count === 4) return 15;
     return 20; // 5+ subjects
+  }
+
+  getTutoringPrice(subject: Subject): number {
+    // ✅ Use tutoring hourly rate (not self-learning subscription price)
+    return subject.tutoringPricePerHour || subject.price || 100;
   }
 
   saveSelection(): void {
