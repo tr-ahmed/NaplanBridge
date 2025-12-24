@@ -286,6 +286,7 @@ interface StudentWithSelection extends StudentInfo {
       border-radius: 8px;
       font-weight: 600;
       color: #108092;
+      margin-bottom: 10px;
     }
 
     .info-box {
@@ -424,9 +425,7 @@ export class Step1YearTypeComponent implements OnInit {
 
   addNewStudent(): void {
     // Navigate to add student page
-    this.router.navigate(['/parent/dashboard'], {
-      queryParams: { action: 'add-student' }
-    });
+    this.router.navigate(['/add-student']);
   }
 
   canProceed(): boolean {
