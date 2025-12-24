@@ -215,4 +215,109 @@ export class TutoringService {
   updateOrderStatus(orderId: number, status: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/order/${orderId}/status`, { status });
   }
+
+  // ==================== ADDITIONAL HELPER METHODS ====================
+
+  /**
+   * Get available tutors
+   */
+  getAvailableTutors(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/available-tutors`);
+  }
+
+  /**
+   * Get date range helper
+   */
+  getDateRange(days: number): { fromDate: string; toDate: string } {
+    const today = new Date();
+    const toDate = new Date(today);
+    toDate.setDate(today.getDate() + days);
+
+    return {
+      fromDate: today.toISOString().split('T')[0],
+      toDate: toDate.toISOString().split('T')[0]
+    };
+  }
+
+  /**
+   * Get tutor available slots
+   */
+  getTutorAvailableSlots(teacherId: number, fromDate: string, toDate: string): Observable<any> {
+    let params = new HttpParams()
+      .set('teacherId', teacherId.toString())
+      .set('fromDate', fromDate)
+      .set('toDate', toDate);
+
+    return this.http.get(`${this.apiUrl}/tutor/available-slots`, { params });
+  }
+
+  /**
+   * Get next 7 days
+   */
+  getNext7Days(): Date[] {
+    const days: Date[] = [];
+    const today = new Date();
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      days.push(date);
+    }
+
+    return days;
+  }
+
+  /**
+   * Book a tutoring session
+   */
+  bookTutoring(dto: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/book`, dto);
+  }
+
+  /**
+   * Get parent bookings
+   */
+  getParentBookings(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/parent/bookings`);
+  }
+
+  /**
+   * Check if session is upcoming
+   */
+  isUpcoming(dateTime: string): boolean {
+    const sessionDate = new Date(dateTime);
+    const now = new Date();
+    return sessionDate > now;
+  }
+
+  /**
+   * Format session date time
+   */
+  formatSessionDateTime(dateTime: string): { date: string; time: string; dayOfWeek: string } {
+    const dt = new Date(dateTime);
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    return {
+      date: dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      time: dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      dayOfWeek: daysOfWeek[dt.getDay()]
+    };
+  }
+
+  /**
+   * Get minutes until session
+   */
+  getMinutesUntilSession(dateTime: string): number {
+    const sessionDate = new Date(dateTime);
+    const now = new Date();
+    const diffMs = sessionDate.getTime() - now.getTime();
+    return Math.floor(diffMs / 60000);
+  }
+
+  /**
+   * Get student upcoming sessions
+   */
+  getStudentUpcomingSessions(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/student/upcoming-sessions`);
+  }
 }

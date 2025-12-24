@@ -2,9 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TutoringStateService } from '../../../core/services/tutoring-state.service';
 import { TutoringService } from '../../../core/services/tutoring.service';
-import { ContentService } from '../../../core/services/content.service';
-import { TutoringPlan, TutoringPlanDto } from '../../../models/tutoring.models';
-import { Subject } from '../../../models/package-pricing.model';
+import { ContentService, Subject } from '../../../core/services/content.service';
+import { TutoringPlan, TutoringPlanDto, StudentInfo } from '../../../models/tutoring.models';
 
 @Component({
   selector: 'app-step4-plans',
@@ -35,7 +34,7 @@ import { Subject } from '../../../models/package-pricing.model';
                 <p class="sessions">10 sessions × 1 hour</p>
               </div>
               <div class="plan-price">
-                <span class="price-amount">\${{ calculatePlanPrice(100, TutoringPlan.Hours10) }}</span>
+                <span class="price-amount">$<span>{{ calculatePlanPrice(getSubjectPrice(subject), TutoringPlan.Hours10) }}</span></span>
               </div>
               <div *ngIf="getSelectedPlan(student.id, subject) === TutoringPlan.Hours10" class="checkmark">✓</div>
             </div>
@@ -55,8 +54,8 @@ import { Subject } from '../../../models/package-pricing.model';
                 <p class="sessions">20 sessions × 1 hour</p>
               </div>
               <div class="plan-price">
-                <span class="original-price">\$200</span>
-                <span class="price-amount">\${{ calculatePlanPrice(100, TutoringPlan.Hours20) }}</span>
+                <span class="original-price">$<span>{{ getSubjectPrice(subject) * 2 }}</span></span>
+                <span class="price-amount">$<span>{{ calculatePlanPrice(getSubjectPrice(subject), TutoringPlan.Hours20) }}</span></span>
               </div>
               <div *ngIf="getSelectedPlan(student.id, subject) === TutoringPlan.Hours20" class="checkmark">✓</div>
             </div>
@@ -75,8 +74,8 @@ import { Subject } from '../../../models/package-pricing.model';
                 <p class="sessions">30 sessions × 1 hour</p>
               </div>
               <div class="plan-price">
-                <span class="original-price">\$300</span>
-                <span class="price-amount">\${{ calculatePlanPrice(100, TutoringPlan.Hours30) }}</span>
+                <span class="original-price">$<span>{{ getSubjectPrice(subject) * 3 }}</span></span>
+                <span class="price-amount">$<span>{{ calculatePlanPrice(getSubjectPrice(subject), TutoringPlan.Hours30) }}</span></span>
               </div>
               <div *ngIf="getSelectedPlan(student.id, subject) === TutoringPlan.Hours30" class="checkmark">✓</div>
             </div>
@@ -155,81 +154,101 @@ import { Subject } from '../../../models/package-pricing.model';
 
     .plans-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     .plan-card {
       background: white;
       border: 3px solid #e0e0e0;
-      border-radius: 12px;
-      padding: 1.5rem;
+      border-radius: 16px;
+      padding: 2rem;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
     }
 
     .plan-card:hover {
       border-color: #108092;
-      transform: translateY(-4px);
-      box-shadow: 0 4px 12px rgba(16, 128, 146, 0.2);
+      transform: translateY(-6px);
+      box-shadow: 0 8px 24px rgba(16, 128, 146, 0.25);
     }
 
     .plan-card.selected {
       border-color: #108092;
-      background: linear-gradient(135deg, #f0f9fa 0%, #fff 100%);
-      box-shadow: 0 4px 12px rgba(16, 128, 146, 0.3);
+      border-width: 4px;
+      background: linear-gradient(135deg, #e8f5f7 0%, #fff 100%);
+      box-shadow: 0 8px 28px rgba(16, 128, 146, 0.35);
+      transform: scale(1.02);
     }
 
     .plan-card.featured {
       border-color: #bf942d;
+      position: relative;
     }
 
     .plan-card.featured.selected {
       border-color: #bf942d;
-      background: linear-gradient(135deg, #fffbf0 0%, #fff 100%);
-      box-shadow: 0 4px 12px rgba(191, 148, 45, 0.3);
+      border-width: 4px;
+      background: linear-gradient(135deg, #fffcf0 0%, #fff 100%);
+      box-shadow: 0 8px 28px rgba(191, 148, 45, 0.35);
     }
 
     .popular-badge {
       position: absolute;
-      top: -12px;
+      top: -14px;
       left: 50%;
       transform: translateX(-50%);
-      background: #bf942d;
+      background: linear-gradient(135deg, #d4a839 0%, #bf942d 100%);
       color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 12px;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
       font-size: 0.75rem;
       font-weight: 700;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(191, 148, 45, 0.4);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.05); }
     }
 
     .plan-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #f0f0f0;
     }
 
     .plan-header h5 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #333;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1a1a1a;
       margin: 0;
     }
 
     .badge {
-      padding: 0.25rem 0.5rem;
-      border-radius: 8px;
+      padding: 0.35rem 0.75rem;
+      border-radius: 12px;
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 700;
       background: #f5f5f5;
       color: #666;
+      letter-spacing: 0.5px;
     }
 
     .badge.discount {
-      background: #4caf50;
+      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
       color: white;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
     }
 
     .plan-details {
@@ -252,35 +271,51 @@ import { Subject } from '../../../models/package-pricing.model';
       display: flex;
       flex-direction: column;
       align-items: flex-start;
+      margin-top: auto;
+      padding-top: 1rem;
     }
 
     .original-price {
-      font-size: 0.875rem;
+      font-size: 1rem;
       color: #999;
       text-decoration: line-through;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
     }
 
     .price-amount {
-      font-size: 1.75rem;
-      font-weight: 700;
+      font-size: 2.25rem;
+      font-weight: 900;
       color: #108092;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .plan-card.featured .price-amount {
+      color: #bf942d;
     }
 
     .checkmark {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 28px;
-      height: 28px;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      background: #4caf50;
+      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 1rem;
+      font-weight: 900;
+      font-size: 1.125rem;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+      animation: checkmarkBounce 0.5s ease;
+    }
+
+    @keyframes checkmarkBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
     }
 
     .info-box {
@@ -386,7 +421,12 @@ export class Step4PlansComponent implements OnInit {
 
   getSubjectName(subjectId: number): string {
     const subject = this.subjects.find(s => s.id === subjectId);
-    return subject ? subject.name : `Subject ${subjectId}`;
+    return subject ? subject.subjectName : `Subject ${subjectId}`;
+  }
+
+  getSubjectPrice(subjectId: number): number {
+    const subject = this.subjects.find(s => s.id === subjectId);
+    return subject ? subject.price : 100;
   }
 
   selectPlan(studentId: number, subjectId: number, plan: TutoringPlan): void {

@@ -1,0 +1,362 @@
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Enhanced Header with Back Button -->
+    <div class="flex items-center justify-between mb-8 bg-white rounded-2xl shadow-lg p-6 border-l-4 border-indigo-600">
+      <div class="flex items-center">
+        <button
+          (click)="goBack()"
+          class="mr-4 p-3 rounded-xl hover:bg-indigo-50 transition-all duration-300 shadow-sm group">
+          <svg class="w-6 h-6 text-indigo-600 group-hover:text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <div>
+          <h1 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Book Private Session
+          </h1>
+          <p class="text-gray-600 mt-2 flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            Complete 4 easy steps to schedule your learning session
+          </p>
+        </div>
+      </div>
+      <!-- Progress Indicator -->
+      <div class="hidden md:flex items-center gap-2">
+        <div class="flex items-center gap-1">
+          <div class="w-2 h-2 rounded-full" [class]="selectedStudentId() ? 'bg-indigo-600' : 'bg-gray-300'"></div>
+          <div class="w-2 h-2 rounded-full" [class]="selectedDate() ? 'bg-indigo-600' : 'bg-gray-300'"></div>
+          <div class="w-2 h-2 rounded-full" [class]="selectedSlot() ? 'bg-indigo-600' : 'bg-gray-300'"></div>
+          <div class="w-2 h-2 rounded-full bg-gray-300"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Left Side - Selection Steps -->
+      <div class="lg:col-span-2 space-y-6">
+
+
+        <!-- Step 1: Student Selection -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-transparent hover:border-indigo-200 transition-all duration-300">
+          <div class="flex items-center mb-6">
+            <div class="relative">
+              <div class="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform rotate-3">
+                1
+              </div>
+              <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" *ngIf="selectedStudentId()"></div>
+            </div>
+            <div class="mr-4">
+              <h2 class="text-2xl font-bold text-gray-900">Select Student</h2>
+              <p class="text-sm text-gray-500">Who will attend the session?</p>
+            </div>
+          </div>
+
+          <!-- Students Grid -->
+          <div *ngIf="students().length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              *ngFor="let student of students()"
+              (click)="selectedStudentId.set(student.id)"
+              [class]="selectedStudentId() === student.id
+                ? 'border-3 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 shadow-xl scale-105 ring-4 ring-indigo-100'
+                : 'border-2 border-gray-200 hover:border-indigo-300 hover:shadow-lg bg-white'"
+              class="p-6 rounded-2xl text-right transition-all duration-300 transform hover:scale-102 group relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-r from-indigo-400/10 to-purple-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div class="flex items-center relative z-10">
+                <div class="relative">
+                  <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg transition-all duration-300"
+                       [class]="selectedStudentId() === student.id
+                         ? 'bg-gradient-to-br from-indigo-600 to-purple-600 transform rotate-6'
+                         : 'bg-gradient-to-br from-gray-400 to-gray-500 group-hover:rotate-3'">
+                    {{ student.name.charAt(0) }}
+                  </div>
+                  <div *ngIf="selectedStudentId() === student.id"
+                       class="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="mr-4 text-right flex-1">
+                  <p class="font-bold text-gray-900 text-xl mb-1">{{ student.name }}</p>
+                  <p class="text-sm font-medium" [class]="selectedStudentId() === student.id ? 'text-indigo-600' : 'text-gray-500'">
+                    {{ selectedStudentId() === student.id ? '✓ Selected for session' : 'Click to select' }}
+                  </p>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <!-- No Students Message -->
+          <div *ngIf="students().length === 0" class="text-center py-12 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-dashed border-amber-300">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl mb-4 shadow-lg">
+              <svg class="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">No Students Found</h3>
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">You need to add students to your account before booking a session</p>
+            <a routerLink="/parent/students" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-semibold">
+              <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add Your First Student
+            </a>
+          </div>
+        </div>
+
+        <!-- Step 2: Date Selection -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-transparent hover:border-indigo-200 transition-all duration-300">
+          <div class="flex items-center mb-6">
+            <div class="relative">
+              <div class="w-12 h-12 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform rotate-3">
+                2
+              </div>
+              <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" *ngIf="selectedDate()"></div>
+            </div>
+            <div class="mr-4">
+              <h2 class="text-2xl font-bold text-gray-900">Select Date</h2>
+              <p class="text-sm text-gray-500">Choose your preferred day</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 md:grid-cols-7 gap-3">
+            <button
+              *ngFor="let date of getNextDays()"
+              (click)="selectDate(date)"
+              [class]="isDateSelected(date)
+                ? 'bg-gradient-to-br from-cyan-600 to-blue-600 text-white shadow-xl scale-110 ring-4 ring-cyan-100'
+                : 'bg-gradient-to-br from-gray-50 to-gray-100 text-gray-700 hover:from-cyan-50 hover:to-blue-50 hover:text-cyan-700 border-2 border-gray-200 hover:border-cyan-300 hover:shadow-lg'"
+              class="p-4 rounded-2xl text-center transition-all duration-300 transform hover:scale-105 group">
+              <div class="text-sm font-bold">{{ formatDateDisplay(date) }}</div>
+              <div *ngIf="isDateSelected(date)" class="mt-1 flex justify-center">
+                <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Time Slots Selection -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-transparent hover:border-indigo-200 transition-all duration-300">
+          <div class="flex items-center mb-6">
+            <div class="relative">
+              <div class="w-12 h-12 bg-gradient-to-br from-green-600 to-emerald-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform rotate-3">
+                3
+              </div>
+              <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" *ngIf="selectedSlot()"></div>
+            </div>
+            <div class="mr-4">
+              <h2 class="text-2xl font-bold text-gray-900">Select Time</h2>
+              <p class="text-sm text-gray-500">Pick a convenient time slot</p>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div *ngIf="loading()" class="flex flex-col items-center justify-center py-16 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl">
+            <div class="relative">
+              <div class="animate-spin rounded-full h-16 w-16 border-4 border-indigo-200"></div>
+              <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-indigo-600 absolute top-0"></div>
+            </div>
+            <p class="text-gray-700 font-semibold mt-4">Loading available times...</p>
+          </div>
+
+          <!-- Time Slots Grid -->
+          <div *ngIf="!loading() && getSlotsForDate(selectedDate()).length > 0"
+               class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            <button
+              *ngFor="let slot of getSlotsForDate(selectedDate())"
+              (click)="selectSlot(slot)"
+              [class]="isSlotSelected(slot)
+                ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white shadow-xl scale-110 ring-4 ring-green-100'
+                : 'bg-gradient-to-br from-gray-50 to-gray-100 text-gray-700 hover:from-green-50 hover:to-emerald-50 hover:text-green-700 border-2 border-gray-200 hover:border-green-300 hover:shadow-lg'"
+              class="p-4 rounded-2xl text-center transition-all duration-300 transform hover:scale-105 font-bold relative group">
+              <svg class="w-4 h-4 mx-auto mb-1" [class]="isSlotSelected(slot) ? 'text-white' : 'text-gray-400 group-hover:text-green-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {{ formatTime(slot.dateTime) }}
+            </button>
+          </div>
+
+          <!-- No Slots Available -->
+          <div *ngIf="!loading() && getSlotsForDate(selectedDate()).length === 0"
+               class="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-dashed border-gray-300">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl mb-4 shadow-lg">
+              <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">No Available Time Slots</h3>
+            <p class="text-gray-600">Please select another date to see available times</p>
+          </div>
+        </div>
+
+        <!-- Step 4: Additional Notes -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 border-2 border-transparent hover:border-indigo-200 transition-all duration-300">
+          <div class="flex items-center mb-6">
+            <div class="relative">
+              <div class="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg transform rotate-3">
+                4
+              </div>
+            </div>
+            <div class="mr-4">
+              <h2 class="text-2xl font-bold text-gray-900">Notes (Optional)</h2>
+              <p class="text-sm text-gray-500">Add any special requests or topics</p>
+            </div>
+          </div>
+
+          <div class="relative">
+            <textarea
+              [value]="notes()"
+              (input)="notes.set($any($event.target).value)"
+              rows="4"
+              placeholder="Tell the teacher what you'd like to focus on... (e.g., Algebra homework help, exam preparation, specific topics...)" class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 transition-all resize-none bg-gradient-to-br from-gray-50 to-white hover:border-gray-300 font-medium text-gray-700 placeholder-gray-400"></textarea>
+            <div class="absolute bottom-3 left-3 text-xs text-gray-400 flex items-center gap-1">
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+              </svg>
+              Your teacher will see this before the session
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Side - Enhanced Booking Summary (Sticky) -->
+      <div class="lg:col-span-1">
+        <div class="sticky top-8">
+          <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border-2 border-indigo-100">
+
+            <!-- Gradient Header -->
+            <div class="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 relative overflow-hidden">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+              <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+              <h3 class="text-2xl font-bold text-white flex items-center relative z-10">
+                <svg class="w-7 h-7 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Booking Summary
+              </h3>
+              <p class="text-indigo-100 text-sm mt-2 relative z-10">Review your session details</p>
+            </div>
+
+            <div class="p-6">
+              <!-- Summary Details with Icons -->
+              <div class="space-y-5 mb-6">
+                <!-- Student -->
+                <div class="flex items-start group">
+                  <div class="w-12 h-12 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl flex items-center justify-center ml-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 text-right">
+                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">Student</p>
+                    <p class="text-lg font-bold text-gray-900 break-words">
+                      {{ getSelectedStudentName() }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Date -->
+                <div class="flex items-start group">
+                  <div class="w-12 h-12 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-xl flex items-center justify-center ml-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                    <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 text-right">
+                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">Date</p>
+                    <p class="text-lg font-bold text-gray-900 break-words">
+                      {{ getSelectedSlotDate() }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Time -->
+                <div class="flex items-start group">
+                  <div class="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center ml-3 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 text-right">
+                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">Time</p>
+                    <p class="text-lg font-bold text-gray-900">
+                      {{ selectedSlot() ? formatTime(selectedSlot()!.dateTime) : '-' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Divider -->
+              <div class="border-t-2 border-dashed border-gray-200 my-6"></div>
+
+              <!-- Price Info with Gradient Background -->
+              <div class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-2xl p-5 mb-6 border-2 border-green-200 shadow-inner">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-gray-700 font-semibold">Session Price</span>
+                  <span class="text-3xl font-extrabold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">${{ teacherPrice() }}</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-gray-600">
+                  <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="font-medium">Secure payment via Stripe</span>
+                </div>
+              </div>
+
+              <!-- Enhanced Book Button -->
+              <button
+                (click)="bookSession()"
+                [disabled]="!selectedStudentId() || !selectedSlot() || booking()"
+                class="w-full py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 transform hover:-translate-y-1 active:scale-95 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group"
+                [class]="!selectedStudentId() || !selectedSlot() || booking()
+                  ? 'bg-gray-400'
+                  : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700'">
+
+                <div class="absolute inset-0 bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
+
+                <span *ngIf="booking()" class="flex items-center justify-center relative z-10">
+                  <svg class="animate-spin -ml-1 ml-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span class="mr-2">Processing...</span>
+                </span>
+
+                <span *ngIf="!booking()" class="flex items-center justify-center relative z-10">
+                  <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span class="mr-2">Confirm & Pay with Stripe</span>
+                </span>
+              </button>
+
+              <!-- Security Badges -->
+              <div class="mt-5 space-y-2">
+                <div class="flex items-center justify-center gap-2 text-xs text-gray-600">
+                  <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="font-semibold">256-bit SSL Encryption</span>
+                </div>
+                <div class="flex items-center justify-center gap-2 text-xs text-gray-600">
+                  <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                    <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+                  </svg>
+                  <span class="font-semibold">Instant Booking Confirmation</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

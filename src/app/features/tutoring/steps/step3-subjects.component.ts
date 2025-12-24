@@ -27,7 +27,20 @@ import { StudentInfo } from '../../../models/tutoring.models';
             class="subject-card">
             <h4>{{ subject.subjectName }}</h4>
             <p class="arabic-name">{{ subject.categoryName }}</p>
-            <p class="price">From $100/10hrs</p>
+            <div class="price-section">
+              <div *ngIf="subject.discountPercentage > 0" class="price-container">
+                <p class="price">
+                  <span class="original-price">$<span>{{ subject.originalPrice }}</span></span>
+                  <span class="current-price">$<span>{{ subject.price }}</span></span>
+                </p>
+                <span class="discount-badge">🔥 {{ subject.discountPercentage }}% OFF</span>
+              </div>
+              <div *ngIf="subject.discountPercentage === 0" class="price-container">
+                <p class="price">
+                  <span class="current-price">$<span>{{ subject.price }}</span></span>
+                </p>
+              </div>
+            </div>
             <div *ngIf="isSubjectSelected(student.id, subject.id)" class="checkmark">✓</div>
           </div>
         </div>

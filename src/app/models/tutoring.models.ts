@@ -203,6 +203,57 @@ export interface TutoringSessionDto {
 }
 
 // ============================================
+// Additional DTOs
+// ============================================
+
+export interface AvailableSlotDto {
+  dateTime: string;
+  isAvailable: boolean;
+  teacherId?: number;
+  teacherName?: string;
+  reason?: string;
+}
+
+export interface BookTutoringDto {
+  teacherId: number;
+  studentId: number;
+  scheduledDateTime: string;
+  notes?: string;
+}
+
+export interface AvailableTutorDto {
+  teacherId: number;
+  teacherName: string;
+  email: string;
+  subjects: string[];
+  pricePerSession: number;
+  sessionDurationMinutes: number;
+  isAcceptingBookings: boolean;
+  description?: string;
+  rating?: number;
+  totalSessions?: number;
+}
+
+export interface PrivateTutoringDto {
+  id: number;
+  teacherId: number;
+  teacherName: string;
+  studentId: number;
+  studentName: string;
+  parentId: number;
+  parentName: string;
+  scheduledDateTime: string;
+  durationMinutes: number;
+  price: number;
+  status: string;
+  googleMeetLink?: string;
+  createdAt: string;
+  notes?: string;
+  rating?: number;
+  feedback?: string;
+}
+
+// ============================================
 // Local State Management Models
 // ============================================
 
