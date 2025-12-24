@@ -264,21 +264,28 @@ export interface StudentInfo {
   yearNumber: number;
 }
 
-export interface TutoringSelectionState {
-  // Step 1
-  teachingType: TeachingType;
-  academicYearId?: number | null; // Optional - each student has their own year
+export interface SubjectSelection {
+  subjectId: number;
+  subjectName: string;
+  basePrice: number;
+  teachingType: TeachingType; // Per subject
+  hours: number; // 10, 20, or 30
+}
 
-  // Step 2
+export interface TutoringSelectionState {
+  // Step 1: Select Students
   students: StudentInfo[];
 
-  // Step 3
+  // Step 2: Select Subjects per Student (with multi-subject discount)
   studentSubjects: Map<number, Set<number>>; // studentId -> Set of subjectIds
 
-  // Step 4
-  studentSubjectPlans: Map<string, TutoringPlan>; // "studentId_subjectId" -> plan
+  // Step 3: Select Teaching Type per Subject
+  subjectTeachingTypes: Map<string, TeachingType>; // "studentId_subjectId" -> TeachingType
 
-  // Step 5
+  // Step 4: Select Hours per Subject
+  subjectHours: Map<string, number>; // "studentId_subjectId" -> hours (10/20/30)
+
+  // Step 5: Schedule Sessions
   studentSubjectTimeSlots: Map<string, number[]>; // "studentId_subjectId" -> timeSlotIds
 
   // Current step

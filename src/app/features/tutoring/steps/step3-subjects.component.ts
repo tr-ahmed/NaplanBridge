@@ -2,60 +2,67 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TutoringStateService } from '../../../core/services/tutoring-state.service';
 import { ContentService, Subject } from '../../../core/services/content.service';
-import { StudentInfo } from '../../../models/tutoring.models';
+import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
 
 @Component({
-  selector: 'app-step3-subjects',
+  selector: 'app-step3-teaching-type',
   standalone: true,
   imports: [CommonModule],
   template: `
     <div class="step-container">
-      <h2 class="step-title">Step 3: Select Subjects for Each Student</h2>
+      <h2 class="step-title">Step 3: Select Teaching Type for Each Subject</h2>
+      <p class="step-subtitle">Choose One-to-One or Group sessions (35% discount for Group)</p>
 
-      <div *ngFor="let student of students; let i = index" class="student-section">
-        <h3 class="student-name">
-          📚 {{ student.name }}'s Subjects
-          <span class="year-badge">Year {{ student.yearNumber }}</span>
-        </h3>
+      <div *ngFor="let student of students" class="student-section">
+        <h3 class="student-name">🎓 {{ student.name }}'s Teaching Types</h3>
 
-        <!-- Subject Grid -->
-        <div *ngIf="!loading" class="subjects-grid">
-          <div
-            *ngFor="let subject of getSubjectsForStudent(student.academicYearId)"
-            (click)="toggleSubject(student.id, subject)"
-            [class.selected]="isSubjectSelected(student.id, subject.id)"
-            class="subject-card">
-            <h4>{{ subject.subjectName }}</h4>
-            <p class="arabic-name">{{ subject.categoryName }}</p>
-            <div class="price-section">
-              <div *ngIf="subject.discountPercentage > 0" class="price-container">
-                <p class="price">
-                  <span class="original-price">$<span>{{ subject.originalPrice }}</span></span>
-                  <span class="current-price">$<span>{{ subject.price }}</span></span>
-                </p>
-                <span class="discount-badge">🔥 {{ subject.discountPercentage }}% OFF</span>
-              </div>
-              <div *ngIf="subject.discountPercentage === 0" class="price-container">
-                <p class="price">
-                  <span class="current-price">$<span>{{ subject.price }}</span></span>
-                </p>
-              </div>
+        <div *ngFor="let subjectId of getStudentSubjects(student.id)" class="subject-type-section">
+          <h4 class="subject-title">{{ getSubjectName(subjectId) }}</h4>
+
+          <div class="teaching-type-grid">
+            <!-- One-to-One -->
+            <div
+              (click)="selectType(student.id, subjectId, TeachingType.OneToOne)"
+              [class.selected]="getSelectedType(student.id, subjectId) === TeachingType.OneToOne"
+              class="type-card">
+              <div class="icon">👤</div>
+              <h5>One-to-One</h5>
+              <p>Private tutoring</p>
+              <ul class="benefits">
+                <li>✓ Full attention</li>
+                <li>✓ Flexible pace</li>
+                <li>✓ Customized learning</li>
+              </ul>
+              <div class="price-tag">Standard Rate</div>
+              <div *ngIf="getSelectedType(student.id, subjectId) === TeachingType.OneToOne" class="checkmark">✓</div>
             </div>
-            <div *ngIf="isSubjectSelected(student.id, subject.id)" class="checkmark">✓</div>
+
+            <!-- Group -->
+            <div
+              (click)="selectType(student.id, subjectId, TeachingType.GroupTutoring)"
+              [class.selected]="getSelectedType(student.id, subjectId) === TeachingType.GroupTutoring"
+              class="type-card featured">
+              <div class="discount-badge">35% OFF</div>
+              <div class="icon">👥</div>
+              <h5>Group</h5>
+              <p>Small group (2-5 students)</p>
+              <ul class="benefits">
+                <li>✓ Interactive learning</li>
+                <li>✓ Peer collaboration</li>
+                <li>✓ Cost effective</li>
+              </ul>
+              <div class="price-tag discount">35% Discount!</div>
+              <div *ngIf="getSelectedType(student.id, subjectId) === TeachingType.GroupTutoring" class="checkmark">✓</div>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div *ngIf="loading" class="loading">Loading subjects...</div>
-
-        <div *ngIf="!loading && getSubjectsForStudent(student.academicYearId).length === 0" class="no-subjects">
-          No subjects available for Year {{ student.yearNumber }}
-        </div>
-
-        <div class="selected-count">
-          Selected: {{ getSelectedCount(student.id) }} / 5 subjects
-          <span *ngIf="getSelectedCount(student.id) > 1" class="discount-info">
-            ({{ getSubjectDiscount(getSelectedCount(student.id)) }}% multi-subject discount!)
-          </span>
+      <!-- Info Box -->
+      <div class="info-box">
+        <div class="info-icon">💡</div>
+        <div>
+          <strong>Group Sessions:</strong> Save 35% on any subject with group tutoring! Perfect for learning with peers.
         </div>
       </div>
 
@@ -72,7 +79,7 @@ import { StudentInfo } from '../../../models/tutoring.models';
           (click)="nextStep()"
           [disabled]="!canProceed()"
           class="btn btn-primary">
-          Next: Select Plans →
+          Next: Select Hours →
         </button>
       </div>
     </div>
@@ -89,7 +96,14 @@ import { StudentInfo } from '../../../models/tutoring.models';
       font-size: 1.75rem;
       font-weight: 700;
       color: #333;
-      margin-bottom: 2rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .step-subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 2.5rem;
     }
 
     .student-section {
@@ -107,90 +121,276 @@ import { StudentInfo } from '../../../models/tutoring.models';
       font-weight: 600;
       color: #108092;
       margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
     }
 
-    .year-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      background: #e3f2fd;
-      color: #1976d2;
-      border-radius: 20px;
-      font-size: 0.875rem;
+    .subject-type-section {
+      margin-bottom: 2rem;
+    }
+
+    .subject-title {
+      font-size: 1.125rem;
       font-weight: 600;
-    }
-
-    .subjects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
+      color: #555;
       margin-bottom: 1rem;
     }
 
-    .subject-card {
+    .teaching-type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .type-card {
       background: white;
       border: 3px solid #e0e0e0;
-      border-radius: 12px;
-      padding: 1.5rem;
+      border-radius: 16px;
+      padding: 2rem;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
+      text-align: center;
     }
 
-    .subject-card:hover {
+    .type-card:hover {
       border-color: #108092;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(16, 128, 146, 0.2);
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(16, 128, 146, 0.2);
     }
 
-    .subject-card.selected {
+    .type-card.selected {
       border-color: #108092;
-      background: linear-gradient(135deg, #f0f9fa 0%, #fff 100%);
-      box-shadow: 0 4px 12px rgba(16, 128, 146, 0.3);
+      border-width: 4px;
+      background: linear-gradient(135deg, #e8f5f7 0%, #fff 100%);
+      box-shadow: 0 6px 16px rgba(16, 128, 146, 0.3);
     }
 
-    .subject-card h4 {
-      font-size: 1.125rem;
-      font-weight: 600;
+    .type-card.featured {
+      border-color: #bf942d;
+    }
+
+    .type-card.featured.selected {
+      border-color: #bf942d;
+      border-width: 4px;
+      background: linear-gradient(135deg, #fffcf0 0%, #fff 100%);
+      box-shadow: 0 6px 16px rgba(191, 148, 45, 0.3);
+    }
+
+    .discount-badge {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: linear-gradient(135deg, #d4a839 0%, #bf942d 100%);
+      color: white;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(191, 148, 45, 0.4);
+    }
+
+    .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .type-card h5 {
+      font-size: 1.5rem;
+      font-weight: 700;
       color: #333;
       margin-bottom: 0.5rem;
     }
 
-    .arabic-name {
-      font-size: 0.875rem;
+    .type-card p {
       color: #666;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
     }
 
-    .price {
-      font-size: 0.875rem;
+    .benefits {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+      text-align: left;
+    }
+
+    .benefits li {
+      padding: 0.5rem 0;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    .price-tag {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      border-radius: 25px;
       font-weight: 600;
-      color: #108092;
+      background: #f5f5f5;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .price-tag.discount {
+      background: #4caf50;
+      color: white;
     }
 
     .checkmark {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 28px;
-      height: 28px;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      background: #4caf50;
+      background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 1rem;
+      font-weight: 900;
+      font-size: 1.125rem;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
     }
 
-    .selected-count {
-      padding: 1rem;
-      background: #f5f5f5;
-      border-radius: 8px;
+    .info-box {
+      display: flex;
+      gap: 1rem;
+      padding: 1.25rem;
+      background: linear-gradient(135deg, #e3f2fd 0%, #f0f9fa 100%);
+      border-left: 4px solid #2196f3;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .info-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 0.875rem 2.5rem;
+      border: none;
+      border-radius: 10px;
       font-weight: 600;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #666;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .btn-primary {
+      background: #108092;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #0d6a7a;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(16, 128, 146, 0.4);
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  `]
+})
+export class Step3TeachingTypeComponent implements OnInit {
+  TeachingType = TeachingType;
+
+  students: StudentInfo[] = [];
+  subjects: Subject[] = [];
+  subjectsByYear = new Map<number, Subject[]>();
+  subjectTeachingTypes = new Map<string, TeachingType>();
+
+  constructor(
+    private stateService: TutoringStateService,
+    private contentService: ContentService
+  ) {}
+
+  ngOnInit(): void {
+    this.restoreState();
+    this.loadSubjects();
+  }
+
+  restoreState(): void {
+    const state = this.stateService.getState();
+    this.students = state.students;
+    this.subjectTeachingTypes = new Map(state.subjectTeachingTypes);
+  }
+
+  loadSubjects(): void {
+    const uniqueYears = [...new Set(this.students.map(s => s.academicYearId))];
+    
+    uniqueYears.forEach(yearId => {
+      this.contentService.getSubjectsByYear(yearId).subscribe({
+        next: (subjects) => {
+          const subjectsArray = Array.isArray(subjects) ? subjects : [];
+          this.subjectsByYear.set(yearId, subjectsArray);
+          this.subjects.push(...subjectsArray);
+        },
+        error: (error) => {
+          console.error(`Error loading subjects for year ${yearId}:`, error);
+          this.subjectsByYear.set(yearId, []);
+        }
+      });
+    });
+  }
+
+  getStudentSubjects(studentId: number): number[] {
+    const state = this.stateService.getState();
+    const subjectSet = state.studentSubjects.get(studentId);
+    return subjectSet ? Array.from(subjectSet) : [];
+  }
+
+  getSubjectName(subjectId: number): string {
+    const subject = this.subjects.find(s => s.id === subjectId);
+    return subject ? subject.subjectName : `Subject ${subjectId}`;
+  }
+
+  selectType(studentId: number, subjectId: number, type: TeachingType): void {
+    this.stateService.setSubjectTeachingType(studentId, subjectId, type);
+    const key = `${studentId}_${subjectId}`;
+    this.subjectTeachingTypes.set(key, type);
+  }
+
+  getSelectedType(studentId: number, subjectId: number): TeachingType | null {
+    const key = `${studentId}_${subjectId}`;
+    return this.subjectTeachingTypes.get(key) || null;
+  }
+
+  canProceed(): boolean {
+    return this.students.every(student => {
+      const subjects = this.getStudentSubjects(student.id);
+      return subjects.every(subjectId => {
+        return this.getSelectedType(student.id, subjectId) !== null;
+      });
+    });
+  }
+
+  previousStep(): void {
+    this.stateService.previousStep();
+  }
+
+  nextStep(): void {
+    if (this.canProceed()) {
+      this.stateService.nextStep();
+    }
+  }
+}
       color: #666;
       text-align: center;
     }

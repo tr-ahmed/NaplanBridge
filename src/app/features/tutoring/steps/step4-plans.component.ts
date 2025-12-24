@@ -1,29 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TutoringStateService } from '../../../core/services/tutoring-state.service';
-import { TutoringService } from '../../../core/services/tutoring.service';
 import { ContentService, Subject } from '../../../core/services/content.service';
-import { TutoringPlan, TutoringPlanDto, StudentInfo } from '../../../models/tutoring.models';
+import { StudentInfo } from '../../../models/tutoring.models';
 
 @Component({
-  selector: 'app-step4-plans',
+  selector: 'app-step4-hours',
   standalone: true,
   imports: [CommonModule],
   template: `
     <div class="step-container">
-      <h2 class="step-title">Step 4: Select Plan for Each Subject</h2>
+      <h2 class="step-title">Step 4: Select Hours for Each Subject</h2>
+      <p class="step-subtitle">Choose 10, 20, or 30 hours (get additional discounts)</p>
 
       <div *ngFor="let student of students" class="student-section">
-        <h3 class="student-name">🎓 {{ student.name }}'s Plans</h3>
+        <h3 class="student-name">🎓 {{ student.name }}'s Hours</h3>
 
         <div *ngFor="let subject of getStudentSubjects(student.id)" class="subject-plan-section">
           <h4 class="subject-title">{{ getSubjectName(subject) }}</h4>
 
           <div class="plans-grid">
-            <!-- 10 Hours Plan -->
+            <!-- 10 Hours -->
             <div
-              (click)="selectPlan(student.id, subject, TutoringPlan.Hours10)"
-              [class.selected]="getSelectedPlan(student.id, subject) === TutoringPlan.Hours10"
+              (click)="selectHours(student.id, subject, 10)"
+              [class.selected]="getSelectedHours(student.id, subject) === 10"
               class="plan-card">
               <div class="plan-header">
                 <h5>10 Hours</h5>
@@ -34,15 +34,15 @@ import { TutoringPlan, TutoringPlanDto, StudentInfo } from '../../../models/tuto
                 <p class="sessions">10 sessions × 1 hour</p>
               </div>
               <div class="plan-price">
-                <span class="price-amount">$<span>{{ calculatePlanPrice(getSubjectPrice(subject), TutoringPlan.Hours10) }}</span></span>
+                <span class="price-amount">$<span>{{ calculatePrice(getSubjectPrice(subject), 10) }}</span></span>
               </div>
-              <div *ngIf="getSelectedPlan(student.id, subject) === TutoringPlan.Hours10" class="checkmark">✓</div>
+              <div *ngIf="getSelectedHours(student.id, subject) === 10" class="checkmark">✓</div>
             </div>
 
-            <!-- 20 Hours Plan -->
+            <!-- 20 Hours -->
             <div
-              (click)="selectPlan(student.id, subject, TutoringPlan.Hours20)"
-              [class.selected]="getSelectedPlan(student.id, subject) === TutoringPlan.Hours20"
+              (click)="selectHours(student.id, subject, 20)"
+              [class.selected]="getSelectedHours(student.id, subject) === 20"
               class="plan-card featured">
               <div class="popular-badge">Most Popular</div>
               <div class="plan-header">
@@ -55,15 +55,15 @@ import { TutoringPlan, TutoringPlanDto, StudentInfo } from '../../../models/tuto
               </div>
               <div class="plan-price">
                 <span class="original-price">$<span>{{ getSubjectPrice(subject) * 2 }}</span></span>
-                <span class="price-amount">$<span>{{ calculatePlanPrice(getSubjectPrice(subject), TutoringPlan.Hours20) }}</span></span>
+                <span class="price-amount">$<span>{{ calculatePrice(getSubjectPrice(subject), 20) }}</span></span>
               </div>
-              <div *ngIf="getSelectedPlan(student.id, subject) === TutoringPlan.Hours20" class="checkmark">✓</div>
+              <div *ngIf="getSelectedHours(student.id, subject) === 20" class="checkmark">✓</div>
             </div>
 
-            <!-- 30 Hours Plan -->
+            <!-- 30 Hours -->
             <div
-              (click)="selectPlan(student.id, subject, TutoringPlan.Hours30)"
-              [class.selected]="getSelectedPlan(student.id, subject) === TutoringPlan.Hours30"
+              (click)="selectHours(student.id, subject, 30)"
+              [class.selected]="getSelectedHours(student.id, subject) === 30"
               class="plan-card premium">
               <div class="plan-header">
                 <h5>30 Hours</h5>
@@ -75,9 +75,9 @@ import { TutoringPlan, TutoringPlanDto, StudentInfo } from '../../../models/tuto
               </div>
               <div class="plan-price">
                 <span class="original-price">$<span>{{ getSubjectPrice(subject) * 3 }}</span></span>
-                <span class="price-amount">$<span>{{ calculatePlanPrice(getSubjectPrice(subject), TutoringPlan.Hours30) }}</span></span>
+                <span class="price-amount">$<span>{{ calculatePrice(getSubjectPrice(subject), 30) }}</span></span>
               </div>
-              <div *ngIf="getSelectedPlan(student.id, subject) === TutoringPlan.Hours30" class="checkmark">✓</div>
+              <div *ngIf="getSelectedHours(student.id, subject) === 30" class="checkmark">✓</div>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@ import { TutoringPlan, TutoringPlanDto, StudentInfo } from '../../../models/tuto
       <div class="info-box">
         <div class="info-icon">💡</div>
         <div>
-          <strong>Save more with longer plans!</strong> 20hrs plan gives you 5% off, and 30hrs plan gives you 10% off.
+          <strong>Hours Discounts:</strong> 20 hours = 5% OFF | 30 hours = 10% OFF
         </div>
       </div>
 
@@ -373,17 +373,14 @@ import { TutoringPlan, TutoringPlanDto, StudentInfo } from '../../../models/tuto
     }
   `]
 })
-export class Step4PlansComponent implements OnInit {
-  TutoringPlan = TutoringPlan;
-
-  students: { id: number; name: string }[] = [];
+export class Step4HoursComponent implements OnInit {
+  students: StudentInfo[] = [];
   subjects: Subject[] = [];
-  studentSubjectPlans = new Map<string, TutoringPlan>();
+  subjectHours = new Map<string, number>();
   loading = false;
 
   constructor(
     private stateService: TutoringStateService,
-    private tutoringService: TutoringService,
     private contentService: ContentService
   ) {}
 
@@ -394,9 +391,8 @@ export class Step4PlansComponent implements OnInit {
 
   restoreState(): void {
     const state = this.stateService.getState();
-    // Ensure students is always an array
-    this.students = Array.isArray(state.students) ? state.students : [];
-    this.studentSubjectPlans = new Map(state.studentSubjectPlans);
+    this.students = state.students;
+    this.subjectHours = new Map(state.subjectHours);
   }
 
   loadSubjects(): void {
@@ -421,33 +417,53 @@ export class Step4PlansComponent implements OnInit {
   }
 
   getSubjectName(subjectId: number): string {
-    if (!Array.isArray(this.subjects)) {
-      return `Subject ${subjectId}`;
-    }
     const subject = this.subjects.find(s => s.id === subjectId);
     return subject ? subject.subjectName : `Subject ${subjectId}`;
   }
 
   getSubjectPrice(subjectId: number): number {
-    if (!Array.isArray(this.subjects)) {
-      return 100;
-    }
     const subject = this.subjects.find(s => s.id === subjectId);
     return subject ? subject.price : 100;
   }
 
-  selectPlan(studentId: number, subjectId: number, plan: TutoringPlan): void {
+  selectHours(studentId: number, subjectId: number, hours: number): void {
+    this.stateService.setSubjectHours(studentId, subjectId, hours);
     const key = `${studentId}_${subjectId}`;
-    this.studentSubjectPlans.set(key, plan);
-    this.stateService.setPlan(studentId, subjectId, plan);
+    this.subjectHours.set(key, hours);
   }
 
-  getSelectedPlan(studentId: number, subjectId: number): TutoringPlan | null {
+  getSelectedHours(studentId: number, subjectId: number): number | null {
     const key = `${studentId}_${subjectId}`;
-    return this.studentSubjectPlans.get(key) || null;
+    return this.subjectHours.get(key) || null;
   }
 
-  calculatePlanPrice(basePrice: number, plan: TutoringPlan): number {
+  calculatePrice(basePrice: number, hours: number): number {
+    const total = basePrice * hours;
+    if (hours === 10) return total;
+    if (hours === 20) return Math.round(total * 0.95); // 5% discount
+    if (hours === 30) return Math.round(total * 0.90); // 10% discount
+    return total;
+  }
+
+  canProceed(): boolean {
+    return this.students.every(student => {
+      const subjects = this.getStudentSubjects(student.id);
+      return subjects.every(subjectId => {
+        return this.getSelectedHours(student.id, subjectId) !== null;
+      });
+    });
+  }
+
+  previousStep(): void {
+    this.stateService.previousStep();
+  }
+
+  nextStep(): void {
+    if (this.canProceed()) {
+      this.stateService.nextStep();
+    }
+  }
+}
     switch (plan) {
       case TutoringPlan.Hours10:
         return basePrice;

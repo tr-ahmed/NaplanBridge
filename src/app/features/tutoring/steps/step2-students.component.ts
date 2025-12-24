@@ -1,82 +1,76 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TutoringStateService } from '../../../core/services/tutoring-state.service';
-import { UserService } from '../../../core/services/user.service';
-import { TeachingType, StudentInfo } from '../../../models/tutoring.models';
-
-interface StudentWithSelection extends StudentInfo {
-  selected: boolean;
-}
+import { ContentService, Subject } from '../../../core/services/content.service';
+import { StudentInfo } from '../../../models/tutoring.models';
 
 @Component({
-  selector: 'app-step2-students',
+  selector: 'app-step2-subjects',
   standalone: true,
   imports: [CommonModule],
   template: `
     <div class="step-container">
-      <h2 class="step-title">Step 2: Select Students</h2>
+      <h2 class="step-title">Step 2: Select Subjects for Each Student</h2>
+      <p class="step-subtitle">Choose subjects and get multi-subject discounts up to 20%</p>
 
       <!-- Loading State -->
       <div *ngIf="loading" class="loading">
         <div class="spinner"></div>
-        <p>Loading your students...</p>
+        <p>Loading subjects...</p>
       </div>
 
-      <!-- Error State -->
-      <div *ngIf="error && !loading" class="error-box">
-        <div class="error-icon">⚠️</div>
-        <div>{{ error }}</div>
-      </div>
+      <!-- Students Subjects -->
+      <div *ngFor="let student of students; let i = index" class="student-section">
+        <h3 class="student-name">
+          📚 {{ student.name }}'s Subjects
+          <span class="year-badge">Year {{ student.yearNumber }}</span>
+        </h3>
 
-      <!-- Students Selection -->
-      <div *ngIf="!loading && !error" class="form-section">
-        <label class="form-label">
-          Choose which students to enroll in tutoring
-          <span *ngIf="teachingType === TeachingType.GroupTutoring" class="info-text">
-            (Maximum 3 students for group tutoring)
-          </span>
-        </label>
-
-        <div *ngIf="availableStudents.length === 0" class="no-students">
-          <p>📚 No students found. Please add a student first.</p>
-          <a href="/parent/dashboard" class="btn btn-secondary">Go to Dashboard</a>
+        <!-- Discount Info -->
+        <div *ngIf="getSelectedCount(student.id) > 1" class="discount-banner">
+          🎉 {{ getSubjectDiscount(getSelectedCount(student.id)) }}% Multi-Subject Discount Applied!
         </div>
 
-        <div *ngIf="availableStudents.length > 0" class="students-grid">
+        <!-- Subject Grid -->
+        <div *ngIf="!loading" class="subjects-grid">
           <div
-            *ngFor="let student of availableStudents"
-            (click)="toggleStudent(student)"
-            [class.selected]="student.selected"
-            [class.disabled]="!canSelectStudent(student)"
-            class="student-card">
-            <div class="checkbox">
-              <input
-                type="checkbox"
-                [checked]="student.selected"
-                [disabled]="!canSelectStudent(student)"
-                (click)="$event.stopPropagation()">
+            *ngFor="let subject of getSubjectsForStudent(student.academicYearId)"
+            (click)="toggleSubject(student.id, subject)"
+            [class.selected]="isSubjectSelected(student.id, subject.id)"
+            [class.disabled]="!canSelectMoreSubjects(student.id, subject.id)"
+            class="subject-card">
+            <h4>{{ subject.subjectName }}</h4>
+            <p class="category-name">{{ subject.categoryName }}</p>
+            <div class="price-section">
+              <p class="price">$<span>{{ subject.price }}</span></p>
+              <div *ngIf="subject.discountPercentage > 0" class="subject-discount">
+                <span class="discount-badge">{{ subject.discountPercentage }}% OFF</span>
+              </div>
             </div>
-            <div class="student-info">
-              <h4>{{ student.name }}</h4>
-              <p class="year-info">📚 Year {{ student.yearNumber }}</p>
-            </div>
-            <div *ngIf="student.selected" class="checkmark">✓</div>
+            <div *ngIf="isSubjectSelected(student.id, subject.id)" class="checkmark">✓</div>
           </div>
         </div>
 
-        <div *ngIf="selectedCount > 0" class="selection-summary">
-          Selected: {{ selectedCount }} student{{ selectedCount > 1 ? 's' : '' }}
-          <span *ngIf="teachingType === TeachingType.GroupTutoring && selectedCount > 1" class="discount-info">
-            ({{ getStudentDiscount(selectedCount) }}% multi-student discount!)
-          </span>
+        <!-- Selected Count -->
+        <div class="selection-info">
+          <p>Selected: {{ getSelectedCount(student.id) }} / 5 subjects</p>
+          <p *ngIf="getSelectedCount(student.id) >= 1" class="discount-text">
+            Discount: {{ getSubjectDiscount(getSelectedCount(student.id)) }}%
+          </p>
         </div>
       </div>
 
-      <!-- Info Box -->
-      <div *ngIf="teachingType === TeachingType.GroupTutoring && !loading" class="info-box">
+      <!-- Overall Info Box -->
+      <div class="info-box">
         <div class="info-icon">💡</div>
         <div>
-          <strong>Group Tutoring Benefits:</strong> 35% base discount + additional multi-student discounts!
+          <strong>Multi-Subject Discounts:</strong>
+          <ul>
+            <li>2 subjects = 5% discount</li>
+            <li>3 subjects = 10% discount</li>
+            <li>4 subjects = 15% discount</li>
+            <li>5+ subjects = 20% discount (Maximum!)</li>
+          </ul>
         </div>
       </div>
 
@@ -93,7 +87,7 @@ interface StudentWithSelection extends StudentInfo {
           (click)="nextStep()"
           [disabled]="!canProceed()"
           class="btn btn-primary">
-          Next: Select Subjects →
+          Next: Select Teaching Type →
         </button>
       </div>
     </div>
@@ -333,84 +327,116 @@ interface StudentWithSelection extends StudentInfo {
     }
   `]
 })
-export class Step2StudentsComponent implements OnInit {
-  TeachingType = TeachingType;
-
-  teachingType: TeachingType = TeachingType.OneToOne;
-  availableStudents: StudentWithSelection[] = [];
+export class Step2SubjectsComponent implements OnInit {
+  students: StudentInfo[] = [];
+  subjects: Subject[] = [];
+  subjectsByYear = new Map<number, Subject[]>();
+  studentSubjects = new Map<number, Set<number>>();
   loading = false;
-  error: string | null = null;
 
   constructor(
     private stateService: TutoringStateService,
-    private userService: UserService
+    private contentService: ContentService
   ) {}
 
   ngOnInit(): void {
     this.restoreState();
-    this.loadStudents();
+    this.loadSubjects();
   }
 
   restoreState(): void {
     const state = this.stateService.getState();
-    this.teachingType = state.teachingType;
+    this.students = state.students;
+    this.studentSubjects = new Map(state.studentSubjects);
   }
 
-  loadStudents(): void {
+  loadSubjects(): void {
     this.loading = true;
-    this.error = null;
-
-    this.userService.getMyStudents().subscribe({
-      next: (students) => {
-        const state = this.stateService.getState();
-        const selectedStudentIds = new Set(state.students.map(s => s.id));
-
-        this.availableStudents = students.map(student => ({
-          id: student.id,
-          name: student.userName,
-          academicYearId: student.year,
-          yearNumber: student.year,
-          selected: selectedStudentIds.has(student.id)
-        }));
-
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error loading students:', err);
-        this.error = 'Failed to load students. Please try again.';
-        this.loading = false;
-      }
+    
+    const uniqueYears = [...new Set(this.students.map(s => s.academicYearId))];
+    
+    let loadedCount = 0;
+    uniqueYears.forEach(yearId => {
+      this.contentService.getSubjectsByYear(yearId).subscribe({
+        next: (subjects) => {
+          const subjectsArray = Array.isArray(subjects) ? subjects : [];
+          this.subjectsByYear.set(yearId, subjectsArray);
+          this.subjects.push(...subjectsArray);
+          
+          loadedCount++;
+          if (loadedCount === uniqueYears.length) {
+            this.loading = false;
+          }
+        },
+        error: (error) => {
+          console.error(`Error loading subjects for year ${yearId}:`, error);
+          this.subjectsByYear.set(yearId, []);
+          
+          loadedCount++;
+          if (loadedCount === uniqueYears.length) {
+            this.loading = false;
+          }
+        }
+      });
     });
+    
+    if (uniqueYears.length === 0) {
+      this.loading = false;
+    }
   }
 
-  toggleStudent(student: StudentWithSelection): void {
-    if (!this.canSelectStudent(student)) {
+  getSubjectsForStudent(yearId: number): Subject[] {
+    return this.subjectsByYear.get(yearId) || [];
+  }
+
+  toggleSubject(studentId: number, subject: Subject): void {
+    if (!this.canSelectMoreSubjects(studentId, subject.id)) {
       return;
     }
 
-    student.selected = !student.selected;
-  }
-
-  canSelectStudent(student: StudentWithSelection): boolean {
-    if (student.selected) {
-      return true; // Can always deselect
+    if (!this.studentSubjects.has(studentId)) {
+      this.studentSubjects.set(studentId, new Set());
     }
 
-    const maxStudents = this.teachingType === TeachingType.OneToOne ? 1 : 3;
-    return this.selectedCount < maxStudents;
+    const subjects = this.studentSubjects.get(studentId)!;
+    if (subjects.has(subject.id)) {
+      subjects.delete(subject.id);
+    } else {
+      subjects.add(subject.id);
+    }
+
+    this.saveSelection();
   }
 
-  get selectedCount(): number {
-    return this.availableStudents.filter(s => s.selected).length;
+  isSubjectSelected(studentId: number, subjectId: number): boolean {
+    return this.studentSubjects.get(studentId)?.has(subjectId) || false;
   }
 
-  getStudentDiscount(count: number): number {
+  canSelectMoreSubjects(studentId: number, subjectId: number): boolean {
+    if (this.isSubjectSelected(studentId, subjectId)) {
+      return true; // Can always deselect
+    }
+    return this.getSelectedCount(studentId) < 5;
+  }
+
+  getSelectedCount(studentId: number): number {
+    return this.studentSubjects.get(studentId)?.size || 0;
+  }
+
+  getSubjectDiscount(count: number): number {
     if (count <= 1) return 0;
-    return Math.min(count * 5, 20);
+    if (count === 2) return 5;
+    if (count === 3) return 10;
+    if (count === 4) return 15;
+    return 20; // 5+ subjects
+  }
+
+  saveSelection(): void {
+    this.stateService.setStudentSubjects(this.studentSubjects);
   }
 
   canProceed(): boolean {
-    return this.selectedCount > 0;
+    return this.students.every(student => this.getSelectedCount(student.id) > 0);
   }
 
   previousStep(): void {
@@ -419,16 +445,6 @@ export class Step2StudentsComponent implements OnInit {
 
   nextStep(): void {
     if (this.canProceed()) {
-      const selectedStudents: StudentInfo[] = this.availableStudents
-        .filter(s => s.selected)
-        .map(s => ({
-          id: s.id,
-          name: s.name,
-          academicYearId: s.academicYearId,
-          yearNumber: s.yearNumber
-        }));
-
-      this.stateService.setStudents(selectedStudents);
       this.stateService.nextStep();
     }
   }

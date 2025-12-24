@@ -41,22 +41,22 @@ import { PriceSummaryComponent } from './steps/remaining-components';
 
       <!-- Current Step Content -->
       <div class="step-content">
-        <!-- Step 1 -->
+        <!-- Step 1 - Students -->
         <app-step1-year-type *ngIf="currentStep === 1"></app-step1-year-type>
 
-        <!-- Step 2 -->
-        <app-step2-students *ngIf="currentStep === 2"></app-step2-students>
+        <!-- Step 2 - Subjects -->
+        <app-step2-subjects *ngIf="currentStep === 2"></app-step2-subjects>
 
-        <!-- Step 3 -->
-        <app-step3-subjects *ngIf="currentStep === 3"></app-step3-subjects>
+        <!-- Step 3 - Teaching Type -->
+        <app-step3-teaching-type *ngIf="currentStep === 3"></app-step3-teaching-type>
 
-        <!-- Step 4 -->
-        <app-step4-plans *ngIf="currentStep === 4"></app-step4-plans>
+        <!-- Step 4 - Hours -->
+        <app-step4-hours *ngIf="currentStep === 4"></app-step4-hours>
 
-        <!-- Step 5 -->
+        <!-- Step 5 - Schedule -->
         <app-step5-schedule *ngIf="currentStep === 5"></app-step5-schedule>
 
-        <!-- Step 6 -->
+        <!-- Step 6 - Review -->
         <app-step6-review *ngIf="currentStep === 6"></app-step6-review>
       </div>
 
@@ -174,10 +174,10 @@ export class TutoringSelectionComponent implements OnInit {
   currentStep = 1;
 
   steps = [
-    { number: 1, label: 'Year & Type' },
-    { number: 2, label: 'Students' },
-    { number: 3, label: 'Subjects' },
-    { number: 4, label: 'Plans' },
+    { number: 1, label: 'Students' },
+    { number: 2, label: 'Subjects' },
+    { number: 3, label: 'Teaching Type' },
+    { number: 4, label: 'Hours' },
     { number: 5, label: 'Schedule' },
     { number: 6, label: 'Review' }
   ];

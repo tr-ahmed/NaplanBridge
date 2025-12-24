@@ -23,11 +23,10 @@ export class TutoringStateService {
 
   private getInitialState(): TutoringSelectionState {
     return {
-      teachingType: TeachingType.OneToOne,
-      academicYearId: null,
       students: [],
       studentSubjects: new Map(),
-      studentSubjectPlans: new Map(),
+      subjectTeachingTypes: new Map(),
+      subjectHours: new Map(),
       studentSubjectTimeSlots: new Map(),
       currentStep: 1,
       priceCalculation: null
@@ -49,27 +48,7 @@ export class TutoringStateService {
   }
 
   // ============================================
-  // Step 1: Teaching Type & Academic Year
-  // ============================================
-
-  setTeachingType(type: TeachingType): void {
-    this.updateState({ teachingType: type });
-  }
-
-  getTeachingType(): TeachingType {
-    return this.stateSubject.value.teachingType;
-  }
-
-  setAcademicYear(yearId: number): void {
-    this.updateState({ academicYearId: yearId });
-  }
-
-  getAcademicYear(): number | null {
-    return this.stateSubject.value.academicYearId ?? null;
-  }
-
-  // ============================================
-  // Step 2: Students
+  // Step 1: Students
   // ============================================
 
   setStudents(students: StudentInfo[]): void {
@@ -81,7 +60,7 @@ export class TutoringStateService {
   }
 
   // ============================================
-  // Step 3: Student Subjects
+  // Step 2: Student Subjects
   // ============================================
 
   setStudentSubjects(studentSubjects: Map<number, Set<number>>): void {
@@ -93,19 +72,35 @@ export class TutoringStateService {
   }
 
   // ============================================
-  // Step 4: Plans
+  // Step 3: Teaching Type per Subject
   // ============================================
 
-  setPlan(studentId: number, subjectId: number, plan: TutoringPlan): void {
+  setSubjectTeachingType(studentId: number, subjectId: number, type: TeachingType): void {
     const key = `${studentId}_${subjectId}`;
-    const plans = new Map(this.stateSubject.value.studentSubjectPlans);
-    plans.set(key, plan);
-    this.updateState({ studentSubjectPlans: plans });
+    const types = new Map(this.stateSubject.value.subjectTeachingTypes);
+    types.set(key, type);
+    this.updateState({ subjectTeachingTypes: types });
   }
 
-  getPlan(studentId: number, subjectId: number): TutoringPlan | null {
+  getSubjectTeachingType(studentId: number, subjectId: number): TeachingType | null {
     const key = `${studentId}_${subjectId}`;
-    return this.stateSubject.value.studentSubjectPlans.get(key) || null;
+    return this.stateSubject.value.subjectTeachingTypes.get(key) || null;
+  }
+
+  // ============================================
+  // Step 4: Hours per Subject
+  // ============================================
+
+  setSubjectHours(studentId: number, subjectId: number, hours: number): void {
+    const key = `${studentId}_${subjectId}`;
+    const hoursMap = new Map(this.stateSubject.value.subjectHours);
+    hoursMap.set(key, hours);
+    this.updateState({ subjectHours: hoursMap });
+  }
+
+  getSubjectHours(studentId: number, subjectId: number): number | null {
+    const key = `${studentId}_${subjectId}`;
+    return this.stateSubject.value.subjectHours.get(key) || null;
   }
 
   // ============================================
