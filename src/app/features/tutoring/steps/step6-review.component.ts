@@ -519,10 +519,13 @@ export class Step6ReviewComponent implements OnInit {
         const hours = (state.subjectHours.get(key) || 10) as HoursOption;
         const subjectInfo = this.subjects.find(s => s.id === subjectId);
 
+        // ✅ Use tutoring price per hour (not self-learning subscription price)
+        const tutoringPrice = subjectInfo?.tutoringPricePerHour || subjectInfo?.price || 100;
+
         return {
           subjectId,
           subjectName: subjectInfo?.subjectName || `Subject ${subjectId}`,
-          basePrice: subjectInfo?.price || 100,
+          basePrice: tutoringPrice,  // ✅ Tutoring hourly rate
           teachingType,
           hours
         };

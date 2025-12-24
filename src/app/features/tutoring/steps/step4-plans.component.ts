@@ -426,7 +426,8 @@ export class Step4HoursComponent implements OnInit {
 
   getSubjectPrice(subjectId: number): number {
     const subject = this.subjects.find(s => s.id === subjectId);
-    return subject ? subject.price : 100;
+    // ✅ Use tutoring price per hour (not self-learning subscription price)
+    return subject?.tutoringPricePerHour || subject?.price || 100;
   }
 
   selectHours(studentId: number, subjectId: number, hours: number): void {

@@ -19,10 +19,13 @@ export interface Subject {
   // Global subject flag (available to all years)
   isGlobal?: boolean;
 
-  // Pricing
-  price: number;
-  originalPrice: number;
-  discountPercentage: number;
+  // Self-Learning Pricing (Monthly Subscription)
+  price: number;              // Current monthly subscription price
+  originalPrice: number;      // Original subscription price
+  discountPercentage: number; // Discount on subscription
+
+  // ✅ NEW: Tutoring Pricing (Hourly Rate)
+  tutoringPricePerHour?: number;  // Price per hour for live tutoring sessions
 
   // Content
   posterUrl?: string;
@@ -61,6 +64,7 @@ export interface CreateSubjectDto {
   teacherId: number;
   originalPrice: number;
   discountPercentage: number;
+  tutoringPricePerHour?: number;  // ✅ NEW: Tutoring hourly rate
   level: string;
   duration: number;
   posterFile?: File;
@@ -72,6 +76,7 @@ export interface UpdateSubjectDto {
   teacherId?: number;
   originalPrice?: number;
   discountPercentage?: number;
+  tutoringPricePerHour?: number;  // ✅ NEW: Tutoring hourly rate
   level?: string;
   duration?: number;
   posterFile?: File;

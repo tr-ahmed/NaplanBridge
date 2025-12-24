@@ -366,4 +366,34 @@ export class SubjectService {
   filterSubjectsByYear(subjects: Subject[], yearId: number): Subject[] {
     return this.subjectUtils.filterSubjectsByYear(subjects, yearId);
   }
+
+  /**
+   * Bulk update tutoring prices (Admin only)
+   * Endpoint: PUT /api/Admin/Subjects/BulkUpdateTutoringPrices
+   * Requires: Admin role
+   */
+  bulkUpdateTutoringPrices(updates: { id: number; tutoringPricePerHour: number | null }[]): Observable<any> {
+    return this.api.put('Admin/Subjects/BulkUpdateTutoringPrices', { updates }).pipe(
+      timeout(environment.apiTimeout || 10000),
+      catchError(error => {
+        console.error('Error updating tutoring prices:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Update single subject tutoring price
+   * Endpoint: PATCH /api/Subjects/{id}/TutoringPrice
+   * Requires: Admin role
+   */
+  updateTutoringPrice(subjectId: number, tutoringPricePerHour: number | null): Observable<any> {
+    return this.api.patch(`Subjects/${subjectId}/TutoringPrice`, { tutoringPricePerHour }).pipe(
+      timeout(environment.apiTimeout || 10000),
+      catchError(error => {
+        console.error('Error updating tutoring price:', error);
+        throw error;
+      })
+    );
+  }
 }
