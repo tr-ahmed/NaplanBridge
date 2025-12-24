@@ -76,7 +76,7 @@ import { TeacherWithPriorityDto, PaginationInfo } from '../../../models/tutoring
               </td>
               <td class="center">{{ teacher.totalBookings }}</td>
               <td class="center">
-                <span class="rating">{{ teacher.avgRating?.toFixed(1) || 'N/A' }} ⭐</span>
+                <span class="rating">{{ teacher.avgRating.toFixed(1) || 'N/A' }} ⭐</span>
               </td>
               <td class="center">
                 <span class="status-badge" [class.active]="teacher.isActive" [class.inactive]="!teacher.isActive">

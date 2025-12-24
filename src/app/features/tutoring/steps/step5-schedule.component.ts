@@ -22,7 +22,7 @@ import {
   template: `
     <div class="step-container">
       <h2 class="step-title">Step 5: Smart Scheduling</h2>
-      <p class="step-subtitle">We'll find the best teachers and times based on availability and priority</p>
+      <p class="step-subtitle">We'll find the best teachers and schedule all sessions for each subject with the same teacher</p>
 
       <!-- Preferences Section -->
       <div class="preferences-section">
@@ -85,8 +85,32 @@ import {
               <span class="stat-label">Unmatched</span>
             </div>
           </div>
-          <div *ngIf="scheduleResponse.summary.sameTeacherForMultipleSubjects" class="same-teacher-badge">
-            ✅ Same teacher assigned for multiple subjects where possible!
+          <div *ngIf="scheduleResponse.summary.consistentTeacherPerSubject" class="same-teacher-badge success">
+            ✅ All sessions for each subject scheduled with the same teacher!
+          </div>
+          <div *ngIf="!scheduleResponse.summary.consistentTeacherPerSubject && scheduleResponse.summary.splitSubjects.length > 0" class="same-teacher-badge warning">
+            ⚠️ Some subjects split between multiple teachers due to availability
+          </div>
+        </div>
+
+        <!-- Split Subjects Info -->
+        <div *ngIf="scheduleResponse.summary.splitSubjects.length > 0" class="split-subjects-section">
+          <h4>📋 Subjects Split Between Teachers:</h4>
+          <div *ngFor="let split of scheduleResponse.summary.splitSubjects" class="split-subject-card">
+            <div class="split-header">
+              <h5>{{ split.subjectName }}</h5>
+              <span class="teacher-count-badge">{{ split.teacherCount }} teachers</span>
+            </div>
+            <p class="split-reason">{{ split.reason }}</p>
+            <div class="allocations">
+              <div *ngFor="let alloc of split.allocations" class="allocation-item">
+                <div class="teacher-info">
+                  <span class="teacher-name">{{ alloc.teacherName }}</span>
+                  <span class="priority-badge">Priority {{ alloc.priority }}/10</span>
+                </div>
+                <span class="sessions-badge">{{ alloc.sessionsAssigned }} sessions</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -102,9 +126,6 @@ import {
                   <span class="priority">⭐ Priority: {{ teacher.priority }}/10</span>
                   <span class="rating">Rating: {{ teacher.rating.toFixed(1) }}⭐</span>
                 </div>
-                <div class="matched-subjects">
-                  <span *ngFor="let subject of teacher.matchedSubjects" class="subject-tag">{{ subject }}</span>
-                </div>
               </div>
             </div>
 
@@ -114,7 +135,7 @@ import {
                 <span class="session-type-badge" [class.group]="schedule.teachingType === 'Group'">
                   {{ schedule.teachingType }}
                 </span>
-                <span class="sessions-count">{{ schedule.slots.length }}/{{ schedule.totalSessions }} sessions</span>
+                <span class="sessions-count">{{ schedule.assignedSessions }}/{{ schedule.totalSessions }} sessions</span>
               </div>
 
               <div class="slots-grid">
@@ -144,8 +165,8 @@ import {
                 <span>Rating: {{ alt.rating.toFixed(1) }}⭐</span>
                 <span>{{ alt.availableSlots }} slots available</span>
               </div>
-              <div class="alt-subjects">
-                <span *ngFor="let subject of alt.matchedSubjects" class="subject-tag small">{{ subject }}</span>
+              <div class="alt-subject">
+                <span class="subject-tag">{{ alt.subjectName }}</span>
               </div>
             </div>
           </div>
@@ -574,11 +595,115 @@ import {
     }
 
     .same-teacher-badge {
-      background: #e8f5e9;
-      color: #388e3c;
       padding: 0.5rem 1rem;
       border-radius: 8px;
       margin-top: 1rem;
+      font-weight: 600;
+    }
+
+    .same-teacher-badge.success {
+      background: #e8f5e9;
+      color: #388e3c;
+    }
+
+    .same-teacher-badge.warning {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    .split-subjects-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: #fff8e1;
+      border-radius: 12px;
+      border-left: 4px solid #ffc107;
+    }
+
+    .split-subjects-section h4 {
+      color: #e65100;
+      margin-bottom: 1rem;
+    }
+
+    .split-subject-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .split-subject-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .split-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .split-header h5 {
+      margin: 0;
+      color: #333;
+      font-size: 1.125rem;
+    }
+
+    .teacher-count-badge {
+      background: #ff9800;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .split-reason {
+      font-size: 0.875rem;
+      color: #666;
+      margin: 0 0 1rem 0;
+    }
+
+    .allocations {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .allocation-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+
+    .allocation-item .teacher-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .teacher-name {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .priority-badge {
+      background: #108092;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .sessions-badge {
+      background: #4caf50;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
       font-weight: 600;
     }
 
@@ -769,10 +894,18 @@ import {
       margin-bottom: 0.5rem;
     }
 
-    .alt-subjects {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.25rem;
+    .alt-subject {
+      margin-top: 0.5rem;
+    }
+
+    .alt-subject .subject-tag {
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
     }
 
     .no-schedule {

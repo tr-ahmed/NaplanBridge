@@ -173,6 +173,8 @@ export interface SubjectScheduleDto {
   subjectName: string;
   teachingType: string;
   totalSessions: number;
+  /** Number of sessions assigned to this teacher */
+  assignedSessions: number;
   slots: ScheduledSlotDto[];
 }
 
@@ -181,7 +183,6 @@ export interface ScheduledTeacherDto {
   teacherName: string;
   priority: number;
   rating: number;
-  matchedSubjects: string[];
   subjectSchedules: SubjectScheduleDto[];
 }
 
@@ -189,20 +190,41 @@ export interface RecommendedScheduleDto {
   teachers: ScheduledTeacherDto[];
 }
 
+/** Alternative teacher - per subject (not for multiple subjects) */
 export interface AlternativeTeacherDto {
   teacherId: number;
   teacherName: string;
   priority: number;
   rating: number;
-  matchedSubjects: string[];
+  /** Subject this teacher can teach */
+  subjectId: number;
+  subjectName: string;
   availableSlots: number;
+}
+
+export interface TeacherAllocation {
+  teacherId: number;
+  teacherName: string;
+  priority: number;
+  sessionsAssigned: number;
+}
+
+export interface SplitSubjectInfo {
+  subjectId: number;
+  subjectName: string;
+  teacherCount: number;
+  reason: string;
+  allocations: TeacherAllocation[];
 }
 
 export interface SchedulingSummaryDto {
   totalSessions: number;
   matchedSessions: number;
   unmatchedSessions: number;
-  sameTeacherForMultipleSubjects: boolean;
+  /** True if all sessions for each subject are with a single teacher */
+  consistentTeacherPerSubject: boolean;
+  /** Subjects that had to be split between multiple teachers */
+  splitSubjects: SplitSubjectInfo[];
 }
 
 export interface SmartSchedulingResponse {
