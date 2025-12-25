@@ -68,6 +68,22 @@ export class TutoringService {
     return this.http.put(`${this.adminUrl}/Teachers/${teacherId}/Priority`, dto);
   }
 
+  /**
+   * Get tutoring system statistics (Admin)
+   * Endpoint: GET /api/Admin/Tutoring/Stats
+   */
+  getTutoringStats(): Observable<{
+    totalRevenue: number;
+    totalOrders: number;
+    totalSessions: number;
+    completedSessions: number;
+    activeStudents: number;
+    activeTeachers: number;
+    averageOrderValue: number;
+  }> {
+    return this.http.get<any>(`${this.adminUrl}/Tutoring/Stats`);
+  }
+
   // ==================== TEACHER APIs - Availability ====================
 
   /**

@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { SubjectService } from '../../../core/services/subject.service';
 import { TutoringService } from '../../../core/services/tutoring.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { forkJoin } from 'rxjs';
 
 type TabType = 'overview' | 'pricing' | 'teachers' | 'discounts' | 'reports';
 
@@ -82,7 +83,14 @@ interface TutoringStats {
 
         <!-- Overview Tab -->
         <div *ngIf="activeTab() === 'overview'" class="overview-tab">
-          <div class="stats-grid">
+
+          <!-- Loading State -->
+          <div *ngIf="loadingStats()" class="loading">
+            <div class="spinner"></div>
+            <p>Loading statistics...</p>
+          </div>
+
+          <div *ngIf="!loadingStats()" class="stats-grid">
             <div class="stat-card revenue">
               <div class="stat-icon">💰</div>
               <div class="stat-info">
@@ -161,6 +169,7 @@ interface TutoringStats {
           <div class="tab-header">
             <h2>💰 Tutoring Pricing</h2>
             <p>Set hourly rates for tutoring sessions (separate from self-learning subscriptions)</p>
+
             <div class="header-actions">
               <button class="btn btn-primary" (click)="saveAllPricing()" [disabled]="!hasPricingChanges() || saving()">
                 {{ saving() ? 'Saving...' : 'Save All Changes' }}
@@ -208,13 +217,13 @@ interface TutoringStats {
                     {{ subject.subjectName }}
                   </td>
                   <td>{{ subject.categoryName }}</td>
-                  <td class="price-cell">\${{ subject.selfLearningPrice.toFixed(2) }}</td>
+                  <td class="price-cell">\${{ (subject.selfLearningPrice || 0).toFixed(2) }}</td>
                   <td class="price-cell">
                     <div *ngIf="!subject.isEditing">
-                      <span *ngIf="subject.tutoringPricePerHour !== null" class="price tutoring">
+                      <span *ngIf="subject.tutoringPricePerHour !== null && subject.tutoringPricePerHour !== undefined" class="price tutoring">
                         \${{ subject.tutoringPricePerHour.toFixed(2) }}/hr
                       </span>
-                      <span *ngIf="subject.tutoringPricePerHour === null" class="not-set">Not Set</span>
+                      <span *ngIf="subject.tutoringPricePerHour === null || subject.tutoringPricePerHour === undefined" class="not-set">Not Set</span>
                     </div>
                     <div *ngIf="subject.isEditing" class="edit-input">
                       <span class="currency">$</span>
@@ -306,7 +315,7 @@ interface TutoringStats {
                   </td>
                   <td class="center">{{ teacher.totalBookings }}</td>
                   <td class="center">
-                    <span class="rating">{{ teacher.avgRating.toFixed(1) }} ⭐</span>
+                    <span class="rating">{{ (teacher.avgRating || 0).toFixed(1) }} ⭐</span>
                   </td>
                   <td class="center">
                     <span class="status-badge" [class.active]="teacher.isActive" [class.inactive]="!teacher.isActive">
@@ -1142,6 +1151,47 @@ interface TutoringStats {
       margin-bottom: 0.25rem;
     }
 
+    /* Warning Box */
+    .warning-box {
+      display: flex;
+      gap: 1rem;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .warning-icon {
+      font-size: 1.5rem;
+      color: #ff9800;
+    }
+
+    .warning-content {
+      flex: 1;
+    }
+
+    .warning-content strong {
+      color: #f57c00;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .warning-content p {
+      margin: 0.25rem 0;
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .warning-content code {
+      background: #fff;
+      padding: 0.125rem 0.375rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: #d32f2f;
+      border: 1px solid #ffcdd2;
+    }
+
     /* Period Selector */
     .period-selector {
       display: flex;
@@ -1294,6 +1344,7 @@ export class AdminTutoringDashboardComponent implements OnInit {
   pricingSearch = '';
   showOnlyTutoringEnabled = false;
   loadingPricing = signal(false);
+  loadingStats = signal(false);
   saving = signal(false);
 
   // Teachers
@@ -1355,8 +1406,28 @@ export class AdminTutoringDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Load real data from APIs
+    this.loadStatistics();
     this.loadPricing();
     this.loadTeachers();
+  }
+
+  // Statistics Methods
+  loadStatistics(): void {
+    this.loadingStats.set(true);
+    this.tutoringService.getTutoringStats().subscribe({
+      next: (data: TutoringStats) => {
+        this.stats = data;
+        this.loadingStats.set(false);
+        console.log('✅ Loaded tutoring statistics:', data);
+      },
+      error: (err: any) => {
+        console.error('❌ Error loading statistics:', err);
+        this.loadingStats.set(false);
+        this.toastService.showError('Failed to load statistics');
+        // Keep mock data for display
+      }
+    });
   }
 
   // Pricing Methods
@@ -1365,29 +1436,36 @@ export class AdminTutoringDashboardComponent implements OnInit {
     this.subjectService.getAllSubjects().subscribe({
       next: (response: any) => {
         const data = response.data || response.items || response || [];
+
+        if (!Array.isArray(data) || data.length === 0) {
+          console.warn('⚠️ No subjects data returned from API');
+          this.toastService.showWarning('No subjects found');
+          this.subjects = [];
+          this.filterPricing();
+          this.loadingPricing.set(false);
+          return;
+        }
+
         this.subjects = data.map((s: any) => ({
           id: s.id,
-          subjectName: s.subjectName || s.name,
+          subjectName: s.subjectName || s.name || 'Unknown',
           categoryName: s.categoryName || 'General',
-          selfLearningPrice: s.price || 0,
-          tutoringPricePerHour: s.tutoringPricePerHour,
-          isAvailableForTutoring: s.tutoringPricePerHour !== null && s.tutoringPricePerHour > 0,
+          selfLearningPrice: Number(s.price) || 0,
+          tutoringPricePerHour: s.tutoringPricePerHour !== null && s.tutoringPricePerHour !== undefined ? Number(s.tutoringPricePerHour) : null,
+          isAvailableForTutoring: s.tutoringPricePerHour !== null && s.tutoringPricePerHour !== undefined && s.tutoringPricePerHour > 0,
           isEditing: false
         }));
+
         this.filterPricing();
         this.loadingPricing.set(false);
+        console.log('✅ Loaded subjects:', this.subjects.length);
       },
       error: (err: any) => {
-        console.error('Error loading subjects:', err);
+        console.error('❌ Error loading subjects:', err);
         this.loadingPricing.set(false);
-        // Load mock data for demo
-        this.subjects = [
-          { id: 1, subjectName: 'Mathematics', categoryName: 'STEM', selfLearningPrice: 50, tutoringPricePerHour: 100, isAvailableForTutoring: true, isEditing: false },
-          { id: 2, subjectName: 'Physics', categoryName: 'STEM', selfLearningPrice: 60, tutoringPricePerHour: 120, isAvailableForTutoring: true, isEditing: false },
-          { id: 3, subjectName: 'English', categoryName: 'Languages', selfLearningPrice: 40, tutoringPricePerHour: null, isAvailableForTutoring: false, isEditing: false },
-          { id: 4, subjectName: 'Chemistry', categoryName: 'STEM', selfLearningPrice: 55, tutoringPricePerHour: 110, isAvailableForTutoring: true, isEditing: false },
-        ];
+        this.subjects = [];
         this.filterPricing();
+        this.toastService.showError('Failed to load subjects. Please check backend connection.');
       }
     });
   }
@@ -1408,10 +1486,23 @@ export class AdminTutoringDashboardComponent implements OnInit {
   }
 
   savePricing(subject: SubjectPricing): void {
-    subject.tutoringPricePerHour = subject.newTutoringPrice || null;
-    subject.isAvailableForTutoring = subject.tutoringPricePerHour !== null && subject.tutoringPricePerHour > 0;
-    subject.isEditing = false;
-    this.toastService.showSuccess(`Pricing updated for ${subject.subjectName}`);
+    const newPrice = subject.newTutoringPrice !== undefined ? subject.newTutoringPrice : null;
+
+    this.subjectService.updateTutoringPrice(subject.id, newPrice).subscribe({
+      next: (response: any) => {
+        subject.tutoringPricePerHour = newPrice;
+        subject.isAvailableForTutoring = newPrice !== null && newPrice > 0;
+        subject.isEditing = false;
+        this.toastService.showSuccess(`Pricing updated for ${subject.subjectName}`);
+        this.filterPricing();
+        console.log('✅ Tutoring price updated:', response);
+      },
+      error: (err: any) => {
+        console.error('❌ Error updating tutoring price:', err);
+        subject.isEditing = false;
+        this.toastService.showError('Failed to update tutoring price');
+      }
+    });
   }
 
   cancelPricingEdit(subject: SubjectPricing): void {
@@ -1425,34 +1516,89 @@ export class AdminTutoringDashboardComponent implements OnInit {
 
   saveAllPricing(): void {
     this.saving.set(true);
-    // Simulate API call
-    setTimeout(() => {
-      this.subjects.forEach(s => {
-        if (s.isEditing) {
-          s.tutoringPricePerHour = s.newTutoringPrice || null;
-          s.isAvailableForTutoring = s.tutoringPricePerHour !== null && s.tutoringPricePerHour > 0;
-          s.isEditing = false;
-        }
-      });
+    const editedSubjects = this.subjects.filter(s => s.isEditing);
+
+    if (editedSubjects.length === 0) {
       this.saving.set(false);
-      this.toastService.showSuccess('All pricing changes saved!');
-    }, 1000);
+      return;
+    }
+
+    // Create array of update observables
+    const updateRequests = editedSubjects.map(subject => {
+      const newPrice = subject.newTutoringPrice !== undefined ? subject.newTutoringPrice : null;
+      return this.subjectService.updateTutoringPrice(subject.id, newPrice);
+    });
+
+    // Execute all updates in parallel
+    forkJoin(updateRequests).subscribe({
+      next: (responses: any[]) => {
+        // Update all subjects with new values
+        editedSubjects.forEach((subject, index) => {
+          const newPrice = subject.newTutoringPrice !== undefined ? subject.newTutoringPrice : null;
+          subject.tutoringPricePerHour = newPrice;
+          subject.isAvailableForTutoring = newPrice !== null && newPrice > 0;
+          subject.isEditing = false;
+        });
+
+        this.saving.set(false);
+        this.toastService.showSuccess(`Successfully updated ${editedSubjects.length} subject(s)`);
+        this.filterPricing();
+        console.log('✅ All pricing changes saved');
+      },
+      error: (err: any) => {
+        console.error('❌ Error saving pricing:', err);
+        this.saving.set(false);
+        this.toastService.showError('Failed to save some pricing changes');
+
+        // Reset editing state for all subjects
+        editedSubjects.forEach(subject => {
+          subject.isEditing = false;
+        });
+      }
+    });
   }
 
   // Teachers Methods
   loadTeachers(): void {
     this.loadingTeachers.set(true);
-    // Load from API or use mock data
-    setTimeout(() => {
-      this.teachers = [
-        { id: 1, name: 'John Smith', email: 'john@example.com', priority: 9, subjects: ['Mathematics', 'Physics'], isActive: true, totalBookings: 45, avgRating: 4.8 },
-        { id: 2, name: 'Sarah Johnson', email: 'sarah@example.com', priority: 8, subjects: ['English', 'Literature'], isActive: true, totalBookings: 38, avgRating: 4.7 },
-        { id: 3, name: 'Michael Brown', email: 'michael@example.com', priority: 7, subjects: ['Chemistry'], isActive: true, totalBookings: 32, avgRating: 4.5 },
-        { id: 4, name: 'Emily Davis', email: 'emily@example.com', priority: 6, subjects: ['Biology', 'Science'], isActive: false, totalBookings: 28, avgRating: 4.6 },
-      ];
-      this.filterTeachers();
-      this.loadingTeachers.set(false);
-    }, 500);
+
+    // Using TutoringService to get teachers with priority
+    this.tutoringService.getTeachersWithPriority('priority', 'desc', 1, 100).subscribe({
+      next: (response: any) => {
+        const data = response.data || response.items || response.teachers || [];
+
+        if (!Array.isArray(data) || data.length === 0) {
+          console.warn('⚠️ No teachers data returned from API');
+          this.toastService.showWarning('No teachers found');
+          this.teachers = [];
+          this.filterTeachers();
+          this.loadingTeachers.set(false);
+          return;
+        }
+
+        this.teachers = data.map((t: any) => ({
+          id: t.id,
+          name: t.name || t.fullName || 'Unknown',
+          email: t.email || '',
+          priority: t.priority || 5,
+          subjects: t.subjects || [],
+          isActive: t.isActive !== undefined ? t.isActive : true,
+          totalBookings: t.totalBookings || 0,
+          avgRating: t.avgRating || 0
+        }));
+
+        this.filterTeachers();
+        this.loadingTeachers.set(false);
+        console.log('✅ Loaded teachers:', this.teachers.length);
+      },
+      error: (err: any) => {
+        console.error('❌ Error loading teachers:', err);
+        this.loadingTeachers.set(false);
+        this.teachers = [];
+        this.filterTeachers();
+        this.toastService.showError('Failed to load teachers. Please check backend connection.');
+      }
+    });
   }
 
   filterTeachers(): void {
@@ -1485,10 +1631,21 @@ export class AdminTutoringDashboardComponent implements OnInit {
   }
 
   saveTeacher(teacher: TeacherWithPriority): void {
-    teacher.priority = teacher.newPriority || teacher.priority;
-    teacher.isEditing = false;
-    this.toastService.showSuccess(`Priority updated for ${teacher.name}`);
-    this.sortTeachers();
+    const newPriority = teacher.newPriority || teacher.priority;
+
+    this.tutoringService.updateTeacherPriority(teacher.id, newPriority).subscribe({
+      next: () => {
+        teacher.priority = newPriority;
+        teacher.isEditing = false;
+        this.toastService.showSuccess(`Priority updated for ${teacher.name}`);
+        this.sortTeachers();
+      },
+      error: (err: any) => {
+        console.error('❌ Error updating teacher priority:', err);
+        teacher.isEditing = false;
+        this.toastService.showError('Failed to update teacher priority');
+      }
+    });
   }
 
   cancelTeacherEdit(teacher: TeacherWithPriority): void {
@@ -1504,12 +1661,31 @@ export class AdminTutoringDashboardComponent implements OnInit {
 
   // Discounts Methods
   saveDiscountRule(rule: DiscountRule): void {
-    this.toastService.showSuccess(`${rule.name} discount saved!`);
+    // TODO: Backend endpoint needed - PUT /api/Admin/Tutoring/DiscountRules
+    // See: BACKEND_REPORT_TUTORING_ADMIN_DASHBOARD_MISSING_ENDPOINTS.md
+
+    this.toastService.showWarning(
+      'Discount rules management: Backend endpoint not available yet'
+    );
+
+    /* Once backend is ready:
+    this.tutoringService.updateDiscountRule(rule).subscribe({
+      next: () => {
+        this.toastService.showSuccess(`${rule.name} discount saved!`);
+      },
+      error: (err: any) => {
+        console.error('❌ Error saving discount rule:', err);
+        this.toastService.showError('Failed to save discount rule');
+      }
+    });
+    */
   }
 
   // Reports Methods
   loadReports(): void {
-    // TODO: Load reports from API
-    console.log('Loading reports for:', this.selectedPeriod);
+    // TODO: Backend endpoint needed - GET /api/Admin/Tutoring/Reports
+    // See: BACKEND_REPORT_TUTORING_ADMIN_DASHBOARD_MISSING_ENDPOINTS.md
+    console.log('📊 Reports feature: Backend endpoint not available yet');
+    console.log('Selected period:', this.selectedPeriod);
   }
 }

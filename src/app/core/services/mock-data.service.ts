@@ -81,12 +81,14 @@ export class MockDataService {
     return Array.from({ length: 6 }, (_, i) => ({
       id: i + 1,
       name: `Subject ${i + 1}`,
+      subjectName: `Subject ${i + 1}`,  // Added for compatibility
       description: `Description for subject ${i + 1}`,
       categoryId: (i % 3) + 1,
       categoryName: ['Mathematics', 'Science', 'English'][i % 3],
       yearId: ((i % 3) + 7),
       yearName: `Year ${((i % 3) + 7)}`,
       price: 29.99 + (i * 10),
+      tutoringPricePerHour: i % 2 === 0 ? 50 + (i * 10) : null,  // Added tutoring price
       posterUrl: `https://via.placeholder.com/300x200?text=Subject+${i + 1}`,
       termsCount: 4,
       lessonsCount: 48,
