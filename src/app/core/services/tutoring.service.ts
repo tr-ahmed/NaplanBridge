@@ -477,4 +477,131 @@ export class TutoringService {
   getStudentUpcomingSessions(): Observable<any> {
     return this.http.get(`${this.apiUrl}/student/upcoming-sessions`);
   }
+
+  // ==================== ADMIN APIs - Analytics & Reports ====================
+
+  /**
+   * Get comprehensive tutoring analytics report
+   */
+  getTutoringReports(startDate: string, endDate: string, period?: string): Observable<any> {
+    let params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+
+    if (period) {
+      params = params.set('period', period);
+    }
+
+    return this.http.get(`${this.adminUrl}/Tutoring/Reports`, { params });
+  }
+
+  /**
+   * Get tutoring summary (quick stats)
+   */
+  getTutoringSummary(period: string = 'month'): Observable<any> {
+    const params = new HttpParams().set('period', period);
+    return this.http.get(`${this.adminUrl}/Tutoring/Reports/Summary`, { params });
+  }
+
+  /**
+   * Get revenue breakdown by subject
+   */
+  getRevenueBySubject(startDate: string, endDate: string): Observable<any> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+
+    return this.http.get(`${this.adminUrl}/Tutoring/Reports/Revenue`, { params });
+  }
+
+  /**
+   * Get teacher performance metrics
+   */
+  getTeacherPerformance(startDate: string, endDate: string, sortBy: string = 'revenue', order: string = 'desc'): Observable<any> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate)
+      .set('sortBy', sortBy)
+      .set('order', order);
+
+    return this.http.get(`${this.adminUrl}/Tutoring/Reports/Teachers`, { params });
+  }
+
+  /**
+   * Get student engagement analytics
+   */
+  getStudentEngagement(startDate: string, endDate: string): Observable<any> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+
+    return this.http.get(`${this.adminUrl}/Tutoring/Reports/Students`, { params });
+  }
+
+  /**
+   * Get booking trends over time
+   */
+  getBookingTrends(startDate: string, endDate: string, granularity: string = 'day'): Observable<any> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate)
+      .set('granularity', granularity);
+
+    return this.http.get(`${this.adminUrl}/Tutoring/Reports/Trends`, { params });
+  }
+
+  /**
+   * Get cancellation analytics
+   */
+  getCancellationAnalytics(startDate: string, endDate: string): Observable<any> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+
+    return this.http.get(`${this.adminUrl}/Tutoring/Reports/Cancellations`, { params });
+  }
+
+  /**
+   * Get peak booking times
+   */
+  getPeakTimes(startDate: string, endDate: string): Observable<any> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+
+    return this.http.get(`${this.adminUrl}/Tutoring/Reports/PeakTimes`, { params });
+  }
+
+  /**
+   * Get discount rules configuration
+   */
+  getDiscountRules(): Observable<any> {
+    return this.http.get(`${this.adminUrl}/Tutoring/DiscountRules`);
+  }
+
+  /**
+   * Update discount rules configuration
+   */
+  updateDiscountRules(rules: any): Observable<any> {
+    return this.http.put(`${this.adminUrl}/Tutoring/DiscountRules`, rules);
+  }
+
+  /**
+   * Export reports (PDF or Excel)
+   */
+  exportReports(format: 'pdf' | 'excel', startDate: string, endDate: string, sections?: string): Observable<Blob> {
+    let params = new HttpParams()
+      .set('format', format)
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+
+    if (sections) {
+      params = params.set('sections', sections);
+    }
+
+    return this.http.get(`${this.adminUrl}/Tutoring/Reports/Export`, {
+      params,
+      responseType: 'blob'
+    });
+  }
 }
