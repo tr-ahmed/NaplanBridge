@@ -511,79 +511,64 @@
       </div>
       }
 
-      <!-- Availabilities List -->
+      <!-- Availabilities List - Grouped by Day with Cards Grid -->
       @if (availabilities().length > 0) {
-      <div class="space-y-3">
-        @for (availability of availabilities(); track (availability.id + '-' + availability.dayOfWeek + '-' +
-        availability.startTime)) {
-        <div class="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <!-- Slot Info -->
-            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <!-- Day & Time -->
-              <div class="flex items-center gap-2">
-                <i class="fas fa-calendar-day text-indigo-600"></i>
-                <div>
-                  <p class="text-xs text-gray-500">Day & Time</p>
-                  <p class="font-semibold text-gray-900">{{ getDayName(availability.dayOfWeek) }}</p>
-                  <p class="text-sm text-gray-600">{{ formatTime(availability.startTime) }} - {{
-                    formatTime(availability.endTime) }}</p>
-                </div>
+      <div class="space-y-4">
+        @for (day of getSortedDays(); track day) {
+        <div class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+          <!-- Day Header -->
+          <div class="bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 flex items-center gap-2">
+            <i class="fas fa-calendar-day text-white"></i>
+            <span class="font-bold text-white">{{ day }}</span>
+            <span class="text-indigo-200 text-sm">({{ getAvailabilitiesByDay()[day].length }})</span>
+          </div>
+
+          <!-- Slots Grid -->
+          <div class="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+            @for (availability of getAvailabilitiesByDay()[day]; track availability.id)
+            {
+            <div
+              class="bg-white border border-gray-200 rounded-lg p-2 hover:shadow-md hover:border-indigo-300 transition-all">
+              <!-- Time -->
+              <div class="text-center mb-1">
+                <span class="text-sm font-bold text-gray-800">{{ formatTime(availability.startTime) }}</span>
+                <span class="text-xs text-gray-400">-</span>
+                <span class="text-sm font-bold text-gray-800">{{ formatTime(availability.endTime) }}</span>
               </div>
 
-              <!-- Session Type -->
-              <div class="flex items-center gap-2">
-                <i class="fas fa-users text-teal-600"></i>
-                <div>
-                  <p class="text-xs text-gray-500">Session Type</p>
-                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold" [class]="availability.sessionType === 'OneToOne' ? 'bg-blue-100 text-blue-800' : 
-                             availability.sessionType === 'Group' ? 'bg-purple-100 text-purple-800' : 
-                             'bg-teal-100 text-teal-800'">
-                    {{ availability.sessionType === 'OneToOne' ? '1-on-1' :
-                    availability.sessionType === 'Group' ? 'Group' : 'Flexible' }}
-                  </span>
-                </div>
+              <!-- Session Type Badge -->
+              <div class="flex justify-center mb-2">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" [class]="availability.sessionType === 'OneToOne' ? 'bg-blue-100 text-blue-700' : 
+                           availability.sessionType === 'Group' ? 'bg-purple-100 text-purple-700' : 
+                           'bg-teal-100 text-teal-700'">
+                  <i class="mr-1 text-xs" [class]="availability.sessionType === 'OneToOne' ? 'fas fa-user' : 
+                                           availability.sessionType === 'Group' ? 'fas fa-users' : 
+                                           'fas fa-hand-pointer'"></i>
+                  {{ availability.sessionType === 'OneToOne' ? '1:1' :
+                  availability.sessionType === 'Group' ? 'Grp' : 'Flex' }}
+                </span>
               </div>
 
-              <!-- Max Students (for Group) -->
-              @if (availability.sessionType === 'Group' && availability.maxStudents) {
-              <div class="flex items-center gap-2">
-                <i class="fas fa-user-friends text-orange-600"></i>
-                <div>
-                  <p class="text-xs text-gray-500">Max Students</p>
-                  <p class="font-semibold text-gray-900">{{ availability.maxStudents }}</p>
-                </div>
+              <!-- Actions - Always Visible -->
+              <div class="flex items-center justify-center gap-1 border-t border-gray-100 pt-2">
+                <button (click)="editAvailability(availability)"
+                  class="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-all" title="Edit">
+                  <i class="fas fa-edit text-xs"></i>
+                </button>
+                <button (click)="deleteAvailability(availability)"
+                  class="p-1.5 text-red-500 hover:bg-red-100 rounded transition-all" title="Delete">
+                  <i class="fas fa-trash-alt text-xs"></i>
+                </button>
               </div>
-              }
-
-              <!-- Subject (if specified) -->
-              @if (availability.subjectName) {
-              <div class="flex items-center gap-2">
-                <i class="fas fa-book text-green-600"></i>
-                <div>
-                  <p class="text-xs text-gray-500">Subject</p>
-                  <p class="font-semibold text-gray-900">{{ availability.subjectName }}</p>
-                </div>
-              </div>
-              }
             </div>
-
-            <!-- Actions -->
-            <div class="flex items-center gap-2">
-              <button (click)="editAvailability(availability)"
-                class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button (click)="deleteAvailability(availability)"
-                class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Delete">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
+            }
           </div>
         </div>
         }
       </div>
       }
+
+
 
 
       <!-- Empty State -->

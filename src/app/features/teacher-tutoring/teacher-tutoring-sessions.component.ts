@@ -518,13 +518,19 @@ export class TeacherTutoringSessionsComponent implements OnInit {
     }).subscribe({
       next: (response) => {
         if (response.success) {
-          // Update local state
+          // Update local state using unique ID (backend now returns unique IDs)
           this.availabilities.update(list =>
-            list.map(a => a.id === slot.id && a.startTime === slot.startTime ? {
-              ...a,
-              sessionType: newSessionType,
-              maxStudents: newSessionType === 'Group' ? (maxStudents || 5) : undefined
-            } : a)
+            list.map(a => {
+              if (a.id === slot.id) {
+                // Use response data if available, otherwise use our update values
+                return response.data || {
+                  ...a,
+                  sessionType: newSessionType,
+                  maxStudents: newSessionType === 'Group' ? (maxStudents || 5) : undefined
+                };
+              }
+              return a;
+            })
           );
           this.toastService.showSuccess('Session type updated successfully');
           this.closeEditSlotModal();
