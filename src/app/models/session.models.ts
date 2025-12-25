@@ -258,3 +258,43 @@ export interface CreateExceptionDto {
   reason?: string;
 }
 
+/**
+ * Generate Availability Slots DTO (Bulk Generation)
+ */
+export interface GenerateAvailabilitySlotsDto {
+  dayOfWeek: DayOfWeek; // 0=Sunday, 1=Monday, etc.
+  startTime: string;     // "09:00:00"
+  endTime: string;       // "17:00:00"
+  sessionDurationMinutes: number;
+  breakBetweenMinutes: number;
+  defaultSessionType: 'OneToOne' | 'Group' | 'BookingFirst';
+  subjectId?: number;
+  maxStudents?: number;
+}
+
+/**
+ * Generate Availability Slots Response
+ */
+export interface GenerateAvailabilitySlotsResponse {
+  slotsGenerated: number;
+  slots: TeacherAvailabilityDto[];
+  warnings: string[];
+}
+
+/**
+ * Unified Session Interface (for combining Private + Tutoring sessions)
+ */
+export interface UnifiedSession {
+  id: number;
+  type: 'private' | 'package';
+  studentName: string;
+  subjectName: string;
+  dateTime: Date;
+  startTime: string;
+  duration: number;
+  status: string;
+  meetingLink?: string;
+  systemRoute: string; // '/api/Sessions' or '/api/tutoring'
+  notes?: string;
+}
+

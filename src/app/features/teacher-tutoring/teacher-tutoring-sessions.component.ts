@@ -366,6 +366,7 @@ export class TeacherTutoringSessionsComponent implements OnInit {
 
   /**
    * Generate multiple slots based on slot generator settings
+   * Now uses backend bulk generation API
    */
   generateSlots(): void {
     if (this.slotGeneratorForm.invalid) {
@@ -375,61 +376,56 @@ export class TeacherTutoringSessionsComponent implements OnInit {
 
     const formValue = this.slotGeneratorForm.value;
     const dayNumber = parseInt(formValue.dayOfWeek);
-    const dayName = this.daysOfWeek.find(d => d.value === dayNumber)?.label || 'Sunday';
 
-    const startMinutes = this.timeToMinutes(formValue.startTime);
-    const endMinutes = this.timeToMinutes(formValue.endTime);
-    const sessionDuration = formValue.sessionDuration;
-    const breakTime = formValue.breakBetweenSessions;
-
-    const slots: CreateAvailabilityDto[] = [];
-    let currentStart = startMinutes;
-
-    while (currentStart + sessionDuration <= endMinutes) {
-      const slotStart = this.minutesToTime(currentStart);
-      const slotEnd = this.minutesToTime(currentStart + sessionDuration);
-
-      slots.push({
-        dayOfWeek: dayName,
-        startTime: slotStart + ':00',
-        endTime: slotEnd + ':00'
-      });
-
-      currentStart += sessionDuration + breakTime;
-    }
-
-    if (slots.length === 0) {
-      this.toastService.showWarning('No slots could be generated with these settings');
-      return;
-    }
+    // Convert day name to DayOfWeek enum value (0-6)
+    const dto: any = {
+      dayOfWeek: dayNumber,
+      startTime: formValue.startTime + ':00',
+      endTime: formValue.endTime + ':00',
+      sessionDurationMinutes: formValue.sessionDuration,
+      breakBetweenMinutes: formValue.breakBetweenSessions,
+      defaultSessionType: formValue.defaultSessionType,
+      subjectId: formValue.subjectId || null
+    };
 
     this.addingAvailability.set(true);
-    let completedCount = 0;
-    let successCount = 0;
 
-    slots.forEach(slot => {
-      this.sessionService.addTeacherAvailability(slot).subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            this.availabilities.update(list => [...list, response.data]);
-            successCount++;
+    this.sessionService.generateAvailabilitySlots(dto).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          const { slotsGenerated, slots, warnings } = response.data;
+          
+          // Add all generated slots to the list
+          this.availabilities.update(list => [...list, ...slots]);
+          
+          // Show success message
+          this.toastService.showSuccess(`Generated ${slotsGenerated} time slot(s) successfully`);
+          
+          // Show warnings if any
+          if (warnings && warnings.length > 0) {
+            warnings.forEach(warning => {
+              this.toastService.showWarning(warning);
+            });
           }
-          completedCount++;
-          if (completedCount === slots.length) {
-            this.addingAvailability.set(false);
-            this.toastService.showSuccess(`Generated ${successCount} time slots`);
-            this.showAvailabilityForm.set(false);
-            this.showSlotGenerator.set(false);
-          }
-        },
-        error: () => {
-          completedCount++;
-          if (completedCount === slots.length) {
-            this.addingAvailability.set(false);
-            this.toastService.showSuccess(`Generated ${successCount} of ${slots.length} slots`);
-          }
+          
+          this.showAvailabilityForm.set(false);
+          this.showSlotGenerator.set(false);
+          this.slotGeneratorForm.reset({
+            dayOfWeek: '',
+            startTime: '09:00',
+            endTime: '17:00',
+            sessionDuration: 60,
+            breakBetweenSessions: 15,
+            defaultSessionType: 'OneToOne'
+          });
         }
-      });
+        this.addingAvailability.set(false);
+      },
+      error: (error) => {
+        console.error('Error generating slots:', error);
+        this.toastService.showError('Failed to generate time slots');
+        this.addingAvailability.set(false);
+      }
     });
   }
 

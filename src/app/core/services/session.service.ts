@@ -24,7 +24,9 @@ import {
   AvailableSlotDto,
   BookingResponseDto,
   ExceptionDayDto,
-  CreateExceptionDto
+  CreateExceptionDto,
+  GenerateAvailabilitySlotsDto,
+  GenerateAvailabilitySlotsResponse
 } from '../../models/session.models';
 
 @Injectable({
@@ -67,6 +69,14 @@ export class SessionService {
    */
   addTeacherAvailability(dto: CreateAvailabilityDto): Observable<SessionApiResponse<TeacherAvailabilityDto>> {
     return this.api.post<SessionApiResponse<TeacherAvailabilityDto>>('Sessions/teacher/availability', dto);
+  }
+
+  /**
+   * Generate multiple availability slots (Bulk Generation)
+   * POST /api/Sessions/teacher/availability/generate
+   */
+  generateAvailabilitySlots(dto: GenerateAvailabilitySlotsDto): Observable<SessionApiResponse<GenerateAvailabilitySlotsResponse>> {
+    return this.api.post<SessionApiResponse<GenerateAvailabilitySlotsResponse>>('Sessions/teacher/availability/generate', dto);
   }
 
   /**
