@@ -64,6 +64,10 @@ export class TeacherTutoringSessionsComponent implements OnInit {
   showAvailabilityForm = signal<boolean>(false);
   showSlotGenerator = signal<boolean>(false);
   showExceptionForm = signal<boolean>(false);
+  showEditSlotModal = signal<boolean>(false);
+  editingSlot = signal<TeacherAvailabilityDto | null>(null);
+  updatingSlot = signal<boolean>(false);
+
 
   // Calendar View
   viewMode = signal<ViewMode>('today');
@@ -249,8 +253,20 @@ export class TeacherTutoringSessionsComponent implements OnInit {
   private loadSessions(): void {
     this.tutoringService.getTeacherSessions(this.selectedStatus, this.startDate, this.endDate)
       .subscribe({
-        next: (sessions) => {
-          this.sessions.set(sessions);
+        next: (response: any) => {
+          // Handle both array response and wrapped { data: [...] } response
+          let sessionsArray: TutoringSessionDto[];
+          if (Array.isArray(response)) {
+            sessionsArray = response;
+          } else if (response && Array.isArray(response.data)) {
+            sessionsArray = response.data;
+          } else if (response && response.sessions && Array.isArray(response.sessions)) {
+            sessionsArray = response.sessions;
+          } else {
+            console.warn('Unexpected sessions response format:', response);
+            sessionsArray = [];
+          }
+          this.sessions.set(sessionsArray);
           this.filterSessionsByViewMode();
           this.loading.set(false);
         },
@@ -471,30 +487,54 @@ export class TeacherTutoringSessionsComponent implements OnInit {
   }
 
   /**
-   * Edit availability slot
+   * Edit availability slot - opens modal
    */
   editAvailability(availability: TeacherAvailabilityDto): void {
-    // Pre-fill the form with existing data
-    const dayNumber = this.daysOfWeek.find(d => d.label === this.getDayName(availability.dayOfWeek))?.value || 0;
+    this.editingSlot.set(availability);
+    this.showEditSlotModal.set(true);
+  }
 
-    this.availabilityForm.patchValue({
-      dayOfWeek: dayNumber.toString(),
-      startTime: this.formatTime(availability.startTime),
-      endTime: this.formatTime(availability.endTime)
-    });
+  /**
+   * Close edit slot modal
+   */
+  closeEditSlotModal(): void {
+    this.showEditSlotModal.set(false);
+    this.editingSlot.set(null);
+  }
 
-    // Delete the old slot first
-    this.sessionService.deleteTeacherAvailability(availability.id).subscribe({
+  /**
+   * Update slot session type
+   */
+  updateSlotSessionType(newSessionType: string, maxStudents?: number): void {
+    const slot = this.editingSlot();
+    if (!slot) return;
+
+    this.updatingSlot.set(true);
+
+    // Call API to update the slot
+    this.sessionService.updateTeacherAvailability(slot.id, {
+      sessionType: newSessionType,
+      maxStudents: newSessionType === 'Group' ? (maxStudents || 5) : undefined
+    }).subscribe({
       next: (response) => {
         if (response.success) {
-          this.availabilities.update(list => list.filter(a => a.id !== availability.id));
-          this.showAvailabilityForm.set(true);
-          this.toastService.showInfo('Editing time slot - update the details and save');
+          // Update local state
+          this.availabilities.update(list =>
+            list.map(a => a.id === slot.id && a.startTime === slot.startTime ? {
+              ...a,
+              sessionType: newSessionType,
+              maxStudents: newSessionType === 'Group' ? (maxStudents || 5) : undefined
+            } : a)
+          );
+          this.toastService.showSuccess('Session type updated successfully');
+          this.closeEditSlotModal();
         }
+        this.updatingSlot.set(false);
       },
       error: (error) => {
-        console.error('Error preparing edit:', error);
-        this.toastService.showError('Failed to edit time slot');
+        console.error('Error updating slot:', error);
+        this.toastService.showError('Failed to update session type');
+        this.updatingSlot.set(false);
       }
     });
   }
@@ -503,6 +543,7 @@ export class TeacherTutoringSessionsComponent implements OnInit {
   // ============================================
   // Exception Days Methods
   // ============================================
+
 
   toggleExceptionForm(): void {
     this.showExceptionForm.set(!this.showExceptionForm());
