@@ -35,6 +35,7 @@ export interface Subject {
   price: number;
   originalPrice: number;
   discountPercentage: number;
+  tutoringPricePerHour?: number;  // Price per hour for live tutoring sessions
   posterUrl: string;
   level: string;
   duration: number;
