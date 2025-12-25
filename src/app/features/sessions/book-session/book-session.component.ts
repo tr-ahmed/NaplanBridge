@@ -47,37 +47,14 @@ export class BookSessionComponent implements OnInit {
       const id = +params['teacherId'];
       if (id) {
         this.teacherId.set(id);
-        this.loadTeacherPrice(id);
+        // Price loading removed - pricing managed by admin
         this.loadStudents();
         this.loadAvailableSlots();
       }
     });
   }
 
-  /**
-   * Load teacher price from API
-   */
-  private loadTeacherPrice(teacherId: number): void {
-    console.log('🔍 Loading teacher price for teacher ID:', teacherId);
 
-    this.sessionService.getAvailableTeachers().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          const teacher = response.data.find(t => t.teacherId === teacherId);
-          if (teacher) {
-            this.teacherPrice.set(teacher.pricePerSession);
-            console.log('✅ Teacher price loaded:', teacher.pricePerSession);
-          } else {
-            console.warn('⚠️ Teacher not found in available teachers list');
-          }
-        }
-      },
-      error: (error) => {
-        console.error('❌ Error loading teacher price:', error);
-        // Keep default price of $50
-      }
-    });
-  }
 
   /**
    * Load parent's students from API

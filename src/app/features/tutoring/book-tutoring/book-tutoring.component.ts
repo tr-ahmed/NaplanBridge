@@ -47,37 +47,14 @@ export class BookTutoringComponent implements OnInit {
       const id = +params['teacherId'];
       if (id) {
         this.teacherId.set(id);
-        this.loadTeacherPrice(id);
+        // Price loading removed - pricing managed by admin
         this.loadStudents();
         this.loadAvailableSlots();
       }
     });
   }
 
-  /**
-   * Load tutor price from API
-   */
-  private loadTeacherPrice(teacherId: number): void {
-    console.log('🔍 Loading tutor price for teacher ID:', teacherId);
 
-    this.tutoringService.getAvailableTutors().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          const tutor = response.data.find((t: any) => t.teacherId === teacherId);
-          if (tutor) {
-            this.teacherPrice.set(tutor.pricePerSession);
-            console.log('✅ Tutor price loaded:', tutor.pricePerSession);
-          } else {
-            console.warn('⚠️ Tutor not found in available tutors list');
-          }
-        }
-      },
-      error: (error) => {
-        console.error('❌ Error loading tutor price:', error);
-        // Keep default price of $50
-      }
-    });
-  }
 
   /**
    * Load parent's students from API
