@@ -236,3 +236,25 @@ export interface SessionStatistics {
   totalRevenue: number;
   averageRating?: number;
 }
+
+/**
+ * Exception Day - أيام الإجازات والاستثناءات للمعلم
+ */
+export interface ExceptionDayDto {
+  id: number;
+  teacherId: number;
+  startDate: string;  // ISO date format (YYYY-MM-DD)
+  endDate: string;    // ISO date format (YYYY-MM-DD)
+  reason?: string;
+  createdAt: string;
+}
+
+/**
+ * Create Exception DTO
+ */
+export interface CreateExceptionDto {
+  startDate: string;  // ISO date format (YYYY-MM-DD)
+  endDate?: string;   // Optional - defaults to startDate if not provided
+  reason?: string;
+}
+

@@ -1,0 +1,87 @@
+// Teacher Tutoring Sessions - Unified Component Styles
+
+// The component uses Tailwind CSS classes primarily
+// This file contains any additional custom styles needed
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f9fafb;
+}
+
+// Smooth transitions for tab switching
+.tab-content {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Calendar grid responsive adjustments
+@media (max-width: 768px) {
+  .calendar-week-grid {
+    display: none;
+  }
+  
+  .calendar-day-view {
+    display: block;
+  }
+}
+
+// Session card hover effects
+.session-card {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Meeting link button pulse effect
+.meeting-link-btn {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    animation: pulse 1s infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+// Form input focus states
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #0d9488;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+}
+
+// Loading spinner
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

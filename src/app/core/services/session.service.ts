@@ -22,7 +22,9 @@ import {
   PrivateSessionDto,
   AvailableTeacherDto,
   AvailableSlotDto,
-  BookingResponseDto
+  BookingResponseDto,
+  ExceptionDayDto,
+  CreateExceptionDto
 } from '../../models/session.models';
 
 @Injectable({
@@ -106,6 +108,34 @@ export class SessionService {
   markSessionAsCompleted(sessionId: number): Observable<SessionApiResponse<boolean>> {
     // PUT endpoint without body - try with empty object as backend might expect something
     return this.api.put<SessionApiResponse<boolean>>(`Sessions/${sessionId}/complete`, {});
+  }
+
+  // ============================================
+  // Teacher Exception Days - أيام الإجازات
+  // ============================================
+
+  /**
+   * Get teacher exception days (holidays/time off)
+   * GET /api/Sessions/teacher/exceptions
+   */
+  getTeacherExceptions(): Observable<SessionApiResponse<ExceptionDayDto[]>> {
+    return this.api.get<SessionApiResponse<ExceptionDayDto[]>>('Sessions/teacher/exceptions');
+  }
+
+  /**
+   * Add teacher exception day
+   * POST /api/Sessions/teacher/exceptions
+   */
+  addTeacherException(dto: CreateExceptionDto): Observable<SessionApiResponse<ExceptionDayDto>> {
+    return this.api.post<SessionApiResponse<ExceptionDayDto>>('Sessions/teacher/exceptions', dto);
+  }
+
+  /**
+   * Delete teacher exception day
+   * DELETE /api/Sessions/teacher/exceptions/{id}
+   */
+  deleteTeacherException(exceptionId: number): Observable<SessionApiResponse<boolean>> {
+    return this.api.delete<SessionApiResponse<boolean>>(`Sessions/teacher/exceptions/${exceptionId}`);
   }
 
   // ============================================

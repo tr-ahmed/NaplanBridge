@@ -260,19 +260,19 @@ export const routes: Routes = [
     path: 'admin/content',
     loadComponent: () => import('./features/content-management/content-management-redesigned').then(m => m.ContentManagementComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-      ,  data: { hideHeader: true, hideFooter: true }
+    , data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'admin/lesson-management/:id',
     loadComponent: () => import('./features/content-management/lesson-management.component').then(m => m.LessonManagementComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-      ,  data: { hideHeader: true, hideFooter: true }
+    , data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'admin/exams',
     loadComponent: () => import('./features/exam-management/exam-management.component').then(m => m.ExamManagementComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-      ,  data: { hideHeader: true, hideFooter: true }
+    , data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'admin/discussions',
@@ -284,43 +284,43 @@ export const routes: Routes = [
     path: 'admin/exam/create',
     loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-      ,  data: { hideHeader: true, hideFooter: true }
+    , data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'admin/exam/edit/:id',
     loadComponent: () => import('./features/create-edit-exam/create-edit-exam.component').then(m => m.CreateEditExamComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-      ,  data: { hideHeader: true, hideFooter: true }
+    , data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'lesson-detail/:id',
     loadComponent: () => import('./features/lesson-detail/lesson-detail.component').then(m => m.LessonDetailComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-      ,  data: { hideHeader: true, hideFooter: true }
+    , data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'admin/analytics-dashboard',
     loadComponent: () => import('./features/analytics-dashboard/analytics-dashboard.component').then(m => m.AnalyticsDashboardComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-      ,  data: { hideHeader: true, hideFooter: true }
+    , data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'admin/advanced-analytics',
     loadComponent: () => import('./features/advanced-analytics/advanced-analytics.component').then(m => m.AdvancedAnalyticsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-      ,  data: { hideHeader: true, hideFooter: true }
+    , data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'admin/financial-reports',
     loadComponent: () => import('./features/financial-reports/financial-reports.component').then(m => m.FinancialReportsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-      ,  data: { hideHeader: true, hideFooter: true }
+    , data: { hideHeader: true, hideFooter: true }
   },
   {
     path: 'admin/users',
     loadComponent: () => import('./admin/user-managment/user-managment').then(m => m.UserManagmentComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-          ,  data: { hideHeader: true, hideFooter: true }
+    , data: { hideHeader: true, hideFooter: true }
 
   },
   {
@@ -449,18 +449,18 @@ export const routes: Routes = [
     data: { hideHeader: true, hideFooter: true }
   },
 
-  // Teacher Tutoring Sessions Management
+  // Teacher Tutoring Sessions Management (Unified Page with Tabs)
   {
     path: 'teacher/tutoring-sessions',
     loadComponent: () => import('./features/teacher-tutoring/teacher-tutoring-sessions.component').then(m => m.TeacherTutoringSessionsComponent),
     canActivate: [teacherGuard]
   },
 
-  // Teacher Availability Management (NEW - v2.0)
+  // Teacher Availability - Redirect to unified page
   {
     path: 'teacher/availability',
-    loadComponent: () => import('./features/teacher/availability/teacher-availability.component').then(m => m.TeacherAvailabilityComponent),
-    canActivate: [teacherGuard]
+    redirectTo: 'teacher/tutoring-sessions?tab=availability',
+    pathMatch: 'full'
   },
 
   // ✅ Admin Tutoring Management - Unified Dashboard
@@ -537,7 +537,7 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
-{ path: 'user/:id', component: UserProfileComponent },
+  { path: 'user/:id', component: UserProfileComponent },
 
   { path: 'user/edit/:id', component: UserEditComponent },
 
