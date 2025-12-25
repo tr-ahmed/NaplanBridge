@@ -158,7 +158,12 @@ export interface TeacherAvailabilityDto {
   startTime: string;
   endTime: string;
   isActive: boolean;
+  sessionType?: string; // 'OneToOne' | 'Group' | 'BookingFirst'
+  maxStudents?: number; // For Group sessions
+  subjectId?: number;
+  subjectName?: string;
 }
+
 
 export interface PrivateSessionDto {
   id: number;
