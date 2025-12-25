@@ -491,6 +491,7 @@
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
                 <option value="OneToOne">One-to-One</option>
                 <option value="Group">Group</option>
+                <option value="BookingFirst">Flexible (Student Chooses)</option>
               </select>
             </div>
           </div>
@@ -513,7 +514,8 @@
       <!-- Availabilities List -->
       @if (availabilities().length > 0) {
       <div class="space-y-3">
-        @for (availability of availabilities(); track availability.id) {
+        @for (availability of availabilities(); track (availability.id + '-' + availability.dayOfWeek + '-' +
+        availability.startTime)) {
         <div class="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <!-- Slot Info -->
@@ -534,9 +536,11 @@
                 <i class="fas fa-users text-teal-600"></i>
                 <div>
                   <p class="text-xs text-gray-500">Session Type</p>
-                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold"
-                    [class]="availability.sessionType === 'OneToOne' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'">
-                    {{ availability.sessionType === 'OneToOne' ? '1-on-1' : 'Group' }}
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold" [class]="availability.sessionType === 'OneToOne' ? 'bg-blue-100 text-blue-800' : 
+                             availability.sessionType === 'Group' ? 'bg-purple-100 text-purple-800' : 
+                             'bg-teal-100 text-teal-800'">
+                    {{ availability.sessionType === 'OneToOne' ? '1-on-1' :
+                    availability.sessionType === 'Group' ? 'Group' : 'Flexible' }}
                   </span>
                 </div>
               </div>
@@ -720,7 +724,7 @@
         <!-- Session Type Selection -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-3">Session Type</label>
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-3">
             <button (click)="updateSlotSessionType('OneToOne')" [disabled]="updatingSlot()"
               class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2" [class]="editingSlot()!.sessionType === 'OneToOne' 
                 ? 'border-blue-500 bg-blue-50 text-blue-700' 
@@ -729,7 +733,7 @@
                 <i class="fas fa-user text-blue-600 text-xl"></i>
               </div>
               <span class="font-semibold">1-on-1</span>
-              <span class="text-xs text-gray-500">Private session</span>
+              <span class="text-xs text-gray-500 text-center">Private session</span>
             </button>
             <button (click)="updateSlotSessionType('Group', 5)" [disabled]="updatingSlot()"
               class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2" [class]="editingSlot()!.sessionType === 'Group' 
@@ -739,7 +743,17 @@
                 <i class="fas fa-users text-purple-600 text-xl"></i>
               </div>
               <span class="font-semibold">Group</span>
-              <span class="text-xs text-gray-500">Multiple students</span>
+              <span class="text-xs text-gray-500 text-center">Multiple students</span>
+            </button>
+            <button (click)="updateSlotSessionType('BookingFirst')" [disabled]="updatingSlot()"
+              class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2" [class]="editingSlot()!.sessionType === 'BookingFirst' 
+                ? 'border-teal-500 bg-teal-50 text-teal-700' 
+                : 'border-gray-200 hover:border-teal-300 hover:bg-teal-50'">
+              <div class="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center">
+                <i class="fas fa-hand-pointer text-teal-600 text-xl"></i>
+              </div>
+              <span class="font-semibold">Flexible</span>
+              <span class="text-xs text-gray-500 text-center">Student chooses</span>
             </button>
           </div>
         </div>

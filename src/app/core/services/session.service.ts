@@ -88,10 +88,10 @@ export class SessionService {
   }
 
   /**
-   * Update teacher availability slot (session type, max students)
+   * Update teacher availability slot (session type, max students, subject)
    * PUT /api/Sessions/teacher/availability/{id}
    */
-  updateTeacherAvailability(availabilityId: number, dto: { sessionType: string; maxStudents?: number }): Observable<SessionApiResponse<TeacherAvailabilityDto>> {
+  updateTeacherAvailability(availabilityId: number, dto: { sessionType: string; maxStudents?: number; subjectId?: number }): Observable<SessionApiResponse<TeacherAvailabilityDto>> {
     return this.api.put<SessionApiResponse<TeacherAvailabilityDto>>(`Sessions/teacher/availability/${availabilityId}`, dto);
   }
 
