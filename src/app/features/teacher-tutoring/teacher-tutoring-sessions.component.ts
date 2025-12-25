@@ -394,20 +394,20 @@ export class TeacherTutoringSessionsComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           const { slotsGenerated, slots, warnings } = response.data;
-          
+
           // Add all generated slots to the list
           this.availabilities.update(list => [...list, ...slots]);
-          
+
           // Show success message
           this.toastService.showSuccess(`Generated ${slotsGenerated} time slot(s) successfully`);
-          
+
           // Show warnings if any
           if (warnings && warnings.length > 0) {
             warnings.forEach(warning => {
               this.toastService.showWarning(warning);
             });
           }
-          
+
           this.showAvailabilityForm.set(false);
           this.showSlotGenerator.set(false);
           this.slotGeneratorForm.reset({
