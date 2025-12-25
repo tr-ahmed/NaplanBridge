@@ -463,24 +463,33 @@ export const routes: Routes = [
     canActivate: [teacherGuard]
   },
 
-  // Admin Tutoring Management
+  // ✅ Admin Tutoring Management - Unified Dashboard
+  {
+    path: 'admin/tutoring',
+    loadComponent: () => import('./features/admin/tutoring-management/admin-tutoring-dashboard.component').then(m => m.AdminTutoringDashboardComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+  },
+
+  // Legacy routes - redirect to new unified dashboard
   {
     path: 'admin/tutoring-reports',
-    loadComponent: () => import('./features/admin-tutoring/admin-tutoring-reports.component').then(m => m.AdminTutoringReportsComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+    redirectTo: 'admin/tutoring',
+    pathMatch: 'full'
   },
-
-  // Admin Teacher Priority Management (NEW - v2.0)
+  {
+    path: 'admin/tutoring-pricing',
+    redirectTo: 'admin/tutoring',
+    pathMatch: 'full'
+  },
   {
     path: 'admin/teacher-priority',
-    loadComponent: () => import('./features/admin/teachers/admin-teacher-priority.component').then(m => m.AdminTeacherPriorityComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+    redirectTo: 'admin/tutoring',
+    pathMatch: 'full'
   },
-
   {
     path: 'admin/tutoring-discounts',
-    loadComponent: () => import('./features/admin-tutoring/admin-discount-management.component').then(m => m.AdminDiscountManagementComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
+    redirectTo: 'admin/tutoring',
+    pathMatch: 'full'
   },
 
   // Student Exams

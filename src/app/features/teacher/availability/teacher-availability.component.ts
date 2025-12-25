@@ -17,16 +17,16 @@ import {
   template: `
     <div class="availability-container">
       <div class="header">
-        <h2>إدارة أوقات التوفر</h2>
+        <h2>📅 Availability Management</h2>
         <button class="btn btn-primary" (click)="openAddModal()">
-          <span class="icon">+</span> إضافة فترة جديدة
+          <span class="icon">+</span> Add New Slot
         </button>
       </div>
 
       <!-- Loading -->
       <div *ngIf="loading" class="loading">
         <div class="spinner"></div>
-        <p>جاري التحميل...</p>
+        <p>Loading...</p>
       </div>
 
       <!-- Availability by Day -->
@@ -35,7 +35,7 @@ import {
           <h3 class="day-title">📅 {{ day }}</h3>
 
           <div *ngIf="getAvailabilityForDay(i).length === 0" class="no-slots">
-            لا توجد فترات متاحة
+            No slots available
           </div>
 
           <div class="slots-list">
@@ -46,16 +46,16 @@ import {
               <div class="slot-info">
                 <span class="session-type" [class.group]="slot.sessionType === 'Group'" [class.booking-first]="slot.sessionType === 'BookingFirst'">
                   {{ getSessionTypeLabel(slot.sessionType) }}
-                  <span *ngIf="slot.maxStudents">({{ slot.maxStudents }} طلاب)</span>
+                  <span *ngIf="slot.maxStudents">({{ slot.maxStudents }} students)</span>
                 </span>
-                <span class="subject">{{ slot.subjectName || 'أي مادة' }}</span>
+                <span class="subject">{{ slot.subjectName || 'Any Subject' }}</span>
               </div>
               <div class="slot-bookings" *ngIf="slot.currentBookings > 0">
-                <span class="badge">{{ slot.currentBookings }} حجز</span>
+                <span class="badge">{{ slot.currentBookings }} bookings</span>
               </div>
               <div class="slot-actions">
-                <button class="btn-icon edit" (click)="openEditModal(slot)" title="تعديل">✏️</button>
-                <button class="btn-icon delete" (click)="confirmDelete(slot)" title="حذف">🗑️</button>
+                <button class="btn-icon edit" (click)="openEditModal(slot)" title="Edit">✏️</button>
+                <button class="btn-icon delete" (click)="confirmDelete(slot)" title="Delete">🗑️</button>
               </div>
             </div>
           </div>
@@ -66,13 +66,13 @@ import {
       <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
         <div class="modal-content" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h3>{{ editingSlot ? 'تعديل فترة التوفر' : 'إضافة فترة جديدة' }}</h3>
+            <h3>{{ editingSlot ? 'Edit Availability Slot' : 'Add New Slot' }}</h3>
             <button class="btn-close" (click)="closeModal()">×</button>
           </div>
 
           <div class="modal-body">
             <div class="form-group">
-              <label>اليوم</label>
+              <label>Day</label>
               <select [(ngModel)]="formData.dayOfWeek" class="form-control">
                 <option *ngFor="let day of daysOfWeek; let i = index" [value]="i">{{ day }}</option>
               </select>
@@ -80,42 +80,42 @@ import {
 
             <div class="form-row">
               <div class="form-group">
-                <label>من الساعة</label>
+                <label>Start Time</label>
                 <input type="time" [(ngModel)]="formData.startTime" class="form-control">
               </div>
               <div class="form-group">
-                <label>إلى الساعة</label>
+                <label>End Time</label>
                 <input type="time" [(ngModel)]="formData.endTime" class="form-control">
               </div>
             </div>
 
             <div class="form-group">
-              <label>نوع الجلسة</label>
+              <label>Session Type</label>
               <div class="radio-group">
                 <label class="radio-option">
                   <input type="radio" [(ngModel)]="formData.sessionType" value="OneToOne">
-                  <span>فردية (OneToOne)</span>
+                  <span>One-to-One</span>
                 </label>
                 <label class="radio-option">
                   <input type="radio" [(ngModel)]="formData.sessionType" value="Group">
-                  <span>جماعية (Group)</span>
+                  <span>Group Session</span>
                 </label>
                 <label class="radio-option">
                   <input type="radio" [(ngModel)]="formData.sessionType" value="BookingFirst">
-                  <span>حسب أول حجز</span>
+                  <span>First Booking Decides</span>
                 </label>
               </div>
             </div>
 
             <div *ngIf="formData.sessionType === 'Group'" class="form-group">
-              <label>عدد الطلاب (2-10)</label>
+              <label>Max Students (2-10)</label>
               <input type="number" [(ngModel)]="formData.maxStudents" min="2" max="10" class="form-control">
             </div>
 
             <div class="form-group">
-              <label>المادة (اختياري)</label>
+              <label>Subject (Optional)</label>
               <select [(ngModel)]="formData.subjectId" class="form-control">
-                <option [value]="null">أي مادة</option>
+                <option [value]="null">Any Subject</option>
                 <option *ngFor="let subject of subjects" [value]="subject.id">{{ subject.subjectName }}</option>
               </select>
             </div>
@@ -123,15 +123,15 @@ import {
             <div *ngIf="editingSlot" class="form-group">
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="formData.isActive">
-                <span>نشط</span>
+                <span>Active</span>
               </label>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button class="btn btn-secondary" (click)="closeModal()">إلغاء</button>
+            <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
             <button class="btn btn-primary" (click)="saveAvailability()" [disabled]="saving">
-              {{ saving ? 'جاري الحفظ...' : (editingSlot ? 'تحديث' : 'إضافة') }}
+              {{ saving ? 'Saving...' : (editingSlot ? 'Update' : 'Add') }}
             </button>
           </div>
         </div>
@@ -141,18 +141,18 @@ import {
       <div *ngIf="showDeleteConfirm" class="modal-overlay" (click)="showDeleteConfirm = false">
         <div class="modal-content small" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h3>تأكيد الحذف</h3>
+            <h3>Confirm Delete</h3>
           </div>
           <div class="modal-body">
-            <p>هل أنت متأكد من حذف هذه الفترة؟</p>
+            <p>Are you sure you want to delete this slot?</p>
             <p *ngIf="deletingSlot?.currentBookings" class="warning">
-              ⚠️ هناك {{ deletingSlot?.currentBookings }} حجز مرتبط بهذه الفترة
+              ⚠️ There are {{ deletingSlot?.currentBookings }} bookings linked to this slot
             </p>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-secondary" (click)="showDeleteConfirm = false">إلغاء</button>
+            <button class="btn btn-secondary" (click)="showDeleteConfirm = false">Cancel</button>
             <button class="btn btn-danger" (click)="deleteSlot()" [disabled]="deleting">
-              {{ deleting ? 'جاري الحذف...' : 'حذف' }}
+              {{ deleting ? 'Deleting...' : 'Delete' }}
             </button>
           </div>
         </div>
@@ -549,7 +549,7 @@ export class TeacherAvailabilityComponent implements OnInit {
   message = '';
   isError = false;
 
-  daysOfWeek = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   formData: any = {
     dayOfWeek: 0,
@@ -580,7 +580,7 @@ export class TeacherAvailabilityComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading availability:', err);
-        this.showMessage('حدث خطأ أثناء تحميل البيانات', true);
+        this.showMessage('Error loading data', true);
         this.loading = false;
       }
     });
@@ -603,9 +603,9 @@ export class TeacherAvailabilityComponent implements OnInit {
 
   getSessionTypeLabel(type: string): string {
     switch (type) {
-      case 'OneToOne': return 'فردية';
-      case 'Group': return 'جماعية';
-      case 'BookingFirst': return 'حسب أول حجز';
+      case 'OneToOne': return 'One-to-One';
+      case 'Group': return 'Group';
+      case 'BookingFirst': return 'First Booking';
       default: return type;
     }
   }
@@ -660,28 +660,28 @@ export class TeacherAvailabilityComponent implements OnInit {
       dto.isActive = this.formData.isActive;
       this.tutoringService.updateAvailability(this.editingSlot.id, dto).subscribe({
         next: () => {
-          this.showMessage('تم تحديث الفترة بنجاح', false);
+          this.showMessage('Slot updated successfully', false);
           this.loadAvailability();
           this.closeModal();
           this.saving = false;
         },
         error: (err) => {
           console.error('Error updating:', err);
-          this.showMessage(err.error?.message || 'حدث خطأ أثناء التحديث', true);
+          this.showMessage(err.error?.message || 'Error updating slot', true);
           this.saving = false;
         }
       });
     } else {
       this.tutoringService.createAvailability(dto).subscribe({
         next: () => {
-          this.showMessage('تم إضافة الفترة بنجاح', false);
+          this.showMessage('Slot added successfully', false);
           this.loadAvailability();
           this.closeModal();
           this.saving = false;
         },
         error: (err) => {
           console.error('Error creating:', err);
-          this.showMessage(err.error?.message || 'حدث خطأ أثناء الإضافة', true);
+          this.showMessage(err.error?.message || 'Error adding slot', true);
           this.saving = false;
         }
       });
@@ -690,15 +690,15 @@ export class TeacherAvailabilityComponent implements OnInit {
 
   validateForm(): boolean {
     if (!this.formData.startTime || !this.formData.endTime) {
-      this.showMessage('يرجى تحديد وقت البداية والنهاية', true);
+      this.showMessage('Please specify start and end times', true);
       return false;
     }
     if (this.formData.startTime >= this.formData.endTime) {
-      this.showMessage('وقت النهاية يجب أن يكون بعد وقت البداية', true);
+      this.showMessage('End time must be after start time', true);
       return false;
     }
     if (this.formData.sessionType === 'Group' && (!this.formData.maxStudents || this.formData.maxStudents < 2 || this.formData.maxStudents > 10)) {
-      this.showMessage('عدد الطلاب للجلسة الجماعية يجب أن يكون بين 2 و 10', true);
+      this.showMessage('Group session must have 2-10 students', true);
       return false;
     }
     return true;
@@ -715,7 +715,7 @@ export class TeacherAvailabilityComponent implements OnInit {
     this.deleting = true;
     this.tutoringService.deleteAvailability(this.deletingSlot.id).subscribe({
       next: () => {
-        this.showMessage('تم حذف الفترة بنجاح', false);
+        this.showMessage('Slot deleted successfully', false);
         this.loadAvailability();
         this.showDeleteConfirm = false;
         this.deletingSlot = null;
@@ -723,7 +723,7 @@ export class TeacherAvailabilityComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error deleting:', err);
-        this.showMessage(err.error?.message || 'حدث خطأ أثناء الحذف', true);
+        this.showMessage(err.error?.message || 'Error deleting slot', true);
         this.deleting = false;
       }
     });

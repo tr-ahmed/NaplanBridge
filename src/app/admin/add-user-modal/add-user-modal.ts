@@ -58,6 +58,7 @@ export class AddUserModalComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(8)]],
       phoneNumber: ['', Validators.required],
       age: [null, [Validators.required, Validators.min(18)]],
+      priority: [5, [Validators.required, Validators.min(1), Validators.max(10)]],
       salary: [null, [Validators.min(0)]],
       iban: ['', [Validators.pattern(/^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/)]]
     });

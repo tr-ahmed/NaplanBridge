@@ -35,6 +35,7 @@ export interface Subject {
   price: number;
   originalPrice: number;
   discountPercentage: number;
+  tutoringPricePerHour?: number;  // ✅ Tutoring hourly rate
   posterUrl: string;
   level: string;
   duration: number;

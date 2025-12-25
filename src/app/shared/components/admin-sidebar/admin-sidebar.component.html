@@ -103,6 +103,20 @@
       <span>Financial Reports</span>
     </a>
 
+    <!-- Tutoring Management -->
+    <div class="px-4 py-2 mt-3">
+      <small class="text-white/50 fw-semibold">TUTORING</small>
+    </div>
+
+    <a routerLink="/admin/tutoring"
+      routerLinkActive="active"
+      (click)="closeSidebar()"
+      [routerLinkActiveOptions]="{exact: false}"
+      class="nav-link d-flex align-items-center gap-2 px-4 py-3 rounded-lg mb-2 transition-all hover:bg-white/10 text-white">
+      <i class="fas fa-chalkboard-teacher"></i>
+      <span>Tutoring Management</span>
+    </a>
+
     <!-- Settings Section -->
     <div class="px-4 py-2 mt-3">
       <small class="text-white/50 fw-semibold">SETTINGS</small>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SubjectService } from '../../../core/services/subject.service';
 import { Subject } from '../../../models/subject.models';
+import { PagedResult } from '../../../models/common.models';
 
 interface SubjectPricing {
   id: number;
@@ -471,14 +472,14 @@ export class AdminTutoringPricingComponent implements OnInit {
     this.error = null;
 
     this.subjectService.getSubjects().subscribe({
-      next: (subjects: Subject[]) => {
-        this.subjects = subjects.map(s => ({
+      next: (result: PagedResult<Subject>) => {
+        this.subjects = result.items.map(s => ({
           id: s.id,
           subjectName: s.subjectName,
           categoryName: s.categoryName,
           selfLearningPrice: s.price,
           tutoringPricePerHour: s.tutoringPricePerHour || null,
-          isAvailableForTutoring: s.tutoringPricePerHour !== null && s.tutoringPricePerHour > 0,
+          isAvailableForTutoring: s.tutoringPricePerHour !== null && s.tutoringPricePerHour !== undefined && s.tutoringPricePerHour > 0,
           isEditing: false
         }));
         this.filterSubjects();

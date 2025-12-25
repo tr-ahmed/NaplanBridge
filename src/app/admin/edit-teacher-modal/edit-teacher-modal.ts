@@ -41,6 +41,7 @@ export class EditTeacherModalComponent implements OnInit {
       email: [this.teacher?.email || '', [Validators.required, Validators.email]],
       phoneNumber: [this.teacher?.phoneNumber || '', Validators.required],
       age: [this.teacher?.age || null, [Validators.required, Validators.min(18)]],
+      priority: [this.teacher?.priority || 5, [Validators.required, Validators.min(1), Validators.max(10)]],
       salary: [this.teacher?.salary || null, [Validators.min(0)]],
       iban: [this.teacher?.iban || '', [Validators.pattern(/^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/)]]
     });

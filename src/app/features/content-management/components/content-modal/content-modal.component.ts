@@ -500,6 +500,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
       'title': 'Enter title',
       'originalPrice': '0.00',
       'discountPercentage': '0',
+      'tutoringPricePerHour': '0.00',
       'duration': '0',
       'termNumber': 'Enter term number',
       'weekNumber': 'Enter week number',
