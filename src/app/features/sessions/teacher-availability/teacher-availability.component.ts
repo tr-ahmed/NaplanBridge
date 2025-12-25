@@ -24,8 +24,8 @@ import {
   selector: 'app-teacher-availability',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
+    CommonModule,
+    FormsModule,
     ReactiveFormsModule
   ],
   templateUrl: './teacher-availability.component.html',
@@ -77,7 +77,7 @@ export class TeacherAvailabilityComponent implements OnInit {
     this.settingsForm = this.fb.group({
       sessionDurationMinutes: [60, [Validators.required, Validators.min(15), Validators.max(180)]],
       bufferTimeMinutes: [15, [Validators.required, Validators.min(0), Validators.max(60)]],
-      pricePerSession: [50, [Validators.required, Validators.min(1)]],
+      // pricePerSession removed - managed by admin
       isAcceptingBookings: [true],
       maxSessionsPerDay: [8, [Validators.min(1), Validators.max(20)]],
       description: ['']
@@ -160,7 +160,7 @@ export class TeacherAvailabilityComponent implements OnInit {
     this.settingsForm.patchValue({
       sessionDurationMinutes: data.sessionDurationMinutes,
       bufferTimeMinutes: data.bufferTimeMinutes,
-      pricePerSession: data.pricePerSession,
+      // pricePerSession removed - managed by admin
       isAcceptingBookings: data.isAcceptingBookings,
       maxSessionsPerDay: data.maxSessionsPerDay,
       description: data.description

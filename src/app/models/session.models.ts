@@ -104,7 +104,7 @@ export interface AvailableTeacher {
   teacherName: string;
   email: string;
   subjects: string[];
-  pricePerSession: number;
+  // pricePerSession removed - managed by admin
   sessionDurationMinutes: number;
   isAcceptingBookings: boolean;
   description?: string;
@@ -184,7 +184,7 @@ export interface AvailableTeacherDto {
   teacherName: string;
   email: string;
   subjects: string[];
-  pricePerSession: number;
+  // pricePerSession removed - managed by admin
   sessionDurationMinutes: number;
   isAcceptingBookings: boolean;
   description?: string;

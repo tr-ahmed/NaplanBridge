@@ -547,7 +547,7 @@ export interface AvailableTutorDto {
   teacherName: string;
   email: string;
   subjects: string[];
-  pricePerSession: number;
+  // pricePerSession removed - managed by admin
   sessionDurationMinutes: number;
   isAcceptingBookings: boolean;
   description?: string;

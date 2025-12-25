@@ -470,6 +470,194 @@ curl -X PUT "https://naplan2.runasp.net/api/Sessions/teacher/settings" \
 
 ---
 
-**Last Updated:** 2025-12-25T23:50:00+02:00  
+**Last Updated:** 2025-12-26T00:03:00+02:00  
 **Created By:** Frontend Team  
 **Assigned To:** Backend Team
+
+---
+
+# 🚨 CRITICAL: CORS Blocking Issue
+
+**Date:** 2025-12-26  
+**Status:** 🔴 **BLOCKING DEVELOPMENT**  
+**Priority:** 🔴 **CRITICAL**
+
+---
+
+## 📌 BACKEND REPORT
+
+```
+📌 BACKEND REPORT - CORS POLICY BLOCKING
+Endpoint: /api/Tutoring/teacher/sessions
+Issue: CORS policy blocking requests from localhost:4200
+Error: "Access to XMLHttpRequest at 'https://naplan2.runasp.net/api/Tutoring/teacher/sessions' 
+       from origin 'http://localhost:4200' has been blocked by CORS policy: 
+       No 'Access-Control-Allow-Origin' header is present on the requested resource."
+
+Expected: Backend should allow CORS requests from http://localhost:4200
+Impact: Frontend CANNOT fetch teacher tutoring sessions - feature completely blocked
+Status: ⏸️ Frontend development STOPPED until fix confirmed
+```
+
+---
+
+## 🔍 Problem Analysis
+
+### Current State:
+- ✅ Other endpoints working fine:
+  - `/api/TeacherContent/my-subjects` - Working
+  - `/api/Profile` - Working
+  - `/api/Users` - Working
+- ❌ `/api/Tutoring/teacher/sessions` - **CORS BLOCKED**
+
+### Root Cause:
+The Laravel backend is not configured to allow requests from `http://localhost:4200` (Angular dev server) to the Tutoring endpoints.
+
+---
+
+## 🛠️ Required Backend Fix
+
+### File: `config/cors.php`
+
+**Current (likely):**
+```php
+return [
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    
+    'allowed_methods' => ['*'],
+    
+    'allowed_origins' => [
+        'https://naplan2.runasp.net',
+    ],
+    
+    'allowed_origins_patterns' => [],
+    
+    'allowed_headers' => ['*'],
+    
+    'exposed_headers' => [],
+    
+    'max_age' => 0,
+    
+    'supports_credentials' => false,
+];
+```
+
+**Required:**
+```php
+return [
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    
+    'allowed_methods' => ['*'],
+    
+    'allowed_origins' => [
+        'http://localhost:4200',  // ← ADD THIS for Angular dev server
+        'https://naplan2.runasp.net',
+    ],
+    
+    'allowed_origins_patterns' => [],
+    
+    'allowed_headers' => ['*'],
+    
+    'exposed_headers' => [],
+    
+    'max_age' => 0,
+    
+    'supports_credentials' => true,  // ← CHANGE to true for Sanctum
+];
+```
+
+**Alternative (Development Only):**
+```php
+'allowed_origins' => ['*'],  // ⚠️ Use ONLY in development
+'supports_credentials' => true,
+```
+
+---
+
+## ✅ Verification Steps
+
+After backend fix:
+
+1. **Restart Laravel server**
+   ```bash
+   php artisan config:clear
+   php artisan cache:clear
+   ```
+
+2. **Verify response headers include:**
+   ```
+   Access-Control-Allow-Origin: http://localhost:4200
+   Access-Control-Allow-Credentials: true
+   Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+   Access-Control-Allow-Headers: *
+   ```
+
+3. **Test endpoint:**
+   ```bash
+   curl -X GET "https://naplan2.runasp.net/api/Tutoring/teacher/sessions" \
+     -H "Authorization: Bearer YOUR_TOKEN" \
+     -H "Origin: http://localhost:4200" \
+     -v
+   ```
+
+4. **Frontend verification:**
+   - Refresh Angular app
+   - Check browser console - CORS error should disappear
+   - Sessions should load successfully
+
+---
+
+## 🚦 Additional Checks
+
+### Check if middleware is blocking:
+
+**File:** `routes/api.php` or `app/Http/Kernel.php`
+
+Ensure the Tutoring routes have CORS middleware:
+
+```php
+Route::middleware(['cors'])->group(function () {
+    Route::prefix('Tutoring')->group(function () {
+        Route::get('teacher/sessions', [TutoringController::class, 'getTeacherSessions']);
+        // ... other routes
+    });
+});
+```
+
+### Check if HandleCors middleware is registered:
+
+**File:** `app/Http/Kernel.php`
+
+```php
+protected $middleware = [
+    // ...
+    \Fruitcake\Cors\HandleCors::class,  // ← Should be here
+    // ...
+];
+```
+
+---
+
+## 📊 Impact
+
+| Component | Status | Blocker |
+|-----------|--------|---------|
+| Teacher Sessions UI | ⏸️ Blocked | Yes |
+| Session Booking | ⏸️ Blocked | Yes |
+| Available Slots | ⏸️ Blocked | Yes |
+| Exception Days | ⏸️ Blocked | Yes |
+| Settings Management | ✅ Working | No |
+| Content Management | ✅ Working | No |
+
+---
+
+## ⏱️ Timeline
+
+- **Reported:** 2025-12-26 00:01:00
+- **Priority:** CRITICAL
+- **Expected Fix:** ASAP
+- **Frontend Status:** WAITING
+
+---
+
+**⚠️ Frontend development on Tutoring Sessions feature is BLOCKED until this is resolved.**
