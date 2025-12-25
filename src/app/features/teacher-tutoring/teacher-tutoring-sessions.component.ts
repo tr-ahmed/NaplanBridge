@@ -470,6 +470,36 @@ export class TeacherTutoringSessionsComponent implements OnInit {
     });
   }
 
+  /**
+   * Edit availability slot
+   */
+  editAvailability(availability: TeacherAvailabilityDto): void {
+    // Pre-fill the form with existing data
+    const dayNumber = this.daysOfWeek.find(d => d.label === this.getDayName(availability.dayOfWeek))?.value || 0;
+
+    this.availabilityForm.patchValue({
+      dayOfWeek: dayNumber.toString(),
+      startTime: this.formatTime(availability.startTime),
+      endTime: this.formatTime(availability.endTime)
+    });
+
+    // Delete the old slot first
+    this.sessionService.deleteTeacherAvailability(availability.id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.availabilities.update(list => list.filter(a => a.id !== availability.id));
+          this.showAvailabilityForm.set(true);
+          this.toastService.showInfo('Editing time slot - update the details and save');
+        }
+      },
+      error: (error) => {
+        console.error('Error preparing edit:', error);
+        this.toastService.showError('Failed to edit time slot');
+      }
+    });
+  }
+
+
   // ============================================
   // Exception Days Methods
   // ============================================
@@ -718,6 +748,21 @@ export class TeacherTutoringSessionsComponent implements OnInit {
   formatDateForInput(date: Date): string {
     return date.toISOString().split('T')[0];
   }
+
+  /**
+   * Format exception date to show only date without time
+   */
+  formatExceptionDate(dateString: string): string {
+    // Remove time part if present (e.g., "2025-12-26T00:00:00" -> "2025-12-26")
+    const datePart = dateString.split('T')[0];
+    const date = new Date(datePart);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
 
   private isSameDay(date1: Date, date2: Date): boolean {
     return date1.toDateString() === date2.toDateString();

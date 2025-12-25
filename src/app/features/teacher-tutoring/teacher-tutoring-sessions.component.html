@@ -528,10 +528,16 @@
                 <span class="font-medium text-gray-800">{{ formatTime(availability.startTime) }} - {{
                   formatTime(availability.endTime) }}</span>
               </div>
-              <button (click)="deleteAvailability(availability)"
-                class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                <i class="fas fa-trash-alt"></i>
-              </button>
+              <div class="flex items-center gap-2">
+                <button (click)="editAvailability(availability)"
+                  class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button (click)="deleteAvailability(availability)"
+                  class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Delete">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
             </div>
             }
           </div>
@@ -615,9 +621,9 @@
             <div>
               <p class="font-semibold text-gray-800">
                 @if (exception.startDate === exception.endDate) {
-                {{ exception.startDate }}
+                {{ formatExceptionDate(exception.startDate) }}
                 } @else {
-                {{ exception.startDate }} → {{ exception.endDate }}
+                {{ formatExceptionDate(exception.startDate) }} → {{ formatExceptionDate(exception.endDate) }}
                 }
               </p>
               @if (exception.reason) {
