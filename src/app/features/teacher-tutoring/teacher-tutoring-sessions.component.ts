@@ -225,6 +225,14 @@ export class TeacherTutoringSessionsComponent implements OnInit {
   }
 
   /**
+   * Refresh availabilities - Public method for UI refresh button
+   */
+  refreshAvailabilities(): void {
+    this.loadAvailabilities();
+    this.toastService.showSuccess('Availabilities refreshed');
+  }
+
+  /**
    * Load exception days
    */
   private loadExceptions(): void {
