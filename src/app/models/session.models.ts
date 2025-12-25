@@ -44,7 +44,6 @@ export interface TeacherSessionSettings {
   teacherId: number;
   sessionDurationMinutes: number;
   bufferTimeMinutes: number;
-  pricePerSession: number;
   isAcceptingBookings: boolean;
   maxSessionsPerDay?: number;
   description?: string;
@@ -58,7 +57,6 @@ export interface TeacherSessionSettings {
 export interface UpdateSessionSettingsDto {
   sessionDurationMinutes: number;
   bufferTimeMinutes: number;
-  pricePerSession: number;
   isAcceptingBookings: boolean;
   maxSessionsPerDay?: number;
   description?: string;
@@ -149,7 +147,6 @@ export interface TeacherSessionSettingsDto {
   id: number;
   sessionDurationMinutes: number;
   bufferTimeMinutes: number;
-  pricePerSession: number;
   isAcceptingBookings: boolean;
   maxSessionsPerDay?: number;
   description?: string;

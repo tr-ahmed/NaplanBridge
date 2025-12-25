@@ -114,7 +114,6 @@ export class TeacherTutoringSessionsComponent implements OnInit {
     this.settingsForm = this.fb.group({
       sessionDurationMinutes: [60, [Validators.required, Validators.min(15), Validators.max(180)]],
       bufferTimeMinutes: [15, [Validators.required, Validators.min(0), Validators.max(60)]],
-      pricePerSession: [50, [Validators.required, Validators.min(1)]],
       isAcceptingBookings: [true],
       maxSessionsPerDay: [8, [Validators.min(1), Validators.max(20)]],
       description: ['']
@@ -157,10 +156,26 @@ export class TeacherTutoringSessionsComponent implements OnInit {
       .pipe(
         catchError((error) => {
           if (error.status === 404) {
+            // Settings don't exist - show setup wizard with default values
+            console.log('No settings found. Showing setup wizard...');
             this.showSettingsForm.set(true);
-            return of({ success: false, data: null, message: 'No settings found' });
+
+            // Initialize form with sensible defaults
+            this.settingsForm.patchValue({
+              sessionDurationMinutes: 60,
+              bufferTimeMinutes: 15,
+              isAcceptingBookings: true,
+              maxSessionsPerDay: 8,
+              description: 'Experienced teacher - Please update your profile'
+            });
+
+            this.toastService.showInfo('Welcome! Please configure your teaching settings to get started.');
+            return of({ success: false, data: null, message: 'Settings not configured' });
           }
+
+          // Other errors
           console.error('Error loading settings:', error);
+          this.toastService.showError('Failed to load settings. Please try again.');
           return of({ success: false, data: null, message: 'Error loading settings' });
         })
       )
@@ -169,10 +184,15 @@ export class TeacherTutoringSessionsComponent implements OnInit {
           if (response.success && response.data) {
             this.settings.set(response.data);
             this.patchSettingsForm(response.data);
+
+            // Only load other data if settings exist
+            this.loadAvailabilities();
+            this.loadExceptions();
+            this.loadSessions();
+          } else {
+            // Settings don't exist - don't load other data yet
+            this.loading.set(false);
           }
-          this.loadAvailabilities();
-          this.loadExceptions();
-          this.loadSessions();
         }
       });
   }
@@ -266,7 +286,6 @@ export class TeacherTutoringSessionsComponent implements OnInit {
     this.settingsForm.patchValue({
       sessionDurationMinutes: data.sessionDurationMinutes,
       bufferTimeMinutes: data.bufferTimeMinutes,
-      pricePerSession: data.pricePerSession,
       isAcceptingBookings: data.isAcceptingBookings,
       maxSessionsPerDay: data.maxSessionsPerDay,
       description: data.description
