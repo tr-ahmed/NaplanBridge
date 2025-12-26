@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TutoringStateService } from '../../../core/services/tutoring-state.service';
@@ -123,9 +123,7 @@ import {
               <div *ngFor="let subjectData of getSubjectsForStudent(student.id); let subjectIdx = index" 
                    class="subject-card"
                    [class.expanded]="isSubjectExpanded(student.id, subjectData.subjectId)"
-                   [class.first]="subjectIdx === 0"
-                   (mouseenter)="hoverSubject(student.id, subjectData.subjectId)"
-                   (mouseleave)="unhoverSubject()">
+                   [class.first]="subjectIdx === 0">
                 <div class="subject-card-header" (click)="toggleSubject(student.id, subjectData.subjectId)">
                   <span class="subject-icon">📚</span>
                   <span class="subject-name">{{ subjectData.subjectName }}</span>
@@ -192,11 +190,11 @@ import {
 
       <!-- Navigation -->
       <div class="nav-footer">
-        <button class="nav-btn back" (click)="previousStep()">
+        <button class="nav-btn back" (click)="previousStep()" [disabled]="reservingSlots">
           ← Back
         </button>
-        <button class="nav-btn next" (click)="nextStep()" [disabled]="!canProceed()">
-          Review & Pay →
+        <button class="nav-btn next" (click)="nextStep()" [disabled]="!canProceed() || reservingSlots">
+          {{ reservingSlots ? '⏳ Reserving...' : 'Review & Pay →' }}
         </button>
       </div>
 
@@ -2281,10 +2279,27 @@ export class Step5ScheduleComponent implements OnInit {
   hoveredSubject: string | null = null;
   firstSubjectsInitialized = false;
 
+  // Cached schedule data to prevent re-calculation on every render
+  cachedStudentSchedules: Map<number, Array<{
+    subjectId: number;
+    subjectName: string;
+    teachingType: string;
+    slots: Array<{ slot: ScheduledSlotDto; teacherId: number }>;
+  }>> = new Map();
+
+  // Slot Reservation State
+  reservationSessionToken: string | null = null;
+  reservationExpiresAt: Date | null = null;
+  reservationTimer: any = null;
+  reservationRemainingMinutes: number = 0;
+  reservationRemainingSeconds: number = 0;
+  reservingSlots: boolean = false;
+
   constructor(
     private stateService: TutoringStateService,
     private tutoringService: TutoringService,
-    private contentService: ContentService
+    private contentService: ContentService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -2396,6 +2411,9 @@ export class Step5ScheduleComponent implements OnInit {
           console.warn('⚠️ No teachers found in recommendedSchedule');
         } else {
           this.noScheduleFound = false;
+          // Build cached data first, then initialize expanded subjects
+          this.buildCachedSchedules();
+          this.initializeFirstSubjects();
         }
       },
       error: (err) => {
@@ -2494,40 +2512,50 @@ export class Step5ScheduleComponent implements OnInit {
     teachingType: string;
     slots: Array<{ slot: ScheduledSlotDto; teacherId: number }>;
   }> {
-    const state = this.stateService.getState();
-    const studentSubjectIds = state.studentSubjects.get(studentId) || new Set<number>();
-
-    // Get all grouped subjects and filter by student's subjects
-    const allSubjects = this.getGroupedSubjectSlots();
-    const result = allSubjects.filter(subject => studentSubjectIds.has(subject.subjectId));
-
-    // Initialize first subject as expanded for each student
-    if (result.length > 0 && !this.firstSubjectsInitialized) {
-      this.initializeFirstSubjects();
+    // Return cached data if available
+    if (this.cachedStudentSchedules.has(studentId)) {
+      return this.cachedStudentSchedules.get(studentId)!;
     }
+    return [];
+  }
 
-    return result;
+  // Build cached data for all students (called once after schedule loads)
+  buildCachedSchedules(): void {
+    this.cachedStudentSchedules.clear();
+    const allSubjects = this.getGroupedSubjectSlots();
+    const state = this.stateService.getState();
+
+    this.students.forEach(student => {
+      const studentSubjectIds = state.studentSubjects.get(student.id) || new Set<number>();
+      const studentSubjects = allSubjects.filter(subject => studentSubjectIds.has(subject.subjectId));
+      this.cachedStudentSchedules.set(student.id, studentSubjects);
+    });
   }
 
   // Initialize first subject of each student as expanded
   initializeFirstSubjects(): void {
     this.firstSubjectsInitialized = true;
+    console.log('🔓 Initializing first subjects, students:', this.students.length);
+    console.log('📚 Cached schedules:', this.cachedStudentSchedules.size);
+
     this.students.forEach(student => {
-      const subjects = this.getGroupedSubjectSlots();
-      const state = this.stateService.getState();
-      const studentSubjectIds = state.studentSubjects.get(student.id) || new Set<number>();
-      const studentSubjects = subjects.filter(s => studentSubjectIds.has(s.subjectId));
+      const studentSubjects = this.cachedStudentSchedules.get(student.id) || [];
+      console.log(`👤 Student ${student.id} has ${studentSubjects.length} subjects`);
       if (studentSubjects.length > 0) {
         const key = `${student.id}_${studentSubjects[0].subjectId}`;
         this.expandedSubjects.add(key);
+        console.log(`✅ Expanded: ${key}`);
       }
     });
+    console.log('📂 Total expanded subjects:', this.expandedSubjects.size);
+    // Force UI update
+    this.cdr.detectChanges();
   }
 
   // Check if a subject is expanded
   isSubjectExpanded(studentId: number, subjectId: number): boolean {
     const key = `${studentId}_${subjectId}`;
-    return this.expandedSubjects.has(key) || this.hoveredSubject === key;
+    return this.expandedSubjects.has(key);
   }
 
   // Toggle subject expanded/collapsed
@@ -2538,19 +2566,6 @@ export class Step5ScheduleComponent implements OnInit {
     } else {
       this.expandedSubjects.add(key);
     }
-  }
-
-  // Hover to temporarily expand
-  hoverSubject(studentId: number, subjectId: number): void {
-    const key = `${studentId}_${subjectId}`;
-    if (!this.expandedSubjects.has(key)) {
-      this.hoveredSubject = key;
-    }
-  }
-
-  // Stop hovering
-  unhoverSubject(): void {
-    this.hoveredSubject = null;
   }
 
   getTeacherDisplayName(teacher: ScheduledTeacherDto): string {
@@ -2583,13 +2598,155 @@ export class Step5ScheduleComponent implements OnInit {
   }
 
   previousStep(): void {
-    this.stateService.previousStep();
+    // Cancel any reservations before going back
+    this.cancelReservationsAndGoBack();
+  }
+
+  cancelReservationsAndGoBack(): void {
+    if (this.reservationSessionToken) {
+      this.tutoringService.cancelReservations(this.reservationSessionToken).subscribe({
+        next: () => {
+          this.clearReservationState();
+          this.stateService.previousStep();
+        },
+        error: () => {
+          this.clearReservationState();
+          this.stateService.previousStep();
+        }
+      });
+    } else {
+      this.stateService.previousStep();
+    }
   }
 
   nextStep(): void {
     if (this.canProceed()) {
-      this.stateService.nextStep();
+      this.proceedToPayment();
     }
+  }
+
+  // Reserve slots before proceeding to payment
+  proceedToPayment(): void {
+    if (this.reservingSlots) return;
+
+    // Collect all slots to reserve from all teachers
+    const slotsToReserve: Array<{
+      availabilityId: number;
+      dateTime: string;
+      teacherId: number;
+      subjectId: number;
+      teachingType: string;
+    }> = [];
+
+    if (this.scheduleResponse) {
+      this.scheduleResponse.recommendedSchedule.teachers.forEach(teacher => {
+        teacher.subjectSchedules.forEach(schedule => {
+          schedule.slots.forEach(slot => {
+            // Use swapped slot if exists
+            const displaySlot = this.getDisplaySlot(slot);
+            slotsToReserve.push({
+              availabilityId: displaySlot.availabilityId,
+              dateTime: displaySlot.dateTime,
+              teacherId: teacher.teacherId,
+              subjectId: schedule.subjectId,
+              teachingType: schedule.teachingType
+            });
+          });
+        });
+      });
+    }
+
+    if (slotsToReserve.length === 0) {
+      console.warn('No slots to reserve');
+      return;
+    }
+
+    this.reservingSlots = true;
+    console.log('🔒 Reserving', slotsToReserve.length, 'slots...');
+
+    this.tutoringService.reserveSlots({
+      slots: slotsToReserve,
+      expirationMinutes: 15
+    }).subscribe({
+      next: (result) => {
+        this.reservingSlots = false;
+        if (result.success) {
+          console.log('✅ Slots reserved successfully, token:', result.sessionToken);
+          this.reservationSessionToken = result.sessionToken;
+          this.reservationExpiresAt = new Date(result.expiresAt);
+          this.startReservationTimer();
+          // Proceed to next step (payment)
+          this.stateService.nextStep();
+        } else {
+          console.error('❌ Some slots not available:', result.failedSlots);
+          alert(`Some slots are no longer available. Please refresh and try again.`);
+        }
+      },
+      error: (err) => {
+        this.reservingSlots = false;
+        console.error('❌ Error reserving slots:', err);
+        alert('Failed to reserve slots. Please try again.');
+      }
+    });
+  }
+
+  // Timer for reservation countdown
+  startReservationTimer(): void {
+    if (this.reservationTimer) {
+      clearInterval(this.reservationTimer);
+    }
+
+    this.reservationTimer = setInterval(() => {
+      if (!this.reservationExpiresAt) {
+        this.stopReservationTimer();
+        return;
+      }
+
+      const remaining = this.reservationExpiresAt.getTime() - Date.now();
+
+      if (remaining <= 0) {
+        this.stopReservationTimer();
+        this.clearReservationState();
+        alert('Your reservation has expired. Please select slots again.');
+        // Reload the schedule
+        this.loadSmartSchedule();
+      } else {
+        this.reservationRemainingMinutes = Math.floor(remaining / 60000);
+        this.reservationRemainingSeconds = Math.floor((remaining % 60000) / 1000);
+      }
+    }, 1000);
+  }
+
+  stopReservationTimer(): void {
+    if (this.reservationTimer) {
+      clearInterval(this.reservationTimer);
+      this.reservationTimer = null;
+    }
+  }
+
+  clearReservationState(): void {
+    this.stopReservationTimer();
+    this.reservationSessionToken = null;
+    this.reservationExpiresAt = null;
+    this.reservationRemainingMinutes = 0;
+    this.reservationRemainingSeconds = 0;
+  }
+
+  // Extend reservation if user needs more time
+  extendReservation(): void {
+    if (!this.reservationSessionToken) return;
+
+    this.tutoringService.extendReservations(this.reservationSessionToken, 10).subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.reservationExpiresAt = new Date(result.newExpiresAt);
+          console.log('⏰ Reservation extended to:', result.newExpiresAt);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to extend reservation:', err);
+      }
+    });
   }
 
   // Swap Modal Methods

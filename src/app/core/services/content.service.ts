@@ -419,7 +419,8 @@ export class ContentService {
     }
 
     // ✅ Determine if this is a global course lesson
-    const isGlobalLesson = weekId === 0 && subjectId > 0;
+    // weekId can be null, undefined, or 0 for global lessons
+    const isGlobalLesson = (!weekId || weekId === 0) && subjectId > 0;
 
     console.log('📤 Adding lesson with files:', {
       title,

@@ -380,6 +380,61 @@ export interface AlternativeSlotsResponse {
 }
 
 // ============================================
+// Slot Reservation Models (Temporary Booking)
+// ============================================
+
+export interface SlotToReserve {
+  availabilityId: number;
+  dateTime: string;
+  teacherId: number;
+  subjectId: number;
+  teachingType: string;
+}
+
+export interface ReserveSlotsRequest {
+  slots: SlotToReserve[];
+  expirationMinutes?: number; // Default: 15
+}
+
+export interface ReservedSlotDto {
+  reservationId: number;
+  availabilityId: number;
+  dateTime: string;
+  teacherId: number;
+  subjectId: number;
+}
+
+export interface ReserveSlotsResponse {
+  success: boolean;
+  sessionToken: string;
+  expiresAt: string;
+  reservedSlots: ReservedSlotDto[];
+  failedSlots: SlotToReserve[];
+}
+
+export interface CancelReservationsRequest {
+  sessionToken: string;
+}
+
+export interface ExtendReservationsRequest {
+  sessionToken: string;
+  additionalMinutes?: number; // Default: 10
+}
+
+export interface ExtendReservationsResponse {
+  success: boolean;
+  newExpiresAt: string;
+}
+
+export interface CheckSlotAvailabilityResponse {
+  isAvailable: boolean;
+  teacherId: number;
+  dateTime: string;
+  reservedBy?: string;
+  expiresAt?: string;
+}
+
+// ============================================
 // Time Slot Models
 // ============================================
 

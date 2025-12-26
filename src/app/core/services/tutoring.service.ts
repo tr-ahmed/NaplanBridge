@@ -633,4 +633,70 @@ export class TutoringService {
       responseType: 'blob'
     });
   }
+
+  // ==================== SLOT RESERVATION APIs ====================
+
+  /**
+   * Reserve slots temporarily before payment
+   */
+  reserveSlots(request: {
+    slots: Array<{
+      availabilityId: number;
+      dateTime: string;
+      teacherId: number;
+      subjectId: number;
+      teachingType: string;
+    }>;
+    expirationMinutes?: number;
+  }): Observable<{
+    success: boolean;
+    sessionToken: string;
+    expiresAt: string;
+    reservedSlots: Array<{
+      reservationId: number;
+      availabilityId: number;
+      dateTime: string;
+      teacherId: number;
+      subjectId: number;
+    }>;
+    failedSlots: any[];
+  }> {
+    return this.http.post<any>(`${this.apiUrl}/ReserveSlots`, request);
+  }
+
+  /**
+   * Cancel temporary slot reservations
+   */
+  cancelReservations(sessionToken: string): Observable<{ success: boolean }> {
+    return this.http.post<any>(`${this.apiUrl}/CancelReservations`, { sessionToken });
+  }
+
+  /**
+   * Extend slot reservations
+   */
+  extendReservations(sessionToken: string, additionalMinutes: number = 10): Observable<{
+    success: boolean;
+    newExpiresAt: string;
+  }> {
+    return this.http.post<any>(`${this.apiUrl}/ExtendReservations`, {
+      sessionToken,
+      additionalMinutes
+    });
+  }
+
+  /**
+   * Check if a specific slot is available
+   */
+  checkSlotAvailability(teacherId: number, dateTime: string): Observable<{
+    isAvailable: boolean;
+    teacherId: number;
+    dateTime: string;
+    reservedBy?: string;
+    expiresAt?: string;
+  }> {
+    const params = new HttpParams()
+      .set('teacherId', teacherId.toString())
+      .set('dateTime', dateTime);
+    return this.http.get<any>(`${this.apiUrl}/CheckSlotAvailability`, { params });
+  }
 }
