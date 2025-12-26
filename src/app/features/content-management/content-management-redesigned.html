@@ -3,23 +3,26 @@
 <!-- Main Content -->
 <main class="px-4 sm:px-6 lg:px-8 py-8">
 
-    <!-- Header -->
-    <div class="mb-6 md:mb-8">
-      <div class="bg-blue-600 rounded-xl shadow-lg p-4 sm:p-6 md:p-8 text-white">
-        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 md:gap-6">
-          <div class="flex-1 w-full">
-            <div class="flex items-center gap-2 sm:gap-3 mb-3">
-              <div class="p-2 sm:p-3 bg-white/20 backdrop-blur-lg rounded-xl">
-                <svg class="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                </svg>
-              </div>
-              <div>
-                <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">Content Management</h1>
-                <p class="text-blue-100 text-xs sm:text-sm mt-1 hidden sm:block">Manage all educational content in one place</p>
-              </div>
+  <!-- Header -->
+  <div class="mb-6 md:mb-8">
+    <div class="bg-blue-600 rounded-xl shadow-lg p-4 sm:p-6 md:p-8 text-white">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 md:gap-6">
+        <div class="flex-1 w-full">
+          <div class="flex items-center gap-2 sm:gap-3 mb-3">
+            <div class="p-2 sm:p-3 bg-white/20 backdrop-blur-lg rounded-xl">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                </path>
+              </svg>
             </div>
-            <!-- <div class="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 text-xs sm:text-sm">
+            <div>
+              <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">Content Management</h1>
+              <p class="text-blue-100 text-xs sm:text-sm mt-1 hidden sm:block">Manage all educational content in one
+                place</p>
+            </div>
+          </div>
+          <!-- <div class="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 text-xs sm:text-sm">
               <div class="flex items-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-sm px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
@@ -39,937 +42,838 @@
                 <span>{{ totalCounts.subjects }} Subjects</span>
               </div>
             </div> -->
+        </div>
+        <div class="flex flex-wrap gap-2 sm:gap-3 w-full lg:w-auto">
+          <a routerLink="/admin/academic-terms"
+            class="flex-1 sm:flex-none px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span>Terms</span>
+          </a>
+          <button type="button" (click)="refreshData()"
+            class="flex-1 sm:flex-none px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+              </path>
+            </svg>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Overview with Modern Cards -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 md:gap-4 mb-6 md:mb-8">
+
+    <!-- Years Card -->
+    <div
+      class="group relative overflow-hidden bg-blue-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="relative z-10">
+        <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.years }}</p>
+        <p class="text-blue-100 text-xs font-medium">Years</p>
+      </div>
+    </div>
+
+    <!-- Categories Card -->
+    <div
+      class="group relative overflow-hidden bg-cyan-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="relative z-10">
+        <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+          </svg>
+        </div>
+        <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.categories }}</p>
+        <p class="text-cyan-100 text-xs font-medium">Categories</p>
+      </div>
+    </div>
+
+    <!-- Subject Names Card -->
+    <div
+      class="group relative overflow-hidden bg-blue-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="relative z-10">
+        <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+            </path>
+          </svg>
+        </div>
+        <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.subjectNames }}</p>
+        <p class="text-xs font-medium text-blue-100">Subject Names</p>
+      </div>
+    </div>
+
+    <!-- Subjects Card -->
+    <div
+      class="group relative overflow-hidden bg-blue-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="relative z-10">
+        <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+            </path>
+          </svg>
+        </div>
+        <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.subjects }}</p>
+        <p class="text-blue-100 text-xs font-medium">Subjects</p>
+      </div>
+    </div>
+
+    <!-- Terms Card -->
+    <div
+      class="group relative overflow-hidden bg-sky-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="relative z-10">
+        <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+            </path>
+          </svg>
+        </div>
+        <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.terms }}</p>
+        <p class="text-sky-100 text-xs font-medium">Terms</p>
+      </div>
+    </div>
+
+    <!-- Weeks Card -->
+    <div
+      class="group relative overflow-hidden bg-teal-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="relative z-10">
+        <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.weeks }}</p>
+        <p class="text-teal-100 text-xs font-medium">Weeks</p>
+      </div>
+    </div>
+
+    <!-- Lessons Card -->
+    <div
+      class="group relative overflow-hidden bg-green-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+      <div class="relative z-10">
+        <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z">
+            </path>
+          </svg>
+        </div>
+        <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.lessons }}</p>
+        <p class="text-green-100 text-xs font-medium">Lessons</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons Grid -->
+  <div class="bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 mb-6 md:mb-8 border border-gray-100">
+    <div
+      class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
+      <h2 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
+        <div class="p-1.5 sm:p-2 bg-blue-600 rounded-lg">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        Quick Actions
+      </h2>
+      <span class="text-xs sm:text-sm text-gray-500 font-medium">Create new content instantly</span>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 md:gap-4">
+      <button type="button" (click)="openAdd('year')"
+        class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-blue-50 hover:bg-blue-100 rounded-lg md:rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all transform hover:scale-105 hover:shadow-lg">
+        <div class="p-2 sm:p-2.5 md:p-3 bg-blue-500 rounded-lg shadow-md">
+          <i class="fas fa-calendar-plus text-white text-base sm:text-lg md:text-xl"></i>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-blue-900 text-center">Add Year</span>
+      </button>
+
+      <button type="button" (click)="openAdd('category')"
+        class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-cyan-50 hover:bg-cyan-100 rounded-lg md:rounded-xl border-2 border-cyan-200 hover:border-cyan-400 transition-all transform hover:scale-105 hover:shadow-lg">
+        <div class="p-2 sm:p-2.5 md:p-3 bg-cyan-500 rounded-lg shadow-md">
+          <i class="fas fa-folder-plus text-white text-base sm:text-lg md:text-xl"></i>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-cyan-900 text-center">Add Category</span>
+      </button>
+
+      <button type="button" (click)="openAdd('subjectName')"
+        class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-blue-50 hover:bg-blue-100 rounded-lg md:rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all transform hover:scale-105 hover:shadow-lg">
+        <div class="p-2 sm:p-2.5 md:p-3 bg-blue-500 rounded-lg shadow-md">
+          <i class="fas fa-tag text-white text-base sm:text-lg md:text-xl"></i>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-blue-900 text-center">Subject Name</span>
+      </button>
+
+      <button type="button" (click)="openAdd('subject')"
+        class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-green-50 hover:bg-green-100 rounded-lg md:rounded-xl border-2 border-green-200 hover:border-green-400 transition-all transform hover:scale-105 hover:shadow-lg">
+        <div class="p-2 sm:p-2.5 md:p-3 bg-green-500 rounded-lg shadow-md">
+          <i class="fas fa-book-medical text-white text-base sm:text-lg md:text-xl"></i>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-green-900 text-center">Add Subject</span>
+      </button>
+
+      <button type="button" (click)="openAdd('term')"
+        class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-sky-50 hover:bg-sky-100 rounded-lg md:rounded-xl border-2 border-sky-200 hover:border-sky-400 transition-all transform hover:scale-105 hover:shadow-lg">
+        <div class="p-2 sm:p-2.5 md:p-3 bg-sky-500 rounded-lg shadow-md">
+          <i class="fas fa-chart-line text-white text-base sm:text-lg md:text-xl"></i>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-sky-900 text-center">Add Term</span>
+      </button>
+
+      <button type="button" (click)="openAdd('week')"
+        class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-teal-50 hover:bg-teal-100 rounded-lg md:rounded-xl border-2 border-teal-200 hover:border-teal-400 transition-all transform hover:scale-105 hover:shadow-lg">
+        <div class="p-2 sm:p-2.5 md:p-3 bg-teal-500 rounded-lg shadow-md">
+          <i class="fas fa-calendar-week text-white text-base sm:text-lg md:text-xl"></i>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-teal-900 text-center">Add Week</span>
+      </button>
+
+      <button type="button" (click)="openAdd('lesson')"
+        class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-purple-50 hover:bg-purple-100 rounded-lg md:rounded-xl border-2 border-purple-200 hover:border-purple-400 transition-all transform hover:scale-105 hover:shadow-lg">
+        <div class="p-2 sm:p-2.5 md:p-3 bg-purple-500 rounded-lg shadow-md">
+          <i class="fas fa-book-open text-white text-base sm:text-lg md:text-xl"></i>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold text-purple-900 text-center">Add Lessons</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+
+    <!-- Search -->
+    <div class="lg:col-span-2 bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 border border-gray-100">
+      <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+        <div class="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
+          <i class="fas fa-search text-blue-600 text-sm sm:text-base"></i>
+        </div>
+        Search Content
+      </label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i class="fas fa-search text-gray-400"></i>
+        </div>
+        <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Search..."
+          class="w-full pl-10 sm:pl-12 pr-16 sm:pr-24 py-2 sm:py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm transition-all">
+        @if (searchTerm) {
+        <button type="button" (click)="clearSearch()"
+          class="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 px-2 sm:px-3 py-1 sm:py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium transition-all">
+          <i class="fas fa-times sm:mr-1"></i>
+          <span class="hidden sm:inline">Clear</span>
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 border border-gray-100">
+      <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+        <div class="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
+          <i class="fas fa-filter text-blue-600 text-sm sm:text-base"></i>
+        </div>
+        Filter by Year
+      </label>
+      <select [(ngModel)]="filters.yearId" (change)="onFilterChange()"
+        class="w-full px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm transition-all">
+        <option [value]="null">All Years</option>
+        <option *ngFor="let year of years" [value]="year.id">{{ getYearLabel(year.yearNumber) }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8">
+
+    <!-- Financial Reports Link -->
+    <a routerLink="/admin/financial-reports"
+      class="group relative block bg-blue-600 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl p-3 sm:p-4 md:p-5 lg:p-6 transform hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+      <div class="flex items-center justify-between gap-2 sm:gap-3">
+        <div class="flex items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
+          <div class="p-1.5 sm:p-2 md:p-2.5 lg:p-3 bg-white/20 rounded-lg backdrop-blur-lg flex-shrink-0">
+            <i class="fas fa-chart-bar text-white text-lg sm:text-xl md:text-2xl lg:text-3xl"></i>
           </div>
-          <div class="flex flex-wrap gap-2 sm:gap-3 w-full lg:w-auto">
-            <a
-              routerLink="/admin/academic-terms"
-              class="flex-1 sm:flex-none px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base">
-              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-              <span>Terms</span>
-            </a>
-            <button
-              type="button"
-              (click)="refreshData()"
-              class="flex-1 sm:flex-none px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base">
-              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
-              <span>Refresh</span>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-white mb-0.5 sm:mb-1 truncate">
+              Financial Reports</h3>
+            <p class="text-blue-100 text-[10px] sm:text-xs md:text-sm font-medium truncate">View detailed financial
+              insights & reports</p>
+          </div>
+        </div>
+        <div class="p-1 sm:p-1.5 md:p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-all flex-shrink-0">
+          <i
+            class="fas fa-arrow-right text-white text-sm sm:text-base md:text-lg lg:text-xl group-hover:translate-x-1 transition-transform"></i>
+        </div>
+      </div>
+    </a>
+
+    <!-- Exams Link -->
+    <a routerLink="/admin/exams"
+      class="group relative block bg-cyan-600 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl p-3 sm:p-4 md:p-5 lg:p-6 transform hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+      <div class="flex items-center justify-between gap-2 sm:gap-3">
+        <div class="flex items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
+          <div class="p-1.5 sm:p-2 md:p-2.5 lg:p-3 bg-white/20 rounded-lg backdrop-blur-lg flex-shrink-0">
+            <i class="fas fa-file-alt text-white text-lg sm:text-xl md:text-2xl lg:text-3xl"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-white mb-0.5 sm:mb-1 truncate">Exams
+              Management</h3>
+            <p class="text-cyan-100 text-[10px] sm:text-xs md:text-sm font-medium truncate">Create & manage assessments
+            </p>
+          </div>
+        </div>
+        <div class="p-1 sm:p-1.5 md:p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-all flex-shrink-0">
+          <i
+            class="fas fa-arrow-right text-white text-sm sm:text-base md:text-lg lg:text-xl group-hover:translate-x-1 transition-transform"></i>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Content Tabs -->
+  <div class="bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden border border-gray-100">
+    <div class="border-b border-gray-200 bg-gray-50 overflow-x-auto">
+      <nav class="flex space-x-1 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 min-w-max sm:min-w-0" aria-label="Tabs">
+        <button type="button"
+          class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
+          [class.border-blue-500]="activeTab === 'hierarchy'" [class.border-transparent]="activeTab !== 'hierarchy'"
+          [class.text-blue-600]="activeTab === 'hierarchy'" [class.text-gray-500]="activeTab !== 'hierarchy'"
+          [class.hover:text-blue-700]="activeTab !== 'hierarchy'"
+          [class.hover:border-gray-300]="activeTab !== 'hierarchy'" (click)="setActiveTab('hierarchy')">
+          <i class="fas fa-sitemap mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
+            [class.text-blue-500]="activeTab === 'hierarchy'" [class.text-gray-400]="activeTab !== 'hierarchy'"
+            [class.group-hover:text-blue-700]="activeTab !== 'hierarchy'"></i>
+          <span class="hidden sm:inline">Hierarchy View</span>
+          <span class="sm:hidden">Hierarchy</span>
+        </button>
+
+        <button type="button"
+          class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
+          [class.border-blue-500]="activeTab === 'years'" [class.border-transparent]="activeTab !== 'years'"
+          [class.text-blue-600]="activeTab === 'years'" [class.text-gray-500]="activeTab !== 'years'"
+          [class.hover:text-blue-700]="activeTab !== 'years'" [class.hover:border-gray-300]="activeTab !== 'years'"
+          (click)="setActiveTab('years')">
+          <i class="fas fa-calendar-alt mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
+            [class.text-blue-500]="activeTab === 'years'" [class.text-gray-400]="activeTab !== 'years'"
+            [class.group-hover:text-blue-700]="activeTab !== 'years'"></i>
+          Years
+        </button>
+
+        <button type="button"
+          class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
+          [class.border-blue-500]="activeTab === 'categories'" [class.border-transparent]="activeTab !== 'categories'"
+          [class.text-blue-600]="activeTab === 'categories'" [class.text-gray-500]="activeTab !== 'categories'"
+          [class.hover:text-blue-700]="activeTab !== 'categories'"
+          [class.hover:border-gray-300]="activeTab !== 'categories'" (click)="setActiveTab('categories')">
+          <i class="fas fa-folder mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
+            [class.text-blue-500]="activeTab === 'categories'" [class.text-gray-400]="activeTab !== 'categories'"
+            [class.group-hover:text-blue-700]="activeTab !== 'categories'"></i>
+          Categories
+        </button>
+
+        <button type="button"
+          class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
+          [class.border-blue-500]="activeTab === 'subjectNames'"
+          [class.border-transparent]="activeTab !== 'subjectNames'" [class.text-blue-600]="activeTab === 'subjectNames'"
+          [class.text-gray-500]="activeTab !== 'subjectNames'"
+          [class.hover:text-blue-700]="activeTab !== 'subjectNames'"
+          [class.hover:border-gray-300]="activeTab !== 'subjectNames'" (click)="setActiveTab('subjectNames')">
+          <i class="fas fa-tag mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
+            [class.text-blue-500]="activeTab === 'subjectNames'" [class.text-gray-400]="activeTab !== 'subjectNames'"
+            [class.group-hover:text-blue-700]="activeTab !== 'subjectNames'"></i>
+          Subject Names
+        </button>
+
+        <button type="button"
+          class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
+          [class.border-blue-500]="activeTab === 'subjects'" [class.border-transparent]="activeTab !== 'subjects'"
+          [class.text-blue-600]="activeTab === 'subjects'" [class.text-gray-500]="activeTab !== 'subjects'"
+          [class.hover:text-blue-700]="activeTab !== 'subjects'"
+          [class.hover:border-gray-300]="activeTab !== 'subjects'" (click)="setActiveTab('subjects')">
+          <i class="fas fa-book mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
+            [class.text-blue-500]="activeTab === 'subjects'" [class.text-gray-400]="activeTab !== 'subjects'"
+            [class.group-hover:text-blue-700]="activeTab !== 'subjects'"></i>
+          Subjects
+        </button>
+
+        <button type="button"
+          class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
+          [class.border-blue-500]="activeTab === 'terms'" [class.border-transparent]="activeTab !== 'terms'"
+          [class.text-blue-600]="activeTab === 'terms'" [class.text-gray-500]="activeTab !== 'terms'"
+          [class.hover:text-blue-700]="activeTab !== 'terms'" [class.hover:border-gray-300]="activeTab !== 'terms'"
+          (click)="setActiveTab('terms')">
+          <i class="fas fa-calendar-alt mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
+            [class.text-blue-500]="activeTab === 'terms'" [class.text-gray-400]="activeTab !== 'terms'"
+            [class.group-hover:text-blue-700]="activeTab !== 'terms'"></i>
+          Terms
+        </button>
+
+        <button type="button"
+          class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
+          [class.border-blue-500]="activeTab === 'weeks'" [class.border-transparent]="activeTab !== 'weeks'"
+          [class.text-blue-600]="activeTab === 'weeks'" [class.text-gray-500]="activeTab !== 'weeks'"
+          [class.hover:text-blue-700]="activeTab !== 'weeks'" [class.hover:border-gray-300]="activeTab !== 'weeks'"
+          (click)="setActiveTab('weeks')">
+          <i class="fas fa-clock mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
+            [class.text-blue-500]="activeTab === 'weeks'" [class.text-gray-400]="activeTab !== 'weeks'"
+            [class.group-hover:text-blue-700]="activeTab !== 'weeks'"></i>
+          Weeks
+        </button>
+
+        <button type="button"
+          class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
+          [class.border-blue-500]="activeTab === 'lessons'" [class.border-transparent]="activeTab !== 'lessons'"
+          [class.text-blue-600]="activeTab === 'lessons'" [class.text-gray-500]="activeTab !== 'lessons'"
+          [class.hover:text-blue-700]="activeTab !== 'lessons'" [class.hover:border-gray-300]="activeTab !== 'lessons'"
+          (click)="setActiveTab('lessons')">
+          <i class="fas fa-graduation-cap mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
+            [class.text-blue-500]="activeTab === 'lessons'" [class.text-gray-400]="activeTab !== 'lessons'"
+            [class.group-hover:text-blue-700]="activeTab !== 'lessons'"></i>
+          Lessons
+        </button>
+      </nav>
+    </div>
+
+    <div class="p-4 sm:p-5 md:p-6">
+      <!-- Tab Content -->
+      <div class="tab-content">
+
+        <!-- Hierarchy View Tab -->
+        @if (activeTab === 'hierarchy') {
+        <div class="hierarchy-view">
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
+            <h4 class="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
+              <i class="fas fa-sitemap text-sm sm:text-base"></i>
+              <span>Content Hierarchy</span>
+            </h4>
+            <div class="flex gap-2 w-full sm:w-auto">
+              <button type="button"
+                class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs sm:text-sm font-medium"
+                (click)="expandAll()">
+                <i class="fas fa-plus-square mr-1"></i>
+                <span class="hidden sm:inline">Expand All</span>
+                <span class="sm:hidden">Expand</span>
+              </button>
+              <button type="button"
+                class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-xs sm:text-sm font-medium"
+                (click)="collapseAll()">
+                <i class="fas fa-minus-square mr-1"></i>
+                <span class="hidden sm:inline">Collapse All</span>
+                <span class="sm:hidden">Collapse</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tree Structure -->
+          <div class="hierarchy-tree">
+            <app-hierarchy-node *ngFor="let year of filteredYears" [year]="year" [subjects]="filteredSubjects"
+              [terms]="filteredTerms" [weeks]="filteredWeeks" [lessons]="filteredLessons"
+              [expandState]="hierarchyExpandedState" [expandedSubjects]="expandedSubjects"
+              [expandedTerms]="expandedTerms" [expandedWeeks]="expandedWeeks"
+              (add)="openAddFromHierarchy($event.type, $event.entity)" (edit)="openEdit($event.type, $event.entity)"
+              (delete)="confirmDelete($event.type, $event.entity)" (lessonClick)="navigateToLessonManagement($event)"
+              (expandStateChange)="onExpandStateChange($event)">
+            </app-hierarchy-node>
+          </div>
+        </div>
+        }
+
+        <!-- Years Tab -->
+        @if (activeTab === 'years') {
+        <app-years-table [years]="pagedYears" [totalPages]="yearTotalPages" [currentPage]="yearPage"
+          [totalItems]="filteredYears.length" (pageChange)="goYearPage($event)" (edit)="openEdit('year', $event)"
+          (delete)="confirmDelete('year', $event)" (add)="openAdd('year')">
+        </app-years-table>
+        }
+
+        <!-- Categories Tab -->
+        @if (activeTab === 'categories') {
+        <app-categories-table [categories]="pagedCategories" [totalPages]="categoryTotalPages"
+          [currentPage]="categoryPage" [totalItems]="filteredCategories.length" (pageChange)="goCategoryPage($event)"
+          (edit)="openEdit('category', $event)" (delete)="confirmDelete('category', $event)"
+          (add)="openAdd('category')">
+        </app-categories-table>
+        }
+
+        <!-- Subject Names Tab -->
+        @if (activeTab === 'subjectNames') {
+        <div class="subject-names-table">
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
+            <h4 class="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
+              <i class="fas fa-tag text-sm sm:text-base text-blue-600"></i>
+              <span>Subject Names Management</span>
+            </h4>
+            <button type="button" (click)="openAdd('subjectName')"
+              class="w-full sm:w-auto px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center gap-2 transition-all hover:-translate-y-1 shadow-lg hover:shadow-xl text-sm sm:text-base whitespace-nowrap">
+              <i class="fas fa-plus"></i>
+              <span>Add Subject Name</span>
             </button>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Stats Overview with Modern Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 md:gap-4 mb-6 md:mb-8">
-
-      <!-- Years Card -->
-      <div class="group relative overflow-hidden bg-blue-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-        <div class="relative z-10">
-          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-          </div>
-          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.years }}</p>
-          <p class="text-blue-100 text-xs font-medium">Years</p>
-        </div>
-      </div>
-
-      <!-- Categories Card -->
-      <div class="group relative overflow-hidden bg-cyan-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-        <div class="relative z-10">
-          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
-            </svg>
-          </div>
-          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.categories }}</p>
-          <p class="text-cyan-100 text-xs font-medium">Categories</p>
-        </div>
-      </div>
-
-      <!-- Subject Names Card -->
-      <div class="group relative overflow-hidden bg-blue-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-        <div class="relative z-10">
-          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-            </svg>
-          </div>
-          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.subjectNames }}</p>
-          <p class="text-xs font-medium text-blue-100">Subject Names</p>
-        </div>
-      </div>
-
-      <!-- Subjects Card -->
-      <div class="group relative overflow-hidden bg-blue-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-        <div class="relative z-10">
-          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-            </svg>
-          </div>
-          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.subjects }}</p>
-          <p class="text-blue-100 text-xs font-medium">Subjects</p>
-        </div>
-      </div>
-
-      <!-- Terms Card -->
-      <div class="group relative overflow-hidden bg-sky-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-        <div class="relative z-10">
-          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-            </svg>
-          </div>
-          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.terms }}</p>
-          <p class="text-sky-100 text-xs font-medium">Terms</p>
-        </div>
-      </div>
-
-      <!-- Weeks Card -->
-      <div class="group relative overflow-hidden bg-teal-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-        <div class="relative z-10">
-          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-          </div>
-          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.weeks }}</p>
-          <p class="text-teal-100 text-xs font-medium">Weeks</p>
-        </div>
-      </div>
-
-      <!-- Lessons Card -->
-      <div class="group relative overflow-hidden bg-green-600 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-        <div class="relative z-10">
-          <div class="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm w-fit mb-1.5 sm:mb-2">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
-            </svg>
-          </div>
-          <p class="text-xl sm:text-2xl font-bold text-white mb-0.5 sm:mb-1">{{ totalCounts.lessons }}</p>
-          <p class="text-green-100 text-xs font-medium">Lessons</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Action Buttons Grid -->
-    <div class="bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 mb-6 md:mb-8 border border-gray-100">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
-        <h2 class="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
-          <div class="p-1.5 sm:p-2 bg-blue-600 rounded-lg">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
-          </div>
-          Quick Actions
-        </h2>
-        <span class="text-xs sm:text-sm text-gray-500 font-medium">Create new content instantly</span>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 md:gap-4">
-        <button type="button" (click)="openAdd('year')"
-          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-blue-50 hover:bg-blue-100 rounded-lg md:rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-2 sm:p-2.5 md:p-3 bg-blue-500 rounded-lg shadow-md">
-            <i class="fas fa-calendar-plus text-white text-base sm:text-lg md:text-xl"></i>
-          </div>
-          <span class="text-xs sm:text-sm font-semibold text-blue-900 text-center">Add Year</span>
-        </button>
-
-        <button type="button" (click)="openAdd('category')"
-          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-cyan-50 hover:bg-cyan-100 rounded-lg md:rounded-xl border-2 border-cyan-200 hover:border-cyan-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-2 sm:p-2.5 md:p-3 bg-cyan-500 rounded-lg shadow-md">
-            <i class="fas fa-folder-plus text-white text-base sm:text-lg md:text-xl"></i>
-          </div>
-          <span class="text-xs sm:text-sm font-semibold text-cyan-900 text-center">Add Category</span>
-        </button>
-
-        <button type="button" (click)="openAdd('subjectName')"
-          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-blue-50 hover:bg-blue-100 rounded-lg md:rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-2 sm:p-2.5 md:p-3 bg-blue-500 rounded-lg shadow-md">
-            <i class="fas fa-tag text-white text-base sm:text-lg md:text-xl"></i>
-          </div>
-          <span class="text-xs sm:text-sm font-semibold text-blue-900 text-center">Subject Name</span>
-        </button>
-
-        <button type="button" (click)="openAdd('subject')"
-          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-green-50 hover:bg-green-100 rounded-lg md:rounded-xl border-2 border-green-200 hover:border-green-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-2 sm:p-2.5 md:p-3 bg-green-500 rounded-lg shadow-md">
-            <i class="fas fa-book-medical text-white text-base sm:text-lg md:text-xl"></i>
-          </div>
-          <span class="text-xs sm:text-sm font-semibold text-green-900 text-center">Add Subject</span>
-        </button>
-
-        <button type="button" (click)="openAdd('term')"
-          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-sky-50 hover:bg-sky-100 rounded-lg md:rounded-xl border-2 border-sky-200 hover:border-sky-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-2 sm:p-2.5 md:p-3 bg-sky-500 rounded-lg shadow-md">
-            <i class="fas fa-chart-line text-white text-base sm:text-lg md:text-xl"></i>
-          </div>
-          <span class="text-xs sm:text-sm font-semibold text-sky-900 text-center">Add Term</span>
-        </button>
-
-        <button type="button" (click)="openAdd('week')"
-          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-teal-50 hover:bg-teal-100 rounded-lg md:rounded-xl border-2 border-teal-200 hover:border-teal-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-2 sm:p-2.5 md:p-3 bg-teal-500 rounded-lg shadow-md">
-            <i class="fas fa-calendar-week text-white text-base sm:text-lg md:text-xl"></i>
-          </div>
-          <span class="text-xs sm:text-sm font-semibold text-teal-900 text-center">Add Week</span>
-        </button>
-
-        <button type="button" (click)="openAdd('lesson')"
-          class="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 md:p-5 bg-purple-50 hover:bg-purple-100 rounded-lg md:rounded-xl border-2 border-purple-200 hover:border-purple-400 transition-all transform hover:scale-105 hover:shadow-lg">
-          <div class="p-2 sm:p-2.5 md:p-3 bg-purple-500 rounded-lg shadow-md">
-            <i class="fas fa-book-open text-white text-base sm:text-lg md:text-xl"></i>
-          </div>
-          <span class="text-xs sm:text-sm font-semibold text-purple-900 text-center">Add Lessons</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Search and Filter -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-
-      <!-- Search -->
-      <div class="lg:col-span-2 bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 border border-gray-100">
-        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
-          <div class="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
-            <i class="fas fa-search text-blue-600 text-sm sm:text-base"></i>
-          </div>
-          Search Content
-        </label>
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <i class="fas fa-search text-gray-400"></i>
-          </div>
-          <input
-            type="text"
-            [(ngModel)]="searchTerm"
-            (ngModelChange)="onSearchChange()"
-            placeholder="Search..."
-            class="w-full pl-10 sm:pl-12 pr-16 sm:pr-24 py-2 sm:py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm transition-all">
-          @if (searchTerm) {
-            <button
-              type="button"
-              (click)="clearSearch()"
-              class="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 px-2 sm:px-3 py-1 sm:py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium transition-all">
-              <i class="fas fa-times sm:mr-1"></i>
-              <span class="hidden sm:inline">Clear</span>
-            </button>
-          }
-        </div>
-      </div>
-
-      <!-- Filter -->
-      <div class="bg-white rounded-lg md:rounded-xl shadow-lg p-4 sm:p-5 md:p-6 border border-gray-100">
-        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
-          <div class="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
-            <i class="fas fa-filter text-blue-600 text-sm sm:text-base"></i>
-          </div>
-          Filter by Year
-        </label>
-        <select
-          [(ngModel)]="filters.yearId"
-          (change)="onFilterChange()"
-          class="w-full px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs sm:text-sm transition-all">
-          <option [value]="null">All Years</option>
-          <option *ngFor="let year of years" [value]="year.id">Year {{ year.yearNumber }}</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Quick Links -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8">
-
-      <!-- Financial Reports Link -->
-      <a routerLink="/admin/financial-reports"
-        class="group relative block bg-blue-600 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl p-3 sm:p-4 md:p-5 lg:p-6 transform hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-        <div class="flex items-center justify-between gap-2 sm:gap-3">
-          <div class="flex items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
-            <div class="p-1.5 sm:p-2 md:p-2.5 lg:p-3 bg-white/20 rounded-lg backdrop-blur-lg flex-shrink-0">
-              <i class="fas fa-chart-bar text-white text-lg sm:text-xl md:text-2xl lg:text-3xl"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-white mb-0.5 sm:mb-1 truncate">Financial Reports</h3>
-              <p class="text-blue-100 text-[10px] sm:text-xs md:text-sm font-medium truncate">View detailed financial insights & reports</p>
+          <!-- Table with horizontal scroll -->
+          <div class="overflow-x-auto -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6">
+            <div class="inline-block min-w-full align-middle">
+              <div class="bg-white rounded-lg shadow overflow-hidden ring-1 ring-black ring-opacity-5">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th scope="col"
+                        class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                        #</th>
+                      <th scope="col"
+                        class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                        Name</th>
+                      <th scope="col"
+                        class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                        Category</th>
+                      <th scope="col"
+                        class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                        Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    @for (sn of pagedSubjectNames; track sn.id; let i = $index) {
+                    <tr class="hover:bg-gray-50 transition-colors">
+                      <td
+                        class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                        {{ (subjectNamePage - 1) * pageSize + i + 1 }}
+                      </td>
+                      <td class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap">
+                        <div class="text-xs sm:text-sm font-medium text-gray-900">{{ sn.name }}</div>
+                      </td>
+                      <td class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap">
+                        <span
+                          class="px-1.5 sm:px-2 inline-flex text-[10px] sm:text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                          {{ nameCategory(sn.categoryId) }}
+                        </span>
+                      </td>
+                      <td
+                        class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
+                        <div class="flex items-center justify-end gap-1">
+                          <button type="button" (click)="openEdit('subjectName', sn)"
+                            class="p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                            <i class="fas fa-edit text-xs sm:text-sm"></i>
+                          </button>
+                          <button type="button" (click)="confirmDelete('subjectName', sn)"
+                            class="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                            <i class="fas fa-trash text-xs sm:text-sm"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                      <td colspan="4" class="px-3 sm:px-4 md:px-6 py-8 sm:py-12 text-center">
+                        <div class="flex flex-col items-center justify-center">
+                          <i class="fas fa-tag text-gray-300 text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4"></i>
+                          <p class="text-gray-500 text-sm sm:text-base md:text-lg font-medium">No subject names found
+                          </p>
+                          <p class="text-gray-400 text-xs sm:text-sm mt-1">Create your first subject name to get started
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-          <div class="p-1 sm:p-1.5 md:p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-all flex-shrink-0">
-            <i class="fas fa-arrow-right text-white text-sm sm:text-base md:text-lg lg:text-xl group-hover:translate-x-1 transition-transform"></i>
-          </div>
-        </div>
-      </a>
 
-      <!-- Exams Link -->
-      <a routerLink="/admin/exams"
-        class="group relative block bg-cyan-600 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl p-3 sm:p-4 md:p-5 lg:p-6 transform hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-        <div class="flex items-center justify-between gap-2 sm:gap-3">
-          <div class="flex items-center gap-2 sm:gap-3 md:gap-4 flex-1 min-w-0">
-            <div class="p-1.5 sm:p-2 md:p-2.5 lg:p-3 bg-white/20 rounded-lg backdrop-blur-lg flex-shrink-0">
-              <i class="fas fa-file-alt text-white text-lg sm:text-xl md:text-2xl lg:text-3xl"></i>
+          <!-- Pagination -->
+          @if (filteredSubjectNames.length > 0) {
+          <div class="bg-white px-3 sm:px-4 md:px-6 py-3 flex items-center justify-between border-t border-gray-200">
+            <div class="flex-1 flex justify-between sm:hidden">
+              <button [disabled]="subjectNamePage === 1" (click)="goSubjectNamePage(subjectNamePage - 1)"
+                class="relative inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                Previous
+              </button>
+              <button [disabled]="subjectNamePage === subjectNameTotalPages"
+                (click)="goSubjectNamePage(subjectNamePage + 1)"
+                class="ml-3 relative inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                Next
+              </button>
             </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-white mb-0.5 sm:mb-1 truncate">Exams Management</h3>
-              <p class="text-cyan-100 text-[10px] sm:text-xs md:text-sm font-medium truncate">Create & manage assessments</p>
-            </div>
-          </div>
-          <div class="p-1 sm:p-1.5 md:p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-all flex-shrink-0">
-            <i class="fas fa-arrow-right text-white text-sm sm:text-base md:text-lg lg:text-xl group-hover:translate-x-1 transition-transform"></i>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <!-- Content Tabs -->
-    <div class="bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden border border-gray-100">
-      <div class="border-b border-gray-200 bg-gray-50 overflow-x-auto">
-        <nav class="flex space-x-1 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 min-w-max sm:min-w-0" aria-label="Tabs">
-          <button
-            type="button"
-            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
-            [class.border-blue-500]="activeTab === 'hierarchy'"
-            [class.border-transparent]="activeTab !== 'hierarchy'"
-            [class.text-blue-600]="activeTab === 'hierarchy'"
-            [class.text-gray-500]="activeTab !== 'hierarchy'"
-            [class.hover:text-blue-700]="activeTab !== 'hierarchy'"
-            [class.hover:border-gray-300]="activeTab !== 'hierarchy'"
-            (click)="setActiveTab('hierarchy')">
-            <i class="fas fa-sitemap mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
-               [class.text-blue-500]="activeTab === 'hierarchy'"
-               [class.text-gray-400]="activeTab !== 'hierarchy'"
-               [class.group-hover:text-blue-700]="activeTab !== 'hierarchy'"></i>
-            <span class="hidden sm:inline">Hierarchy View</span>
-            <span class="sm:hidden">Hierarchy</span>
-          </button>
-
-          <button
-            type="button"
-            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
-            [class.border-blue-500]="activeTab === 'years'"
-            [class.border-transparent]="activeTab !== 'years'"
-            [class.text-blue-600]="activeTab === 'years'"
-            [class.text-gray-500]="activeTab !== 'years'"
-            [class.hover:text-blue-700]="activeTab !== 'years'"
-            [class.hover:border-gray-300]="activeTab !== 'years'"
-            (click)="setActiveTab('years')">
-            <i class="fas fa-calendar-alt mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
-               [class.text-blue-500]="activeTab === 'years'"
-               [class.text-gray-400]="activeTab !== 'years'"
-               [class.group-hover:text-blue-700]="activeTab !== 'years'"></i>
-            Years
-          </button>
-
-          <button
-            type="button"
-            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
-            [class.border-blue-500]="activeTab === 'categories'"
-            [class.border-transparent]="activeTab !== 'categories'"
-            [class.text-blue-600]="activeTab === 'categories'"
-            [class.text-gray-500]="activeTab !== 'categories'"
-            [class.hover:text-blue-700]="activeTab !== 'categories'"
-            [class.hover:border-gray-300]="activeTab !== 'categories'"
-            (click)="setActiveTab('categories')">
-            <i class="fas fa-folder mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
-               [class.text-blue-500]="activeTab === 'categories'"
-               [class.text-gray-400]="activeTab !== 'categories'"
-               [class.group-hover:text-blue-700]="activeTab !== 'categories'"></i>
-            Categories
-          </button>
-
-          <button
-            type="button"
-            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
-            [class.border-blue-500]="activeTab === 'subjectNames'"
-            [class.border-transparent]="activeTab !== 'subjectNames'"
-            [class.text-blue-600]="activeTab === 'subjectNames'"
-            [class.text-gray-500]="activeTab !== 'subjectNames'"
-            [class.hover:text-blue-700]="activeTab !== 'subjectNames'"
-            [class.hover:border-gray-300]="activeTab !== 'subjectNames'"
-            (click)="setActiveTab('subjectNames')">
-            <i class="fas fa-tag mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
-               [class.text-blue-500]="activeTab === 'subjectNames'"
-               [class.text-gray-400]="activeTab !== 'subjectNames'"
-               [class.group-hover:text-blue-700]="activeTab !== 'subjectNames'"></i>
-            Subject Names
-          </button>
-
-          <button
-            type="button"
-            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
-            [class.border-blue-500]="activeTab === 'subjects'"
-            [class.border-transparent]="activeTab !== 'subjects'"
-            [class.text-blue-600]="activeTab === 'subjects'"
-            [class.text-gray-500]="activeTab !== 'subjects'"
-            [class.hover:text-blue-700]="activeTab !== 'subjects'"
-            [class.hover:border-gray-300]="activeTab !== 'subjects'"
-            (click)="setActiveTab('subjects')">
-            <i class="fas fa-book mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
-               [class.text-blue-500]="activeTab === 'subjects'"
-               [class.text-gray-400]="activeTab !== 'subjects'"
-               [class.group-hover:text-blue-700]="activeTab !== 'subjects'"></i>
-            Subjects
-          </button>
-
-          <button
-            type="button"
-            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
-            [class.border-blue-500]="activeTab === 'terms'"
-            [class.border-transparent]="activeTab !== 'terms'"
-            [class.text-blue-600]="activeTab === 'terms'"
-            [class.text-gray-500]="activeTab !== 'terms'"
-            [class.hover:text-blue-700]="activeTab !== 'terms'"
-            [class.hover:border-gray-300]="activeTab !== 'terms'"
-            (click)="setActiveTab('terms')">
-            <i class="fas fa-calendar-alt mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
-               [class.text-blue-500]="activeTab === 'terms'"
-               [class.text-gray-400]="activeTab !== 'terms'"
-               [class.group-hover:text-blue-700]="activeTab !== 'terms'"></i>
-            Terms
-          </button>
-
-          <button
-            type="button"
-            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
-            [class.border-blue-500]="activeTab === 'weeks'"
-            [class.border-transparent]="activeTab !== 'weeks'"
-            [class.text-blue-600]="activeTab === 'weeks'"
-            [class.text-gray-500]="activeTab !== 'weeks'"
-            [class.hover:text-blue-700]="activeTab !== 'weeks'"
-            [class.hover:border-gray-300]="activeTab !== 'weeks'"
-            (click)="setActiveTab('weeks')">
-            <i class="fas fa-clock mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
-               [class.text-blue-500]="activeTab === 'weeks'"
-               [class.text-gray-400]="activeTab !== 'weeks'"
-               [class.group-hover:text-blue-700]="activeTab !== 'weeks'"></i>
-            Weeks
-          </button>
-
-          <button
-            type="button"
-            class="group inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm font-medium border-b-2 transition-all cursor-pointer whitespace-nowrap"
-            [class.border-blue-500]="activeTab === 'lessons'"
-            [class.border-transparent]="activeTab !== 'lessons'"
-            [class.text-blue-600]="activeTab === 'lessons'"
-            [class.text-gray-500]="activeTab !== 'lessons'"
-            [class.hover:text-blue-700]="activeTab !== 'lessons'"
-            [class.hover:border-gray-300]="activeTab !== 'lessons'"
-            (click)="setActiveTab('lessons')">
-            <i class="fas fa-graduation-cap mr-1.5 sm:mr-2 text-sm sm:text-base md:text-lg"
-               [class.text-blue-500]="activeTab === 'lessons'"
-               [class.text-gray-400]="activeTab !== 'lessons'"
-               [class.group-hover:text-blue-700]="activeTab !== 'lessons'"></i>
-            Lessons
-          </button>
-        </nav>
-      </div>
-
-      <div class="p-4 sm:p-5 md:p-6">
-        <!-- Tab Content -->
-        <div class="tab-content">
-
-          <!-- Hierarchy View Tab -->
-          @if (activeTab === 'hierarchy') {
-            <div class="hierarchy-view">
-              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
-                <h4 class="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <i class="fas fa-sitemap text-sm sm:text-base"></i>
-                  <span>Content Hierarchy</span>
-                </h4>
-                <div class="flex gap-2 w-full sm:w-auto">
-                  <button
-                    type="button"
-                    class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs sm:text-sm font-medium"
-                    (click)="expandAll()">
-                    <i class="fas fa-plus-square mr-1"></i>
-                    <span class="hidden sm:inline">Expand All</span>
-                    <span class="sm:hidden">Expand</span>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p class="text-xs sm:text-sm text-gray-700">
+                  Showing
+                  <span class="font-medium">{{ snStart }}</span>
+                  to
+                  <span class="font-medium">{{ snEnd }}</span>
+                  of
+                  <span class="font-medium">{{ filteredSubjectNames.length }}</span>
+                  results
+                </p>
+              </div>
+              <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <button [disabled]="subjectNamePage === 1" (click)="goSubjectNamePage(1)"
+                    class="relative inline-flex items-center px-2 sm:px-3 py-2 rounded-l-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-angle-double-left"></i>
                   </button>
-                  <button
-                    type="button"
-                    class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-xs sm:text-sm font-medium"
-                    (click)="collapseAll()">
-                    <i class="fas fa-minus-square mr-1"></i>
-                    <span class="hidden sm:inline">Collapse All</span>
-                    <span class="sm:hidden">Collapse</span>
+                  <button [disabled]="subjectNamePage === 1" (click)="goSubjectNamePage(subjectNamePage - 1)"
+                    class="relative inline-flex items-center px-2 sm:px-3 py-2 border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-chevron-left"></i>
                   </button>
-                </div>
-              </div>
-
-              <!-- Tree Structure -->
-              <div class="hierarchy-tree">
-                <app-hierarchy-node *ngFor="let year of filteredYears"
-                    [year]="year"
-                    [subjects]="filteredSubjects"
-                    [terms]="filteredTerms"
-                    [weeks]="filteredWeeks"
-                    [lessons]="filteredLessons"
-                    [expandState]="hierarchyExpandedState"
-                    [expandedSubjects]="expandedSubjects"
-                    [expandedTerms]="expandedTerms"
-                    [expandedWeeks]="expandedWeeks"
-                    (add)="openAddFromHierarchy($event.type, $event.entity)"
-                    (edit)="openEdit($event.type, $event.entity)"
-                    (delete)="confirmDelete($event.type, $event.entity)"
-                    (lessonClick)="navigateToLessonManagement($event)"
-                    (expandStateChange)="onExpandStateChange($event)">
-                </app-hierarchy-node>
-              </div>
-            </div>
-          }
-
-          <!-- Years Tab -->
-          @if (activeTab === 'years') {
-            <app-years-table
-              [years]="pagedYears"
-              [totalPages]="yearTotalPages"
-              [currentPage]="yearPage"
-              [totalItems]="filteredYears.length"
-              (pageChange)="goYearPage($event)"
-              (edit)="openEdit('year', $event)"
-              (delete)="confirmDelete('year', $event)"
-              (add)="openAdd('year')">
-            </app-years-table>
-          }
-
-          <!-- Categories Tab -->
-          @if (activeTab === 'categories') {
-            <app-categories-table
-              [categories]="pagedCategories"
-              [totalPages]="categoryTotalPages"
-              [currentPage]="categoryPage"
-              [totalItems]="filteredCategories.length"
-              (pageChange)="goCategoryPage($event)"
-              (edit)="openEdit('category', $event)"
-              (delete)="confirmDelete('category', $event)"
-              (add)="openAdd('category')">
-            </app-categories-table>
-          }
-
-          <!-- Subject Names Tab -->
-          @if (activeTab === 'subjectNames') {
-            <div class="subject-names-table">
-              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
-                <h4 class="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <i class="fas fa-tag text-sm sm:text-base text-blue-600"></i>
-                  <span>Subject Names Management</span>
-                </h4>
-                <button
-                  type="button"
-                  (click)="openAdd('subjectName')"
-                  class="w-full sm:w-auto px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center gap-2 transition-all hover:-translate-y-1 shadow-lg hover:shadow-xl text-sm sm:text-base whitespace-nowrap">
-                  <i class="fas fa-plus"></i>
-                  <span>Add Subject Name</span>
-                </button>
-              </div>
-
-              <!-- Table with horizontal scroll -->
-              <div class="overflow-x-auto -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6">
-                <div class="inline-block min-w-full align-middle">
-                  <div class="bg-white rounded-lg shadow overflow-hidden ring-1 ring-black ring-opacity-5">
-                    <table class="min-w-full divide-y divide-gray-200">
-                      <thead class="bg-gray-50">
-                        <tr>
-                          <th scope="col" class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">#</th>
-                          <th scope="col" class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Name</th>
-                          <th scope="col" class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Category</th>
-                          <th scope="col" class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody class="bg-white divide-y divide-gray-200">
-                        @for (sn of pagedSubjectNames; track sn.id; let i = $index) {
-                          <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                              {{ (subjectNamePage - 1) * pageSize + i + 1 }}
-                            </td>
-                            <td class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap">
-                              <div class="text-xs sm:text-sm font-medium text-gray-900">{{ sn.name }}</div>
-                            </td>
-                            <td class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap">
-                              <span class="px-1.5 sm:px-2 inline-flex text-[10px] sm:text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                {{ nameCategory(sn.categoryId) }}
-                              </span>
-                            </td>
-                            <td class="px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
-                              <div class="flex items-center justify-end gap-1">
-                                <button
-                                  type="button"
-                                  (click)="openEdit('subjectName', sn)"
-                                  class="p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                  <i class="fas fa-edit text-xs sm:text-sm"></i>
-                                </button>
-                                <button
-                                  type="button"
-                                  (click)="confirmDelete('subjectName', sn)"
-                                  class="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                  <i class="fas fa-trash text-xs sm:text-sm"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        } @empty {
-                          <tr>
-                            <td colspan="4" class="px-3 sm:px-4 md:px-6 py-8 sm:py-12 text-center">
-                              <div class="flex flex-col items-center justify-center">
-                                <i class="fas fa-tag text-gray-300 text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4"></i>
-                                <p class="text-gray-500 text-sm sm:text-base md:text-lg font-medium">No subject names found</p>
-                                <p class="text-gray-400 text-xs sm:text-sm mt-1">Create your first subject name to get started</p>
-                              </div>
-                            </td>
-                          </tr>
-                        }
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pagination -->
-              @if (filteredSubjectNames.length > 0) {
-                <div class="bg-white px-3 sm:px-4 md:px-6 py-3 flex items-center justify-between border-t border-gray-200">
-                  <div class="flex-1 flex justify-between sm:hidden">
-                    <button
-                      [disabled]="subjectNamePage === 1"
-                      (click)="goSubjectNamePage(subjectNamePage - 1)"
-                      class="relative inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                      Previous
+                  @for (p of [].constructor(subjectNameTotalPages); track $index; let j = $index) {
+                  @if (j + 1 === 1 || j + 1 === subjectNameTotalPages || (j + 1 >= subjectNamePage - 1 && j + 1 <=
+                    subjectNamePage + 1)) { <button (click)="goSubjectNamePage(j + 1)"
+                    [class.bg-blue-50]="subjectNamePage === j + 1" [class.border-blue-500]="subjectNamePage === j + 1"
+                    [class.text-blue-600]="subjectNamePage === j + 1" [class.bg-white]="subjectNamePage !== j + 1"
+                    [class.text-gray-500]="subjectNamePage !== j + 1"
+                    class="relative inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 text-xs sm:text-sm font-medium hover:bg-gray-50">
+                    {{ j + 1 }}
                     </button>
-                    <button
-                      [disabled]="subjectNamePage === subjectNameTotalPages"
+                    } @else if (j + 1 === subjectNamePage - 2 || j + 1 === subjectNamePage + 2) {
+                    <span
+                      class="relative inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700">
+                      ...
+                    </span>
+                    }
+                    }
+                    <button [disabled]="subjectNamePage === subjectNameTotalPages"
                       (click)="goSubjectNamePage(subjectNamePage + 1)"
-                      class="ml-3 relative inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                      Next
+                      class="relative inline-flex items-center px-2 sm:px-3 py-2 border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button [disabled]="subjectNamePage === subjectNameTotalPages"
+                      (click)="goSubjectNamePage(subjectNameTotalPages)"
+                      class="relative inline-flex items-center px-2 sm:px-3 py-2 rounded-r-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="fas fa-angle-double-right"></i>
+                    </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+        }
+
+        <!-- Subjects Tab -->
+        @if (activeTab === 'subjects') {
+        <app-subjects-table [subjects]="pagedSubjects" [years]="years" [categories]="categories" [teachers]="teachers"
+          [totalPages]="subjectTotalPages" [currentPage]="subjectPage" [totalItems]="filteredSubjects.length"
+          (pageChange)="goSubjectPage($event)" (edit)="openEdit('subject', $event)"
+          (delete)="confirmDelete('subject', $event)" (add)="openAdd('subject')">
+        </app-subjects-table>
+        }
+
+        <!-- Terms Tab -->
+        @if (activeTab === 'terms') {
+        <div class="mb-4 flex justify-end">
+          <button type="button" (click)="openAdd('term')"
+            class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>Add Term</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto bg-white rounded-lg shadow">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term Number
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date
+                </th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for (term of pagedTerms; track term.id) {
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ term.id }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Term {{ term.termNumber }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  @if (getSubjectById(term.subjectId); as subject) {
+                  {{ getSubjectDisplayName(subject) }}
+                  } @else {
+                  N/A
+                  }
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ term.startDate || 'N/A' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex items-center justify-end gap-2">
+                    <button (click)="openEdit('term', term)" class="text-blue-600 hover:text-blue-900">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button (click)="confirmDelete('term', term)" class="text-red-600 hover:text-red-900">
+                      <i class="fas fa-trash"></i>
                     </button>
                   </div>
-                  <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                    <div>
-                      <p class="text-xs sm:text-sm text-gray-700">
-                        Showing
-                        <span class="font-medium">{{ snStart }}</span>
-                        to
-                        <span class="font-medium">{{ snEnd }}</span>
-                        of
-                        <span class="font-medium">{{ filteredSubjectNames.length }}</span>
-                        results
-                      </p>
-                    </div>
-                    <div>
-                      <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        <button
-                          [disabled]="subjectNamePage === 1"
-                          (click)="goSubjectNamePage(1)"
-                          class="relative inline-flex items-center px-2 sm:px-3 py-2 rounded-l-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                          <i class="fas fa-angle-double-left"></i>
-                        </button>
-                        <button
-                          [disabled]="subjectNamePage === 1"
-                          (click)="goSubjectNamePage(subjectNamePage - 1)"
-                          class="relative inline-flex items-center px-2 sm:px-3 py-2 border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                          <i class="fas fa-chevron-left"></i>
-                        </button>
-                        @for (p of [].constructor(subjectNameTotalPages); track $index; let j = $index) {
-                          @if (j + 1 === 1 || j + 1 === subjectNameTotalPages || (j + 1 >= subjectNamePage - 1 && j + 1 <= subjectNamePage + 1)) {
-                            <button
-                              (click)="goSubjectNamePage(j + 1)"
-                              [class.bg-blue-50]="subjectNamePage === j + 1"
-                              [class.border-blue-500]="subjectNamePage === j + 1"
-                              [class.text-blue-600]="subjectNamePage === j + 1"
-                              [class.bg-white]="subjectNamePage !== j + 1"
-                              [class.text-gray-500]="subjectNamePage !== j + 1"
-                              class="relative inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 text-xs sm:text-sm font-medium hover:bg-gray-50">
-                              {{ j + 1 }}
-                            </button>
-                          } @else if (j + 1 === subjectNamePage - 2 || j + 1 === subjectNamePage + 2) {
-                            <span class="relative inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700">
-                              ...
-                            </span>
-                          }
-                        }
-                        <button
-                          [disabled]="subjectNamePage === subjectNameTotalPages"
-                          (click)="goSubjectNamePage(subjectNamePage + 1)"
-                          class="relative inline-flex items-center px-2 sm:px-3 py-2 border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                          <i class="fas fa-chevron-right"></i>
-                        </button>
-                        <button
-                          [disabled]="subjectNamePage === subjectNameTotalPages"
-                          (click)="goSubjectNamePage(subjectNameTotalPages)"
-                          class="relative inline-flex items-center px-2 sm:px-3 py-2 rounded-r-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                          <i class="fas fa-angle-double-right"></i>
-                        </button>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                  <i class="fas fa-calendar-alt text-4xl mb-2"></i>
+                  <p>No terms found</p>
+                </td>
+              </tr>
               }
-            </div>
-          }
-
-          <!-- Subjects Tab -->
-          @if (activeTab === 'subjects') {
-            <app-subjects-table
-              [subjects]="pagedSubjects"
-              [years]="years"
-              [categories]="categories"
-              [teachers]="teachers"
-              [totalPages]="subjectTotalPages"
-              [currentPage]="subjectPage"
-              [totalItems]="filteredSubjects.length"
-              (pageChange)="goSubjectPage($event)"
-              (edit)="openEdit('subject', $event)"
-              (delete)="confirmDelete('subject', $event)"
-              (add)="openAdd('subject')">
-            </app-subjects-table>
-          }
-
-          <!-- Terms Tab -->
-          @if (activeTab === 'terms') {
-            <div class="mb-4 flex justify-end">
-              <button
-                type="button"
-                (click)="openAdd('term')"
-                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                <span>Add Term</span>
-              </button>
-            </div>
-
-            <div class="overflow-x-auto bg-white rounded-lg shadow">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term Number</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  @for (term of pagedTerms; track term.id) {
-                    <tr class="hover:bg-gray-50">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ term.id }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Term {{ term.termNumber }}</td>
-                      <td class="px-6 py-4 text-sm text-gray-900">
-                        @if (getSubjectById(term.subjectId); as subject) {
-                          {{ getSubjectDisplayName(subject) }}
-                        } @else {
-                          N/A
-                        }
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ term.startDate || 'N/A' }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex items-center justify-end gap-2">
-                          <button
-                            (click)="openEdit('term', term)"
-                            class="text-blue-600 hover:text-blue-900">
-                            <i class="fas fa-edit"></i>
-                          </button>
-                          <button
-                            (click)="confirmDelete('term', term)"
-                            class="text-red-600 hover:text-red-900">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  } @empty {
-                    <tr>
-                      <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                        <i class="fas fa-calendar-alt text-4xl mb-2"></i>
-                        <p>No terms found</p>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-
-            <div class="mt-4 flex justify-between items-center">
-              <div class="text-sm text-gray-700">
-                Showing {{ (termPage - 1) * pageSize + 1 }} to {{ Math.min(termPage * pageSize, filteredTerms.length) }} of {{ filteredTerms.length }} terms
-              </div>
-              <div class="flex gap-2">
-                <button
-                  [disabled]="termPage <= 1"
-                  (click)="goTermPage(termPage - 1)"
-                  class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
-                  Previous
-                </button>
-                <span class="px-4 py-1 text-sm">Page {{ termPage }} of {{ termTotalPages }}</span>
-                <button
-                  [disabled]="termPage >= termTotalPages"
-                  (click)="goTermPage(termPage + 1)"
-                  class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
-                  Next
-                </button>
-              </div>
-            </div>
-          }
-
-          <!-- Weeks Tab -->
-          @if (activeTab === 'weeks') {
-            <div class="mb-4 flex justify-end">
-              <button
-                type="button"
-                (click)="openAdd('week')"
-                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                <span>Add Week</span>
-              </button>
-            </div>
-
-            <div class="overflow-x-auto bg-white rounded-lg shadow">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Week Number</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  @for (week of pagedWeeks; track week.id) {
-                    <tr class="hover:bg-gray-50">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ week.id }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Week {{ week.weekNumber }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        @if (getTermById(week.termId); as term) {
-                          Term {{ term.termNumber }}
-                        } @else {
-                          N/A
-                        }
-                      </td>
-                      <td class="px-6 py-4 text-sm text-gray-900">
-                        @if (getTermById(week.termId); as term) {
-                          @if (getSubjectById(term.subjectId); as subject) {
-                            {{ getSubjectDisplayName(subject) }}
-                          } @else {
-                            N/A
-                          }
-                        } @else {
-                          N/A
-                        }
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex items-center justify-end gap-2">
-                          <button
-                            (click)="openEdit('week', week)"
-                            class="text-blue-600 hover:text-blue-900">
-                            <i class="fas fa-edit"></i>
-                          </button>
-                          <button
-                            (click)="confirmDelete('week', week)"
-                            class="text-red-600 hover:text-red-900">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  } @empty {
-                    <tr>
-                      <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                        <i class="fas fa-clock text-4xl mb-2"></i>
-                        <p>No weeks found</p>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-
-            <div class="mt-4 flex justify-between items-center">
-              <div class="text-sm text-gray-700">
-                Showing {{ (weekPage - 1) * pageSize + 1 }} to {{ Math.min(weekPage * pageSize, filteredWeeks.length) }} of {{ filteredWeeks.length }} weeks
-              </div>
-              <div class="flex gap-2">
-                <button
-                  [disabled]="weekPage <= 1"
-                  (click)="goWeekPage(weekPage - 1)"
-                  class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
-                  Previous
-                </button>
-                <span class="px-4 py-1 text-sm">Page {{ weekPage }} of {{ weekTotalPages }}</span>
-                <button
-                  [disabled]="weekPage >= weekTotalPages"
-                  (click)="goWeekPage(weekPage + 1)"
-                  class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
-                  Next
-                </button>
-              </div>
-            </div>
-          }
-
-          <!-- Lessons Tab -->
-          @if (activeTab === 'lessons') {
-            <app-lessons-table
-              [lessons]="pagedLessons"
-              [weeks]="weeks"
-              [subjects]="subjects"
-              [totalPages]="lessonTotalPages"
-              [currentPage]="lessonPage"
-              [totalItems]="filteredLessons.length"
-              (pageChange)="goLessonPage($event)"
-              (edit)="openEdit('lesson', $event)"
-              (delete)="confirmDelete('lesson', $event)"
-              (add)="openAdd('lesson')"
-              (manageResources)="manageResources($event)"
-              (preview)="openLessonPreview($event)"
-              (approve)="approveLesson($event)"
-              (reject)="rejectLesson($event)">
-            </app-lessons-table>
-          }
-
+            </tbody>
+          </table>
         </div>
+
+        <div class="mt-4 flex justify-between items-center">
+          <div class="text-sm text-gray-700">
+            Showing {{ (termPage - 1) * pageSize + 1 }} to {{ Math.min(termPage * pageSize, filteredTerms.length) }} of
+            {{ filteredTerms.length }} terms
+          </div>
+          <div class="flex gap-2">
+            <button [disabled]="termPage <= 1" (click)="goTermPage(termPage - 1)"
+              class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+              Previous
+            </button>
+            <span class="px-4 py-1 text-sm">Page {{ termPage }} of {{ termTotalPages }}</span>
+            <button [disabled]="termPage >= termTotalPages" (click)="goTermPage(termPage + 1)"
+              class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+              Next
+            </button>
+          </div>
+        </div>
+        }
+
+        <!-- Weeks Tab -->
+        @if (activeTab === 'weeks') {
+        <div class="mb-4 flex justify-end">
+          <button type="button" (click)="openAdd('week')"
+            class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 font-medium flex items-center gap-2 shadow-md">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>Add Week</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto bg-white rounded-lg shadow">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Week Number
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for (week of pagedWeeks; track week.id) {
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ week.id }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Week {{ week.weekNumber }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  @if (getTermById(week.termId); as term) {
+                  Term {{ term.termNumber }}
+                  } @else {
+                  N/A
+                  }
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  @if (getTermById(week.termId); as term) {
+                  @if (getSubjectById(term.subjectId); as subject) {
+                  {{ getSubjectDisplayName(subject) }}
+                  } @else {
+                  N/A
+                  }
+                  } @else {
+                  N/A
+                  }
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex items-center justify-end gap-2">
+                    <button (click)="openEdit('week', week)" class="text-blue-600 hover:text-blue-900">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button (click)="confirmDelete('week', week)" class="text-red-600 hover:text-red-900">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                  <i class="fas fa-clock text-4xl mb-2"></i>
+                  <p>No weeks found</p>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 flex justify-between items-center">
+          <div class="text-sm text-gray-700">
+            Showing {{ (weekPage - 1) * pageSize + 1 }} to {{ Math.min(weekPage * pageSize, filteredWeeks.length) }} of
+            {{ filteredWeeks.length }} weeks
+          </div>
+          <div class="flex gap-2">
+            <button [disabled]="weekPage <= 1" (click)="goWeekPage(weekPage - 1)"
+              class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+              Previous
+            </button>
+            <span class="px-4 py-1 text-sm">Page {{ weekPage }} of {{ weekTotalPages }}</span>
+            <button [disabled]="weekPage >= weekTotalPages" (click)="goWeekPage(weekPage + 1)"
+              class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+              Next
+            </button>
+          </div>
+        </div>
+        }
+
+        <!-- Lessons Tab -->
+        @if (activeTab === 'lessons') {
+        <app-lessons-table [lessons]="pagedLessons" [weeks]="weeks" [subjects]="subjects"
+          [totalPages]="lessonTotalPages" [currentPage]="lessonPage" [totalItems]="filteredLessons.length"
+          (pageChange)="goLessonPage($event)" (edit)="openEdit('lesson', $event)"
+          (delete)="confirmDelete('lesson', $event)" (add)="openAdd('lesson')"
+          (manageResources)="manageResources($event)" (preview)="openLessonPreview($event)"
+          (approve)="approveLesson($event)" (reject)="rejectLesson($event)">
+        </app-lessons-table>
+        }
+
       </div>
     </div>
+  </div>
 
-  </main>
+</main>
 
 <!-- Modals -->
-<app-content-modal
-  [(isOpen)]="isFormOpen"
-  [mode]="formMode"
-  [entityType]="entityType"
-  [formData]="form"
-  [years]="years"
-  [categories]="categories"
-  [subjectNames]="subjectNames"
-  [subjects]="subjects"
-  [terms]="terms"
-  [weeks]="weeks"
-  [teachers]="teachers"
-  (save)="submitForm($event)"
-  (cancel)="closeForm()">
+<app-content-modal [(isOpen)]="isFormOpen" [mode]="formMode" [entityType]="entityType" [formData]="form" [years]="years"
+  [categories]="categories" [subjectNames]="subjectNames" [subjects]="subjects" [terms]="terms" [weeks]="weeks"
+  [teachers]="teachers" (save)="submitForm($event)" (cancel)="closeForm()">
 </app-content-modal>
 
-<app-resource-modal
-  [(isOpen)]="resourceModalOpen"
-  [lesson]="selectedLesson"
-  [resources]="lessonResources"
-  (addResource)="openAddResource()"
-  (deleteResource)="deleteResource($event)"
-  (close)="closeResourceModal()">
+<app-resource-modal [(isOpen)]="resourceModalOpen" [lesson]="selectedLesson" [resources]="lessonResources"
+  (addResource)="openAddResource()" (deleteResource)="deleteResource($event)" (close)="closeResourceModal()">
 </app-resource-modal>
 
-<app-resource-form-modal
-  [(isOpen)]="resourceFormOpen"
-  [formData]="resourceForm"
-  (save)="saveResource($event)"
+<app-resource-form-modal [(isOpen)]="resourceFormOpen" [formData]="resourceForm" (save)="saveResource($event)"
   (cancel)="closeResourceForm()">
 </app-resource-form-modal>
 
-<app-preview-modal
-  [(isOpen)]="previewOpen"
-  [preview]="preview"
-  (close)="closePreview()">
+<app-preview-modal [(isOpen)]="previewOpen" [preview]="preview" (close)="closePreview()">
 </app-preview-modal>

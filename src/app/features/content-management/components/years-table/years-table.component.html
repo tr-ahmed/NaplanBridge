@@ -20,35 +20,29 @@
       </thead>
       <tbody>
         @for (year of years; track year.id) {
-          <tr>
-            <td>
-              <strong class="text-primary">Year {{ year.yearNumber }}</strong>
-            </td>
-            <td class="text-end">
-              <div class="btn-group" role="group">
-                <button
-                  class="btn btn-sm btn-outline-secondary"
-                  (click)="onEdit(year)"
-                  title="Edit">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  class="btn btn-sm btn-outline-danger"
-                  (click)="onDelete(year)"
-                  title="Delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
+        <tr>
+          <td>
+            <strong class="text-primary">{{ getYearDisplayLabel(year) }}</strong>
+          </td>
+          <td class="text-end">
+            <div class="btn-group" role="group">
+              <button class="btn btn-sm btn-outline-secondary" (click)="onEdit(year)" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="onDelete(year)" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
         }
         @empty {
-          <tr>
-            <td colspan="2" class="text-center text-muted py-4">
-              <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-              No years found
-            </td>
-          </tr>
+        <tr>
+          <td colspan="2" class="text-center text-muted py-4">
+            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+            No years found
+          </td>
+        </tr>
         }
       </tbody>
     </table>
@@ -56,29 +50,29 @@
 
   <!-- Pagination -->
   @if (totalPages > 1) {
-    <div class="pagination-container">
-      <nav aria-label="Years pagination">
-        <ul class="pagination justify-content-center mb-0">
-          <li class="page-item" [class.disabled]="currentPage === 1">
-            <a class="page-link" (click)="onPageChange(currentPage - 1)" aria-label="Previous">
-              <span aria-hidden="true">&laquo;</span>
-            </a>
-          </li>
-          @for (page of getPageNumbers(); track page) {
-            <li class="page-item" [class.active]="currentPage === page">
-              <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
-            </li>
-          }
-          <li class="page-item" [class.disabled]="currentPage === totalPages">
-            <a class="page-link" (click)="onPageChange(currentPage + 1)" aria-label="Next">
-              <span aria-hidden="true">&raquo;</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-      <div class="text-center text-muted mt-2">
-        <small>Showing {{ years.length }} of {{ totalItems }} years</small>
-      </div>
+  <div class="pagination-container">
+    <nav aria-label="Years pagination">
+      <ul class="pagination justify-content-center mb-0">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="onPageChange(currentPage - 1)" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        @for (page of getPageNumbers(); track page) {
+        <li class="page-item" [class.active]="currentPage === page">
+          <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+        </li>
+        }
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <a class="page-link" (click)="onPageChange(currentPage + 1)" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="text-center text-muted mt-2">
+      <small>Showing {{ years.length }} of {{ totalItems }} years</small>
     </div>
+  </div>
   }
 </div>

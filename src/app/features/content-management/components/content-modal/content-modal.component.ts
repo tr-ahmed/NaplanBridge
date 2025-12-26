@@ -510,11 +510,22 @@ export class ContentModalComponent implements OnChanges, OnInit {
   }
 
   /**
+   * Get year display label - Returns "Courses" for yearNumber 0, otherwise "Year {number}"
+   */
+  getYearLabel(year: any): string {
+    if (!year) return 'N/A';
+    if (year.yearNumber === 0) {
+      return 'Courses';
+    }
+    return `Year ${year.yearNumber}`;
+  }
+
+  /**
    * Get formatted subject display with hierarchy info
    */
   getSubjectDisplay(subject: any): string {
     const year = this.years.find(y => y.id === subject.yearId);
-    const yearText = year ? `Year ${year.yearNumber}` : '';
+    const yearText = year ? this.getYearLabel(year) : '';
     const categoryText = subject.categoryName || '';
     const subjectText = subject.subjectName || '';
 
@@ -529,7 +540,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
     if (!subject) return `Term ${term.termNumber}`;
 
     const year = this.years.find(y => y.id === subject.yearId);
-    const yearText = year ? `Year ${year.yearNumber}` : '';
+    const yearText = year ? this.getYearLabel(year) : '';
     const subjectText = subject.subjectName || '';
     const termText = `Term ${term.termNumber}`;
 
@@ -547,7 +558,7 @@ export class ContentModalComponent implements OnChanges, OnInit {
     if (!subject) return `Week ${week.weekNumber}`;
 
     const year = this.years.find(y => y.id === subject.yearId);
-    const yearText = year ? `Year ${year.yearNumber}` : '';
+    const yearText = year ? this.getYearLabel(year) : '';
     const subjectText = subject.subjectName || '';
     const termText = `Term ${term.termNumber}`;
     const weekText = `Week ${week.weekNumber}`;

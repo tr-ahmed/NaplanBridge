@@ -3,202 +3,159 @@
   <div class="hierarchy-item year-item">
     <div class="hierarchy-content">
       <i class="fas fa-calendar-alt text-primary me-2"></i>
-      <strong>Year {{ year.yearNumber }}</strong>
+      <strong>{{ getYearDisplayLabel() }}</strong>
       <span class="badge bg-info ms-2">{{ getSubjectsForYear().length }} Subjects</span>
 
       @if (!isTeacherView) {
-        <div class="actions ms-auto">
-          <button
-            class="btn btn-sm btn-outline-success"
-            (click)="onAdd('subject', { year: year })"
-            title="Add Subject for this Year">
-            <i class="fas fa-plus"></i> Subject
-          </button>
-        </div>
+      <div class="actions ms-auto">
+        <button class="btn btn-sm btn-outline-success" (click)="onAdd('subject', { year: year })"
+          title="Add Subject for this Year">
+          <i class="fas fa-plus"></i> Subject
+        </button>
+      </div>
       }
     </div>
   </div>
 
   <!-- Subjects Level -->
   @for (subject of getSubjectsForYear(); track subject.id) {
-    <div class="hierarchy-item subject-item ms-4">
-      <div class="hierarchy-content">
-        <button
-          class="btn btn-sm btn-link toggle-btn p-0 me-2"
-          (click)="toggleSubject(subject.id!)"
-          type="button">
-          <i [class]="isSubjectExpanded(subject.id!) ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
+  <div class="hierarchy-item subject-item ms-4">
+    <div class="hierarchy-content">
+      <button class="btn btn-sm btn-link toggle-btn p-0 me-2" (click)="toggleSubject(subject.id!)" type="button">
+        <i [class]="isSubjectExpanded(subject.id!) ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
+      </button>
+      <i class="fas fa-book text-info me-2"></i>
+      <strong>{{ subject.subjectName || 'Subject' }}</strong>
+
+      <div class="actions ms-auto">
+        <button class="btn btn-sm btn-outline-primary me-1" (click)="onAdd('term', { subject: subject, year: year })"
+          title="Add Term">
+          <i class="fas fa-plus"></i> Term
         </button>
-        <i class="fas fa-book text-info me-2"></i>
-        <strong>{{ subject.subjectName || 'Subject' }}</strong>
-
-        <div class="actions ms-auto">
-          <button
-            class="btn btn-sm btn-outline-primary me-1"
-            (click)="onAdd('term', { subject: subject, year: year })"
-            title="Add Term">
-            <i class="fas fa-plus"></i> Term
-          </button>
-          <button
-            class="btn btn-sm btn-outline-secondary me-1"
-            (click)="onEdit('subject', subject)"
-            title="Edit Subject">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button
-            class="btn btn-sm btn-outline-danger"
-            (click)="onDelete('subject', subject)"
-            title="Delete Subject">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
+        <button class="btn btn-sm btn-outline-secondary me-1" (click)="onEdit('subject', subject)" title="Edit Subject">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger" (click)="onDelete('subject', subject)" title="Delete Subject">
+          <i class="fas fa-trash"></i>
+        </button>
       </div>
+    </div>
 
-      <!-- Terms Level -->
-      @if (isSubjectExpanded(subject.id!)) {
+    <!-- Terms Level -->
+    @if (isSubjectExpanded(subject.id!)) {
+    <div class="hierarchy-children">
+      @for (term of getTermsForSubject(subject.id!); track term.id) {
+      <div class="hierarchy-item term-item ms-4">
+        <div class="hierarchy-content">
+          <button class="btn btn-sm btn-link toggle-btn p-0 me-2" (click)="toggleTerm(term.id!)" type="button">
+            <i [class]="isTermExpanded(term.id!) ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
+          </button>
+          <i class="fas fa-chart-line text-warning me-2"></i>
+          <strong>Term {{ term.termNumber }}</strong>
+
+          <div class="actions ms-auto">
+            <button class="btn btn-sm btn-outline-primary me-1"
+              (click)="onAdd('week', { term: term, subject: subject, year: year })" title="Add Week">
+              <i class="fas fa-plus"></i> Week
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-1" (click)="onEdit('term', term)" title="Edit Term">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="onDelete('term', term)" title="Delete Term">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Weeks Level -->
+        @if (isTermExpanded(term.id!)) {
         <div class="hierarchy-children">
-          @for (term of getTermsForSubject(subject.id!); track term.id) {
-            <div class="hierarchy-item term-item ms-4">
-              <div class="hierarchy-content">
-                <button
-                  class="btn btn-sm btn-link toggle-btn p-0 me-2"
-                  (click)="toggleTerm(term.id!)"
-                  type="button">
-                  <i [class]="isTermExpanded(term.id!) ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
-                </button>
-                <i class="fas fa-chart-line text-warning me-2"></i>
-                <strong>Term {{ term.termNumber }}</strong>
+          @for (week of getWeeksForTerm(term.id!); track week.id) {
+          <div class="hierarchy-item week-item ms-4">
+            <div class="hierarchy-content">
+              <button class="btn btn-sm btn-link toggle-btn p-0 me-2" (click)="toggleWeek(week.id!)" type="button">
+                <i [class]="isWeekExpanded(week.id!) ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
+              </button>
+              <i class="fas fa-calendar-week text-danger me-2"></i>
+              <strong>Week {{ week.weekNumber }}</strong>
 
-                <div class="actions ms-auto">
-                  <button
-                    class="btn btn-sm btn-outline-primary me-1"
-                    (click)="onAdd('week', { term: term, subject: subject, year: year })"
-                    title="Add Week">
-                    <i class="fas fa-plus"></i> Week
-                  </button>
-                  <button
-                    class="btn btn-sm btn-outline-secondary me-1"
-                    (click)="onEdit('term', term)"
-                    title="Edit Term">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm btn-outline-danger"
-                    (click)="onDelete('term', term)"
-                    title="Delete Term">
-                    <i class="fas fa-trash"></i>
-                  </button>
+              <div class="actions ms-auto">
+                <button class="btn btn-sm btn-outline-primary me-1"
+                  (click)="onAdd('lesson', { week: week, term: term, subject: subject, year: year })"
+                  title="Add Lesson">
+                  <i class="fas fa-plus"></i> Lesson
+                </button>
+                <button class="btn btn-sm btn-outline-secondary me-1" (click)="onEdit('week', week)" title="Edit Week">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="onDelete('week', week)" title="Delete Week">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Lessons Level -->
+            @if (isWeekExpanded(week.id!)) {
+            <div class="hierarchy-children">
+              @for (lesson of getLessonsForWeek(week.id!); track lesson.id) {
+              <div class="hierarchy-item lesson-item ms-4">
+                <div class="hierarchy-content">
+                  <i class="fas fa-graduation-cap text-purple me-2"></i>
+                  <strong class="lesson-title-link" (click)="onLessonClick(lesson)"
+                    style="cursor: pointer; color: #6366f1; text-decoration: underline;" title="Click to manage lesson">
+                    {{ lesson.title }}
+                  </strong>
+                  @if (lesson.description) {
+                  <span class="text-muted ms-2">- {{ lesson.description }}</span>
+                  }
+
+                  <div class="actions ms-auto">
+                    <button class="btn btn-sm btn-outline-info me-1" (click)="onLessonClick(lesson)"
+                      title="Manage Lesson">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary me-1" (click)="onEdit('lesson', lesson)"
+                      title="Edit Lesson">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="onDelete('lesson', lesson)"
+                      title="Delete Lesson">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <!-- Weeks Level -->
-              @if (isTermExpanded(term.id!)) {
-                <div class="hierarchy-children">
-                  @for (week of getWeeksForTerm(term.id!); track week.id) {
-                    <div class="hierarchy-item week-item ms-4">
-                      <div class="hierarchy-content">
-                        <button
-                          class="btn btn-sm btn-link toggle-btn p-0 me-2"
-                          (click)="toggleWeek(week.id!)"
-                          type="button">
-                          <i [class]="isWeekExpanded(week.id!) ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
-                        </button>
-                        <i class="fas fa-calendar-week text-danger me-2"></i>
-                        <strong>Week {{ week.weekNumber }}</strong>
-
-                        <div class="actions ms-auto">
-                          <button
-                            class="btn btn-sm btn-outline-primary me-1"
-                            (click)="onAdd('lesson', { week: week, term: term, subject: subject, year: year })"
-                            title="Add Lesson">
-                            <i class="fas fa-plus"></i> Lesson
-                          </button>
-                          <button
-                            class="btn btn-sm btn-outline-secondary me-1"
-                            (click)="onEdit('week', week)"
-                            title="Edit Week">
-                            <i class="fas fa-edit"></i>
-                          </button>
-                          <button
-                            class="btn btn-sm btn-outline-danger"
-                            (click)="onDelete('week', week)"
-                            title="Delete Week">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      </div>
-
-                      <!-- Lessons Level -->
-                      @if (isWeekExpanded(week.id!)) {
-                        <div class="hierarchy-children">
-                          @for (lesson of getLessonsForWeek(week.id!); track lesson.id) {
-                            <div class="hierarchy-item lesson-item ms-4">
-                              <div class="hierarchy-content">
-                                <i class="fas fa-graduation-cap text-purple me-2"></i>
-                                <strong
-                                  class="lesson-title-link"
-                                  (click)="onLessonClick(lesson)"
-                                  style="cursor: pointer; color: #6366f1; text-decoration: underline;"
-                                  title="Click to manage lesson">
-                                  {{ lesson.title }}
-                                </strong>
-                                @if (lesson.description) {
-                                  <span class="text-muted ms-2">- {{ lesson.description }}</span>
-                                }
-
-                                <div class="actions ms-auto">
-                                  <button
-                                    class="btn btn-sm btn-outline-info me-1"
-                                    (click)="onLessonClick(lesson)"
-                                    title="Manage Lesson">
-                                    <i class="fas fa-eye"></i>
-                                  </button>
-                                  <button
-                                    class="btn btn-sm btn-outline-secondary me-1"
-                                    (click)="onEdit('lesson', lesson)"
-                                    title="Edit Lesson">
-                                    <i class="fas fa-edit"></i>
-                                  </button>
-                                  <button
-                                    class="btn btn-sm btn-outline-danger"
-                                    (click)="onDelete('lesson', lesson)"
-                                    title="Delete Lesson">
-                                    <i class="fas fa-trash"></i>
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          }
-                          @empty {
-                            <div class="hierarchy-item empty-item ms-4">
-                              <em class="text-muted">No lessons yet</em>
-                            </div>
-                          }
-                        </div>
-                      }
-                    </div>
-                  }
-                  @empty {
-                    <div class="hierarchy-item empty-item ms-4">
-                      <em class="text-muted">No weeks yet</em>
-                    </div>
-                  }
-                </div>
+              }
+              @empty {
+              <div class="hierarchy-item empty-item ms-4">
+                <em class="text-muted">No lessons yet</em>
+              </div>
               }
             </div>
+            }
+          </div>
           }
           @empty {
-            <div class="hierarchy-item empty-item ms-4">
-              <em class="text-muted">No terms yet</em>
-            </div>
+          <div class="hierarchy-item empty-item ms-4">
+            <em class="text-muted">No weeks yet</em>
+          </div>
           }
         </div>
+        }
+      </div>
+      }
+      @empty {
+      <div class="hierarchy-item empty-item ms-4">
+        <em class="text-muted">No terms yet</em>
+      </div>
       }
     </div>
+    }
+  </div>
   }
   @empty {
-    <div class="hierarchy-item empty-item ms-4">
-      <em class="text-muted">No subjects yet</em>
-    </div>
+  <div class="hierarchy-item empty-item ms-4">
+    <em class="text-muted">No subjects yet</em>
+  </div>
   }
 </div>

@@ -1467,12 +1467,31 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   // Display Name Helper Methods
   // ============================================
 
+  /**
+   * Get year display label - Returns "Courses" for yearNumber 0, otherwise "Year {number}"
+   */
+  getYearLabel(yearNumber: number | null | undefined): string {
+    if (yearNumber === 0) {
+      return 'Courses';
+    }
+    return yearNumber ? `Year ${yearNumber}` : 'N/A';
+  }
+
+  /**
+   * Get year label from Year object
+   */
+  getYearLabelFromYear(year: Year | undefined): string {
+    if (!year) return 'N/A';
+    return this.getYearLabel(year.yearNumber);
+  }
+
   getSubjectDisplayName(subject: Subject): string {
     const year = this.years.find(y => y.id === subject.yearId);
     const category = this.categories.find(c => c.id === subject.categoryId);
     const subjectName = this.subjectNames.find(s => s.id === subject.subjectNameId);
 
-    return `${subjectName?.name || 'N/A'} - Year ${year?.yearNumber || 'N/A'} - ${category?.name || 'N/A'}`;
+    const yearLabel = this.getYearLabelFromYear(year);
+    return `${subjectName?.name || 'N/A'} - ${yearLabel} - ${category?.name || 'N/A'}`;
   }
 
   getSubjectById(subjectId: number): Subject | undefined {

@@ -126,4 +126,14 @@ export class HierarchyNodeComponent implements OnChanges {
   onPreviewLesson(lesson: Lesson): void {
     this.preview.emit(lesson);
   }
+
+  /**
+   * Get year display label - Returns "Courses" for yearNumber 0, otherwise "Year {number}"
+   */
+  getYearDisplayLabel(): string {
+    if (this.year.yearNumber === 0) {
+      return 'Courses';
+    }
+    return `Year ${this.year.yearNumber}`;
+  }
 }

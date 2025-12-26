@@ -45,4 +45,14 @@ export class YearsTableComponent {
     }
     return pages;
   }
+
+  /**
+   * Get year display label - Returns "Courses" for yearNumber 0, otherwise "Year {number}"
+   */
+  getYearDisplayLabel(year: Year): string {
+    if (year.yearNumber === 0) {
+      return 'Courses';
+    }
+    return `Year ${year.yearNumber}`;
+  }
 }

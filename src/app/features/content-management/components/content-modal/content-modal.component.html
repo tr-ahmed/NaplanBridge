@@ -1,846 +1,705 @@
 @if (isOpen) {
-  <!-- Modal Backdrop -->
-  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="onBackdropClick($event)">
-    <!-- Modal Content -->
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600">
-        <h2 class="text-2xl font-bold text-white">
-          <i class="fas fa-{{ mode === 'add' ? 'plus-circle' : 'edit' }} mr-2"></i>
-          {{ mode === 'add' ? 'Add' : 'Edit' }} {{ getEntityTitle() }}
-        </h2>
-        <button
-          type="button"
-          (click)="onCancel()"
-          class="text-white hover:text-gray-200 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+  (click)="onBackdropClick($event)">
+  <!-- Modal Content -->
+  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+    (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div
+      class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600">
+      <h2 class="text-2xl font-bold text-white">
+        <i class="fas fa-{{ mode === 'add' ? 'plus-circle' : 'edit' }} mr-2"></i>
+        {{ mode === 'add' ? 'Add' : 'Edit' }} {{ getEntityTitle() }}
+      </h2>
+      <button type="button" (click)="onCancel()" class="text-white hover:text-gray-200 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
 
-      <!-- Modal Body -->
-      <div class="p-6">
-        <form #contentForm="ngForm" class="space-y-4">
+    <!-- Modal Body -->
+    <div class="p-6">
+      <form #contentForm="ngForm" class="space-y-4">
 
-          <!-- Year Form -->
-          @if (entityType === 'year') {
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Year Number <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="yearNumber"
-                  [(ngModel)]="formData.yearNumber"
-                  (ngModelChange)="onFieldChange('yearNumber', $event)"
-                  (blur)="markFieldTouched('yearNumber')"
-                  required
-                  min="1"
-                  max="12"
-                  [class.input-error]="hasError('yearNumber')"
-                  [class.input-valid]="isFieldValid('yearNumber')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('yearNumber')">
-                @if (hasError('yearNumber')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('yearNumber') }}
-                  </span>
-                }
-              </div>
+        <!-- Year Form -->
+        @if (entityType === 'year') {
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Year Number <span class="text-red-500">*</span>
+            </label>
+            <input type="number" name="yearNumber" [(ngModel)]="formData.yearNumber"
+              (ngModelChange)="onFieldChange('yearNumber', $event)" (blur)="markFieldTouched('yearNumber')" required
+              min="1" max="12" [class.input-error]="hasError('yearNumber')"
+              [class.input-valid]="isFieldValid('yearNumber')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('yearNumber')">
+            @if (hasError('yearNumber')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('yearNumber') }}
+            </span>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Category Form -->
+        @if (entityType === 'category') {
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Category Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="name" [(ngModel)]="formData.name" (ngModelChange)="onFieldChange('name', $event)"
+              (blur)="markFieldTouched('name')" required [class.input-error]="hasError('name')"
+              [class.input-valid]="isFieldValid('name')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('name')">
+            @if (hasError('name')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('name') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Description
+            </label>
+            <textarea name="description" [(ngModel)]="formData.description"
+              (ngModelChange)="onFieldChange('description', $event)" rows="3"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('description')"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Color
+            </label>
+            <div class="flex items-center gap-3">
+              <input type="color" name="color" [(ngModel)]="formData.color"
+                class="h-10 w-20 border border-gray-300 rounded-lg cursor-pointer">
+              <span class="text-sm text-gray-600">{{ formData.color || '#3B82F6' }}</span>
             </div>
-          }
+          </div>
+        </div>
+        }
 
-          <!-- Category Form -->
-          @if (entityType === 'category') {
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Category Name <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  [(ngModel)]="formData.name"
-                  (ngModelChange)="onFieldChange('name', $event)"
-                  (blur)="markFieldTouched('name')"
-                  required
-                  [class.input-error]="hasError('name')"
-                  [class.input-valid]="isFieldValid('name')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('name')">
-                @if (hasError('name')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('name') }}
-                  </span>
-                }
-              </div>
+        <!-- Subject Name Form -->
+        @if (entityType === 'subjectName') {
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Category <span class="text-red-500">*</span>
+              <span class="text-xs text-gray-500 mr-2">(Select category first)</span>
+            </label>
+            <select name="categoryId" [(ngModel)]="formData.categoryId"
+              (ngModelChange)="onFieldChange('categoryId', $event)" (blur)="markFieldTouched('categoryId')" required
+              [class.input-error]="hasError('categoryId')" [class.input-valid]="isFieldValid('categoryId')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+              <option value="" disabled selected>Select Category</option>
+              <option *ngFor="let cat of filteredCategories" [value]="cat.id">
+                {{ cat.name }}
+              </option>
+            </select>
+            @if (hasError('categoryId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('categoryId') }}
+            </span>
+            }
+          </div>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  [(ngModel)]="formData.description"
-                  (ngModelChange)="onFieldChange('description', $event)"
-                  rows="3"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('description')"></textarea>
-              </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Subject Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="name" [(ngModel)]="formData.name" (ngModelChange)="onFieldChange('name', $event)"
+              (blur)="markFieldTouched('name')" required [class.input-error]="hasError('name')"
+              [class.input-valid]="isFieldValid('name')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('name')">
+            @if (hasError('name')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('name') }}
+            </span>
+            }
+          </div>
+        </div>
+        }
 
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Color
-                </label>
-                <div class="flex items-center gap-3">
-                  <input
-                    type="color"
-                    name="color"
-                    [(ngModel)]="formData.color"
-                    class="h-10 w-20 border border-gray-300 rounded-lg cursor-pointer">
-                  <span class="text-sm text-gray-600">{{ formData.color || '#3B82F6' }}</span>
-                </div>
-              </div>
-            </div>
-          }
+        <!-- Subject Form -->
+        @if (entityType === 'subject') {
+        <div class="space-y-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-blue-800">
+              <i class="fas fa-info-circle mr-2"></i>
+              @if (mode === 'add') {
+              <strong>Note:</strong> Select year and category first to update available options automatically
+              }
+              @if (mode === 'edit') {
+              <strong>Note:</strong> Year, Subject Name, and Start Date cannot be changed after creation
+              }
+            </p>
+          </div>
 
-          <!-- Subject Name Form -->
-          @if (entityType === 'subjectName') {
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Category <span class="text-red-500">*</span>
-                  <span class="text-xs text-gray-500 mr-2">(Select category first)</span>
-                </label>
-                <select
-                  name="categoryId"
-                  [(ngModel)]="formData.categoryId"
-                  (ngModelChange)="onFieldChange('categoryId', $event)"
-                  (blur)="markFieldTouched('categoryId')"
-                  required
-                  [class.input-error]="hasError('categoryId')"
-                  [class.input-valid]="isFieldValid('categoryId')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                  <option value="" disabled selected>Select Category</option>
-                  <option *ngFor="let cat of filteredCategories" [value]="cat.id">
-                    {{ cat.name }}
-                  </option>
-                </select>
-                @if (hasError('categoryId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('categoryId') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Subject Name <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  [(ngModel)]="formData.name"
-                  (ngModelChange)="onFieldChange('name', $event)"
-                  (blur)="markFieldTouched('name')"
-                  required
-                  [class.input-error]="hasError('name')"
-                  [class.input-valid]="isFieldValid('name')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('name')">
-                @if (hasError('name')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('name') }}
-                  </span>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Subject Form -->
-          @if (entityType === 'subject') {
-            <div class="space-y-4">
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p class="text-sm text-blue-800">
-                  <i class="fas fa-info-circle mr-2"></i>
-                  @if (mode === 'add') {
-                    <strong>Note:</strong> Select year and category first to update available options automatically
-                  }
-                  @if (mode === 'edit') {
-                    <strong>Note:</strong> Year, Subject Name, and Start Date cannot be changed after creation
-                  }
-                </p>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Academic Year <span class="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="yearId"
-                    [(ngModel)]="formData.yearId"
-                    (ngModelChange)="onFieldChange('yearId', $event)"
-                    (blur)="markFieldTouched('yearId')"
-                    required
-                    [disabled]="mode === 'edit'"
-                    [class.input-error]="hasError('yearId')"
-                    [class.input-valid]="isFieldValid('yearId')"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
-                    <option value="" disabled selected>Select Year</option>
-                    <option *ngFor="let year of years" [value]="year.id">
-                      Year {{ year.yearNumber }}
-                    </option>
-                  </select>
-                  @if (hasError('yearId')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('yearId') }}
-                    </span>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Category
-                  </label>
-                  <select
-                    name="categoryId"
-                    [(ngModel)]="formData.categoryId"
-                    (ngModelChange)="onFieldChange('categoryId', $event)"
-                    [disabled]="mode === 'edit'"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
-                    <option value="">Select Category (Optional)</option>
-                    <option *ngFor="let cat of filteredCategories" [value]="cat.id">
-                      {{ cat.name }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Subject Name <span class="text-red-500">*</span>
-                  @if (filteredSubjectNames.length === 0 && mode === 'add') {
-                    <span class="text-xs text-orange-600 mr-2">(Select category first)</span>
-                  }
-                </label>
-                <select
-                  name="subjectNameId"
-                  [(ngModel)]="formData.subjectNameId"
-                  (ngModelChange)="onFieldChange('subjectNameId', $event)"
-                  (blur)="markFieldTouched('subjectNameId')"
-                  required
-                  [disabled]="mode === 'edit' || (mode === 'add' && filteredSubjectNames.length === 0)"
-                  [class.input-error]="hasError('subjectNameId')"
-                  [class.input-valid]="isFieldValid('subjectNameId')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
-                  <option value="" disabled selected>Select Subject</option>
-                  <option *ngFor="let subj of filteredSubjectNames" [value]="subj.id">
-                    {{ subj.name }}
-                  </option>
-                </select>
-                @if (hasError('subjectNameId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('subjectNameId') }}
-                  </span>
-                }
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Original Price <span class="text-red-500">*</span>
-                  </label>
-                  <div class="relative">
-                    <input
-                      type="number"
-                      name="originalPrice"
-                      [(ngModel)]="formData.originalPrice"
-                      (ngModelChange)="onFieldChange('originalPrice', $event)"
-                      (blur)="markFieldTouched('originalPrice')"
-                      required
-                      min="0"
-                      step="0.01"
-                      [class.input-error]="hasError('originalPrice')"
-                      [class.input-valid]="isFieldValid('originalPrice')"
-                      class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="Enter price">
-                    <span class="absolute right-3 top-2.5 text-gray-500 text-sm font-medium">AUD</span>
-                  </div>
-                  @if (hasError('originalPrice')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('originalPrice') }}
-                    </span>
-                  }
-                  <p class="text-xs text-gray-500 mt-1">
-                    <i class="fas fa-book mr-1"></i>
-                    Monthly subscription (Self-Learning)
-                  </p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Discount Percentage
-                  </label>
-                  <div class="relative">
-                    <input
-                      type="number"
-                      name="discountPercentage"
-                      [(ngModel)]="formData.discountPercentage"
-                      (ngModelChange)="onFieldChange('discountPercentage', $event)"
-                      (blur)="markFieldTouched('discountPercentage')"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      [class.input-error]="hasError('discountPercentage')"
-                      [class.input-valid]="isFieldValid('discountPercentage')"
-                      class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="Enter discount">
-                    <span class="absolute right-3 top-2.5 text-gray-500 text-sm font-medium">%</span>
-                  </div>
-                  @if (hasError('discountPercentage')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('discountPercentage') }}
-                    </span>
-                  }
-                  @if (formData.originalPrice && formData.discountPercentage) {
-                    <p class="text-xs text-green-600 mt-1 font-medium">
-                      <i class="fas fa-tag mr-1"></i>
-                      Final Price: {{ (formData.originalPrice * (1 - formData.discountPercentage / 100)).toFixed(2) }} AUD
-                    </p>
-                  }
-                </div>
-              </div>
-
-              <!-- ✅ NEW: Tutoring Price Per Hour -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Tutoring Price Per Hour
-                </label>
-                <div class="relative">
-                  <input
-                    type="number"
-                    name="tutoringPricePerHour"
-                    [(ngModel)]="formData.tutoringPricePerHour"
-                    (ngModelChange)="onFieldChange('tutoringPricePerHour', $event)"
-                    (blur)="markFieldTouched('tutoringPricePerHour')"
-                    min="0"
-                    step="0.01"
-                    [class.input-error]="hasError('tutoringPricePerHour')"
-                    [class.input-valid]="isFieldValid('tutoringPricePerHour')"
-                    class="w-full px-4 py-2 pr-16 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="Enter tutoring rate">
-                  <span class="absolute right-3 top-2.5 text-gray-500 text-sm font-medium">AUD/hr</span>
-                </div>
-                <p class="text-xs text-gray-500 mt-1">
-                  <i class="fas fa-chalkboard-teacher mr-1"></i>
-                  Price per hour for live tutoring sessions (leave empty to disable tutoring)
-                </p>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Level <span class="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="level"
-                    [(ngModel)]="formData.level"
-                    (ngModelChange)="onFieldChange('level', $event)"
-                    (blur)="markFieldTouched('level')"
-                    required
-                    [class.input-error]="hasError('level')"
-                    [class.input-valid]="isFieldValid('level')"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    <option value="" disabled selected>Select Level</option>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                  @if (hasError('level')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('level') }}
-                    </span>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Duration (hours)
-                  </label>
-                  <input
-                    type="number"
-                    name="duration"
-                    [(ngModel)]="formData.duration"
-                    (ngModelChange)="onFieldChange('duration', $event)"
-                    (blur)="markFieldTouched('duration')"
-                    min="0"
-                    step="1"
-                    [class.input-error]="hasError('duration')"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="Enter duration in hours">
-                  @if (hasError('duration')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('duration') }}
-                    </span>
-                  }
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Teacher <span class="text-red-500">*</span>
-                </label>
-                <select
-                  name="teacherId"
-                  [(ngModel)]="formData.teacherId"
-                  (ngModelChange)="onFieldChange('teacherId', $event)"
-                  (blur)="markFieldTouched('teacherId')"
-                  required
-                  [class.input-error]="hasError('teacherId')"
-                  [class.input-valid]="isFieldValid('teacherId')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                  <option [value]="null" disabled>Select Teacher</option>
-                  <option *ngFor="let teacher of teachers" [value]="teacher.id" [selected]="formData.teacherId === teacher.id">
-                    {{ teacher.userName || teacher.name }}
-                  </option>
-                </select>
-                @if (mode === 'edit' && formData.teacherId) {
-                  <p class="text-xs text-gray-500 mt-1">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Current teacher ID: {{ formData.teacherId }}
-                  </p>
-                }
-                @if (hasError('teacherId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('teacherId') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Start Date @if (mode === 'add') { <span class="text-red-500">*</span> }
-                </label>
-                <input
-                  type="date"
-                  name="startDate"
-                  [(ngModel)]="formData.startDate"
-                  (ngModelChange)="onFieldChange('startDate', $event)"
-                  [disabled]="mode === 'edit'"
-                  [required]="mode === 'add'"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
-                @if (mode === 'edit') {
-                  <p class="text-xs text-gray-500 mt-1">
-                    <i class="fas fa-lock mr-1"></i>
-                    Start date is locked after creation
-                  </p>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Poster Image @if (mode === 'add') { <span class="text-red-500">*</span> }
-                </label>
-                <input
-                  type="file"
-                  name="posterFile"
-                  (change)="onFileChange($event, 'posterFile')"
-                  accept="image/*"
-                  [required]="mode === 'add'"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                @if (formData.posterUrl && mode === 'edit') {
-                  <div class="mt-3 border rounded-lg p-2 bg-gray-50">
-                    <p class="text-xs text-gray-600 mb-2 font-medium">Current Poster:</p>
-                    <img [src]="formData.posterUrl" class="h-32 w-auto rounded shadow-md" alt="Current Poster">
-                  </div>
-                }
-                @if (mode === 'edit') {
-                  <p class="text-xs text-gray-500 mt-2">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Leave empty to keep the current poster image
-                  </p>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Term Form -->
-          @if (entityType === 'term') {
-            <div class="space-y-4">
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p class="text-sm text-blue-800">
-                  <i class="fas fa-info-circle mr-2"></i>
-                  <strong>Note:</strong> {{ terminologyService.getTermSingular() }} number will be filled automatically based on selected subject
-                </p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Subject <span class="text-red-500">*</span>
-                </label>
-                <select
-                  name="subjectId"
-                  [(ngModel)]="formData.subjectId"
-                  (ngModelChange)="onFieldChange('subjectId', $event)"
-                  (blur)="markFieldTouched('subjectId')"
-                  required
-                  [class.input-error]="hasError('subjectId')"
-                  [class.input-valid]="isFieldValid('subjectId')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                  <option value="" disabled selected>Select Subject</option>
-                  <option *ngFor="let subj of filteredSubjects" [value]="subj.id">
-                    {{ getSubjectDisplay(subj) }}
-                  </option>
-                </select>
-                @if (hasError('subjectId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('subjectId') }}
-                  </span>
-                }
-                @if (formData.subjectId && filteredTerms.length > 0) {
-                  <p class="text-xs text-blue-600 mt-1">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Current terms count: {{ filteredTerms.length }}
-                  </p>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  {{ terminologyService.getTermNumberLabel() }} <span class="text-red-500">*</span>
-                  @if (mode === 'add' && formData.termNumber) {
-                    <span class="text-xs text-green-600 mr-2">(Auto-filled)</span>
-                  }
-                </label>
-                <input
-                  type="number"
-                  name="termNumber"
-                  [(ngModel)]="formData.termNumber"
-                  (ngModelChange)="onFieldChange('termNumber', $event)"
-                  (blur)="markFieldTouched('termNumber')"
-                  required
-                  min="1"
-                  [class.input-error]="hasError('termNumber')"
-                  [class.input-valid]="isFieldValid('termNumber')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="terminologyService.getPlaceholder('term')">
-                @if (hasError('termNumber')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('termNumber') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Start Date <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  name="startDate"
-                  [(ngModel)]="formData.startDate"
-                  (ngModelChange)="onFieldChange('startDate', $event)"
-                  (blur)="markFieldTouched('startDate')"
-                  required
-                  [class.input-error]="hasError('startDate')"
-                  [class.input-valid]="isFieldValid('startDate')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                @if (hasError('startDate')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('startDate') }}
-                  </span>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Week Form -->
-          @if (entityType === 'week') {
-            <div class="space-y-4">
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p class="text-sm text-blue-800">
-                  <i class="fas fa-info-circle mr-2"></i>
-                  <strong>Note:</strong> {{ terminologyService.getWeekSingular() }} number will be filled automatically based on selected {{ terminologyService.getTermSingular() }}
-                </p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Term <span class="text-red-500">*</span>
-                </label>
-                <select
-                  name="termId"
-                  [(ngModel)]="formData.termId"
-                  (ngModelChange)="onFieldChange('termId', $event)"
-                  (blur)="markFieldTouched('termId')"
-                  required
-                  [class.input-error]="hasError('termId')"
-                  [class.input-valid]="isFieldValid('termId')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                  <option value="" disabled selected>Select Term</option>
-                  <option *ngFor="let term of filteredTerms" [value]="term.id">
-                    {{ getTermDisplay(term) }}
-                  </option>
-                </select>
-                @if (hasError('termId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('termId') }}
-                  </span>
-                }
-                @if (formData.termId && filteredWeeks.length > 0) {
-                  <p class="text-xs text-blue-600 mt-1">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Current weeks count: {{ filteredWeeks.length }}
-                  </p>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  {{ terminologyService.getWeekNumberLabel() }} <span class="text-red-500">*</span>
-                  @if (mode === 'add' && formData.weekNumber) {
-                    <span class="text-xs text-green-600 mr-2">(Auto-filled)</span>
-                  }
-                </label>
-                <input
-                  type="number"
-                  name="weekNumber"
-                  [(ngModel)]="formData.weekNumber"
-                  (ngModelChange)="onFieldChange('weekNumber', $event)"
-                  (blur)="markFieldTouched('weekNumber')"
-                  required
-                  min="1"
-                  [class.input-error]="hasError('weekNumber')"
-                  [class.input-valid]="isFieldValid('weekNumber')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="terminologyService.getPlaceholder('week')">
-                @if (hasError('weekNumber')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('weekNumber') }}
-                  </span>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Lesson Form -->
-          @if (entityType === 'lesson') {
-            <div class="space-y-4">
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p class="text-sm text-blue-800">
-                  <i class="fas fa-info-circle mr-2"></i>
-                  @if (mode === 'add') {
-                    <strong>Note:</strong> Subject and Term will be automatically determined by the backend when you select the week. After adding, you'll be redirected to the lesson details page to add resources and questions.
-                  }
-                  @if (mode === 'edit') {
-                    <strong>Note:</strong> You can update the title, description, week, poster, and video. Files are optional - leave empty to keep current files.
-                  }
-                </p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Lesson Title <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  [(ngModel)]="formData.title"
-                  (ngModelChange)="onFieldChange('title', $event)"
-                  (blur)="markFieldTouched('title')"
-                  required
-                  [class.input-error]="hasError('title')"
-                  [class.input-valid]="isFieldValid('title')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder="Enter lesson title">
-                @if (hasError('title')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('title') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Description <span class="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="description"
-                  [(ngModel)]="formData.description"
-                  (ngModelChange)="onFieldChange('description', $event)"
-                  (blur)="markFieldTouched('description')"
-                  required
-                  rows="3"
-                  [class.input-error]="hasError('description')"
-                  [class.input-valid]="isFieldValid('description')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder="Enter lesson description"></textarea>
-                @if (hasError('description')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('description') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Week <span class="text-red-500">*</span>
-                  <span class="text-xs text-gray-500 mr-2">(Subject and Term will be auto-calculated from Week)</span>
-                </label>
-                <select
-                  name="weekId"
-                  [(ngModel)]="formData.weekId"
-                  (ngModelChange)="onFieldChange('weekId', $event)"
-                  (blur)="markFieldTouched('weekId')"
-                  required
-                  [class.input-error]="hasError('weekId')"
-                  [class.input-valid]="isFieldValid('weekId')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                  <option value="" disabled selected>Select Week</option>
-                  <option *ngFor="let week of filteredWeeks" [value]="week.id">
-                    {{ getWeekDisplay(week) }}
-                  </option>
-                </select>
-                @if (hasError('weekId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('weekId') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Poster Image @if (mode === 'add') { <span class="text-red-500">*</span> }
-                </label>
-                <input
-                  type="file"
-                  name="posterFile"
-                  (change)="onFileChange($event, 'posterFile')"
-                  accept="image/*"
-                  [required]="mode === 'add'"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                @if (formData.posterUrl && mode === 'edit') {
-                  <div class="mt-3 border rounded-lg p-3 bg-gray-50">
-                    <p class="text-xs text-gray-600 mb-2 font-medium">
-                      <i class="fas fa-image mr-1"></i>
-                      Current Poster:
-                    </p>
-                    <img [src]="formData.posterUrl" class="h-32 w-auto rounded shadow-md" alt="Current Poster">
-                  </div>
-                }
-                @if (mode === 'edit') {
-                  <p class="text-xs text-gray-500 mt-2">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Leave empty to keep the current poster image
-                  </p>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Video File @if (mode === 'add') { <span class="text-red-500">*</span> }
-                </label>
-                <input
-                  type="file"
-                  name="videoFile"
-                  (change)="onFileChange($event, 'videoFile')"
-                  accept="video/*"
-                  [required]="mode === 'add'"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
-                @if (formData.videoUrl && mode === 'edit') {
-                  <div class="mt-3 border rounded-lg p-3 bg-gray-50">
-                    <p class="text-xs text-gray-600 mb-2 font-medium">
-                      <i class="fas fa-video mr-1"></i>
-                      Current Video:
-                    </p>
-                    <div class="bg-purple-50 rounded p-3 border border-purple-200">
-                      <p class="text-sm text-purple-700 font-medium break-all">
-                        <i class="fas fa-file-video mr-2"></i>
-                        {{ formData.videoUrl }}
-                      </p>
-                    </div>
-                  </div>
-                }
-                @if (mode === 'edit') {
-                  <p class="text-xs text-gray-500 mt-2">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Leave empty to keep the current video file
-                  </p>
-                }
-                <p class="text-xs text-gray-500 mt-1">
-                  <i class="fas fa-info-circle mr-1"></i>
-                  MP4 format is recommended for best compatibility
-                </p>
-              </div>
-
-              <!-- Chapter Manager (Only in Edit Mode) -->
-              @if (mode === 'edit' && formData.id) {
-                <div class="border-t border-gray-200 pt-4 mt-4">
-                  <app-chapter-manager [lessonId]="formData.id"></app-chapter-manager>
-                </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Academic Year <span class="text-red-500">*</span>
+              </label>
+              <select name="yearId" [(ngModel)]="formData.yearId" (ngModelChange)="onFieldChange('yearId', $event)"
+                (blur)="markFieldTouched('yearId')" required [disabled]="mode === 'edit'"
+                [class.input-error]="hasError('yearId')" [class.input-valid]="isFieldValid('yearId')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
+                <option value="" disabled selected>Select Year</option>
+                <option *ngFor="let year of years" [value]="year.id">
+                  {{ getYearLabel(year) }}
+                </option>
+              </select>
+              @if (hasError('yearId')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('yearId') }}
+              </span>
               }
             </div>
-          }
 
-        </form>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Category
+              </label>
+              <select name="categoryId" [(ngModel)]="formData.categoryId"
+                (ngModelChange)="onFieldChange('categoryId', $event)" [disabled]="mode === 'edit'"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
+                <option value="">Select Category (Optional)</option>
+                <option *ngFor="let cat of filteredCategories" [value]="cat.id">
+                  {{ cat.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Subject Name <span class="text-red-500">*</span>
+              @if (filteredSubjectNames.length === 0 && mode === 'add') {
+              <span class="text-xs text-orange-600 mr-2">(Select category first)</span>
+              }
+            </label>
+            <select name="subjectNameId" [(ngModel)]="formData.subjectNameId"
+              (ngModelChange)="onFieldChange('subjectNameId', $event)" (blur)="markFieldTouched('subjectNameId')"
+              required [disabled]="mode === 'edit' || (mode === 'add' && filteredSubjectNames.length === 0)"
+              [class.input-error]="hasError('subjectNameId')" [class.input-valid]="isFieldValid('subjectNameId')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
+              <option value="" disabled selected>Select Subject</option>
+              <option *ngFor="let subj of filteredSubjectNames" [value]="subj.id">
+                {{ subj.name }}
+              </option>
+            </select>
+            @if (hasError('subjectNameId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('subjectNameId') }}
+            </span>
+            }
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Original Price <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input type="number" name="originalPrice" [(ngModel)]="formData.originalPrice"
+                  (ngModelChange)="onFieldChange('originalPrice', $event)" (blur)="markFieldTouched('originalPrice')"
+                  required min="0" step="0.01" [class.input-error]="hasError('originalPrice')"
+                  [class.input-valid]="isFieldValid('originalPrice')"
+                  class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Enter price">
+                <span class="absolute right-3 top-2.5 text-gray-500 text-sm font-medium">AUD</span>
+              </div>
+              @if (hasError('originalPrice')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('originalPrice') }}
+              </span>
+              }
+              <p class="text-xs text-gray-500 mt-1">
+                <i class="fas fa-book mr-1"></i>
+                Monthly subscription (Self-Learning)
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Discount Percentage
+              </label>
+              <div class="relative">
+                <input type="number" name="discountPercentage" [(ngModel)]="formData.discountPercentage"
+                  (ngModelChange)="onFieldChange('discountPercentage', $event)"
+                  (blur)="markFieldTouched('discountPercentage')" min="0" max="100" step="0.01"
+                  [class.input-error]="hasError('discountPercentage')"
+                  [class.input-valid]="isFieldValid('discountPercentage')"
+                  class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Enter discount">
+                <span class="absolute right-3 top-2.5 text-gray-500 text-sm font-medium">%</span>
+              </div>
+              @if (hasError('discountPercentage')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('discountPercentage') }}
+              </span>
+              }
+              @if (formData.originalPrice && formData.discountPercentage) {
+              <p class="text-xs text-green-600 mt-1 font-medium">
+                <i class="fas fa-tag mr-1"></i>
+                Final Price: {{ (formData.originalPrice * (1 - formData.discountPercentage / 100)).toFixed(2) }} AUD
+              </p>
+              }
+            </div>
+          </div>
+
+          <!-- ✅ NEW: Tutoring Price Per Hour -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Tutoring Price Per Hour
+            </label>
+            <div class="relative">
+              <input type="number" name="tutoringPricePerHour" [(ngModel)]="formData.tutoringPricePerHour"
+                (ngModelChange)="onFieldChange('tutoringPricePerHour', $event)"
+                (blur)="markFieldTouched('tutoringPricePerHour')" min="0" step="0.01"
+                [class.input-error]="hasError('tutoringPricePerHour')"
+                [class.input-valid]="isFieldValid('tutoringPricePerHour')"
+                class="w-full px-4 py-2 pr-16 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="Enter tutoring rate">
+              <span class="absolute right-3 top-2.5 text-gray-500 text-sm font-medium">AUD/hr</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">
+              <i class="fas fa-chalkboard-teacher mr-1"></i>
+              Price per hour for live tutoring sessions (leave empty to disable tutoring)
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Level <span class="text-red-500">*</span>
+              </label>
+              <select name="level" [(ngModel)]="formData.level" (ngModelChange)="onFieldChange('level', $event)"
+                (blur)="markFieldTouched('level')" required [class.input-error]="hasError('level')"
+                [class.input-valid]="isFieldValid('level')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <option value="" disabled selected>Select Level</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+              @if (hasError('level')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('level') }}
+              </span>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Duration (hours)
+              </label>
+              <input type="number" name="duration" [(ngModel)]="formData.duration"
+                (ngModelChange)="onFieldChange('duration', $event)" (blur)="markFieldTouched('duration')" min="0"
+                step="1" [class.input-error]="hasError('duration')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="Enter duration in hours">
+              @if (hasError('duration')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('duration') }}
+              </span>
+              }
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Teacher <span class="text-red-500">*</span>
+            </label>
+            <select name="teacherId" [(ngModel)]="formData.teacherId"
+              (ngModelChange)="onFieldChange('teacherId', $event)" (blur)="markFieldTouched('teacherId')" required
+              [class.input-error]="hasError('teacherId')" [class.input-valid]="isFieldValid('teacherId')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+              <option [value]="null" disabled>Select Teacher</option>
+              <option *ngFor="let teacher of teachers" [value]="teacher.id"
+                [selected]="formData.teacherId === teacher.id">
+                {{ teacher.userName || teacher.name }}
+              </option>
+            </select>
+            @if (mode === 'edit' && formData.teacherId) {
+            <p class="text-xs text-gray-500 mt-1">
+              <i class="fas fa-info-circle mr-1"></i>
+              Current teacher ID: {{ formData.teacherId }}
+            </p>
+            }
+            @if (hasError('teacherId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('teacherId') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Start Date @if (mode === 'add') { <span class="text-red-500">*</span> }
+            </label>
+            <input type="date" name="startDate" [(ngModel)]="formData.startDate"
+              (ngModelChange)="onFieldChange('startDate', $event)" [disabled]="mode === 'edit'"
+              [required]="mode === 'add'"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
+            @if (mode === 'edit') {
+            <p class="text-xs text-gray-500 mt-1">
+              <i class="fas fa-lock mr-1"></i>
+              Start date is locked after creation
+            </p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Poster Image @if (mode === 'add') { <span class="text-red-500">*</span> }
+            </label>
+            <input type="file" name="posterFile" (change)="onFileChange($event, 'posterFile')" accept="image/*"
+              [required]="mode === 'add'"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            @if (formData.posterUrl && mode === 'edit') {
+            <div class="mt-3 border rounded-lg p-2 bg-gray-50">
+              <p class="text-xs text-gray-600 mb-2 font-medium">Current Poster:</p>
+              <img [src]="formData.posterUrl" class="h-32 w-auto rounded shadow-md" alt="Current Poster">
+            </div>
+            }
+            @if (mode === 'edit') {
+            <p class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-info-circle mr-1"></i>
+              Leave empty to keep the current poster image
+            </p>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Term Form -->
+        @if (entityType === 'term') {
+        <div class="space-y-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-blue-800">
+              <i class="fas fa-info-circle mr-2"></i>
+              <strong>Note:</strong> {{ terminologyService.getTermSingular() }} number will be filled automatically
+              based on selected subject
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Subject <span class="text-red-500">*</span>
+            </label>
+            <select name="subjectId" [(ngModel)]="formData.subjectId"
+              (ngModelChange)="onFieldChange('subjectId', $event)" (blur)="markFieldTouched('subjectId')" required
+              [class.input-error]="hasError('subjectId')" [class.input-valid]="isFieldValid('subjectId')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+              <option value="" disabled selected>Select Subject</option>
+              <option *ngFor="let subj of filteredSubjects" [value]="subj.id">
+                {{ getSubjectDisplay(subj) }}
+              </option>
+            </select>
+            @if (hasError('subjectId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('subjectId') }}
+            </span>
+            }
+            @if (formData.subjectId && filteredTerms.length > 0) {
+            <p class="text-xs text-blue-600 mt-1">
+              <i class="fas fa-info-circle mr-1"></i>
+              Current terms count: {{ filteredTerms.length }}
+            </p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              {{ terminologyService.getTermNumberLabel() }} <span class="text-red-500">*</span>
+              @if (mode === 'add' && formData.termNumber) {
+              <span class="text-xs text-green-600 mr-2">(Auto-filled)</span>
+              }
+            </label>
+            <input type="number" name="termNumber" [(ngModel)]="formData.termNumber"
+              (ngModelChange)="onFieldChange('termNumber', $event)" (blur)="markFieldTouched('termNumber')" required
+              min="1" [class.input-error]="hasError('termNumber')" [class.input-valid]="isFieldValid('termNumber')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="terminologyService.getPlaceholder('term')">
+            @if (hasError('termNumber')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('termNumber') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Start Date <span class="text-red-500">*</span>
+            </label>
+            <input type="date" name="startDate" [(ngModel)]="formData.startDate"
+              (ngModelChange)="onFieldChange('startDate', $event)" (blur)="markFieldTouched('startDate')" required
+              [class.input-error]="hasError('startDate')" [class.input-valid]="isFieldValid('startDate')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            @if (hasError('startDate')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('startDate') }}
+            </span>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Week Form -->
+        @if (entityType === 'week') {
+        <div class="space-y-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-blue-800">
+              <i class="fas fa-info-circle mr-2"></i>
+              <strong>Note:</strong> {{ terminologyService.getWeekSingular() }} number will be filled automatically
+              based on selected {{ terminologyService.getTermSingular() }}
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Term <span class="text-red-500">*</span>
+            </label>
+            <select name="termId" [(ngModel)]="formData.termId" (ngModelChange)="onFieldChange('termId', $event)"
+              (blur)="markFieldTouched('termId')" required [class.input-error]="hasError('termId')"
+              [class.input-valid]="isFieldValid('termId')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+              <option value="" disabled selected>Select Term</option>
+              <option *ngFor="let term of filteredTerms" [value]="term.id">
+                {{ getTermDisplay(term) }}
+              </option>
+            </select>
+            @if (hasError('termId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('termId') }}
+            </span>
+            }
+            @if (formData.termId && filteredWeeks.length > 0) {
+            <p class="text-xs text-blue-600 mt-1">
+              <i class="fas fa-info-circle mr-1"></i>
+              Current weeks count: {{ filteredWeeks.length }}
+            </p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              {{ terminologyService.getWeekNumberLabel() }} <span class="text-red-500">*</span>
+              @if (mode === 'add' && formData.weekNumber) {
+              <span class="text-xs text-green-600 mr-2">(Auto-filled)</span>
+              }
+            </label>
+            <input type="number" name="weekNumber" [(ngModel)]="formData.weekNumber"
+              (ngModelChange)="onFieldChange('weekNumber', $event)" (blur)="markFieldTouched('weekNumber')" required
+              min="1" [class.input-error]="hasError('weekNumber')" [class.input-valid]="isFieldValid('weekNumber')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="terminologyService.getPlaceholder('week')">
+            @if (hasError('weekNumber')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('weekNumber') }}
+            </span>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Lesson Form -->
+        @if (entityType === 'lesson') {
+        <div class="space-y-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-blue-800">
+              <i class="fas fa-info-circle mr-2"></i>
+              @if (mode === 'add') {
+              <strong>Note:</strong> Subject and Term will be automatically determined by the backend when you select
+              the week. After adding, you'll be redirected to the lesson details page to add resources and questions.
+              }
+              @if (mode === 'edit') {
+              <strong>Note:</strong> You can update the title, description, week, poster, and video. Files are optional
+              - leave empty to keep current files.
+              }
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Lesson Title <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="title" [(ngModel)]="formData.title"
+              (ngModelChange)="onFieldChange('title', $event)" (blur)="markFieldTouched('title')" required
+              [class.input-error]="hasError('title')" [class.input-valid]="isFieldValid('title')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="Enter lesson title">
+            @if (hasError('title')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('title') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Description <span class="text-red-500">*</span>
+            </label>
+            <textarea name="description" [(ngModel)]="formData.description"
+              (ngModelChange)="onFieldChange('description', $event)" (blur)="markFieldTouched('description')" required
+              rows="3" [class.input-error]="hasError('description')" [class.input-valid]="isFieldValid('description')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="Enter lesson description"></textarea>
+            @if (hasError('description')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('description') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Week <span class="text-red-500">*</span>
+              <span class="text-xs text-gray-500 mr-2">(Subject and Term will be auto-calculated from Week)</span>
+            </label>
+            <select name="weekId" [(ngModel)]="formData.weekId" (ngModelChange)="onFieldChange('weekId', $event)"
+              (blur)="markFieldTouched('weekId')" required [class.input-error]="hasError('weekId')"
+              [class.input-valid]="isFieldValid('weekId')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+              <option value="" disabled selected>Select Week</option>
+              <option *ngFor="let week of filteredWeeks" [value]="week.id">
+                {{ getWeekDisplay(week) }}
+              </option>
+            </select>
+            @if (hasError('weekId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('weekId') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Poster Image @if (mode === 'add') { <span class="text-red-500">*</span> }
+            </label>
+            <input type="file" name="posterFile" (change)="onFileChange($event, 'posterFile')" accept="image/*"
+              [required]="mode === 'add'"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            @if (formData.posterUrl && mode === 'edit') {
+            <div class="mt-3 border rounded-lg p-3 bg-gray-50">
+              <p class="text-xs text-gray-600 mb-2 font-medium">
+                <i class="fas fa-image mr-1"></i>
+                Current Poster:
+              </p>
+              <img [src]="formData.posterUrl" class="h-32 w-auto rounded shadow-md" alt="Current Poster">
+            </div>
+            }
+            @if (mode === 'edit') {
+            <p class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-info-circle mr-1"></i>
+              Leave empty to keep the current poster image
+            </p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Video File @if (mode === 'add') { <span class="text-red-500">*</span> }
+            </label>
+            <input type="file" name="videoFile" (change)="onFileChange($event, 'videoFile')" accept="video/*"
+              [required]="mode === 'add'"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
+            @if (formData.videoUrl && mode === 'edit') {
+            <div class="mt-3 border rounded-lg p-3 bg-gray-50">
+              <p class="text-xs text-gray-600 mb-2 font-medium">
+                <i class="fas fa-video mr-1"></i>
+                Current Video:
+              </p>
+              <div class="bg-purple-50 rounded p-3 border border-purple-200">
+                <p class="text-sm text-purple-700 font-medium break-all">
+                  <i class="fas fa-file-video mr-2"></i>
+                  {{ formData.videoUrl }}
+                </p>
+              </div>
+            </div>
+            }
+            @if (mode === 'edit') {
+            <p class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-info-circle mr-1"></i>
+              Leave empty to keep the current video file
+            </p>
+            }
+            <p class="text-xs text-gray-500 mt-1">
+              <i class="fas fa-info-circle mr-1"></i>
+              MP4 format is recommended for best compatibility
+            </p>
+          </div>
+
+          <!-- Chapter Manager (Only in Edit Mode) -->
+          @if (mode === 'edit' && formData.id) {
+          <div class="border-t border-gray-200 pt-4 mt-4">
+            <app-chapter-manager [lessonId]="formData.id"></app-chapter-manager>
+          </div>
+          }
+        </div>
+        }
+
+      </form>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+      <div class="text-sm text-gray-600">
+        @if (!isFormValid && touchedFields.size > 0) {
+        <span class="text-red-600">
+          <i class="fas fa-exclamation-triangle mr-1"></i>
+          Please correct the errors before saving
+        </span>
+        }
+        @if (isFormValid) {
+        <span class="text-green-600">
+          <i class="fas fa-check-circle mr-1"></i>
+          All fields are valid
+        </span>
+        }
       </div>
-
-      <!-- Modal Footer -->
-      <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
-        <div class="text-sm text-gray-600">
-          @if (!isFormValid && touchedFields.size > 0) {
-            <span class="text-red-600">
-              <i class="fas fa-exclamation-triangle mr-1"></i>
-              Please correct the errors before saving
-            </span>
-          }
-          @if (isFormValid) {
-            <span class="text-green-600">
-              <i class="fas fa-check-circle mr-1"></i>
-              All fields are valid
-            </span>
-          }
-        </div>
-        <div class="flex items-center gap-3">
-          <button
-            type="button"
-            (click)="onCancel()"
-            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-all">
-            <i class="fas fa-times mr-2"></i>
-            Cancel
-          </button>
-          <button
-            type="button"
-            (click)="onSave()"
-            [disabled]="!isFormValid && touchedFields.size > 0"
-            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-blue-300 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
-            <i class="fas fa-{{ mode === 'add' ? 'plus' : 'save' }} mr-2"></i>
-            {{ mode === 'add' ? 'Add' : 'Update' }}
-          </button>
-        </div>
+      <div class="flex items-center gap-3">
+        <button type="button" (click)="onCancel()"
+          class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-all">
+          <i class="fas fa-times mr-2"></i>
+          Cancel
+        </button>
+        <button type="button" (click)="onSave()" [disabled]="!isFormValid && touchedFields.size > 0"
+          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-blue-300 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
+          <i class="fas fa-{{ mode === 'add' ? 'plus' : 'save' }} mr-2"></i>
+          {{ mode === 'add' ? 'Add' : 'Update' }}
+        </button>
       </div>
     </div>
   </div>
+</div>
 }

@@ -72,18 +72,22 @@ export class AddStudentComponent implements OnInit {
     this.categoryService.getYears().subscribe({
       next: (years) => {
         console.log('✅ Loaded academic years from database:', years);
-        // Convert Year to AcademicYear format
-        this.academicYears = years.map(year => ({
-          id: year.id,
-          yearNumber: year.yearNumber,
-          name: `Year ${year.yearNumber}`,
-          nameAr: `${year.yearNumber}`
-        }));
+        // Convert Year to AcademicYear format and filter out yearNumber = 0 (global courses)
+        // Parents should only select actual academic years for their students
+        this.academicYears = years
+          .filter(year => year.yearNumber !== 0)
+          .map(year => ({
+            id: year.id,
+            yearNumber: year.yearNumber,
+            name: `Year ${year.yearNumber}`,
+            nameAr: `${year.yearNumber}`
+          }));
         this.yearsLoading.set(false);
       },
       error: (err) => {
         console.error('❌ Failed to load academic years:', err);
         // Fallback to default years if API fails
+        // Note: Fallback years also exclude year 0
         this.academicYears = [
           { id: 7, yearNumber: 7, name: 'Year 7', nameAr: '7' },
           { id: 8, yearNumber: 8, name: 'Year 8', nameAr: '8' },

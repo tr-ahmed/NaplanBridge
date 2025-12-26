@@ -25,7 +25,11 @@ export class SubjectsTableComponent {
 
   getYearName(yearId: number): string {
     const year = this.years.find(y => y.id === yearId);
-    return year ? `Year ${year.yearNumber}` : 'N/A';
+    if (!year) return 'N/A';
+    if (year.yearNumber === 0) {
+      return 'Courses';
+    }
+    return `Year ${year.yearNumber}`;
   }
 
   getCategoryName(categoryId: number): string {

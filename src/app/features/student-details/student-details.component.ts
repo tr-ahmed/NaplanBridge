@@ -73,7 +73,7 @@ export class StudentDetailsComponent implements OnInit {
     private parentService: ParentStudentService,
     private progressService: ProgressService,
     private categoryService: CategoryService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Load years for dropdown
@@ -109,6 +109,14 @@ export class StudentDetailsComponent implements OnInit {
       }
     });
   }
+
+  /**
+   * Filter years to exclude yearNumber = 0 (global courses)
+   * Parents should only select actual academic years for their students
+   */
+  filteredYears = computed(() => {
+    return this.years().filter(year => year.yearNumber !== 0);
+  });
 
   /**
    * Load student details from API
