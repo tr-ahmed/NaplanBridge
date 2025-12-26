@@ -385,7 +385,7 @@ export class Step4HoursComponent implements OnInit {
   constructor(
     private stateService: TutoringStateService,
     private contentService: ContentService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.restoreState();
@@ -401,8 +401,19 @@ export class Step4HoursComponent implements OnInit {
   loadSubjects(): void {
     this.loading = true;
     this.contentService.getSubjects().subscribe({
-      next: (subjects) => {
-        this.subjects = Array.isArray(subjects) ? subjects : [];
+      next: (response) => {
+        // Handle paginated response: { items: [...], totalCount, page, ... }
+        if (response && Array.isArray(response.items)) {
+          this.subjects = response.items;
+        } else if (response && Array.isArray(response.data)) {
+          // Fallback for alternative response structure
+          this.subjects = response.data;
+        } else if (Array.isArray(response)) {
+          // Fallback if API returns array directly
+          this.subjects = response;
+        } else {
+          this.subjects = [];
+        }
         this.loading = false;
       },
       error: (error) => {

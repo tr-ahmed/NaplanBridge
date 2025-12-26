@@ -265,21 +265,17 @@
   @if (!loading() && activeTab() === 'availability') {
   <div class="space-y-6">
 
-    <!-- Settings Card -->
+    <!-- Teacher Profile Settings Card -->
     <div class="bg-white rounded-xl shadow-md p-6">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h2 class="text-xl font-bold text-gray-900">Session Settings</h2>
-          <p class="text-sm text-gray-500">Configure your session preferences</p>
+          <h2 class="text-xl font-bold text-gray-900">Profile Settings</h2>
+          <p class="text-sm text-gray-500">Manage your visibility and profile</p>
         </div>
-        <button (click)="toggleSettingsForm()"
-          class="px-5 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-all">
-          {{ showSettingsForm() ? 'Cancel' : 'Edit Settings' }}
-        </button>
       </div>
 
       <!-- Welcome Message for New Teachers -->
-      @if (!settings() && showSettingsForm()) {
+      @if (!settings()) {
       <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6 mb-6">
         <div class="flex items-start gap-4">
           <div class="p-3 bg-indigo-100 rounded-full">
@@ -290,97 +286,63 @@
               👋 Welcome to Your Teaching Dashboard!
             </h3>
             <p class="text-gray-700 mb-3">
-              Before you can start managing your availability and sessions, please configure your teaching settings
-              below.
-              This will help students understand your session structure and pricing.
+              Set up your profile to start receiving bookings from students.
             </p>
-            <div class="bg-white/60 rounded-lg p-3 text-sm text-gray-600">
-              <p class="font-semibold mb-1">✨ Quick Setup Tips:</p>
-              <ul class="list-disc list-inside space-y-1 ml-2">
-                <li>Set your preferred session duration (typically 60 minutes)</li>
-                <li>Add buffer time between sessions for breaks</li>
-                <li>Set maximum sessions per day to manage your workload</li>
-                <li>Choose if you're accepting new bookings</li>
-              </ul>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Simple Settings Form (Always Visible) -->
+      <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="space-y-5">
+
+        <!-- Accepting Bookings Toggle -->
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="p-2 rounded-lg"
+              [class]="settingsForm.get('isAcceptingBookings')?.value ? 'bg-green-100' : 'bg-gray-200'">
+              <i class="fas fa-calendar-check text-lg"
+                [class]="settingsForm.get('isAcceptingBookings')?.value ? 'text-green-600' : 'text-gray-400'"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-900">Accept Bookings</p>
+              <p class="text-sm text-gray-500">Allow students to book sessions with you</p>
             </div>
           </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" formControlName="isAcceptingBookings" class="sr-only peer">
+            <div
+              class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500">
+            </div>
+          </label>
         </div>
-      </div>
-      }
 
-      <!-- Current Settings Display -->
-      @if (!showSettingsForm() && settings()) {
-      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
-          <p class="text-sm text-gray-600 mb-1">Duration</p>
-          <p class="text-xl font-bold text-gray-900">{{ settings()!.sessionDurationMinutes }} min</p>
-        </div>
-        <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
-          <p class="text-sm text-gray-600 mb-1">Buffer</p>
-          <p class="text-xl font-bold text-gray-900">{{ settings()!.bufferTimeMinutes }} min</p>
-        </div>
-        <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200">
-          <p class="text-sm text-gray-600 mb-1">Max/Day</p>
-          <p class="text-xl font-bold text-gray-900">{{ settings()!.maxSessionsPerDay || '-' }}</p>
-        </div>
-        <div class="bg-gradient-to-br from-cyan-50 to-sky-50 p-4 rounded-xl border border-cyan-200">
-          <p class="text-sm text-gray-600 mb-1">Status</p>
-          <span
-            [class]="settings()!.isAcceptingBookings ? 'px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800' : 'px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800'">
-            {{ settings()!.isAcceptingBookings ? 'Open' : 'Closed' }}
-          </span>
-        </div>
-      </div>
-      }
-
-      <!-- Settings Form -->
-      @if (showSettingsForm()) {
-      <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Duration (min)</label>
-            <input type="number" formControlName="sessionDurationMinutes"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" min="15"
-              max="180">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Buffer (min)</label>
-            <input type="number" formControlName="bufferTimeMinutes"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" min="0"
-              max="60">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Max Sessions/Day</label>
-            <input type="number" formControlName="maxSessionsPerDay"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" min="1"
-              max="20">
-          </div>
-        </div>
+        <!-- Description -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
-          <textarea formControlName="description" rows="2"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-            placeholder="Tell students about your teaching style and experience..."></textarea>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fas fa-user-edit mr-1"></i>
+            About Your Teaching
+          </label>
+          <textarea formControlName="description" rows="3"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+            placeholder="Tell students about your teaching style, experience, and specializations..."></textarea>
+          <p class="text-xs text-gray-400 mt-1">This will be shown to students when they browse available teachers.</p>
         </div>
-        <div class="flex items-center gap-2">
-          <input type="checkbox" id="isAcceptingBookings" formControlName="isAcceptingBookings"
-            class="w-5 h-5 text-indigo-600 rounded">
-          <label for="isAcceptingBookings" class="text-sm text-gray-700">Accept New Bookings</label>
-        </div>
-        <div class="flex gap-3">
-          <button type="submit" [disabled]="savingSettings() || settingsForm.invalid"
-            class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400">
-            {{ savingSettings() ? 'Saving...' : (settings() ? 'Save Changes' : 'Complete Setup') }}
+
+        <!-- Save Button -->
+        <div class="flex justify-end">
+          <button type="submit" [disabled]="savingSettings()"
+            class="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 transition-all flex items-center gap-2">
+            @if (savingSettings()) {
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Saving...</span>
+            } @else {
+            <i class="fas fa-save"></i>
+            <span>Save Profile</span>
+            }
           </button>
-          @if (settings()) {
-          <button type="button" (click)="toggleSettingsForm()"
-            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-            Cancel
-          </button>
-          }
         </div>
       </form>
-      }
     </div>
 
 
@@ -411,10 +373,24 @@
       @if (showAvailabilityForm()) {
       <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 p-6 rounded-xl mb-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">Add New Time Slot</h3>
-          <button (click)="toggleSlotGenerator()" class="text-sm text-teal-600 hover:underline flex items-center gap-1">
+          <h3 class="text-lg font-semibold text-gray-900">
+            {{ showSlotGenerator() ? '✨ Bulk Slot Generator' : 'Add New Time Slot' }}
+          </h3>
+
+          <!-- Mode Toggle Button - More Prominent -->
+          <button (click)="toggleSlotGenerator()"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all"
+            [class]="showSlotGenerator() 
+                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300' 
+                    : 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 shadow-md'">
+            @if (showSlotGenerator()) {
+            <i class="fas fa-clock"></i>
+            <span>Simple Mode</span>
+            } @else {
             <i class="fas fa-magic"></i>
-            {{ showSlotGenerator() ? 'Simple Mode' : 'Advanced: Slot Generator' }}
+            <span>Bulk Generator</span>
+            <span class="bg-white/20 text-xs px-1.5 py-0.5 rounded">PRO</span>
+            }
           </button>
         </div>
 
@@ -501,6 +477,19 @@
                 <option value="BookingFirst">Flexible (Student Chooses)</option>
               </select>
             </div>
+
+            <!-- Max Students - Only for Group Sessions -->
+            @if (slotGeneratorForm.get('defaultSessionType')?.value === 'Group') {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Max Students <span class="text-red-500">*</span>
+              </label>
+              <input type="number" formControlName="maxStudents"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500" min="2"
+                max="10" placeholder="2-10">
+              <p class="text-xs text-gray-400 mt-1">Required for group sessions (2-10 students)</p>
+            </div>
+            }
           </div>
           <div class="flex gap-3">
             <button type="submit" [disabled]="addingAvailability() || slotGeneratorForm.invalid"
@@ -530,42 +519,41 @@
             <span class="text-indigo-200 text-sm">({{ getAvailabilitiesByDay()[day].length }})</span>
           </div>
 
-          <!-- Slots Grid -->
-          <div class="p-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+          <!-- Slots Grid - Compact -->
+          <div class="p-3 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
             @for (availability of getAvailabilitiesByDay()[day]; track availability.id)
             {
             <div
-              class="bg-white border border-gray-200 rounded-lg p-2 hover:shadow-md hover:border-indigo-300 transition-all">
-              <!-- Time -->
-              <div class="text-center mb-1">
-                <span class="text-sm font-bold text-gray-800">{{ formatTime(availability.startTime) }}</span>
-                <span class="text-xs text-gray-400">-</span>
-                <span class="text-sm font-bold text-gray-800">{{ formatTime(availability.endTime) }}</span>
+              class="group relative bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer"
+              (click)="editAvailability(availability)">
+
+              <!-- Delete Button - Always Visible -->
+              <button (click)="deleteAvailability(availability); $event.stopPropagation()"
+                class="absolute top-0 right-0 p-1 bg-red-500 text-white hover:bg-red-600 transition-all z-10"
+                title="Delete">
+                <i class="fas fa-times text-[10px]"></i>
+              </button>
+
+              <!-- Time Header - Larger -->
+              <div class="px-3 py-2 text-center font-bold text-white" [class]="availability.sessionType === 'OneToOne' ? 'bg-blue-500' : 
+                            availability.sessionType === 'Group' ? 'bg-purple-500' : 
+                            'bg-teal-500'">
+                <span class="text-sm">{{ formatTime(availability.startTime) }}</span>
               </div>
 
-              <!-- Session Type Badge -->
-              <div class="flex justify-center mb-2">
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" [class]="availability.sessionType === 'OneToOne' ? 'bg-blue-100 text-blue-700' : 
-                           availability.sessionType === 'Group' ? 'bg-purple-100 text-purple-700' : 
-                           'bg-teal-100 text-teal-700'">
-                  <i class="mr-1 text-xs" [class]="availability.sessionType === 'OneToOne' ? 'fas fa-user' : 
-                                           availability.sessionType === 'Group' ? 'fas fa-users' : 
-                                           'fas fa-hand-pointer'"></i>
-                  {{ availability.sessionType === 'OneToOne' ? '1:1' :
-                  availability.sessionType === 'Group' ? 'Grp' : 'Flex' }}
-                </span>
-              </div>
-
-              <!-- Actions - Always Visible -->
-              <div class="flex items-center justify-center gap-1 border-t border-gray-100 pt-2">
-                <button (click)="editAvailability(availability)"
-                  class="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-all" title="Edit">
-                  <i class="fas fa-edit text-xs"></i>
-                </button>
-                <button (click)="deleteAvailability(availability)"
-                  class="p-1.5 text-red-500 hover:bg-red-100 rounded transition-all" title="Delete">
-                  <i class="fas fa-trash-alt text-xs"></i>
-                </button>
+              <!-- Session Info - Single Row -->
+              <div class="flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs" [class]="availability.sessionType === 'OneToOne' ? 'text-blue-600' : 
+                            availability.sessionType === 'Group' ? 'text-purple-600' : 
+                            'text-teal-600'">
+                <i [class]="availability.sessionType === 'OneToOne' ? 'fas fa-user' : 
+                            availability.sessionType === 'Group' ? 'fas fa-users' : 
+                            'fas fa-random'"></i>
+                <span class="font-medium">{{ availability.sessionType === 'OneToOne' ? '1:1' :
+                  availability.sessionType === 'Group' ? 'Grp' : 'Flex' }}</span>
+                @if (availability.sessionType === 'Group' && availability.maxStudents) {
+                <span class="text-gray-400">•</span>
+                <span class="text-gray-500">{{ availability.maxStudents }}</span>
+                }
               </div>
             </div>
             }

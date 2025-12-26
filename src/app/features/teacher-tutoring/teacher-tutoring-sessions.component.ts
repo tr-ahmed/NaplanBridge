@@ -138,6 +138,7 @@ export class TeacherTutoringSessionsComponent implements OnInit {
       sessionDuration: [60, [Validators.required, Validators.min(15), Validators.max(180)]],
       breakBetweenSessions: [15, [Validators.required, Validators.min(0), Validators.max(60)]],
       defaultSessionType: ['OneToOne'],
+      maxStudents: [5, [Validators.min(2), Validators.max(10)]],
       subjectId: [null]
     });
 
@@ -428,7 +429,9 @@ export class TeacherTutoringSessionsComponent implements OnInit {
       sessionDurationMinutes: formValue.sessionDuration,
       breakBetweenMinutes: formValue.breakBetweenSessions,
       defaultSessionType: formValue.defaultSessionType,
-      subjectId: formValue.subjectId || null
+      subjectId: formValue.subjectId || null,
+      // Add maxStudents for Group sessions (required by backend)
+      maxStudents: formValue.defaultSessionType === 'Group' ? (formValue.maxStudents || 5) : null
     };
 
     this.addingAvailability.set(true);
@@ -526,19 +529,12 @@ export class TeacherTutoringSessionsComponent implements OnInit {
     }).subscribe({
       next: (response) => {
         if (response.success) {
-          // Update local state using unique ID (backend now returns unique IDs)
+          // Update local state using unique ID (backend v1.2 now returns unique IDs)
           this.availabilities.update(list =>
-            list.map(a => {
-              if (a.id === slot.id) {
-                // Use response data if available, otherwise use our update values
-                return response.data || {
-                  ...a,
-                  sessionType: newSessionType,
-                  maxStudents: newSessionType === 'Group' ? (maxStudents || 5) : undefined
-                };
-              }
-              return a;
-            })
+            list.map(a => a.id === slot.id
+              ? (response.data || { ...a, sessionType: newSessionType, maxStudents: newSessionType === 'Group' ? (maxStudents || 5) : undefined })
+              : a
+            )
           );
           this.toastService.showSuccess('Session type updated successfully');
           this.closeEditSlotModal();
