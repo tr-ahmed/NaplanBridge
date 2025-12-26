@@ -355,6 +355,31 @@ export interface RescheduleSessionResponse {
 }
 
 // ============================================
+// Alternative Slots Models (for Swap feature)
+// ============================================
+
+export interface AlternativeSlotDto {
+  availabilityId: number;
+  dateTime: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  isPreferred: boolean;
+  dayName: string;
+}
+
+export interface AlternativeSlotsResponse {
+  teacherId: number;
+  teacherName: string;
+  subjectId: number;
+  subjectName: string;
+  teachingType: string;
+  totalAvailableSlots: number;
+  alternativeSlots: AlternativeSlotDto[];
+}
+
+// ============================================
 // Time Slot Models
 // ============================================
 

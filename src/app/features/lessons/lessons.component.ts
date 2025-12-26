@@ -91,7 +91,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private plansService: SubscriptionPlansService,
     private subscriptionService: SubscriptionService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Get route parameters
@@ -472,8 +472,8 @@ export class LessonsComponent implements OnInit, OnDestroy {
   /**
    * Load available terms for the subject
    */  /**
-   * Load available terms for the subject
-   */
+ * Load available terms for the subject
+ */
   private loadAvailableTerms(subjectId: number): void {
     const user = this.authService.getCurrentUser();
     let studentId = user?.studentId || this.selectedStudentId();
@@ -498,55 +498,36 @@ export class LessonsComponent implements OnInit, OnDestroy {
             lockedTerms: termAccessStatus.terms?.filter((t: any) => !t.hasAccess).map((t: any) => t.termNumber) || []
           });
 
-          // ✅ FALLBACK: If backend returns empty terms array, create default 4 terms
+          // ✅ Backend now returns empty array for global courses (yearNumber = 0)
+          // Global courses don't have terms - lessons are directly under the subject
           let termsData = termAccessStatus.terms || [];
 
           if (termsData.length === 0) {
-            console.warn('⚠️ Backend returned 0 terms - Creating default fallback terms');
+            // ✅ UPDATED: No longer creating fallback terms!
+            // If backend returns 0 terms, it's a global course - no terms needed
+            console.log('📌 Subject has no terms (likely a global course - yearNumber = 0)');
+            console.log('📌 Lessons will be loaded directly without term selector');
+            this.availableTerms.set([]);
 
-            // Create 4 default terms, mark current term as accessible
-            const currentTermNum = termAccessStatus.currentTermNumber || 1;
-            termsData = [
-              {
-                termNumber: 1,
-                termName: 'Term 1',
-                isCurrentTerm: currentTermNum === 1,
-                hasAccess: currentTermNum === 1  // Only current term has access
-              },
-              {
-                termNumber: 2,
-                termName: 'Term 2',
-                isCurrentTerm: currentTermNum === 2,
-                hasAccess: currentTermNum === 2
-              },
-              {
-                termNumber: 3,
-                termName: 'Term 3',
-                isCurrentTerm: currentTermNum === 3,
-                hasAccess: currentTermNum === 3
-              },
-              {
-                termNumber: 4,
-                termName: 'Term 4',
-                isCurrentTerm: currentTermNum === 4,
-                hasAccess: currentTermNum === 4
-              }
-            ];
-
-            console.log('✅ Created fallback terms for current term:', currentTermNum);
-          } else {
-            // ⚠️ WORKAROUND: If ALL terms have hasAccess: false but currentTermNumber is set,
-            // override hasAccess for the current term (backend bug)
-            const allLocked = termsData.every((t: any) => !t.hasAccess);
-            if (allLocked && termAccessStatus.currentTermNumber) {
-              console.warn('⚠️ Backend bug: All terms locked but currentTermNumber set');
-              console.log('🔧 Workaround: Granting access to current term:', termAccessStatus.currentTermNumber);
-
-              termsData = termsData.map((t: any) => ({
-                ...t,
-                hasAccess: t.termNumber === termAccessStatus.currentTermNumber || t.isCurrentTerm
-              }));
+            // Load lessons directly for global courses (no term filtering)
+            const subjectId = this.currentSubjectId();
+            if (subjectId) {
+              this.loadLessonsForSubjectId(subjectId);
             }
+            return;
+          }
+
+          // ⚠️ WORKAROUND: If ALL terms have hasAccess: false but currentTermNumber is set,
+          // override hasAccess for the current term (backend bug)
+          const allLocked = termsData.every((t: any) => !t.hasAccess);
+          if (allLocked && termAccessStatus.currentTermNumber) {
+            console.warn('⚠️ Backend bug: All terms locked but currentTermNumber set');
+            console.log('🔧 Workaround: Granting access to current term:', termAccessStatus.currentTermNumber);
+
+            termsData = termsData.map((t: any) => ({
+              ...t,
+              hasAccess: t.termNumber === termAccessStatus.currentTermNumber || t.isCurrentTerm
+            }));
           }
 
           // ✅ Backend now returns correct number of terms (4) filtered by current year
@@ -627,6 +608,14 @@ export class LessonsComponent implements OnInit, OnDestroy {
         next: (termAccessStatus: any) => {
           const currentTermNumber = termAccessStatus.currentTermNumber || 1;
           const termsData = termAccessStatus.terms || [];
+
+          // ✅ Handle global courses (no terms)
+          if (termsData.length === 0) {
+            console.log('📌 Global course detected (no terms) - loading lessons directly');
+            this.availableTerms.set([]);
+            this.loadLessonsForSubjectId(subjectId);
+            return;
+          }
 
           // Find current term in accessible terms
           const currentTerm = termsData.find((t: any) =>

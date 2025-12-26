@@ -27,7 +27,8 @@ import {
   CancelSessionWithOptionsRequest,
   CancelSessionResponse,
   RescheduleSessionRequest,
-  RescheduleSessionResponse
+  RescheduleSessionResponse,
+  AlternativeSlotsResponse
 } from '../../models/tutoring.models';
 
 @Injectable({
@@ -38,7 +39,7 @@ export class TutoringService {
   private adminUrl = `${environment.apiBaseUrl}/Admin`;
   private teacherUrl = `${environment.apiBaseUrl}/Teacher`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // ==================== ADMIN APIs - Teacher Priority ====================
 
@@ -175,6 +176,34 @@ export class TutoringService {
    */
   calculatePriceV2(request: NewPriceCalculationRequest): Observable<NewPriceCalculationResponse> {
     return this.http.post<NewPriceCalculationResponse>(`${this.apiUrl}/CalculatePrice`, request);
+  }
+
+  /**
+   * Get alternative slots for swapping (Parent)
+   * Used when user wants to change a scheduled slot to a different time
+   */
+  getAlternativeSlots(
+    teacherId: number,
+    subjectId: number,
+    teachingType: string,
+    startDate: string,
+    endDate: string,
+    excludeSlotIds?: number[]
+  ): Observable<AlternativeSlotsResponse> {
+    let params = new HttpParams()
+      .set('teacherId', teacherId.toString())
+      .set('subjectId', subjectId.toString())
+      .set('teachingType', teachingType)
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+
+    if (excludeSlotIds && excludeSlotIds.length > 0) {
+      excludeSlotIds.forEach(id => {
+        params = params.append('excludeSlotIds', id.toString());
+      });
+    }
+
+    return this.http.get<AlternativeSlotsResponse>(`${this.apiUrl}/AlternativeSlots`, { params });
   }
 
   // ==================== LEGACY APIs (Keep for backward compatibility) ====================

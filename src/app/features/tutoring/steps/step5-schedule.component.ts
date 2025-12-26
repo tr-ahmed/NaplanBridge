@@ -68,123 +68,86 @@ import {
 
       <!-- Recommended Schedule -->
       <div *ngIf="!loading && scheduleResponse" class="schedule-results">
-        <!-- Summary -->
-        <div class="summary-card">
-          <h3>📊 Schedule Summary</h3>
-          <div class="summary-stats">
-            <div class="stat">
-              <span class="stat-value">{{ scheduleResponse.summary.totalSessions }}</span>
-              <span class="stat-label">Total Sessions</span>
-            </div>
-            <div class="stat success">
-              <span class="stat-value">{{ scheduleResponse.summary.matchedSessions }}</span>
-              <span class="stat-label">Matched</span>
-            </div>
-            <div *ngIf="scheduleResponse.summary.unmatchedSessions > 0" class="stat warning">
-              <span class="stat-value">{{ scheduleResponse.summary.unmatchedSessions }}</span>
-              <span class="stat-label">Unmatched</span>
-          </div>
-          <div *ngIf="scheduleResponse.summary.consistentTeacherPerSubject" class="same-teacher-badge success">
-            ✅ All sessions for each subject scheduled with the same teacher!
-          </div>
-          <div *ngIf="!scheduleResponse.summary.consistentTeacherPerSubject && scheduleResponse.summary.splitSubjects.length > 0" class="same-teacher-badge info">
-            ℹ️ Some subjects are taught by multiple teachers to ensure full coverage
-          </div>
-          <!-- Unmatched sessions warning with suggestions -->
-          <div *ngIf="scheduleResponse.summary.unmatchedSessions > 0" class="unmatched-warning">
-            <div class="warning-header">
-              ⚠️ {{ scheduleResponse.summary.unmatchedSessions }} sessions could not be scheduled
-            </div>
-            <p class="warning-text">Not enough teacher availability for all requested sessions.</p>
-            <div class="suggestions">
-              <strong>Suggestions:</strong>
-              <ul>
-                <li>Extend your date range</li>
-                <li>Remove preferred days/times restrictions</li>
-                <li>Choose fewer hours per subject</li>
-              </ul>
-            </div>
-          </div>
+        <!-- Compact Summary Bar -->
+        <div class="summary-bar">
+          <span class="summary-stat">📊 <strong>{{ scheduleResponse.summary.matchedSessions }}</strong>/{{ scheduleResponse.summary.totalSessions }} sessions scheduled</span>
+          <span *ngIf="scheduleResponse.summary.unmatchedSessions > 0" class="summary-warning">
+            ⚠️ {{ scheduleResponse.summary.unmatchedSessions }} unmatched
+          </span>
+          <span *ngIf="scheduleResponse.summary.consistentTeacherPerSubject" class="summary-success">✅ Same teacher per subject</span>
         </div>
 
-        <!-- Split Subjects Info -->
-        <div *ngIf="scheduleResponse.summary.splitSubjects.length > 0" class="split-subjects-section">
-          <h4>📋 Subjects Split Between Teachers:</h4>
-          <div *ngFor="let split of scheduleResponse.summary.splitSubjects" class="split-subject-card">
-            <div class="split-header">
-              <h5>{{ split.subjectName }}</h5>
-              <span class="teacher-count-badge">{{ split.teacherCount }} teachers</span>
-            </div>
-            <p class="split-reason">{{ split.reason }}</p>
-            <div class="allocations">
-              <div *ngFor="let alloc of split.allocations" class="allocation-item">
-                <div class="teacher-info">
-                  <span class="teacher-name">{{ alloc.teacherName }}</span>
-                  <span class="priority-badge">Priority {{ alloc.priority }}/10</span>
-                </div>
-                <span class="sessions-badge">{{ alloc.sessionsAssigned }} sessions</span>
-              </div>
-            </div>
-          </div>
+        <!-- Unmatched Warning (Compact) -->
+        <div *ngIf="scheduleResponse.summary.unmatchedSessions > 0" class="unmatched-tip">
+          💡 Try extending your date range or removing time restrictions for better coverage
         </div>
 
-        <!-- Teachers Schedule -->
-        <div class="teachers-section">
-          <h3>🎓 Recommended Teachers & Schedule</h3>
-
-          <div *ngFor="let teacher of scheduleResponse.recommendedSchedule.teachers" class="teacher-card">
-            <div class="teacher-header">
-              <div class="teacher-info">
-                <h4>{{ teacher.teacherName }}</h4>
-                <div class="teacher-meta">
-                  <span class="priority">⭐ Priority: {{ teacher.priority }}/10</span>
-                  <span class="rating">Rating: {{ teacher.rating.toFixed(1) }}⭐</span>
-                </div>
-              </div>
-            </div>
-
-            <div *ngFor="let schedule of teacher.subjectSchedules" class="subject-schedule">
-              <div class="subject-schedule-header">
-                <h5>📚 {{ schedule.subjectName }}</h5>
-                <span class="session-type-badge" [class.group]="schedule.teachingType === 'Group'">
-                  {{ schedule.teachingType }}
+        <!-- Split Subjects (Collapsible) -->
+        <details *ngIf="scheduleResponse.summary.splitSubjects.length > 0" class="split-details">
+          <summary>ℹ️ {{ scheduleResponse.summary.splitSubjects.length }} subject(s) split between teachers</summary>
+          <div class="split-content">
+            <div *ngFor="let split of scheduleResponse.summary.splitSubjects" class="split-item">
+              <span class="split-subject">{{ split.subjectName }}</span>
+              <span class="split-teachers">
+                <span *ngFor="let alloc of split.allocations; let last = last">
+                  {{ alloc.teacherName }} ({{ alloc.sessionsAssigned }}){{ last ? '' : ', ' }}
                 </span>
-                <span class="sessions-count">{{ schedule.assignedSessions }}/{{ schedule.totalSessions }} sessions</span>
-              </div>
+              </span>
+            </div>
+          </div>
+        </details>
 
-              <div class="slots-grid">
-                <div *ngFor="let slot of schedule.slots"
-                     class="slot-card"
-                     [class.preferred]="slot.isPreferred"
-                     (click)="toggleSlot(teacher.teacherId, schedule.subjectId, slot)">
-                  <div class="slot-date">{{ formatDate(slot.dateTime) }}</div>
-                  <div class="slot-time">{{ formatTime(slot.dateTime) }}</div>
-                  <div class="slot-day">{{ getDayName(slot.dayOfWeek) }}</div>
-                  <div *ngIf="slot.isPreferred" class="preferred-badge">⭐ Preferred</div>
-                  <div *ngIf="isSlotSelected(slot)" class="checkmark">✓</div>
+        <!-- Schedule by Subject (with Time and Selection) -->
+        <div class="schedule-compact">
+          <h3>📅 Your Schedule</h3>
+          <p class="schedule-hint">Click on any slot to remove it. Sessions are distributed across your selected date range.</p>
+          
+          <div *ngFor="let teacher of scheduleResponse.recommendedSchedule.teachers" class="teacher-block">
+            <div class="teacher-name-bar">
+              👨‍🏫 {{ teacher.teacherName }}
+            </div>
+
+            <div *ngFor="let schedule of teacher.subjectSchedules" class="subject-row">
+              <div class="subject-header-compact">
+                <span class="subject-name">{{ schedule.subjectName }}</span>
+                <span class="type-badge" [class.group]="schedule.teachingType === 'Group'">{{ schedule.teachingType === 'Group' ? 'Group' : '1:1' }}</span>
+                <span class="count-badge">{{ schedule.assignedSessions }}/{{ schedule.totalSessions }}</span>
+              </div>
+              
+              <div class="slots-table">
+                <div *ngFor="let slot of schedule.slots; let i = index" 
+                     class="slot-row"
+                     [class.preferred]="getDisplaySlot(slot).isPreferred"
+                     [class.selected]="isSlotSelected(slot)"
+                     [class.swapped]="isSlotSwapped(slot)">
+                  <span class="slot-num">{{ i + 1 }}</span>
+                  <span class="slot-day">{{ getDayName(getDisplaySlot(slot).dayOfWeek) }}</span>
+                  <span class="slot-date">{{ formatDate(getDisplaySlot(slot).dateTime) }}</span>
+                  <span class="slot-time">{{ formatTime(getDisplaySlot(slot).dateTime) }}</span>
+                  <span *ngIf="getDisplaySlot(slot).isPreferred" class="slot-pref">⭐</span>
+                  <span *ngIf="isSlotSwapped(slot)" class="slot-swapped-badge">🔄</span>
+                  <button class="swap-btn" 
+                          (click)="openSwapModal(teacher.teacherId, schedule.subjectId, slot, $event)"
+                          title="Change this slot">
+                    ⇄
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Alternative Teachers -->
-        <div *ngIf="scheduleResponse.alternativeTeachers.length > 0" class="alternatives-section">
-          <h3>🔄 Alternative Teachers Available</h3>
-          <div class="alternatives-grid">
-            <div *ngFor="let alt of scheduleResponse.alternativeTeachers" class="alt-teacher-card">
-              <h5>{{ alt.teacherName }}</h5>
-              <div class="alt-meta">
-                <span>Priority: {{ alt.priority }}/10</span>
-                <span>Rating: {{ alt.rating.toFixed(1) }}⭐</span>
-                <span>{{ alt.availableSlots }} slots available</span>
-              </div>
-              <div class="alt-subject">
-                <span class="subject-tag">{{ alt.subjectName }}</span>
-              </div>
+        <!-- Alternative Teachers (Collapsed) -->
+        <details *ngIf="scheduleResponse.alternativeTeachers.length > 0" class="alternatives-collapsed">
+          <summary>🔄 {{ scheduleResponse.alternativeTeachers.length }} Alternative Teachers Available</summary>
+          <div class="alt-list">
+            <div *ngFor="let alt of scheduleResponse.alternativeTeachers" class="alt-item">
+              <span class="alt-name">{{ alt.teacherName }}</span>
+              <span class="alt-subject">{{ alt.subjectName }}</span>
+              <span class="alt-slots">{{ alt.availableSlots }} slots</span>
             </div>
           </div>
-        </div>
+        </details>
       </div>
 
       <!-- No Schedule Found -->
@@ -209,6 +172,54 @@ import {
           class="btn btn-primary">
           Next: Review & Pay →
         </button>
+      </div>
+
+      <!-- Swap Modal -->
+      <div *ngIf="swapModalOpen" class="swap-modal-overlay" (click)="closeSwapModal()">
+        <div class="swap-modal" (click)="$event.stopPropagation()">
+          <div class="swap-modal-header">
+            <h4>🔄 Change Time Slot</h4>
+            <button class="close-btn" (click)="closeSwapModal()">✕</button>
+          </div>
+          
+          <div *ngIf="currentSwapSlot" class="current-slot-info">
+            <p>Current Slot:</p>
+            <div class="current-slot-display">
+              {{ getDayName(getDisplaySlot(currentSwapSlot).dayOfWeek) }} 
+              {{ formatDate(getDisplaySlot(currentSwapSlot).dateTime) }} 
+              at {{ formatTime(getDisplaySlot(currentSwapSlot).dateTime) }}
+            </div>
+          </div>
+
+          <div class="alternative-slots-section">
+            <p>Select an alternative time:</p>
+            
+            <!-- Loading State -->
+            <div *ngIf="loadingAlternatives" class="loading-alternatives">
+              ⏳ Loading available times...
+            </div>
+            
+            <div *ngIf="!loadingAlternatives" class="alternative-slots-list">
+              <div *ngFor="let altSlot of availableAlternativeSlots" 
+                   class="alt-slot-option"
+                   [class.preferred]="altSlot.isPreferred"
+                   (click)="swapSlot(altSlot)">
+                <span class="alt-slot-day">{{ getDayName(altSlot.dayOfWeek) }}</span>
+                <span class="alt-slot-date">{{ formatDate(altSlot.dateTime) }}</span>
+                <span class="alt-slot-time">{{ formatTime(altSlot.dateTime) }}</span>
+                <span *ngIf="altSlot.isPreferred" class="alt-slot-pref">⭐</span>
+              </div>
+              <div *ngIf="availableAlternativeSlots.length === 0" class="no-alternatives">
+                ❗ No alternative slots available for this teacher.<br>
+                Try adjusting your date range or contact support.
+              </div>
+            </div>
+          </div>
+
+          <div class="swap-modal-footer">
+            <button class="btn btn-secondary" (click)="closeSwapModal()">Cancel</button>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -563,6 +574,91 @@ import {
 
     .schedule-results {
       margin-top: 2rem;
+    }
+
+    /* Compact Summary Bar */
+    .summary-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, #f0f9fa 0%, #fff 100%);
+      border: 1px solid #108092;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .summary-stat {
+      color: #333;
+    }
+
+    .summary-stat strong {
+      color: #108092;
+      font-size: 1.1rem;
+    }
+
+    .summary-warning {
+      color: #e65100;
+      font-weight: 500;
+    }
+
+    .summary-success {
+      color: #2e7d32;
+    }
+
+    .unmatched-tip {
+      padding: 0.5rem 1rem;
+      background: #fff8e1;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: #6d4c41;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Split Details Collapsible */
+    .split-details {
+      background: #f5f5f5;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .split-details summary {
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .split-details summary:hover {
+      color: #108092;
+    }
+
+    .split-content {
+      padding: 0 1rem 0.75rem;
+    }
+
+    .split-item {
+      display: flex;
+      gap: 1rem;
+      padding: 0.4rem 0;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .split-item:last-child {
+      border-bottom: none;
+    }
+
+    .split-subject {
+      font-weight: 600;
+      color: #333;
+      min-width: 120px;
+    }
+
+    .split-teachers {
+      color: #666;
     }
 
     .summary-card {
@@ -974,6 +1070,414 @@ import {
       font-size: 3rem;
       margin-bottom: 1rem;
     }
+
+    /* Compact Schedule Styles */
+    .schedule-compact {
+      margin-bottom: 2rem;
+    }
+
+    .schedule-compact h3 {
+      margin-bottom: 1rem;
+      color: #333;
+      font-size: 1.25rem;
+    }
+
+    .teacher-block {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .teacher-name-bar {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #108092;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 0.75rem;
+    }
+
+    .subject-row {
+      background: white;
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subject-header-compact {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .subject-name {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .type-badge {
+      background: #e3f2fd;
+      color: #1565c0;
+      padding: 0.15rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .type-badge.group {
+      background: #fce4ec;
+      color: #c2185b;
+    }
+
+    .count-badge {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 0.15rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .slots-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .slot-chip {
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      color: #555;
+      cursor: default;
+      white-space: nowrap;
+    }
+
+    .slot-chip.preferred {
+      background: #fff8e1;
+      border-color: #ffca28;
+      color: #e65100;
+    }
+
+    .slot-chip:hover {
+      background: #e3f2fd;
+      border-color: #2196f3;
+    }
+
+    /* Slots Table Layout */
+    .schedule-hint {
+      font-size: 0.8rem;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+
+    .slots-table {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .slot-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+    }
+
+    .slot-row:hover {
+      background: #e3f2fd;
+      border-color: #2196f3;
+    }
+
+    .slot-row.preferred {
+      background: #fff8e1;
+      border-color: #ffca28;
+    }
+
+    .slot-row.selected {
+      background: #ffebee;
+      border-color: #ef5350;
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .slot-num {
+      width: 24px;
+      height: 24px;
+      background: #108092;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .slot-row.selected .slot-num {
+      background: #ef5350;
+    }
+
+    .slot-row .slot-day {
+      width: 80px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .slot-row .slot-date {
+      width: 70px;
+      color: #555;
+    }
+
+    .slot-row .slot-time {
+      color: #108092;
+      font-weight: 600;
+    }
+
+    .slot-pref {
+      margin-left: auto;
+    }
+
+    /* Swap Button */
+    .swap-btn {
+      background: #e3f2fd;
+      border: 1px solid #2196f3;
+      color: #1565c0;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-left: 0.5rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .slot-row:hover .swap-btn {
+      opacity: 1;
+    }
+
+    .swap-btn:hover {
+      background: #1565c0;
+      color: white;
+    }
+
+    .slot-swapped-badge {
+      font-size: 0.75rem;
+    }
+
+    .slot-row.swapped {
+      background: #e8f5e9;
+      border-color: #4caf50;
+    }
+
+    .slot-row.swapped .slot-num {
+      background: #4caf50;
+    }
+
+    /* Swap Modal */
+    .swap-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .swap-modal {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 450px;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .swap-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
+      background: #f8f9fa;
+    }
+
+    .swap-modal-header h4 {
+      margin: 0;
+      color: #333;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    .current-slot-info {
+      padding: 1rem 1.5rem;
+      background: #f5f5f5;
+    }
+
+    .current-slot-info p {
+      margin: 0 0 0.5rem 0;
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    .current-slot-display {
+      font-weight: 600;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    .alternative-slots-section {
+      padding: 1rem 1.5rem;
+    }
+
+    .alternative-slots-section p {
+      margin: 0 0 0.75rem 0;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .alternative-slots-list {
+      max-height: 250px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .alt-slot-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .alt-slot-option:hover {
+      background: #e3f2fd;
+      border-color: #2196f3;
+    }
+
+    .alt-slot-option.preferred {
+      background: #fff8e1;
+      border-color: #ffca28;
+    }
+
+    .alt-slot-day {
+      font-weight: 500;
+      min-width: 80px;
+    }
+
+    .alt-slot-date {
+      color: #555;
+    }
+
+    .alt-slot-time {
+      color: #108092;
+      font-weight: 600;
+    }
+
+    .alt-slot-pref {
+      margin-left: auto;
+    }
+
+    .no-alternatives {
+      text-align: center;
+      padding: 2rem;
+      color: #888;
+    }
+
+    .swap-modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* Alternative Teachers Collapsed */
+    .alternatives-collapsed {
+      margin-top: 1.5rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 0;
+    }
+
+    .alternatives-collapsed summary {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .alternatives-collapsed summary:hover {
+      color: #108092;
+    }
+
+    .alt-list {
+      padding: 0.5rem 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .alt-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.5rem;
+      background: white;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .alt-name {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .alt-item .alt-subject {
+      color: #1565c0;
+      font-size: 0.8rem;
+    }
+
+    .alt-slots {
+      margin-left: auto;
+      color: #666;
+      font-size: 0.75rem;
+    }
   `]
 })
 export class Step5ScheduleComponent implements OnInit {
@@ -982,6 +1486,15 @@ export class Step5ScheduleComponent implements OnInit {
   selectedSlots = new Set<string>();
   loading = false;
   noScheduleFound = false;
+
+  // Swap Modal State
+  swapModalOpen = false;
+  currentSwapSlot: ScheduledSlotDto | null = null;
+  currentSwapTeacherId: number | null = null;
+  currentSwapSubjectId: number | null = null;
+  availableAlternativeSlots: ScheduledSlotDto[] = [];
+  // Map of original slot availabilityId -> new slot (for tracking swaps)
+  swappedSlots = new Map<number, ScheduledSlotDto>();
 
   // Preferences
   startDate = '';
@@ -1134,18 +1647,19 @@ export class Step5ScheduleComponent implements OnInit {
     return this.daysOfWeek[dayOfWeek];
   }
 
+  isSlotSelected(slot: ScheduledSlotDto): boolean {
+    // Check if this slot has been removed/deselected by the user
+    return this.selectedSlots.has(slot.availabilityId.toString());
+  }
+
   toggleSlot(teacherId: number, subjectId: number, slot: ScheduledSlotDto): void {
-    const key = `${teacherId}_${subjectId}_${slot.dateTime}`;
+    // Use availabilityId as unique identifier for the slot
+    const key = slot.availabilityId.toString();
     if (this.selectedSlots.has(key)) {
       this.selectedSlots.delete(key);
     } else {
       this.selectedSlots.add(key);
     }
-  }
-
-  isSlotSelected(slot: ScheduledSlotDto): boolean {
-    // Simple check - in real implementation, would need to track properly
-    return false;
   }
 
   canProceed(): boolean {
@@ -1161,5 +1675,121 @@ export class Step5ScheduleComponent implements OnInit {
     if (this.canProceed()) {
       this.stateService.nextStep();
     }
+  }
+
+  // Swap Modal Methods
+  loadingAlternatives = false;
+
+  openSwapModal(teacherId: number, subjectId: number, slot: ScheduledSlotDto, event: Event): void {
+    event.stopPropagation();
+
+    this.currentSwapSlot = slot;
+    this.currentSwapTeacherId = teacherId;
+    this.currentSwapSubjectId = subjectId;
+    this.availableAlternativeSlots = [];
+    this.loadingAlternatives = true;
+    this.swapModalOpen = true;
+
+    // Get all currently assigned slot IDs to exclude them
+    const excludeSlotIds: number[] = [];
+    if (this.scheduleResponse) {
+      this.scheduleResponse.recommendedSchedule.teachers.forEach(teacher => {
+        teacher.subjectSchedules.forEach(schedule => {
+          schedule.slots.forEach(s => {
+            excludeSlotIds.push(s.availabilityId);
+          });
+        });
+      });
+    }
+
+    // Get teaching type for this subject
+    const state = this.stateService.getState();
+    const student = this.students[0];
+    let teachingType = 'OneToOne';
+    if (student) {
+      const key = `${student.id}_${subjectId}`;
+      const tt = state.subjectTeachingTypes.get(key);
+      if (tt) teachingType = tt;
+    }
+
+    // Call the new Alternative Slots API
+    this.tutoringService.getAlternativeSlots(
+      teacherId,
+      subjectId,
+      teachingType,
+      this.startDate,
+      this.endDate,
+      excludeSlotIds
+    ).subscribe({
+      next: (response) => {
+        console.log('📅 Alternative slots response:', response);
+
+        // Convert AlternativeSlotDto to ScheduledSlotDto format
+        this.availableAlternativeSlots = response.alternativeSlots.map(alt => ({
+          availabilityId: alt.availabilityId,
+          dateTime: alt.dateTime,
+          dayOfWeek: alt.dayOfWeek,
+          duration: alt.duration,
+          isPreferred: alt.isPreferred,
+          conflictingBookings: 0
+        }));
+
+        this.loadingAlternatives = false;
+        console.log('Found', this.availableAlternativeSlots.length, 'alternative slots');
+      },
+      error: (err) => {
+        console.error('Error fetching alternative slots:', err);
+        this.loadingAlternatives = false;
+
+        // Fallback: show other existing slots
+        this.showFallbackAlternatives(teacherId, subjectId, slot);
+      }
+    });
+  }
+
+  showFallbackAlternatives(teacherId: number, subjectId: number, slot: ScheduledSlotDto): void {
+    if (this.scheduleResponse) {
+      const currentTeacher = this.scheduleResponse.recommendedSchedule.teachers
+        .find(t => t.teacherId === teacherId);
+
+      if (currentTeacher) {
+        const currentSchedule = currentTeacher.subjectSchedules
+          .find(s => s.subjectId === subjectId);
+
+        if (currentSchedule) {
+          const currentDateTime = this.getDisplaySlot(slot).dateTime;
+          this.availableAlternativeSlots = currentSchedule.slots
+            .filter(s => s.dateTime !== currentDateTime)
+            .filter(s => !this.isSlotSwapped(s));
+        }
+      }
+    }
+  }
+
+  closeSwapModal(): void {
+    this.swapModalOpen = false;
+    this.currentSwapSlot = null;
+    this.currentSwapTeacherId = null;
+    this.currentSwapSubjectId = null;
+    this.availableAlternativeSlots = [];
+  }
+
+  swapSlot(newSlot: ScheduledSlotDto): void {
+    if (this.currentSwapSlot) {
+      // Store the swap: original slot -> new slot
+      this.swappedSlots.set(this.currentSwapSlot.availabilityId, newSlot);
+      console.log('Swapped slot:', this.currentSwapSlot.dateTime, '->', newSlot.dateTime);
+    }
+    this.closeSwapModal();
+  }
+
+  // Get the display slot (either original or swapped)
+  getDisplaySlot(slot: ScheduledSlotDto): ScheduledSlotDto {
+    return this.swappedSlots.get(slot.availabilityId) || slot;
+  }
+
+  // Check if a slot has been swapped
+  isSlotSwapped(slot: ScheduledSlotDto): boolean {
+    return this.swappedSlots.has(slot.availabilityId);
   }
 }
