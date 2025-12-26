@@ -109,6 +109,27 @@ import {
           </div>
         </div>
 
+        <!-- Unavailable Subjects Warning Banner (Inline) -->
+        <div class="unavailable-warning-banner" *ngIf="unavailableSubjects.length > 0">
+          <div class="warning-banner-header">
+            <span class="warning-banner-icon">⚠️</span>
+            <span class="warning-banner-title">Some subjects have no available slots</span>
+            <button class="dismiss-btn" (click)="dismissWarningAndRemoveSubjects()">✕</button>
+          </div>
+          <div class="warning-banner-items">
+            <div *ngFor="let item of unavailableSubjects" class="warning-item">
+              <span class="warning-student">{{ item.studentName }}</span>
+              <span class="warning-arrow">→</span>
+              <span class="warning-subject">{{ item.subjectName }}</span>
+              <span class="warning-type">({{ item.teachingType }})</span>
+              <span class="warning-sessions">{{ item.availableSessions }}/{{ item.requestedSessions }}</span>
+            </div>
+          </div>
+          <div class="warning-banner-note">
+            These will be removed from your booking. <a href="javascript:void(0)" (click)="cancelDueToUnavailableSubjects()">Change subjects instead</a>
+          </div>
+        </div>
+
         <!-- Schedule by Student → Subject → Slots -->
         <div class="students-schedule">
           <div *ngFor="let student of students" class="student-section">
@@ -641,6 +662,108 @@ import {
     .session-count {
       font-size: 0.8rem;
       color: #64748b;
+    }
+
+    /* Inline Warning Banner */
+    .unavailable-warning-banner {
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      border: 1px solid #ffb74d;
+      border-radius: 12px;
+      margin: 0 1.5rem 1rem 1.5rem;
+      overflow: hidden;
+    }
+
+    .warning-banner-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+      color: white;
+    }
+
+    .warning-banner-icon {
+      font-size: 1rem;
+    }
+
+    .warning-banner-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      flex: 1;
+    }
+
+    .dismiss-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .dismiss-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .warning-banner-items {
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .warning-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: white;
+      padding: 0.4rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      border: 1px solid #ffcc80;
+    }
+
+    .warning-student {
+      font-weight: 600;
+      color: #e65100;
+    }
+
+    .warning-arrow {
+      color: #999;
+    }
+
+    .warning-subject {
+      color: #333;
+    }
+
+    .warning-type {
+      color: #888;
+      font-size: 0.75rem;
+    }
+
+    .warning-sessions {
+      background: #ffccbc;
+      color: #bf360c;
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .warning-banner-note {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: #666;
+      border-top: 1px solid #ffcc80;
+      background: rgba(255,255,255,0.5);
+    }
+
+    .warning-banner-note a {
+      color: #e65100;
+      font-weight: 500;
     }
 
     /* Student Schedule Sections */
@@ -2830,17 +2953,32 @@ export class Step5ScheduleComponent implements OnInit {
       };
     });
 
-    // Show modal if there are unavailable subjects
-    if (this.unavailableSubjects.length > 0) {
-      this.unavailableSubjectsModalOpen = true;
-    }
+    // Inline banner shows automatically via *ngIf
+    // No need to trigger modal anymore
   }
 
   // Continue booking after acknowledging unavailable subjects
   continueWithAvailableSubjects(): void {
+    // Remove unavailable subjects from state
+    this.removeUnavailableSubjectsFromState();
     this.unavailableSubjectsModalOpen = false;
-    // User acknowledged, proceed with available subjects only
-    console.log('👍 User chose to continue with available subjects');
+    console.log('👍 User chose to continue with available subjects - unavailable removed from state');
+  }
+
+  // Remove unavailable subjects from the state service
+  removeUnavailableSubjectsFromState(): void {
+    // For each unavailable subject, remove it completely from state
+    this.unavailableSubjects.forEach(item => {
+      this.stateService.removeSubjectFromStudent(item.studentId, item.subjectId);
+    });
+    console.log('✅ State updated - unavailable subjects removed');
+  }
+
+  // Dismiss warning banner and remove unavailable subjects
+  dismissWarningAndRemoveSubjects(): void {
+    this.removeUnavailableSubjectsFromState();
+    this.unavailableSubjects = [];
+    console.log('👋 Warning banner dismissed, subjects removed');
   }
 
   // Cancel booking due to unavailable subjects
@@ -2926,6 +3064,13 @@ export class Step5ScheduleComponent implements OnInit {
   // Reserve slots before proceeding to payment
   proceedToPayment(): void {
     if (this.reservingSlots) return;
+
+    // Auto-remove unavailable subjects before proceeding
+    if (this.unavailableSubjects.length > 0) {
+      console.log('🗑️ Auto-removing unavailable subjects before payment...');
+      this.removeUnavailableSubjectsFromState();
+      this.unavailableSubjects = [];
+    }
 
     // Collect all slots to reserve from all teachers
     const slotsToReserve: Array<{

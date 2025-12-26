@@ -119,6 +119,44 @@ export class TutoringStateService {
     return this.stateSubject.value.studentSubjectTimeSlots.get(key) || [];
   }
 
+  // Remove a subject from a student (cleans up all related data)
+  removeSubjectFromStudent(studentId: number, subjectId: number): void {
+    const key = `${studentId}_${subjectId}`;
+    const state = this.stateSubject.value;
+
+    // Remove from studentSubjects
+    const studentSubjects = new Map(state.studentSubjects);
+    const subjects = studentSubjects.get(studentId);
+    if (subjects) {
+      subjects.delete(subjectId);
+      studentSubjects.set(studentId, subjects);
+    }
+
+    // Remove from subjectTeachingTypes
+    const types = new Map(state.subjectTeachingTypes);
+    types.delete(key);
+
+    // Remove from subjectHours
+    const hours = new Map(state.subjectHours);
+    hours.delete(key);
+
+    // Remove from studentSubjectTimeSlots
+    const slots = new Map(state.studentSubjectTimeSlots);
+    slots.delete(key);
+
+    // Update state
+    this.stateSubject.next({
+      ...state,
+      studentSubjects,
+      subjectTeachingTypes: types,
+      subjectHours: hours,
+      studentSubjectTimeSlots: slots
+    });
+    this.saveState();
+
+    console.log(`🗑️ Removed subject ${subjectId} from student ${studentId} with all related data`);
+  }
+
   // ============================================
   // Step Navigation
   // ============================================

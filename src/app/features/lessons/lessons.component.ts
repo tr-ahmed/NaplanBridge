@@ -1100,30 +1100,43 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   /**
    * Add plan to cart (extracted for reuse)
+   * ✅ FIXED: Now uses coursesService.onPlanSelected (same as courses page)
+   * This uses /Cart/items endpoint instead of /cart/add
    */
   private addPlanToCart(planId: number, studentId: number): void {
     const selectedPlan = this.selectedCoursePlans().find(p => p.id === planId);
 
     console.log('🛒 Adding plan to cart:', { planId, studentId, selectedPlan });
 
-    // Add to cart
-    this.cartService.addToCart({
-      subscriptionPlanId: planId,
-      studentId: studentId,
-      quantity: 1
-    }).pipe(takeUntil(this.destroy$))
+    // ✅ Create a course-like object for the service
+    const courseData: any = {
+      id: this.currentSubjectId(),
+      subjectName: this.currentSubject(),
+      name: this.currentSubject(),
+      courseId: this.currentCourseId(),
+      yearId: null  // Global courses don't have yearId filtering
+    };
+
+    // ✅ Use coursesService.onPlanSelected (same as courses page)
+    // This uses /Cart/items endpoint which is the correct one
+    this.coursesService.onPlanSelected(planId, courseData, studentId)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          console.log('✅ Plan added to cart:', response);
+        next: (success) => {
+          if (success) {
+            console.log('✅ Plan added to cart successfully');
 
-          // Close modal
-          this.onClosePlanModal();
+            // Close modal
+            this.onClosePlanModal();
 
-          // Show success message
-          this.toastService.showSuccess(`${selectedPlan?.name || 'Plan'} has been added to your cart!`);
+            // Show success message
+            this.toastService.showSuccess(`${selectedPlan?.name || 'Plan'} has been added to your cart!`);
 
-          // Refresh cart count
-          this.cartService.getCartItemCount().subscribe();
+            // Refresh cart count
+            this.cartService.getCartItemCount().subscribe();
+          } else {
+            console.log('⚠️ Plan was not added to cart');
+          }
         },
         error: (error) => {
           console.error('❌ Failed to add to cart:', error);
