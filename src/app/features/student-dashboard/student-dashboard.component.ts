@@ -337,7 +337,8 @@ export class StudentDashboardComponent implements OnInit {
                     completedLessons,
                     totalLessons,
                     isActive: sub.isActive !== false,
-                    expiryDate: sub.expiryDate || sub.endDate
+                    expiryDate: sub.expiryDate || sub.endDate,
+                    isGlobal: sub.isGlobal || false  // ✅ NEW: Capture isGlobal from API
                   });
                 }
               });
@@ -793,9 +794,36 @@ export class StudentDashboardComponent implements OnInit {
 
   /**
    * View lessons for a specific subject
+   * ✅ UPDATED: Now handles global courses with isGlobal flag
    */
-  viewSubjectLessons(subjectId: number): void {
-    this.router.navigate(['/lessons'], { queryParams: { subjectId: subjectId } });
+  viewSubjectLessons(subject: any): void {
+    if (!subject.subjectId) {
+      this.toastService.showError('Subject ID not available');
+      return;
+    }
+
+    // ✅ Handle global courses (no terms hierarchy)
+    if (subject.isGlobal) {
+      console.log('🌍 Global course detected - navigating directly without terms');
+      this.router.navigate(['/lessons'], {
+        queryParams: {
+          subjectId: subject.subjectId,
+          subject: subject.subjectName,
+          studentId: this.studentId,
+          hasAccess: true,
+          isGlobal: true
+        }
+      });
+    } else {
+      // Regular course - navigate normally
+      this.router.navigate(['/lessons'], {
+        queryParams: {
+          subjectId: subject.subjectId,
+          subject: subject.subjectName,
+          studentId: this.studentId
+        }
+      });
+    }
   }
 
   /**
