@@ -132,12 +132,13 @@ export class LessonsComponent implements OnInit, OnDestroy {
             console.log('🌍 Global course detected - loading lessons directly without terms');
             this.availableTerms.set([]);  // Clear any terms
 
-            // ✅ FIXED: Verify subscription access from backend for global courses too
+            // ✅ BACKEND FIXED (2025-01-29): hasAccessToSubject now correctly handles global courses
+            // Global subjects are accessible to ANY student with an active subscription
             const currentUser = this.authService.getCurrentUser();
             const studentId = this.selectedStudentId() || currentUser?.studentId;
 
             if (studentId) {
-              // Verify subscription access for global course
+              // Check subscription access using the now-fixed hasAccessToSubject API
               this.subscriptionService.hasAccessToSubject(studentId, parseInt(subjectId))
                 .pipe(takeUntil(this.destroy$))
                 .subscribe(result => {
