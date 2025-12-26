@@ -305,6 +305,7 @@ export interface StudentPriceBreakdownDto {
 }
 
 export interface DiscountBreakdownDto {
+  multiStudentsSavings: number;
   multiSubjectSavings: number;
   groupSavings: number;
   hoursSavings: number;

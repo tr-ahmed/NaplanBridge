@@ -171,6 +171,11 @@ import {
               
               <!-- Breakdown Pills -->
               <div class="flex flex-wrap gap-3 mt-5 pt-5 border-t border-teal-200">
+                @if (priceResponse.breakdown.multiStudentsSavings > 0) {
+                  <div class="px-4 py-2 bg-indigo-100 rounded-xl border border-indigo-200">
+                    <span class="text-indigo-700 text-sm font-medium">👨‍👩‍👧‍👦 Multi-Students: -\${{ priceResponse.breakdown.multiStudentsSavings.toFixed(2) }}</span>
+                  </div>
+                }
                 @if (priceResponse.breakdown.multiSubjectSavings > 0) {
                   <div class="px-4 py-2 bg-teal-100 rounded-xl border border-teal-200">
                     <span class="text-teal-700 text-sm font-medium">📚 Multi-Subject: -\${{ priceResponse.breakdown.multiSubjectSavings.toFixed(2) }}</span>

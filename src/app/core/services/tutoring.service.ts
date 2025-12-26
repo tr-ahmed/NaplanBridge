@@ -241,8 +241,9 @@ export class TutoringService {
   /**
    * Create tutoring order and get Stripe checkout URL
    */
-  createOrder(request: CreateTutoringOrderRequest): Observable<CreateTutoringOrderResponse> {
-    return this.http.post<CreateTutoringOrderResponse>(`${this.apiUrl}/create-order`, request);
+  createOrder(request: any): Observable<CreateTutoringOrderResponse> {
+    // Use the new V2 endpoint that matches CalculatePrice format
+    return this.http.post<CreateTutoringOrderResponse>(`${this.apiUrl}/create-order-v2`, request);
   }
 
   /**
