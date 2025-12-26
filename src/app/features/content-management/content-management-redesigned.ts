@@ -851,6 +851,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         // Fetch complete subject details from API
         const completeSubject = await this.contentService.getSubject(entity.id).toPromise();
 
+
         // Close loading indicator
         Swal.close();
 
@@ -863,6 +864,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         }
 
         console.log('📝 Opening edit for', type, 'with complete data:', this.form);
+
       } catch (error) {
         Swal.close();
         console.error('Error fetching subject details:', error);
