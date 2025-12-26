@@ -120,8 +120,13 @@ import {
             
             <!-- Student's Subjects -->
             <div class="student-subjects">
-              <div *ngFor="let subjectData of getSubjectsForStudent(student.id)" class="subject-card">
-                <div class="subject-card-header">
+              <div *ngFor="let subjectData of getSubjectsForStudent(student.id); let subjectIdx = index" 
+                   class="subject-card"
+                   [class.expanded]="isSubjectExpanded(student.id, subjectData.subjectId)"
+                   [class.first]="subjectIdx === 0"
+                   (mouseenter)="hoverSubject(student.id, subjectData.subjectId)"
+                   (mouseleave)="unhoverSubject()">
+                <div class="subject-card-header" (click)="toggleSubject(student.id, subjectData.subjectId)">
                   <span class="subject-icon">📚</span>
                   <span class="subject-name">{{ subjectData.subjectName }}</span>
                   <div class="subject-meta">
@@ -129,24 +134,27 @@ import {
                       {{ subjectData.teachingType === 'Group' ? '👥 Group' : '👤 1:1' }}
                     </span>
                     <span class="badge count">{{ subjectData.slots.length }} sessions</span>
+                    <span class="expand-icon">{{ isSubjectExpanded(student.id, subjectData.subjectId) ? '▼' : '▶' }}</span>
                   </div>
                 </div>
                 
-                <div class="slots-grid">
-                  <div *ngFor="let slotInfo of subjectData.slots; let i = index" 
-                       class="slot-card"
-                       [class.swapped]="isSlotSwapped(slotInfo.slot)">
-                    <div class="slot-date">
-                      <span class="slot-day-name">{{ getDayName(getDisplaySlot(slotInfo.slot).dayOfWeek).substring(0,3) }}</span>
-                      <span class="slot-day-num">{{ formatDayNum(getDisplaySlot(slotInfo.slot).dateTime) }}</span>
-                      <span class="slot-month">{{ formatMonth(getDisplaySlot(slotInfo.slot).dateTime) }}</span>
+                <div class="slots-container" *ngIf="isSubjectExpanded(student.id, subjectData.subjectId)">
+                  <div class="slots-grid">
+                    <div *ngFor="let slotInfo of subjectData.slots; let i = index" 
+                         class="slot-card"
+                         [class.swapped]="isSlotSwapped(slotInfo.slot)">
+                      <div class="slot-date">
+                        <span class="slot-day-name">{{ getDayName(getDisplaySlot(slotInfo.slot).dayOfWeek).substring(0,3) }}</span>
+                        <span class="slot-day-num">{{ formatDayNum(getDisplaySlot(slotInfo.slot).dateTime) }}</span>
+                        <span class="slot-month">{{ formatMonth(getDisplaySlot(slotInfo.slot).dateTime) }}</span>
+                      </div>
+                      <div class="slot-time">{{ formatTime(getDisplaySlot(slotInfo.slot).dateTime) }}</div>
+                      <button class="slot-swap-btn" 
+                              (click)="openSwapModal(slotInfo.teacherId, subjectData.subjectId, slotInfo.slot, $event)"
+                              title="Change time">
+                        ⇄
+                      </button>
                     </div>
-                    <div class="slot-time">{{ formatTime(getDisplaySlot(slotInfo.slot).dateTime) }}</div>
-                    <button class="slot-swap-btn" 
-                            (click)="openSwapModal(slotInfo.teacherId, subjectData.subjectId, slotInfo.slot, $event)"
-                            title="Change time">
-                      ⇄
-                    </button>
                   </div>
                 </div>
               </div>
@@ -683,6 +691,39 @@ import {
     .subject-meta {
       display: flex;
       gap: 0.5rem;
+      align-items: center;
+    }
+
+    .expand-icon {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-left: 0.5rem;
+      transition: transform 0.2s ease;
+    }
+
+    .subject-card-header {
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .subject-card-header:hover {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    }
+
+    .slots-container {
+      overflow: hidden;
+      animation: slideDown 0.2s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        max-height: 0;
+      }
+      to {
+        opacity: 1;
+        max-height: 1000px;
+      }
     }
 
     .subject-card .slots-grid {
@@ -2235,6 +2276,11 @@ export class Step5ScheduleComponent implements OnInit {
   // UI State
   preferencesExpanded = true;
 
+  // Collapsible subjects state: Map of "studentId_subjectId" -> isExpanded
+  expandedSubjects = new Set<string>();
+  hoveredSubject: string | null = null;
+  firstSubjectsInitialized = false;
+
   constructor(
     private stateService: TutoringStateService,
     private tutoringService: TutoringService,
@@ -2453,7 +2499,58 @@ export class Step5ScheduleComponent implements OnInit {
 
     // Get all grouped subjects and filter by student's subjects
     const allSubjects = this.getGroupedSubjectSlots();
-    return allSubjects.filter(subject => studentSubjectIds.has(subject.subjectId));
+    const result = allSubjects.filter(subject => studentSubjectIds.has(subject.subjectId));
+
+    // Initialize first subject as expanded for each student
+    if (result.length > 0 && !this.firstSubjectsInitialized) {
+      this.initializeFirstSubjects();
+    }
+
+    return result;
+  }
+
+  // Initialize first subject of each student as expanded
+  initializeFirstSubjects(): void {
+    this.firstSubjectsInitialized = true;
+    this.students.forEach(student => {
+      const subjects = this.getGroupedSubjectSlots();
+      const state = this.stateService.getState();
+      const studentSubjectIds = state.studentSubjects.get(student.id) || new Set<number>();
+      const studentSubjects = subjects.filter(s => studentSubjectIds.has(s.subjectId));
+      if (studentSubjects.length > 0) {
+        const key = `${student.id}_${studentSubjects[0].subjectId}`;
+        this.expandedSubjects.add(key);
+      }
+    });
+  }
+
+  // Check if a subject is expanded
+  isSubjectExpanded(studentId: number, subjectId: number): boolean {
+    const key = `${studentId}_${subjectId}`;
+    return this.expandedSubjects.has(key) || this.hoveredSubject === key;
+  }
+
+  // Toggle subject expanded/collapsed
+  toggleSubject(studentId: number, subjectId: number): void {
+    const key = `${studentId}_${subjectId}`;
+    if (this.expandedSubjects.has(key)) {
+      this.expandedSubjects.delete(key);
+    } else {
+      this.expandedSubjects.add(key);
+    }
+  }
+
+  // Hover to temporarily expand
+  hoverSubject(studentId: number, subjectId: number): void {
+    const key = `${studentId}_${subjectId}`;
+    if (!this.expandedSubjects.has(key)) {
+      this.hoveredSubject = key;
+    }
+  }
+
+  // Stop hovering
+  unhoverSubject(): void {
+    this.hoveredSubject = null;
   }
 
   getTeacherDisplayName(teacher: ScheduledTeacherDto): string {

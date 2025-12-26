@@ -369,7 +369,10 @@ export class ContentModalComponent implements OnChanges, OnInit {
         : ['originalPrice', 'level', 'teacherId'],
       'term': ['subjectId', 'termNumber', 'startDate'],
       'week': ['termId', 'weekNumber'],
-      'lesson': ['title', 'description', 'weekId'] // subjectId removed - auto-calculated by backend
+      // ✅ UPDATED: weekId is NOT required for global course lessons
+      'lesson': this.formData?.isGlobalLesson
+        ? ['title', 'description']  // Global lessons: only title and description required
+        : ['title', 'description', 'weekId']  // Standard lessons: weekId required
     };
 
     return requiredFieldsMap[this.entityType] || [];
