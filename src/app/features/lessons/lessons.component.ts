@@ -472,8 +472,8 @@ export class LessonsComponent implements OnInit, OnDestroy {
   /**
    * Load available terms for the subject
    */  /**
- * Load available terms for the subject
- */
+* Load available terms for the subject
+*/
   private loadAvailableTerms(subjectId: number): void {
     const user = this.authService.getCurrentUser();
     let studentId = user?.studentId || this.selectedStudentId();
@@ -498,18 +498,16 @@ export class LessonsComponent implements OnInit, OnDestroy {
             lockedTerms: termAccessStatus.terms?.filter((t: any) => !t.hasAccess).map((t: any) => t.termNumber) || []
           });
 
-          // ✅ Backend now returns empty array for global courses (yearNumber = 0)
-          // Global courses don't have terms - lessons are directly under the subject
+          // ✅ Handle global courses (yearNumber = 0) - no terms/weeks
+          // Backend returns empty terms array for global courses
           let termsData = termAccessStatus.terms || [];
 
           if (termsData.length === 0) {
-            // ✅ UPDATED: No longer creating fallback terms!
-            // If backend returns 0 terms, it's a global course - no terms needed
-            console.log('📌 Subject has no terms (likely a global course - yearNumber = 0)');
-            console.log('📌 Lessons will be loaded directly without term selector');
+            // This is a global course - load lessons directly without term selector
+            console.log('📌 Global course detected (no terms) - loading lessons directly');
             this.availableTerms.set([]);
 
-            // Load lessons directly for global courses (no term filtering)
+            // Load lessons directly for global courses
             const subjectId = this.currentSubjectId();
             if (subjectId) {
               this.loadLessonsForSubjectId(subjectId);
@@ -517,6 +515,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
             return;
           }
 
+          // Standard course with terms - continue with term processing
           // ⚠️ WORKAROUND: If ALL terms have hasAccess: false but currentTermNumber is set,
           // override hasAccess for the current term (backend bug)
           const allLocked = termsData.every((t: any) => !t.hasAccess);

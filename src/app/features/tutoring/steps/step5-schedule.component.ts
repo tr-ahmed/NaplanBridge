@@ -21,129 +21,153 @@ import {
   imports: [CommonModule, FormsModule],
   template: `
     <div class="step-container">
-      <h2 class="step-title">Step 5: Smart Scheduling</h2>
-      <p class="step-subtitle">We'll find the best teachers and schedule all sessions for each subject with the same teacher</p>
-
-      <!-- Preferences Section -->
-      <div class="preferences-section">
-        <h3>📅 Scheduling Preferences (Optional)</h3>
-        <div class="preferences-grid">
-          <div class="form-group">
-            <label>Start Date</label>
-            <input type="date" [(ngModel)]="startDate" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>End Date</label>
-            <input type="date" [(ngModel)]="endDate" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Preferred Time</label>
-            <select [(ngModel)]="preferredTimeRange" class="form-control">
-              <option value="">Any Time</option>
-              <option value="morning">Morning (9AM - 12PM)</option>
-              <option value="afternoon">Afternoon (12PM - 5PM)</option>
-              <option value="evening">Evening (5PM - 9PM)</option>
-            </select>
-          </div>
-        </div>
-        <div class="preferred-days">
-          <label>Preferred Days:</label>
-          <div class="days-checkboxes">
-            <label *ngFor="let day of daysOfWeek; let i = index" class="day-checkbox">
-              <input type="checkbox" [(ngModel)]="selectedDays[i]">
-              <span>{{ day }}</span>
-            </label>
-          </div>
-        </div>
-        <button class="btn btn-secondary" (click)="loadSmartSchedule()" [disabled]="loading">
-          {{ loading ? 'جاري البحث...' : '🔍 Find Best Schedule' }}
-        </button>
+      <!-- Hero Header -->
+      <div class="hero-header">
+        <div class="hero-icon">📅</div>
+        <h2>Smart Scheduling</h2>
+        <p>We'll match you with the best teachers and create your personalized schedule</p>
       </div>
 
-      <!-- Loading -->
-      <div *ngIf="loading" class="loading">
-        <div class="spinner"></div>
-        <p>Finding the best teachers and times for you...</p>
-      </div>
-
-      <!-- Recommended Schedule -->
-      <div *ngIf="!loading && scheduleResponse" class="schedule-results">
-        <!-- Compact Summary Bar -->
-        <div class="summary-bar">
-          <span class="summary-stat">📊 <strong>{{ scheduleResponse.summary.matchedSessions }}</strong>/{{ scheduleResponse.summary.totalSessions }} sessions scheduled</span>
-          <span *ngIf="scheduleResponse.summary.unmatchedSessions > 0" class="summary-warning">
-            ⚠️ {{ scheduleResponse.summary.unmatchedSessions }} unmatched
-          </span>
-          <span *ngIf="scheduleResponse.summary.consistentTeacherPerSubject" class="summary-success">✅ Same teacher per subject</span>
+      <!-- Preferences Panel -->
+      <div class="preferences-panel">
+        <div class="panel-header" (click)="preferencesExpanded = !preferencesExpanded">
+          <span>⚙️ Scheduling Preferences</span>
+          <span class="toggle-icon">{{ preferencesExpanded ? '▼' : '▶' }}</span>
         </div>
-
-        <!-- Unmatched Warning (Compact) -->
-        <div *ngIf="scheduleResponse.summary.unmatchedSessions > 0" class="unmatched-tip">
-          💡 Try extending your date range or removing time restrictions for better coverage
-        </div>
-
-        <!-- Split Subjects (Collapsible) -->
-        <details *ngIf="scheduleResponse.summary.splitSubjects.length > 0" class="split-details">
-          <summary>ℹ️ {{ scheduleResponse.summary.splitSubjects.length }} subject(s) split between teachers</summary>
-          <div class="split-content">
-            <div *ngFor="let split of scheduleResponse.summary.splitSubjects" class="split-item">
-              <span class="split-subject">{{ split.subjectName }}</span>
-              <span class="split-teachers">
-                <span *ngFor="let alloc of split.allocations; let last = last">
-                  {{ alloc.teacherName }} ({{ alloc.sessionsAssigned }}){{ last ? '' : ', ' }}
-                </span>
-              </span>
+        
+        <div class="panel-content" *ngIf="preferencesExpanded">
+          <div class="pref-grid">
+            <div class="pref-card">
+              <div class="pref-icon">📆</div>
+              <label>Start Date</label>
+              <input type="date" [(ngModel)]="startDate" class="pref-input">
+            </div>
+            <div class="pref-card">
+              <div class="pref-icon">🏁</div>
+              <label>End Date</label>
+              <input type="date" [(ngModel)]="endDate" class="pref-input">
+            </div>
+            <div class="pref-card">
+              <div class="pref-icon">🕐</div>
+              <label>Preferred Time</label>
+              <select [(ngModel)]="preferredTimeRange" class="pref-input">
+                <option value="">Any Time</option>
+                <option value="morning">🌅 Morning</option>
+                <option value="afternoon">☀️ Afternoon</option>
+                <option value="evening">🌙 Evening</option>
+              </select>
             </div>
           </div>
-        </details>
-
-        <!-- Schedule by Subject (with Time and Selection) -->
-        <div class="schedule-compact">
-          <h3>📅 Your Schedule</h3>
-          <p class="schedule-hint">Click on any slot to remove it. Sessions are distributed across your selected date range.</p>
           
-          <div *ngFor="let teacher of scheduleResponse.recommendedSchedule.teachers" class="teacher-block">
-            <div class="teacher-name-bar">
-              👨‍🏫 {{ teacher.teacherName }}
+          <div class="days-section">
+            <label>Preferred Days</label>
+            <div class="days-pills">
+              <button *ngFor="let day of daysOfWeek; let i = index" 
+                      class="day-pill" 
+                      [class.active]="selectedDays[i]"
+                      (click)="selectedDays[i] = !selectedDays[i]">
+                {{ day }}
+              </button>
             </div>
+          </div>
+          
+          <button class="find-btn" (click)="loadSmartSchedule()" [disabled]="loading">
+            <span *ngIf="!loading">🔍 Find Best Schedule</span>
+            <span *ngIf="loading">⏳ Searching...</span>
+          </button>
+        </div>
+      </div>
 
-            <div *ngFor="let schedule of teacher.subjectSchedules" class="subject-row">
-              <div class="subject-header-compact">
-                <span class="subject-name">{{ schedule.subjectName }}</span>
-                <span class="type-badge" [class.group]="schedule.teachingType === 'Group'">{{ schedule.teachingType === 'Group' ? 'Group' : '1:1' }}</span>
-                <span class="count-badge">{{ schedule.assignedSessions }}/{{ schedule.totalSessions }}</span>
-              </div>
-              
-              <div class="slots-table">
-                <div *ngFor="let slot of schedule.slots; let i = index" 
-                     class="slot-row"
-                     [class.preferred]="getDisplaySlot(slot).isPreferred"
-                     [class.selected]="isSlotSelected(slot)"
-                     [class.swapped]="isSlotSwapped(slot)">
-                  <span class="slot-num">{{ i + 1 }}</span>
-                  <span class="slot-day">{{ getDayName(getDisplaySlot(slot).dayOfWeek) }}</span>
-                  <span class="slot-date">{{ formatDate(getDisplaySlot(slot).dateTime) }}</span>
-                  <span class="slot-time">{{ formatTime(getDisplaySlot(slot).dateTime) }}</span>
-                  <span *ngIf="getDisplaySlot(slot).isPreferred" class="slot-pref">⭐</span>
-                  <span *ngIf="isSlotSwapped(slot)" class="slot-swapped-badge">🔄</span>
-                  <button class="swap-btn" 
-                          (click)="openSwapModal(teacher.teacherId, schedule.subjectId, slot, $event)"
-                          title="Change this slot">
-                    ⇄
-                  </button>
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="loader"></div>
+        <p>Finding the perfect schedule for you...</p>
+      </div>
+
+      <!-- Schedule Results -->
+      <div *ngIf="!loading && scheduleResponse" class="results-section">
+        
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+          <div class="stat-item">
+            <div class="stat-value">{{ scheduleResponse.summary.matchedSessions }}</div>
+            <div class="stat-label">Scheduled</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-value">{{ scheduleResponse.summary.totalSessions }}</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item success" *ngIf="scheduleResponse.summary.unmatchedSessions === 0">
+            <div class="stat-value">✓</div>
+            <div class="stat-label">Complete</div>
+          </div>
+          <div class="stat-item warning" *ngIf="scheduleResponse.summary.unmatchedSessions > 0">
+            <div class="stat-value">{{ scheduleResponse.summary.unmatchedSessions }}</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+
+        <!-- Schedule by Student → Subject → Slots -->
+        <div class="students-schedule">
+          <div *ngFor="let student of students" class="student-section">
+            <!-- Student Header -->
+            <div class="student-header">
+              <span class="student-avatar">👤</span>
+              <span class="student-name">{{ student.name }}</span>
+            </div>
+            
+            <!-- Student's Subjects -->
+            <div class="student-subjects">
+              <div *ngFor="let subjectData of getSubjectsForStudent(student.id)" class="subject-card">
+                <div class="subject-card-header">
+                  <span class="subject-icon">📚</span>
+                  <span class="subject-name">{{ subjectData.subjectName }}</span>
+                  <div class="subject-meta">
+                    <span class="badge type" [class.group]="subjectData.teachingType === 'Group'">
+                      {{ subjectData.teachingType === 'Group' ? '👥 Group' : '👤 1:1' }}
+                    </span>
+                    <span class="badge count">{{ subjectData.slots.length }} sessions</span>
+                  </div>
+                </div>
+                
+                <div class="slots-grid">
+                  <div *ngFor="let slotInfo of subjectData.slots; let i = index" 
+                       class="slot-card"
+                       [class.swapped]="isSlotSwapped(slotInfo.slot)">
+                    <div class="slot-date">
+                      <span class="slot-day-name">{{ getDayName(getDisplaySlot(slotInfo.slot).dayOfWeek).substring(0,3) }}</span>
+                      <span class="slot-day-num">{{ formatDayNum(getDisplaySlot(slotInfo.slot).dateTime) }}</span>
+                      <span class="slot-month">{{ formatMonth(getDisplaySlot(slotInfo.slot).dateTime) }}</span>
+                    </div>
+                    <div class="slot-time">{{ formatTime(getDisplaySlot(slotInfo.slot).dateTime) }}</div>
+                    <button class="slot-swap-btn" 
+                            (click)="openSwapModal(slotInfo.teacherId, subjectData.subjectId, slotInfo.slot, $event)"
+                            title="Change time">
+                      ⇄
+                    </button>
+                  </div>
                 </div>
               </div>
+              
+              <div *ngIf="getSubjectsForStudent(student.id).length === 0" class="no-subjects">
+                No subjects selected for this student
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Alternative Teachers (Collapsed) -->
-        <details *ngIf="scheduleResponse.alternativeTeachers.length > 0" class="alternatives-collapsed">
-          <summary>🔄 {{ scheduleResponse.alternativeTeachers.length }} Alternative Teachers Available</summary>
-          <div class="alt-list">
-            <div *ngFor="let alt of scheduleResponse.alternativeTeachers" class="alt-item">
-              <span class="alt-name">{{ alt.teacherName }}</span>
-              <span class="alt-subject">{{ alt.subjectName }}</span>
+        <!-- Alternative Teachers -->
+        <details *ngIf="scheduleResponse.alternativeTeachers.length > 0" class="alt-section">
+          <summary>🔄 {{ scheduleResponse.alternativeTeachers.length }} Alternative Teachers</summary>
+          <div class="alt-grid">
+            <div *ngFor="let alt of scheduleResponse.alternativeTeachers" class="alt-card">
+              <div class="alt-avatar">{{ alt.teacherName.charAt(0) }}</div>
+              <div class="alt-info">
+                <span class="alt-name">{{ alt.teacherName }}</span>
+                <span class="alt-subject">{{ alt.subjectName }}</span>
+              </div>
               <span class="alt-slots">{{ alt.availableSlots }} slots</span>
             </div>
           </div>
@@ -151,26 +175,20 @@ import {
       </div>
 
       <!-- No Schedule Found -->
-      <div *ngIf="!loading && noScheduleFound" class="no-schedule">
-        <div class="warning-icon">⚠️</div>
-        <h3>No Available Schedule Found</h3>
-        <p>Try adjusting your preferences or contact support for assistance.</p>
+      <div *ngIf="!loading && noScheduleFound" class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No Schedule Found</h3>
+        <p>Try adjusting your preferences or extending the date range</p>
+        <button class="retry-btn" (click)="loadSmartSchedule()">🔄 Try Again</button>
       </div>
 
       <!-- Navigation -->
-      <div class="nav-buttons">
-        <button
-          type="button"
-          (click)="previousStep()"
-          class="btn btn-secondary">
+      <div class="nav-footer">
+        <button class="nav-btn back" (click)="previousStep()">
           ← Back
         </button>
-        <button
-          type="button"
-          (click)="nextStep()"
-          [disabled]="!canProceed()"
-          class="btn btn-primary">
-          Next: Review & Pay →
+        <button class="nav-btn next" (click)="nextStep()" [disabled]="!canProceed()">
+          Review & Pay →
         </button>
       </div>
 
@@ -224,18 +242,729 @@ import {
     </div>
   `,
   styles: [`
+    /* Base Container */
     .step-container {
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 16px;
+      padding: 0;
+      min-height: 600px;
     }
 
-    .step-title {
+    /* Hero Header */
+    .hero-header {
+      background: linear-gradient(135deg, #108092 0%, #0d6a7a 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 16px 16px 0 0;
+      text-align: center;
+    }
+
+    .hero-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-header h2 {
+      margin: 0 0 0.5rem 0;
       font-size: 1.75rem;
       font-weight: 700;
-      color: #333;
-      margin-bottom: 2rem;
+    }
+
+    .hero-header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    /* Preferences Panel */
+    .preferences-panel {
+      background: white;
+      margin: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      background: #f8fafc;
+      cursor: pointer;
+      font-weight: 600;
+      color: #334155;
+      transition: background 0.2s;
+    }
+
+    .panel-header:hover {
+      background: #f1f5f9;
+    }
+
+    .toggle-icon {
+      color: #94a3b8;
+      font-size: 0.75rem;
+    }
+
+    .panel-content {
+      padding: 1.5rem;
+    }
+
+    .pref-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pref-card {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .pref-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .pref-card label {
+      display: block;
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pref-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-align: center;
+      background: white;
+    }
+
+    .pref-input:focus {
+      outline: none;
+      border-color: #108092;
+      box-shadow: 0 0 0 3px rgba(16,128,146,0.1);
+    }
+
+    /* Days Section */
+    .days-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .days-section label {
+      display: block;
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 0.75rem;
+    }
+
+    .days-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .day-pill {
+      padding: 0.5rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      background: white;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #64748b;
+      transition: all 0.2s;
+    }
+
+    .day-pill:hover {
+      border-color: #108092;
+      color: #108092;
+    }
+
+    .day-pill.active {
+      background: #108092;
+      border-color: #108092;
+      color: white;
+    }
+
+    /* Find Button */
+    .find-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #108092 0%, #0d6a7a 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .find-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16,128,146,0.3);
+    }
+
+    .find-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Loading State */
+    .loading-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #108092;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-state p {
+      color: #64748b;
+    }
+
+    /* Results Section */
+    .results-section {
+      padding: 0 1.5rem 1.5rem;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #108092;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 40px;
+      background: #e2e8f0;
+    }
+
+    .stat-item.success .stat-value {
+      color: #22c55e;
+    }
+
+    .stat-item.warning .stat-value {
+      color: #f59e0b;
+    }
+
+    /* Split Subjects Warning */
+    .split-warning {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .split-warning-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 0.75rem;
+    }
+
+    .split-icon {
+      font-size: 1.25rem;
+    }
+
+    .split-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .split-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+    }
+
+    .split-subject {
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .split-teachers {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .split-teacher {
+      background: #f1f5f9;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    /* Teacher Cards */
+    .teacher-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .teacher-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .teacher-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .teacher-avatar {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #108092 0%, #0d6a7a 100%);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .teacher-info h4 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #1e293b;
+    }
+
+    .session-count {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    /* Student Schedule Sections */
+    .students-schedule {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .student-section {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .student-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: linear-gradient(135deg, #108092 0%, #0d6a7a 100%);
+      color: white;
+    }
+
+    .student-avatar {
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .student-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white !important;
+      display: flex;
+      align-items: center;
+      margin: 0 !important;
+      margin-bottom: 0 !important;
+    }
+
+    .student-subjects {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .no-subjects {
+      text-align: center;
+      padding: 2rem;
+      color: #94a3b8;
+    }
+
+    /* Subject Cards (No teacher info) */
+    .subjects-schedule {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .subject-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .subject-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .subject-icon {
+      font-size: 1.5rem;
+    }
+
+    .subject-card-header .subject-name {
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 1.1rem;
+      flex: 1;
+    }
+
+    .subject-meta {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .subject-card .slots-grid {
+      padding: 1rem 1.25rem;
+    }
+
+    /* Subject Block (legacy) */
+    .subject-block {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .subject-block:last-child {
+      border-bottom: none;
+    }
+
+    .subject-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .subject-name {
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .subject-badges {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .badge.type {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .badge.type.group {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .badge.count {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    /* Slots Grid */
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .slot-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .slot-card:hover {
+      border-color: #108092;
+      box-shadow: 0 2px 8px rgba(16,128,146,0.15);
+    }
+
+    .slot-card.swapped {
+      background: #ecfdf5;
+      border-color: #22c55e;
+    }
+
+    .slot-date {
+      margin-bottom: 0.25rem;
+    }
+
+    .slot-day-name {
+      display: block;
+      font-size: 0.7rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    .slot-day-num {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .slot-month {
+      display: block;
+      font-size: 0.7rem;
+      color: #108092;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .slot-card .slot-time {
+      font-size: 0.8rem;
+      color: #108092;
+      font-weight: 600;
+    }
+
+    .slot-swap-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      background: rgba(16,128,146,0.1);
+      border: none;
+      border-radius: 4px;
+      color: #108092;
+      cursor: pointer;
+      font-size: 0.7rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .slot-card:hover .slot-swap-btn {
+      opacity: 1;
+    }
+
+    .slot-swap-btn:hover {
+      background: #108092;
+      color: white;
+    }
+
+    /* Alternative Section */
+    .alt-section {
+      margin-top: 1rem;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .alt-section summary {
+      padding: 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    .alt-grid {
+      display: grid;
+      gap: 0.5rem;
+      padding: 0 1rem 1rem;
+    }
+
+    .alt-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+
+    .alt-avatar {
+      width: 32px;
+      height: 32px;
+      background: #e2e8f0;
+      color: #64748b;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .alt-info {
+      flex: 1;
+    }
+
+    .alt-name {
+      display: block;
+      font-weight: 500;
+      color: #334155;
+      font-size: 0.9rem;
+    }
+
+    .alt-subject {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .alt-slots {
+      font-size: 0.75rem;
+      color: #108092;
+      font-weight: 500;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      margin: 0 0 0.5rem 0;
+      color: #334155;
+    }
+
+    .empty-state p {
+      color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+
+    .retry-btn {
+      padding: 0.75rem 2rem;
+      background: #f1f5f9;
+      border: none;
+      border-radius: 8px;
+      color: #334155;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .retry-btn:hover {
+      background: #e2e8f0;
+    }
+
+    /* Navigation Footer */
+    .nav-footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 1.5rem;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      margin: 0 -0;
+      border-radius: 0 0 16px 16px;
+    }
+
+    .nav-btn {
+      padding: 0.875rem 2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn.back {
+      background: #f1f5f9;
+      border: none;
+      color: #64748b;
+    }
+
+    .nav-btn.back:hover {
+      background: #e2e8f0;
+    }
+
+    .nav-btn.next {
+      background: linear-gradient(135deg, #108092 0%, #0d6a7a 100%);
+      border: none;
+      color: white;
+    }
+
+    .nav-btn.next:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16,128,146,0.3);
+    }
+
+    .nav-btn.next:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .student-section {
@@ -1503,6 +2232,9 @@ export class Step5ScheduleComponent implements OnInit {
   selectedDays: boolean[] = [false, true, false, true, false, true, false]; // Default: Mon, Wed, Sat
   daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+  // UI State
+  preferencesExpanded = true;
+
   constructor(
     private stateService: TutoringStateService,
     private tutoringService: TutoringService,
@@ -1645,6 +2377,92 @@ export class Step5ScheduleComponent implements OnInit {
 
   getDayName(dayOfWeek: number): string {
     return this.daysOfWeek[dayOfWeek];
+  }
+
+  getTotalSessions(teacher: ScheduledTeacherDto): number {
+    return teacher.subjectSchedules.reduce((total, s) => total + s.assignedSessions, 0);
+  }
+
+  formatDayNum(dateTime: string): string {
+    const date = new Date(dateTime);
+    return date.getDate().toString();
+  }
+
+  formatMonth(dateTime: string): string {
+    const date = new Date(dateTime);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[date.getMonth()];
+  }
+
+  // Group all slots by subject (merging from multiple teachers)
+  getGroupedSubjectSlots(): Array<{
+    subjectId: number;
+    subjectName: string;
+    teachingType: string;
+    slots: Array<{ slot: ScheduledSlotDto; teacherId: number }>;
+  }> {
+    if (!this.scheduleResponse) return [];
+
+    const subjectMap = new Map<number, {
+      subjectId: number;
+      subjectName: string;
+      teachingType: string;
+      slots: Array<{ slot: ScheduledSlotDto; teacherId: number }>;
+    }>();
+
+    // Collect all slots from all teachers, grouped by subject
+    this.scheduleResponse.recommendedSchedule.teachers.forEach(teacher => {
+      teacher.subjectSchedules.forEach(schedule => {
+        if (!subjectMap.has(schedule.subjectId)) {
+          subjectMap.set(schedule.subjectId, {
+            subjectId: schedule.subjectId,
+            subjectName: schedule.subjectName,
+            teachingType: schedule.teachingType,
+            slots: []
+          });
+        }
+
+        const subjectData = subjectMap.get(schedule.subjectId)!;
+        schedule.slots.forEach(slot => {
+          subjectData.slots.push({ slot, teacherId: teacher.teacherId });
+        });
+      });
+    });
+
+    // Convert to array and sort slots by date
+    const result = Array.from(subjectMap.values());
+    result.forEach(subject => {
+      subject.slots.sort((a, b) =>
+        new Date(this.getDisplaySlot(a.slot).dateTime).getTime() -
+        new Date(this.getDisplaySlot(b.slot).dateTime).getTime()
+      );
+    });
+
+    return result;
+  }
+
+  // Get subjects and slots for a specific student
+  getSubjectsForStudent(studentId: number): Array<{
+    subjectId: number;
+    subjectName: string;
+    teachingType: string;
+    slots: Array<{ slot: ScheduledSlotDto; teacherId: number }>;
+  }> {
+    const state = this.stateService.getState();
+    const studentSubjectIds = state.studentSubjects.get(studentId) || new Set<number>();
+
+    // Get all grouped subjects and filter by student's subjects
+    const allSubjects = this.getGroupedSubjectSlots();
+    return allSubjects.filter(subject => studentSubjectIds.has(subject.subjectId));
+  }
+
+  getTeacherDisplayName(teacher: ScheduledTeacherDto): string {
+    return teacher.teacherName || `Teacher #${teacher.teacherId}`;
+  }
+
+  getTeacherInitial(teacher: ScheduledTeacherDto): string {
+    const name = teacher.teacherName || '';
+    return name.length > 0 ? name.charAt(0).toUpperCase() : 'T';
   }
 
   isSlotSelected(slot: ScheduledSlotDto): boolean {

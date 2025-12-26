@@ -418,11 +418,15 @@ export class ContentService {
       throw new Error('Video file is required');
     }
 
+    // ✅ Determine if this is a global course lesson
+    const isGlobalLesson = weekId === 0 && subjectId > 0;
+
     console.log('📤 Adding lesson with files:', {
       title,
       description,
       weekId,
       subjectId,
+      isGlobalLesson,
       duration,
       orderIndex,
       posterFile: { name: posterFile.name, size: posterFile.size, type: posterFile.type },
@@ -433,13 +437,21 @@ export class ContentService {
     formData.append('PosterFile', posterFile, posterFile.name);
     formData.append('VideoFile', videoFile, videoFile.name);
 
-    // According to API documentation: Title, Description, WeekId, SubjectId are required
-    // Duration and OrderIndex are optional
+    // ✅ UPDATED: Build params based on lesson type
     let params = new HttpParams()
       .set('Title', title)
-      .set('Description', description)
-      .set('WeekId', weekId.toString())
-      .set('SubjectId', subjectId.toString());
+      .set('Description', description);
+
+    if (isGlobalLesson) {
+      // Global course lesson: only SubjectId (no WeekId)
+      params = params.set('SubjectId', subjectId.toString());
+      console.log('📤 Creating GLOBAL lesson (subjectId only):', subjectId);
+    } else {
+      // Standard lesson: both WeekId and SubjectId
+      params = params.set('WeekId', weekId.toString());
+      params = params.set('SubjectId', subjectId.toString());
+      console.log('📤 Creating STANDARD lesson (weekId + subjectId):', weekId, subjectId);
+    }
 
     if (duration !== undefined && duration !== null) {
       params = params.set('Duration', duration.toString());
@@ -811,10 +823,10 @@ export class ContentService {
     return this.http.get<User>(`${this.apiUrl}/User/${id}`);
   }
 
-// In content.service.ts
-getTeachers(): Observable<User[]> {
-  return this.http.get<User[]>(`${this.apiUrl}/Admin/users-with-roles`);
-}
+  // In content.service.ts
+  getTeachers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/Admin/users-with-roles`);
+  }
 
   updateUser(id: number, userData: any): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/User/${id}`, userData);

@@ -822,11 +822,19 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
       this.form.subjectId = contextData.subject.id;
     } else if (type === 'week' && contextData?.term) {
       this.form.termId = contextData.term.id;
-    } else if (type === 'lesson' && contextData?.week) {
-      this.form.weekId = contextData.week.id;
-      // Subject is auto-determined from week's term
-      if (contextData?.subject) {
+    } else if (type === 'lesson') {
+      // ✅ Handle both standard and global course lessons
+      if (contextData?.week) {
+        // Standard lesson: has week
+        this.form.weekId = contextData.week.id;
+        if (contextData?.subject) {
+          this.form.subjectId = contextData.subject.id;
+        }
+      } else if (contextData?.subject && contextData?.year?.yearNumber === 0) {
+        // ✅ Global course lesson: no week, directly under subject
         this.form.subjectId = contextData.subject.id;
+        this.form.isGlobalLesson = true;
+        console.log('📌 Adding GLOBAL lesson to subject:', contextData.subject.id);
       }
     }
 
@@ -1006,7 +1014,8 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         duration: 0,
         orderIndex: 0,
         posterFile: null,
-        videoFile: null
+        videoFile: null,
+        isGlobalLesson: false  // ✅ NEW: Flag for global course lessons
       }
     };
     return forms[type] || {};

@@ -33,7 +33,7 @@ export type ResourceType = 'PDF' | 'Image' | 'Document' | 'Link' | 'Other';
  */
 export interface Lesson {
   id: number;
-  weekId: number;
+  weekId?: number | null;  // ✅ Updated: nullable for global courses
   title: string;
   description?: string;
 
@@ -56,11 +56,15 @@ export interface Lesson {
   // Structure
   order: number;
   subject?: string; // subject name
+  subjectId?: number; // ✅ NEW: For global courses (direct link)
   term?: number;
-  termId?: number;
+  termId?: number | null; // ✅ Updated: nullable for global courses
   termNumber?: number; // Term number (1-4)
   week?: number;
   weekNumber?: number; // Week number
+
+  // ✅ NEW: Global course flag
+  isGlobalLesson?: boolean;  // True if lesson is directly linked to subject (Year 0)
 
   // Resources
   resources: Resource[];
@@ -167,11 +171,13 @@ export interface LessonRating {
  * Create/Update Lesson DTOs
  */
 export interface CreateLessonDto {
-  weekId: number;
+  weekId?: number;        // For standard courses (Term → Week → Lesson)
+  subjectId?: number;     // ✅ NEW: For global courses (Subject → Lesson directly)
   title: string;
   description?: string;
-  order: number;
+  order?: number;
   videoFile?: File;
+  posterFile?: File;      // ✅ NEW: Poster image file
   videoProvider?: VideoProvider;
 }
 

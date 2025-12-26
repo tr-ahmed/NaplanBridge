@@ -80,6 +80,14 @@ export class HierarchyNodeComponent implements OnChanges {
     return this.lessons.filter(l => l.weekId === weekId);
   }
 
+  /**
+   * ✅ NEW: Get lessons directly linked to a subject (for global courses)
+   * Global lessons have subjectId set and weekId = null
+   */
+  getLessonsForSubject(subjectId: number): Lesson[] {
+    return this.lessons.filter(l => l.subjectId === subjectId && !l.weekId);
+  }
+
   toggleSubject(subjectId: number): void {
     const isExpanded = this.expandedSubjects.has(subjectId);
     this.expandStateChange.emit({ type: 'subject', id: subjectId, expanded: !isExpanded });

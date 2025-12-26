@@ -1,819 +1,685 @@
 @if (isOpen) {
-  <!-- Modal Backdrop -->
-  <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="onBackdropClick($event)">
-    <!-- Modal Content -->
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600">
-        <h2 class="text-2xl font-bold text-white">
-          <i class="fas fa-{{ mode === 'add' ? 'plus-circle' : 'edit' }} mr-2"></i>
-          {{ mode === 'add' ? 'Add' : 'Edit' }} {{ getEntityTitle() }}
-        </h2>
-        <button
-          type="button"
-          (click)="onCancel()"
-          class="text-white hover:text-gray-200 transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+  (click)="onBackdropClick($event)">
+  <!-- Modal Content -->
+  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+    (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div
+      class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600">
+      <h2 class="text-2xl font-bold text-white">
+        <i class="fas fa-{{ mode === 'add' ? 'plus-circle' : 'edit' }} mr-2"></i>
+        {{ mode === 'add' ? 'Add' : 'Edit' }} {{ getEntityTitle() }}
+      </h2>
+      <button type="button" (click)="onCancel()" class="text-white hover:text-gray-200 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-6">
+      <form #contentForm="ngForm" class="space-y-4">
+
+        <!-- Year Form -->
+        @if (entityType === 'year') {
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Academic Year Number <span class="text-red-500">*</span>
+            </label>
+            <input type="number" name="yearNumber" [(ngModel)]="formData.yearNumber"
+              (ngModelChange)="onFieldChange('yearNumber', $event)" (blur)="markFieldTouched('yearNumber')" required
+              min="1" max="12" [class.input-error]="hasError('yearNumber')"
+              [class.input-valid]="isFieldValid('yearNumber')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('yearNumber')">
+            @if (hasError('yearNumber')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('yearNumber') }}
+            </span>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Category Form -->
+        @if (entityType === 'category') {
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Category Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="name" [(ngModel)]="formData.name" (ngModelChange)="onFieldChange('name', $event)"
+              (blur)="markFieldTouched('name')" required [class.input-error]="hasError('name')"
+              [class.input-valid]="isFieldValid('name')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('name')">
+            @if (hasError('name')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('name') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Description
+            </label>
+            <textarea name="description" [(ngModel)]="formData.description"
+              (ngModelChange)="onFieldChange('description', $event)" rows="3"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('description')"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Color
+            </label>
+            <div class="flex items-center gap-3">
+              <input type="color" name="color" [(ngModel)]="formData.color"
+                class="h-10 w-20 border border-gray-300 rounded-lg cursor-pointer">
+              <span class="text-sm text-gray-600">{{ formData.color || '#3B82F6' }}</span>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- Subject Name Form -->
+        @if (entityType === 'subjectName') {
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Category <span class="text-red-500">*</span>
+              <span class="text-xs text-gray-500 mr-2">(Choose category first)</span>
+            </label>
+            <select name="categoryId" [(ngModel)]="formData.categoryId"
+              (ngModelChange)="onFieldChange('categoryId', $event)" (blur)="markFieldTouched('categoryId')" required
+              [class.input-error]="hasError('categoryId')" [class.input-valid]="isFieldValid('categoryId')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+              <option value="" disabled selected>Choose Category</option>
+              <option *ngFor="let cat of filteredCategories" [value]="cat.id">
+                {{ cat.name }}
+              </option>
+            </select>
+            @if (hasError('categoryId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('categoryId') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Subject Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="name" [(ngModel)]="formData.name" (ngModelChange)="onFieldChange('name', $event)"
+              (blur)="markFieldTouched('name')" required [class.input-error]="hasError('name')"
+              [class.input-valid]="isFieldValid('name')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('name')">
+            @if (hasError('name')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('name') }}
+            </span>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Subject Form -->
+        @if (entityType === 'subject') {
+        <div class="space-y-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-blue-800">
+              <i class="fas fa-info-circle mr-2"></i>
+              <strong>Note:</strong> Choose the year and category first to automatically update available options
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Academic Year <span class="text-red-500">*</span>
+              </label>
+              <select name="yearId" [(ngModel)]="formData.yearId" (ngModelChange)="onFieldChange('yearId', $event)"
+                (blur)="markFieldTouched('yearId')" required [class.input-error]="hasError('yearId')"
+                [class.input-valid]="isFieldValid('yearId')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <option value="" disabled selected>Choose Year</option>
+                <option *ngFor="let year of years" [value]="year.id">
+                  Year {{ year.yearNumber }}
+                </option>
+              </select>
+              @if (hasError('yearId')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('yearId') }}
+              </span>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Category
+              </label>
+              <select name="categoryId" [(ngModel)]="formData.categoryId"
+                (ngModelChange)="onFieldChange('categoryId', $event)"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <option value="">Choose Category (Optional)</option>
+                <option *ngFor="let cat of filteredCategories" [value]="cat.id">
+                  {{ cat.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Subject Name <span class="text-red-500">*</span>
+              @if (filteredSubjectNames.length === 0) {
+              <span class="text-xs text-orange-600 mr-2">(Select category first)</span>
+              }
+            </label>
+            <select name="subjectNameId" [(ngModel)]="formData.subjectNameId"
+              (ngModelChange)="onFieldChange('subjectNameId', $event)" (blur)="markFieldTouched('subjectNameId')"
+              required [class.input-error]="hasError('subjectNameId')"
+              [class.input-valid]="isFieldValid('subjectNameId')" [disabled]="filteredSubjectNames.length === 0"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
+              <option value="" disabled selected>اختر المادة</option>
+              <option *ngFor="let subj of filteredSubjectNames" [value]="subj.id">
+                {{ subj.name }}
+              </option>
+            </select>
+            @if (hasError('subjectNameId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('subjectNameId') }}
+            </span>
+            }
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Original Price <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input type="number" name="originalPrice" [(ngModel)]="formData.originalPrice"
+                  (ngModelChange)="onFieldChange('originalPrice', $event)" (blur)="markFieldTouched('originalPrice')"
+                  required min="0" step="0.01" [class.input-error]="hasError('originalPrice')"
+                  [class.input-valid]="isFieldValid('originalPrice')"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  [placeholder]="getPlaceholder('originalPrice')">
+                <span class="absolute left-3 top-2.5 text-gray-500 text-sm">ر.س</span>
+              </div>
+              @if (hasError('originalPrice')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('originalPrice') }}
+              </span>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Discount %
+              </label>
+              <div class="relative">
+                <input type="number" name="discountPercentage" [(ngModel)]="formData.discountPercentage"
+                  (ngModelChange)="onFieldChange('discountPercentage', $event)"
+                  (blur)="markFieldTouched('discountPercentage')" min="0" max="100"
+                  [class.input-error]="hasError('discountPercentage')"
+                  [class.input-valid]="isFieldValid('discountPercentage')"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  [placeholder]="getPlaceholder('discountPercentage')">
+                <span class="absolute left-3 top-2.5 text-gray-500 text-sm">%</span>
+              </div>
+              @if (hasError('discountPercentage')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('discountPercentage') }}
+              </span>
+              }
+              @if (formData.originalPrice && formData.discountPercentage) {
+              <p class="text-xs text-green-600 mt-1">
+                Price after discount: {{ (formData.originalPrice * (1 - formData.discountPercentage / 100)).toFixed(2)
+                }} SAR
+              </p>
+              }
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Level <span class="text-red-500">*</span>
+              </label>
+              <select name="level" [(ngModel)]="formData.level" (ngModelChange)="onFieldChange('level', $event)"
+                (blur)="markFieldTouched('level')" required [class.input-error]="hasError('level')"
+                [class.input-valid]="isFieldValid('level')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <option value="" disabled selected>Select Level</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+              @if (hasError('level')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('level') }}
+              </span>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Duration (hours)
+              </label>
+              <input type="number" name="duration" [(ngModel)]="formData.duration"
+                (ngModelChange)="onFieldChange('duration', $event)" (blur)="markFieldTouched('duration')" min="0"
+                [class.input-error]="hasError('duration')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                [placeholder]="getPlaceholder('duration')">
+              @if (hasError('duration')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('duration') }}
+              </span>
+              }
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Teacher <span class="text-red-500">*</span>
+            </label>
+            <select name="teacherId" [(ngModel)]="formData.teacherId"
+              (ngModelChange)="onFieldChange('teacherId', $event)" (blur)="markFieldTouched('teacherId')" required
+              [class.input-error]="hasError('teacherId')" [class.input-valid]="isFieldValid('teacherId')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+              <option value="" disabled selected>Select Teacher</option>
+              <option *ngFor="let teacher of teachers" [value]="teacher.id">
+                {{ teacher.userName || teacher.name }}
+              </option>
+            </select>
+            @if (hasError('teacherId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('teacherId') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Start Date
+            </label>
+            <input type="date" name="startDate" [(ngModel)]="formData.startDate"
+              (ngModelChange)="onFieldChange('startDate', $event)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              صورة الغلاف @if (mode === 'add') { <span class="text-red-500">*</span> }
+            </label>
+            <input type="file" name="posterFile" (change)="onFileChange($event, 'posterFile')" accept="image/*"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            @if (formData.posterUrl && mode === 'edit') {
+            <img [src]="formData.posterUrl" class="mt-2 h-20 rounded shadow" alt="Poster">
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Term Form -->
+        @if (entityType === 'term') {
+        <div class="space-y-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-blue-800">
+              <i class="fas fa-info-circle mr-2"></i>
+              <strong>ملاحظة:</strong> رقم الفصل سيتم ملؤه تلقائياً بناءً على المادة المحددة
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              المادة <span class="text-red-500">*</span>
+            </label>
+            <select name="subjectId" [(ngModel)]="formData.subjectId"
+              (ngModelChange)="onFieldChange('subjectId', $event)" (blur)="markFieldTouched('subjectId')" required
+              [class.input-error]="hasError('subjectId')" [class.input-valid]="isFieldValid('subjectId')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+              <option value="" disabled selected>اختر المادة</option>
+              <option *ngFor="let subj of filteredSubjects" [value]="subj.id">
+                {{ subj.subjectName }}
+              </option>
+            </select>
+            @if (hasError('subjectId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('subjectId') }}
+            </span>
+            }
+            @if (formData.subjectId && filteredTerms.length > 0) {
+            <p class="text-xs text-blue-600 mt-1">
+              <i class="fas fa-info-circle mr-1"></i>
+              عدد الفصول الحالية: {{ filteredTerms.length }}
+            </p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              رقم الفصل <span class="text-red-500">*</span>
+              @if (mode === 'add' && formData.termNumber) {
+              <span class="text-xs text-green-600 mr-2">(ملء تلقائي)</span>
+              }
+            </label>
+            <input type="number" name="termNumber" [(ngModel)]="formData.termNumber"
+              (ngModelChange)="onFieldChange('termNumber', $event)" (blur)="markFieldTouched('termNumber')" required
+              min="1" [class.input-error]="hasError('termNumber')" [class.input-valid]="isFieldValid('termNumber')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('termNumber')">
+            @if (hasError('termNumber')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('termNumber') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              تاريخ البدء <span class="text-red-500">*</span>
+            </label>
+            <input type="date" name="startDate" [(ngModel)]="formData.startDate"
+              (ngModelChange)="onFieldChange('startDate', $event)" (blur)="markFieldTouched('startDate')" required
+              [class.input-error]="hasError('startDate')" [class.input-valid]="isFieldValid('startDate')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            @if (hasError('startDate')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('startDate') }}
+            </span>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Week Form -->
+        @if (entityType === 'week') {
+        <div class="space-y-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-blue-800">
+              <i class="fas fa-info-circle mr-2"></i>
+              <strong>ملاحظة:</strong> رقم الأسبوع سيتم ملؤه تلقائياً بناءً على الفصل المحدد
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              الفصل الدراسي <span class="text-red-500">*</span>
+            </label>
+            <select name="termId" [(ngModel)]="formData.termId" (ngModelChange)="onFieldChange('termId', $event)"
+              (blur)="markFieldTouched('termId')" required [class.input-error]="hasError('termId')"
+              [class.input-valid]="isFieldValid('termId')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+              <option value="" disabled selected>اختر الفصل</option>
+              <option *ngFor="let term of filteredTerms" [value]="term.id">
+                الفصل {{ term.termNumber }}
+              </option>
+            </select>
+            @if (hasError('termId')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('termId') }}
+            </span>
+            }
+            @if (formData.termId && filteredWeeks.length > 0) {
+            <p class="text-xs text-blue-600 mt-1">
+              <i class="fas fa-info-circle mr-1"></i>
+              عدد الأسابيع الحالية: {{ filteredWeeks.length }}
+            </p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              رقم الأسبوع <span class="text-red-500">*</span>
+              @if (mode === 'add' && formData.weekNumber) {
+              <span class="text-xs text-green-600 mr-2">(ملء تلقائي)</span>
+              }
+            </label>
+            <input type="number" name="weekNumber" [(ngModel)]="formData.weekNumber"
+              (ngModelChange)="onFieldChange('weekNumber', $event)" (blur)="markFieldTouched('weekNumber')" required
+              min="1" [class.input-error]="hasError('weekNumber')" [class.input-valid]="isFieldValid('weekNumber')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('weekNumber')">
+            @if (hasError('weekNumber')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('weekNumber') }}
+            </span>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Lesson Form -->
+        @if (entityType === 'lesson') {
+        <div class="space-y-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-blue-800">
+              <i class="fas fa-info-circle mr-2"></i>
+              <strong>ملاحظة:</strong> سيتم تحديد المادة تلقائياً عند اختيار الأسبوع. بعد الإضافة سيتم التحويل لصفحة
+              تفاصيل الدرس لإضافة الموارد والأسئلة.
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              عنوان الدرس <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="title" [(ngModel)]="formData.title"
+              (ngModelChange)="onFieldChange('title', $event)" (blur)="markFieldTouched('title')" required
+              [class.input-error]="hasError('title')" [class.input-valid]="isFieldValid('title')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('title')">
+            @if (hasError('title')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('title') }}
+            </span>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              الوصف <span class="text-red-500">*</span>
+            </label>
+            <textarea name="description" [(ngModel)]="formData.description"
+              (ngModelChange)="onFieldChange('description', $event)" (blur)="markFieldTouched('description')" required
+              rows="3" [class.input-error]="hasError('description')" [class.input-valid]="isFieldValid('description')"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              [placeholder]="getPlaceholder('description')"></textarea>
+            @if (hasError('description')) {
+            <span class="error-message">
+              <i class="fas fa-exclamation-circle mr-1"></i>
+              {{ getError('description') }}
+            </span>
+            }
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <!-- ✅ Week field - Only show for standard courses (not global courses) -->
+            @if (!formData.isGlobalLesson) {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                الأسبوع <span class="text-red-500">*</span>
+                <span class="text-xs text-gray-500 mr-2">(اختر الأسبوع أولاً)</span>
+              </label>
+              <select name="weekId" [(ngModel)]="formData.weekId" (ngModelChange)="onFieldChange('weekId', $event)"
+                (blur)="markFieldTouched('weekId')" required [class.input-error]="hasError('weekId')"
+                [class.input-valid]="isFieldValid('weekId')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <option value="" disabled selected>اختر الأسبوع</option>
+                <option *ngFor="let week of filteredWeeks" [value]="week.id">
+                  الأسبوع {{ week.weekNumber }}
+                </option>
+              </select>
+              @if (hasError('weekId')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('weekId') }}
+              </span>
+              }
+            </div>
+            } @else {
+            <!-- For Global Courses: Show info message instead of Week selector -->
+            <div class="col-span-2 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="flex items-center">
+                <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                <span class="text-sm text-blue-700">
+                  <strong>درس كورس عام</strong> - سيتم إضافة هذا الدرس مباشرة للمادة بدون تحديد أسبوع.
+                </span>
+              </div>
+            </div>
+            }
+
+            @if (!formData.isGlobalLesson) {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                المادة <span class="text-red-500">*</span>
+                @if (formData.subjectId && formData.weekId) {
+                <span class="text-xs text-green-600 mr-2">(ملء تلقائي)</span>
+                }
+              </label>
+              <select name="subjectId" [(ngModel)]="formData.subjectId"
+                (ngModelChange)="onFieldChange('subjectId', $event)" (blur)="markFieldTouched('subjectId')" required
+                [class.input-error]="hasError('subjectId')" [class.input-valid]="isFieldValid('subjectId')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <option value="" disabled selected>اختر المادة</option>
+                <option *ngFor="let subj of filteredSubjects" [value]="subj.id">
+                  {{ subj.subjectName }}
+                </option>
+              </select>
+              @if (hasError('subjectId')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('subjectId') }}
+              </span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                المدة (دقائق)
+              </label>
+              <input type="number" name="duration" [(ngModel)]="formData.duration"
+                (ngModelChange)="onFieldChange('duration', $event)" (blur)="markFieldTouched('duration')" min="0"
+                [class.input-error]="hasError('duration')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                [placeholder]="getPlaceholder('duration')">
+              @if (hasError('duration')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('duration') }}
+              </span>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                الترتيب
+              </label>
+              <input type="number" name="orderIndex" [(ngModel)]="formData.orderIndex"
+                (ngModelChange)="onFieldChange('orderIndex', $event)" (blur)="markFieldTouched('orderIndex')" min="0"
+                [class.input-error]="hasError('orderIndex')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                [placeholder]="getPlaceholder('orderIndex')">
+              @if (hasError('orderIndex')) {
+              <span class="error-message">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ getError('orderIndex') }}
+              </span>
+              }
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              صورة الغلاف @if (mode === 'add') { <span class="text-red-500">*</span> }
+            </label>
+            <input type="file" name="posterFile" (change)="onFileChange($event, 'posterFile')" accept="image/*"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            @if (formData.posterUrl && mode === 'edit') {
+            <img [src]="formData.posterUrl" class="mt-2 h-20 rounded shadow" alt="Poster">
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              ملف الفيديو @if (mode === 'add') { <span class="text-red-500">*</span> }
+            </label>
+            <input type="file" name="videoFile" (change)="onFileChange($event, 'videoFile')" accept="video/*"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
+            @if (formData.videoUrl && mode === 'edit') {
+            <p class="mt-2 text-sm text-gray-600">
+              <i class="fas fa-video mr-1"></i>
+              تم رفع الفيديو
+            </p>
+            }
+            <p class="text-xs text-gray-500 mt-1">
+              <i class="fas fa-info-circle mr-1"></i>
+              يُفضل استخدام ملفات MP4 للحصول على أفضل توافقية
+            </p>
+          </div>
+        </div>
+        }
+
+      </form>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+      <div class="text-sm text-gray-600">
+        @if (!isFormValid && touchedFields.size > 0) {
+        <span class="text-red-600">
+          <i class="fas fa-exclamation-triangle mr-1"></i>
+          يرجى تصحيح الأخطاء قبل الحفظ
+        </span>
+        }
+        @if (isFormValid) {
+        <span class="text-green-600">
+          <i class="fas fa-check-circle mr-1"></i>
+          جميع الحقول صحيحة
+        </span>
+        }
+      </div>
+      <div class="flex items-center gap-3">
+        <button type="button" (click)="onCancel()"
+          class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-all">
+          <i class="fas fa-times mr-2"></i>
+          إلغاء
         </button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="p-6">
-        <form #contentForm="ngForm" class="space-y-4">
-
-          <!-- Year Form -->
-          @if (entityType === 'year') {
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Academic Year Number <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="yearNumber"
-                  [(ngModel)]="formData.yearNumber"
-                  (ngModelChange)="onFieldChange('yearNumber', $event)"
-                  (blur)="markFieldTouched('yearNumber')"
-                  required
-                  min="1"
-                  max="12"
-                  [class.input-error]="hasError('yearNumber')"
-                  [class.input-valid]="isFieldValid('yearNumber')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('yearNumber')">
-                @if (hasError('yearNumber')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('yearNumber') }}
-                  </span>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Category Form -->
-          @if (entityType === 'category') {
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Category Name <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  [(ngModel)]="formData.name"
-                  (ngModelChange)="onFieldChange('name', $event)"
-                  (blur)="markFieldTouched('name')"
-                  required
-                  [class.input-error]="hasError('name')"
-                  [class.input-valid]="isFieldValid('name')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('name')">
-                @if (hasError('name')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('name') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  [(ngModel)]="formData.description"
-                  (ngModelChange)="onFieldChange('description', $event)"
-                  rows="3"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('description')"></textarea>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Color
-                </label>
-                <div class="flex items-center gap-3">
-                  <input
-                    type="color"
-                    name="color"
-                    [(ngModel)]="formData.color"
-                    class="h-10 w-20 border border-gray-300 rounded-lg cursor-pointer">
-                  <span class="text-sm text-gray-600">{{ formData.color || '#3B82F6' }}</span>
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- Subject Name Form -->
-          @if (entityType === 'subjectName') {
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Category <span class="text-red-500">*</span>
-                  <span class="text-xs text-gray-500 mr-2">(Choose category first)</span>
-                </label>
-                <select
-                  name="categoryId"
-                  [(ngModel)]="formData.categoryId"
-                  (ngModelChange)="onFieldChange('categoryId', $event)"
-                  (blur)="markFieldTouched('categoryId')"
-                  required
-                  [class.input-error]="hasError('categoryId')"
-                  [class.input-valid]="isFieldValid('categoryId')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                  <option value="" disabled selected>Choose Category</option>
-                  <option *ngFor="let cat of filteredCategories" [value]="cat.id">
-                    {{ cat.name }}
-                  </option>
-                </select>
-                @if (hasError('categoryId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('categoryId') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Subject Name <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  [(ngModel)]="formData.name"
-                  (ngModelChange)="onFieldChange('name', $event)"
-                  (blur)="markFieldTouched('name')"
-                  required
-                  [class.input-error]="hasError('name')"
-                  [class.input-valid]="isFieldValid('name')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('name')">
-                @if (hasError('name')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('name') }}
-                  </span>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Subject Form -->
-          @if (entityType === 'subject') {
-            <div class="space-y-4">
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p class="text-sm text-blue-800">
-                  <i class="fas fa-info-circle mr-2"></i>
-                  <strong>Note:</strong> Choose the year and category first to automatically update available options
-                </p>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Academic Year <span class="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="yearId"
-                    [(ngModel)]="formData.yearId"
-                    (ngModelChange)="onFieldChange('yearId', $event)"
-                    (blur)="markFieldTouched('yearId')"
-                    required
-                    [class.input-error]="hasError('yearId')"
-                    [class.input-valid]="isFieldValid('yearId')"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    <option value="" disabled selected>Choose Year</option>
-                    <option *ngFor="let year of years" [value]="year.id">
-                      Year {{ year.yearNumber }}
-                    </option>
-                  </select>
-                  @if (hasError('yearId')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('yearId') }}
-                    </span>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Category
-                  </label>
-                  <select
-                    name="categoryId"
-                    [(ngModel)]="formData.categoryId"
-                    (ngModelChange)="onFieldChange('categoryId', $event)"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    <option value="">Choose Category (Optional)</option>
-                    <option *ngFor="let cat of filteredCategories" [value]="cat.id">
-                      {{ cat.name }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Subject Name <span class="text-red-500">*</span>
-                  @if (filteredSubjectNames.length === 0) {
-                    <span class="text-xs text-orange-600 mr-2">(Select category first)</span>
-                  }
-                </label>
-                <select
-                  name="subjectNameId"
-                  [(ngModel)]="formData.subjectNameId"
-                  (ngModelChange)="onFieldChange('subjectNameId', $event)"
-                  (blur)="markFieldTouched('subjectNameId')"
-                  required
-                  [class.input-error]="hasError('subjectNameId')"
-                  [class.input-valid]="isFieldValid('subjectNameId')"
-                  [disabled]="filteredSubjectNames.length === 0"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed">
-                  <option value="" disabled selected>اختر المادة</option>
-                  <option *ngFor="let subj of filteredSubjectNames" [value]="subj.id">
-                    {{ subj.name }}
-                  </option>
-                </select>
-                @if (hasError('subjectNameId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('subjectNameId') }}
-                  </span>
-                }
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Original Price <span class="text-red-500">*</span>
-                  </label>
-                  <div class="relative">
-                    <input
-                      type="number"
-                      name="originalPrice"
-                      [(ngModel)]="formData.originalPrice"
-                      (ngModelChange)="onFieldChange('originalPrice', $event)"
-                      (blur)="markFieldTouched('originalPrice')"
-                      required
-                      min="0"
-                      step="0.01"
-                      [class.input-error]="hasError('originalPrice')"
-                      [class.input-valid]="isFieldValid('originalPrice')"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      [placeholder]="getPlaceholder('originalPrice')">
-                    <span class="absolute left-3 top-2.5 text-gray-500 text-sm">ر.س</span>
-                  </div>
-                  @if (hasError('originalPrice')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('originalPrice') }}
-                    </span>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Discount %
-                  </label>
-                  <div class="relative">
-                    <input
-                      type="number"
-                      name="discountPercentage"
-                      [(ngModel)]="formData.discountPercentage"
-                      (ngModelChange)="onFieldChange('discountPercentage', $event)"
-                      (blur)="markFieldTouched('discountPercentage')"
-                      min="0"
-                      max="100"
-                      [class.input-error]="hasError('discountPercentage')"
-                      [class.input-valid]="isFieldValid('discountPercentage')"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      [placeholder]="getPlaceholder('discountPercentage')">
-                    <span class="absolute left-3 top-2.5 text-gray-500 text-sm">%</span>
-                  </div>
-                  @if (hasError('discountPercentage')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('discountPercentage') }}
-                    </span>
-                  }
-                  @if (formData.originalPrice && formData.discountPercentage) {
-                    <p class="text-xs text-green-600 mt-1">
-                      Price after discount: {{ (formData.originalPrice * (1 - formData.discountPercentage / 100)).toFixed(2) }} SAR
-                    </p>
-                  }
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Level <span class="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="level"
-                    [(ngModel)]="formData.level"
-                    (ngModelChange)="onFieldChange('level', $event)"
-                    (blur)="markFieldTouched('level')"
-                    required
-                    [class.input-error]="hasError('level')"
-                    [class.input-valid]="isFieldValid('level')"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    <option value="" disabled selected>Select Level</option>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                  @if (hasError('level')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('level') }}
-                    </span>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Duration (hours)
-                  </label>
-                  <input
-                    type="number"
-                    name="duration"
-                    [(ngModel)]="formData.duration"
-                    (ngModelChange)="onFieldChange('duration', $event)"
-                    (blur)="markFieldTouched('duration')"
-                    min="0"
-                    [class.input-error]="hasError('duration')"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    [placeholder]="getPlaceholder('duration')">
-                  @if (hasError('duration')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('duration') }}
-                    </span>
-                  }
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Teacher <span class="text-red-500">*</span>
-                </label>
-                <select
-                  name="teacherId"
-                  [(ngModel)]="formData.teacherId"
-                  (ngModelChange)="onFieldChange('teacherId', $event)"
-                  (blur)="markFieldTouched('teacherId')"
-                  required
-                  [class.input-error]="hasError('teacherId')"
-                  [class.input-valid]="isFieldValid('teacherId')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                  <option value="" disabled selected>Select Teacher</option>
-                  <option *ngFor="let teacher of teachers" [value]="teacher.id">
-                    {{ teacher.userName || teacher.name }}
-                  </option>
-                </select>
-                @if (hasError('teacherId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('teacherId') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Start Date
-                </label>
-                <input
-                  type="date"
-                  name="startDate"
-                  [(ngModel)]="formData.startDate"
-                  (ngModelChange)="onFieldChange('startDate', $event)"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  صورة الغلاف @if (mode === 'add') { <span class="text-red-500">*</span> }
-                </label>
-                <input
-                  type="file"
-                  name="posterFile"
-                  (change)="onFileChange($event, 'posterFile')"
-                  accept="image/*"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                @if (formData.posterUrl && mode === 'edit') {
-                  <img [src]="formData.posterUrl" class="mt-2 h-20 rounded shadow" alt="Poster">
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Term Form -->
-          @if (entityType === 'term') {
-            <div class="space-y-4">
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p class="text-sm text-blue-800">
-                  <i class="fas fa-info-circle mr-2"></i>
-                  <strong>ملاحظة:</strong> رقم الفصل سيتم ملؤه تلقائياً بناءً على المادة المحددة
-                </p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  المادة <span class="text-red-500">*</span>
-                </label>
-                <select
-                  name="subjectId"
-                  [(ngModel)]="formData.subjectId"
-                  (ngModelChange)="onFieldChange('subjectId', $event)"
-                  (blur)="markFieldTouched('subjectId')"
-                  required
-                  [class.input-error]="hasError('subjectId')"
-                  [class.input-valid]="isFieldValid('subjectId')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                  <option value="" disabled selected>اختر المادة</option>
-                  <option *ngFor="let subj of filteredSubjects" [value]="subj.id">
-                    {{ subj.subjectName }}
-                  </option>
-                </select>
-                @if (hasError('subjectId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('subjectId') }}
-                  </span>
-                }
-                @if (formData.subjectId && filteredTerms.length > 0) {
-                  <p class="text-xs text-blue-600 mt-1">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    عدد الفصول الحالية: {{ filteredTerms.length }}
-                  </p>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  رقم الفصل <span class="text-red-500">*</span>
-                  @if (mode === 'add' && formData.termNumber) {
-                    <span class="text-xs text-green-600 mr-2">(ملء تلقائي)</span>
-                  }
-                </label>
-                <input
-                  type="number"
-                  name="termNumber"
-                  [(ngModel)]="formData.termNumber"
-                  (ngModelChange)="onFieldChange('termNumber', $event)"
-                  (blur)="markFieldTouched('termNumber')"
-                  required
-                  min="1"
-                  [class.input-error]="hasError('termNumber')"
-                  [class.input-valid]="isFieldValid('termNumber')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('termNumber')">
-                @if (hasError('termNumber')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('termNumber') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  تاريخ البدء <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  name="startDate"
-                  [(ngModel)]="formData.startDate"
-                  (ngModelChange)="onFieldChange('startDate', $event)"
-                  (blur)="markFieldTouched('startDate')"
-                  required
-                  [class.input-error]="hasError('startDate')"
-                  [class.input-valid]="isFieldValid('startDate')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                @if (hasError('startDate')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('startDate') }}
-                  </span>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Week Form -->
-          @if (entityType === 'week') {
-            <div class="space-y-4">
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p class="text-sm text-blue-800">
-                  <i class="fas fa-info-circle mr-2"></i>
-                  <strong>ملاحظة:</strong> رقم الأسبوع سيتم ملؤه تلقائياً بناءً على الفصل المحدد
-                </p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  الفصل الدراسي <span class="text-red-500">*</span>
-                </label>
-                <select
-                  name="termId"
-                  [(ngModel)]="formData.termId"
-                  (ngModelChange)="onFieldChange('termId', $event)"
-                  (blur)="markFieldTouched('termId')"
-                  required
-                  [class.input-error]="hasError('termId')"
-                  [class.input-valid]="isFieldValid('termId')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                  <option value="" disabled selected>اختر الفصل</option>
-                  <option *ngFor="let term of filteredTerms" [value]="term.id">
-                    الفصل {{ term.termNumber }}
-                  </option>
-                </select>
-                @if (hasError('termId')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('termId') }}
-                  </span>
-                }
-                @if (formData.termId && filteredWeeks.length > 0) {
-                  <p class="text-xs text-blue-600 mt-1">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    عدد الأسابيع الحالية: {{ filteredWeeks.length }}
-                  </p>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  رقم الأسبوع <span class="text-red-500">*</span>
-                  @if (mode === 'add' && formData.weekNumber) {
-                    <span class="text-xs text-green-600 mr-2">(ملء تلقائي)</span>
-                  }
-                </label>
-                <input
-                  type="number"
-                  name="weekNumber"
-                  [(ngModel)]="formData.weekNumber"
-                  (ngModelChange)="onFieldChange('weekNumber', $event)"
-                  (blur)="markFieldTouched('weekNumber')"
-                  required
-                  min="1"
-                  [class.input-error]="hasError('weekNumber')"
-                  [class.input-valid]="isFieldValid('weekNumber')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('weekNumber')">
-                @if (hasError('weekNumber')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('weekNumber') }}
-                  </span>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Lesson Form -->
-          @if (entityType === 'lesson') {
-            <div class="space-y-4">
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p class="text-sm text-blue-800">
-                  <i class="fas fa-info-circle mr-2"></i>
-                  <strong>ملاحظة:</strong> سيتم تحديد المادة تلقائياً عند اختيار الأسبوع. بعد الإضافة سيتم التحويل لصفحة تفاصيل الدرس لإضافة الموارد والأسئلة.
-                </p>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  عنوان الدرس <span class="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  [(ngModel)]="formData.title"
-                  (ngModelChange)="onFieldChange('title', $event)"
-                  (blur)="markFieldTouched('title')"
-                  required
-                  [class.input-error]="hasError('title')"
-                  [class.input-valid]="isFieldValid('title')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('title')">
-                @if (hasError('title')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('title') }}
-                  </span>
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  الوصف <span class="text-red-500">*</span>
-                </label>
-                <textarea
-                  name="description"
-                  [(ngModel)]="formData.description"
-                  (ngModelChange)="onFieldChange('description', $event)"
-                  (blur)="markFieldTouched('description')"
-                  required
-                  rows="3"
-                  [class.input-error]="hasError('description')"
-                  [class.input-valid]="isFieldValid('description')"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  [placeholder]="getPlaceholder('description')"></textarea>
-                @if (hasError('description')) {
-                  <span class="error-message">
-                    <i class="fas fa-exclamation-circle mr-1"></i>
-                    {{ getError('description') }}
-                  </span>
-                }
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    الأسبوع <span class="text-red-500">*</span>
-                    <span class="text-xs text-gray-500 mr-2">(اختر الأسبوع أولاً)</span>
-                  </label>
-                  <select
-                    name="weekId"
-                    [(ngModel)]="formData.weekId"
-                    (ngModelChange)="onFieldChange('weekId', $event)"
-                    (blur)="markFieldTouched('weekId')"
-                    required
-                    [class.input-error]="hasError('weekId')"
-                    [class.input-valid]="isFieldValid('weekId')"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    <option value="" disabled selected>اختر الأسبوع</option>
-                    <option *ngFor="let week of filteredWeeks" [value]="week.id">
-                      الأسبوع {{ week.weekNumber }}
-                    </option>
-                  </select>
-                  @if (hasError('weekId')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('weekId') }}
-                    </span>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    المادة <span class="text-red-500">*</span>
-                    @if (formData.subjectId && formData.weekId) {
-                      <span class="text-xs text-green-600 mr-2">(ملء تلقائي)</span>
-                    }
-                  </label>
-                  <select
-                    name="subjectId"
-                    [(ngModel)]="formData.subjectId"
-                    (ngModelChange)="onFieldChange('subjectId', $event)"
-                    (blur)="markFieldTouched('subjectId')"
-                    required
-                    [class.input-error]="hasError('subjectId')"
-                    [class.input-valid]="isFieldValid('subjectId')"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    <option value="" disabled selected>اختر المادة</option>
-                    <option *ngFor="let subj of filteredSubjects" [value]="subj.id">
-                      {{ subj.subjectName }}
-                    </option>
-                  </select>
-                  @if (hasError('subjectId')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('subjectId') }}
-                    </span>
-                  }
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    المدة (دقائق)
-                  </label>
-                  <input
-                    type="number"
-                    name="duration"
-                    [(ngModel)]="formData.duration"
-                    (ngModelChange)="onFieldChange('duration', $event)"
-                    (blur)="markFieldTouched('duration')"
-                    min="0"
-                    [class.input-error]="hasError('duration')"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    [placeholder]="getPlaceholder('duration')">
-                  @if (hasError('duration')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('duration') }}
-                    </span>
-                  }
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">
-                    الترتيب
-                  </label>
-                  <input
-                    type="number"
-                    name="orderIndex"
-                    [(ngModel)]="formData.orderIndex"
-                    (ngModelChange)="onFieldChange('orderIndex', $event)"
-                    (blur)="markFieldTouched('orderIndex')"
-                    min="0"
-                    [class.input-error]="hasError('orderIndex')"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    [placeholder]="getPlaceholder('orderIndex')">
-                  @if (hasError('orderIndex')) {
-                    <span class="error-message">
-                      <i class="fas fa-exclamation-circle mr-1"></i>
-                      {{ getError('orderIndex') }}
-                    </span>
-                  }
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  صورة الغلاف @if (mode === 'add') { <span class="text-red-500">*</span> }
-                </label>
-                <input
-                  type="file"
-                  name="posterFile"
-                  (change)="onFileChange($event, 'posterFile')"
-                  accept="image/*"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                @if (formData.posterUrl && mode === 'edit') {
-                  <img [src]="formData.posterUrl" class="mt-2 h-20 rounded shadow" alt="Poster">
-                }
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  ملف الفيديو @if (mode === 'add') { <span class="text-red-500">*</span> }
-                </label>
-                <input
-                  type="file"
-                  name="videoFile"
-                  (change)="onFileChange($event, 'videoFile')"
-                  accept="video/*"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
-                @if (formData.videoUrl && mode === 'edit') {
-                  <p class="mt-2 text-sm text-gray-600">
-                    <i class="fas fa-video mr-1"></i>
-                    تم رفع الفيديو
-                  </p>
-                }
-                <p class="text-xs text-gray-500 mt-1">
-                  <i class="fas fa-info-circle mr-1"></i>
-                  يُفضل استخدام ملفات MP4 للحصول على أفضل توافقية
-                </p>
-              </div>
-            </div>
-          }
-
-        </form>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
-        <div class="text-sm text-gray-600">
-          @if (!isFormValid && touchedFields.size > 0) {
-            <span class="text-red-600">
-              <i class="fas fa-exclamation-triangle mr-1"></i>
-              يرجى تصحيح الأخطاء قبل الحفظ
-            </span>
-          }
-          @if (isFormValid) {
-            <span class="text-green-600">
-              <i class="fas fa-check-circle mr-1"></i>
-              جميع الحقول صحيحة
-            </span>
-          }
-        </div>
-        <div class="flex items-center gap-3">
-          <button
-            type="button"
-            (click)="onCancel()"
-            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-all">
-            <i class="fas fa-times mr-2"></i>
-            إلغاء
-          </button>
-          <button
-            type="button"
-            (click)="onSave()"
-            [disabled]="!isFormValid && touchedFields.size > 0"
-            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-blue-300 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
-            <i class="fas fa-{{ mode === 'add' ? 'plus' : 'save' }} mr-2"></i>
-            {{ mode === 'add' ? 'Add' : 'Update' }}
-          </button>
-        </div>
+        <button type="button" (click)="onSave()" [disabled]="!isFormValid && touchedFields.size > 0"
+          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:bg-blue-300 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl">
+          <i class="fas fa-{{ mode === 'add' ? 'plus' : 'save' }} mr-2"></i>
+          {{ mode === 'add' ? 'Add' : 'Update' }}
+        </button>
       </div>
     </div>
   </div>
+</div>
 }

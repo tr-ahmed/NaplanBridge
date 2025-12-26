@@ -90,14 +90,14 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     type: '' | 'lesson' | 'category';
     categoryId: Id | null;
   } = {
-    yearId: null,
-    subjectId: null,
-    termId: null,
-    weekId: null,
-    type: '',
-    status: '',
-    categoryId: null,
-  };
+      yearId: null,
+      subjectId: null,
+      termId: null,
+      weekId: null,
+      type: '',
+      status: '',
+      categoryId: null,
+    };
 
   isOpen = false;
 
@@ -251,7 +251,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private contentService: ContentService,
     public terminologyService: TerminologyService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.checkScreenSize();
@@ -388,27 +388,27 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-// In your component
-async loadTeachers(): Promise<void> {
-  try {
-    const users = (await this.contentService.getTeachers().toPromise()) || [];
+  // In your component
+  async loadTeachers(): Promise<void> {
+    try {
+      const users = (await this.contentService.getTeachers().toPromise()) || [];
 
-    // Filter users with Teacher role
-    this.teachers = users
-      .filter(user => user.roles && user.roles.includes('Teacher'))
-      .map(user => ({
-        id: user.id,
-        userName: user.userName,
-        email: user.email || '',
-        name: user.userName, // Use userName as name
-        roles: user.roles
-      }));
+      // Filter users with Teacher role
+      this.teachers = users
+        .filter(user => user.roles && user.roles.includes('Teacher'))
+        .map(user => ({
+          id: user.id,
+          userName: user.userName,
+          email: user.email || '',
+          name: user.userName, // Use userName as name
+          roles: user.roles
+        }));
 
-  } catch (error) {
-    console.error('Error loading teachers:', error);
-    throw error;
+    } catch (error) {
+      console.error('Error loading teachers:', error);
+      throw error;
+    }
   }
-}
   async loadSubjects(): Promise<void> {
     try {
       const resp: any = await this.contentService.getSubjects().toPromise();
@@ -550,10 +550,10 @@ async loadTeachers(): Promise<void> {
     return this.categories.find((c) => c.id === id)?.name || '';
   }
 
-nameTeacher(id: Id | undefined | null) {
-  const teacher = this.teachers.find((t) => t.id === id);
-  return teacher ? teacher.name || teacher.userName : '';
-}
+  nameTeacher(id: Id | undefined | null) {
+    const teacher = this.teachers.find((t) => t.id === id);
+    return teacher ? teacher.name || teacher.userName : '';
+  }
 
   getSubjectCountForCategory(categoryId: Id): number {
     return this.subjects.filter((s) => s.categoryId === categoryId).length;
@@ -608,7 +608,7 @@ nameTeacher(id: Id | undefined | null) {
       this.weekPage =
       this.lessonPage =
       this.categoryPage =
-        1;
+      1;
     this.refreshAll();
   }
 
@@ -824,9 +824,8 @@ nameTeacher(id: Id | undefined | null) {
       await Swal.fire({
         icon: 'success',
         title: this.formMode === 'add' ? 'Added!' : 'Updated!',
-        text: `The ${this.entityType} has been ${
-          this.formMode === 'add' ? 'added' : 'updated'
-        } successfully.`,
+        text: `The ${this.entityType} has been ${this.formMode === 'add' ? 'added' : 'updated'
+          } successfully.`,
         timer: 1500,
         showConfirmButton: false,
       });
@@ -1006,7 +1005,7 @@ nameTeacher(id: Id | undefined | null) {
         break;
       }
       case 'lesson': {
-        const { title, description, weekId, subjectId, posterFile, videoFile, duration, orderIndex } = this.form;
+        const { title, description, weekId, subjectId, posterFile, videoFile, duration, orderIndex, isGlobalLesson } = this.form;
 
         if (!title || !title.trim()) {
           Swal.fire('Error', 'Please provide a lesson title.', 'error');
@@ -1016,14 +1015,14 @@ nameTeacher(id: Id | undefined | null) {
           Swal.fire('Error', 'Please provide a lesson description.', 'error');
           throw new Error('Validation failed');
         }
-        if (!weekId) {
-          Swal.fire('Error', 'Please select a week.', 'error');
+
+        // ✅ UPDATED: For global courses, subjectId is required but weekId is not
+        // For standard courses, weekId is required
+        if (!weekId && !subjectId) {
+          Swal.fire('Error', 'Please select a week (for standard courses) or ensure subject is set (for global courses).', 'error');
           throw new Error('Validation failed');
         }
-        if (!subjectId) {
-          Swal.fire('Error', 'Please select a subject.', 'error');
-          throw new Error('Validation failed');
-        }
+
         if (!posterFile || !(posterFile instanceof File)) {
           Swal.fire('Error', 'Please upload a poster image.', 'error');
           throw new Error('Validation failed');
@@ -1033,12 +1032,14 @@ nameTeacher(id: Id | undefined | null) {
           throw new Error('Validation failed');
         }
 
+        // ✅ For global courses: use subjectId, weekId will be null/0
+        // For standard courses: use weekId and derive subjectId
         const newLesson = await this.contentService
           .addLesson(
             title.trim(),
             description.trim(),
-            weekId,
-            subjectId,
+            weekId || 0,  // 0 for global courses
+            subjectId || 0,
             posterFile,
             videoFile,
             duration,
@@ -1181,7 +1182,7 @@ nameTeacher(id: Id | undefined | null) {
 
   defaultFormFor(type: string) {
     switch (type) {
-      case 'year':   return { yearNumber: 0 };
+      case 'year': return { yearNumber: 0 };
       case 'category':
         return {
           name: '',
@@ -1466,44 +1467,44 @@ nameTeacher(id: Id | undefined | null) {
     return Object.keys(this.formErrors).every(key => !this.formErrors[key]);
   }
 
-getSubjectIdFromTermId(termId: Id): Id | null {
-  const term = this.terms.find((t) => t.id === termId);
-  return term ? term.subjectId : null;
-}
+  getSubjectIdFromTermId(termId: Id): Id | null {
+    const term = this.terms.find((t) => t.id === termId);
+    return term ? term.subjectId : null;
+  }
 
 
-getTeacherNameById(id: number): string {
-  const teacher = this.teachers.find(t => t.id === id);
-  return teacher ? teacher.userName : 'Unknown Teacher';
-}
+  getTeacherNameById(id: number): string {
+    const teacher = this.teachers.find(t => t.id === id);
+    return teacher ? teacher.userName : 'Unknown Teacher';
+  }
 
-getSubjectDisplayName(subject: Subject): string {
-  return `${subject.subjectName} - Year ${this.numberYear(subject.yearId)} (${subject.level})`;
-}
-
-
-
-getYearIdFromTermId(termId: Id): Id | null {
-  const term = this.terms.find(t => t.id === termId);
-  if (!term) return null;
-
-  const subject = this.subjects.find(s => s.id === term.subjectId);
-  return subject ? subject.yearId : null;
-}
+  getSubjectDisplayName(subject: Subject): string {
+    return `${subject.subjectName} - Year ${this.numberYear(subject.yearId)} (${subject.level})`;
+  }
 
 
-getWeekDisplayName(week: Week): string {
-  const termNumber = this.numberTerm(week.termId);
-  const subjectName = this.nameSubject(this.getSubjectIdFromTermId(week.termId));
-  const yearNumber = this.numberYear(this.getYearIdFromTermId(week.termId));
-  return `Week ${week.weekNumber} (Term ${termNumber} - ${subjectName} - Year ${yearNumber})`;
-}
 
-getTermDisplayName(term: Term): string {
-  const subjectName = this.nameSubject(term.subjectId);
-  const yearNumber = this.numberYear(this.getYearIdFromSubjectId(term.subjectId));
-  return `Term ${term.termNumber} - ${subjectName} - Year ${yearNumber}`;
-}
+  getYearIdFromTermId(termId: Id): Id | null {
+    const term = this.terms.find(t => t.id === termId);
+    if (!term) return null;
+
+    const subject = this.subjects.find(s => s.id === term.subjectId);
+    return subject ? subject.yearId : null;
+  }
+
+
+  getWeekDisplayName(week: Week): string {
+    const termNumber = this.numberTerm(week.termId);
+    const subjectName = this.nameSubject(this.getSubjectIdFromTermId(week.termId));
+    const yearNumber = this.numberYear(this.getYearIdFromTermId(week.termId));
+    return `Week ${week.weekNumber} (Term ${termNumber} - ${subjectName} - Year ${yearNumber})`;
+  }
+
+  getTermDisplayName(term: Term): string {
+    const subjectName = this.nameSubject(term.subjectId);
+    const yearNumber = this.numberYear(this.getYearIdFromSubjectId(term.subjectId));
+    return `Term ${term.termNumber} - ${subjectName} - Year ${yearNumber}`;
+  }
 
 
 }
