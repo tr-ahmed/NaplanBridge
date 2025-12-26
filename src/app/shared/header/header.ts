@@ -37,7 +37,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     public router: Router,
     private coursesService: CoursesService,
     private notificationService: NotificationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // ✅ Subscribe to auth state
@@ -86,6 +86,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Add Subjects for everyone except Students
     if (this.userRole !== 'Student') {
       baseItems.push({ id: 3, label: 'Subjects', route: '/courses', icon: 'book' });
+    }
+
+    // Add Tutoring for Parents only
+    if (this.userRole === 'Parent') {
+      baseItems.push({ id: 4, label: 'Tutoring', route: '/parent/tutoring/select', icon: 'chalkboard-teacher' });
     }
 
     // Add Contact
@@ -143,7 +148,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
       // Load initial notifications data
       this.notificationService.getNotifications().subscribe({
-        next: (data) => {}, // Silent success
+        next: (data) => { }, // Silent success
         error: (err) => {
           console.error('❌ Header - Failed to load notifications:', err);
           // Don't show error to user, just log it
@@ -289,24 +294,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-isAdminDashboard(): boolean {
-  return this.router.url.startsWith('/admin/users')
+  isAdminDashboard(): boolean {
+    return this.router.url.startsWith('/admin/users')
       || this.router.url.startsWith('/admin/content')
-       || this.router.url.startsWith('/admin/subscriptions');
-}
+      || this.router.url.startsWith('/admin/subscriptions');
+  }
 
-/**
- * Navigate to Teacher Dashboard
- */
-navigateToTeacherDashboard(): void {
-  this.router.navigate(['/teacher/content-management']);
-}
+  /**
+   * Navigate to Teacher Dashboard
+   */
+  navigateToTeacherDashboard(): void {
+    this.router.navigate(['/teacher/content-management']);
+  }
 
-/**
- * Navigate to Profile Page
- */
-navigateToProfile(): void {
-  this.router.navigate(['/profile']);
-}
+  /**
+   * Navigate to Profile Page
+   */
+  navigateToProfile(): void {
+    this.router.navigate(['/profile']);
+  }
 
 }

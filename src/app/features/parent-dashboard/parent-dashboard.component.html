@@ -4,10 +4,15 @@
 
     <!-- Header -->
     <div class="mb-6 sm:mb-8">
-      <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 text-white relative overflow-hidden">
+      <div
+        class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 text-white relative overflow-hidden">
         <!-- Decorative Elements -->
-        <div class="absolute top-0 right-0 w-32 sm:w-64 h-32 sm:h-64 bg-white opacity-5 rounded-full -mr-16 sm:-mr-32 -mt-16 sm:-mt-32"></div>
-        <div class="absolute bottom-0 left-0 w-24 sm:w-48 h-24 sm:h-48 bg-white opacity-5 rounded-full -ml-12 sm:-ml-24 -mb-12 sm:-mb-24"></div>
+        <div
+          class="absolute top-0 right-0 w-32 sm:w-64 h-32 sm:h-64 bg-white opacity-5 rounded-full -mr-16 sm:-mr-32 -mt-16 sm:-mt-32">
+        </div>
+        <div
+          class="absolute bottom-0 left-0 w-24 sm:w-48 h-24 sm:h-48 bg-white opacity-5 rounded-full -ml-12 sm:-ml-24 -mb-12 sm:-mb-24">
+        </div>
 
         <div class="relative z-10">
           <div class="flex items-center justify-between flex-col sm:flex-row gap-3 sm:gap-4">
@@ -16,13 +21,15 @@
                 <span class="text-3xl sm:text-4xl lg:text-5xl">👨‍👩‍👧‍👦</span>
                 <span class="truncate">Welcome {{ parentUsername() }}!</span>
               </h1>
-              <p class="text-indigo-100 text-sm sm:text-base lg:text-lg">Monitor and manage your children's learning progress</p>
+              <p class="text-indigo-100 text-sm sm:text-base lg:text-lg">Monitor and manage your children's learning
+                progress</p>
             </div>
-            <button
-              (click)="refreshDashboard()"
+            <button (click)="refreshDashboard()"
               class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg sm:rounded-xl hover:bg-white/30 flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base font-semibold transition-all duration-300 border border-white/30 hover:scale-105 flex-shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                </path>
               </svg>
               <span>Refresh</span>
             </button>
@@ -33,17 +40,18 @@
 
     <!-- Action Buttons -->
     <div class="mb-6 sm:mb-8 flex flex-wrap gap-2 sm:gap-3">
-      <button
-        routerLink="/profile"
+      <button routerLink="/profile"
         class="px-3 sm:px-4 py-2 sm:py-3 bg-white text-gray-700 rounded-lg sm:rounded-xl hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg font-semibold border border-gray-200 text-sm sm:text-base flex-shrink-0">
         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+          </path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+          </path>
         </svg>
         <span class="hidden sm:inline">Settings</span>
       </button>
-      <button
-        (click)="addNewChild()"
+      <button (click)="addNewChild()"
         class="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:-translate-y-1 font-semibold text-sm sm:text-base flex-shrink-0">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -54,248 +62,283 @@
 
     <!-- Loading State -->
     @if (loading()) {
-      <div class="flex justify-center items-center py-32">
-        <div class="relative w-20 h-20">
-          <div class="absolute inset-0 rounded-full border-4 border-gray-200"></div>
-          <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-600 animate-spin"></div>
-        </div>
+    <div class="flex justify-center items-center py-32">
+      <div class="relative w-20 h-20">
+        <div class="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+        <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-600 animate-spin"></div>
       </div>
+    </div>
     }
 
     <!-- Dashboard Content -->
     @if (!loading()) {
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 items-stretch">
-        <!-- Total Children -->
-        <div class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
-          <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-          <div class="relative z-10 flex flex-col h-full">
-            <div class="flex items-center justify-between mb-3 sm:mb-4">
-              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-              </div>
-              <span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 sm:px-3 py-1 rounded-full">Family</span>
-            </div>
-            <p class="text-3xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{{ dashboardData().children.length }}</p>
-            <p class="text-xs sm:text-sm text-gray-600 font-medium">Total Children</p>
-            <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-auto">
-              <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all" style="width: 100%"></div>
-            </div>
-          </div>
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 items-stretch">
+      <!-- Total Children -->
+      <div
+        class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
+        <div
+          class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-150 transition-transform duration-500">
         </div>
-
-        <!-- Active Subscriptions -->
-        <div class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
-          <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-          <div class="relative z-10 flex flex-col h-full">
-            <div class="flex items-center justify-between mb-3 sm:mb-4">
-              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-              </div>
-              <span class="text-xs font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">Active</span>
+        <div class="relative z-10 flex flex-col h-full">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div
+              class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                </path>
+              </svg>
             </div>
-            <p class="text-4xl font-bold text-gray-900 mb-2">{{ dashboardData().activeSubscriptions }}</p>
-            <p class="text-sm text-gray-600 font-medium">Active Subscriptions</p>
-            <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-auto">
-              <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all" style="width: 100%"></div>
-            </div>
+            <span class="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 sm:px-3 py-1 rounded-full">Family</span>
           </div>
-        </div>
-
-        <!-- Monthly Spending -->
-        <div class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
-          <div class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-purple-100 to-purple-50 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-          <div class="relative z-10 flex flex-col h-full">
-            <div class="flex items-center justify-between mb-3 sm:mb-4">
-              <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-              </div>
-              <span class="text-xs font-bold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">Monthly</span>
-            </div>
-            <p class="text-4xl font-bold text-gray-900 mb-2">${{ dashboardData().monthlySpent.toFixed(2) }}</p>
-            <p class="text-sm text-gray-600 font-medium">This Month</p>
-            @if (dashboardData().lastOrderDate) {
-              <p class="text-xs text-gray-500 mt-2">Last: {{ dashboardData().lastOrderDate | date:'MMM d, y, h:mm a' }}</p>
-            }
-            <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-auto">
-              <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all" style="width: 100%"></div>
-            </div>
+          <p class="text-3xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{{ dashboardData().children.length }}</p>
+          <p class="text-xs sm:text-sm text-gray-600 font-medium">Total Children</p>
+          <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-auto">
+            <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all"
+              style="width: 100%"></div>
           </div>
         </div>
       </div>
 
-      <!-- Alerts Section -->
-      @if (dashboardData().alerts.length > 0) {
-        <div class="mb-6 sm:mb-8 space-y-3 sm:space-y-4">
-          @for (alert of dashboardData().alerts; track alert.message) {
-            <div [class]="'rounded-lg sm:rounded-xl border-2 p-3 sm:p-4 flex flex-col sm:flex-row items-start gap-3 sm:justify-between bg-white shadow-lg hover:shadow-xl transition-all duration-300 ' + getAlertClass(alert.type)">
-              <div class="flex items-start gap-2 sm:gap-3 flex-1">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 flex items-center justify-center rounded-lg sm:rounded-xl" [ngClass]="{
+      <!-- Active Subscriptions -->
+      <div
+        class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
+        <div
+          class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-150 transition-transform duration-500">
+        </div>
+        <div class="relative z-10 flex flex-col h-full">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div
+              class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                </path>
+              </svg>
+            </div>
+            <span class="text-xs font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">Active</span>
+          </div>
+          <p class="text-4xl font-bold text-gray-900 mb-2">{{ dashboardData().activeSubscriptions }}</p>
+          <p class="text-sm text-gray-600 font-medium">Active Subscriptions</p>
+          <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-auto">
+            <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all"
+              style="width: 100%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Spending -->
+      <div
+        class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-2 flex flex-col h-full">
+        <div
+          class="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-purple-100 to-purple-50 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16 group-hover:scale-150 transition-transform duration-500">
+        </div>
+        <div class="relative z-10 flex flex-col h-full">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div
+              class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <span class="text-xs font-bold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">Monthly</span>
+          </div>
+          <p class="text-4xl font-bold text-gray-900 mb-2">${{ dashboardData().monthlySpent.toFixed(2) }}</p>
+          <p class="text-sm text-gray-600 font-medium">This Month</p>
+          @if (dashboardData().lastOrderDate) {
+          <p class="text-xs text-gray-500 mt-2">Last: {{ dashboardData().lastOrderDate | date:'MMM d, y, h:mm a' }}</p>
+          }
+          <div class="mt-4 h-1 w-full bg-gray-200 rounded-full overflow-hidden mt-auto">
+            <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all"
+              style="width: 100%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts Section -->
+    @if (dashboardData().alerts.length > 0) {
+    <div class="mb-6 sm:mb-8 space-y-3 sm:space-y-4">
+      @for (alert of dashboardData().alerts; track alert.message) {
+      <div
+        [class]="'rounded-lg sm:rounded-xl border-2 p-3 sm:p-4 flex flex-col sm:flex-row items-start gap-3 sm:justify-between bg-white shadow-lg hover:shadow-xl transition-all duration-300 ' + getAlertClass(alert.type)">
+        <div class="flex items-start gap-2 sm:gap-3 flex-1">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 flex items-center justify-center rounded-lg sm:rounded-xl"
+            [ngClass]="{
                   'bg-yellow-100': alert.type === 'warning',
                   'bg-red-100': alert.type === 'danger',
                   'bg-blue-100': alert.type === 'info',
                   'bg-green-100': alert.type === 'success'
                 }">
-                  @if (alert.type === 'warning') {
-                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                  } @else if (alert.type === 'danger') {
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  } @else if (alert.type === 'info') {
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  } @else {
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                  }
-                </div>
-                <p class="text-sm font-medium">{{ alert.message }}</p>
-              </div>
-              @if (alert.actionUrl) {
-                <a
-                  [routerLink]="alert.actionUrl"
-                  class="text-xs sm:text-sm font-semibold hover:underline whitespace-nowrap text-blue-600 hover:text-blue-700 transition-colors flex-shrink-0 self-start sm:self-auto">
-                  {{ alert.actionText || 'View' }} →
-                </a>
-              }
-            </div>
-          }
-        </div>
-      }
-
-      <!-- Children Grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-  @for (child of dashboardData().children; track child.id) {
-    <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden hover:-translate-y-1 h-full flex flex-col">
-
-      <!-- Card Header -->
-      <div class="bg-gradient-to-r from-indigo-600 to-blue-600 p-4 sm:p-6 text-white relative overflow-hidden flex-shrink-0">
-        <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-        <div class="flex items-center gap-3 sm:gap-4 relative z-10">
-          <div class="relative flex-shrink-0">
-            <img
-              [src]="child.avatar"
-              [alt]="child.name"
-              class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 sm:border-4 border-white shadow-lg"
-              onerror="this.src='assets/images/default-avatar.png'">
+            @if (alert.type === 'warning') {
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+              </path>
+            </svg>
+            } @else if (alert.type === 'danger') {
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            } @else if (alert.type === 'info') {
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            } @else {
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            }
           </div>
-          <div class="min-w-0 flex-1">
-            <h3 class="text-lg sm:text-xl font-bold truncate">{{ child.name }}</h3>
-            <p class="text-blue-100 text-xs sm:text-sm truncate">{{ child.grade }}</p>
-          </div>
+          <p class="text-sm font-medium">{{ alert.message }}</p>
         </div>
+        @if (alert.actionUrl) {
+        <a [routerLink]="alert.actionUrl"
+          class="text-xs sm:text-sm font-semibold hover:underline whitespace-nowrap text-blue-600 hover:text-blue-700 transition-colors flex-shrink-0 self-start sm:self-auto">
+          {{ alert.actionText || 'View' }} →
+        </a>
+        }
       </div>
+      }
+    </div>
+    }
 
-      <!-- Card Body -->
-      <div class="p-4 sm:p-6 flex-1 flex flex-col space-y-3 sm:space-y-4">
+    <!-- Children Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+      @for (child of dashboardData().children; track child.id) {
+      <div
+        class="bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden hover:-translate-y-1 h-full flex flex-col">
 
-        <!-- Overall Progress -->
-        <!-- ✅ أضفت: flex-shrink-0 -->
-        <div class="mb-6 flex-shrink-0">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-sm font-semibold text-gray-700">Overall Progress</span>
-            <span class="text-sm font-bold text-blue-600">{{ child.overallProgress }}%</span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div
-              [class]="'h-full rounded-full transition-all duration-500 ' + getProgressColor(child.overallProgress)"
-              [style.width.%]="child.overallProgress">
+        <!-- Card Header -->
+        <div
+          class="bg-gradient-to-r from-indigo-600 to-blue-600 p-4 sm:p-6 text-white relative overflow-hidden flex-shrink-0">
+          <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+          <div class="flex items-center gap-3 sm:gap-4 relative z-10">
+            <div class="relative flex-shrink-0">
+              <img [src]="child.avatar" [alt]="child.name"
+                class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 sm:border-4 border-white shadow-lg"
+                onerror="this.src='assets/images/default-avatar.png'">
+            </div>
+            <div class="min-w-0 flex-1">
+              <h3 class="text-lg sm:text-xl font-bold truncate">{{ child.name }}</h3>
+              <p class="text-blue-100 text-xs sm:text-sm truncate">{{ child.grade }}</p>
             </div>
           </div>
-          <!-- ✅ NEW: Display completed/total lessons -->
-          @if (child.completedLessons !== undefined && child.totalLessons !== undefined) {
+        </div>
+
+        <!-- Card Body -->
+        <div class="p-4 sm:p-6 flex-1 flex flex-col space-y-3 sm:space-y-4">
+
+          <!-- Overall Progress -->
+          <!-- ✅ أضفت: flex-shrink-0 -->
+          <div class="mb-6 flex-shrink-0">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-semibold text-gray-700">Overall Progress</span>
+              <span class="text-sm font-bold text-blue-600">{{ child.overallProgress }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div
+                [class]="'h-full rounded-full transition-all duration-500 ' + getProgressColor(child.overallProgress)"
+                [style.width.%]="child.overallProgress">
+              </div>
+            </div>
+            <!-- ✅ NEW: Display completed/total lessons -->
+            @if (child.completedLessons !== undefined && child.totalLessons !== undefined) {
             <div class="mt-2 text-xs text-gray-600">
               {{ child.completedLessons }} of {{ child.totalLessons }} lessons completed
             </div>
-          }
-        </div>
-
-        <!-- Subscriptions Section -->
-        <div class="flex-shrink-0">
-          <div class="flex items-center justify-between mb-2 sm:mb-3">
-            <h4 class="text-xs sm:text-sm font-semibold text-gray-900 flex items-center gap-1 sm:gap-2">
-              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-              </svg>
-              <span>Subscriptions</span>
-            </h4>
-            @if (getSubscriptionCount(child.activeSubscription) > 0) {
-              <span class="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border-2 border-blue-200">
-                {{ getSubscriptionCount(child.activeSubscription) }} Active
-              </span>
             }
           </div>
 
-          @if (child.activeSubscription === 'No Active Subscription') {
+          <!-- Subscriptions Section -->
+          <div class="flex-shrink-0">
+            <div class="flex items-center justify-between mb-2 sm:mb-3">
+              <h4 class="text-xs sm:text-sm font-semibold text-gray-900 flex items-center gap-1 sm:gap-2">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                  </path>
+                </svg>
+                <span>Subscriptions</span>
+              </h4>
+              @if (getSubscriptionCount(child.activeSubscription) > 0) {
+              <span
+                class="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border-2 border-blue-200">
+                {{ getSubscriptionCount(child.activeSubscription) }} Active
+              </span>
+              }
+            </div>
+
+            @if (child.activeSubscription === 'No Active Subscription') {
             <!-- ✅ أضفت: h-32 عشان نفس الارتفاع -->
-            <div class="bg-gray-50 rounded-xl p-4 text-center border-2 border-gray-200 h-32 flex flex-col justify-center">
+            <div
+              class="bg-gray-50 rounded-xl p-4 text-center border-2 border-gray-200 h-32 flex flex-col justify-center">
               <div class="w-12 h-12 mx-auto mb-2 bg-gray-200 rounded-full flex items-center justify-center">
                 <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+                  </path>
                 </svg>
               </div>
               <p class="text-sm text-gray-600 mb-2">No active subscriptions</p>
-              <button
-                (click)="addSubscription(child.id)"
+              <button (click)="addSubscription(child.id)"
                 class="mt-2 text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors">
                 Add Subscription →
               </button>
             </div>
-          } @else {
+            } @else {
             <!-- ✅ غيرت: h-32 بدل max-h-32 -->
             <div class="bg-blue-50 rounded-xl p-3 h-32 overflow-y-auto custom-scrollbar border-2 border-blue-100">
               @for (subscription of getSubscriptionList(child.activeSubscription); track subscription; let i = $index) {
-                <div class="flex items-start gap-2 mb-2 last:mb-0">
-                  <svg class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <p class="text-xs text-blue-900 leading-relaxed flex-1">{{ subscription }}</p>
-                </div>
+              <div class="flex items-start gap-2 mb-2 last:mb-0">
+                <svg class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <p class="text-xs text-blue-900 leading-relaxed flex-1">{{ subscription }}</p>
+              </div>
               }
             </div>
-          }
-        </div>
+            }
+          </div>
 
-        <!-- Upcoming Exams -->
-        <!-- ✅ أضفت: flex-shrink-0 -->
-        <div class="mb-6 flex-shrink-0">
-          <div class="bg-amber-50 rounded-xl p-4 border-2 border-amber-200 hover:shadow-md transition-shadow">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-xs text-amber-600 font-semibold mb-1">Upcoming Exams</p>
-                <p class="text-2xl font-bold text-amber-900">{{ child.upcomingExams }}</p>
-              </div>
-              <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
+          <!-- Upcoming Exams -->
+          <!-- ✅ أضفت: flex-shrink-0 -->
+          <div class="mb-6 flex-shrink-0">
+            <div class="bg-amber-50 rounded-xl p-4 border-2 border-amber-200 hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs text-amber-600 font-semibold mb-1">Upcoming Exams</p>
+                  <p class="text-2xl font-bold text-amber-900">{{ child.upcomingExams }}</p>
+                </div>
+                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Recent Activity -->
-        <!-- ✅ أضفت: flex-shrink-0 -->
-        <div class="mb-6 flex-shrink-0">
-          <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
-            <span>Recent Activity</span>
-          </h4>
-          <div class="space-y-2">
-            @for (activity of child.recentActivity.slice(0, 2); track activity.description) {
+          <!-- Recent Activity -->
+          <!-- ✅ أضفت: flex-shrink-0 -->
+          <div class="mb-6 flex-shrink-0">
+            <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
+                </path>
+              </svg>
+              <span>Recent Activity</span>
+            </h4>
+            <div class="space-y-2">
+              @for (activity of child.recentActivity.slice(0, 2); track activity.description) {
               <div class="flex items-start gap-2 text-sm bg-gray-50 p-3 rounded-xl border border-gray-200">
                 <span class="text-lg flex-shrink-0">{{ activity.icon }}</span>
                 <div class="flex-1 min-w-0">
@@ -303,137 +346,171 @@
                   <p class="text-xs text-gray-500 mt-1">{{ formatRelativeTime(activity.date) }}</p>
                 </div>
               </div>
-            }
+              }
+            </div>
           </div>
-        </div>
 
-        <!-- ✅ أضفت: Spacer لدفع الـ Actions للأسفل -->
-        <div class="flex-1"></div>
+          <!-- ✅ أضفت: Spacer لدفع الـ Actions للأسفل -->
+          <div class="flex-1"></div>
 
-        <!-- Actions -->
-        <div class="flex gap-2 flex-shrink-0 pt-3 sm:pt-4 border-t border-gray-100">
-          <button
-            (click)="viewChildDashboard(child.id)"
-            class="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg sm:rounded-xl transition-all duration-300 text-xs sm:text-sm font-semibold hover:shadow-lg hover:-translate-y-1 whitespace-nowrap">
-            View Details
-          </button>
-          <button
-            (click)="selectChild(child)"
-            class="px-3 sm:px-4 py-2 sm:py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-xs sm:text-sm hover:-translate-y-1 flex-shrink-0">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            </svg>
-          </button>
+          <!-- Actions -->
+          <div class="flex gap-2 flex-shrink-0 pt-3 sm:pt-4 border-t border-gray-100">
+            <button (click)="viewChildDashboard(child.id)"
+              class="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg sm:rounded-xl transition-all duration-300 text-xs sm:text-sm font-semibold hover:shadow-lg hover:-translate-y-1 whitespace-nowrap">
+              View Details
+            </button>
+            <button (click)="selectChild(child)"
+              class="px-3 sm:px-4 py-2 sm:py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-xs sm:text-sm hover:-translate-y-1 flex-shrink-0">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                </path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
+      }
     </div>
-  }
-</div>
 
 
-      <!-- Empty State -->
-      @if (dashboardData().children.length === 0) {
-        <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <div class="w-24 h-24 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
-            <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+    <!-- Empty State -->
+    @if (dashboardData().children.length === 0) {
+    <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
+      <div class="w-24 h-24 mx-auto mb-6 bg-blue-100 rounded-full flex items-center justify-center">
+        <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+          </path>
+        </svg>
+      </div>
+      <h3 class="text-2xl font-bold text-primary-800 mb-2">No Children Added Yet</h3>
+      <p class="text-base text-gray-600 mb-6">Start by adding your first child to monitor their learning progress</p>
+      <button (click)="addNewChild()"
+        class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 inline-flex items-center gap-2 hover:shadow-lg hover:-translate-y-1 font-semibold">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        <span>Add Your First Child</span>
+      </button>
+    </div>
+    }
+
+    <!-- Quick Actions -->
+    <div
+      class="mt-6 sm:mt-8 group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-1 border-2 border-gray-100">
+      <!-- Decorative Elements -->
+      <div
+        class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-100 to-blue-50 opacity-40 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500">
+      </div>
+      <div
+        class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-cyan-100 to-purple-50 opacity-40 rounded-full -ml-12 -mb-12 group-hover:scale-125 transition-transform duration-500">
+      </div>
+
+      <h2 class="relative z-10 text-2xl font-bold mb-6 flex items-center gap-2">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <span class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">Quick
+          Actions</span>
+      </h2>
+      <div class="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <button (click)="viewSubscriptionPlans()"
+          class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+          <div
+            class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
             </svg>
           </div>
-          <h3 class="text-2xl font-bold text-primary-800 mb-2">No Children Added Yet</h3>
-          <p class="text-base text-gray-600 mb-6">Start by adding your first child to monitor their learning progress</p>
-          <button
-            (click)="addNewChild()"
-            class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 inline-flex items-center gap-2 hover:shadow-lg hover:-translate-y-1 font-semibold">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <p
+            class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">
+            Browse Plans</p>
+        </button>
+
+        <button (click)="manageSubscriptions()"
+          class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+          <div
+            class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+              </path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </div>
+          <p
+            class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">
+            Manage Subs</p>
+        </button>
+
+        <button (click)="addNewChild()"
+          class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+          <div
+            class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
-            <span>Add Your First Child</span>
-          </button>
-        </div>
-      }
+          </div>
+          <p
+            class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">
+            Add Child</p>
+        </button>
 
-      <!-- Quick Actions -->
-      <div class="mt-6 sm:mt-8 group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl p-4 sm:p-6 relative overflow-hidden transform hover:-translate-y-1 border-2 border-gray-100">
-        <!-- Decorative Elements -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-100 to-blue-50 opacity-40 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-        <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-cyan-100 to-purple-50 opacity-40 rounded-full -ml-12 -mb-12 group-hover:scale-125 transition-transform duration-500"></div>
+        <a routerLink="/cart"
+          class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+          <div
+            class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
+              </path>
+            </svg>
+          </div>
+          <p
+            class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">
+            View Cart</p>
+        </a>
 
-        <h2 class="relative z-10 text-2xl font-bold mb-6 flex items-center gap-2">
-          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-          </svg>
-          <span class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">Quick Actions</span>
-        </h2>
-        <div class="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          <button
-            (click)="viewSubscriptionPlans()"
-            class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-              </svg>
-            </div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">Browse Plans</p>
-          </button>
+        <a routerLink="/parent/tutoring/select"
+          class="p-3 sm:p-4 border-2 border-emerald-600 bg-white rounded-lg sm:rounded-xl hover:bg-emerald-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+          <div
+            class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-emerald-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <p
+            class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors px-1 leading-tight">
+            Tutoring</p>
+        </a>
 
-          <button
-            (click)="manageSubscriptions()"
-            class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-            </div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">Manage Subs</p>
-          </button>
-
-          <button
-            (click)="addNewChild()"
-            class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-              </svg>
-            </div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">Add Child</p>
-          </button>
-
-          <a
-            routerLink="/cart"
-            class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-              </svg>
-            </div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors px-1 leading-tight">View Cart</p>
-          </a>
-
-          <a
-            routerLink="/sessions/browse"
-            class="p-3 sm:p-4 border-2 border-emerald-600 bg-white rounded-lg sm:rounded-xl hover:bg-emerald-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-emerald-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-emerald-700 transition-colors px-1 leading-tight">Book Session</p>
-          </a>
-
-          <a
-            routerLink="/sessions/my-bookings"
-            class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-              </svg>
-            </div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">My Bookings</p>
-          </a>
-        </div>
+        <a routerLink="/sessions/my-bookings"
+          class="p-3 sm:p-4 border-2 border-blue-600 bg-white rounded-lg sm:rounded-xl hover:bg-blue-50 transition-all duration-300 text-center group hover:shadow-lg hover:-translate-y-1 flex flex-col items-center">
+          <div
+            class="w-10 h-10 sm:w-12 sm:h-12 mb-1 sm:mb-2 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+              </path>
+            </svg>
+          </div>
+          <p class="text-xs sm:text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">My
+            Bookings</p>
+        </a>
       </div>
+    </div>
     }
   </div>
 </div>
