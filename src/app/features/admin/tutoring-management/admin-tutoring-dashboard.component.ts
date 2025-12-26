@@ -2624,6 +2624,15 @@ export class AdminTutoringDashboardComponent implements OnInit {
       }
     };
 
+    // Debug: Log current values
+    console.log('📤 Saving discount rules with values:', JSON.stringify(discountRules, null, 2));
+    console.log('🔍 Component state:', {
+      groupDiscount: this.groupDiscount,
+      hoursDiscountTiers: this.hoursDiscountTiers,
+      multiSubjectTiers: this.multiSubjectTiers,
+      multiStudentsTiers: this.multiStudentsTiers
+    });
+
     this.tutoringService.updateDiscountRules(discountRules).subscribe({
       next: (response: any) => {
         this.toastService.showSuccess(`Discount rules updated successfully!`);

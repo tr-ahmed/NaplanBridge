@@ -424,7 +424,10 @@ export class Step6ReviewComponent implements OnInit {
       };
     });
 
-    return { studentSelections };
+    return {
+      studentSelections,
+      totalStudents: this.students.length  // ✅ Required for Multiple Students Discount
+    };
   }
 
   hasDiscounts(subject: any): boolean {

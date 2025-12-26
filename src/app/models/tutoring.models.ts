@@ -270,6 +270,7 @@ export interface NewStudentSelectionDto {
 
 export interface NewPriceCalculationRequest {
   studentSelections: NewStudentSelectionDto[];
+  totalStudents?: number; // Used for Multiple Students Discount calculation
 }
 
 export interface DiscountDetailDto {
