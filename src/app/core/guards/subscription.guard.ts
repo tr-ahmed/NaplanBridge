@@ -163,8 +163,76 @@ export const subscriptionGuard: CanActivateFn = (route, state) => {
       accessCheck$ = subscriptionService.hasAccessToTerm(studentId, parseInt(contentId));
       break;
     case 'lesson':
-      accessCheck$ = subscriptionService.hasAccessToLesson(studentId, parseInt(contentId));
-      break;
+      // ✅ WORKAROUND: For lessons, check if it's a global lesson first
+      // hasAccessToLesson API has a bug for global lessons (same as hasAccessToSubject)
+      // If lesson is global, we use hasAccessToSubject instead
+      return lessonsService.getLessonById(parseInt(contentId)).pipe(
+        switchMap((lesson: any) => {
+          if (!lesson) {
+            console.error('❌ Lesson not found');
+            toastService.showError('Lesson not found');
+            router.navigate(['/']);
+            return of(false);
+          }
+
+          // Check if this is a global lesson (isGlobalLesson flag or no weekId/termId)
+          const isGlobalLesson = lesson.isGlobalLesson === true || lesson.isGlobal === true ||
+            (!lesson.weekId && !lesson.termId);
+
+          if (isGlobalLesson && lesson.subjectId) {
+            console.log('🌍 Global lesson detected - using hasAccessToSubject instead');
+            // For global lessons, check subject access instead
+            return subscriptionService.hasAccessToSubject(studentId, lesson.subjectId).pipe(
+              map(response => {
+                if (response.hasAccess) {
+                  console.log('✅ Global lesson access granted via subject access');
+                  return true;
+                } else {
+                  const reason = response.reason || 'You need an active subscription to access this content';
+                  toastService.showWarning(reason);
+                  router.navigate(['/subscriptions'], {
+                    queryParams: { returnUrl: state.url, contentType: 'lesson', contentId: contentId }
+                  });
+                  return false;
+                }
+              })
+            );
+          }
+
+          // Regular lesson - use hasAccessToLesson
+          return subscriptionService.hasAccessToLesson(studentId, parseInt(contentId)).pipe(
+            map(response => {
+              if (response.hasAccess) {
+                return true;
+              } else {
+                const reason = response.reason || 'You need an active subscription to access this content';
+                toastService.showWarning(reason);
+                router.navigate(['/subscriptions'], {
+                  queryParams: { returnUrl: state.url, contentType: 'lesson', contentId: contentId }
+                });
+                return false;
+              }
+            })
+          );
+        }),
+        catchError(error => {
+          console.error('Error checking lesson access:', error);
+          // On error, try direct lesson access check
+          return subscriptionService.hasAccessToLesson(studentId, parseInt(contentId)).pipe(
+            map(response => {
+              if (response.hasAccess) return true;
+              toastService.showWarning('You need an active subscription to access this content');
+              router.navigate(['/subscriptions']);
+              return false;
+            }),
+            catchError(() => {
+              toastService.showError('Unable to verify subscription. Please try again.');
+              router.navigate(['/']);
+              return of(false);
+            })
+          );
+        })
+      );
     case 'exam':
       accessCheck$ = subscriptionService.hasAccessToExam(studentId, parseInt(contentId));
       break;
