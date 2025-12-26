@@ -240,9 +240,52 @@ import {
             </div>
           </div>
 
-          <div class="swap-modal-footer">
+            <div class="swap-modal-footer">
             <button class="btn btn-secondary" (click)="closeSwapModal()">Cancel</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unavailable Subjects Warning Modal -->
+    <div class="modal-overlay" *ngIf="unavailableSubjectsModalOpen" (click)="continueWithAvailableSubjects()">
+      <div class="warning-modal" (click)="$event.stopPropagation()">
+        <div class="warning-modal-header">
+          <span class="warning-icon">⚠️</span>
+          <h3>Some Subjects Not Available</h3>
+        </div>
+        
+        <div class="warning-modal-body">
+          <p>The following subjects don't have enough available sessions:</p>
+          
+          <div class="unavailable-list">
+            <div *ngFor="let item of unavailableSubjects" class="unavailable-item">
+              <div class="unavailable-student">👤 {{ item.studentName }}</div>
+              <div class="unavailable-subject">
+                <span class="subject-name">📚 {{ item.subjectName }}</span>
+                <span class="teaching-type">({{ item.teachingType }})</span>
+              </div>
+              <div class="unavailable-info">
+                <span class="requested">Requested: {{ item.requestedSessions }} sessions</span>
+                <span class="available">Available: {{ item.availableSessions }} sessions</span>
+              </div>
+              <div class="unavailable-message">{{ item.message }}</div>
+            </div>
+          </div>
+
+          <div class="warning-note">
+            <strong>Note:</strong> These subjects will NOT be included in your booking. 
+            You will only be charged for the available subjects.
+          </div>
+        </div>
+        
+        <div class="warning-modal-footer">
+          <button class="btn btn-secondary" (click)="cancelDueToUnavailableSubjects()">
+            ← Go Back & Change Subjects
+          </button>
+          <button class="btn btn-primary" (click)="continueWithAvailableSubjects()">
+            Continue with Available Subjects →
+          </button>
         </div>
       </div>
     </div>
@@ -2246,6 +2289,148 @@ import {
       color: #666;
       font-size: 0.75rem;
     }
+
+    /* Warning Modal Styles */
+    .warning-modal {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 550px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .warning-modal-header {
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+      color: white;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .warning-modal-header .warning-icon {
+      font-size: 1.5rem;
+    }
+
+    .warning-modal-header h3 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .warning-modal-body {
+      padding: 1.5rem;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .warning-modal-body > p {
+      margin: 0 0 1rem 0;
+      color: #666;
+    }
+
+    .unavailable-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .unavailable-item {
+      background: #fff3e0;
+      border: 1px solid #ffcc80;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .unavailable-student {
+      font-weight: 600;
+      color: #e65100;
+      margin-bottom: 0.5rem;
+    }
+
+    .unavailable-subject {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .unavailable-subject .subject-name {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .unavailable-subject .teaching-type {
+      color: #888;
+      font-size: 0.85rem;
+    }
+
+    .unavailable-info {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .unavailable-info .requested {
+      color: #d32f2f;
+    }
+
+    .unavailable-info .available {
+      color: #388e3c;
+    }
+
+    .unavailable-message {
+      font-size: 0.8rem;
+      color: #666;
+      font-style: italic;
+    }
+
+    .warning-note {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #e3f2fd;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #1565c0;
+    }
+
+    .warning-modal-footer {
+      padding: 1rem 1.5rem;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .warning-modal-footer .btn {
+      padding: 0.75rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .warning-modal-footer .btn-secondary {
+      background: white;
+      color: #666;
+      border: 1px solid #ddd;
+    }
+
+    .warning-modal-footer .btn-secondary:hover {
+      background: #f5f5f5;
+    }
+
+    .warning-modal-footer .btn-primary {
+      background: linear-gradient(135deg, #009688 0%, #00796b 100%);
+      color: white;
+    }
+
+    .warning-modal-footer .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,150,136,0.3);
+    }
   `]
 })
 export class Step5ScheduleComponent implements OnInit {
@@ -2294,6 +2479,19 @@ export class Step5ScheduleComponent implements OnInit {
   reservationRemainingMinutes: number = 0;
   reservationRemainingSeconds: number = 0;
   reservingSlots: boolean = false;
+
+  // Unavailable Subjects Warning
+  unavailableSubjectsModalOpen: boolean = false;
+  unavailableSubjects: Array<{
+    studentId: number;
+    studentName: string;
+    subjectId: number;
+    subjectName: string;
+    teachingType: string;
+    requestedSessions: number;
+    availableSessions: number;
+    message: string;
+  }> = [];
 
   constructor(
     private stateService: TutoringStateService,
@@ -2414,6 +2612,8 @@ export class Step5ScheduleComponent implements OnInit {
           // Build cached data first, then initialize expanded subjects
           this.buildCachedSchedules();
           this.initializeFirstSubjects();
+          // Check for unavailable subjects and show warning
+          this.checkUnavailableSubjects();
         }
       },
       error: (err) => {
@@ -2520,16 +2720,60 @@ export class Step5ScheduleComponent implements OnInit {
   }
 
   // Build cached data for all students (called once after schedule loads)
+  // Now uses studentId from backend response for correct grouping
   buildCachedSchedules(): void {
     this.cachedStudentSchedules.clear();
-    const allSubjects = this.getGroupedSubjectSlots();
-    const state = this.stateService.getState();
 
+    if (!this.scheduleResponse) return;
+
+    // Group schedules by studentId from the response
     this.students.forEach(student => {
-      const studentSubjectIds = state.studentSubjects.get(student.id) || new Set<number>();
-      const studentSubjects = allSubjects.filter(subject => studentSubjectIds.has(subject.subjectId));
+      const studentSubjects: Array<{
+        subjectId: number;
+        subjectName: string;
+        teachingType: string;
+        slots: Array<{ slot: ScheduledSlotDto; teacherId: number }>;
+      }> = [];
+
+      // Collect all subjects for this student from all teachers
+      this.scheduleResponse!.recommendedSchedule.teachers.forEach(teacher => {
+        teacher.subjectSchedules
+          .filter(schedule => schedule.studentId === student.id)
+          .forEach(schedule => {
+            // Check if we already have this subject for this student
+            let existingSubject = studentSubjects.find(s => s.subjectId === schedule.subjectId);
+
+            if (!existingSubject) {
+              existingSubject = {
+                subjectId: schedule.subjectId,
+                subjectName: schedule.subjectName,
+                teachingType: schedule.teachingType,
+                slots: []
+              };
+              studentSubjects.push(existingSubject);
+            }
+
+            // Add slots from this teacher
+            schedule.slots.forEach(slot => {
+              existingSubject!.slots.push({
+                slot: slot,
+                teacherId: teacher.teacherId
+              });
+            });
+          });
+      });
+
+      // Sort slots by date
+      studentSubjects.forEach(subject => {
+        subject.slots.sort((a, b) =>
+          new Date(a.slot.dateTime).getTime() - new Date(b.slot.dateTime).getTime()
+        );
+      });
+
       this.cachedStudentSchedules.set(student.id, studentSubjects);
     });
+
+    console.log('📚 Built cached schedules for', this.cachedStudentSchedules.size, 'students');
   }
 
   // Initialize first subject of each student as expanded
@@ -2550,6 +2794,60 @@ export class Step5ScheduleComponent implements OnInit {
     console.log('📂 Total expanded subjects:', this.expandedSubjects.size);
     // Force UI update
     this.cdr.detectChanges();
+  }
+
+  // Check for subjects that don't have full sessions available
+  checkUnavailableSubjects(): void {
+    if (!this.scheduleResponse?.summary?.subjectAvailability) {
+      console.log('ℹ️ No subjectAvailability data in response');
+      return;
+    }
+
+    // Find subjects that are NOT fully covered
+    const unavailable = this.scheduleResponse.summary.subjectAvailability
+      .filter(sa => !sa.isFullyCovered);
+
+    if (unavailable.length === 0) {
+      console.log('✅ All subjects are fully covered');
+      return;
+    }
+
+    console.log('⚠️ Found unavailable subjects:', unavailable);
+
+    // Build list with student info
+    this.unavailableSubjects = unavailable.map(sa => {
+      // Try to find student name
+      const student = this.students.find(s => s.id === sa.studentId);
+      return {
+        studentId: sa.studentId || 0,
+        studentName: sa.studentName || student?.name || 'Unknown Student',
+        subjectId: sa.subjectId,
+        subjectName: sa.subjectName,
+        teachingType: sa.teachingType,
+        requestedSessions: sa.requestedSessions,
+        availableSessions: sa.availableSessions,
+        message: sa.message
+      };
+    });
+
+    // Show modal if there are unavailable subjects
+    if (this.unavailableSubjects.length > 0) {
+      this.unavailableSubjectsModalOpen = true;
+    }
+  }
+
+  // Continue booking after acknowledging unavailable subjects
+  continueWithAvailableSubjects(): void {
+    this.unavailableSubjectsModalOpen = false;
+    // User acknowledged, proceed with available subjects only
+    console.log('👍 User chose to continue with available subjects');
+  }
+
+  // Cancel booking due to unavailable subjects
+  cancelDueToUnavailableSubjects(): void {
+    this.unavailableSubjectsModalOpen = false;
+    // Go back to subject selection
+    this.stateService.setCurrentStep(2); // Step 2 is subject selection
   }
 
   // Check if a subject is expanded

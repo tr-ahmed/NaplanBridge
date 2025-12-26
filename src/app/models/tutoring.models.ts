@@ -169,6 +169,8 @@ export interface ScheduledSlotDto {
 }
 
 export interface SubjectScheduleDto {
+  studentId: number;
+  studentName?: string;
   subjectId: number;
   subjectName: string;
   teachingType: string;
@@ -217,6 +219,19 @@ export interface SplitSubjectInfo {
   allocations: TeacherAllocation[];
 }
 
+export interface SubjectAvailabilityDto {
+  subjectId: number;
+  subjectName: string;
+  teachingType: string;
+  studentId?: number;
+  studentName?: string;
+  requestedSessions: number;
+  availableSessions: number;
+  shortage: number;
+  isFullyCovered: boolean;
+  message: string;
+}
+
 export interface SchedulingSummaryDto {
   totalSessions: number;
   matchedSessions: number;
@@ -225,6 +240,8 @@ export interface SchedulingSummaryDto {
   consistentTeacherPerSubject: boolean;
   /** Subjects that had to be split between multiple teachers */
   splitSubjects: SplitSubjectInfo[];
+  /** Availability status for each subject */
+  subjectAvailability?: SubjectAvailabilityDto[];
 }
 
 export interface SmartSchedulingResponse {

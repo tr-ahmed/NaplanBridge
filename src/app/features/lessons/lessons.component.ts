@@ -61,6 +61,9 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   // ✅ NEW: Student selection (for parents)
   selectedStudentId = signal<number | null>(null);
+  parentStudents = signal<any[]>([]);  // Parent's children list
+  showStudentSelector = signal<boolean>(false);  // Student selection modal
+  pendingPlanId = signal<number | null>(null);  // Plan waiting for student selection
 
   // ✅ NEW: Plan selection modal (using PlanSelectionModalComponent)
   showPlanModal = signal<boolean>(false);
@@ -103,6 +106,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
         const courseId = params['courseId'];
         const termNumber = params['termNumber'];  // ✅ NEW: Use termNumber instead of termId
         const termId = params['termId'];          // Keep for backward compatibility
+        const isGlobal = params['isGlobal'] === 'true';  // ✅ NEW: Check if global course
         // 🔒 SECURITY: Removed hasAccess from query params - always verify from backend
         const studentIdParam = params['studentId']; // ✅ NEW: Get studentId from URL
 
@@ -123,7 +127,43 @@ export class LessonsComponent implements OnInit, OnDestroy {
         if (subjectId) {
           this.currentSubjectId.set(parseInt(subjectId));
 
-          // Load terms first
+          // ✅ NEW: Handle global courses (no terms) - load lessons directly
+          if (isGlobal) {
+            console.log('🌍 Global course detected - loading lessons directly without terms');
+            this.availableTerms.set([]);  // Clear any terms
+
+            // ✅ FIXED: Verify subscription access from backend for global courses too
+            const currentUser = this.authService.getCurrentUser();
+            const studentId = this.selectedStudentId() || currentUser?.studentId;
+
+            if (studentId) {
+              // Verify subscription access for global course
+              this.subscriptionService.hasAccessToSubject(studentId, parseInt(subjectId))
+                .pipe(takeUntil(this.destroy$))
+                .subscribe(result => {
+                  const allowed = !!result?.hasAccess;
+                  this.hasAccess.set(allowed);
+                  this.showSubscriptionBanner.set(!allowed);
+                  console.log('🌍 Global course access check:', { studentId, subjectId, hasAccess: allowed });
+                  if (!allowed) {
+                    this.toastService.showInfo('Subscribe to unlock this course content');
+                  }
+                });
+            } else {
+              // No studentId - show as preview mode
+              this.hasAccess.set(false);
+              this.showSubscriptionBanner.set(true);
+            }
+
+            this.loadLessonsForSubjectId(parseInt(subjectId));
+
+            if (courseId) {
+              this.currentCourseId.set(parseInt(courseId));
+            }
+            return;  // Skip term loading for global courses
+          }
+
+          // Load terms first (for non-global courses)
           this.loadAvailableTerms(parseInt(subjectId));
 
           // 🔒 Parent access check: require active subscription for selected child
@@ -859,9 +899,20 @@ export class LessonsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!studentId) {
+    // ✅ FIXED: For Parents, studentId might not be set yet - allow them to proceed
+    // They will select the student in onPlanSelected after picking a plan
+    const rolesArray = user?.roles || (Array.isArray(user?.role) ? user.role :
+      (typeof user?.role === 'string' ? user.role.split(',').map((r: string) => r.trim()) : []));
+    const isParent = rolesArray.some((r: string) => r?.toLowerCase() === 'parent');
+
+    if (!studentId && !isParent) {
+      // Only block if NOT a parent and no studentId
       this.toastService.showInfo('Please log in to continue.');
       return;
+    }
+
+    if (!studentId && isParent) {
+      console.log('👨‍👩‍👧‍👦 Parent without studentId - will select student after plan selection');
     }
 
     console.log('🛒 Fetching all available plans for subject:', subjectId);
@@ -930,16 +981,130 @@ export class LessonsComponent implements OnInit, OnDestroy {
    */
   onPlanSelected(planId: number): void {
     const user = this.authService.getCurrentUser();
-    const studentId = user?.studentId || this.selectedStudentId();
 
-    if (!studentId) {
-      this.toastService.showInfo('Please log in to add items to cart.');
+    if (!user) {
+      this.toastService.showInfo('Please log in to continue.');
       return;
     }
 
+    // Check user roles - handle multiple formats including comma-separated string
+    let rolesArray: string[] = [];
+
+    if (user?.roles && Array.isArray(user.roles)) {
+      rolesArray = user.roles;
+    } else if (Array.isArray(user?.role)) {
+      rolesArray = user.role;
+    } else if (typeof user?.role === 'string') {
+      // Handle comma-separated string like "Parent, Member"
+      rolesArray = user.role.split(',').map((r: string) => r.trim());
+    }
+
+    const isStudent = rolesArray.some((r: string) => r?.toLowerCase() === 'student');
+    const isParent = rolesArray.some((r: string) => r?.toLowerCase() === 'parent');
+
+    console.log('🛒 onPlanSelected called:', {
+      planId,
+      isStudent,
+      isParent,
+      roles: rolesArray,
+      user: user,
+      selectedStudentId: this.selectedStudentId()
+    });
+
+    let studentId: number | undefined;
+
+    if (isStudent) {
+      // Direct student access
+      studentId = user?.studentId || user?.id;
+      console.log('✅ Student role - using studentId:', studentId);
+    } else if (isParent) {
+      // Parent role - need to handle student selection
+      // Load parent students from localStorage (stored by courses component)
+      const studentsData = localStorage.getItem('parentStudents');
+      let allParentStudents: any[] = [];
+
+      if (studentsData) {
+        try {
+          allParentStudents = JSON.parse(studentsData);
+          this.parentStudents.set(allParentStudents);
+        } catch (e) {
+          console.error('Error parsing parent students from localStorage:', e);
+        }
+      }
+
+      console.log('👨‍👩‍👧‍👦 Parent students loaded:', allParentStudents.length);
+
+      if (allParentStudents.length === 0) {
+        this.toastService.showError('No students found. Please add a student first.');
+        return;
+      }
+
+      // ✅ For global courses OR any course - use all students (no year filtering since we're on lessons page)
+      // The studentId from URL should already be set, use it if available
+      const urlStudentId = this.selectedStudentId();
+
+      if (urlStudentId) {
+        // Student already selected via URL parameter
+        studentId = urlStudentId;
+        console.log('✅ Using studentId from URL:', studentId);
+      } else if (allParentStudents.length === 1) {
+        // Only one student - auto-select
+        studentId = allParentStudents[0].id;
+        this.selectedStudentId.set(studentId || null);
+        console.log('✅ Auto-selected only student:', allParentStudents[0].name);
+      } else {
+        // Multiple students - show selection modal
+        console.log('👨‍👩‍👧‍👦 Multiple students - showing selection modal');
+        this.pendingPlanId.set(planId);
+        this.showStudentSelector.set(true);
+        return;  // Wait for student selection
+      }
+    } else {
+      // User is logged in but not Student or Parent
+      console.log('⚠️ User has neither Student nor Parent role:', rolesArray);
+      this.toastService.showError('Only students and parents can add items to cart.');
+      return;
+    }
+
+    if (!studentId) {
+      this.toastService.showInfo('Please select a student first.');
+      return;
+    }
+
+    // Proceed with adding to cart
+    this.addPlanToCart(planId, studentId);
+  }
+
+  /**
+   * Handle student selection from modal
+   */
+  onStudentSelected(student: any): void {
+    console.log('✅ Student selected:', student.name);
+    this.selectedStudentId.set(student.id);
+    this.showStudentSelector.set(false);
+
+    const planId = this.pendingPlanId();
+    if (planId) {
+      this.addPlanToCart(planId, student.id);
+      this.pendingPlanId.set(null);
+    }
+  }
+
+  /**
+   * Close student selector modal
+   */
+  onCloseStudentSelector(): void {
+    this.showStudentSelector.set(false);
+    this.pendingPlanId.set(null);
+  }
+
+  /**
+   * Add plan to cart (extracted for reuse)
+   */
+  private addPlanToCart(planId: number, studentId: number): void {
     const selectedPlan = this.selectedCoursePlans().find(p => p.id === planId);
 
-    console.log('🛒 Adding plan to cart:', { planId, selectedPlan });
+    console.log('🛒 Adding plan to cart:', { planId, studentId, selectedPlan });
 
     // Add to cart
     this.cartService.addToCart({

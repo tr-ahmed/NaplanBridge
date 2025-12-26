@@ -73,7 +73,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   pendingCourse = signal<Course | null>(null);
 
   // Available years for filtering - loaded from database
-  availableYears = signal<Array<{id: number, yearNumber: number, name: string}>>([]);
+  availableYears = signal<Array<{ id: number, yearNumber: number, name: string }>>([]);
   selectedYearId = signal<number | null>(null);
 
   // Computed values
@@ -91,7 +91,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       if (!a.isGlobal && b.isGlobal) return -1;
       return 0; // Keep original order for same type
     });
-  });  cartItemCount = computed(() => this.cart().totalItems);
+  }); cartItemCount = computed(() => this.cart().totalItems);
 
   // Display year name
   displayYearName = computed(() => {
@@ -114,7 +114,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private subscriptionService: SubscriptionService,
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     console.log('🚀 CoursesComponent ngOnInit - Starting...');
@@ -847,8 +847,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
     // Get the cartItemId or subscriptionPlanId to remove
     const itemId = (cartItem as any).cartItemId ||
-                   (cartItem as any).subscriptionPlanId ||
-                   (cartItem as any)._backendData?.subscriptionPlanId;
+      (cartItem as any).subscriptionPlanId ||
+      (cartItem as any)._backendData?.subscriptionPlanId;
 
     this.logger.log('🗑️ Removing cart item:', {
       courseId: course.id,
@@ -868,7 +868,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           this.logger.log('✅ Removed course from cart');
         }
       });
-  }  isInCart(courseId: number): boolean {
+  } isInCart(courseId: number): boolean {
     // ✅ NEW: Use exact ID matching from enhanced cart response
     const course = this.courses().find(c => c.id === courseId);
     if (!course) return false;
@@ -965,38 +965,48 @@ export class CoursesComponent implements OnInit, OnDestroy {
           return;
         }
 
-        // ✅ FIX: Convert course.yearId (DB id) to yearNumber for comparison
-        // course.yearId is the ID from Years table (1, 2, 3...)
-        // student.yearId is the yearNumber (7, 8, 9...)
-        const courseYearId = course.yearId;
-        const yearInfo = this.availableYears().find(y => y.id === courseYearId);
-        const courseYearNumber = yearInfo?.yearNumber || courseYearId;
+        // ✅ NEW: Handle global courses - available for all students regardless of year
+        let studentsToConsider: any[];
 
-        const studentsInSameYear = allParentStudents.filter(s => s.yearId === courseYearNumber);
+        if (course.isGlobal) {
+          // Global courses are available to ALL students - no year filtering
+          this.logger.log('🌍 Global course - available for all students');
+          studentsToConsider = allParentStudents;
+        } else {
+          // Regular courses - filter by year level
+          // ✅ FIX: Convert course.yearId (DB id) to yearNumber for comparison
+          // course.yearId is the ID from Years table (1, 2, 3...)
+          // student.yearId is the yearNumber (7, 8, 9...)
+          const courseYearId = course.yearId;
+          const yearInfo = this.availableYears().find(y => y.id === courseYearId);
+          const courseYearNumber = yearInfo?.yearNumber || courseYearId;
 
-        this.logger.log('🔍 Course yearId (DB):', courseYearId);
-        this.logger.log('🔍 Course yearNumber:', courseYearNumber);
-        this.logger.log('👨‍👩‍👧‍👦 All students:', allParentStudents.map(s => ({ name: s.name, yearId: s.yearId })));
-        this.logger.log('👨‍👩‍👧‍👦 Students in same year:', studentsInSameYear.length);
+          studentsToConsider = allParentStudents.filter(s => s.yearId === courseYearNumber);
 
-        if (studentsInSameYear.length === 0) {
+          this.logger.log('🔍 Course yearId (DB):', courseYearId);
+          this.logger.log('🔍 Course yearNumber:', courseYearNumber);
+          this.logger.log('👨‍👩‍👧‍👦 All students:', allParentStudents.map(s => ({ name: s.name, yearId: s.yearId })));
+          this.logger.log('👨‍👩‍👧‍👦 Students in same year:', studentsToConsider.length);
+        }
+
+        if (studentsToConsider.length === 0) {
           this.logger.log('❌ No students found for this year');
           this.toastService.showError('None of your children are enrolled in this year level.');
           return;
-        } else if (studentsInSameYear.length === 1) {
-          // ✅ Only one student in this year - auto-select
-          studentId = studentsInSameYear[0].id;
+        } else if (studentsToConsider.length === 1) {
+          // ✅ Only one student - auto-select
+          studentId = studentsToConsider[0].id;
           this.selectedStudentId.set(studentId || null);
-          this.logger.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'for Year', courseYearNumber);
+          this.logger.log('✅ Auto-selected student:', studentsToConsider[0].name, course.isGlobal ? '(Global course)' : '');
           this.logger.log('🔍 Student details:', {
             studentId: studentId,
-            studentObject: studentsInSameYear[0],
+            studentObject: studentsToConsider[0],
             allStudentsData: allParentStudents
           });
         } else {
-          // ✅ Multiple students in same year - ALWAYS show selector (even if previously selected)
-          this.logger.log('👨‍👩‍👧‍👦 Multiple students in Year', courseYearNumber, '- showing selector');
-          this.showStudentSelectionModal(studentsInSameYear, planId, course);
+          // ✅ Multiple students - show selector
+          this.logger.log('👨‍👩‍👧‍👦 Multiple students available - showing selector');
+          this.showStudentSelectionModal(studentsToConsider, planId, course);
           return;  // Exit early - will continue after selection
         }
       } else {
@@ -1133,7 +1143,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           return;
         }
       }
-    }    if (!studentId) {
+    } if (!studentId) {
       console.warn('⚠️ No studentId found, redirecting to login');
       this.router.navigate(['/login']);
       return;
@@ -1201,33 +1211,51 @@ export class CoursesComponent implements OnInit, OnDestroy {
       studentId = this.selectedStudentId() || undefined;
 
       if (!studentId) {
-        // ✅ Try to auto-select student based on course year
-        const courseYearId = course.yearId;
-        const studentsInSameYear = this.parentStudents().filter(s => s.yearId === courseYearId);
+        const allStudents = this.parentStudents();
 
-        this.logger.log('🔍 Checking for auto-select student:', {
-          courseYearId,
-          totalStudents: this.parentStudents().length,
-          studentsInSameYear: studentsInSameYear.length
-        });
+        // ✅ FIXED: Handle global courses differently - no year filtering
+        if (course.isGlobal) {
+          this.logger.log('🌍 Global course - checking students for selection');
 
-        if (studentsInSameYear.length === 1) {
-          // ✅ Only one student in this year - auto-select
-          studentId = studentsInSameYear[0].id;
-          this.selectedStudentId.set(studentId || null);
-          this.logger.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'ID:', studentId);
-        } else {
-          // ✅ Multiple students or no students - Try to pick any student for browse mode
-          this.logger.log('👀 Parent browse mode - Multiple or no students in same year');
-
-          // Try to use any available student (for browse mode)
-          const allStudents = this.parentStudents();
-          if (allStudents.length > 0) {
-            // Pick the first available student (any year)
+          if (allStudents.length === 0) {
+            this.logger.log('⚠️ No students available - pure browse mode');
+            isParentBrowseMode = true;
+          } else if (allStudents.length === 1) {
+            // Only one student - auto-select
             studentId = allStudents[0].id;
-            this.logger.log('✅ Using first available student for browse mode:', allStudents[0].name, 'ID:', studentId);
+            this.selectedStudentId.set(studentId || null);
+            this.logger.log('✅ Auto-selected only student for global course:', allStudents[0].name);
           } else {
-            // No students at all - still allow browsing
+            // Multiple students - DON'T auto-select, let lessons page handle it
+            this.logger.log('👨‍👩‍👧‍👦 Multiple students for global course - will show selector on lessons page');
+            // Don't set studentId - lessons page will show student selector
+          }
+        } else {
+          // ✅ Regular courses - filter by year
+          const courseYearId = course.yearId;
+          const studentsInSameYear = allStudents.filter(s => s.yearId === courseYearId);
+
+          this.logger.log('🔍 Checking for auto-select student:', {
+            courseYearId,
+            totalStudents: allStudents.length,
+            studentsInSameYear: studentsInSameYear.length
+          });
+
+          if (studentsInSameYear.length === 1) {
+            // ✅ Only one student in this year - auto-select
+            studentId = studentsInSameYear[0].id;
+            this.selectedStudentId.set(studentId || null);
+            this.logger.log('✅ Auto-selected student:', studentsInSameYear[0].name, 'ID:', studentId);
+          } else if (studentsInSameYear.length > 1) {
+            // Multiple students in same year - use first one for viewing
+            studentId = studentsInSameYear[0].id;
+            this.logger.log('✅ Using first student in same year for viewing:', studentsInSameYear[0].name);
+          } else if (allStudents.length > 0) {
+            // No students in this year but have other students - use first for browse
+            studentId = allStudents[0].id;
+            this.logger.log('✅ Using first available student for browse mode:', allStudents[0].name);
+          } else {
+            // No students at all
             this.logger.log('⚠️ No students available - pure browse mode');
             isParentBrowseMode = true;
           }
@@ -1240,18 +1268,24 @@ export class CoursesComponent implements OnInit, OnDestroy {
       this.logger.log('👀 Parent browsing lessons (no student available)');
 
       // Navigate to lessons without fetching term/week data
-      this.router.navigate(['/lessons'], {
-        queryParams: {
-          subjectId: course.subjectNameId,
-          subject: course.subject || course.subjectName,
-          courseId: course.id,
-          yearId: course.yearId,
-          termNumber: 1,  // Default to term 1
-          weekNumber: 1,  // Default to week 1
-          hasAccess: false,  // Parent browsing - no access
-          browseMode: true  // ✅ NEW: Indicate browse mode
-        }
-      });
+      const parentBrowseParams: any = {
+        subjectId: course.id,  // ✅ FIXED: Use Subject.Id for plans API
+        subject: course.subject || course.subjectName,
+        courseId: course.id,
+        yearId: course.yearId,
+        hasAccess: false,  // Parent browsing - no access
+        browseMode: true  // ✅ NEW: Indicate browse mode
+      };
+
+      // ✅ Only add term/week params for non-global courses
+      if (!course.isGlobal) {
+        parentBrowseParams.termNumber = 1;  // Default to term 1
+        parentBrowseParams.weekNumber = 1;  // Default to week 1
+      } else {
+        parentBrowseParams.isGlobal = true;
+      }
+
+      this.router.navigate(['/lessons'], { queryParams: parentBrowseParams });
       return;
     }
 
@@ -1260,13 +1294,37 @@ export class CoursesComponent implements OnInit, OnDestroy {
       this.logger.log('👤 Guest user - redirecting to lessons preview mode');
 
       // Navigate to lessons without studentId (preview mode)
+      const guestParams: any = {
+        subject: course.name || course.subjectName,
+        subjectId: course.id,
+        hasAccess: false,
+        browseMode: true  // Indicate guest preview mode
+      };
+
+      // ✅ Only add termNumber for non-global courses
+      if (!course.isGlobal) {
+        guestParams.termNumber = 1;  // Default to term 1 for guests
+      } else {
+        guestParams.isGlobal = true;
+      }
+
+      this.router.navigate(['/lessons'], { queryParams: guestParams });
+      return;
+    }
+
+    // ✅ NEW: Handle global courses (isGlobal: true) - no terms/weeks hierarchy
+    if (course.isGlobal) {
+      this.logger.log('🌍 Global course detected - navigating directly without terms');
+
+
       this.router.navigate(['/lessons'], {
         queryParams: {
-          subject: course.name || course.subjectName,
-          subjectId: course.id,
-          termNumber: 1,  // Default to term 1 for guests
-          hasAccess: false,
-          browseMode: true  // Indicate guest preview mode
+          subjectId: course.id,  // ✅ FIXED: Use Subject.Id (not SubjectName.Id) for plans API
+          subject: course.subject || course.subjectName,
+          courseId: course.id,
+          yearId: course.yearId,
+          studentId: studentId,
+          isGlobal: true  // Flag for lessons page - will verify access from backend
         }
       });
       return;
@@ -1321,7 +1379,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           // ✅ Navigate to the term (accessible or current)
           this.router.navigate(['/lessons'], {
             queryParams: {
-              subjectId: course.subjectNameId,
+              subjectId: course.id,  // ✅ FIXED: Use Subject.Id for plans API
               subject: course.subject || course.subjectName,
               courseId: course.id,
               yearId: course.yearId,
@@ -1349,7 +1407,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           // ✅ Still navigate to lessons even on error (with defaults)
           this.router.navigate(['/lessons'], {
             queryParams: {
-              subjectId: course.subjectNameId,
+              subjectId: course.id,  // ✅ FIXED: Use Subject.Id for plans API
               subject: course.subject || course.subjectName,
               courseId: course.id,
               yearId: course.yearId,
