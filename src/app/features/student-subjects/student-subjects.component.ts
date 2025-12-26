@@ -21,6 +21,7 @@ interface EnrolledSubject {
   totalLessons?: number;
   currentTermNumber?: number;
   accessibleTerms?: number[];
+  isGlobal?: boolean; // ✅ NEW: For global courses (no terms hierarchy)
 }
 
 @Component({
@@ -124,6 +125,9 @@ export class StudentSubjectsComponent implements OnInit {
               });
             }
           } else {
+            // ✅ Detect global courses: isGlobal flag OR yearNumber === 0 (convention for global courses)
+            const isGlobalCourse = sub.isGlobal || sub.isGlobalLesson || sub.yearNumber === 0 || false;
+
             subjectsMap.set(subjectId, {
               subjectId,
               subjectName,
@@ -134,7 +138,8 @@ export class StudentSubjectsComponent implements OnInit {
               startDate: sub.startDate || sub.createdAt,
               daysRemaining,
               currentTermNumber: sub.currentTermNumber,
-              accessibleTerms: []
+              accessibleTerms: [],
+              isGlobal: isGlobalCourse
             });
           }
         });
@@ -224,7 +229,22 @@ export class StudentSubjectsComponent implements OnInit {
       return;
     }
 
-    // Navigate to lessons with subject context
+    // ✅ NEW: Handle global courses (no terms hierarchy)
+    if (subject.isGlobal) {
+      console.log('🌍 Global course detected - navigating directly without terms');
+      this.router.navigate(['/lessons'], {
+        queryParams: {
+          subjectId: subject.subjectId,
+          subject: subject.subjectName,
+          studentId: this.studentId,
+          hasAccess: true,
+          isGlobal: true  // Flag for lessons page
+        }
+      });
+      return;
+    }
+
+    // Navigate to lessons with subject context (non-global courses)
     if (subject.accessibleTerms && subject.accessibleTerms.length > 0) {
       // Navigate to first accessible term
       const firstTerm = subject.accessibleTerms[0];
