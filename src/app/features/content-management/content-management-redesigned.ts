@@ -216,7 +216,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private contentService: ContentService,
     private router: Router
-  ) {}
+  ) { }
 
   // Expose Math for template use
   Math = Math;
@@ -661,7 +661,7 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
 
       return matchesSearch && matchesWeek && matchesTerm && matchesSubject;
     });
-  }  updatePaged(): void {
+  } updatePaged(): void {
     this.pagedYears = this.slicePage(this.filteredYears, this.yearPage);
     this.pagedCategories = this.slicePage(this.filteredCategories, this.categoryPage);
     this.pagedSubjectNames = this.slicePage(this.filteredSubjectNames, this.subjectNamePage);
@@ -833,17 +833,53 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
     this.isFormOpen = true;
   }
 
-  openEdit(type: EntityType, entity: any): void {
+  async openEdit(type: EntityType, entity: any): Promise<void> {
     this.formMode = 'edit';
     this.entityType = type;
-    this.form = { ...entity };
 
-    // Ensure numeric fields are properly typed for subject edit
-    if (type === 'subject' && this.form.teacherId) {
-      this.form.teacherId = Number(this.form.teacherId);
+    // For subjects, fetch complete details to ensure teacherId is included
+    if (type === 'subject') {
+      try {
+        // Show loading indicator
+        Swal.fire({
+          title: 'Loading...',
+          text: 'Fetching subject details',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        // Fetch complete subject details from API
+        const completeSubject = await this.contentService.getSubject(entity.id).toPromise();
+
+        // Close loading indicator
+        Swal.close();
+
+        // Merge fetched data with existing entity (API data takes precedence)
+        this.form = { ...entity, ...completeSubject };
+
+        // Ensure numeric fields are properly typed
+        if (this.form.teacherId) {
+          this.form.teacherId = Number(this.form.teacherId);
+        }
+
+        console.log('📝 Opening edit for', type, 'with complete data:', this.form);
+      } catch (error) {
+        Swal.close();
+        console.error('Error fetching subject details:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load subject details. Please try again.'
+        });
+        return; // Don't open form if fetch failed
+      }
+    } else {
+      // For other entity types, use the entity data directly
+      this.form = { ...entity };
+
+      console.log('📝 Opening edit for', type, ':', this.form);
     }
 
-    console.log('📝 Opening edit for', type, ':', this.form);
     this.isFormOpen = true;
   }
 
