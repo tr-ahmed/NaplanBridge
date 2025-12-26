@@ -83,13 +83,27 @@ import {
             <div *ngIf="scheduleResponse.summary.unmatchedSessions > 0" class="stat warning">
               <span class="stat-value">{{ scheduleResponse.summary.unmatchedSessions }}</span>
               <span class="stat-label">Unmatched</span>
-            </div>
           </div>
           <div *ngIf="scheduleResponse.summary.consistentTeacherPerSubject" class="same-teacher-badge success">
             ✅ All sessions for each subject scheduled with the same teacher!
           </div>
-          <div *ngIf="!scheduleResponse.summary.consistentTeacherPerSubject && scheduleResponse.summary.splitSubjects.length > 0" class="same-teacher-badge warning">
-            ⚠️ Some subjects split between multiple teachers due to availability
+          <div *ngIf="!scheduleResponse.summary.consistentTeacherPerSubject && scheduleResponse.summary.splitSubjects.length > 0" class="same-teacher-badge info">
+            ℹ️ Some subjects are taught by multiple teachers to ensure full coverage
+          </div>
+          <!-- Unmatched sessions warning with suggestions -->
+          <div *ngIf="scheduleResponse.summary.unmatchedSessions > 0" class="unmatched-warning">
+            <div class="warning-header">
+              ⚠️ {{ scheduleResponse.summary.unmatchedSessions }} sessions could not be scheduled
+            </div>
+            <p class="warning-text">Not enough teacher availability for all requested sessions.</p>
+            <div class="suggestions">
+              <strong>Suggestions:</strong>
+              <ul>
+                <li>Extend your date range</li>
+                <li>Remove preferred days/times restrictions</li>
+                <li>Choose fewer hours per subject</li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -611,6 +625,47 @@ import {
       color: #e65100;
     }
 
+    .same-teacher-badge.info {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .unmatched-warning {
+      margin-top: 1rem;
+      padding: 1rem 1.5rem;
+      background: #fff8e1;
+      border: 1px solid #ffca28;
+      border-radius: 8px;
+      border-left: 4px solid #f57c00;
+    }
+
+    .unmatched-warning .warning-header {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #e65100;
+      margin-bottom: 0.5rem;
+    }
+
+    .unmatched-warning .warning-text {
+      color: #6d4c41;
+      margin: 0.5rem 0;
+    }
+
+    .unmatched-warning .suggestions {
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+      color: #5d4037;
+    }
+
+    .unmatched-warning .suggestions ul {
+      margin: 0.25rem 0 0 1.25rem;
+      padding: 0;
+    }
+
+    .unmatched-warning .suggestions li {
+      margin-bottom: 0.25rem;
+    }
+
     .split-subjects-section {
       margin-bottom: 2rem;
       padding: 1.5rem;
@@ -939,7 +994,7 @@ export class Step5ScheduleComponent implements OnInit {
     private stateService: TutoringStateService,
     private tutoringService: TutoringService,
     private contentService: ContentService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.restoreState();
@@ -1007,25 +1062,58 @@ export class Step5ScheduleComponent implements OnInit {
       timeRange = { start: '17:00:00', end: '21:00:00' };
     }
 
+    // Convert dates to ISO 8601 format
+    const startDateTime = new Date(this.startDate);
+    startDateTime.setHours(0, 0, 0, 0);
+
+    const endDateTime = new Date(this.endDate);
+    endDateTime.setHours(23, 59, 59, 999);
+
     const request: GetAvailableSlotsRequest = {
       studentSelections,
-      startDate: this.startDate,
-      endDate: this.endDate,
+      startDate: startDateTime.toISOString(),
+      endDate: endDateTime.toISOString(),
       preferredDays: preferredDays.length > 0 ? preferredDays : undefined,
       preferredTimeRange: timeRange
     };
 
     this.tutoringService.getAvailableSlotsSmart(request).subscribe({
       next: (response) => {
+        // Debug logging - remove in production
+        console.log('📅 Smart Schedule Response:', response);
+        console.log('📊 Summary:', {
+          total: response.summary.totalSessions,
+          matched: response.summary.matchedSessions,
+          unmatched: response.summary.unmatchedSessions,
+          consistentTeacher: response.summary.consistentTeacherPerSubject,
+          splitSubjects: response.summary.splitSubjects?.length || 0
+        });
+        console.log('👨‍🏫 Teachers count:', response.recommendedSchedule.teachers.length);
+        response.recommendedSchedule.teachers.forEach((t, i) => {
+          console.log(`  Teacher ${i + 1}: ${t.teacherName} (Priority: ${t.priority})`);
+          t.subjectSchedules.forEach(s => {
+            console.log(`    📚 ${s.subjectName}: ${s.assignedSessions}/${s.totalSessions} sessions, ${s.slots.length} slots`);
+          });
+        });
+
         this.scheduleResponse = response;
         this.loading = false;
 
+        // Only show "no schedule found" if teachers array is truly empty
         if (!response.recommendedSchedule.teachers.length) {
           this.noScheduleFound = true;
+          console.warn('⚠️ No teachers found in recommendedSchedule');
+        } else {
+          this.noScheduleFound = false;
         }
       },
       error: (err) => {
-        console.error('Error loading smart schedule:', err);
+        console.error('❌ Error loading smart schedule:', err);
+        console.error('Error details:', {
+          status: err.status,
+          message: err.message,
+          error: err.error
+        });
         this.loading = false;
         this.noScheduleFound = true;
       }
@@ -1062,7 +1150,7 @@ export class Step5ScheduleComponent implements OnInit {
 
   canProceed(): boolean {
     return this.scheduleResponse !== null &&
-           this.scheduleResponse.recommendedSchedule.teachers.length > 0;
+      this.scheduleResponse.recommendedSchedule.teachers.length > 0;
   }
 
   previousStep(): void {
