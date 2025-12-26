@@ -25,6 +25,7 @@
             <strong class="text-primary">{{ getYearDisplayLabel(year) }}</strong>
           </td>
           <td class="text-end">
+            @if (year.yearNumber !== 0) {
             <div class="btn-group" role="group">
               <button class="btn btn-sm btn-outline-secondary" (click)="onEdit(year)" title="Edit">
                 <i class="fas fa-edit"></i>
@@ -33,6 +34,12 @@
                 <i class="fas fa-trash"></i>
               </button>
             </div>
+            } @else {
+            <span class="text-muted small">
+              <i class="fas fa-lock me-1"></i>
+              Protected
+            </span>
+            }
           </td>
         </tr>
         }
