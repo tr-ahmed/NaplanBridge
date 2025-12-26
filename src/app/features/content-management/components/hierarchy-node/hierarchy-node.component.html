@@ -28,10 +28,12 @@
       <strong>{{ subject.subjectName || 'Subject' }}</strong>
 
       <div class="actions ms-auto">
+        @if (year.yearNumber !== 0) {
         <button class="btn btn-sm btn-outline-primary me-1" (click)="onAdd('term', { subject: subject, year: year })"
           title="Add Term">
           <i class="fas fa-plus"></i> Term
         </button>
+        }
         <button class="btn btn-sm btn-outline-secondary me-1" (click)="onEdit('subject', subject)" title="Edit Subject">
           <i class="fas fa-edit"></i>
         </button>
@@ -41,8 +43,8 @@
       </div>
     </div>
 
-    <!-- Terms Level -->
-    @if (isSubjectExpanded(subject.id!)) {
+    <!-- Terms Level (hidden for global courses where yearNumber = 0) -->
+    @if (isSubjectExpanded(subject.id!) && year.yearNumber !== 0) {
     <div class="hierarchy-children">
       @for (term of getTermsForSubject(subject.id!); track term.id) {
       <div class="hierarchy-item term-item ms-4">
