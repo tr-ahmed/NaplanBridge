@@ -328,17 +328,40 @@ export class Step6ReviewComponent implements OnInit {
   }
 
   loadSubjects(): void {
-    this.contentService.getSubjects().subscribe({
-      next: (subjects) => {
-        this.subjects = Array.isArray(subjects) ? subjects : [];
-        // Calculate price after subjects loaded
-        this.calculatePrice();
-      },
-      error: (error) => {
-        console.error('Error loading subjects:', error);
-        this.subjects = [];
-        this.calculatePrice();
-      }
+    // Get unique academic year IDs from selected students
+    const uniqueYears = [...new Set(this.students.map(s => s.academicYearId))];
+
+    if (uniqueYears.length === 0) {
+      this.calculatePrice();
+      return;
+    }
+
+    let loadedCount = 0;
+    this.subjects = [];
+
+    uniqueYears.forEach(yearId => {
+      this.contentService.getSubjectsByYear(yearId).subscribe({
+        next: (subjects) => {
+          const subjectsArray = Array.isArray(subjects) ? subjects : [];
+          this.subjects.push(...subjectsArray);
+
+          loadedCount++;
+          if (loadedCount === uniqueYears.length) {
+            // Calculate price after all subjects loaded
+            console.log('📚 Loaded subjects with tutoringPricePerHour:',
+              this.subjects.map(s => ({ id: s.id, name: s.subjectName, tutoringPricePerHour: s.tutoringPricePerHour, price: s.price }))
+            );
+            this.calculatePrice();
+          }
+        },
+        error: (error) => {
+          console.error(`Error loading subjects for year ${yearId}:`, error);
+          loadedCount++;
+          if (loadedCount === uniqueYears.length) {
+            this.calculatePrice();
+          }
+        }
+      });
     });
   }
 
