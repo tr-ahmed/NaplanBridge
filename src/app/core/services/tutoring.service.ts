@@ -85,6 +85,11 @@ export class TutoringService {
     return this.http.get<any>(`${this.adminUrl}/Tutoring/Stats`);
   }
 
+  // Update discount settings (Admin)
+  updateDiscountSettings(settings: any): Observable<any> {
+    return this.http.put<any>(`${this.adminUrl}/Tutoring/DiscountSettings`, settings);
+  }
+
   // ==================== TEACHER APIs - Availability ====================
 
   /**

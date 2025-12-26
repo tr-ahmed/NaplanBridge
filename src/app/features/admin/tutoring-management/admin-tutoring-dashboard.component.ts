@@ -534,6 +534,57 @@ interface AdvancedReportData {
                 Save Changes
               </button>
             </div>
+
+            <!-- Multiple Students Discount -->
+            <div class="discount-card">
+              <div class="discount-header">
+                <div class="discount-title">
+                  <span class="discount-icon">👨‍👩‍👧‍👦</span>
+                  <h3>Multiple Students</h3>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" [(ngModel)]="multiStudentsDiscount.isActive" (change)="saveDiscountRule(multiStudentsDiscount)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <p class="discount-desc">Discount when parent registers multiple children</p>
+              <div class="students-tiers">
+                <div class="tier">
+                  <span class="tier-label">2 students:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiStudentsTiers.tier2" min="0" max="50" [disabled]="!multiStudentsDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+                <div class="tier">
+                  <span class="tier-label">3 students:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiStudentsTiers.tier3" min="0" max="50" [disabled]="!multiStudentsDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+                <div class="tier">
+                  <span class="tier-label">4+ students:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiStudentsTiers.tier4" min="0" max="50" [disabled]="!multiStudentsDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+                <div class="tier max-cap">
+                  <span class="tier-label">Max discount:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiStudentsTiers.max" min="0" max="50" [disabled]="!multiStudentsDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="discount-example">
+                <strong>Example:</strong> 4 students × \$100 = \$400 → \${{ (400 * (1 - multiStudentsTiers.tier4/100)).toFixed(0) }} ({{ multiStudentsTiers.tier4 }}% off)
+              </div>
+              <button class="btn btn-sm btn-save" (click)="saveMultiStudentsDiscount()" [disabled]="!multiStudentsDiscount.isActive">
+                Save Changes
+              </button>
+            </div>
           </div>
 
           <!-- Discount Info -->
@@ -2164,6 +2215,22 @@ export class AdminTutoringDashboardComponent implements OnInit {
     tier5: 20
   };
 
+  multiStudentsDiscount: DiscountRule = {
+    id: 'multiStudents',
+    name: 'Multiple Students',
+    type: 'group', // reuse type since interface doesn't have multiStudents
+    percentage: 0,
+    condition: 'Multiple students registered',
+    isActive: true
+  };
+
+  multiStudentsTiers = {
+    tier2: 5,
+    tier3: 10,
+    tier4: 15,
+    max: 20
+  };
+
   // Reports
   reportPeriods = ['Today', 'This Week', 'This Month', 'This Quarter', 'This Year'];
   selectedPeriod = 'This Month';
@@ -2218,7 +2285,7 @@ export class AdminTutoringDashboardComponent implements OnInit {
     private tutoringService: TutoringService,
     private toastService: ToastService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Load real data from APIs
@@ -2504,6 +2571,16 @@ export class AdminTutoringDashboardComponent implements OnInit {
           }
         }
 
+        if (data.multiStudentsDiscount) {
+          this.multiStudentsDiscount.isActive = data.multiStudentsDiscount.isActive;
+          if (data.multiStudentsDiscount.tiers) {
+            this.multiStudentsTiers.tier2 = data.multiStudentsDiscount.tiers.students2 || 5;
+            this.multiStudentsTiers.tier3 = data.multiStudentsDiscount.tiers.students3 || 10;
+            this.multiStudentsTiers.tier4 = data.multiStudentsDiscount.tiers.students4 || 15;
+            this.multiStudentsTiers.max = data.multiStudentsDiscount.tiers.maxPercentage || 20;
+          }
+        }
+
         console.log('✅ Loaded discount rules:', data);
       },
       error: (err: any) => {
@@ -2535,6 +2612,15 @@ export class AdminTutoringDashboardComponent implements OnInit {
           subjects4: this.multiSubjectTiers.tier4,
           subjects5: this.multiSubjectTiers.tier5
         }
+      },
+      multiStudentsDiscount: {
+        isActive: this.multiStudentsDiscount.isActive,
+        tiers: {
+          students2: this.multiStudentsTiers.tier2,
+          students3: this.multiStudentsTiers.tier3,
+          students4: this.multiStudentsTiers.tier4,
+          maxPercentage: this.multiStudentsTiers.max
+        }
       }
     };
 
@@ -2548,6 +2634,11 @@ export class AdminTutoringDashboardComponent implements OnInit {
         this.toastService.showError('Failed to save discount rules');
       }
     });
+  }
+
+  saveMultiStudentsDiscount(): void {
+    // Just call saveDiscountRule which includes all discounts including multiStudents
+    this.saveDiscountRule(this.multiStudentsDiscount);
   }
 
   // Reports Methods
