@@ -2661,20 +2661,31 @@ export class Step5ScheduleComponent implements OnInit {
         const teachingType = state.subjectTeachingTypes.get(key) || TeachingType.OneToOne;
         const hours = (state.subjectHours.get(key) || 10) as HoursOption;
 
-        // Get term ID from state (null if global subject or not selected)
-        const termId = state.subjectTerms.get(key) || null;
+        // Get term info from state (could be object or number depending on format)
+        const storedTerm = state.subjectTerms.get(key);
+
+        // Extract academicTermId properly (handle both old number format and new object format)
+        let academicTermId: number | null = null;
+        if (storedTerm) {
+          if (typeof storedTerm === 'number') {
+            // Old format: just a number
+            academicTermId = storedTerm;
+          } else if (typeof storedTerm === 'object' && storedTerm !== null) {
+            // New format: object with termId and academicTermId
+            academicTermId = (storedTerm as any).academicTermId ?? null;
+          }
+        }
 
         // Determine if subject is global (no term required)
-        // If termId is null and subject still passed validation, it's global
-        const isGlobal = termId === null;
+        const isGlobal = academicTermId === null;
 
-        console.log(`📚 Subject ${subjectId}: termId=${termId}, isGlobal=${isGlobal}`);
+        console.log(`📚 Subject ${subjectId}: academicTermId=${academicTermId}, isGlobal=${isGlobal}`);
 
         return {
           subjectId,
           teachingType,
           hours,
-          academicTermId: termId,
+          academicTermId,  // ✅ Now properly a number, not an object
           isGlobal
         };
       });
@@ -3129,6 +3140,10 @@ export class Step5ScheduleComponent implements OnInit {
           this.reservationSessionToken = result.sessionToken;
           this.reservationExpiresAt = new Date(result.expiresAt);
           this.startReservationTimer();
+
+          // ✅ Save session token to state for step6 to use
+          this.stateService.setReservationSessionToken(result.sessionToken);
+
           // Proceed to next step (payment)
           this.stateService.nextStep();
         } else {

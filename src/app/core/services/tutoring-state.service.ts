@@ -31,7 +31,8 @@ export class TutoringStateService {
       subjectHours: new Map(),
       studentSubjectTimeSlots: new Map(),
       currentStep: 1,
-      priceCalculation: null
+      priceCalculation: null,
+      reservationSessionToken: null
     };
   }
 
@@ -77,6 +78,21 @@ export class TutoringStateService {
   // Step 2b: Term Selection (for non-global subjects)
   // ============================================
 
+  /**
+   * Store both termId (Subject Term ID) and academicTermId for a subject
+   */
+  setSubjectTermIds(studentId: number, subjectId: number, termId: number, academicTermId: number | null): void {
+    const key = `${studentId}_${subjectId}`;
+    const terms = new Map(this.stateSubject.value.subjectTerms);
+    // Store as object with both IDs
+    terms.set(key, { termId, academicTermId } as any);
+    this.updateState({ subjectTerms: terms });
+  }
+
+  /**
+   * @deprecated Use setSubjectTermIds instead for new code
+   * Legacy method - stores single term ID (for backward compatibility)
+   */
   setSubjectTerm(studentId: number, subjectId: number, termId: number): void {
     const key = `${studentId}_${subjectId}`;
     const terms = new Map(this.stateSubject.value.subjectTerms);
@@ -84,9 +100,40 @@ export class TutoringStateService {
     this.updateState({ subjectTerms: terms });
   }
 
+  /**
+   * Get stored term info for a subject
+   * Returns object with both termId and academicTermId if available
+   */
+  getSubjectTermIds(studentId: number, subjectId: number): { termId: number; academicTermId: number | null } | null {
+    const key = `${studentId}_${subjectId}`;
+    const stored = this.stateSubject.value.subjectTerms.get(key);
+
+    if (!stored) return null;
+
+    // Handle both old format (number) and new format (object)
+    if (typeof stored === 'number') {
+      // Old format: just a number (legacy)
+      return { termId: stored, academicTermId: stored };
+    }
+
+    // New format: object with both IDs
+    return stored as { termId: number; academicTermId: number | null };
+  }
+
   getSubjectTerm(studentId: number, subjectId: number): number | null {
     const key = `${studentId}_${subjectId}`;
-    return this.stateSubject.value.subjectTerms.get(key) || null;
+    const stored = this.stateSubject.value.subjectTerms.get(key);
+
+    if (!stored) return null;
+
+    // Handle both old format (number) and new format (object)
+    if (typeof stored === 'number') {
+      return stored;
+    }
+
+    // New format: return academicTermId (preferred for backend)
+    const obj = stored as { termId: number; academicTermId: number | null };
+    return obj.academicTermId ?? obj.termId;
   }
 
   setRequiresTermSelection(requires: boolean): void {
@@ -202,12 +249,16 @@ export class TutoringStateService {
   nextStep(): void {
     const current = this.stateSubject.value.currentStep;
     this.updateState({ currentStep: current + 1 });
+    // Scroll to top of page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   previousStep(): void {
     const current = this.stateSubject.value.currentStep;
     if (current > 1) {
       this.updateState({ currentStep: current - 1 });
+      // Scroll to top of page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -221,6 +272,22 @@ export class TutoringStateService {
 
   getPriceCalculation(): TutoringPriceResponse | null {
     return this.stateSubject.value.priceCalculation;
+  }
+
+  // ============================================
+  // Slot Reservation Token
+  // ============================================
+
+  setReservationSessionToken(token: string | null): void {
+    this.updateState({ reservationSessionToken: token });
+  }
+
+  getReservationSessionToken(): string | null {
+    return this.stateSubject.value.reservationSessionToken;
+  }
+
+  clearReservationSessionToken(): void {
+    this.updateState({ reservationSessionToken: null });
   }
 
   // ============================================

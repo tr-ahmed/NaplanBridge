@@ -329,6 +329,20 @@ export interface NewSubjectSelectionDto {
   basePrice: number;
   teachingType: TeachingType;
   hours: HoursOption;
+  /**
+   * Subject Term ID (from Terms table) - for reference.
+   */
+  termId?: number | null;
+  /**
+   * Academic Term ID (from AcademicTerms table).
+   * Required for term-based subjects.
+   */
+  academicTermId?: number | null;
+  /**
+   * Indicates if this is a global subject (no term required).
+   * If true, termId and academicTermId are not needed.
+   */
+  isGlobal?: boolean;
 }
 
 export interface NewStudentSelectionDto {
@@ -786,5 +800,8 @@ export interface TutoringSelectionState {
 
   // Price calculation
   priceCalculation: TutoringPriceResponse | null;
+
+  // Step 5: Slot Reservation Token (for payment)
+  reservationSessionToken: string | null;
 }
 

@@ -74,11 +74,12 @@ interface StudentSubjectTerms {
                   <h4 class="subject-title">{{ subject.subjectName }}</h4>
                   
                   <div class="terms-grid">
-                    @for (term of subject.availableTerms; track term.termId) {
+                    @for (term of getFilteredTerms(subject.availableTerms); track term.termId) {
                       <div 
                         class="term-card-compact"
                         [class.selected]="subject.selectedTermId === term.termId"
                         [class.current]="term.isCurrent"
+                        [class.next]="isNextTerm(term, subject.availableTerms)"
                         (click)="selectTerm(studentData.student.id, subject.subjectId, term.termId, term.academicTermId)">
                         
                         <div class="term-card-content">
@@ -87,9 +88,12 @@ interface StudentSubjectTerms {
                             @if (term.isCurrent) {
                               <span class="badge-current-mini">Now</span>
                             }
+                            @if (isNextTerm(term, subject.availableTerms)) {
+                              <span class="badge-next-mini">Next</span>
+                            }
                           </div>
                           <div class="term-meta">
-                            <span class="term-dates-mini">{{ formatDateShort(term.startDate) }} - {{ formatDateShort(term.endDate) }}</span>
+                            <span class="term-dates-mini">{{ formatDateWithYear(term.startDate) }} - {{ formatDateWithYear(term.endDate) }}</span>
                           </div>
                         </div>
                         
@@ -344,6 +348,24 @@ interface StudentSubjectTerms {
       text-transform: uppercase;
     }
 
+    .badge-next-mini {
+      background: linear-gradient(135deg, #2196f3, #1565c0);
+      color: white;
+      padding: 0.125rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .term-card-compact.next {
+      border-color: #2196f3;
+    }
+
+    .term-card-compact.next:hover {
+      background: #e3f2fd;
+    }
+
     .term-meta {
       display: flex;
       align-items: center;
@@ -500,6 +522,19 @@ export class Step2bTermSelectionComponent implements OnInit {
       this.tutoringService.getSubjectTerms(req.subjectId).pipe(
         map(response => {
           console.log(`✅ Terms for subject ${req.subjectId}:`, response);
+
+          // ⚠️ DEBUG: Check if academicTermId is present in the response
+          if (response.availableTerms && response.availableTerms.length > 0) {
+            response.availableTerms.forEach((term, idx) => {
+              console.log(`   Term ${idx + 1}: termId=${term.termId}, academicTermId=${term.academicTermId}, termName=${term.termName}`);
+              if (!term.academicTermId) {
+                console.error(`   ❌ BACKEND ISSUE: academicTermId is MISSING for term ${term.termId}!`);
+                console.error(`      The create-order-v2 endpoint requires academicTermId, not termId.`);
+                console.error(`      Please ensure the backend returns academicTermId in the terms response.`);
+              }
+            });
+          }
+
           return { ...req, response };
         }),
         catchError((error) => {
@@ -583,11 +618,16 @@ export class Step2bTermSelectionComponent implements OnInit {
       }
     }
 
-    // Persist Academic Term ID to state service (this is what Smart Scheduling uses)
-    // Use academicTermId if available, otherwise fallback to termId for backward compatibility
-    const termToSave = academicTermId || termId;
-    console.log(`📅 Saving term: subjectTermId=${termId}, academicTermId=${academicTermId}, saving=${termToSave}`);
-    this.stateService.setSubjectTerm(studentId, subjectId, termToSave);
+    // Log the term selection
+    console.log(`📅 Saving term for subject ${subjectId}: termId=${termId}, academicTermId=${academicTermId}`);
+
+    if (!academicTermId) {
+      console.warn(`⚠️ WARNING: academicTermId is missing for subject ${subjectId}!`);
+      console.warn(`   Backend API should return academicTermId in the terms response.`);
+    }
+
+    // Store BOTH termId and academicTermId in state
+    this.stateService.setSubjectTermIds(studentId, subjectId, termId, academicTermId ?? null);
   }
 
   formatDate(dateString: string): string {
@@ -605,6 +645,63 @@ export class Step2bTermSelectionComponent implements OnInit {
       day: 'numeric',
       month: 'short'
     });
+  }
+
+  /**
+   * Format date with year (e.g., "Jan 1, 2025")
+   */
+  formatDateWithYear(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
+
+  /**
+   * Get only current term and next term (2 options max)
+   */
+  getFilteredTerms(terms: AvailableTutoringTerm[]): AvailableTutoringTerm[] {
+    if (!terms || terms.length === 0) return [];
+
+    // Sort terms by start date
+    const sortedTerms = [...terms].sort((a, b) =>
+      new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+    );
+
+    // Find current term
+    const currentTerm = sortedTerms.find(t => t.isCurrent);
+
+    // Find next term (first non-past term after current, or first future term)
+    const today = new Date();
+    const futureTerms = sortedTerms.filter(t => !t.isPast && !t.isCurrent);
+    const nextTerm = futureTerms.length > 0 ? futureTerms[0] : null;
+
+    // Return current and next (max 2 options)
+    const result: AvailableTutoringTerm[] = [];
+    if (currentTerm) result.push(currentTerm);
+    if (nextTerm) result.push(nextTerm);
+
+    // If no current term, just show the first 2 future terms
+    if (result.length === 0 && futureTerms.length > 0) {
+      return futureTerms.slice(0, 2);
+    }
+
+    return result;
+  }
+
+  /**
+   * Check if a term is the "next" term (first future term after current)
+   */
+  isNextTerm(term: AvailableTutoringTerm, allTerms: AvailableTutoringTerm[]): boolean {
+    if (term.isCurrent || term.isPast) return false;
+
+    const futureTerms = allTerms
+      .filter(t => !t.isPast && !t.isCurrent)
+      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+
+    return futureTerms.length > 0 && futureTerms[0].termId === term.termId;
   }
 
   canProceed(): boolean {
