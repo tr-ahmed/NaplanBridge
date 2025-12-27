@@ -1,8 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TutoringStateService } from '../../../core/services/tutoring-state.service';
+import { TutoringService } from '../../../core/services/tutoring.service';
 import { ContentService, Subject } from '../../../core/services/content.service';
 import { StudentInfo } from '../../../models/tutoring.models';
+
+interface DiscountTier {
+  minSubjects: number;
+  percentage: number;
+}
 
 @Component({
   selector: 'app-step2-subjects',
@@ -95,25 +101,12 @@ import { StudentInfo } from '../../../models/tutoring.models';
           <h4>Multi-Subject Discount Tiers</h4>
         </div>
         <div class="discount-tiers">
-          <div class="tier-item">
-            <div class="tier-badge">2</div>
+          <div *ngFor="let tier of discountTiers; let last = last"
+               class="tier-item"
+               [class.featured]="last">
+            <div class="tier-badge">{{ tier.minSubjects }}{{ last ? '+' : '' }}</div>
             <span class="tier-label">subjects</span>
-            <span class="tier-discount">5% OFF</span>
-          </div>
-          <div class="tier-item">
-            <div class="tier-badge">3</div>
-            <span class="tier-label">subjects</span>
-            <span class="tier-discount">10% OFF</span>
-          </div>
-          <div class="tier-item">
-            <div class="tier-badge">4</div>
-            <span class="tier-label">subjects</span>
-            <span class="tier-discount">15% OFF</span>
-          </div>
-          <div class="tier-item featured">
-            <div class="tier-badge">5+</div>
-            <span class="tier-label">subjects</span>
-            <span class="tier-discount">20% OFF</span>
+            <span class="tier-discount">{{ tier.percentage }}% OFF</span>
           </div>
         </div>
       </div>
@@ -694,14 +687,24 @@ export class Step2SubjectsComponent implements OnInit {
   studentSubjects = new Map<number, Set<number>>();
   loading = false;
 
+  // Dynamic discount tiers loaded from API (initialized with defaults)
+  discountTiers: DiscountTier[] = [
+    { minSubjects: 2, percentage: 5 },
+    { minSubjects: 3, percentage: 10 },
+    { minSubjects: 4, percentage: 15 },
+    { minSubjects: 5, percentage: 20 }
+  ];
+
   constructor(
     private stateService: TutoringStateService,
+    private tutoringService: TutoringService,
     private contentService: ContentService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.restoreState();
     this.loadSubjects();
+    this.loadDiscountTiers();
   }
 
   restoreState(): void {
@@ -785,10 +788,53 @@ export class Step2SubjectsComponent implements OnInit {
 
   getSubjectDiscount(count: number): number {
     if (count <= 1) return 0;
-    if (count === 2) return 5;
-    if (count === 3) return 10;
-    if (count === 4) return 15;
-    return 20; // 5+ subjects
+
+    // Find the highest applicable discount tier
+    let discount = 0;
+    for (const tier of this.discountTiers) {
+      if (count >= tier.minSubjects) {
+        discount = tier.percentage;
+      }
+    }
+    return discount;
+  }
+
+  private loadDiscountTiers(): void {
+    this.tutoringService.getDiscountRules().subscribe({
+      next: (response: any) => {
+        const data = response.data || response;
+
+        if (data.multiSubjectDiscount?.tiers) {
+          const tiers = data.multiSubjectDiscount.tiers;
+          this.discountTiers = [
+            { minSubjects: 2, percentage: tiers.subjects2 || 5 },
+            { minSubjects: 3, percentage: tiers.subjects3 || 10 },
+            { minSubjects: 4, percentage: tiers.subjects4 || 15 },
+            { minSubjects: 5, percentage: tiers.subjects5 || 20 }
+          ];
+        } else {
+          // Fallback to default tiers
+          this.discountTiers = [
+            { minSubjects: 2, percentage: 5 },
+            { minSubjects: 3, percentage: 10 },
+            { minSubjects: 4, percentage: 15 },
+            { minSubjects: 5, percentage: 20 }
+          ];
+        }
+
+        console.log('✅ Loaded subject discount tiers:', this.discountTiers);
+      },
+      error: (err) => {
+        console.error('Error loading discount tiers:', err);
+        // Use default tiers on error
+        this.discountTiers = [
+          { minSubjects: 2, percentage: 5 },
+          { minSubjects: 3, percentage: 10 },
+          { minSubjects: 4, percentage: 15 },
+          { minSubjects: 5, percentage: 20 }
+        ];
+      }
+    });
   }
 
   getTutoringPrice(subject: Subject): number {

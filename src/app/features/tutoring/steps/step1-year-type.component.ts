@@ -2,11 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TutoringStateService } from '../../../core/services/tutoring-state.service';
+import { TutoringService } from '../../../core/services/tutoring.service';
 import { UserService } from '../../../core/services/user.service';
 import { TeachingType, StudentInfo } from '../../../models/tutoring.models';
 
 interface StudentWithSelection extends StudentInfo {
   selected: boolean;
+}
+
+interface DiscountTier {
+  minStudents: number;
+  percentage: number;
 }
 
 @Component({
@@ -77,6 +83,25 @@ interface StudentWithSelection extends StudentInfo {
         <div>
           <strong>Flexible Learning:</strong> You can select teaching type and hours for each subject individually in the next steps.
         </div>
+      </div>
+
+      <!-- Multiple Students Discount Info -->
+      <div *ngIf="!loading && discountTiers.length > 0" class="discount-section">
+        <div class="discount-header">
+          <span class="discount-icon">🎉</span>
+          <h3>Save More with Multiple Students!</h3>
+        </div>
+        <div class="discount-tiers">
+          <div *ngFor="let tier of discountTiers" 
+               class="tier" 
+               [class.active]="selectedCount >= tier.minStudents">
+            <span class="tier-badge">{{ tier.minStudents }}+ Students</span>
+            <span class="tier-discount">{{ tier.percentage }}% OFF</span>
+          </div>
+        </div>
+        <p *ngIf="selectedCount >= 2" class="discount-applied">
+          ✅ You qualify for <strong>{{ getDiscountPercentage() }}% discount</strong>!
+        </p>
       </div>
 
       <!-- Navigation -->
@@ -304,6 +329,91 @@ interface StudentWithSelection extends StudentInfo {
       flex-shrink: 0;
     }
 
+    /* Discount Section */
+    .discount-section {
+      background: linear-gradient(135deg, #fff9e6 0%, #fff3cc 100%);
+      border: 2px solid #ffc107;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .discount-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .discount-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: #856404;
+    }
+
+    .discount-icon {
+      font-size: 1.75rem;
+    }
+
+    .discount-tiers {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .tier {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      opacity: 0.6;
+      transition: all 0.3s ease;
+    }
+
+    .tier.active {
+      opacity: 1;
+      border-color: #4caf50;
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .tier-badge {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .tier.active .tier-badge {
+      color: #2e7d32;
+    }
+
+    .tier-discount {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f44336;
+    }
+
+    .tier.active .tier-discount {
+      color: #4caf50;
+    }
+
+    .discount-applied {
+      text-align: center;
+      color: #2e7d32;
+      font-size: 1rem;
+      margin: 0;
+      padding: 0.75rem;
+      background: #e8f5e9;
+      border-radius: 8px;
+    }
+
     .nav-buttons {
       display: flex;
       justify-content: center;
@@ -345,14 +455,19 @@ export class Step1YearTypeComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
+  // Dynamic discount tiers loaded from API
+  discountTiers: DiscountTier[] = [];
+
   constructor(
     private stateService: TutoringStateService,
+    private tutoringService: TutoringService,
     private userService: UserService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadStudents();
+    this.loadDiscountTiers();
     this.restoreState();
   }
 
@@ -436,6 +551,55 @@ export class Step1YearTypeComponent implements OnInit {
     if (this.canProceed()) {
       this.stateService.nextStep();
     }
+  }
+
+  getDiscountPercentage(): number {
+    // Find the highest applicable discount tier
+    let discount = 0;
+    for (const tier of this.discountTiers) {
+      if (this.selectedCount >= tier.minStudents) {
+        discount = tier.percentage;
+      }
+    }
+    return discount;
+  }
+
+  private loadDiscountTiers(): void {
+    this.tutoringService.getDiscountRules().subscribe({
+      next: (response: any) => {
+        const data = response.data || response;
+
+        if (data.multiStudentsDiscount?.tiers) {
+          const tiers = data.multiStudentsDiscount.tiers;
+          this.discountTiers = [
+            { minStudents: 2, percentage: tiers.students2 || 5 },
+            { minStudents: 3, percentage: tiers.students3 || 10 },
+            { minStudents: 4, percentage: tiers.students4 || 15 },
+            { minStudents: 5, percentage: tiers.maxPercentage || 20 }
+          ];
+        } else {
+          // Fallback to default tiers
+          this.discountTiers = [
+            { minStudents: 2, percentage: 5 },
+            { minStudents: 3, percentage: 10 },
+            { minStudents: 4, percentage: 15 },
+            { minStudents: 5, percentage: 20 }
+          ];
+        }
+
+        console.log('✅ Loaded discount tiers:', this.discountTiers);
+      },
+      error: (err) => {
+        console.error('Error loading discount tiers:', err);
+        // Use default tiers on error
+        this.discountTiers = [
+          { minStudents: 2, percentage: 5 },
+          { minStudents: 3, percentage: 10 },
+          { minStudents: 4, percentage: 15 },
+          { minStudents: 5, percentage: 20 }
+        ];
+      }
+    });
   }
 }
 

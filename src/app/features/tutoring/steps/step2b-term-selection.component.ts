@@ -9,24 +9,24 @@ import { StudentInfo } from '../../../models/tutoring.models';
 import { AvailableTutoringTerm, SubjectTermsResponse } from '../../../models/term.models';
 
 interface SubjectWithTerms {
-    subjectId: number;
-    subjectName: string;
-    isGlobal: boolean;
-    requiresTermSelection: boolean;
-    availableTerms: AvailableTutoringTerm[];
-    selectedTermId: number | null;
+  subjectId: number;
+  subjectName: string;
+  isGlobal: boolean;
+  requiresTermSelection: boolean;
+  availableTerms: AvailableTutoringTerm[];
+  selectedTermId: number | null;
 }
 
 interface StudentSubjectTerms {
-    student: StudentInfo;
-    subjects: SubjectWithTerms[];
+  student: StudentInfo;
+  subjects: SubjectWithTerms[];
 }
 
 @Component({
-    selector: 'app-step2b-term-selection',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-step2b-term-selection',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="step-container">
       <div class="header-section">
         <h2 class="step-title">Select Academic Term</h2>
@@ -159,7 +159,7 @@ interface StudentSubjectTerms {
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .step-container {
       background: white;
       border-radius: 16px;
@@ -520,153 +520,164 @@ interface StudentSubjectTerms {
   `]
 })
 export class Step2bTermSelectionComponent implements OnInit {
-    loading = false;
-    studentSubjectTerms: StudentSubjectTerms[] = [];
-    hasSubjectsRequiringTerms = false;
+  loading = false;
+  studentSubjectTerms: StudentSubjectTerms[] = [];
+  hasSubjectsRequiringTerms = false;
 
-    constructor(
-        private stateService: TutoringStateService,
-        private tutoringService: TutoringService,
-        private contentService: ContentService
-    ) { }
+  constructor(
+    private stateService: TutoringStateService,
+    private tutoringService: TutoringService,
+    private contentService: ContentService
+  ) { }
 
-    ngOnInit(): void {
-        this.loadTermsData();
+  ngOnInit(): void {
+    this.loadTermsData();
+  }
+
+  loadTermsData(): void {
+    this.loading = true;
+    const state = this.stateService.getState();
+    const students = state.students;
+
+    // Build requests for each student's subjects
+    const requests: { studentId: number; subjectId: number }[] = [];
+
+    students.forEach(student => {
+      const subjects = state.studentSubjects.get(student.id);
+      if (subjects) {
+        subjects.forEach(subjectId => {
+          requests.push({ studentId: student.id, subjectId });
+        });
+      }
+    });
+
+    if (requests.length === 0) {
+      this.loading = false;
+      return;
     }
 
-    loadTermsData(): void {
-        this.loading = true;
-        const state = this.stateService.getState();
-        const students = state.students;
+    console.log('📚 Loading terms for subjects:', requests);
 
-        // Build requests for each student's subjects
-        const requests: { studentId: number; subjectId: number }[] = [];
+    // Fetch term data for each subject
+    const termRequests = requests.map(req =>
+      this.tutoringService.getSubjectTerms(req.subjectId).pipe(
+        map(response => {
+          console.log(`✅ Terms for subject ${req.subjectId}:`, response);
+          return { ...req, response };
+        }),
+        catchError((error) => {
+          console.warn(`⚠️ Failed to load terms for subject ${req.subjectId}:`, error);
+          // Default to requiring term selection when API fails
+          // This ensures subjects aren't incorrectly marked as global
+          return of({
+            ...req,
+            response: {
+              subjectId: req.subjectId,
+              subjectName: `Subject ${req.subjectId}`,
+              isGlobal: false, // Changed: assume NOT global when API fails
+              requiresTermSelection: true, // Changed: require term selection by default
+              availableTerms: [] // Empty terms, user will see "No terms available"
+            } as SubjectTermsResponse
+          });
+        })
+      )
+    );
 
-        students.forEach(student => {
-            const subjects = state.studentSubjects.get(student.id);
-            if (subjects) {
-                subjects.forEach(subjectId => {
-                    requests.push({ studentId: student.id, subjectId });
-                });
-            }
-        });
+    forkJoin(termRequests).subscribe({
+      next: (results) => {
+        console.log('📊 All term results:', results);
+        this.processTermsData(students, results);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading terms data:', error);
+        this.loading = false;
+      }
+    });
+  }
 
-        if (requests.length === 0) {
-            this.loading = false;
-            return;
+  private processTermsData(
+    students: StudentInfo[],
+    results: { studentId: number; subjectId: number; response: SubjectTermsResponse }[]
+  ): void {
+    this.studentSubjectTerms = [];
+    this.hasSubjectsRequiringTerms = false;
+
+    students.forEach(student => {
+      const studentResults = results.filter(r => r.studentId === student.id);
+
+      const subjects: SubjectWithTerms[] = studentResults.map(r => {
+        const existingTermId = this.stateService.getSubjectTerm(student.id, r.subjectId);
+
+        if (r.response.requiresTermSelection) {
+          this.hasSubjectsRequiringTerms = true;
         }
 
-        // Fetch term data for each subject
-        const termRequests = requests.map(req =>
-            this.tutoringService.getSubjectTerms(req.subjectId).pipe(
-                map(response => ({ ...req, response })),
-                catchError(() => of({
-                    ...req,
-                    response: {
-                        subjectId: req.subjectId,
-                        subjectName: `Subject ${req.subjectId}`,
-                        isGlobal: true,
-                        requiresTermSelection: false,
-                        availableTerms: null
-                    } as SubjectTermsResponse
-                }))
-            )
-        );
+        return {
+          subjectId: r.subjectId,
+          subjectName: r.response.subjectName,
+          isGlobal: r.response.isGlobal,
+          requiresTermSelection: r.response.requiresTermSelection,
+          availableTerms: r.response.availableTerms || [],
+          selectedTermId: existingTermId
+        };
+      });
 
-        forkJoin(termRequests).subscribe({
-            next: (results) => {
-                this.processTermsData(students, results);
-                this.loading = false;
-            },
-            error: (error) => {
-                console.error('Error loading terms data:', error);
-                this.loading = false;
-            }
-        });
+      this.studentSubjectTerms.push({ student, subjects });
+    });
+
+    // Update state flag
+    this.stateService.setRequiresTermSelection(this.hasSubjectsRequiringTerms);
+  }
+
+  hasTermBasedSubjects(studentData: StudentSubjectTerms): boolean {
+    return studentData.subjects.some(s => s.requiresTermSelection);
+  }
+
+  selectTerm(studentId: number, subjectId: number, termId: number): void {
+    // Update local state
+    const studentData = this.studentSubjectTerms.find(s => s.student.id === studentId);
+    if (studentData) {
+      const subject = studentData.subjects.find(s => s.subjectId === subjectId);
+      if (subject) {
+        subject.selectedTermId = termId;
+      }
     }
 
-    private processTermsData(
-        students: StudentInfo[],
-        results: { studentId: number; subjectId: number; response: SubjectTermsResponse }[]
-    ): void {
-        this.studentSubjectTerms = [];
-        this.hasSubjectsRequiringTerms = false;
+    // Persist to state service
+    this.stateService.setSubjectTerm(studentId, subjectId, termId);
+  }
 
-        students.forEach(student => {
-            const studentResults = results.filter(r => r.studentId === student.id);
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
 
-            const subjects: SubjectWithTerms[] = studentResults.map(r => {
-                const existingTermId = this.stateService.getSubjectTerm(student.id, r.subjectId);
-
-                if (r.response.requiresTermSelection) {
-                    this.hasSubjectsRequiringTerms = true;
-                }
-
-                return {
-                    subjectId: r.subjectId,
-                    subjectName: r.response.subjectName,
-                    isGlobal: r.response.isGlobal,
-                    requiresTermSelection: r.response.requiresTermSelection,
-                    availableTerms: r.response.availableTerms || [],
-                    selectedTermId: existingTermId
-                };
-            });
-
-            this.studentSubjectTerms.push({ student, subjects });
-        });
-
-        // Update state flag
-        this.stateService.setRequiresTermSelection(this.hasSubjectsRequiringTerms);
+  canProceed(): boolean {
+    // If no subjects require term selection, can always proceed
+    if (!this.hasSubjectsRequiringTerms) {
+      return true;
     }
 
-    hasTermBasedSubjects(studentData: StudentSubjectTerms): boolean {
-        return studentData.subjects.some(s => s.requiresTermSelection);
+    // Check all term-based subjects have a term selected
+    return this.studentSubjectTerms.every(studentData =>
+      studentData.subjects.every(subject =>
+        !subject.requiresTermSelection || subject.selectedTermId !== null
+      )
+    );
+  }
+
+  previousStep(): void {
+    this.stateService.previousStep();
+  }
+
+  nextStep(): void {
+    if (this.canProceed()) {
+      this.stateService.nextStep();
     }
-
-    selectTerm(studentId: number, subjectId: number, termId: number): void {
-        // Update local state
-        const studentData = this.studentSubjectTerms.find(s => s.student.id === studentId);
-        if (studentData) {
-            const subject = studentData.subjects.find(s => s.subjectId === subjectId);
-            if (subject) {
-                subject.selectedTermId = termId;
-            }
-        }
-
-        // Persist to state service
-        this.stateService.setSubjectTerm(studentId, subjectId, termId);
-    }
-
-    formatDate(dateString: string): string {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-        });
-    }
-
-    canProceed(): boolean {
-        // If no subjects require term selection, can always proceed
-        if (!this.hasSubjectsRequiringTerms) {
-            return true;
-        }
-
-        // Check all term-based subjects have a term selected
-        return this.studentSubjectTerms.every(studentData =>
-            studentData.subjects.every(subject =>
-                !subject.requiresTermSelection || subject.selectedTermId !== null
-            )
-        );
-    }
-
-    previousStep(): void {
-        this.stateService.previousStep();
-    }
-
-    nextStep(): void {
-        if (this.canProceed()) {
-            this.stateService.nextStep();
-        }
-    }
+  }
 }
