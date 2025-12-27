@@ -2,6 +2,55 @@
 // Tutoring System Models - v2.0 Flexible Booking
 // ============================================
 
+// ============================================
+// Session Filters & Response (Student/Teacher/Parent)
+// ============================================
+
+export interface SessionFilters {
+  status?: string;
+  startDate?: Date;
+  endDate?: Date;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export interface StudentSessionDto {
+  id: number;
+  teacherName: string;
+  subjectName: string;
+  dateTime: string;
+  duration: number;
+  status: string;
+  meetingLink: string | null;
+  notes: string | null;
+}
+
+export interface StudentSessionsResponse {
+  sessions: StudentSessionDto[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+}
+
+export interface TeacherSessionDto2 {
+  id: number;
+  studentName: string;
+  subjectName: string;
+  teacherName: string;
+  dateTime: string;
+  duration: number;
+  status: string;
+  meetingLink: string | null;
+  notes: string | null;
+}
+
+export interface TeacherSessionsResponse2 {
+  sessions: TeacherSessionDto2[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+}
+
 // Enums
 export enum TutoringPlan {
   Hours10 = '10hrs',

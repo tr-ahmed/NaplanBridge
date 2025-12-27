@@ -68,6 +68,18 @@ export class TeacherTutoringSessionsComponent implements OnInit {
   editingSlot = signal<TeacherAvailabilityDto | null>(null);
   updatingSlot = signal<boolean>(false);
 
+  // Meeting Link Dialog
+  showMeetingLinkModal = signal<boolean>(false);
+  meetingLinkSession = signal<TutoringSessionDto | null>(null);
+  meetingLinkInput = '';
+  updatingMeetingLink = signal<boolean>(false);
+
+  // Notes Dialog
+  showNotesModal = signal<boolean>(false);
+  notesSession = signal<TutoringSessionDto | null>(null);
+  notesInput = '';
+  updatingNotes = signal<boolean>(false);
+
 
   // Calendar View
   viewMode = signal<ViewMode>('today');
@@ -767,6 +779,87 @@ export class TeacherTutoringSessionsComponent implements OnInit {
         }
       });
     }
+  }
+
+  // ============================================
+  // Meeting Link Dialog Methods
+  // ============================================
+
+  openMeetingLinkDialog(session: TutoringSessionDto): void {
+    this.meetingLinkSession.set(session);
+    this.meetingLinkInput = session.meetingLink || '';
+    this.showMeetingLinkModal.set(true);
+  }
+
+  closeMeetingLinkModal(): void {
+    this.showMeetingLinkModal.set(false);
+    this.meetingLinkSession.set(null);
+    this.meetingLinkInput = '';
+  }
+
+  saveMeetingLink(): void {
+    const session = this.meetingLinkSession();
+    if (!session || !this.meetingLinkInput.trim()) {
+      this.toastService.showWarning('Please enter a meeting link');
+      return;
+    }
+
+    this.updatingMeetingLink.set(true);
+
+    this.tutoringService.updateMeetingLink(session.id, this.meetingLinkInput.trim()).subscribe({
+      next: () => {
+        this.toastService.showSuccess('Meeting link updated successfully');
+        this.closeMeetingLinkModal();
+        this.loadSessions();
+      },
+      error: (error) => {
+        console.error('Error updating meeting link:', error);
+        this.toastService.showError('Failed to update meeting link');
+      },
+      complete: () => {
+        this.updatingMeetingLink.set(false);
+      }
+    });
+  }
+
+  // ============================================
+  // Notes Dialog Methods
+  // ============================================
+
+  openNotesDialog(session: TutoringSessionDto): void {
+    this.notesSession.set(session);
+    this.notesInput = session.notes || '';
+    this.showNotesModal.set(true);
+  }
+
+  closeNotesModal(): void {
+    this.showNotesModal.set(false);
+    this.notesSession.set(null);
+    this.notesInput = '';
+  }
+
+  saveNotes(): void {
+    const session = this.notesSession();
+    if (!session) {
+      return;
+    }
+
+    this.updatingNotes.set(true);
+
+    this.tutoringService.updateSessionNotes(session.id, this.notesInput.trim()).subscribe({
+      next: () => {
+        this.toastService.showSuccess('Notes updated successfully');
+        this.closeNotesModal();
+        this.loadSessions();
+      },
+      error: (error) => {
+        console.error('Error updating notes:', error);
+        this.toastService.showError('Failed to update notes');
+      },
+      complete: () => {
+        this.updatingNotes.set(false);
+      }
+    });
   }
 
   // ============================================

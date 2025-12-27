@@ -28,7 +28,11 @@ import {
   CancelSessionResponse,
   RescheduleSessionRequest,
   RescheduleSessionResponse,
-  AlternativeSlotsResponse
+  AlternativeSlotsResponse,
+  // Session Display imports
+  SessionFilters,
+  StudentSessionsResponse,
+  TeacherSessionsResponse2
 } from '../../models/tutoring.models';
 
 @Injectable({
@@ -209,6 +213,50 @@ export class TutoringService {
     }
 
     return this.http.get<AlternativeSlotsResponse>(`${this.apiUrl}/AlternativeSlots`, { params });
+  }
+
+  // ==================== STUDENT APIs - Session Display ====================
+
+  /**
+   * Get student's sessions with filters (Student)
+   * Endpoint: GET /api/Tutoring/student/sessions
+   */
+  getStudentSessions(filters?: SessionFilters): Observable<StudentSessionsResponse> {
+    let params = new HttpParams();
+
+    if (filters) {
+      if (filters.status) params = params.set('status', filters.status);
+      if (filters.startDate) params = params.set('startDate', filters.startDate.toISOString());
+      if (filters.endDate) params = params.set('endDate', filters.endDate.toISOString());
+      params = params.set('pageNumber', (filters.pageNumber || 1).toString());
+      params = params.set('pageSize', (filters.pageSize || 10).toString());
+    }
+
+    return this.http.get<StudentSessionsResponse>(
+      `${this.apiUrl}/student/sessions`,
+      { params }
+    );
+  }
+
+  /**
+   * Get teacher's sessions with filters (new format)
+   * Endpoint: GET /api/Tutoring/teacher/sessions
+   */
+  getTeacherSessionsNew(filters?: SessionFilters): Observable<TeacherSessionsResponse2> {
+    let params = new HttpParams();
+
+    if (filters) {
+      if (filters.status) params = params.set('status', filters.status);
+      if (filters.startDate) params = params.set('startDate', filters.startDate.toISOString());
+      if (filters.endDate) params = params.set('endDate', filters.endDate.toISOString());
+      params = params.set('pageNumber', (filters.pageNumber || 1).toString());
+      params = params.set('pageSize', (filters.pageSize || 10).toString());
+    }
+
+    return this.http.get<TeacherSessionsResponse2>(
+      `${this.apiUrl}/teacher/sessions`,
+      { params }
+    );
   }
 
   // ==================== LEGACY APIs (Keep for backward compatibility) ====================
