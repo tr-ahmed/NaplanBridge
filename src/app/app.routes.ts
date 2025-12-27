@@ -202,6 +202,13 @@ export const routes: Routes = [
     ]
   },
 
+  // Parent My Tutoring Sessions (View booked sessions)
+  {
+    path: 'parent/my-tutoring',
+    loadComponent: () => import('./features/tutoring/my-tutoring/my-tutoring.component').then(m => m.MyTutoringComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+  },
+
   {
     path: 'parent/invoice/:orderId',
     loadComponent: () => import('./features/invoice/invoice.component').then(m => m.InvoiceComponent),
@@ -244,6 +251,13 @@ export const routes: Routes = [
   {
     path: 'student/subjects',
     loadComponent: () => import('./features/student-subjects/student-subjects.component').then(m => m.StudentSubjectsComponent),
+    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+  },
+
+  // Student Tutoring Sessions (New Tutoring System)
+  {
+    path: 'student/tutoring',
+    loadComponent: () => import('./features/tutoring/student-tutoring/student-tutoring.component').then(m => m.StudentTutoringComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
   },
 
@@ -551,36 +565,31 @@ export const routes: Routes = [
     loadComponent: () => import('./features/payment-cancel/payment-cancel.component').then(m => m.PaymentCancelComponent)
   },
 
-  // Private Sessions (Booking) Routes
+  // Legacy Session Routes - Redirect to Tutoring
   {
     path: 'sessions/browse',
-    loadComponent: () => import('./features/sessions/browse-teachers/browse-teachers.component').then(m => m.BrowseTeachersComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
-  },
-  {
-    path: 'sessions/book/:teacherId',
-    loadComponent: () => import('./features/sessions/book-session/book-session.component').then(m => m.BookSessionComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+    redirectTo: 'parent/tutoring/select',
+    pathMatch: 'full'
   },
   {
     path: 'sessions/my-bookings',
-    loadComponent: () => import('./features/sessions/my-bookings/my-bookings.component').then(m => m.MyBookingsComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('parent')]
+    redirectTo: 'parent/my-tutoring',
+    pathMatch: 'full'
   },
   {
     path: 'sessions/availability',
-    loadComponent: () => import('./features/sessions/teacher-availability/teacher-availability.component').then(m => m.TeacherAvailabilityComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')]
+    redirectTo: 'teacher/tutoring-sessions',
+    pathMatch: 'full'
   },
   {
     path: 'sessions/teacher',
-    loadComponent: () => import('./features/sessions/teacher-sessions/teacher-sessions.component').then(m => m.TeacherSessionsComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('teacher')]
+    redirectTo: 'teacher/tutoring-sessions',
+    pathMatch: 'full'
   },
   {
     path: 'sessions/student',
-    loadComponent: () => import('./features/sessions/student-sessions/student-sessions.component').then(m => m.StudentSessionsComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
+    redirectTo: 'student/tutoring',
+    pathMatch: 'full'
   },
 
   // Fallback route
