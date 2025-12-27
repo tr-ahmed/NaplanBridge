@@ -28,7 +28,7 @@ import {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
-        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Review & Payment</h1>
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Step 7: Review & Payment</h1>
         <p class="text-gray-500 text-lg">Confirm your selections and proceed to checkout</p>
       </div>
 

@@ -294,7 +294,7 @@
             } @else {
             <!-- ✅ غيرت: h-32 بدل max-h-32 -->
             <div class="bg-blue-50 rounded-xl p-3 h-32 overflow-y-auto custom-scrollbar border-2 border-blue-100">
-              @for (subscription of getSubscriptionList(child.activeSubscription); track subscription; let i = $index) {
+              @for (subscription of getSubscriptionList(child.activeSubscription); track $index) {
               <div class="flex items-start gap-2 mb-2 last:mb-0">
                 <svg class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
                   viewBox="0 0 24 24">

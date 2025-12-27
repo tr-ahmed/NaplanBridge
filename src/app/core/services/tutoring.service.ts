@@ -191,21 +191,41 @@ export class TutoringService {
   /**
    * Get alternative slots for swapping (Parent)
    * Used when user wants to change a scheduled slot to a different time
+   * @param academicTermId - Term ID for term-based subjects (required if isGlobal is false)
+   * @param isGlobal - True for global subjects (uses startDate/endDate as fallback)
+   * @param startDate - Fallback start date (for global subjects only)
+   * @param endDate - Fallback end date (for global subjects only)
    */
   getAlternativeSlots(
     teacherId: number,
     subjectId: number,
     teachingType: string,
-    startDate: string,
-    endDate: string,
-    excludeSlotIds?: number[]
+    startDate?: string,
+    endDate?: string,
+    excludeSlotIds?: number[],
+    academicTermId?: number | null,
+    isGlobal?: boolean
   ): Observable<AlternativeSlotsResponse> {
     let params = new HttpParams()
       .set('teacherId', teacherId.toString())
       .set('subjectId', subjectId.toString())
-      .set('teachingType', teachingType)
-      .set('startDate', startDate)
-      .set('endDate', endDate);
+      .set('teachingType', teachingType);
+
+    // Add term info for per-subject date resolution
+    if (academicTermId !== undefined && academicTermId !== null) {
+      params = params.set('academicTermId', academicTermId.toString());
+    }
+    if (isGlobal !== undefined) {
+      params = params.set('isGlobal', isGlobal.toString());
+    }
+
+    // Fallback dates (for global subjects or backward compatibility)
+    if (startDate) {
+      params = params.set('startDate', startDate);
+    }
+    if (endDate) {
+      params = params.set('endDate', endDate);
+    }
 
     if (excludeSlotIds && excludeSlotIds.length > 0) {
       excludeSlotIds.forEach(id => {

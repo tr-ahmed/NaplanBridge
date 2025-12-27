@@ -24,7 +24,7 @@ import {
       <!-- Hero Header -->
       <div class="hero-header">
         <div class="hero-icon">📅</div>
-        <h2>Smart Scheduling</h2>
+        <h2>Step 6: Smart Scheduling</h2>
         <p>We'll match you with the best teachers and create your personalized schedule</p>
       </div>
 
@@ -2652,7 +2652,7 @@ export class Step5ScheduleComponent implements OnInit {
 
     const state = this.stateService.getState();
 
-    // Build student selections for API
+    // Build student selections for API (with per-subject term info)
     const studentSelections: SmartSchedulingStudentSelection[] = this.students.map(student => {
       const subjectIds = state.studentSubjects.get(student.id) || new Set();
 
@@ -2661,10 +2661,21 @@ export class Step5ScheduleComponent implements OnInit {
         const teachingType = state.subjectTeachingTypes.get(key) || TeachingType.OneToOne;
         const hours = (state.subjectHours.get(key) || 10) as HoursOption;
 
+        // Get term ID from state (null if global subject or not selected)
+        const termId = state.subjectTerms.get(key) || null;
+
+        // Determine if subject is global (no term required)
+        // If termId is null and subject still passed validation, it's global
+        const isGlobal = termId === null;
+
+        console.log(`📚 Subject ${subjectId}: termId=${termId}, isGlobal=${isGlobal}`);
+
         return {
           subjectId,
           teachingType,
-          hours
+          hours,
+          academicTermId: termId,
+          isGlobal
         };
       });
 
@@ -3217,24 +3228,35 @@ export class Step5ScheduleComponent implements OnInit {
       });
     }
 
-    // Get teaching type for this subject
+    // Get teaching type and term info for this subject
     const state = this.stateService.getState();
     const student = this.students[0];
     let teachingType = 'OneToOne';
+    let termId: number | null = null;
+    let isGlobal = false;
+
     if (student) {
       const key = `${student.id}_${subjectId}`;
       const tt = state.subjectTeachingTypes.get(key);
       if (tt) teachingType = tt;
+
+      // Get term info for per-subject date resolution
+      termId = state.subjectTerms.get(key) || null;
+      isGlobal = termId === null;
     }
 
-    // Call the new Alternative Slots API
+    console.log(`🔄 Loading alternatives: termId=${termId}, isGlobal=${isGlobal}`);
+
+    // Call the Alternative Slots API with per-subject term info
     this.tutoringService.getAlternativeSlots(
       teacherId,
       subjectId,
       teachingType,
-      this.startDate,
-      this.endDate,
-      excludeSlotIds
+      this.startDate,  // Fallback for global subjects
+      this.endDate,    // Fallback for global subjects
+      excludeSlotIds,
+      termId,          // Per-subject term
+      isGlobal         // Is this a global subject?
     ).subscribe({
       next: (response) => {
         console.log('📅 Alternative slots response:', response);

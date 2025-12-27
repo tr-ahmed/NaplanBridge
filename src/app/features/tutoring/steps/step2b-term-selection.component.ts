@@ -29,7 +29,7 @@ interface StudentSubjectTerms {
   template: `
     <div class="step-container">
       <div class="header-section">
-        <h2 class="step-title">Select Academic Term</h2>
+        <h2 class="step-title">Step 3: Select Academic Term</h2>
         <p class="step-subtitle">Choose which term you want to book tutoring sessions for</p>
       </div>
 

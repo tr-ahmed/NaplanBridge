@@ -11,7 +11,7 @@ import { StudentInfo, TeachingType } from '../../../models/tutoring.models';
   template: `
     <div class="step-container">
       <div class="header">
-        <h2 class="step-title">Step 3: Select Teaching Type for Each Subject</h2>
+        <h2 class="step-title">Step 4: Select Teaching Type for Each Subject</h2>
         <p class="step-subtitle">Choose One-to-One or Group sessions (35% discount for Group)</p>
       </div>
 
@@ -340,7 +340,7 @@ export class Step3TeachingTypeComponent implements OnInit {
   constructor(
     private stateService: TutoringStateService,
     private contentService: ContentService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.restoreState();

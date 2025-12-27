@@ -194,6 +194,18 @@ export interface SmartSchedulingSubjectSelection {
   subjectId: number;
   teachingType: TeachingType;
   hours: HoursOption;
+  /**
+   * Academic Term ID for this specific subject.
+   * Required if isGlobal is false.
+   * Backend will fetch start/end dates from AcademicTerm table.
+   */
+  academicTermId?: number | null;
+  /**
+   * Indicates if this is a global subject (no term required).
+   * If true, uses request StartDate/EndDate or auto-calculates.
+   * If false, academicTermId is required.
+   */
+  isGlobal?: boolean;
 }
 
 export interface SmartSchedulingStudentSelection {
@@ -203,8 +215,16 @@ export interface SmartSchedulingStudentSelection {
 
 export interface GetAvailableSlotsRequest {
   studentSelections: SmartSchedulingStudentSelection[];
-  startDate: string;
-  endDate: string;
+  /**
+   * @deprecated Use academicTermId per subject instead.
+   * Fallback dates for global subjects only.
+   */
+  startDate?: string;
+  /**
+   * @deprecated Use academicTermId per subject instead.
+   * Fallback dates for global subjects only.
+   */
+  endDate?: string;
   preferredDays?: number[];
   preferredTimeRange?: TimeRangePreference;
 }
