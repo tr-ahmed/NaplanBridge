@@ -290,6 +290,30 @@ export class TutoringService {
     );
   }
 
+  // ==================== PARENT APIs - Session Display ====================
+
+  /**
+   * Get parent's tutoring sessions (all students) with filters
+   * Endpoint: GET /api/Tutoring/parent/sessions
+   * This returns sessions from TutoringSessions table (tutoring packages)
+   */
+  getParentSessions(filters?: SessionFilters): Observable<StudentSessionsResponse> {
+    let params = new HttpParams();
+
+    if (filters) {
+      if (filters.status) params = params.set('status', filters.status);
+      if (filters.startDate) params = params.set('startDate', filters.startDate.toISOString());
+      if (filters.endDate) params = params.set('endDate', filters.endDate.toISOString());
+      params = params.set('pageNumber', (filters.pageNumber || 1).toString());
+      params = params.set('pageSize', (filters.pageSize || 10).toString());
+    }
+
+    return this.http.get<StudentSessionsResponse>(
+      `${this.apiUrl}/parent/sessions`,
+      { params }
+    );
+  }
+
   // ==================== LEGACY APIs (Keep for backward compatibility) ====================
 
   /**
