@@ -22,7 +22,7 @@ import {
 } from '../../models/session.models';
 import { TutoringSessionDto } from '../../models/tutoring.models';
 
-type ViewMode = 'today' | 'day' | 'week';
+type ViewMode = 'today' | 'day' | 'week' | 'all';
 type ActiveTab = 'availability' | 'sessions';
 
 @Component({
@@ -683,7 +683,12 @@ export class TeacherTutoringSessionsComponent implements OnInit {
 
     let filtered: TutoringSessionDto[];
 
-    if (mode === 'today') {
+    if (mode === 'all') {
+      // All sessions - no date filtering, just sort by date
+      filtered = [...sessions].sort((a, b) => 
+        new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
+      );
+    } else if (mode === 'today') {
       const today = new Date();
       filtered = sessions.filter(s => this.isSameDay(new Date(s.dateTime), today));
     } else if (mode === 'day') {

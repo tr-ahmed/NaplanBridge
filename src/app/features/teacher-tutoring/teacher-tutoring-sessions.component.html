@@ -103,6 +103,10 @@
               [class]="viewMode() === 'week' ? 'px-4 py-2 rounded-md bg-white shadow text-teal-600 font-semibold text-sm' : 'px-4 py-2 rounded-md text-gray-600 text-sm hover:bg-gray-200'">
               Week
             </button>
+            <button (click)="setViewMode('all')"
+              [class]="viewMode() === 'all' ? 'px-4 py-2 rounded-md bg-white shadow text-teal-600 font-semibold text-sm' : 'px-4 py-2 rounded-md text-gray-600 text-sm hover:bg-gray-200'">
+              All
+            </button>
           </div>
         </div>
 
@@ -181,12 +185,14 @@
       </div>
       }
 
-      <!-- Today/Day View -->
+      <!-- Today/Day/All View -->
       @if (viewMode() !== 'week') {
       <div>
         <h3 class="text-lg font-semibold text-gray-800 mb-4">
           @if (viewMode() === 'today') {
           Today's Sessions
+          } @else if (viewMode() === 'all') {
+          All Sessions ({{ filteredSessions().length }})
           } @else {
           Sessions for {{ formatDate(selectedDate()) }}
           }
@@ -195,7 +201,13 @@
         @if (filteredSessions().length === 0) {
         <div class="text-center py-12 bg-gray-50 rounded-xl">
           <i class="fas fa-calendar-times text-4xl text-gray-300 mb-4"></i>
-          <p class="text-gray-500">No sessions for this date</p>
+          <p class="text-gray-500">
+            @if (viewMode() === 'all') {
+            No sessions found
+            } @else {
+            No sessions for this date
+            }
+          </p>
         </div>
         }
 
