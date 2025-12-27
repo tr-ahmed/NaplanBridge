@@ -136,3 +136,38 @@ export interface UpdateWeekDto {
   startDate?: string;
   endDate?: string;
 }
+
+// ============================================
+// Tutoring Term Selection Models
+// ============================================
+
+/**
+ * Represents an available term for booking tutoring sessions
+ * Used in GET /api/Tutoring/subjects/{subjectId}/terms
+ */
+export interface AvailableTutoringTerm {
+  termId: number;
+  termNumber: number;
+  termName: string;
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  isPast: boolean;
+  daysRemaining: number;
+  weeksRemaining: number;
+  availableSlots: number;
+}
+
+/**
+ * Response from GET /api/Tutoring/subjects/{subjectId}/terms
+ * For global subjects: requiresTermSelection = false, availableTerms = null
+ * For term-based subjects: requiresTermSelection = true, availableTerms = [...]
+ */
+export interface SubjectTermsResponse {
+  subjectId: number;
+  subjectName: string;
+  isGlobal: boolean;
+  requiresTermSelection: boolean;
+  availableTerms: AvailableTutoringTerm[] | null;
+}
+

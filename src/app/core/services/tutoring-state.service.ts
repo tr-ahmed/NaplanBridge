@@ -25,6 +25,8 @@ export class TutoringStateService {
     return {
       students: [],
       studentSubjects: new Map(),
+      subjectTerms: new Map(),
+      requiresTermSelection: false,
       subjectTeachingTypes: new Map(),
       subjectHours: new Map(),
       studentSubjectTimeSlots: new Map(),
@@ -69,6 +71,34 @@ export class TutoringStateService {
 
   getStudentSubjects(studentId: number): Set<number> {
     return this.stateSubject.value.studentSubjects.get(studentId) || new Set();
+  }
+
+  // ============================================
+  // Step 2b: Term Selection (for non-global subjects)
+  // ============================================
+
+  setSubjectTerm(studentId: number, subjectId: number, termId: number): void {
+    const key = `${studentId}_${subjectId}`;
+    const terms = new Map(this.stateSubject.value.subjectTerms);
+    terms.set(key, termId);
+    this.updateState({ subjectTerms: terms });
+  }
+
+  getSubjectTerm(studentId: number, subjectId: number): number | null {
+    const key = `${studentId}_${subjectId}`;
+    return this.stateSubject.value.subjectTerms.get(key) || null;
+  }
+
+  setRequiresTermSelection(requires: boolean): void {
+    this.updateState({ requiresTermSelection: requires });
+  }
+
+  getRequiresTermSelection(): boolean {
+    return this.stateSubject.value.requiresTermSelection;
+  }
+
+  clearTermSelections(): void {
+    this.updateState({ subjectTerms: new Map() });
   }
 
   // ============================================
@@ -204,6 +234,7 @@ export class TutoringStateService {
       const serializable = {
         ...state,
         studentSubjects: Array.from(state.studentSubjects.entries()).map(([k, v]) => [k, Array.from(v)]),
+        subjectTerms: Array.from(state.subjectTerms.entries()),
         subjectTeachingTypes: Array.from(state.subjectTeachingTypes.entries()),
         subjectHours: Array.from(state.subjectHours.entries()),
         studentSubjectTimeSlots: Array.from(state.studentSubjectTimeSlots.entries())
@@ -224,6 +255,7 @@ export class TutoringStateService {
         const studentSubjects = new Map(
           (parsed.studentSubjects || []).map(([k, v]: [number, number[]]) => [k, new Set(v || [])])
         );
+        const subjectTerms = new Map(parsed.subjectTerms || []);
         const subjectTeachingTypes = new Map(parsed.subjectTeachingTypes || []);
         const subjectHours = new Map(parsed.subjectHours || []);
         const studentSubjectTimeSlots = new Map(parsed.studentSubjectTimeSlots || []);
@@ -236,6 +268,7 @@ export class TutoringStateService {
           ...parsed,
           students,
           studentSubjects,
+          subjectTerms,
           subjectTeachingTypes,
           subjectHours,
           studentSubjectTimeSlots

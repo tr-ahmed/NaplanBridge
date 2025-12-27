@@ -748,6 +748,10 @@ export interface TutoringSelectionState {
   // Step 2: Select Subjects per Student (with multi-subject discount)
   studentSubjects: Map<number, Set<number>>; // studentId -> Set of subjectIds
 
+  // Step 2b: Select Terms for non-global subjects
+  subjectTerms: Map<string, number>; // "studentId_subjectId" -> termId
+  requiresTermSelection: boolean; // True if any selected subject needs term selection
+
   // Step 3: Select Teaching Type per Subject
   subjectTeachingTypes: Map<string, TeachingType>; // "studentId_subjectId" -> TeachingType
 
@@ -763,3 +767,4 @@ export interface TutoringSelectionState {
   // Price calculation
   priceCalculation: TutoringPriceResponse | null;
 }
+

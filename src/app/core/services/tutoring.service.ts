@@ -34,6 +34,7 @@ import {
   StudentSessionsResponse,
   TeacherSessionsResponse2
 } from '../../models/tutoring.models';
+import { SubjectTermsResponse } from '../../models/term.models';
 
 @Injectable({
   providedIn: 'root'
@@ -213,6 +214,16 @@ export class TutoringService {
     }
 
     return this.http.get<AlternativeSlotsResponse>(`${this.apiUrl}/AlternativeSlots`, { params });
+  }
+
+  /**
+   * Get available terms for a subject (Parent)
+   * For global subjects: returns requiresTermSelection = false
+   * For term-based subjects: returns available terms array
+   * Endpoint: GET /api/Tutoring/subjects/{subjectId}/terms
+   */
+  getSubjectTerms(subjectId: number): Observable<SubjectTermsResponse> {
+    return this.http.get<SubjectTermsResponse>(`${this.apiUrl}/subjects/${subjectId}/terms`);
   }
 
   // ==================== STUDENT APIs - Session Display ====================

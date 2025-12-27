@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { TutoringStateService } from '../../core/services/tutoring-state.service';
 import { Step1YearTypeComponent } from './steps/step1-year-type.component';
 import { Step2SubjectsComponent } from './steps/step2-students.component';
+import { Step2bTermSelectionComponent } from './steps/step2b-term-selection.component';
 import { Step3TeachingTypeComponent } from './steps/step3-subjects.component';
 import { Step4HoursComponent } from './steps/step4-plans.component';
 import { Step5ScheduleComponent } from './steps/step5-schedule.component';
@@ -17,6 +18,7 @@ import { PriceSummaryComponent } from './steps/remaining-components';
     CommonModule,
     Step1YearTypeComponent,
     Step2SubjectsComponent,
+    Step2bTermSelectionComponent,
     Step3TeachingTypeComponent,
     Step4HoursComponent,
     Step5ScheduleComponent,
@@ -27,37 +29,59 @@ import { PriceSummaryComponent } from './steps/remaining-components';
     <div class="tutoring-selection-container">
       <!-- Step Indicator -->
       <div class="step-indicator">
-        <div *ngFor="let step of steps; let i = index"
-             [class.active]="currentStep === step.number"
-             [class.completed]="currentStep > step.number"
-             class="step-item">
-          <div class="step-circle">
-            <span *ngIf="currentStep > step.number">✓</span>
-            <span *ngIf="currentStep <= step.number">{{ step.number }}</span>
+        @for (step of displaySteps; track step.number) {
+          <div 
+            class="step-item"
+            [class.active]="currentStep === step.number"
+            [class.completed]="currentStep > step.number">
+            <div class="step-circle">
+              @if (currentStep > step.number) {
+                <span>✓</span>
+              } @else {
+                <span>{{ step.displayNumber }}</span>
+              }
+            </div>
+            <div class="step-label">{{ step.label }}</div>
           </div>
-          <div class="step-label">{{ step.label }}</div>
-        </div>
+        }
       </div>
 
       <!-- Current Step Content -->
       <div class="step-content">
         <!-- Step 1 - Students -->
-        <app-step1-students *ngIf="currentStep === 1"></app-step1-students>
+        @if (currentStep === 1) {
+          <app-step1-students></app-step1-students>
+        }
 
         <!-- Step 2 - Subjects -->
-        <app-step2-subjects *ngIf="currentStep === 2"></app-step2-subjects>
+        @if (currentStep === 2) {
+          <app-step2-subjects></app-step2-subjects>
+        }
 
-        <!-- Step 3 - Teaching Type -->
-        <app-step3-teaching-type *ngIf="currentStep === 3"></app-step3-teaching-type>
+        <!-- Step 3 - Term Selection (NEW) -->
+        @if (currentStep === 3) {
+          <app-step2b-term-selection></app-step2b-term-selection>
+        }
 
-        <!-- Step 4 - Hours -->
-        <app-step4-hours *ngIf="currentStep === 4"></app-step4-hours>
+        <!-- Step 4 - Teaching Type -->
+        @if (currentStep === 4) {
+          <app-step3-teaching-type></app-step3-teaching-type>
+        }
 
-        <!-- Step 5 - Schedule -->
-        <app-step5-schedule *ngIf="currentStep === 5"></app-step5-schedule>
+        <!-- Step 5 - Hours -->
+        @if (currentStep === 5) {
+          <app-step4-hours></app-step4-hours>
+        }
 
-        <!-- Step 6 - Review -->
-        <app-step6-review *ngIf="currentStep === 6"></app-step6-review>
+        <!-- Step 6 - Schedule -->
+        @if (currentStep === 6) {
+          <app-step5-schedule></app-step5-schedule>
+        }
+
+        <!-- Step 7 - Review -->
+        @if (currentStep === 7) {
+          <app-step6-review></app-step6-review>
+        }
       </div>
 
       <!-- Price Summary Sidebar -->
@@ -173,19 +197,21 @@ import { PriceSummaryComponent } from './steps/remaining-components';
 export class TutoringSelectionComponent implements OnInit {
   currentStep = 1;
 
-  steps = [
-    { number: 1, label: 'Students' },
-    { number: 2, label: 'Subjects' },
-    { number: 3, label: 'Teaching Type' },
-    { number: 4, label: 'Hours' },
-    { number: 5, label: 'Schedule' },
-    { number: 6, label: 'Review' }
+  // Updated steps to include Term Selection
+  displaySteps = [
+    { number: 1, displayNumber: 1, label: 'Students' },
+    { number: 2, displayNumber: 2, label: 'Subjects' },
+    { number: 3, displayNumber: 3, label: 'Terms' },
+    { number: 4, displayNumber: 4, label: 'Teaching Type' },
+    { number: 5, displayNumber: 5, label: 'Hours' },
+    { number: 6, displayNumber: 6, label: 'Schedule' },
+    { number: 7, displayNumber: 7, label: 'Review' }
   ];
 
   constructor(
     private stateService: TutoringStateService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Subscribe to current step
@@ -194,3 +220,4 @@ export class TutoringSelectionComponent implements OnInit {
     });
   }
 }
+
