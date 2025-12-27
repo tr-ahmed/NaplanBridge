@@ -14,7 +14,8 @@ interface SubjectWithTerms {
   isGlobal: boolean;
   requiresTermSelection: boolean;
   availableTerms: AvailableTutoringTerm[];
-  selectedTermId: number | null;
+  selectedTermId: number | null;           // Subject Term ID (for UI display)
+  selectedAcademicTermId: number | null;   // Academic Term ID (for Smart Scheduling)
 }
 
 interface StudentSubjectTerms {
@@ -75,53 +76,25 @@ interface StudentSubjectTerms {
                   <div class="terms-grid">
                     @for (term of subject.availableTerms; track term.termId) {
                       <div 
-                        class="term-card"
+                        class="term-card-compact"
                         [class.selected]="subject.selectedTermId === term.termId"
                         [class.current]="term.isCurrent"
-                        (click)="selectTerm(studentData.student.id, subject.subjectId, term.termId)">
+                        (click)="selectTerm(studentData.student.id, subject.subjectId, term.termId, term.academicTermId)">
                         
-                        <!-- Current Badge -->
-                        @if (term.isCurrent) {
-                          <span class="badge badge-current">Current</span>
-                        }
-                        
-                        <!-- Term Header -->
-                        <div class="term-header">
-                          <h5>{{ term.termName }}</h5>
-                          <p class="term-number">Term {{ term.termNumber }}</p>
-                        </div>
-                        
-                        <!-- Term Dates -->
-                        <div class="term-dates">
-                          <span class="date-icon">📆</span>
-                          <span>{{ formatDate(term.startDate) }} - {{ formatDate(term.endDate) }}</span>
-                        </div>
-                        
-                        <!-- Term Status -->
-                        @if (term.isCurrent) {
-                          <div class="term-status current">
-                            <span class="status-icon">⏰</span>
-                            <span>{{ term.daysRemaining }} days remaining</span>
-                            @if (term.weeksRemaining > 0) {
-                              <span class="weeks">({{ term.weeksRemaining }} weeks)</span>
+                        <div class="term-card-content">
+                          <div class="term-main">
+                            <span class="term-name">{{ term.termName }}</span>
+                            @if (term.isCurrent) {
+                              <span class="badge-current-mini">Now</span>
                             }
                           </div>
-                        } @else {
-                          <div class="term-status future">
-                            <span class="status-icon">📅</span>
-                            <span>Starts {{ formatDate(term.startDate) }}</span>
+                          <div class="term-meta">
+                            <span class="term-dates-mini">{{ formatDateShort(term.startDate) }} - {{ formatDateShort(term.endDate) }}</span>
                           </div>
-                        }
-                        
-                        <!-- Available Slots -->
-                        <div class="slots-info">
-                          <span class="slots-icon">🎯</span>
-                          <span>{{ term.availableSlots }} slots available</span>
                         </div>
                         
-                        <!-- Selection Indicator -->
                         @if (subject.selectedTermId === term.termId) {
-                          <div class="selected-indicator">✓</div>
+                          <span class="check-icon">✓</span>
                         }
                       </div>
                     }
@@ -305,122 +278,87 @@ interface StudentSubjectTerms {
       margin: 0 0 1rem 0;
     }
 
-    /* Terms Grid */
+    /* Terms Grid - 2 columns */
     .terms-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
     }
 
-    .term-card {
+    /* Compact Term Card */
+    .term-card-compact {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       background: white;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      padding: 1.25rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
       cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
+      transition: all 0.2s ease;
     }
 
-    .term-card:hover {
+    .term-card-compact:hover {
       border-color: #108092;
-      box-shadow: 0 4px 12px rgba(16, 128, 146, 0.1);
+      background: #f8fffe;
     }
 
-    .term-card.current {
+    .term-card-compact.selected {
+      border-color: #108092;
+      background: linear-gradient(135deg, #e6f7f9 0%, #fff 100%);
+      box-shadow: 0 2px 8px rgba(16, 128, 146, 0.15);
+    }
+
+    .term-card-compact.current {
       border-color: #4caf50;
     }
 
-    .term-card.selected {
+    .term-card-compact.current.selected {
       border-color: #108092;
-      background: linear-gradient(135deg, #f0f9fa 0%, #fff 100%);
-      box-shadow: 0 4px 16px rgba(16, 128, 146, 0.2);
     }
 
-    .badge-current {
-      position: absolute;
-      top: -10px;
-      right: 10px;
+    .term-card-content {
+      flex: 1;
+    }
+
+    .term-main {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .term-name {
+      font-weight: 600;
+      color: #1a1a1a;
+      font-size: 0.95rem;
+    }
+
+    .badge-current-mini {
       background: linear-gradient(135deg, #4caf50, #2e7d32);
       color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 12px;
-      font-size: 0.75rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.65rem;
       font-weight: 700;
-      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
+      text-transform: uppercase;
     }
 
-    .term-header h5 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin: 0 0 0.25rem 0;
-      color: #212529;
-    }
-
-    .term-number {
-      color: #6c757d;
-      font-size: 0.875rem;
-      margin: 0;
-    }
-
-    .term-dates {
+    .term-meta {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      margin: 1rem 0;
-      color: #6c757d;
-      font-size: 0.875rem;
     }
 
-    .term-status {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin: 0.75rem 0;
-      padding: 0.5rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-    }
-
-    .term-status.current {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .term-status.future {
-      background: #e7f3ff;
-      color: #004085;
-    }
-
-    .weeks {
-      color: #6c757d;
+    .term-dates-mini {
+      color: #64748b;
       font-size: 0.8rem;
     }
 
-    .slots-info {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
+    .check-icon {
+      font-size: 1.25rem;
       color: #108092;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-
-    .selected-indicator {
-      position: absolute;
-      top: 50%;
-      right: 16px;
-      transform: translateY(-50%);
-      font-size: 28px;
-      color: #108092;
-      animation: checkmark 0.3s ease;
-    }
-
-    @keyframes checkmark {
-      0% { transform: translateY(-50%) scale(0); }
-      50% { transform: translateY(-50%) scale(1.2); }
-      100% { transform: translateY(-50%) scale(1); }
+      font-weight: bold;
     }
 
     /* Global Subject Info */
@@ -499,7 +437,6 @@ interface StudentSubjectTerms {
       opacity: 0.6;
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
       .step-container {
         padding: 1.5rem;
@@ -619,7 +556,8 @@ export class Step2bTermSelectionComponent implements OnInit {
           isGlobal: r.response.isGlobal,
           requiresTermSelection: r.response.requiresTermSelection,
           availableTerms: r.response.availableTerms || [],
-          selectedTermId: existingTermId
+          selectedTermId: existingTermId,
+          selectedAcademicTermId: existingTermId  // Will be updated when user selects a term
         };
       });
 
@@ -634,18 +572,22 @@ export class Step2bTermSelectionComponent implements OnInit {
     return studentData.subjects.some(s => s.requiresTermSelection);
   }
 
-  selectTerm(studentId: number, subjectId: number, termId: number): void {
+  selectTerm(studentId: number, subjectId: number, termId: number, academicTermId?: number): void {
     // Update local state
     const studentData = this.studentSubjectTerms.find(s => s.student.id === studentId);
     if (studentData) {
       const subject = studentData.subjects.find(s => s.subjectId === subjectId);
       if (subject) {
         subject.selectedTermId = termId;
+        subject.selectedAcademicTermId = academicTermId || null;
       }
     }
 
-    // Persist to state service
-    this.stateService.setSubjectTerm(studentId, subjectId, termId);
+    // Persist Academic Term ID to state service (this is what Smart Scheduling uses)
+    // Use academicTermId if available, otherwise fallback to termId for backward compatibility
+    const termToSave = academicTermId || termId;
+    console.log(`📅 Saving term: subjectTermId=${termId}, academicTermId=${academicTermId}, saving=${termToSave}`);
+    this.stateService.setSubjectTerm(studentId, subjectId, termToSave);
   }
 
   formatDate(dateString: string): string {
@@ -654,6 +596,14 @@ export class Step2bTermSelectionComponent implements OnInit {
       day: 'numeric',
       month: 'short',
       year: 'numeric'
+    });
+  }
+
+  formatDateShort(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short'
     });
   }
 

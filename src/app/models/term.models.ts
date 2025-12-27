@@ -146,7 +146,8 @@ export interface UpdateWeekDto {
  * Used in GET /api/Tutoring/subjects/{subjectId}/terms
  */
 export interface AvailableTutoringTerm {
-  termId: number;
+  termId: number;           // Subject Term ID (from Terms table) - for reference
+  academicTermId?: number;  // Academic Term ID (from AcademicTerms table) - USE THIS for Smart Scheduling!
   termNumber: number;
   termName: string;
   startDate: string;
