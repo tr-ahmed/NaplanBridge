@@ -685,7 +685,7 @@ export class TeacherTutoringSessionsComponent implements OnInit {
 
     if (mode === 'all') {
       // All sessions - no date filtering, just sort by date
-      filtered = [...sessions].sort((a, b) => 
+      filtered = [...sessions].sort((a, b) =>
         new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
       );
     } else if (mode === 'today') {
@@ -883,7 +883,29 @@ export class TeacherTutoringSessionsComponent implements OnInit {
   }
 
   formatTime(time: string): string {
-    return time.substring(0, 5);
+    // Handle ISO datetime strings (e.g., "2025-01-15T14:30:00")
+    if (time && time.includes('T')) {
+      const date = new Date(time);
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
+    // Handle time-only strings (e.g., "14:30:00" or "14:30")
+    return time ? time.substring(0, 5) : '';
+  }
+
+  formatDateTime(dateTime: string): string {
+    const date = new Date(dateTime);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    }) + ' • ' + date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
   }
 
   formatDate(date: Date): string {

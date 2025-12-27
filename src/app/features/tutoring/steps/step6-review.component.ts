@@ -84,6 +84,11 @@ import {
                                 : 'bg-blue-100 text-blue-700'">
                           {{ subject.teachingType === 'Group' ? '👥' : '👤' }} {{ subject.hours }}h
                         </span>
+                        @if (subject.combinedDiscountPercentage > 0) {
+                          <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-600 shrink-0">
+                            -{{ subject.combinedDiscountPercentage }}%
+                          </span>
+                        }
                       </div>
                       <div class="text-right shrink-0">
                         @if (subject.basePrice !== subject.finalPrice) {
@@ -96,14 +101,14 @@ import {
                     <!-- Discounts - Inline Compact -->
                     @if (hasDiscounts(subject)) {
                       <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-gray-200">
-                        @if (subject.discounts.multiSubject.amount > 0) {
-                          <span class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded">-\${{ subject.discounts.multiSubject.amount.toFixed(0) }} Multi</span>
+                        @if (subject.discounts.package.amount > 0) {
+                          <span class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded">-\${{ subject.discounts.package.amount.toFixed(0) }} Package</span>
                         }
                         @if (subject.discounts.group.amount > 0) {
                           <span class="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded">-\${{ subject.discounts.group.amount.toFixed(0) }} Group</span>
                         }
-                        @if (subject.discounts.hours.amount > 0) {
-                          <span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded">-\${{ subject.discounts.hours.amount.toFixed(0) }} Hrs</span>
+                        @if (subject.discounts.multiStudents.amount > 0) {
+                          <span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded">-\${{ subject.discounts.multiStudents.amount.toFixed(0) }} Multi-Student</span>
                         }
                       </div>
                     }
@@ -120,17 +125,14 @@ import {
                 <span class="text-lg">🎉</span>
                 <span class="font-semibold text-teal-700">Total Savings</span>
                 <div class="flex gap-1.5 flex-wrap">
-                  @if (priceResponse.breakdown.multiStudentsSavings > 0) {
-                    <span class="text-xs px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded">Students -\${{ priceResponse.breakdown.multiStudentsSavings.toFixed(0) }}</span>
-                  }
-                  @if (priceResponse.breakdown.multiSubjectSavings > 0) {
-                    <span class="text-xs px-2 py-0.5 bg-teal-100 text-teal-700 rounded">Subjects -\${{ priceResponse.breakdown.multiSubjectSavings.toFixed(0) }}</span>
+                  @if (priceResponse.breakdown.packageSavings > 0) {
+                    <span class="text-xs px-2 py-0.5 bg-teal-100 text-teal-700 rounded">Package -\${{ priceResponse.breakdown.packageSavings.toFixed(0) }}</span>
                   }
                   @if (priceResponse.breakdown.groupSavings > 0) {
                     <span class="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded">Group -\${{ priceResponse.breakdown.groupSavings.toFixed(0) }}</span>
                   }
-                  @if (priceResponse.breakdown.hoursSavings > 0) {
-                    <span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded">Hours -\${{ priceResponse.breakdown.hoursSavings.toFixed(0) }}</span>
+                  @if (priceResponse.breakdown.multiStudentsSavings > 0) {
+                    <span class="text-xs px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded">Multi-Students -\${{ priceResponse.breakdown.multiStudentsSavings.toFixed(0) }}</span>
                   }
                 </div>
               </div>
@@ -349,9 +351,9 @@ export class Step6ReviewComponent implements OnInit {
 
   hasDiscounts(subject: any): boolean {
     return (
-      subject.discounts.multiSubject.amount > 0 ||
+      subject.discounts.package.amount > 0 ||
       subject.discounts.group.amount > 0 ||
-      subject.discounts.hours.amount > 0
+      subject.discounts.multiStudents.amount > 0
     );
   }
 

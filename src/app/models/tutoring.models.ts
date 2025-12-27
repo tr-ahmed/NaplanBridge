@@ -360,12 +360,14 @@ export interface DiscountDetailDto {
   percentage: number;
   amount: number;
   reason: string;
+  basePercentage?: number;
+  cappedDueToMaxDiscount?: boolean;
 }
 
 export interface SubjectDiscountsDto {
-  multiSubject: DiscountDetailDto;
-  hours: DiscountDetailDto;
+  package: DiscountDetailDto;
   group: DiscountDetailDto;
+  multiStudents: DiscountDetailDto;
 }
 
 export interface SubjectPriceBreakdownDto {
@@ -377,6 +379,7 @@ export interface SubjectPriceBreakdownDto {
   discounts: SubjectDiscountsDto;
   totalDiscount: number;
   finalPrice: number;
+  combinedDiscountPercentage: number;
 }
 
 export interface StudentPriceBreakdownDto {
@@ -389,10 +392,11 @@ export interface StudentPriceBreakdownDto {
 }
 
 export interface DiscountBreakdownDto {
-  multiStudentsSavings: number;
-  multiSubjectSavings: number;
+  packageSavings: number;
   groupSavings: number;
-  hoursSavings: number;
+  multiStudentsSavings: number;
+  maxDiscountApplied: boolean;
+  maxDiscountPercentage: number;
 }
 
 export interface NewPriceCalculationResponse {
