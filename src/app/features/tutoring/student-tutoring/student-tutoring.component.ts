@@ -72,42 +72,15 @@ export class StudentTutoringComponent implements OnInit {
 
     this.tutoringService.getStudentSessions(filters).subscribe({
       next: (response) => {
+        console.log('Student sessions response:', response);
         this.sessions.set(response.sessions || []);
         this.totalCount.set(response.totalCount || 0);
         this.loading.set(false);
       },
       error: (error) => {
         console.error('Error loading sessions:', error);
-        // Fallback to legacy endpoint if new one fails
-        this.loadLegacySessions();
-      }
-    });
-  }
-
-  /**
-   * Fallback to legacy endpoint for backward compatibility
-   */
-  private loadLegacySessions(): void {
-    this.tutoringService.getStudentUpcomingSessions().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.sessions.set(response.data.map((s: any) => ({
-            id: s.id,
-            teacherName: s.teacherName,
-            subjectName: s.notes || 'Session',
-            dateTime: s.scheduledDateTime,
-            duration: s.durationMinutes,
-            status: this.mapLegacyStatus(s.status),
-            meetingLink: s.googleMeetLink,
-            notes: s.notes
-          })));
-          this.totalCount.set(response.data.length);
-        }
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading legacy sessions:', error);
-        this.toastService.showError('Failed to load sessions');
+        this.toastService.showError('Failed to load tutoring sessions');
+        this.sessions.set([]);
         this.loading.set(false);
       }
     });

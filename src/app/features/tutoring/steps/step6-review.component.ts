@@ -387,6 +387,14 @@ export class Step6ReviewComponent implements OnInit {
     // Get session token from state (reserved in step 5)
     const sessionToken = this.stateService.getReservationSessionToken();
 
+    // ✅ Validate sessionToken exists
+    if (!sessionToken) {
+      console.error('❌ No sessionToken! Slots may have expired.');
+      alert('انتهت صلاحية الحجز. يرجى الرجوع لخطوة جدولة المواعيد وإعادة الحجز.');
+      this.creatingOrder = false;
+      return;
+    }
+
     // Build order request with new structure
     const orderRequest: any = {
       studentSelections: this.buildPriceRequest().studentSelections,
@@ -395,7 +403,8 @@ export class Step6ReviewComponent implements OnInit {
       sessionToken: sessionToken  // ✅ Include session token for slot reservation!
     };
 
-    console.log('📤 Creating order with request:', orderRequest);
+    console.log('📤 Creating order with sessionToken:', sessionToken);
+    console.log('📤 Full request:', orderRequest);
 
     this.tutoringService.createOrder(orderRequest).subscribe({
       next: (response) => {
