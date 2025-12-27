@@ -48,31 +48,67 @@ export class MyTutoringComponent implements OnInit {
   }
 
   /**
-   * Load parent bookings
+   * Load parent tutoring sessions (from TutoringSessions table)
    */
   private loadBookings(): void {
     this.loading.set(true);
 
-    this.TutoringService.getParentBookings().subscribe({
+    this.TutoringService.getParentSessions().subscribe({
       next: (response) => {
-        console.log('📋 Parent Bookings Response:', response);
+        console.log('📋 Parent Sessions Response:', response);
 
-        if (response.success && response.data) {
-          this.bookings.set(response.data);
+        // Map sessions from new API format to existing PrivateTutoringDto format
+        if (response.sessions && response.sessions.length > 0) {
+          const mappedSessions = response.sessions.map((s: any) => ({
+            id: s.id,
+            studentName: s.studentName || 'Unknown',
+            teacherName: s.teacherName || 'Unknown',
+            subjectName: s.subjectName || 'Unknown',
+            scheduledDateTime: s.dateTime,
+            durationMinutes: s.duration || 60,
+            status: s.status || 'Scheduled',
+            googleMeetLink: s.meetingLink || null,
+            notes: s.notes || null,
+            // Required fields for interface (not used in UI)
+            teacherId: 0,
+            studentId: 0,
+            parentId: 0,
+            parentName: '',
+            subjectId: 0,
+            createdAt: s.dateTime,
+            price: 0
+          } as PrivateTutoringDto));
+          this.bookings.set(mappedSessions);
 
           // Auto-expand all students initially
-          const students = new Set<string>(response.data.map((b: any) => b.studentName as string));
+          const students = new Set<string>(mappedSessions.map((b) => b.studentName as string));
           this.expandedStudents.set(students);
+        } else {
+          this.bookings.set([]);
         }
 
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error loading bookings:', error);
-        this.toastService.showError('Failed to load bookings');
+        console.error('❌ Error loading sessions:', error);
+        this.toastService.showError('Failed to load tutoring sessions');
         this.loading.set(false);
       }
     });
+  }
+
+  /**
+   * Map tutoring session status to numeric format for existing UI
+   */
+  private mapTutoringStatus(status: string): number {
+    const statusMap: { [key: string]: number } = {
+      'Scheduled': 1,      // Confirmed
+      'InProgress': 1,     // Confirmed
+      'Completed': 2,
+      'Cancelled': 3,
+      'Pending': 0
+    };
+    return statusMap[status] ?? 0;
   }
 
   /**
@@ -218,16 +254,20 @@ export class MyTutoringComponent implements OnInit {
   }
 
   /**
-   * Convert status number to readable text
+   * Convert status to readable text
    */
   getReadableStatus(status: any): string {
     const statusStr = status?.toString();
 
     const statusMap: { [key: string]: string } = {
+      // Numeric format (legacy)
       '0': 'Pending',
       '1': 'Confirmed',
       '2': 'Completed',
       '3': 'Cancelled',
+      // String format (new Tutoring API)
+      'Scheduled': 'Confirmed',
+      'InProgress': 'Confirmed',
       'Pending': 'Pending',
       'Confirmed': 'Confirmed',
       'Completed': 'Completed',
