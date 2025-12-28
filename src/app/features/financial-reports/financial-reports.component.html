@@ -42,6 +42,7 @@
             <option value="All">All</option>
             <option value="Session">Sessions Only</option>
             <option value="Subscription">Subscriptions Only</option>
+            <option value="Tutoring">Tutoring Only</option>
           </select>
         </div>
 
@@ -100,7 +101,7 @@
 
     <!-- Summary Cards -->
     @if (report()?.summary) {
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
         <!-- Total Revenue -->
         <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6">
           <div class="flex items-center justify-between">
@@ -143,6 +144,22 @@
             <div class="p-2 sm:p-2.5 md:p-3 rounded-full bg-green-100 text-green-600 flex-shrink-0 ml-2">
               <svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tutoring Revenue (NEW) -->
+        <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6">
+          <div class="flex items-center justify-between">
+            <div class="min-w-0 flex-1">
+              <p class="text-gray-600 text-xs sm:text-sm mb-0.5 sm:mb-1 truncate">Tutoring Revenue</p>
+              <p class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-purple-600">{{ formatCurrency(report()!.summary.tutoringRevenue || 0) }}</p>
+              <p class="text-[10px] sm:text-xs md:text-sm text-gray-500 mt-0.5 sm:mt-1 truncate">{{ report()!.summary.totalTutoringOrders || 0 }} orders</p>
+            </div>
+            <div class="p-2 sm:p-2.5 md:p-3 rounded-full bg-purple-100 text-purple-600 flex-shrink-0 ml-2">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
               </svg>
             </div>
           </div>
@@ -214,6 +231,15 @@
                         <div class="font-medium text-gray-900 truncate max-w-[150px] sm:max-w-none">{{ transaction.subscriptionDetails.subject }} - {{ transaction.subscriptionDetails.year }}</div>
                         <div class="text-gray-500 truncate max-w-[150px] sm:max-w-none">{{ transaction.subscriptionDetails.planName }}</div>
                         <div class="text-gray-400 text-[9px] sm:text-[10px] md:text-xs truncate">Term {{ transaction.subscriptionDetails.termNumber }} • {{ transaction.subscriptionDetails.planType }}</div>
+                      </div>
+                    }
+                    @if (transaction.paymentSource === 'Tutoring' && transaction.tutoringDetails) {
+                      <div class="text-[10px] sm:text-xs md:text-sm">
+                        <div class="font-medium text-gray-900 truncate max-w-[150px] sm:max-w-none">{{ transaction.tutoringDetails.packageSummary }}</div>
+                        <div class="text-gray-500 truncate max-w-[150px] sm:max-w-none">Order: {{ transaction.tutoringDetails.orderNumber }} • {{ transaction.tutoringDetails.teachingType }}</div>
+                        @if (transaction.tutoringDetails.discountAmount > 0) {
+                          <div class="text-green-600 text-[9px] sm:text-[10px] md:text-xs truncate">Discount: {{ formatCurrency(transaction.tutoringDetails.discountAmount) }}</div>
+                        }
                       </div>
                     }
                   </td>

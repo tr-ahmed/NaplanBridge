@@ -41,6 +41,20 @@ export interface SubscriptionDetailsDto {
   termNumber: number;
 }
 
+// Tutoring Details DTO (NEW for Tutoring Packages)
+export interface TutoringDetailsDto {
+  tutoringOrderId: number;
+  orderNumber: string;           // e.g., "TUT-000123"
+  packageSummary: string;        // e.g., "2 Students × 3 Subjects × 30 Hours"
+  totalHours: number;
+  totalStudents: number;
+  totalSubjects: number;
+  baseAmount: number;            // Price before discounts
+  discountAmount: number;        // Total discount applied
+  discountBreakdown: string;     // e.g., "Multi-Subject: 10%, Group: 35%"
+  teachingType: string;          // "OneToOne" or "Group"
+}
+
 export interface DetailedFinancialTransactionDto {
   transactionId: number;
   orderId: number;
@@ -48,10 +62,11 @@ export interface DetailedFinancialTransactionDto {
   amount: number;
   currency: string;
   paymentStatus: string;
-  paymentSource: 'Session' | 'Subscription';
+  paymentSource: 'Session' | 'Subscription' | 'Tutoring';
   student: StudentInfoDto;
   sessionDetails?: SessionDetailsDto;
   subscriptionDetails?: SubscriptionDetailsDto;
+  tutoringDetails?: TutoringDetailsDto;  // NEW
 }
 
 export interface PaginationDto {
@@ -67,6 +82,9 @@ export interface FinancialSummaryDto {
   sessionsRevenue: number;
   totalSubscriptions: number;
   subscriptionsRevenue: number;
+  // NEW: Tutoring Packages
+  totalTutoringOrders?: number;
+  tutoringRevenue?: number;
   currency: string;
 }
 
@@ -126,7 +144,7 @@ export class FinancialReportsService {
   getDetailedReport(
     startDate: string,
     endDate: string,
-    paymentSource: 'All' | 'Session' | 'Subscription' = 'All',
+    paymentSource: 'All' | 'Session' | 'Subscription' | 'Tutoring' = 'All',
     page: number = 1,
     pageSize: number = 50
   ): Observable<DetailedFinancialReportDto> {
@@ -149,7 +167,7 @@ export class FinancialReportsService {
   exportReport(
     startDate: string,
     endDate: string,
-    paymentSource: 'All' | 'Session' | 'Subscription' = 'All',
+    paymentSource: 'All' | 'Session' | 'Subscription' | 'Tutoring' = 'All',
     format: 'excel' | 'pdf' | 'csv' = 'excel'
   ): Observable<Blob> {
     const params = new HttpParams()

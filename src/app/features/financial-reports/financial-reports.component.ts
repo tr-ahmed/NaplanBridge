@@ -32,7 +32,7 @@ export class FinancialReportsComponent implements OnInit {
   // Filters
   startDate = '';
   endDate = '';
-  paymentSource: 'All' | 'Session' | 'Subscription' = 'All';
+  paymentSource: 'All' | 'Session' | 'Subscription' | 'Tutoring' = 'All';
   currentPage = 1;
   pageSize = 50;
 
@@ -101,8 +101,10 @@ export class FinancialReportsComponent implements OnInit {
           totalRevenue: data.summary.totalRevenue,
           sessionsRevenue: data.summary.sessionsRevenue,
           subscriptionsRevenue: data.summary.subscriptionsRevenue,
+          tutoringRevenue: data.summary.tutoringRevenue,
           totalSessions: data.summary.totalSessions,
-          totalSubscriptions: data.summary.totalSubscriptions
+          totalSubscriptions: data.summary.totalSubscriptions,
+          totalTutoringOrders: data.summary.totalTutoringOrders
         });
         this.report.set(data);
         this.loading.set(false);
@@ -235,10 +237,17 @@ export class FinancialReportsComponent implements OnInit {
   /**
    * Get payment source badge color
    */
-  getSourceBadgeClass(source: 'Session' | 'Subscription'): string {
-    return source === 'Session'
-      ? 'bg-blue-100 text-blue-800'
-      : 'bg-green-100 text-green-800';
+  getSourceBadgeClass(source: 'Session' | 'Subscription' | 'Tutoring'): string {
+    switch (source) {
+      case 'Session':
+        return 'bg-blue-100 text-blue-800';
+      case 'Subscription':
+        return 'bg-green-100 text-green-800';
+      case 'Tutoring':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   }
 
   /**
