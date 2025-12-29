@@ -20,13 +20,13 @@
   <!-- Tabs -->
   <div class="mb-6">
     <div class="bg-white rounded-xl shadow-md p-2 inline-flex gap-2">
-      <button (click)="switchTab('sessions')" [class]="activeTab() === 'sessions' 
-          ? 'px-6 py-3 rounded-lg font-semibold bg-teal-600 text-white shadow-md transition-all' 
+      <button (click)="switchTab('sessions')" [class]="activeTab() === 'sessions'
+          ? 'px-6 py-3 rounded-lg font-semibold bg-teal-600 text-white shadow-md transition-all'
           : 'px-6 py-3 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 transition-all'">
         <i class="fas fa-calendar-alt mr-2"></i>My Sessions
       </button>
-      <button (click)="switchTab('availability')" [class]="activeTab() === 'availability' 
-          ? 'px-6 py-3 rounded-lg font-semibold bg-teal-600 text-white shadow-md transition-all' 
+      <button (click)="switchTab('availability')" [class]="activeTab() === 'availability'
+          ? 'px-6 py-3 rounded-lg font-semibold bg-teal-600 text-white shadow-md transition-all'
           : 'px-6 py-3 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 transition-all'">
         <i class="fas fa-clock mr-2"></i>Availability
       </button>
@@ -183,9 +183,9 @@
           </div>
           <div class="border border-t-0 border-gray-200 rounded-b-lg p-2 min-h-[160px] bg-gray-50">
             @for (session of getSessionsForDate(date); track session.id) {
-            <div class="mb-2 p-2 rounded-lg cursor-pointer transition-all hover:shadow-md" [class]="session.status === 'Scheduled' ? 'bg-blue-50 border-l-4 border-blue-500' : 
-                               session.status === 'InProgress' ? 'bg-orange-50 border-l-4 border-orange-500' : 
-                               session.status === 'Completed' ? 'bg-green-50 border-l-4 border-green-500' : 
+            <div class="mb-2 p-2 rounded-lg cursor-pointer transition-all hover:shadow-md" [class]="session.status === 'Scheduled' ? 'bg-blue-50 border-l-4 border-blue-500' :
+                               session.status === 'InProgress' ? 'bg-orange-50 border-l-4 border-orange-500' :
+                               session.status === 'Completed' ? 'bg-green-50 border-l-4 border-green-500' :
                                'bg-gray-100 border-l-4 border-gray-400'">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-gray-700">{{ session.startTime ||
@@ -242,9 +242,9 @@
           <div
             class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100">
             <!-- Card Header with Gradient -->
-            <div class="p-4" [class]="session.status === 'Scheduled' ? 'bg-gradient-to-r from-blue-500 to-blue-600' : 
-                         session.status === 'InProgress' ? 'bg-gradient-to-r from-orange-500 to-amber-500' : 
-                         session.status === 'Completed' ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 
+            <div class="p-4" [class]="session.status === 'Scheduled' ? 'bg-gradient-to-r from-blue-500 to-blue-600' :
+                         session.status === 'InProgress' ? 'bg-gradient-to-r from-orange-500 to-amber-500' :
+                         session.status === 'Completed' ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
                          'bg-gradient-to-r from-gray-400 to-gray-500'">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -467,8 +467,8 @@
           <!-- Mode Toggle Button - More Prominent -->
           <button (click)="toggleSlotGenerator()"
             class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all"
-            [class]="showSlotGenerator() 
-                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300' 
+            [class]="showSlotGenerator()
+                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
                     : 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 shadow-md'">
             @if (showSlotGenerator()) {
             <i class="fas fa-clock"></i>
@@ -622,18 +622,18 @@
               </button>
 
               <!-- Time Header - Larger -->
-              <div class="px-3 py-2 text-center font-bold text-white" [class]="availability.sessionType === 'OneToOne' ? 'bg-blue-500' : 
-                            availability.sessionType === 'Group' ? 'bg-purple-500' : 
+              <div class="px-3 py-2 text-center font-bold text-white" [class]="availability.sessionType === 'OneToOne' ? 'bg-blue-500' :
+                            availability.sessionType === 'Group' ? 'bg-purple-500' :
                             'bg-teal-500'">
                 <span class="text-sm">{{ formatTime(availability.startTime) }}</span>
               </div>
 
               <!-- Session Info - Single Row -->
-              <div class="flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs" [class]="availability.sessionType === 'OneToOne' ? 'text-blue-600' : 
-                            availability.sessionType === 'Group' ? 'text-purple-600' : 
+              <div class="flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs" [class]="availability.sessionType === 'OneToOne' ? 'text-blue-600' :
+                            availability.sessionType === 'Group' ? 'text-purple-600' :
                             'text-teal-600'">
-                <i [class]="availability.sessionType === 'OneToOne' ? 'fas fa-user' : 
-                            availability.sessionType === 'Group' ? 'fas fa-users' : 
+                <i [class]="availability.sessionType === 'OneToOne' ? 'fas fa-user' :
+                            availability.sessionType === 'Group' ? 'fas fa-users' :
                             'fas fa-random'"></i>
                 <span class="font-medium">{{ availability.sessionType === 'OneToOne' ? '1:1' :
                   availability.sessionType === 'Group' ? 'Grp' : 'Flex' }}</span>
@@ -793,8 +793,8 @@
           <label class="block text-sm font-semibold text-gray-700 mb-3">Session Type</label>
           <div class="grid grid-cols-3 gap-3">
             <button (click)="updateSlotSessionType('OneToOne')" [disabled]="updatingSlot()"
-              class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2" [class]="editingSlot()!.sessionType === 'OneToOne' 
-                ? 'border-blue-500 bg-blue-50 text-blue-700' 
+              class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2" [class]="editingSlot()!.sessionType === 'OneToOne'
+                ? 'border-blue-500 bg-blue-50 text-blue-700'
                 : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'">
               <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
                 <i class="fas fa-user text-blue-600 text-xl"></i>
@@ -803,8 +803,8 @@
               <span class="text-xs text-gray-500 text-center">Private session</span>
             </button>
             <button (click)="updateSlotSessionType('Group', 5)" [disabled]="updatingSlot()"
-              class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2" [class]="editingSlot()!.sessionType === 'Group' 
-                ? 'border-purple-500 bg-purple-50 text-purple-700' 
+              class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2" [class]="editingSlot()!.sessionType === 'Group'
+                ? 'border-purple-500 bg-purple-50 text-purple-700'
                 : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'">
               <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                 <i class="fas fa-users text-purple-600 text-xl"></i>
@@ -813,8 +813,8 @@
               <span class="text-xs text-gray-500 text-center">Multiple students</span>
             </button>
             <button (click)="updateSlotSessionType('BookingFirst')" [disabled]="updatingSlot()"
-              class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2" [class]="editingSlot()!.sessionType === 'BookingFirst' 
-                ? 'border-teal-500 bg-teal-50 text-teal-700' 
+              class="p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2" [class]="editingSlot()!.sessionType === 'BookingFirst'
+                ? 'border-teal-500 bg-teal-50 text-teal-700'
                 : 'border-gray-200 hover:border-teal-300 hover:bg-teal-50'">
               <div class="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center">
                 <i class="fas fa-hand-pointer text-teal-600 text-xl"></i>
