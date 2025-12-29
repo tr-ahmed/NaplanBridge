@@ -34,7 +34,7 @@ import {
           <span>⚙️ Scheduling Preferences</span>
           <span class="toggle-icon">{{ preferencesExpanded ? '▼' : '▶' }}</span>
         </div>
-        
+
         <div class="panel-content" *ngIf="preferencesExpanded">
           <div class="pref-grid">
             <div class="pref-card">
@@ -52,25 +52,25 @@ import {
               <label>Preferred Time</label>
               <select [(ngModel)]="preferredTimeRange" class="pref-input">
                 <option value="">Any Time</option>
-                <option value="morning">🌅 Morning</option>
-                <option value="afternoon">☀️ Afternoon</option>
-                <option value="evening">🌙 Evening</option>
+                <option value="morning">Morning</option>
+                <option value="afternoon">Afternoon</option>
+                <option value="evening">Evening</option>
               </select>
             </div>
           </div>
-          
+
           <div class="days-section">
             <label>Preferred Days</label>
             <div class="days-pills">
-              <button *ngFor="let day of daysOfWeek; let i = index" 
-                      class="day-pill" 
+              <button *ngFor="let day of daysOfWeek; let i = index"
+                      class="day-pill"
                       [class.active]="selectedDays[i]"
                       (click)="selectedDays[i] = !selectedDays[i]">
                 {{ day }}
               </button>
             </div>
           </div>
-          
+
           <button class="find-btn" (click)="loadSmartSchedule()" [disabled]="loading">
             <span *ngIf="!loading">🔍 Find Best Schedule</span>
             <span *ngIf="loading">⏳ Searching...</span>
@@ -85,8 +85,8 @@ import {
       </div>
 
       <!-- Schedule Results -->
-      <div *ngIf="!loading && scheduleResponse && !noScheduleFound" class="results-section">
-        
+      <div *ngIf="!loading && scheduleResponse" class="results-section">
+
         <!-- Stats Bar -->
         <div class="stats-bar">
           <div class="stat-item">
@@ -138,10 +138,10 @@ import {
               <span class="student-avatar">👤</span>
               <span class="student-name">{{ student.name }}</span>
             </div>
-            
+
             <!-- Student's Subjects -->
             <div class="student-subjects">
-              <div *ngFor="let subjectData of getSubjectsForStudent(student.id); let subjectIdx = index" 
+              <div *ngFor="let subjectData of getSubjectsForStudent(student.id); let subjectIdx = index"
                    class="subject-card"
                    [class.expanded]="isSubjectExpanded(student.id, subjectData.subjectId)"
                    [class.first]="subjectIdx === 0">
@@ -156,10 +156,10 @@ import {
                     <span class="expand-icon">{{ isSubjectExpanded(student.id, subjectData.subjectId) ? '▼' : '▶' }}</span>
                   </div>
                 </div>
-                
+
                 <div class="slots-container" *ngIf="isSubjectExpanded(student.id, subjectData.subjectId)">
                   <div class="slots-grid">
-                    <div *ngFor="let slotInfo of subjectData.slots; let i = index" 
+                    <div *ngFor="let slotInfo of subjectData.slots; let i = index"
                          class="slot-card"
                          [class.swapped]="isSlotSwapped(slotInfo.slot)">
                       <div class="slot-date">
@@ -168,7 +168,7 @@ import {
                         <span class="slot-month">{{ formatMonth(getDisplaySlot(slotInfo.slot).dateTime) }}</span>
                       </div>
                       <div class="slot-time">{{ formatTime(getDisplaySlot(slotInfo.slot).dateTime) }}</div>
-                      <button class="slot-swap-btn" 
+                      <button class="slot-swap-btn"
                               (click)="openSwapModal(slotInfo.teacherId, subjectData.subjectId, slotInfo.slot, $event)"
                               title="Change time">
                         ⇄
@@ -177,7 +177,7 @@ import {
                   </div>
                 </div>
               </div>
-              
+
               <div *ngIf="getSubjectsForStudent(student.id).length === 0" class="no-subjects">
                 No subjects selected for this student
               </div>
@@ -206,13 +206,13 @@ import {
         <div class="empty-icon">📭</div>
         <h3>No Sessions Available</h3>
         <p class="empty-subtitle">The following subjects are currently unavailable:</p>
-        
+
         <div *ngIf="scheduleResponse?.summary?.subjectAvailability?.length" class="unavailable-tags">
           <span *ngFor="let item of (scheduleResponse?.summary?.subjectAvailability ?? [])" class="subject-tag">
             {{ item.subjectName }}
           </span>
         </div>
-        
+
         <div class="empty-actions">
           <button class="retry-btn" (click)="loadSmartSchedule()">🔄 Retry</button>
           <button class="back-btn" (click)="previousStep()">← Change Subjects</button>
@@ -238,29 +238,29 @@ import {
             <h4>🔄 Change Time Slot</h4>
             <button class="close-btn" (click)="closeSwapModal()">✕</button>
           </div>
-          
+
           <div *ngIf="currentSwapSlot" class="current-slot-info">
             <p>Current Slot:</p>
             <div class="current-slot-display">
-              {{ getDayName(getDisplaySlot(currentSwapSlot).dayOfWeek) }} 
-              {{ formatDate(getDisplaySlot(currentSwapSlot).dateTime) }} 
+              {{ getDayName(getDisplaySlot(currentSwapSlot).dayOfWeek) }}
+              {{ formatDate(getDisplaySlot(currentSwapSlot).dateTime) }}
               at {{ formatTime(getDisplaySlot(currentSwapSlot).dateTime) }}
             </div>
           </div>
 
           <div class="alternative-slots-section">
             <p>Select an alternative time:</p>
-            
+
             <!-- Loading State -->
             <div *ngIf="loadingAlternatives" class="loading-alternatives">
               ⏳ Loading available times...
             </div>
-            
+
             <div *ngIf="!loadingAlternatives" class="alternative-slots-list">
-              <div *ngFor="let altSlot of availableAlternativeSlots" 
-                   class="alt-slot-option"
-                   [class.preferred]="altSlot.isPreferred"
-                   (click)="swapSlot(altSlot)">
+              <div *ngFor="let altSlot of availableAlternativeSlots"
+                  class="alt-slot-option"
+                  [class.preferred]="altSlot.isPreferred"
+                  (click)="swapSlot(altSlot)">
                 <span class="alt-slot-day">{{ getDayName(altSlot.dayOfWeek) }}</span>
                 <span class="alt-slot-date">{{ formatDate(altSlot.dateTime) }}</span>
                 <span class="alt-slot-time">{{ formatTime(altSlot.dateTime) }}</span>
@@ -287,10 +287,10 @@ import {
           <span class="warning-icon">⚠️</span>
           <h3>Some Subjects Not Available</h3>
         </div>
-        
+
         <div class="warning-modal-body">
           <p>The following subjects don't have enough available sessions:</p>
-          
+
           <div class="unavailable-list">
             <div *ngFor="let item of unavailableSubjects" class="unavailable-item">
               <div class="unavailable-student">👤 {{ item.studentName }}</div>
@@ -307,11 +307,11 @@ import {
           </div>
 
           <div class="warning-note">
-            <strong>Note:</strong> These subjects will NOT be included in your booking. 
+            <strong>Note:</strong> These subjects will NOT be included in your booking.
             You will only be charged for the available subjects.
           </div>
         </div>
-        
+
         <div class="warning-modal-footer">
           <button class="btn btn-secondary" (click)="cancelDueToUnavailableSubjects()">
             ← Go Back & Change Subjects

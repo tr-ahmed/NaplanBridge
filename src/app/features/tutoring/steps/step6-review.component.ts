@@ -55,11 +55,11 @@ import {
       <!-- Main Content -->
       @if (!calculatingPrice && priceResponse) {
         <div class="max-w-4xl mx-auto space-y-3">
-          
+
           <!-- Students Breakdown - Compact Cards -->
           @for (studentBreakdown of priceResponse.students; track studentBreakdown.studentId) {
             <div class="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
-              
+
               <!-- Student Header - Compact -->
               <div class="bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2.5 flex items-center justify-between">
                 <div class="flex items-center gap-2">
@@ -79,8 +79,8 @@ import {
                         <span class="text-sm">📚</span>
                         <span class="font-medium text-gray-800 text-sm truncate">{{ subject.subjectName }}</span>
                         <span class="px-2 py-0.5 rounded-full text-xs font-medium shrink-0"
-                              [class]="subject.teachingType === 'Group' 
-                                ? 'bg-amber-100 text-amber-700' 
+                              [class]="subject.teachingType === 'Group'
+                                ? 'bg-amber-100 text-amber-700'
                                 : 'bg-blue-100 text-blue-700'">
                           {{ subject.teachingType === 'Group' ? '👥' : '👤' }} {{ subject.hours }}h
                         </span>
@@ -161,13 +161,13 @@ import {
             <!-- Terms & Actions Row -->
             <div class="flex flex-col sm:flex-row items-center gap-3 pt-3 border-t border-gray-100">
               <label class="flex items-center gap-2 cursor-pointer flex-1">
-                <input type="checkbox" [(ngModel)]="agreedToTerms" 
+                <input type="checkbox" [(ngModel)]="agreedToTerms"
                        class="w-4 h-4 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500/50">
                 <span class="text-gray-600 text-sm">
-                  I agree to the <a href="/terms" target="_blank" class="text-teal-600 underline">Terms</a> & <a href="/privacy" target="_blank" class="text-teal-600 underline">Privacy</a>
+                  I agree to the <a href="/terms" target="_blank" class="text-teal-600 underline">Terms</a> & <a href="/privacy-policy" target="_blank" class="text-teal-600 underline">Privacy</a>
                 </span>
               </label>
-              
+
               <div class="flex gap-2 w-full sm:w-auto">
                 <button type="button" (click)="previousStep()" [disabled]="creatingOrder"
                         class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg text-sm disabled:opacity-50 flex items-center gap-1">
@@ -176,7 +176,7 @@ import {
                   </svg>
                   Back
                 </button>
-                
+
                 <button type="button" (click)="proceedToPayment()" [disabled]="!canProceed() || creatingOrder"
                         class="flex-1 sm:flex-none px-6 py-2.5 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg shadow-sm
                                disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm">
@@ -195,11 +195,11 @@ import {
           </div>
 
           <!-- Security Badge - Compact -->
-          <div class="flex items-center justify-center gap-4 text-gray-400 text-xs">
+          <!-- <div class="flex items-center justify-center gap-4 text-gray-400 text-xs">
             <span class="flex items-center gap-1">🔒 Secure</span>
             <span class="flex items-center gap-1">🛡️ SSL</span>
             <span class="flex items-center gap-1">💳 Stripe</span>
-          </div>
+          </div> -->
         </div>
       }
     </div>
@@ -208,11 +208,11 @@ import {
     :host {
       display: block;
     }
-    
+
     .animation-delay-150 {
       animation-delay: 150ms;
     }
-    
+
     .border-3 {
       border-width: 3px;
     }

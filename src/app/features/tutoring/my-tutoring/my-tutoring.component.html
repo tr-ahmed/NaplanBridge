@@ -1,8 +1,8 @@
 <div
-  class="my-bookings-container min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-3 sm:p-4 md:p-6 lg:p-8">
+  class="my-bookings-container min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-2 sm:p-3 md:p-4 lg:p-6 xl:p-8">
 
   <!-- Header -->
-  <div class="max-w-7xl mx-auto mb-6 sm:mb-8">
+  <div class="max-w-full sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto mb-4 sm:mb-6 md:mb-8">
     <div class="bg-white rounded-2xl shadow-xl p-5 sm:p-6 md:p-8 border border-gray-100">
       <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div class="flex items-center gap-4 flex-1 min-w-0">
@@ -62,67 +62,67 @@
   </div>
 
   <!-- Stats Summary Cards -->
-  <div class="max-w-7xl mx-auto mb-6">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+  <div class="max-w-full sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto mb-4 sm:mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
       <!-- Total Sessions -->
-      <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-indigo-500">
-        <div class="flex items-center gap-3">
-          <div class="p-2.5 bg-indigo-100 rounded-lg">
-            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white rounded-xl shadow-md p-3 sm:p-4 border-l-4 border-indigo-500">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="p-2 bg-indigo-100 rounded-lg flex-shrink-0">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <div>
-            <p class="text-2xl font-bold text-gray-900">{{ bookings().length }}</p>
+          <div class="min-w-0 flex-1">
+            <p class="text-lg sm:text-2xl font-bold text-gray-900">{{ bookings().length }}</p>
             <p class="text-xs text-gray-500">Total</p>
           </div>
         </div>
       </div>
 
       <!-- Upcoming -->
-      <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-green-500">
-        <div class="flex items-center gap-3">
-          <div class="p-2.5 bg-green-100 rounded-lg">
-            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white rounded-xl shadow-md p-3 sm:p-4 border-l-4 border-green-500">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="p-2 bg-green-100 rounded-lg flex-shrink-0">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div>
-            <p class="text-2xl font-bold text-gray-900">{{ getUpcomingCount() }}</p>
+          <div class="min-w-0 flex-1">
+            <p class="text-lg sm:text-2xl font-bold text-gray-900">{{ getUpcomingCount() }}</p>
             <p class="text-xs text-gray-500">Upcoming</p>
           </div>
         </div>
       </div>
 
       <!-- Completed -->
-      <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-500">
-        <div class="flex items-center gap-3">
-          <div class="p-2.5 bg-blue-100 rounded-lg">
-            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white rounded-xl shadow-md p-3 sm:p-4 border-l-4 border-blue-500">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div>
-            <p class="text-2xl font-bold text-gray-900">{{ getCompletedCount() }}</p>
+          <div class="min-w-0 flex-1">
+            <p class="text-lg sm:text-2xl font-bold text-gray-900">{{ getCompletedCount() }}</p>
             <p class="text-xs text-gray-500">Completed</p>
           </div>
         </div>
       </div>
 
       <!-- Students -->
-      <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-purple-500">
-        <div class="flex items-center gap-3">
-          <div class="p-2.5 bg-purple-100 rounded-lg">
-            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white rounded-xl shadow-md p-3 sm:p-4 border-l-4 border-purple-500">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="p-2 bg-purple-100 rounded-lg flex-shrink-0">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           </div>
-          <div>
-            <p class="text-2xl font-bold text-gray-900">{{ uniqueStudentsCount }}</p>
+          <div class="min-w-0 flex-1">
+            <p class="text-lg sm:text-2xl font-bold text-gray-900">{{ uniqueStudentsCount }}</p>
             <p class="text-xs text-gray-500">Students</p>
           </div>
         </div>
@@ -256,13 +256,13 @@
                     </svg>
                     {{ formatTime(booking.scheduledDateTime) }}
                   </span>
-                  <span class="flex items-center gap-1">
+                  <!-- <span class="flex items-center gap-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     ${{ booking.price }}
-                  </span>
+                  </span> -->
                 </div>
               </div>
             </div>
@@ -341,7 +341,7 @@
                   <span>Student: <strong>{{ booking.studentName }}</strong></span>
                 </p>
                 <!-- Info Grid -->
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="grid grid-cols-3 md:grid-cols-2 gap-3">
                   <div class="bg-indigo-50 rounded-lg px-3 py-2">
                     <p class="text-xs text-indigo-600 font-medium mb-0.5">Date & Time</p>
                     <p class="text-sm font-bold text-gray-900">{{ formatDateTime(booking.scheduledDateTime) }}</p>
@@ -350,10 +350,10 @@
                     <p class="text-xs text-cyan-600 font-medium mb-0.5">Duration</p>
                     <p class="text-sm font-bold text-gray-900">{{ booking.durationMinutes }} min</p>
                   </div>
-                  <div class="bg-green-50 rounded-lg px-3 py-2">
+                  <!-- <div class="bg-green-50 rounded-lg px-3 py-2">
                     <p class="text-xs text-green-600 font-medium mb-0.5">Price</p>
                     <p class="text-sm font-bold text-gray-900">${{ booking.price }}</p>
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </div>
@@ -412,7 +412,7 @@
           </div>
 
           <!-- Notes -->
-          @if (booking.notes) {
+          <!-- @if (booking.notes) {
           <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
             <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
               viewBox="0 0 24 24">
@@ -421,7 +421,7 @@
             </svg>
             <p class="text-sm text-amber-800">{{ booking.notes }}</p>
           </div>
-          }
+          } -->
         </div>
       </div>
       }
@@ -533,7 +533,7 @@
             </div>
           </div>
 
-          <div class="bg-green-50 rounded-xl p-4 border-2 border-green-100">
+          <!-- <div class="bg-green-50 rounded-xl p-4 border-2 border-green-100">
             <h3 class="text-sm font-bold text-green-900 uppercase mb-3 flex items-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -545,7 +545,7 @@
               <p class="text-xs text-green-600 font-semibold">Session Price</p>
               <p class="text-2xl text-gray-900 font-bold">${{ selectedBooking()!.price }}</p>
             </div>
-          </div>
+          </div> -->
 
           <!-- Meeting Link -->
           @if (getReadableStatus(selectedBooking()!.status) === 'Confirmed' && selectedBooking()!.googleMeetLink) {
@@ -565,7 +565,7 @@
           }
 
           <!-- Notes -->
-          @if (selectedBooking()!.notes) {
+          <!-- @if (selectedBooking()!.notes) {
           <div class="bg-amber-50 rounded-xl p-4 border-2 border-amber-100">
             <h3 class="text-sm font-bold text-amber-900 uppercase mb-2 flex items-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -576,7 +576,7 @@
             </h3>
             <p class="text-gray-700">{{ selectedBooking()!.notes }}</p>
           </div>
-          }
+          } -->
         </div>
 
         <!-- Actions -->
