@@ -176,7 +176,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           return {
             id: year.id,                    // ✅ Database ID (e.g., 11)
             yearNumber: year.yearNumber,    // ✅ Display number (e.g., 8)
-            name: `Year ${year.yearNumber}` // ✅ Display name (e.g., "Year 8")
+            name: year.yearNumber === 0 ? 'Global' : `Year ${year.yearNumber}` // ✅ Display name (e.g., "Year 8" or "Global")
           };
         });
 
@@ -289,7 +289,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           return {
             id: year.id,                    // ✅ Database ID (e.g., 11)
             yearNumber: year.yearNumber,    // ✅ Display number (e.g., 8)
-            name: `Year ${year.yearNumber}` // ✅ Display name (e.g., "Year 8")
+            name: year.yearNumber === 0 ? 'Global' : `Year ${year.yearNumber}` // ✅ Display name (e.g., "Year 8" or "Global")
           };
         });
 
