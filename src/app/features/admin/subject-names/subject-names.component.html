@@ -1,244 +1,386 @@
-<div class="subject-names-container">
-  <!-- Header -->
-  <div class="header">
-    <div class="title-section">
-      <h1>📚 Subject Names Management</h1>
-      <p class="subtitle">Manage subject names and configure global availability</p>
+<!-- Main Content -->
+<main class="px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+    <div class="flex-1 min-w-0">
+      <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 truncate">Subject Names Management</h1>
+      <p class="text-xs sm:text-sm md:text-base text-gray-600 mt-1">Manage subject names and configure global availability</p>
     </div>
-    <button class="btn btn-primary" (click)="openCreateModal()">
-      <span class="icon">➕</span>
-      Create New Subject Name
-    </button>
+    <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+      <button
+        class="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg hover:from-blue-700 hover:to-blue-900 font-medium flex items-center justify-center gap-2 shadow-md text-sm sm:text-base transition-all duration-200"
+        (click)="openCreateModal()">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <span class="hidden sm:inline">Create New Subject</span>
+      </button>
+    </div>
   </div>
 
   <!-- Statistics Cards -->
-  <div class="stats-cards">
-    <div class="stat-card">
-      <div class="stat-icon">📊</div>
-      <div class="stat-content">
-        <div class="stat-value">{{ getStatistics().total }}</div>
-        <div class="stat-label">Total Subjects</div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+    <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 text-white">
+      <div class="flex items-center">
+        <div class="p-2 sm:p-3 rounded-full bg-white/20 mr-2 sm:mr-4 flex-shrink-0">
+          <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-blue-100 text-[10px] sm:text-xs md:text-sm mb-1 truncate">Total Subjects</p>
+          <p class="text-xl sm:text-2xl md:text-3xl font-bold">{{ getStatistics().total }}</p>
+        </div>
       </div>
     </div>
 
-    <div class="stat-card global">
-      <div class="stat-icon">🌍</div>
-      <div class="stat-content">
-        <div class="stat-value">{{ getStatistics().global }}</div>
-        <div class="stat-label">Global Subjects</div>
+    <div class="bg-gradient-to-br from-green-600 to-green-800 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 text-white">
+      <div class="flex items-center">
+        <div class="p-2 sm:p-3 rounded-full bg-white/20 mr-2 sm:mr-4 flex-shrink-0">
+          <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"></path>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-green-100 text-[10px] sm:text-xs md:text-sm mb-1 truncate">Global Subjects</p>
+          <p class="text-xl sm:text-2xl md:text-3xl font-bold">{{ getStatistics().global }}</p>
+        </div>
       </div>
     </div>
 
-    <div class="stat-card year-specific">
-      <div class="stat-icon">📅</div>
-      <div class="stat-content">
-        <div class="stat-value">{{ getStatistics().yearSpecific }}</div>
-        <div class="stat-label">Year-Specific</div>
+    <div class="bg-gradient-to-br from-cyan-600 to-cyan-800 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 text-white">
+      <div class="flex items-center">
+        <div class="p-2 sm:p-3 rounded-full bg-white/20 mr-2 sm:mr-4 flex-shrink-0">
+          <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10a2 2 0 002 2h4a2 2 0 002-2V11m-6 0h6"></path>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-cyan-100 text-[10px] sm:text-xs md:text-sm mb-1 truncate">Year-Specific</p>
+          <p class="text-xl sm:text-2xl md:text-3xl font-bold">{{ getStatistics().yearSpecific }}</p>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Alerts -->
   @if (error()) {
-    <div class="alert alert-error">
-      <span class="alert-icon">⚠️</span>
-      {{ error() }}
-      <button class="alert-close" (click)="error.set(null)">×</button>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-r-lg">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+        </div>
+        <div class="ml-3 flex-1">
+          <p class="text-sm text-red-700">{{ error() }}</p>
+        </div>
+        <div class="ml-auto pl-3">
+          <button (click)="error.set(null)" class="inline-flex rounded-md p-1.5 text-red-400 hover:bg-red-100 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   }
 
   @if (success()) {
-    <div class="alert alert-success">
-      <span class="alert-icon">✅</span>
-      {{ success() }}
-      <button class="alert-close" (click)="success.set(null)">×</button>
+    <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6 rounded-r-lg">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="ml-3 flex-1">
+          <p class="text-sm text-green-700">{{ success() }}</p>
+        </div>
+        <div class="ml-auto pl-3">
+          <button (click)="success.set(null)" class="inline-flex rounded-md p-1.5 text-green-400 hover:bg-green-100 hover:text-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   }
 
   <!-- Loading State -->
   @if (loading()) {
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>Loading subject names...</p>
+    <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+      <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-blue-500 bg-blue-50 transition ease-in-out duration-150">
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Loading subject names...
+      </div>
     </div>
   }
 
   <!-- Subject Names Table -->
   @if (!loading() && subjectNames().length > 0) {
-    <div class="table-container">
-      <table class="subjects-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th class="actions-column">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (subjectName of subjectNames(); track subjectName.id) {
-            <tr>
-              <td class="id-cell">{{ subjectName.id }}</td>
-              <td class="name-cell">
-                <strong>{{ subjectName.name }}</strong>
-              </td>
-              <td>
-                <span class="category-badge">
-                  {{ getCategoryName(subjectName.categoryId) }}
-                </span>
-              </td>
-              <td>
-                <span [class]="getBadgeClass(subjectName.isGlobal)">
-                  @if (subjectName.isGlobal) {
-                    🌍 Global
-                  } @else {
-                    📅 Year-Specific
-                  }
-                </span>
-              </td>
-              <td>
-                <button
-                  class="btn-toggle"
-                  [class.active]="subjectName.isGlobal"
-                  (click)="toggleGlobalStatus(subjectName)"
-                  [disabled]="loading()">
-                  @if (subjectName.isGlobal) {
-                    Make Year-Specific
-                  } @else {
-                    Make Global
-                  }
-                </button>
-              </td>
-              <td class="actions-cell">
-                <button
-                  class="btn-icon btn-edit"
-                  (click)="openEditModal(subjectName)"
-                  [disabled]="loading()"
-                  title="Edit">
-                  ✏️
-                </button>
-                <button
-                  class="btn-icon btn-delete"
-                  (click)="deleteSubjectName(subjectName)"
-                  [disabled]="loading()"
-                  title="Delete">
-                  🗑️
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Subject Names</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for (subjectName of subjectNames(); track subjectName.id) {
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ subjectName.id }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                          <span class="text-white font-medium text-sm">{{ subjectName.name.charAt(0).toUpperCase() }}</span>
+                        </div>
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">{{ subjectName.name }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      {{ getCategoryName(subjectName.categoryId) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    @if (subjectName.isGlobal) {
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"></path>
+                        </svg>
+                        Global
+                      </span>
+                    } @else {
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10a2 2 0 002 2h4a2 2 0 002-2V11m-6 0h6"></path>
+                        </svg>
+                        Year-Specific
+                      </span>
+                    }
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <button
+                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors duration-150"
+                      [class]="subjectName.isGlobal ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'"
+                      (click)="toggleGlobalStatus(subjectName)"
+                      [disabled]="loading()">
+                      @if (subjectName.isGlobal) {
+                        Make Year-Specific
+                      } @else {
+                        Make Global
+                      }
+                    </button>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex items-center justify-end space-x-2">
+                      <button
+                        class="text-blue-600 hover:text-blue-900 p-1 rounded-md hover:bg-blue-50 transition-colors duration-150"
+                        (click)="openEditModal(subjectName)"
+                        [disabled]="loading()"
+                        title="Edit">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                      </button>
+                      <button
+                        class="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition-colors duration-150"
+                        (click)="deleteSubjectName(subjectName)"
+                        [disabled]="loading()"
+                        title="Delete">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   }
 
   <!-- Empty State -->
   @if (!loading() && subjectNames().length === 0) {
-    <div class="empty-state">
-      <div class="empty-icon">📚</div>
-      <h3>No Subject Names Found</h3>
-      <p>Create your first subject name to get started</p>
-      <button class="btn btn-primary" (click)="openCreateModal()">
-        Create Subject Name
-      </button>
+    <div class="bg-white shadow-sm rounded-lg p-12 text-center">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No Subject Names Found</h3>
+      <p class="mt-1 text-sm text-gray-500">Create your first subject name to get started</p>
+      <div class="mt-6">
+        <button
+          class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+          (click)="openCreateModal()">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Create Subject Name
+        </button>
+      </div>
     </div>
   }
 
   <!-- Modal -->
   @if (showModal()) {
-    <div class="modal-overlay" (click)="closeModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>
-            @if (isEditMode()) {
-              ✏️ Edit Subject Name
-            } @else {
-              ➕ Create New Subject Name
-            }
-          </h2>
-          <button class="modal-close" (click)="closeModal()">×</button>
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+         (click)="closeModal()">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+           (click)="$event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-6 rounded-t-2xl">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold text-white">
+                  @if (isEditMode()) {
+                    Edit Subject Name
+                  } @else {
+                    Create New Subject Name
+                  }
+                </h2>
+                <p class="text-blue-100 text-sm mt-1">
+                  @if (isEditMode()) {
+                    Modify subject details and settings
+                  } @else {
+                    Add a new subject to the system
+                  }
+                </p>
+              </div>
+            </div>
+            <button (click)="closeModal()"
+                    class="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div class="modal-body">
-          <form [formGroup]="subjectNameForm" (ngSubmit)="onSubmit()">
+        <!-- Modal Body -->
+        <div class="p-6">
+          <form [formGroup]="subjectNameForm" (ngSubmit)="onSubmit()" class="space-y-6">
             <!-- Name Field -->
-            <div class="form-group">
-              <label for="name">Subject Name *</label>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">
+                Subject Name <span class="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 id="name"
                 formControlName="name"
                 placeholder="e.g., Tajweed, Life Skills, Math"
-                class="form-control"
-                [class.error]="subjectNameForm.get('name')?.invalid && subjectNameForm.get('name')?.touched">
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                [class]="subjectNameForm.get('name')?.invalid && subjectNameForm.get('name')?.touched ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' : ''">
               @if (subjectNameForm.get('name')?.hasError('required') && subjectNameForm.get('name')?.touched) {
-                <span class="error-message">Subject name is required</span>
+                <p class="mt-2 text-sm text-red-600">Subject name is required</p>
               }
               @if (subjectNameForm.get('name')?.hasError('minlength')) {
-                <span class="error-message">Name must be at least 2 characters</span>
+                <p class="mt-2 text-sm text-red-600">Name must be at least 2 characters</p>
               }
             </div>
 
             <!-- Category Field -->
-            <div class="form-group">
-              <label for="categoryId">Category *</label>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <label for="categoryId" class="block text-sm font-semibold text-gray-700 mb-2">
+                Category <span class="text-red-500">*</span>
+              </label>
               <select
                 id="categoryId"
                 formControlName="categoryId"
-                class="form-control"
-                [class.error]="subjectNameForm.get('categoryId')?.invalid && subjectNameForm.get('categoryId')?.touched">
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                [class]="subjectNameForm.get('categoryId')?.invalid && subjectNameForm.get('categoryId')?.touched ? 'border-red-300 text-red-900 focus:outline-none focus:ring-red-500 focus:border-red-500' : ''">
                 <option [value]="null">Select Category</option>
                 @for (category of categories(); track category.id) {
                   <option [value]="category.id">{{ category.name }}</option>
                 }
               </select>
               @if (subjectNameForm.get('categoryId')?.hasError('required') && subjectNameForm.get('categoryId')?.touched) {
-                <span class="error-message">Category is required</span>
+                <p class="mt-2 text-sm text-red-600">Category is required</p>
               }
             </div>
 
-            <!-- isGlobal Checkbox -->
-            <div class="form-group checkbox-group">
-              <label class="checkbox-label">
-                <input
-                  type="checkbox"
-                  formControlName="isGlobal"
-                  class="checkbox-input">
-                <span class="checkbox-text">
-                  <strong>🌍 Make this subject available to all year levels</strong>
-                  <small>Global subjects can be selected by students in any year (e.g., Tajweed, Life Skills)</small>
-                </span>
-              </label>
+            <!-- Global Subject Checkbox -->
+            <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-xl border border-blue-200">
+              <div class="flex items-start gap-3">
+                <div class="flex items-center h-5 mt-1">
+                  <input
+                    id="isGlobal"
+                    type="checkbox"
+                    formControlName="isGlobal"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                </div>
+                <div class="flex-1">
+                  <label for="isGlobal" class="text-sm font-semibold text-gray-700 cursor-pointer block mb-1">
+                    🌍 Make this subject available to all year levels
+                  </label>
+                  <p class="text-sm text-gray-600">Global subjects can be selected by students in any year (e.g., Tajweed, Life Skills)</p>
+                </div>
+              </div>
             </div>
 
-            <!-- Info Box -->
+            <!-- Info Box for Global Subjects -->
             @if (subjectNameForm.get('isGlobal')?.value) {
-              <div class="info-box">
-                <span class="info-icon">ℹ️</span>
-                <div class="info-content">
-                  <strong>Global Subject</strong>
-                  <p>This subject will be available to all students regardless of their year level. Perfect for subjects like Quran, Languages, or Life Skills.</p>
+              <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
+                <div class="flex items-start gap-3">
+                  <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-sm font-semibold text-green-800">Global Subject</h3>
+                    <div class="mt-1 text-sm text-green-700">
+                      <p>This subject will be available to all students regardless of their year level. Perfect for subjects like Quran, Languages, or Life Skills.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             }
 
             <!-- Form Actions -->
-            <div class="form-actions">
+            <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
               <button
                 type="button"
-                class="btn btn-secondary"
+                class="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium transition-colors duration-150"
                 (click)="closeModal()"
                 [disabled]="loading()">
                 Cancel
               </button>
               <button
                 type="submit"
-                class="btn btn-primary"
+                class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg hover:from-blue-700 hover:to-blue-900 font-medium transition-colors duration-150 shadow-md"
                 [disabled]="subjectNameForm.invalid || loading()">
                 @if (loading()) {
-                  <span class="spinner-small"></span>
+                  <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                   Saving...
                 } @else {
                   @if (isEditMode()) {
@@ -254,4 +396,3 @@
       </div>
     </div>
   }
-</div>
