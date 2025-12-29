@@ -701,15 +701,30 @@ export class TeacherTutoringSessionsComponent implements OnInit {
       );
     } else if (mode === 'today') {
       const today = new Date();
-      filtered = sessions.filter(s => this.isSameDay(new Date(s.dateTime), today));
+      today.setHours(0, 0, 0, 0);
+      const todayEnd = new Date(today);
+      todayEnd.setHours(23, 59, 59, 999);
+      filtered = sessions.filter(s => {
+        const sessionDate = new Date(s.dateTime);
+        return sessionDate >= today && sessionDate <= todayEnd;
+      });
     } else if (mode === 'day') {
-      filtered = sessions.filter(s => this.isSameDay(new Date(s.dateTime), selected));
+      const dayStart = new Date(selected);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(selected);
+      dayEnd.setHours(23, 59, 59, 999);
+      filtered = sessions.filter(s => {
+        const sessionDate = new Date(s.dateTime);
+        return sessionDate >= dayStart && sessionDate <= dayEnd;
+      });
     } else {
       // Week view - get the week starting from selected date
       const weekStart = new Date(selected);
       weekStart.setDate(selected.getDate() - selected.getDay());
+      weekStart.setHours(0, 0, 0, 0); // Start of day
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
+      weekEnd.setHours(23, 59, 59, 999); // End of day
 
       filtered = sessions.filter(s => {
         const sessionDate = new Date(s.dateTime);
