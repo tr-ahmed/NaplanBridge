@@ -239,7 +239,7 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
     private teacherContentService: TeacherContentManagementService,
     private router: Router,
     public subjectUtils: SubjectUtilsService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const userId = this.authService.getUserId();
@@ -758,9 +758,14 @@ export class TeacherContentManagementRedesignedComponent implements OnInit, OnDe
       this.form.termId = contextEntity.term.id;
       console.log('✅ Pre-filled termId:', contextEntity.term.id);
     } else if (type === 'lesson' && contextEntity?.week) {
-      // Adding lesson from week context
+      // Adding lesson from week context (term-based subjects)
       this.form.weekId = contextEntity.week.id;
       console.log('✅ Pre-filled weekId:', contextEntity.week.id);
+    } else if (type === 'lesson' && contextEntity?.subject && !contextEntity?.week) {
+      // Adding global lesson directly under subject (Year 0/Courses)
+      this.form.subjectId = contextEntity.subject.id;
+      this.form.isGlobalLesson = true; // ✅ Set flag to hide Week dropdown in modal
+      console.log('✅ Pre-filled subjectId for global lesson:', contextEntity.subject.id);
     }
 
     this.formErrors = {};
