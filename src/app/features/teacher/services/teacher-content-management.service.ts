@@ -244,6 +244,11 @@ export class TeacherContentManagementService {
     if (lessonData.weekId) {
       formData.append('WeekId', lessonData.weekId.toString());
     }
+    // ✅ For global lessons (Year 0/Courses): send SubjectId instead of WeekId
+    if (lessonData.subjectId && !lessonData.weekId) {
+      formData.append('SubjectId', lessonData.subjectId.toString());
+      console.log('📌 Sending SubjectId for global lesson:', lessonData.subjectId);
+    }
 
     // Add file attachments
     if (lessonData.posterFile) {
