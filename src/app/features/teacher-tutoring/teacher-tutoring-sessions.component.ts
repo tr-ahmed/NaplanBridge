@@ -55,6 +55,9 @@ export class TeacherTutoringSessionsComponent implements OnInit {
   availabilities = signal<TeacherAvailabilityDto[]>([]);
   exceptions = signal<ExceptionDayDto[]>([]);
 
+  // Settings Configuration State
+  settingsConfigured = signal<boolean>(false);
+
   // Sessions Data
   sessions = signal<TutoringSessionDto[]>([]);
   filteredSessions = signal<TutoringSessionDto[]>([]);
@@ -172,9 +175,9 @@ export class TeacherTutoringSessionsComponent implements OnInit {
     this.sessionService.getTeacherSettings()
       .pipe(
         catchError((error) => {
-          if (error.status === 404) {
+          if (error.statusCode === 404 || error.status === 404) {
             // Settings don't exist - show setup wizard with default values
-            console.log('No settings found. Showing setup wizard...');
+            console.log('Teacher settings not configured yet. Showing setup wizard...');
             this.showSettingsForm.set(true);
 
             // Initialize form with sensible defaults
@@ -190,7 +193,7 @@ export class TeacherTutoringSessionsComponent implements OnInit {
             return of({ success: false, data: null, message: 'Settings not configured' });
           }
 
-          // Other errors
+          // Other errors - log and show error
           console.error('Error loading settings:', error);
           this.toastService.showError('Failed to load settings. Please try again.');
           return of({ success: false, data: null, message: 'Error loading settings' });
@@ -200,6 +203,7 @@ export class TeacherTutoringSessionsComponent implements OnInit {
         next: (response) => {
           if (response.success && response.data) {
             this.settings.set(response.data);
+            this.settingsConfigured.set(true);
             this.patchSettingsForm(response.data);
 
             // Only load other data if settings exist
@@ -208,6 +212,7 @@ export class TeacherTutoringSessionsComponent implements OnInit {
             this.loadSessions();
           } else {
             // Settings don't exist - don't load other data yet
+            this.settingsConfigured.set(false);
             this.loading.set(false);
           }
         }
@@ -346,8 +351,14 @@ export class TeacherTutoringSessionsComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           this.settings.set(response.data);
+          this.settingsConfigured.set(true);
           this.toastService.showSuccess('Settings saved successfully');
           this.showSettingsForm.set(false);
+
+          // Now load other data since settings are configured
+          this.loadAvailabilities();
+          this.loadExceptions();
+          this.loadSessions();
         }
         this.savingSettings.set(false);
       },
