@@ -2774,8 +2774,9 @@ export class Step5ScheduleComponent implements OnInit {
   currentSwapTeacherId: number | null = null;
   currentSwapSubjectId: number | null = null;
   availableAlternativeSlots: ScheduledSlotDto[] = [];
-  // Map of original slot availabilityId -> new slot (for tracking swaps)
-  swappedSlots = new Map<number, ScheduledSlotDto>();
+  // Map of original slot unique key (availabilityId_dateTime) -> new slot (for tracking swaps)
+  // Using composite key because availabilityId alone is not unique (same availability can generate multiple dated slots)
+  swappedSlots = new Map<string, ScheduledSlotDto>();
 
   // Preferences
   startDate = '';
@@ -3534,19 +3535,29 @@ export class Step5ScheduleComponent implements OnInit {
   swapSlot(newSlot: ScheduledSlotDto): void {
     if (this.currentSwapSlot) {
       // Store the swap: original slot -> new slot
-      this.swappedSlots.set(this.currentSwapSlot.availabilityId, newSlot);
-      console.log('Swapped slot:', this.currentSwapSlot.dateTime, '->', newSlot.dateTime);
+      // Use composite key (availabilityId + dateTime) since availabilityId alone is not unique
+      const key = this.getSlotKey(this.currentSwapSlot);
+      this.swappedSlots.set(key, newSlot);
+      console.log('Swapped slot:', key, '->', newSlot.dateTime);
     }
     this.closeSwapModal();
   }
 
+  // Generate unique key for a slot (availabilityId + dateTime)
+  // This is necessary because the same availability can generate multiple dated slots
+  getSlotKey(slot: ScheduledSlotDto): string {
+    return `${slot.availabilityId}_${slot.dateTime}`;
+  }
+
   // Get the display slot (either original or swapped)
   getDisplaySlot(slot: ScheduledSlotDto): ScheduledSlotDto {
-    return this.swappedSlots.get(slot.availabilityId) || slot;
+    const key = this.getSlotKey(slot);
+    return this.swappedSlots.get(key) || slot;
   }
 
   // Check if a slot has been swapped
   isSlotSwapped(slot: ScheduledSlotDto): boolean {
-    return this.swappedSlots.has(slot.availabilityId);
+    const key = this.getSlotKey(slot);
+    return this.swappedSlots.has(key);
   }
 }
