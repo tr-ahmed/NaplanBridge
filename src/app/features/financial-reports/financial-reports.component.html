@@ -186,14 +186,14 @@
         <!-- Table -->
         <div class="overflow-x-auto -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6">
           <div class="inline-block min-w-full align-middle">
-          <table class="min-w-full">
+          <table class="min-w-full m-2">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Date</th>
                 <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Student</th>
                 <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Source</th>
                 <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Details</th>
-                <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-right text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Amount</th>
+                <th class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 text-left text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Amount</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -245,7 +245,7 @@
                   </td>
 
                   <!-- Amount -->
-                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap text-right text-[10px] sm:text-xs md:text-sm font-medium text-gray-900">
+                  <td class="px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-3 md:py-4 whitespace-nowrap text-left text-[10px] sm:text-xs md:text-sm font-medium text-gray-900">
                     {{ formatCurrency(transaction.amount) }}
                   </td>
                 </tr>

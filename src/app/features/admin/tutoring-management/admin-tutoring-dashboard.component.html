@@ -1,0 +1,551 @@
+<div class="admin-container">
+      <!-- Header -->
+      <div class="admin-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+          </div>
+          <div class="header-text">
+            <h1>Tutoring Management</h1>
+            <p class="header-subtitle">Manage pricing, teachers, discounts and view reports</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="admin-tabs">
+        <button
+          *ngFor="let tab of tabs"
+          (click)="activeTab.set(tab.id)"
+          [class.active]="activeTab() === tab.id"
+          class="admin-tab-btn">
+          <span class="tab-label">{{ tab.label }}</span>
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="admin-content">
+
+        <!-- Overview Tab -->
+        <div *ngIf="activeTab() === 'overview'" class="overview-tab">
+
+          <!-- Loading State -->
+          <div *ngIf="loadingStats()" class="loading">
+            <div class="spinner"></div>
+            <p>Loading statistics...</p>
+          </div>
+
+          <div *ngIf="!loadingStats()" class="admin-stats-grid">
+            <div class="admin-stat-card revenue">
+              <div class="stat-header">
+                <div class="stat-icon">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                  </svg>
+                </div>
+                <div class="stat-title">Total Revenue</div>
+              </div>
+              <div class="stat-value">${{ stats.totalRevenue.toLocaleString() }}</div>
+            </div>
+            <div class="admin-stat-card orders">
+              <div class="stat-header">
+                <div class="stat-icon">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+                <div class="stat-title">Total Orders</div>
+              </div>
+              <div class="stat-value">{{ stats.totalOrders }}</div>
+            </div>
+            <div class="admin-stat-card sessions">
+              <div class="stat-header">
+                <div class="stat-icon">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                  </svg>
+                </div>
+                <div class="stat-title">Total Sessions</div>
+              </div>
+              <div class="stat-value">{{ stats.totalSessions }}</div>
+              <div class="stat-subtitle">{{ stats.completedSessions }} completed</div>
+            </div>
+            <div class="admin-stat-card students">
+              <div class="stat-header">
+                <div class="stat-icon">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                </div>
+                <div class="stat-title">Active Students</div>
+              </div>
+              <div class="stat-value">{{ stats.activeStudents }}</div>
+            </div>
+            <div class="admin-stat-card teachers">
+              <div class="stat-header">
+                <div class="stat-icon">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                </div>
+                <div class="stat-title">Active Teachers</div>
+              </div>
+              <div class="stat-value">{{ stats.activeTeachers }}</div>
+            </div>
+            <div class="admin-stat-card aov">
+              <div class="stat-header">
+                <div class="stat-icon">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+                <div class="stat-title">Avg Order Value</div>
+              </div>
+              <div class="stat-value">${{ stats.averageOrderValue.toFixed(2) }}</div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="admin-section">
+            <h2 class="admin-section-title">Quick Actions</h2>
+            <div class="admin-actions-grid">
+              <button (click)="activeTab.set('pricing')" class="admin-action-card pricing">
+                <div class="action-icon">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                  </svg>
+                </div>
+                <div class="action-content">
+                  <div class="action-title">Manage Pricing</div>
+                  <div class="action-description">Set tutoring rates</div>
+                </div>
+              </button>
+              <button (click)="activeTab.set('teachers')" class="admin-action-card teachers">
+                <div class="action-icon">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                  </svg>
+                </div>
+                <div class="action-content">
+                  <div class="action-title">Teacher Priority</div>
+                  <div class="action-description">Manage teacher assignments</div>
+                </div>
+              </button>
+              <button (click)="activeTab.set('discounts')" class="admin-action-card discounts">
+                <div class="action-icon">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                  </svg>
+                </div>
+                <div class="action-content">
+                  <div class="action-title">Discounts</div>
+                  <div class="action-description">Configure discount rules</div>
+                </div>
+              </button>
+              <button (click)="activeTab.set('reports')" class="admin-action-card reports">
+                <div class="action-icon">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                  </svg>
+                </div>
+                <div class="action-content">
+                  <div class="action-title">Reports</div>
+                  <div class="action-description">View detailed analytics</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing Tab -->
+        <div *ngIf="activeTab() === 'pricing'" class="pricing-tab">
+          <div class="tab-header">
+            <h2>Tutoring Pricing</h2>
+            <p>Set hourly rates for tutoring sessions (separate from self-learning subscriptions)</p>
+
+            <div class="header-actions">
+              <button class="btn btn-primary" (click)="saveAllPricing()" [disabled]="!hasPricingChanges() || saving()">
+                {{ saving() ? 'Saving...' : 'Save All Changes' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Search & Filter -->
+          <div class="filters">
+            <input
+              type="text"
+              [(ngModel)]="pricingSearch"
+              (ngModelChange)="filterPricing()"
+              placeholder="Search subjects..."
+              class="search-input">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="showOnlyTutoringEnabled" (change)="filterPricing()">
+              Show only tutoring-enabled
+            </label>
+          </div>
+
+          <!-- Loading -->
+          <div *ngIf="loadingPricing()" class="loading">
+            <div class="spinner"></div>
+            <p>Loading subjects...</p>
+          </div>
+
+          <!-- Pricing Table -->
+          <div *ngIf="!loadingPricing()" class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Category</th>
+                  <th>Self-Learning<br><small>(Monthly)</small></th>
+                  <th>Tutoring Rate<br><small>(Per Hour)</small></th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let subject of filteredSubjects" [class.editing]="subject.isEditing">
+                  <td class="subject-cell">
+                    <span class="subject-icon">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                      </svg>
+                    </span>
+                    {{ subject.subjectName }}
+                  </td>
+                  <td>{{ subject.categoryName }}</td>
+                  <td class="price-cell">\${{ (subject.selfLearningPrice || 0).toFixed(2) }}</td>
+                  <td class="price-cell">
+                    <div *ngIf="!subject.isEditing">
+                      <span *ngIf="subject.tutoringPricePerHour !== null && subject.tutoringPricePerHour !== undefined" class="price tutoring">
+                        \${{ subject.tutoringPricePerHour.toFixed(2) }}/hr
+                      </span>
+                      <span *ngIf="subject.tutoringPricePerHour === null || subject.tutoringPricePerHour === undefined" class="not-set">Not Set</span>
+                    </div>
+                    <div *ngIf="subject.isEditing" class="edit-input">
+                      <span class="currency">$</span>
+                      <input type="number" [(ngModel)]="subject.newTutoringPrice" min="0" step="0.01" placeholder="0.00">
+                      <span class="unit">/hr</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="status-badge" [class.enabled]="subject.isAvailableForTutoring" [class.disabled]="!subject.isAvailableForTutoring">
+                      {{ subject.isAvailableForTutoring ? 'Enabled' : 'Disabled' }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <button *ngIf="!subject.isEditing" (click)="editPricing(subject)" class="btn-icon" title="Edit">✏️</button>
+                    <button *ngIf="subject.isEditing" (click)="savePricing(subject)" class="btn-icon save" title="Save">✅</button>
+                    <button *ngIf="subject.isEditing" (click)="cancelPricingEdit(subject)" class="btn-icon cancel" title="Cancel">❌</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div *ngIf="filteredSubjects.length === 0" class="empty-state">
+              <p>No subjects found matching your filters.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teachers Tab -->
+        <div *ngIf="activeTab() === 'teachers'" class="teachers-tab">
+          <div class="tab-header">
+            <h2>Teacher Priority</h2>
+            <p>Manage teacher priorities for smart scheduling (10 = highest priority)</p>
+          </div>
+
+          <!-- Search & Sort -->
+          <div class="filters">
+            <input
+              type="text"
+              [(ngModel)]="teacherSearch"
+              (ngModelChange)="filterTeachers()"
+              placeholder="Search teachers..."
+              class="search-input">
+            <select [(ngModel)]="teacherSort" (change)="sortTeachers()" class="sort-select">
+              <option value="priority-desc">Priority (High to Low)</option>
+              <option value="priority-asc">Priority (Low to High)</option>
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="rating-desc">Rating (High to Low)</option>
+            </select>
+          </div>
+
+          <!-- Loading -->
+          <div *ngIf="loadingTeachers()" class="loading">
+            <div class="spinner"></div>
+            <p>Loading teachers...</p>
+          </div>
+
+          <!-- Teachers Table -->
+          <div *ngIf="!loadingTeachers()" class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>Teacher Name</th>
+                  <th>Email</th>
+                  <th>Subjects</th>
+                  <th>Bookings</th>
+                  <th>Rating</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let teacher of filteredTeachers" [class.inactive]="!teacher.isActive">
+                  <td class="priority-cell">
+                    <div *ngIf="!teacher.isEditing" class="priority-badge" [class]="getPriorityClass(teacher.priority)">
+                      <span class="priority-badge high">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                        </svg>
+                        {{ teacher.priority }}
+                      </span>
+                    </div>
+                    <div *ngIf="teacher.isEditing" class="priority-edit">
+                      <input type="range" [(ngModel)]="teacher.newPriority" min="1" max="10" class="priority-slider">
+                      <span class="priority-value">{{ teacher.newPriority }}</span>
+                    </div>
+                  </td>
+                  <td class="name-cell">{{ teacher.name }}</td>
+                  <td>{{ teacher.email }}</td>
+                  <td>
+                    <div class="subjects-list">
+                      <span *ngFor="let subject of teacher.subjects" class="subject-tag">{{ subject }}</span>
+                    </div>
+                  </td>
+                  <td class="center">{{ teacher.totalBookings }}</td>
+                  <td class="center">
+                    <span class="rating">
+                      <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                      </svg>
+                      {{ (teacher.avgRating || 0).toFixed(1) }}
+                    </span>
+                  </td>
+                  <td class="center">
+                    <span class="status-badge" [class.active]="teacher.isActive" [class.inactive]="!teacher.isActive">
+                      {{ teacher.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <button *ngIf="!teacher.isEditing" (click)="editTeacher(teacher)" class="btn-icon" title="Edit">✏️</button>
+                    <button *ngIf="teacher.isEditing" (click)="saveTeacher(teacher)" class="btn-icon save" title="Save">✅</button>
+                    <button *ngIf="teacher.isEditing" (click)="cancelTeacherEdit(teacher)" class="btn-icon cancel" title="Cancel">❌</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div *ngIf="filteredTeachers.length === 0" class="empty-state">
+              <p>No teachers found.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discounts Tab -->
+        <div *ngIf="activeTab() === 'discounts'" class="discounts-tab">
+          <div class="tab-header">
+            <h2>Discount Rules</h2>
+            <p>Configure automatic discount rules for tutoring bookings</p>
+          </div>
+
+          <div class="discounts-grid">
+            <!-- Group Discount -->
+            <div class="discount-card">
+              <div class="discount-header">
+                <div class="discount-title">
+                  <span class="discount-icon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                  </span>
+                  <h3>Group Tutoring</h3>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" [(ngModel)]="groupDiscount.isActive" (change)="saveDiscountRule(groupDiscount)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <p class="discount-desc">Discount applied when student chooses group tutoring</p>
+              <div class="discount-value">
+                <label>Discount:</label>
+                <div class="input-group">
+                  <input type="number" [(ngModel)]="groupDiscount.percentage" min="0" max="100" [disabled]="!groupDiscount.isActive">
+                  <span class="unit">%</span>
+                </div>
+              </div>
+              <div class="discount-example">
+                <strong>Example:</strong> \$100/hr → \${{ (100 * (1 - groupDiscount.percentage/100)).toFixed(2) }}/hr
+              </div>
+              <button class="btn btn-sm btn-save" (click)="saveDiscountRule(groupDiscount)" [disabled]="!groupDiscount.isActive">
+                Save Changes
+              </button>
+            </div>
+
+            <!-- Hours Discount -->
+            <div class="discount-card">
+              <div class="discount-header">
+                <div class="discount-title">
+                  <span class="discount-icon">⏰</span>
+                  <h3>Hours Package</h3>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" [(ngModel)]="hoursDiscount.isActive" (change)="saveDiscountRule(hoursDiscount)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <p class="discount-desc">Discount based on number of hours booked</p>
+              <div class="hours-tiers">
+                <div class="tier">
+                  <span class="tier-label">10 hours:</span>
+                  <span class="tier-value">0% (Base)</span>
+                </div>
+                <div class="tier">
+                  <span class="tier-label">20 hours:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="hoursDiscountTiers.tier20" min="0" max="50" [disabled]="!hoursDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+                <div class="tier">
+                  <span class="tier-label">30 hours:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="hoursDiscountTiers.tier30" min="0" max="50" [disabled]="!hoursDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-save" (click)="saveDiscountRule(hoursDiscount)" [disabled]="!hoursDiscount.isActive">
+                Save Changes
+              </button>
+            </div>
+
+            <!-- Multi-Subject Discount -->
+            <div class="discount-card">
+              <div class="discount-header">
+                <div class="discount-title">
+                  <span class="discount-icon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </span>
+                  <h3>Multiple Subjects</h3>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" [(ngModel)]="multiSubjectDiscount.isActive" (change)="saveDiscountRule(multiSubjectDiscount)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <p class="discount-desc">Discount when booking multiple subjects</p>
+              <div class="subjects-tiers">
+                <div class="tier">
+                  <span class="tier-label">1 subject:</span>
+                  <span class="tier-value">0% (Base)</span>
+                </div>
+                <div class="tier">
+                  <span class="tier-label">2 subjects:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiSubjectTiers.tier2" min="0" max="50" [disabled]="!multiSubjectDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+                <div class="tier">
+                  <span class="tier-label">3 subjects:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiSubjectTiers.tier3" min="0" max="50" [disabled]="!multiSubjectDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+                <div class="tier">
+                  <span class="tier-label">4 subjects:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiSubjectTiers.tier4" min="0" max="50" [disabled]="!multiSubjectDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+                <div class="tier">
+                  <span class="tier-label">5+ subjects:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiSubjectTiers.tier5" min="0" max="50" [disabled]="!multiSubjectDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-save" (click)="saveDiscountRule(multiSubjectDiscount)" [disabled]="!multiSubjectDiscount.isActive">
+                Save Changes
+              </button>
+            </div>
+
+            <!-- Multiple Students Discount -->
+            <div class="discount-card">
+              <div class="discount-header">
+                <div class="discount-title">
+                  <svg class="discount-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                  </svg>
+                  <h3>Multiple Students</h3>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" [(ngModel)]="multiStudentsDiscount.isActive" (change)="saveDiscountRule(multiStudentsDiscount)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <p class="discount-desc">Discount when parent registers multiple children</p>
+              <div class="students-tiers">
+                <div class="tier">
+                  <span class="tier-label">2 students:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiStudentsTiers.tier2" min="0" max="50" [disabled]="!multiStudentsDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+                <div class="tier">
+                  <span class="tier-label">3 students:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiStudentsTiers.tier3" min="0" max="50" [disabled]="!multiStudentsDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+                <div class="tier">
+                  <span class="tier-label">4+ students:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiStudentsTiers.tier4" min="0" max="50" [disabled]="!multiStudentsDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+                <div class="tier max-cap">
+                  <span class="tier-label">Max discount:</span>
+                  <div class="input-group">
+                    <input type="number" [(ngModel)]="multiStudentsTiers.max" min="0" max="50" [disabled]="!multiStudentsDiscount.isActive">
+                    <span class="unit">%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="discount-example">
+                <strong>Example:</strong> 4 students × \$100 = \$400 → \${{ (400 * (1 - multiStudentsTiers.tier4/100)).toFixed(0) }} ({{ multiStudentsTiers.tier4 }}% off)
+              </div>
+              <button class="btn btn-sm btn-save" (click)="saveMultiStudentsDiscount()" [disabled]="!multiStudentsDiscount.isActive">
+                Save Changes
+              </button>
+            </div>
+          </div>
+
+          <!-- Discount Info -->
+          <div class="info-box">
+            <div class="info-icon">💡</div>
+            <div class="info-content">
+              <h4>How Discounts Work</h4>
+              <ul>
+                <li>Discounts are applied <strong>cumulatively</strong> (all applicable discounts stack)</li>
+                <li>Maximum total discount is <strong>60%</strong></li>
+                <li>Discounts are calculated <strong>automatically</strong> during checkout</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
