@@ -85,7 +85,7 @@ import {
       </div>
 
       <!-- Schedule Results -->
-      <div *ngIf="!loading && scheduleResponse" class="results-section">
+      <div *ngIf="!loading && scheduleResponse && !noScheduleFound" class="results-section">
         
         <!-- Stats Bar -->
         <div class="stats-bar">
@@ -204,10 +204,22 @@ import {
       <!-- No Schedule Found -->
       <div *ngIf="!loading && noScheduleFound" class="empty-state">
         <div class="empty-icon">📭</div>
-        <h3>No Schedule Found</h3>
-        <p>Try adjusting your preferences or extending the date range</p>
-        <button class="retry-btn" (click)="loadSmartSchedule()">🔄 Try Again</button>
+        <h3>No Sessions Available</h3>
+        <p class="empty-subtitle">The following subjects are currently unavailable:</p>
+        
+        <div *ngIf="scheduleResponse?.summary?.subjectAvailability?.length" class="unavailable-tags">
+          <span *ngFor="let item of (scheduleResponse?.summary?.subjectAvailability ?? [])" class="subject-tag">
+            {{ item.subjectName }}
+          </span>
+        </div>
+        
+        <div class="empty-actions">
+          <button class="retry-btn" (click)="loadSmartSchedule()">🔄 Retry</button>
+          <button class="back-btn" (click)="previousStep()">← Change Subjects</button>
+        </div>
       </div>
+
+
 
       <!-- Navigation -->
       <div class="nav-footer">
@@ -2553,6 +2565,199 @@ import {
     .warning-modal-footer .btn-primary:hover {
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0,150,136,0.3);
+    }
+
+    /* Empty State Styles */
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      margin: 1.5rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+      color: #334155;
+    }
+
+    .empty-subtitle {
+      color: #64748b;
+      font-size: 0.95rem;
+      margin: 0 0 1.5rem 0;
+    }
+
+    .unavailable-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .subject-tag {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .availability-details h4 {
+      margin: 0 0 1rem 0;
+      color: #dc2626;
+      font-size: 1rem;
+    }
+
+    .availability-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .availability-item {
+      background: white;
+      border: 1px solid #fee2e2;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .availability-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .subject-badge {
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 0.9rem;
+      min-width: 80px;
+    }
+
+
+    .availability-stats {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+
+    .availability-stats .stat {
+      font-size: 0.8rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .availability-stats .stat.requested {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .availability-stats .stat.available {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .availability-stats .stat.shortage {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .availability-message {
+      font-size: 0.8rem;
+      color: #64748b;
+      font-style: italic;
+    }
+
+    .empty-suggestions {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .empty-suggestions h4 {
+      margin: 0 0 0.75rem 0;
+      color: #0369a1;
+      font-size: 1rem;
+    }
+
+    .empty-suggestions ul {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    .empty-suggestions li {
+      color: #334155;
+      font-size: 0.9rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .empty-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .retry-btn {
+      background: linear-gradient(135deg, #108092 0%, #0d6a7a 100%);
+      color: white;
+      border: none;
+      padding: 0.85rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .retry-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16,128,146,0.3);
+    }
+
+    .back-btn {
+      background: white;
+      color: #64748b;
+      border: 2px solid #e2e8f0;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .back-btn:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    @media (min-width: 480px) {
+      .empty-actions {
+        flex-direction: row;
+        justify-content: center;
+      }
     }
   `]
 })
