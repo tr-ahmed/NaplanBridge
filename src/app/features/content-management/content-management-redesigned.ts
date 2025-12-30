@@ -1488,11 +1488,11 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   // ============================================
 
   /**
-   * Get year display label - Returns "Courses" for yearNumber 0, otherwise "Year {number}"
+   * Get year display label - Returns "Global" for yearNumber 0, otherwise "Year {number}"
    */
   getYearLabel(yearNumber: number | null | undefined): string {
     if (yearNumber === 0) {
-      return 'Courses';
+      return 'Global';
     }
     return yearNumber ? `Year ${yearNumber}` : 'N/A';
   }
