@@ -650,105 +650,363 @@ interface DiscountTier {
       .step-container {
         padding: 1rem;
         margin: 0 0.5rem;
+        max-width: none;
       }
 
       .header-section {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
       }
 
       .step-title {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
+        line-height: 1.3;
       }
 
       .step-subtitle {
-        font-size: 1rem;
+        font-size: 0.95rem;
+        margin-bottom: 0;
       }
 
       .student-section {
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
       }
 
       .student-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
         gap: 1rem;
+        margin-bottom: 1rem;
       }
 
       .student-info-header {
-        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+      }
+
+      .student-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.8rem;
+        flex-shrink: 0;
       }
 
       .student-name {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
+        margin: 0;
+        flex: 1;
+      }
+
+      .year-badge {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+        align-self: flex-start;
       }
 
       .selection-counter {
-        text-align: left;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #f0f9fa;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 2px solid #108092;
       }
 
       .counter-value {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #108092;
+        line-height: 1;
+      }
+
+      .counter-label {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 0.25rem;
+      }
+
+      .discount-banner {
+        padding: 0.875rem 1rem;
+        margin-bottom: 1rem;
+        border-radius: 10px;
+      }
+
+      .discount-content {
+        flex: 1;
+      }
+
+      .discount-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .discount-value {
+        font-size: 1.2rem;
+        font-weight: 700;
       }
 
       .subjects-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 0.75rem;
+        margin-bottom: 1rem;
       }
 
       .subject-card {
-        padding: 1rem;
+        padding: 0.875rem;
+        border-radius: 10px;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .subject-card:hover:not(.disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(16, 128, 146, 0.15);
+      }
+
+      .card-header {
+        margin-bottom: 0.5rem;
       }
 
       .subject-name {
+        font-size: 0.95rem;
+        line-height: 1.3;
+        margin-bottom: 0.5rem;
+      }
+
+      .category-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+        align-self: flex-start;
+      }
+
+      .card-footer {
+        margin-top: auto;
+      }
+
+      .price-tag {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+      }
+
+      .selection-summary {
+        padding: 0.875rem 1rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+        text-align: center;
+      }
+
+      .summary-item {
+        justify-content: center;
+        text-align: center;
+      }
+
+      .summary-label {
+        font-size: 0.85rem;
+      }
+
+      .summary-value {
         font-size: 1rem;
+      }
+
+      .info-card {
+        padding: 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+      }
+
+      .info-header {
+        margin-bottom: 1rem;
+      }
+
+      .info-header h4 {
+        font-size: 1.2rem;
       }
 
       .discount-tiers {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
       }
 
       .tier-item {
-        padding: 1rem;
+        padding: 0.875rem;
+        border-radius: 10px;
+      }
+
+      .tier-badge {
+        width: 44px;
+        height: 44px;
+        font-size: 1.3rem;
+        margin: 0 auto 0.5rem;
+      }
+
+      .tier-label {
+        font-size: 0.8rem;
+      }
+
+      .tier-discount {
+        font-size: 1.1rem;
       }
 
       .nav-buttons {
         flex-direction: column;
         gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
       }
 
       .btn {
-        justify-content: center;
         width: 100%;
         padding: 1rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 10px;
+        justify-content: center;
       }
 
-      .info-card {
-        padding: 1.5rem;
-      }
-
-      .selection-summary {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
+      .btn-icon {
+        font-size: 1.1rem;
       }
     }
 
     @media (max-width: 480px) {
-      .subjects-grid {
-        grid-template-columns: 1fr;
+      .step-container {
+        padding: 0.75rem;
+        margin: 0 0.25rem;
+      }
+
+      .header-section {
+        margin-bottom: 1rem;
+      }
+
+      .step-title {
+        font-size: 1.3rem;
+      }
+
+      .step-subtitle {
+        font-size: 0.9rem;
+      }
+
+      .student-section {
+        padding: 1rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .student-header {
+        gap: 0.75rem;
+      }
+
+      .student-info-header {
+        gap: 0.6rem;
       }
 
       .student-icon {
-        width: 50px;
-        height: 50px;
-        font-size: 2rem;
+        width: 42px;
+        height: 42px;
+        font-size: 1.6rem;
+      }
+
+      .student-name {
+        font-size: 1.1rem;
+      }
+
+      .year-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
+
+      .selection-counter {
+        padding: 0.6rem;
+      }
+
+      .counter-value {
+        font-size: 1.6rem;
+      }
+
+      .counter-label {
+        font-size: 0.75rem;
       }
 
       .discount-banner {
+        padding: 0.75rem 0.875rem;
         flex-direction: column;
         text-align: center;
         gap: 0.5rem;
+      }
+
+      .discount-icon {
+        font-size: 1.8rem;
+      }
+
+      .discount-title {
+        font-size: 0.85rem;
+      }
+
+      .discount-value {
+        font-size: 1.1rem;
+      }
+
+      .subjects-grid {
+        grid-template-columns: 1fr;
+        gap: 0.6rem;
+      }
+
+      .subject-card {
+        padding: 0.75rem;
+        min-height: 100px;
+      }
+
+      .subject-name {
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+      }
+
+      .category-badge {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.4rem;
+      }
+
+      .price-tag {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
+
+      .selection-summary {
+        padding: 0.75rem 0.875rem;
+        margin-top: 0.875rem;
+      }
+
+      .info-card {
+        padding: 1rem;
+      }
+
+      .tier-item {
+        padding: 0.75rem;
+      }
+
+      .tier-badge {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        margin-bottom: 0.4rem;
+      }
+
+      .tier-discount {
+        font-size: 1rem;
+      }
+
+      .nav-buttons {
+        margin-top: 1.25rem;
+      }
+
+      .btn {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.95rem;
       }
     }
   `]
