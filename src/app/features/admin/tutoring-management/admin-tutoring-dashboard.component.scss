@@ -1,11 +1,11 @@
 :host {
       --primary-gradient: linear-gradient(135deg, #1e293b 0%, #2563eb 100%);
-      --blue-gradient: linear-gradient(135deg, #2563eb 0%, #1e293b 100%);
-      --cyan-gradient: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%);
-      --green-gradient: linear-gradient(135deg, #22c55e 0%, #166534 100%);
-      --orange-gradient: linear-gradient(135deg, #f97316 0%, #b45309 100%);
-      --yellow-gradient: linear-gradient(135deg, #facc15 0%, #f59e42 100%);
-      --purple-gradient: linear-gradient(135deg, #a855f7 0%, #6d28d9 100%);
+      --blue-gradient: rgb(20, 66, 121);
+      --cyan-gradient: #06b6d4;
+      --green-gradient: #22c55e;
+      --orange-gradient: #f97316;
+      --yellow-gradient: #facc15;
+      --purple-gradient: #a855f7;
       --sidebar-width: 250px;
       --transition-speed: 0.3s;
     }

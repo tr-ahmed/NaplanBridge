@@ -78,7 +78,8 @@ export class TeacherPermissionsAdminComponent implements OnInit {
       this.categoryService.getYears().subscribe({
         next: (years) => {
           years.forEach((year: any) => {
-            this.yearNamesMap.set(year.id, year.name || `Year ${year.yearNumber}`);
+            const displayName = year.name || (year.yearNumber === 0 ? 'Global' : `Year ${year.yearNumber}`);
+            this.yearNamesMap.set(year.id, displayName);
           });
           console.log('✅ Year names map loaded:', this.yearNamesMap.size, 'years');
           resolve();
@@ -346,9 +347,10 @@ export class TeacherPermissionsAdminComponent implements OnInit {
     this.availableSubjects().forEach((subject: any) => {
       if (subject.yearName && !yearsSet.has(subject.yearName)) {
         yearsSet.add(subject.yearName);
+        const displayName = subject.yearName === 'Year 0' ? 'Global' : subject.yearName;
         yearsList.push({
           id: subject.id, // Use subject id as temporary year id
-          name: subject.yearName
+          name: displayName
         });
       }
     });
