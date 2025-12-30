@@ -461,19 +461,82 @@ interface StudentSubjectTerms {
 
     @media (max-width: 768px) {
       .step-container {
-        padding: 1.5rem;
+        padding: 1rem;
+        margin: 0 0.5rem;
+      }
+
+      .header-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .step-title {
+        font-size: 1.5rem;
+      }
+
+      .step-subtitle {
+        font-size: 1rem;
+      }
+
+      .student-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .student-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .student-info-header {
+        width: 100%;
+      }
+
+      .student-name {
+        font-size: 1.25rem;
+      }
+
+      .subject-term-section {
+        padding: 1rem;
+      }
+
+      .subject-title {
+        font-size: 1rem;
       }
 
       .terms-grid {
         grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+
+      .term-card-compact {
+        padding: 0.75rem;
+      }
+
+      .term-name {
+        font-size: 0.9rem;
+      }
+
+      .term-dates-mini {
+        font-size: 0.75rem;
       }
 
       .nav-buttons {
         flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 2rem;
       }
 
       .btn {
         justify-content: center;
+        width: 100%;
+        padding: 1rem 1.5rem;
+      }
+
+      .info-card {
+        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
       }
     }
   `]

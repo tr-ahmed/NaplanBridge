@@ -648,7 +648,25 @@ interface DiscountTier {
     /* Responsive Design */
     @media (max-width: 768px) {
       .step-container {
+        padding: 1rem;
+        margin: 0 0.5rem;
+      }
+
+      .header-section {
+        margin-bottom: 2rem;
+      }
+
+      .step-title {
+        font-size: 1.5rem;
+      }
+
+      .step-subtitle {
+        font-size: 1rem;
+      }
+
+      .student-section {
         padding: 1.5rem;
+        margin-bottom: 2rem;
       }
 
       .student-header {
@@ -657,25 +675,80 @@ interface DiscountTier {
         gap: 1rem;
       }
 
+      .student-info-header {
+        width: 100%;
+      }
+
+      .student-name {
+        font-size: 1.25rem;
+      }
+
       .selection-counter {
         text-align: left;
       }
 
+      .counter-value {
+        font-size: 2rem;
+      }
+
       .subjects-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .subject-card {
+        padding: 1rem;
+      }
+
+      .subject-name {
+        font-size: 1rem;
       }
 
       .discount-tiers {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
+      }
+
+      .tier-item {
+        padding: 1rem;
       }
 
       .nav-buttons {
         flex-direction: column;
+        gap: 0.75rem;
       }
 
       .btn {
         justify-content: center;
+        width: 100%;
+        padding: 1rem 1.5rem;
+      }
+
+      .info-card {
+        padding: 1.5rem;
+      }
+
+      .selection-summary {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .subjects-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .student-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 2rem;
+      }
+
+      .discount-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
       }
     }
   `]

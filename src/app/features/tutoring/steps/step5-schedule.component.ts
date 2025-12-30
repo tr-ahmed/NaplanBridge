@@ -2759,6 +2759,97 @@ import {
         justify-content: center;
       }
     }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .step-container {
+        padding: 0;
+        margin: 0 0.5rem;
+      }
+
+      .hero-header {
+        padding: 1.5rem;
+      }
+
+      .hero-icon {
+        font-size: 2.5rem;
+      }
+
+      .hero-header h2 {
+        font-size: 1.5rem;
+      }
+
+      .hero-header p {
+        font-size: 0.9rem;
+      }
+
+      .preferences-panel {
+        margin: 1rem;
+      }
+
+      .panel-content {
+        padding: 1rem;
+      }
+
+      .pref-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .pref-card {
+        padding: 0.75rem;
+      }
+
+      .days-pills {
+        justify-content: center;
+      }
+
+      .calendar-container {
+        grid-template-columns: 1fr;
+      }
+
+      .preferences-section {
+        padding: 1rem;
+      }
+
+      .preferences-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+      }
+
+      .slot-card {
+        padding: 0.75rem;
+      }
+
+      .slot-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .slot-time {
+        font-size: 0.9rem;
+      }
+
+      .slot-teacher {
+        font-size: 0.85rem;
+      }
+
+      .nav-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
   `]
 })
 export class Step5ScheduleComponent implements OnInit {

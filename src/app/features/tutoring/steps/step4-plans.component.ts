@@ -485,6 +485,47 @@ const MAX_TOTAL_DISCOUNT = 20; // Maximum combined discount percentage
     @media (max-width: 768px) {
       .step-container {
         padding: 1rem;
+        margin: 0 0.5rem;
+      }
+
+      .header {
+        margin-bottom: 1.5rem;
+      }
+
+      .step-title {
+        font-size: 1.25rem;
+      }
+
+      .step-subtitle {
+        font-size: 0.9rem;
+      }
+
+      .student-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .student-header {
+        gap: 0.5rem;
+      }
+
+      .student-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+      }
+
+      .student-name {
+        font-size: 1.1rem;
+      }
+
+      .subject-row {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .subject-title {
+        font-size: 0.95rem;
       }
 
       .hours-options {
@@ -492,8 +533,45 @@ const MAX_TOTAL_DISCOUNT = 20; // Maximum combined discount percentage
         gap: 0.75rem;
       }
 
+      .hours-option {
+        padding: 0.75rem;
+      }
+
+      .option-header h5 {
+        font-size: 1rem;
+      }
+
+      .duration {
+        font-size: 0.75rem;
+      }
+
+      .price {
+        font-size: 1.25rem;
+      }
+
       .nav-buttons {
         flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        justify-content: center;
+      }
+
+      .discount-summary-compact {
+        padding: 0.5rem 0.75rem;
+      }
+
+      .discount-pills {
+        justify-content: center;
+      }
+
+      .discount-pill {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
       }
     }
   `]

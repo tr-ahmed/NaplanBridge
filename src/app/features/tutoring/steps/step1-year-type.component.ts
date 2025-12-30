@@ -447,6 +447,72 @@ interface DiscountTier {
       cursor: not-allowed;
       transform: none;
     }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .step-container {
+        padding: 1rem;
+        margin: 0 0.5rem;
+      }
+
+      .step-title {
+        font-size: 1.5rem;
+      }
+
+      .step-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .students-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .student-card {
+        padding: 1rem;
+        gap: 0.75rem;
+      }
+
+      .student-info h4 {
+        font-size: 1rem;
+      }
+
+      .discount-tiers {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .tier {
+        padding: 0.75rem 1rem;
+      }
+
+      .nav-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 1rem 2rem;
+      }
+
+      .info-box {
+        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .discount-section {
+        padding: 1rem;
+      }
+    }
   `]
 })
 export class Step1YearTypeComponent implements OnInit {
