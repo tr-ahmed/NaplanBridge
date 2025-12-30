@@ -224,29 +224,20 @@ export const routes: Routes = [
     loadComponent: () => import('./features/profile-edit/profile-edit.component').then(m => m.ProfileEditComponent),
     canActivate: [authGuard]
   },
-  {
-    path: 'analytics',
-    loadComponent: () => import('./features/advanced-analytics/advanced-analytics.component').then(m => m.AdvancedAnalyticsComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-  },
-
   // Student Dashboard
   {
     path: 'student/dashboard',
     loadComponent: () => import('./features/student-dashboard/student-dashboard.component').then(m => m.StudentDashboardComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
   },
-
   // Student Exams
   // Removed - using newer student routes below
-
   // Student Subscriptions
   {
     path: 'student/subscriptions',
     loadComponent: () => import('./features/student-subscriptions/student-subscriptions.component').then(m => m.StudentSubscriptionsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('student')]
   },
-
   // Student Subjects (My Subjects)
   {
     path: 'student/subjects',
@@ -319,12 +310,6 @@ export const routes: Routes = [
     , data: { hideHeader: true, hideFooter: true }
   },
   {
-    path: 'admin/advanced-analytics',
-    loadComponent: () => import('./features/advanced-analytics/advanced-analytics.component').then(m => m.AdvancedAnalyticsComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
-    , data: { hideHeader: true, hideFooter: true }
-  },
-  {
     path: 'admin/financial-reports',
     loadComponent: () => import('./features/financial-reports/financial-reports.component').then(m => m.FinancialReportsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')]
@@ -356,20 +341,8 @@ export const routes: Routes = [
     data: { hideHeader: true, hideFooter: true }
   },
   {
-    path: 'admin/assign-teacher',
-    loadComponent: () => import('./features/admin/assign-teacher/assign-teacher.component').then(m => m.AssignTeacherComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
-    data: { hideHeader: true, hideFooter: true }
-  },
-  {
     path: 'admin/subject-names',
     loadComponent: () => import('./features/admin/subject-names/subject-names.component').then(m => m.SubjectNamesComponent),
-    canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
-    data: { hideHeader: true, hideFooter: true }
-  },
-  {
-    path: 'admin/video-settings',
-    loadComponent: () => import('./admin/video-settings/video-settings.component').then(m => m.VideoSettingsComponent),
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
     data: { hideHeader: true, hideFooter: true }
   },
@@ -391,14 +364,12 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('admin')],
     data: { hideHeader: true, hideFooter: true }
   },
-
   // Teacher Dashboard - Redirect to Content Management
   {
     path: 'teacher/dashboard',
     redirectTo: 'teacher/content-management',
     pathMatch: 'full'
   },
-
   // Teacher Questions Dashboard
   {
     path: 'teacher/questions',
@@ -406,7 +377,6 @@ export const routes: Routes = [
     canActivate: [teacherGuard],
     data: { hideHeader: false, hideFooter: false }
   },
-
   // Teacher Discussions Dashboard (New Discussion API)
   {
     path: 'teacher/discussions',
@@ -414,7 +384,6 @@ export const routes: Routes = [
     canActivate: [teacherGuard],
     data: { hideHeader: false, hideFooter: false }
   },
-
   // Teacher Exams Management (Full Management like Admin)
   {
     path: 'teacher/exams',
@@ -454,7 +423,6 @@ export const routes: Routes = [
     canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
-
   // Teacher Content Management - Old (redirect to new)
   {
     path: 'teacher/content-management-old',
@@ -462,7 +430,6 @@ export const routes: Routes = [
     canActivate: [teacherGuard],
     data: { hideHeader: true, hideFooter: true }
   },
-
   // Teacher Tutoring Sessions Management (Unified Page with Tabs)
   {
     path: 'teacher/tutoring-sessions',
@@ -505,7 +472,6 @@ export const routes: Routes = [
     redirectTo: 'admin/tutoring',
     pathMatch: 'full'
   },
-
   // Student Exams
   {
     path: 'student/exams',
@@ -531,9 +497,6 @@ export const routes: Routes = [
     canActivate: [authGuard, () => inject(AuthService).hasRole('student')],
     data: { hideHeader: true, hideFooter: true }
   },
-
-
-
   // Teacher Management Routes (Placeholder - To be implemented)
   {
     path: 'teacher/grade/:studentExamId',
@@ -550,11 +513,8 @@ export const routes: Routes = [
     redirectTo: 'teacher/dashboard', // Temporary redirect until page is created
     pathMatch: 'full'
   },
-
   { path: 'user/:id', component: UserProfileComponent },
-
   { path: 'user/edit/:id', component: UserEditComponent },
-
   // Payment Routes
   {
     path: 'payment/success',
@@ -564,7 +524,6 @@ export const routes: Routes = [
     path: 'payment/cancel',
     loadComponent: () => import('./features/payment-cancel/payment-cancel.component').then(m => m.PaymentCancelComponent)
   },
-
   // Legacy Session Routes - Redirect to Tutoring
   {
     path: 'sessions/browse',
@@ -591,7 +550,6 @@ export const routes: Routes = [
     redirectTo: 'student/tutoring',
     pathMatch: 'full'
   },
-
   // Fallback route
   { path: '**', redirectTo: '' }
 ];
