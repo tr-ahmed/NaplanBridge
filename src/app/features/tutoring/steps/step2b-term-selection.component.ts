@@ -72,16 +72,16 @@ interface StudentSubjectTerms {
               @if (subject.requiresTermSelection) {
                 <div class="subject-term-section">
                   <h4 class="subject-title">{{ subject.subjectName }}</h4>
-                  
+
                   <div class="terms-grid">
                     @for (term of getFilteredTerms(subject.availableTerms); track term.termId) {
-                      <div 
+                      <div
                         class="term-card-compact"
                         [class.selected]="subject.selectedTermId === term.termId"
                         [class.current]="term.isCurrent"
                         [class.next]="isNextTerm(term, subject.availableTerms)"
                         (click)="selectTerm(studentData.student.id, subject.subjectId, term.termId, term.academicTermId)">
-                        
+
                         <div class="term-card-content">
                           <div class="term-main">
                             <span class="term-name">{{ term.termName }}</span>
@@ -96,7 +96,7 @@ interface StudentSubjectTerms {
                             <span class="term-dates-mini">{{ formatDateWithYear(term.startDate) }} - {{ formatDateWithYear(term.endDate) }}</span>
                           </div>
                         </div>
-                        
+
                         @if (subject.selectedTermId === term.termId) {
                           <span class="check-icon">✓</span>
                         }

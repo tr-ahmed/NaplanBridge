@@ -92,8 +92,8 @@ interface DiscountTier {
           <h3>Save More with Multiple Students!</h3>
         </div>
         <div class="discount-tiers">
-          <div *ngFor="let tier of discountTiers" 
-               class="tier" 
+          <div *ngFor="let tier of discountTiers"
+               class="tier"
                [class.active]="selectedCount >= tier.minStudents">
             <span class="tier-badge">{{ tier.minStudents }}+ Students</span>
             <span class="tier-discount">{{ tier.percentage }}% OFF</span>

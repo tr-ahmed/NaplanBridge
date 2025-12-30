@@ -30,7 +30,7 @@ import { PriceSummaryComponent } from './steps/remaining-components';
       <!-- Step Indicator -->
       <div class="step-indicator">
         @for (step of displaySteps; track step.number) {
-          <div 
+          <div
             class="step-item"
             [class.active]="currentStep === step.number"
             [class.completed]="currentStep > step.number">
