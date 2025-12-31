@@ -1,0 +1,95 @@
+<div class="step-container">
+      <h2 class="step-title">Step 1: Select Students for Tutoring</h2>
+      <p class="step-subtitle">Choose which students you want to enroll</p>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading your students...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !loading" class="error-box">
+        <div class="error-icon">⚠️</div>
+        <div>{{ error }}</div>
+      </div>
+
+      <!-- Students Selection -->
+      <div *ngIf="!loading && !error" class="form-section">
+        <div class="section-header">
+          <label class="form-label">Select Students</label>
+          <button type="button" (click)="addNewStudent()" class="btn btn-add">
+            <span class="icon">+</span> Add New Student
+          </button>
+        </div>
+
+        <div *ngIf="availableStudents.length === 0" class="no-students">
+          <p>📚 No students found. Please add a student first.</p>
+          <button type="button" (click)="addNewStudent()" class="btn btn-primary">
+            Add Your First Student
+          </button>
+        </div>
+
+        <div *ngIf="availableStudents.length > 0" class="students-grid">
+          <div
+            *ngFor="let student of availableStudents"
+            (click)="toggleStudent(student)"
+            [class.selected]="student.selected"
+            class="student-card">
+            <div class="checkbox">
+              <input
+                type="checkbox"
+                [checked]="student.selected"
+                (click)="$event.stopPropagation()">
+            </div>
+            <div class="student-info">
+              <h4>{{ student.name }}</h4>
+              <p class="year-info">📚 Year {{ student.yearNumber }}</p>
+            </div>
+            <div *ngIf="student.selected" class="checkmark">✓</div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedCount > 0" class="selection-summary">
+          Selected: {{ selectedCount }} student{{ selectedCount > 1 ? 's' : '' }}
+        </div>
+      </div>
+
+      <!-- Info Box -->
+      <div *ngIf="!loading" class="info-box">
+        <div class="info-icon">💡</div>
+        <div>
+          <strong>Flexible Learning:</strong> You can select teaching type and hours for each subject individually in the next steps.
+        </div>
+      </div>
+
+      <!-- Multiple Students Discount Info -->
+      <div *ngIf="!loading && discountTiers.length > 0" class="discount-section">
+        <div class="discount-header">
+          <span class="discount-icon">🎉</span>
+          <h3>Save More with Multiple Students!</h3>
+        </div>
+        <div class="discount-tiers">
+          <div *ngFor="let tier of discountTiers"
+               class="tier"
+               [class.active]="selectedCount >= tier.minStudents">
+            <span class="tier-badge">{{ tier.minStudents }}+ Students</span>
+            <span class="tier-discount">{{ tier.percentage }}% OFF</span>
+          </div>
+        </div>
+        <p *ngIf="selectedCount >= 2" class="discount-applied">
+          ✅ You qualify for <strong>{{ getDiscountPercentage() }}% discount</strong>!
+        </p>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-buttons">
+        <button
+          type="button"
+          (click)="nextStep()"
+          [disabled]="!canProceed()"
+          class="btn btn-primary">
+          Next: Select Subjects →
+        </button>
+      </div>
+    </div>

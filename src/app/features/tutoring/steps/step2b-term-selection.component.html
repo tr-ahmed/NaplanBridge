@@ -1,0 +1,107 @@
+<div class="step-container">
+      <div class="header-section">
+        <h2 class="step-title">Step 3: Select Academic Term</h2>
+        <p class="step-subtitle">Choose which term you want to book tutoring sessions for</p>
+      </div>
+
+      <!-- Loading State -->
+      @if (loading) {
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Loading available terms...</p>
+        </div>
+      }
+
+      <!-- No Term Selection Required -->
+      @if (!loading && !hasSubjectsRequiringTerms) {
+        <div class="info-card global">
+          <div class="info-icon">🌍</div>
+          <div class="info-content">
+            <h4>No Term Selection Required</h4>
+            <p>All selected subjects are available year-round without term restrictions.</p>
+          </div>
+        </div>
+      }
+
+      <!-- Student Term Selections -->
+      @for (studentData of studentSubjectTerms; track studentData.student.id) {
+        @if (hasTermBasedSubjects(studentData)) {
+          <div class="student-section">
+            <div class="student-header">
+              <div class="student-info-header">
+                <div class="student-icon">📅</div>
+                <div>
+                  <h3 class="student-name">{{ studentData.student.name }}</h3>
+                  <span class="year-badge">Year {{ studentData.student.yearNumber }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Subject Term Cards -->
+            @for (subject of studentData.subjects; track subject.subjectId) {
+              @if (subject.requiresTermSelection) {
+                <div class="subject-term-section">
+                  <h4 class="subject-title">{{ subject.subjectName }}</h4>
+
+                  <div class="terms-grid">
+                    @for (term of getFilteredTerms(subject.availableTerms); track term.termId) {
+                      <div
+                        class="term-card-compact"
+                        [class.selected]="subject.selectedTermId === term.termId"
+                        [class.current]="term.isCurrent"
+                        [class.next]="isNextTerm(term, subject.availableTerms)"
+                        (click)="selectTerm(studentData.student.id, subject.subjectId, term.termId, term.academicTermId)">
+
+                        <div class="term-card-content">
+                          <div class="term-main">
+                            <span class="term-name">{{ term.termName }}</span>
+                            @if (term.isCurrent) {
+                              <span class="badge-current-mini">Now</span>
+                            }
+                            @if (isNextTerm(term, subject.availableTerms)) {
+                              <span class="badge-next-mini">Next</span>
+                            }
+                          </div>
+                          <div class="term-meta">
+                            <span class="term-dates-mini">{{ formatDateWithYear(term.startDate) }} - {{ formatDateWithYear(term.endDate) }}</span>
+                          </div>
+                        </div>
+
+                        @if (subject.selectedTermId === term.termId) {
+                          <span class="check-icon">✓</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <!-- Global Subject Info -->
+                <div class="global-subject-info">
+                  <span class="global-icon">🌍</span>
+                  <span class="global-text">{{ subject.subjectName }} - Available year-round</span>
+                </div>
+              }
+            }
+          </div>
+        }
+      }
+
+      <!-- Navigation -->
+      <div class="nav-buttons">
+        <button
+          type="button"
+          (click)="previousStep()"
+          class="btn btn-secondary">
+          <span class="btn-icon">←</span>
+          <span>Back to Subjects</span>
+        </button>
+        <button
+          type="button"
+          (click)="nextStep()"
+          [disabled]="!canProceed()"
+          class="btn btn-primary">
+          <span>Next: Teaching Type</span>
+          <span class="btn-icon">→</span>
+        </button>
+      </div>
+    </div>

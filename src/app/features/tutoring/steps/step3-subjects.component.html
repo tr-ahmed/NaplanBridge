@@ -1,0 +1,67 @@
+<div class="step-container">
+      <div class="header">
+        <h2 class="step-title">Step 4: Select Teaching Type for Each Subject</h2>
+        <p class="step-subtitle">Choose One-to-One or Group sessions (35% discount for Group)</p>
+      </div>
+
+      <div *ngFor="let student of students" class="student-section">
+        <div class="student-header">
+          <span class="student-icon">🎓</span>
+          <h3 class="student-name">{{ student.name }}'s Teaching Types</h3>
+        </div>
+
+        <div *ngFor="let subjectId of getStudentSubjects(student.id)" class="subject-row">
+          <div class="subject-info">
+            <h4 class="subject-title">{{ getSubjectName(subjectId) }}</h4>
+          </div>
+
+          <div class="teaching-type-options">
+            <!-- One-to-One -->
+            <div
+              (click)="selectType(student.id, subjectId, TeachingType.OneToOne)"
+              [class.selected]="getSelectedType(student.id, subjectId) === TeachingType.OneToOne"
+              class="type-option">
+              <div class="option-header">
+                <span class="icon">👤</span>
+                <h5>One-to-One</h5>
+                <div *ngIf="getSelectedType(student.id, subjectId) === TeachingType.OneToOne" class="check">✓</div>
+              </div>
+              <p class="description">Private tutoring</p>
+              <div class="price-tag">Standard Rate</div>
+            </div>
+
+            <!-- Group -->
+            <div
+              (click)="selectType(student.id, subjectId, TeachingType.GroupTutoring)"
+              [class.selected]="getSelectedType(student.id, subjectId) === TeachingType.GroupTutoring"
+              class="type-option featured">
+              <span class="discount-badge">35% OFF</span>
+              <div class="option-header">
+                <span class="icon">👥</span>
+                <h5>Group</h5>
+                <div *ngIf="getSelectedType(student.id, subjectId) === TeachingType.GroupTutoring" class="check">✓</div>
+              </div>
+              <p class="description">Small group (2-5 students)</p>
+              <div class="price-tag discount">35% Discount!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-buttons">
+        <button
+          type="button"
+          (click)="previousStep()"
+          class="btn btn-secondary">
+          ← Back
+        </button>
+        <button
+          type="button"
+          (click)="nextStep()"
+          [disabled]="!canProceed()"
+          class="btn btn-primary">
+          Next: Select Hours →
+        </button>
+      </div>
+    </div>

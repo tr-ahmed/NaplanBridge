@@ -1,0 +1,302 @@
+<div class="step-container">
+      <!-- Hero Header -->
+      <div class="hero-header">
+        <div class="hero-icon">📅</div>
+        <h2>Step 6: Smart Scheduling</h2>
+        <p>We'll match you with the best teachers and create your personalized schedule</p>
+      </div>
+
+      <!-- Preferences Panel -->
+      <div class="preferences-panel">
+        <div class="panel-header" (click)="preferencesExpanded = !preferencesExpanded">
+          <span>⚙️ Scheduling Preferences</span>
+          <span class="toggle-icon">{{ preferencesExpanded ? '▼' : '▶' }}</span>
+        </div>
+
+        <div class="panel-content" *ngIf="preferencesExpanded">
+          <div class="pref-grid">
+            <div class="pref-card">
+              <div class="pref-icon">📆</div>
+              <label>Start Date</label>
+              <input type="date" [(ngModel)]="startDate" class="pref-input">
+            </div>
+            <div class="pref-card">
+              <div class="pref-icon">🏁</div>
+              <label>End Date</label>
+              <input type="date" [(ngModel)]="endDate" class="pref-input">
+            </div>
+            <div class="pref-card">
+              <div class="pref-icon">🕐</div>
+              <label>Preferred Time</label>
+              <select [(ngModel)]="preferredTimeRange" class="pref-input">
+                <option value="">Any Time</option>
+                <option value="morning">Morning</option>
+                <option value="afternoon">Afternoon</option>
+                <option value="evening">Evening</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="days-section">
+            <label>Preferred Days</label>
+            <div class="days-pills">
+              <button *ngFor="let day of daysOfWeek; let i = index"
+                      class="day-pill"
+                      [class.active]="selectedDays[i]"
+                      (click)="selectedDays[i] = !selectedDays[i]">
+                {{ day }}
+              </button>
+            </div>
+          </div>
+
+          <button class="find-btn" (click)="loadSmartSchedule()" [disabled]="loading">
+            <span *ngIf="!loading">🔍 Find Best Schedule</span>
+            <span *ngIf="loading">⏳ Searching...</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="loader"></div>
+        <p>Finding the perfect schedule for you...</p>
+      </div>
+
+      <!-- Schedule Results -->
+      <div *ngIf="!loading && scheduleResponse" class="results-section">
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+          <div class="stat-item">
+            <div class="stat-value">{{ scheduleResponse.summary.matchedSessions }}</div>
+            <div class="stat-label">Scheduled</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-value">{{ scheduleResponse.summary.totalSessions }}</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item success" *ngIf="scheduleResponse.summary.unmatchedSessions === 0">
+            <div class="stat-value">✓</div>
+            <div class="stat-label">Complete</div>
+          </div>
+          <div class="stat-item warning" *ngIf="scheduleResponse.summary.unmatchedSessions > 0">
+            <div class="stat-value">{{ scheduleResponse.summary.unmatchedSessions }}</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+
+        <!-- Unavailable Subjects Warning Banner (Inline) -->
+        <div class="unavailable-warning-banner" *ngIf="unavailableSubjects.length > 0">
+          <div class="warning-banner-header">
+            <span class="warning-banner-icon">⚠️</span>
+            <span class="warning-banner-title">Some subjects have no available slots</span>
+            <button class="dismiss-btn" (click)="dismissWarningAndRemoveSubjects()">✕</button>
+          </div>
+          <div class="warning-banner-items">
+            <div *ngFor="let item of unavailableSubjects" class="warning-item">
+              <span class="warning-student">{{ item.studentName }}</span>
+              <span class="warning-arrow">→</span>
+              <span class="warning-subject">{{ item.subjectName }}</span>
+              <span class="warning-type">({{ item.teachingType }})</span>
+              <span class="warning-sessions">{{ item.availableSessions }}/{{ item.requestedSessions }}</span>
+            </div>
+          </div>
+          <div class="warning-banner-note">
+            These will be removed from your booking. <a href="javascript:void(0)" (click)="cancelDueToUnavailableSubjects()">Change subjects instead</a>
+          </div>
+        </div>
+
+        <!-- Schedule by Student → Subject → Slots -->
+        <div class="students-schedule">
+          <div *ngFor="let student of students" class="student-section">
+            <!-- Student Header -->
+            <div class="student-header">
+              <span class="student-avatar">👤</span>
+              <span class="student-name">{{ student.name }}</span>
+            </div>
+
+            <!-- Student's Subjects -->
+            <div class="student-subjects">
+              <div *ngFor="let subjectData of getSubjectsForStudent(student.id); let subjectIdx = index"
+                   class="subject-card"
+                   [class.expanded]="isSubjectExpanded(student.id, subjectData.subjectId)"
+                   [class.first]="subjectIdx === 0">
+                <div class="subject-card-header" (click)="toggleSubject(student.id, subjectData.subjectId)">
+                  <span class="subject-icon">📚</span>
+                  <span class="subject-name">{{ subjectData.subjectName }}</span>
+                  <div class="subject-meta">
+                    <span class="badge type" [class.group]="subjectData.teachingType === 'Group'">
+                      {{ subjectData.teachingType === 'Group' ? '👥 Group' : '👤 1:1' }}
+                    </span>
+                    <span class="badge count">{{ subjectData.slots.length }} sessions</span>
+                    <span class="expand-icon">{{ isSubjectExpanded(student.id, subjectData.subjectId) ? '▼' : '▶' }}</span>
+                  </div>
+                </div>
+
+                <div class="slots-container" *ngIf="isSubjectExpanded(student.id, subjectData.subjectId)">
+                  <div class="slots-grid">
+                    <div *ngFor="let slotInfo of subjectData.slots; let i = index"
+                         class="slot-card"
+                         [class.swapped]="isSlotSwapped(slotInfo.slot)">
+                      <div class="slot-date">
+                        <span class="slot-day-name">{{ getDayName(getDisplaySlot(slotInfo.slot).dayOfWeek).substring(0,3) }}</span>
+                        <span class="slot-day-num">{{ formatDayNum(getDisplaySlot(slotInfo.slot).dateTime) }}</span>
+                        <span class="slot-month">{{ formatMonth(getDisplaySlot(slotInfo.slot).dateTime) }}</span>
+                      </div>
+                      <div class="slot-time">{{ formatTime(getDisplaySlot(slotInfo.slot).dateTime) }}</div>
+                      <button class="slot-swap-btn"
+                              (click)="openSwapModal(slotInfo.teacherId, subjectData.subjectId, slotInfo.slot, $event)"
+                              title="Change time">
+                        ⇄
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="getSubjectsForStudent(student.id).length === 0" class="no-subjects">
+                No subjects selected for this student
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alternative Teachers -->
+        <details *ngIf="scheduleResponse.alternativeTeachers.length > 0" class="alt-section">
+          <summary>🔄 {{ scheduleResponse.alternativeTeachers.length }} Alternative Teachers</summary>
+          <div class="alt-grid">
+            <div *ngFor="let alt of scheduleResponse.alternativeTeachers" class="alt-card">
+              <div class="alt-avatar">{{ alt.teacherName.charAt(0) }}</div>
+              <div class="alt-info">
+                <span class="alt-name">{{ alt.teacherName }}</span>
+                <span class="alt-subject">{{ alt.subjectName }}</span>
+              </div>
+              <span class="alt-slots">{{ alt.availableSlots }} slots</span>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- No Schedule Found -->
+      <div *ngIf="!loading && noScheduleFound" class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No Sessions Available</h3>
+        <p class="empty-subtitle">The following subjects are currently unavailable:</p>
+
+        <div *ngIf="scheduleResponse?.summary?.subjectAvailability?.length" class="unavailable-tags">
+          <span *ngFor="let item of (scheduleResponse?.summary?.subjectAvailability ?? [])" class="subject-tag">
+            {{ item.subjectName }}
+          </span>
+        </div>
+
+        <div class="empty-actions">
+          <button class="retry-btn" (click)="loadSmartSchedule()">🔄 Retry</button>
+          <button class="back-btn" (click)="previousStep()">← Change Subjects</button>
+        </div>
+      </div>
+
+
+
+      <!-- Navigation -->
+      <div class="nav-footer">
+        <button class="nav-btn back" (click)="previousStep()" [disabled]="reservingSlots">
+          ← Back
+        </button>
+        <button class="nav-btn next" (click)="nextStep()" [disabled]="!canProceed() || reservingSlots">
+          {{ reservingSlots ? '⏳ Reserving...' : 'Review & Pay →' }}
+        </button>
+      </div>
+
+      <!-- Swap Modal -->
+      <div *ngIf="swapModalOpen" class="swap-modal-overlay" (click)="closeSwapModal()">
+        <div class="swap-modal" (click)="$event.stopPropagation()">
+          <div class="swap-modal-header">
+            <h4>🔄 Change Time Slot</h4>
+            <button class="close-btn" (click)="closeSwapModal()">✕</button>
+          </div>
+
+          <div *ngIf="currentSwapSlot" class="current-slot-info">
+            <p>Current Slot:</p>
+            <div class="current-slot-display">
+              {{ getDayName(getDisplaySlot(currentSwapSlot).dayOfWeek) }}
+              {{ formatDate(getDisplaySlot(currentSwapSlot).dateTime) }}
+              at {{ formatTime(getDisplaySlot(currentSwapSlot).dateTime) }}
+            </div>
+          </div>
+
+          <div class="alternative-slots-section">
+            <p>Select an alternative time:</p>
+
+            <!-- Loading State -->
+            <div *ngIf="loadingAlternatives" class="loading-alternatives">
+              ⏳ Loading available times...
+            </div>
+
+            <div *ngIf="!loadingAlternatives" class="alternative-slots-list">
+              <div *ngFor="let altSlot of availableAlternativeSlots"
+                  class="alt-slot-option"
+                  [class.preferred]="altSlot.isPreferred"
+                  (click)="swapSlot(altSlot)">
+                <span class="alt-slot-day">{{ getDayName(altSlot.dayOfWeek) }}</span>
+                <span class="alt-slot-date">{{ formatDate(altSlot.dateTime) }}</span>
+                <span class="alt-slot-time">{{ formatTime(altSlot.dateTime) }}</span>
+                <span *ngIf="altSlot.isPreferred" class="alt-slot-pref">⭐</span>
+              </div>
+              <div *ngIf="availableAlternativeSlots.length === 0" class="no-alternatives">
+                ❗ No alternative slots available for this teacher.<br>
+                Try adjusting your date range or contact support.
+              </div>
+            </div>
+          </div>
+
+            <div class="swap-modal-footer">
+            <button class="btn btn-secondary" (click)="closeSwapModal()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unavailable Subjects Warning Modal -->
+    <div class="modal-overlay" *ngIf="unavailableSubjectsModalOpen" (click)="continueWithAvailableSubjects()">
+      <div class="warning-modal" (click)="$event.stopPropagation()">
+        <div class="warning-modal-header">
+          <span class="warning-icon">⚠️</span>
+          <h3>Some Subjects Not Available</h3>
+        </div>
+
+        <div class="warning-modal-body">
+          <p>The following subjects don't have enough available sessions:</p>
+
+          <div class="unavailable-list">
+            <div *ngFor="let item of unavailableSubjects" class="unavailable-item">
+              <div class="unavailable-student">👤 {{ item.studentName }}</div>
+              <div class="unavailable-subject">
+                <span class="subject-name">📚 {{ item.subjectName }}</span>
+                <span class="teaching-type">({{ item.teachingType }})</span>
+              </div>
+              <div class="unavailable-info">
+                <span class="requested">Requested: {{ item.requestedSessions }} sessions</span>
+                <span class="available">Available: {{ item.availableSessions }} sessions</span>
+              </div>
+              <div class="unavailable-message">{{ item.message }}</div>
+            </div>
+          </div>
+
+          <div class="warning-note">
+            <strong>Note:</strong> These subjects will NOT be included in your booking.
+            You will only be charged for the available subjects.
+          </div>
+        </div>
+
+        <div class="warning-modal-footer">
+          <button class="btn btn-secondary" (click)="cancelDueToUnavailableSubjects()">
+            ← Go Back & Change Subjects
+          </button>
+          <button class="btn btn-primary" (click)="continueWithAvailableSubjects()">
+            Continue with Available Subjects →
+          </button>
+        </div>
+      </div>
+    </div>
