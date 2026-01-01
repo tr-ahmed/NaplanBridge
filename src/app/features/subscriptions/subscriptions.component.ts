@@ -309,7 +309,7 @@ export class SubscriptionsComponent implements OnInit {
           // Map to Year interface
           this.years = rawYears.map((year: any) => ({
             id: year.id || year.yearId,
-            name: year.name || year.yearName || `Year ${year.yearNumber || year.id}`
+            name: (year.yearNumber === 0 || year.yearNumber === '0') ? 'Global' : (year.name || year.yearName || `Year ${year.yearNumber || year.id}`)
           }));
 
           // Sort by id

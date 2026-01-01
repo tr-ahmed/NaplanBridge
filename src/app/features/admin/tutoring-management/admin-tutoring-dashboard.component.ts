@@ -134,14 +134,14 @@ interface AdvancedReportData {
 export class AdminTutoringDashboardComponent implements OnInit {
   // Tabs
   tabs = [
-    { id: 'overview' as TabType, label: 'Overview' },
+    // { id: 'overview' as TabType, label: 'Overview' },
     { id: 'pricing' as TabType, label: 'Pricing' },
     { id: 'teachers' as TabType, label: 'Teachers' },
     { id: 'discounts' as TabType, label: 'Discounts' }
     // { id: 'reports' as TabType, label: 'Reports' }
   ];
 
-  activeTab = signal<TabType>('overview');
+  activeTab = signal<TabType>('pricing');
 
   // Stats
   stats: TutoringStats = {

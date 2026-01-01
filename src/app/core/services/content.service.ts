@@ -400,7 +400,7 @@ export class ContentService {
   addLesson(
     title: string,
     description: string,
-    weekId: number,
+    weekId: number | null | undefined,
     subjectId: number,
     posterFile: File,
     videoFile: File,
@@ -449,7 +449,7 @@ export class ContentService {
       console.log('📤 Creating GLOBAL lesson (subjectId only):', subjectId);
     } else {
       // Standard lesson: both WeekId and SubjectId
-      params = params.set('WeekId', weekId.toString());
+      params = params.set('WeekId', weekId!.toString());
       params = params.set('SubjectId', subjectId.toString());
       console.log('📤 Creating STANDARD lesson (weekId + subjectId):', weekId, subjectId);
     }
@@ -481,7 +481,7 @@ export class ContentService {
     id: number,
     title: string,
     description: string,
-    weekId: number,
+    weekId: number | null | undefined,
     subjectId: number,
     posterFile?: File,
     videoFile?: File,

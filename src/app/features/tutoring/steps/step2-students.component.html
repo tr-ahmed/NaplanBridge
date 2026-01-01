@@ -1,0 +1,115 @@
+<div class="step-container">
+      <div class="header-section">
+        <h2 class="step-title">Step 2: Select Subjects for Each Student</h2>
+        <p class="step-subtitle">Choose subjects and get multi-subject discounts up to 20%</p>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading subjects...</p>
+      </div>
+
+      <!-- Students Subjects -->
+      <div *ngFor="let student of students; let i = index" class="student-section">
+        <div class="student-header">
+          <div class="student-info-header">
+            <div class="student-icon">📚</div>
+            <div>
+              <h3 class="student-name">{{ student.name }}'s Subjects</h3>
+              <span class="year-badge">Year {{ student.yearNumber }}</span>
+            </div>
+          </div>
+          <div class="selection-counter">
+            <span class="counter-value">{{ getSelectedCount(student.id) }}</span>
+            <span class="counter-label">/ 5 subjects</span>
+          </div>
+        </div>
+
+        <!-- Discount Banner -->
+        <div *ngIf="getSelectedCount(student.id) > 1" class="discount-banner">
+          <div class="discount-icon">🎉</div>
+          <div class="discount-content">
+            <span class="discount-title">Multi-Subject Discount Applied!</span>
+            <span class="discount-value">{{ getSubjectDiscount(getSelectedCount(student.id)) }}% OFF</span>
+          </div>
+        </div>
+
+        <!-- Subject Grid -->
+        <div *ngIf="!loading" class="subjects-grid">
+          <div
+            *ngFor="let subject of getSubjectsForStudent(student.academicYearId)"
+            (click)="toggleSubject(student.id, subject)"
+            [class.selected]="isSubjectSelected(student.id, subject.id)"
+            [class.disabled]="!canSelectMoreSubjects(student.id, subject.id)"
+            class="subject-card">
+
+            <div class="card-header">
+              <h4 class="subject-name">{{ subject.subjectName }}</h4>
+              <div *ngIf="isSubjectSelected(student.id, subject.id)" class="checkmark">✓</div>
+            </div>
+
+            <p class="category-badge">{{ subject.categoryName }}</p>
+
+            <div class="card-footer">
+              <div class="price-tag">
+                <span class="currency">$</span>
+                <span class="amount">{{ getTutoringPrice(subject) }}</span>
+                <span class="unit">/hr</span>
+              </div>
+              <div *ngIf="subject.discountPercentage > 0" class="subject-discount-badge">
+                -{{ subject.discountPercentage }}%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-Subject Discount Info -->
+        <div *ngIf="getSelectedCount(student.id) > 0" class="selection-summary">
+          <div class="summary-item">
+            <span class="summary-label">Selected:</span>
+            <span class="summary-value">{{ getSelectedCount(student.id) }} subject(s)</span>
+          </div>
+          <div *ngIf="getSubjectDiscount(getSelectedCount(student.id)) > 0" class="summary-item discount">
+            <span class="summary-label">Discount:</span>
+            <span class="summary-value">{{ getSubjectDiscount(getSelectedCount(student.id)) }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discount Info Box -->
+      <div class="info-card">
+        <div class="info-header">
+          <div class="info-icon">💰</div>
+          <h4>Multi-Subject Discount Tiers</h4>
+        </div>
+        <div class="discount-tiers">
+          <div *ngFor="let tier of discountTiers; let last = last"
+               class="tier-item"
+               [class.featured]="last">
+            <div class="tier-badge">{{ tier.minSubjects }}{{ last ? '+' : '' }}</div>
+            <span class="tier-label">subjects</span>
+            <span class="tier-discount">{{ tier.percentage }}% OFF</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-buttons">
+        <button
+          type="button"
+          (click)="previousStep()"
+          class="btn btn-secondary">
+          <span class="btn-icon">←</span>
+          <span>Back</span>
+        </button>
+        <button
+          type="button"
+          (click)="nextStep()"
+          [disabled]="!canProceed()"
+          class="btn btn-primary">
+          <span>Next: Teaching Type</span>
+          <span class="btn-icon">→</span>
+        </button>
+      </div>
+    </div>

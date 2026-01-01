@@ -35,30 +35,8 @@ export class PriceSummaryComponent {}
   selector: 'app-tutoring-success',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="success-container">
-      <div class="success-icon">✓</div>
-      <h1>Booking Successful!</h1>
-      <p>Your tutoring sessions have been booked successfully.</p>
-    </div>
-  `,
-  styles: [`
-    .success-container {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: white;
-      border-radius: 12px;
-      max-width: 600px;
-      margin: 2rem auto;
-    }
-    .success-icon {
-      font-size: 4rem;
-      color: #4caf50;
-      margin-bottom: 1rem;
-    }
-    h1 { color: #333; margin-bottom: 1rem; }
-    p { color: #666; }
-  `]
+  styleUrls: ['./remaining-components.scss'],
+  templateUrl: './remaining-components.html'
 })
 export class TutoringSuccessComponent {}
 

@@ -30,7 +30,7 @@ import { PriceSummaryComponent } from './steps/remaining-components';
       <!-- Step Indicator -->
       <div class="step-indicator">
         @for (step of displaySteps; track step.number) {
-          <div 
+          <div
             class="step-item"
             [class.active]="currentStep === step.number"
             [class.completed]="currentStep > step.number">
@@ -190,6 +190,50 @@ import { PriceSummaryComponent } from './steps/remaining-components';
       .price-sidebar {
         grid-column: 1;
         position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .tutoring-selection-container {
+        padding: 1rem;
+        gap: 1rem;
+      }
+
+      .step-indicator {
+        padding: 0;
+        margin-bottom: 1.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      .step-indicator::-webkit-scrollbar {
+        display: none;
+      }
+
+      .step-item {
+        min-width: 80px;
+        flex: none;
+      }
+
+      .step-item:not(:last-child)::after {
+        width: 60px;
+        left: 40px;
+      }
+
+      .step-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+      }
+
+      .step-label {
+        font-size: 0.75rem;
+        line-height: 1.2;
+      }
+
+      .step-content {
+        margin: 0;
       }
     }
   `]

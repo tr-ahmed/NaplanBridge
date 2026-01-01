@@ -513,12 +513,12 @@ export class ContentModalComponent implements OnChanges, OnInit {
   }
 
   /**
-   * Get year display label - Returns "Courses" for yearNumber 0, otherwise "Year {number}"
+   * Get year display label - Returns "Global" for yearNumber 0, otherwise "Year {number}"
    */
   getYearLabel(year: any): string {
     if (!year) return 'N/A';
     if (year.yearNumber === 0) {
-      return 'Courses';
+      return 'Global';
     }
     return `Year ${year.yearNumber}`;
   }

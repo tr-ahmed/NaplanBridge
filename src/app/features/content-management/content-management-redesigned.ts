@@ -1106,7 +1106,10 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
           throw new Error('Video file must be a File object');
         }
 
-        // Validate required fields
+        // Validate required fields - weekId can be null/undefined for global lessons
+        if (data.weekId !== null && data.weekId !== undefined && typeof data.weekId !== 'number') {
+          throw new Error('Week ID must be a number or null for global lessons');
+        }
         if (!data.subjectId) {
           throw new Error('Subject ID is required');
         }
@@ -1203,6 +1206,14 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         // Get files from formData instead of data (files may be optional for update)
         const posterFileUpdate = this.formData['posterFile'] || data.posterFile;
         const videoFileUpdate = this.formData['videoFile'] || data.videoFile;
+
+        // Validate required fields - weekId can be null/undefined for global lessons
+        if (data.weekId !== null && data.weekId !== undefined && typeof data.weekId !== 'number') {
+          throw new Error('Week ID must be a number or null for global lessons');
+        }
+        if (!data.subjectId || typeof data.subjectId !== 'number') {
+          throw new Error('Subject ID is required and must be a number');
+        }
 
         await this.contentService.updateLesson(
           data.id,
@@ -1477,11 +1488,11 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
   // ============================================
 
   /**
-   * Get year display label - Returns "Courses" for yearNumber 0, otherwise "Year {number}"
+   * Get year display label - Returns "Global" for yearNumber 0, otherwise "Year {number}"
    */
   getYearLabel(yearNumber: number | null | undefined): string {
     if (yearNumber === 0) {
-      return 'Courses';
+      return 'Global';
     }
     return yearNumber ? `Year ${yearNumber}` : 'N/A';
   }
@@ -1626,6 +1637,14 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         });
 
         // Update lesson status to APPROVED using the proper API signature
+        // Validate required fields - weekId can be null/undefined for global lessons
+        if (lesson.weekId !== null && lesson.weekId !== undefined && typeof lesson.weekId !== 'number') {
+          throw new Error('Lesson week ID must be a number or null for global lessons');
+        }
+        if (!lesson.subjectId || typeof lesson.subjectId !== 'number') {
+          throw new Error('Lesson subject ID is required and must be a number');
+        }
+
         await this.contentService.updateLesson(
           lesson.id!,
           lesson.title,
@@ -1682,6 +1701,14 @@ export class ContentManagementComponent implements OnInit, OnDestroy {
         });
 
         // Update lesson - rejection reason would be stored separately via API if supported
+        // Validate required fields - weekId can be null/undefined for global lessons
+        if (lesson.weekId !== null && lesson.weekId !== undefined && typeof lesson.weekId !== 'number') {
+          throw new Error('Lesson week ID must be a number or null for global lessons');
+        }
+        if (!lesson.subjectId || typeof lesson.subjectId !== 'number') {
+          throw new Error('Lesson subject ID is required and must be a number');
+        }
+
         await this.contentService.updateLesson(
           lesson.id!,
           lesson.title,
