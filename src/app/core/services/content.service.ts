@@ -513,14 +513,13 @@ export class ContentService {
     let params = new HttpParams()
       .set('Title', title)
       .set('Description', description);
-
     if (isGlobalLesson) {
       // Global course lesson: only SubjectId (no WeekId)
       params = params.set('SubjectId', subjectId.toString());
       console.log('📤 Updating GLOBAL lesson (subjectId only):', subjectId);
     } else {
       // Standard lesson: both WeekId and SubjectId
-      params = params.set('WeekId', weekId.toString());
+      params = params.set('WeekId', weekId!.toString());
       params = params.set('SubjectId', subjectId.toString());
       console.log('📤 Updating STANDARD lesson (weekId + subjectId):', weekId, subjectId);
     }
