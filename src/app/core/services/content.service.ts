@@ -499,11 +499,31 @@ export class ContentService {
       formData.append('VideoFile', videoFile, videoFile.name);
     }
 
+    // ✅ Determine if this is a global course lesson (no weekId)
+    const isGlobalLesson = (!weekId || weekId === 0) && subjectId > 0;
+
+    console.log('📤 Updating lesson:', {
+      id,
+      title,
+      weekId,
+      subjectId,
+      isGlobalLesson
+    });
+
     let params = new HttpParams()
       .set('Title', title)
-      .set('Description', description)
-      .set('WeekId', weekId.toString())
-      .set('SubjectId', subjectId.toString());
+      .set('Description', description);
+
+    if (isGlobalLesson) {
+      // Global course lesson: only SubjectId (no WeekId)
+      params = params.set('SubjectId', subjectId.toString());
+      console.log('📤 Updating GLOBAL lesson (subjectId only):', subjectId);
+    } else {
+      // Standard lesson: both WeekId and SubjectId
+      params = params.set('WeekId', weekId.toString());
+      params = params.set('SubjectId', subjectId.toString());
+      console.log('📤 Updating STANDARD lesson (weekId + subjectId):', weekId, subjectId);
+    }
 
     if (duration !== undefined && duration !== null) {
       params = params.set('Duration', duration.toString());
