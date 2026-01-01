@@ -1399,21 +1399,70 @@
 
     /* Responsive */
     @media (max-width: 768px) {
+      .admin-container {
+        padding: 1rem;
+      }
+
+      .admin-header {
+        padding: 1.5rem;
+      }
+
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+      }
+
+      .header-text h1 {
+        font-size: 1.5rem;
+      }
+
+      .header-subtitle {
+        font-size: 0.9rem;
+      }
+
       .admin-tabs {
         flex-wrap: nowrap;
         overflow-x: auto;
+        padding: 0.25rem;
       }
 
       .admin-tab-btn {
         padding: 0.5rem 1rem;
+        font-size: 0.9rem;
       }
 
       .tab-label {
+        font-size: 0.8rem;
+      }
+
+      .tab-icon {
         display: none;
+      }
+
+      .admin-tab-btn {
+        justify-content: center;
+      }
+
+      .admin-content {
+        padding: 1rem;
+      }
+
+      .tab-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .header-actions {
+        width: 100%;
+        display: flex;
+        justify-content: center;
       }
 
       .filters {
         flex-direction: column;
+        gap: 1rem;
       }
 
       .search-input {
@@ -1421,11 +1470,239 @@
         min-width: auto;
       }
 
+      .sort-select {
+        width: 100%;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .data-table {
+        min-width: 800px;
+        font-size: 0.9rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 0.5rem;
+        white-space: nowrap;
+      }
+
+      .subject-cell {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .name-cell {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .priority-edit {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .priority-slider {
+        width: 100%;
+        max-width: 150px;
+      }
+
+      .discounts-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .discount-card {
+        padding: 1rem;
+      }
+
+      .discount-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .discount-title {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .discount-value {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .input-group {
+        width: 100%;
+      }
+
+      .hours-tiers,
+      .subjects-tiers,
+      .students-tiers {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .tier {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .tier:last-child {
+        border-bottom: none;
+      }
+
+      .tier-label {
+        font-weight: 500;
+      }
+
+      .tier-value {
+        font-weight: 600;
+      }
+
+      .info-box {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .info-content ul {
+        text-align: left;
+        padding-left: 1rem;
+      }
+
       .admin-stats-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
       }
 
       .admin-actions-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .stat-card,
+      .action-card {
+        padding: 1rem;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .admin-container {
+        padding: 0.5rem;
+      }
+
+      .admin-header {
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .header-text h1 {
+        font-size: 1.25rem;
+      }
+
+      .admin-tabs {
+        padding: 0.25rem;
+        margin-bottom: 1rem;
+      }
+
+      .admin-tab-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+      }
+
+      .admin-content {
+        padding: 0.75rem;
+      }
+
+      .tab-header h2 {
+        font-size: 1.25rem;
+      }
+
+      .data-table {
+        font-size: 0.8rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 0.25rem;
+      }
+
+      .actions-cell {
+        min-width: 80px;
+      }
+
+      .btn-icon {
+        padding: 0.25rem;
+        font-size: 0.8rem;
+      }
+
+      .discounts-grid {
+        gap: 0.75rem;
+      }
+
+      .discount-card {
+        padding: 0.75rem;
+      }
+
+      .discount-title h3 {
+        font-size: 1rem;
+      }
+
+      .discount-desc {
+        font-size: 0.9rem;
+      }
+
+      .tier {
+        padding: 0.25rem 0;
+      }
+
+      .input-group input {
+        font-size: 0.9rem;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .admin-stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stat-card {
+        padding: 0.75rem;
+      }
+
+      .stat-value {
+        font-size: 1.25rem;
+      }
+
+      .tab-icon {
+        display: none;
+      }
+
+      .admin-tab-btn {
+        padding: 0.5rem 0.75rem;
       }
     }
