@@ -110,16 +110,24 @@
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                  @for (item of invoiceData().items; track item) {
+                  @if (invoiceData().items && invoiceData().items.length > 0) {
+                    @for (item of invoiceData().items; track item) {
+                      <tr>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                          {{ getItemPlanName(item) }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                          {{ getItemStudentName(item) }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 text-right font-medium">
+                          ${{ getItemPrice(item).toFixed(2) }}
+                        </td>
+                      </tr>
+                    }
+                  } @else {
                     <tr>
-                      <td class="px-6 py-4 text-sm text-gray-900">
-                        {{ item.planName }}
-                      </td>
-                      <td class="px-6 py-4 text-sm text-gray-600">
-                        {{ item.studentName }}
-                      </td>
-                      <td class="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                        ${{ item.price.toFixed(2) }}
+                      <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                        No items found in this order
                       </td>
                     </tr>
                   }

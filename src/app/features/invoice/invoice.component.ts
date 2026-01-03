@@ -44,6 +44,22 @@ export class InvoiceComponent implements OnInit {
       .subscribe({
         next: (data) => {
           console.log('✅ Invoice loaded:', data);
+          console.log('📦 Invoice items:', data.items);
+          console.log('📊 Item count:', data.items?.length || 0);
+
+          // Log each item detail
+          if (data.items && data.items.length > 0) {
+            data.items.forEach((item: any, index: number) => {
+              console.log(`📄 Item ${index + 1}:`, {
+                planName: item.planName || item.subscriptionPlanName || 'N/A',
+                studentName: item.studentName || `Student #${item.studentId}` || 'N/A',
+                price: item.price || item.totalPrice || item.unitPrice || 0
+              });
+            });
+          } else {
+            console.warn('⚠️ No items found in invoice data');
+          }
+
           this.invoiceData.set(data);
           this.loading.set(false);
         },
@@ -314,13 +330,17 @@ export class InvoiceComponent implements OnInit {
         </tr>
       </thead>
       <tbody>
-        ${data.items.map((item: any) => `
+        ${(data.items && data.items.length > 0) ? data.items.map((item: any) => `
           <tr>
-            <td>${item.planName}</td>
-            <td>${item.studentName}</td>
-            <td class="text-right">$${item.price.toFixed(2)}</td>
+            <td>${this.getItemPlanName(item)}</td>
+            <td>${this.getItemStudentName(item)}</td>
+            <td class="text-right">$${this.getItemPrice(item).toFixed(2)}</td>
           </tr>
-        `).join('')}
+        `).join('') : `
+          <tr>
+            <td colspan="3" style="text-align: center; color: #6b7280;">No items found in this order</td>
+          </tr>
+        `}
       </tbody>
     </table>
 
@@ -386,5 +406,32 @@ export class InvoiceComponent implements OnInit {
       month: 'long',
       day: 'numeric'
     });
+  }
+
+  /**
+   * Get plan name from item with fallback options
+   */
+  getItemPlanName(item: any): string {
+    return item.planName || item.subscriptionPlanName || item.description || 'Subscription Plan';
+  }
+
+  /**
+   * Get student name from item with fallback options
+   */
+  getItemStudentName(item: any): string {
+    if (item.studentName) {
+      return item.studentName;
+    }
+    if (item.studentId) {
+      return `Student #${item.studentId}`;
+    }
+    return 'N/A';
+  }
+
+  /**
+   * Get price from item with fallback options
+   */
+  getItemPrice(item: any): number {
+    return item.price || item.totalPrice || item.unitPrice || 0;
   }
 }

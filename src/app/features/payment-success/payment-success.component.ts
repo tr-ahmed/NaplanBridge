@@ -16,7 +16,8 @@ import { environment } from '../../../environments/environment';
 interface PaymentResponse {
   message: string;
   sessionId: string;
-  success?: boolean; // Optional, some backend responses may not include this
+  success?: boolean;
+  orderId?: number; // Order ID returned from backend
 }
 
 @Component({
@@ -46,22 +47,28 @@ export class PaymentSuccessComponent implements OnInit {
       const sessionId = params['session_id']; // From Stripe redirect
       const paymentType = params['type']; // 'session-booking' or undefined (default: cart)
 
+      console.log('💳 Payment Success Page - Query Params:', { orderId, sessionId, paymentType });
+
       // If coming from package checkout, we may have stored order info locally
       const pendingOrderRaw = localStorage.getItem('pendingOrder');
       if (pendingOrderRaw) {
         try {
           this.pendingOrder = JSON.parse(pendingOrderRaw);
+          console.log('📦 Found pending order in localStorage:', this.pendingOrder);
         } catch {
           this.pendingOrder = null;
+          console.warn('⚠️ Failed to parse pending order from localStorage');
         }
       }
 
       if (orderId) {
+        console.log('✅ Order ID provided in URL:', orderId);
         this.orderId.set(+orderId);
         this.loadOrderDetails(+orderId);
       } else if (sessionId) {
         // If we have pending order, use it as a display fallback
         if (!this.orderId() && this.pendingOrder?.orderId) {
+          console.log('📋 Using pending order ID as fallback:', this.pendingOrder.orderId);
           this.orderId.set(this.pendingOrder.orderId);
           this.loadOrderDetails(this.pendingOrder.orderId);
         }
@@ -75,6 +82,7 @@ export class PaymentSuccessComponent implements OnInit {
           this.verifyStripePayment(sessionId);
         }
       } else {
+        console.warn('⚠️ No orderId or sessionId provided');
         this.loading.set(false);
       }
     });
@@ -220,6 +228,8 @@ export class PaymentSuccessComponent implements OnInit {
       .subscribe({
         next: (response) => {
           console.log('✅ Payment verification response:', response);
+          console.log('📦 Order ID from response:', response.orderId);
+          console.log('📋 Pending order:', this.pendingOrder);
 
           this.loading.set(false);
 
@@ -228,13 +238,23 @@ export class PaymentSuccessComponent implements OnInit {
             // Payment successful
             this.toastService.showSuccess(response.message || 'Payment processed successfully!');
 
-            // Set order ID if available
+            // Set order ID if available from response or pending order
             if (response.orderId) {
+              console.log('✅ Using order ID from backend response:', response.orderId);
               this.orderId.set(response.orderId);
               this.loadOrderDetails(response.orderId);
-            } else {
-              this.orderId.set(1); // Set a default order ID for display
-              this.loadOrderDetails(1);
+            } else if (this.pendingOrder?.orderId) {
+              // Use pending order ID if available (from localStorage)
+              console.log('✅ Using order ID from pending order (localStorage):', this.pendingOrder.orderId);
+              this.orderId.set(this.pendingOrder.orderId);
+              this.loadOrderDetails(this.pendingOrder.orderId);
+            } else if (!this.orderId()) {
+              // Only show generic success if no order ID is available anywhere
+              console.warn('⚠️ No order ID available from backend or localStorage');
+              this.orderDetails.set({
+                totalAmount: this.pendingOrder?.amount || 0,
+                items: []
+              });
             }
 
             // Multiple approaches to ensure cart is cleared
