@@ -56,7 +56,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
   showTermSelector = signal<boolean>(false);
 
   // ✅ NEW: Subscription/Access status
-  hasAccess = signal<boolean>(true);  // Default to true for backward compatibility
+  hasAccess = signal<boolean>(false);  // Default to false - only set to true after verifying subscription
   showSubscriptionBanner = signal<boolean>(false);
 
   // ✅ NEW: Student selection (for parents)
@@ -167,10 +167,12 @@ export class LessonsComponent implements OnInit, OnDestroy {
           // Load terms first (for non-global courses)
           this.loadAvailableTerms(parseInt(subjectId));
 
-          // 🔒 Parent access check: require active subscription for selected child
+          // 🔒 Access check: require active subscription
           const currentUser = this.authService.getCurrentUser();
           const isParent = Array.isArray(currentUser?.role) && currentUser.role.includes('Parent');
+
           if (isParent) {
+            // Parent access check: require active subscription for selected child
             const childId = this.selectedStudentId();
             if (!childId) {
               // No child context → deny access and show subscription banner
@@ -190,6 +192,23 @@ export class LessonsComponent implements OnInit, OnDestroy {
                   }
                 });
             }
+          } else if (currentUser?.studentId) {
+            // Student access check: verify subscription for authenticated student
+            this.subscriptionService.hasAccessToSubject(currentUser.studentId, parseInt(subjectId))
+              .pipe(takeUntil(this.destroy$))
+              .subscribe(result => {
+                const allowed = !!result?.hasAccess;
+                this.hasAccess.set(allowed);
+                this.showSubscriptionBanner.set(!allowed);
+                console.log('🔒 Student access check:', { studentId: currentUser.studentId, subjectId, hasAccess: allowed });
+                if (!allowed) {
+                  this.toastService.showInfo('Subscribe to unlock this course content');
+                }
+              });
+          } else {
+            // Guest user - no access
+            this.hasAccess.set(false);
+            this.showSubscriptionBanner.set(true);
           }
 
           // ✅ PRIORITY: Use termNumber if available (new fix)
