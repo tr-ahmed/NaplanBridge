@@ -206,7 +206,18 @@ export class AddStudentComponent implements OnInit {
     ).subscribe({
       next: (response: any) => {
         console.log('Registration successful:', response);
-        this.handleSuccess(payload.userName);
+
+        // ✅ NEW: Handle registration response with email verification requirement
+        if (response.requiresEmailVerification) {
+          this.handleSuccessWithVerification(
+            payload.userName,
+            response.email,
+            response.message
+          );
+        } else {
+          // Fallback for old behavior (shouldn't happen)
+          this.handleSuccess(payload.userName);
+        }
       },
       error: (err) => {
         this.handleError(err);
@@ -236,7 +247,53 @@ export class AddStudentComponent implements OnInit {
   }
 
   /**
-   * Handle successful registration
+   * Handle successful registration with email verification required
+   */
+  private handleSuccessWithVerification(studentName: string, studentEmail: string, message?: string): void {
+    this.success.set(true);
+    this.addStudentForm.reset();
+    this.loading.set(false);
+
+    // ✅ NEW: Show message about email verification requirement
+    Swal.fire({
+      icon: 'success',
+      title: 'Student Registered Successfully!',
+      html: `
+        <p class="mb-4"><strong>${studentName}</strong> has been registered and linked to your account.</p>
+        <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-300 text-left">
+          <p class="text-sm font-semibold text-yellow-900 mb-2">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            Email Verification Required
+          </p>
+          <p class="text-sm text-yellow-800 mb-2">
+            ${message || 'A verification email has been sent to'} <strong>${studentEmail}</strong>
+          </p>
+          <p class="text-sm text-yellow-700">
+            <strong>Important:</strong> The student cannot login until the email is verified.
+            Please check the inbox at ${studentEmail} and click the verification link.
+          </p>
+        </div>
+      `,
+      confirmButtonText: 'Go to Students',
+      showCancelButton: true,
+      cancelButtonText: 'Add Another Student',
+      customClass: {
+        htmlContainer: 'text-left',
+        confirmButton: 'bg-blue-600 hover:bg-blue-700',
+        cancelButton: 'bg-gray-500 hover:bg-gray-600'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.router.navigate(['/parent/students']);
+      } else {
+        // Reset for adding another student
+        this.initializeForm();
+      }
+    });
+  }
+
+  /**
+   * Handle successful registration (legacy - for backwards compatibility)
    */
   private handleSuccess(studentName: string): void {
     this.success.set(true);

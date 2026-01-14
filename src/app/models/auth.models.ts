@@ -28,7 +28,7 @@ export interface UserProfile {
 }
 
 /**
- * Interface for authentication response
+ * Interface for authentication response (after login or email verification)
  */
 export interface AuthResponse {
   userName: string;
@@ -39,6 +39,19 @@ export interface AuthResponse {
   userProfile: UserProfile;
   yearId?: number;      // Year.Id - Only for students (from backend response)
   studentId?: number;   // ✅ NEW - Student.Id (from JWT token) - Used for cart operations
+}
+
+/**
+ * Interface for registration response (no token, requires email verification)
+ */
+export interface RegistrationResponse {
+  success: boolean;
+  message: string;
+  requiresEmailVerification: boolean;
+  userName: string;
+  email: string;
+  userId: number;
+  studentId?: number; // For student registration
 }
 
 /**

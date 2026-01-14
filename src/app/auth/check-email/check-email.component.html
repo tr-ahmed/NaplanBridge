@@ -1,0 +1,110 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+  <div class="bg-white px-10 py-12 rounded-[10px] shadow-2xl w-full max-w-2xl text-center">
+
+    <!-- Icon -->
+    <div class="flex justify-center mb-6">
+      <div class="bg-blue-100 rounded-full p-6">
+        <svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+          </path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <h2 class="text-3xl font-bold text-blue-900 mb-4">Check Your Email</h2>
+
+    <!-- Message -->
+    <p class="text-gray-700 text-lg mb-2">
+      We've sent a verification link to:
+    </p>
+
+    <p class="text-blue-900 font-semibold text-xl mb-8">
+      {{ email() }}
+    </p>
+
+    <!-- Instructions -->
+    <div class="bg-blue-50 rounded-lg p-6 mb-8 text-left">
+      <h4 class="font-semibold text-blue-900 mb-3 text-lg">What to do next:</h4>
+      <ol class="space-y-3 text-gray-700">
+        <li class="flex items-start">
+          <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 text-sm font-semibold mt-0.5">1</span>
+          <span>Open your email inbox</span>
+        </li>
+        <li class="flex items-start">
+          <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 text-sm font-semibold mt-0.5">2</span>
+          <span>Look for an email from <strong>NaplanBridge</strong></span>
+        </li>
+        <li class="flex items-start">
+          <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 text-sm font-semibold mt-0.5">3</span>
+          <span>Click the verification link in the email</span>
+        </li>
+        <li class="flex items-start">
+          <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 text-sm font-semibold mt-0.5">4</span>
+          <span>Come back and login with your credentials</span>
+        </li>
+      </ol>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col gap-3">
+      <button
+        type="button"
+        (click)="goToLogin()"
+        class="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
+        Go to Login Page
+      </button>
+
+      <button
+        type="button"
+        (click)="resendEmail()"
+        [disabled]="isResending()"
+        [class]="isResending() ?
+          'w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed' :
+          'w-full bg-white text-blue-900 py-3 rounded-lg font-semibold border-2 border-blue-900 hover:bg-blue-50 transition-colors'">
+        @if (isResending()) {
+          <span class="flex items-center justify-center">
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Sending...
+          </span>
+        } @else {
+          <span class="flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+              </path>
+            </svg>
+            Resend Verification Email
+          </span>
+        }
+      </button>
+    </div>
+
+    <!-- Help Text -->
+    <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+      <div class="flex items-start text-left">
+        <svg class="w-5 h-5 text-gray-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clip-rule="evenodd">
+          </path>
+        </svg>
+        <p class="text-sm text-gray-600">
+          <strong>Didn't receive the email?</strong><br>
+          Check your spam or junk folder, or click "Resend Verification Email" above to receive a new link.
+        </p>
+      </div>
+    </div>
+
+    <!-- Back to Home Link -->
+    <div class="mt-6">
+      <a routerLink="/" class="text-blue-900 hover:underline text-sm font-medium">
+        ← Back to Home
+      </a>
+    </div>
+  </div>
+</div>

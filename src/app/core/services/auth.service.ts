@@ -3,7 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, map } from 'rxjs';
 import { ParentApiService } from './parent-api.service';
-import { LoginRequest, ParentRegisterRequest, AuthResponse, VerifyEmailDto, ResendVerificationDto, ApiResponse } from '../../models/auth.models';
+import { LoginRequest, ParentRegisterRequest, AuthResponse, RegistrationResponse, VerifyEmailDto, ResendVerificationDto, ApiResponse } from '../../models/auth.models';
 import { jwtDecode } from 'jwt-decode';
 
 /**
@@ -118,12 +118,13 @@ export class AuthService {
     );
   }
 
-  register(registerRequest: ParentRegisterRequest): Observable<{ success: boolean; message?: string }> {
+  register(registerRequest: ParentRegisterRequest): Observable<{ success: boolean; data?: RegistrationResponse; message?: string }> {
     return this.parentApiService.registerParent(registerRequest).pipe(
       map(result => {
         if (result.success) {
-          this.setCurrentUser(result.data);
-          return { success: true };
+          // ✅ NEW: Don't set current user, just return registration data
+          // User must verify email before they can login
+          return { success: true, data: result.data };
         } else {
           return { success: false, message: result.error };
         }

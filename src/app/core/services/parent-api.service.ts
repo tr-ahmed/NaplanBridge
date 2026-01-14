@@ -6,6 +6,7 @@ import {
   ParentRegisterRequest,
   LoginRequest,
   AuthResponse,
+  RegistrationResponse,
   ApiResult,
   ApiErrorResponse,
   ValidationError,
@@ -32,11 +33,11 @@ export class ParentApiService {
    * @param registerData Parent registration data
    * @returns Observable with API result
    */
-  registerParent(registerData: ParentRegisterRequest): Observable<ApiResult<AuthResponse>> {
+  registerParent(registerData: ParentRegisterRequest): Observable<ApiResult<RegistrationResponse>> {
     const url = `${this.baseUrl}/Account/register-parent`;
 
-    return this.http.post<AuthResponse>(url, registerData).pipe(
-      map((response: AuthResponse) => ({
+    return this.http.post<RegistrationResponse>(url, registerData).pipe(
+      map((response: RegistrationResponse) => ({
         success: true as const,
         data: response
       })),

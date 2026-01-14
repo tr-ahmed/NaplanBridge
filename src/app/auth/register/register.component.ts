@@ -213,25 +213,35 @@ export class RegisterComponent {
         next: (result) => {
           this.isLoading.set(false);
 
-          if (result.success) {
-            // ✅ NEW: Show verification message instead of auto-login
-            this.toastService.showSuccess(
-              'Registration successful! Please check your email to verify your account.',
-              8000
-            );
+          if (result.success && result.data) {
+            // ✅ NEW: Check if email verification is required
+            if (result.data.requiresEmailVerification) {
+              // Show success message
+              this.toastService.showSuccess(
+                result.data.message || 'Registration successful! Please check your email to verify your account.',
+                8000
+              );
 
-            // Show additional info message
-            this.toastService.showInfo(
-              `We've sent a verification link to ${formValue.email}. Click the link in the email to verify your account.`,
-              10000
-            );
+              // Show additional info message
+              this.toastService.showInfo(
+                `We've sent a verification link to ${result.data.email}. Click the link in the email to verify your account before logging in.`,
+                10000
+              );
 
-            // Redirect to login after 5 seconds
-            setTimeout(() => {
-              this.router.navigate(['/auth/login'], {
-                queryParams: { email: formValue.email }
-              });
-            }, 5000);
+              // Redirect to check-email page or login after delay
+              setTimeout(() => {
+                this.router.navigate(['/auth/check-email'], {
+                  queryParams: {
+                    email: result.data!.email,
+                    type: 'registration'
+                  }
+                });
+              }, 3000);
+            } else {
+              // Fallback for old behavior (shouldn't happen with new backend)
+              this.toastService.showSuccess('Registration successful!');
+              this.router.navigate(['/auth/login']);
+            }
           } else {
             this.handleRegistrationError(result.message || 'Registration failed', undefined);
           }
