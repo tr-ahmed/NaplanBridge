@@ -330,6 +330,9 @@ export class TutoringStateService {
         // Ensure students is an array
         const students = Array.isArray(parsed.students) ? parsed.students : [];
 
+        // Force step 1 if no students are selected
+        const currentStep = students.length === 0 ? 1 : (parsed.currentStep || 1);
+
         this.stateSubject.next({
           ...this.getInitialState(), // Start with defaults
           ...parsed,
@@ -338,7 +341,8 @@ export class TutoringStateService {
           subjectTerms,
           subjectTeachingTypes,
           subjectHours,
-          studentSubjectTimeSlots
+          studentSubjectTimeSlots,
+          currentStep // Override with validated step
         });
       }
     } catch (error) {

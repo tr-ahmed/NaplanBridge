@@ -28,8 +28,14 @@ export class Step1YearTypeComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  // Dynamic discount tiers loaded from API
-  discountTiers: DiscountTier[] = [];
+  // Default discount tiers for regular users
+  // Admin users can configure these via admin panel
+  discountTiers: DiscountTier[] = [
+    { minStudents: 2, percentage: 5 },
+    { minStudents: 3, percentage: 10 },
+    { minStudents: 4, percentage: 15 },
+    { minStudents: 5, percentage: 20 }
+  ];
 
   constructor(
     private stateService: TutoringStateService,
@@ -40,7 +46,6 @@ export class Step1YearTypeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadStudents();
-    this.loadDiscountTiers();
     this.restoreState();
   }
 
@@ -137,42 +142,5 @@ export class Step1YearTypeComponent implements OnInit {
     return discount;
   }
 
-  private loadDiscountTiers(): void {
-    this.tutoringService.getDiscountRules().subscribe({
-      next: (response: any) => {
-        const data = response.data || response;
-
-        if (data.multiStudentsDiscount?.tiers) {
-          const tiers = data.multiStudentsDiscount.tiers;
-          this.discountTiers = [
-            { minStudents: 2, percentage: tiers.students2 || 5 },
-            { minStudents: 3, percentage: tiers.students3 || 10 },
-            { minStudents: 4, percentage: tiers.students4 || 15 },
-            { minStudents: 5, percentage: tiers.maxPercentage || 20 }
-          ];
-        } else {
-          // Fallback to default tiers
-          this.discountTiers = [
-            { minStudents: 2, percentage: 5 },
-            { minStudents: 3, percentage: 10 },
-            { minStudents: 4, percentage: 15 },
-            { minStudents: 5, percentage: 20 }
-          ];
-        }
-
-        console.log('✅ Loaded discount tiers:', this.discountTiers);
-      },
-      error: (err) => {
-        console.error('Error loading discount tiers:', err);
-        // Use default tiers on error
-        this.discountTiers = [
-          { minStudents: 2, percentage: 5 },
-          { minStudents: 3, percentage: 10 },
-          { minStudents: 4, percentage: 15 },
-          { minStudents: 5, percentage: 20 }
-        ];
-      }
-    });
-  }
 }
 

@@ -20,7 +20,6 @@ export interface CoursesResponse {
 })
 export class CoursesService {
   private readonly baseUrl = environment.apiBaseUrl || 'https://api.naplanbridge.com/api';
-  private useMock = environment.useMock || false; // Set to true for development with mock data
 
   // Cart management
   private cartSubject = new BehaviorSubject<Cart>({
@@ -66,18 +65,6 @@ export class CoursesService {
 
     const endpoint = ApiNodes.getAllCourses;
     const url = `${this.baseUrl}${endpoint.url}`;
-
-    if (this.useMock) {
-      const filteredCourses = this.filterCourses(endpoint.mockData, filter);
-      return of({
-        courses: filteredCourses,
-        totalCount: filteredCourses.length,
-        page: 1,
-        pageSize: 15
-      }).pipe(
-        tap(() => this.loading.set(false))
-      );
-    }
 
     // Build query params with pagination
     const params: any = {
@@ -135,13 +122,12 @@ export class CoursesService {
       }),
       tap(() => this.loading.set(false)),
       catchError((error: HttpErrorResponse) => {
-        console.warn('API call failed, using mock data:', error);
-        this.error.set('Failed to load courses, showing offline data');
+        console.error('Failed to load courses:', error);
+        this.error.set('Failed to load courses');
         this.loading.set(false);
-        const filteredCourses = this.filterCourses(endpoint.mockData, filter);
         return of({
-          courses: filteredCourses,
-          totalCount: filteredCourses.length,
+          courses: [],
+          totalCount: 0,
           page: 1,
           pageSize: 15
         });
@@ -159,21 +145,13 @@ export class CoursesService {
     const endpoint = ApiNodes.getCourseById;
     const url = `${this.baseUrl}${endpoint.url.replace(':id', id.toString())}`;
 
-    if (this.useMock) {
-      const course = ApiNodes.getAllCourses.mockData.find(c => c.id === id) || endpoint.mockData;
-      return of(course).pipe(
-        tap(() => this.loading.set(false))
-      );
-    }
-
     return this.http.get<Course>(url).pipe(
       tap(() => this.loading.set(false)),
       catchError((error: HttpErrorResponse) => {
-        console.warn('API call failed, using mock data:', error);
+        console.error('Failed to load course details:', error);
         this.error.set('Failed to load course details');
         this.loading.set(false);
-        const course = ApiNodes.getAllCourses.mockData.find(c => c.id === id) || endpoint.mockData;
-        return of(course);
+        return of(null);
       })
     );
   }
@@ -194,14 +172,10 @@ export class CoursesService {
     const endpoint = ApiNodes.getCategories;
     const url = `${this.baseUrl}${endpoint.url}`;
 
-    if (this.useMock) {
-      return of(endpoint.mockData);
-    }
-
     return this.http.get<CourseCategory[]>(url).pipe(
       catchError((error: HttpErrorResponse) => {
-        console.warn('API call failed, using mock data:', error);
-        return of(endpoint.mockData);
+        console.error('Failed to load categories:', error);
+        return of([]);
       })
     );
   }
@@ -767,14 +741,6 @@ export class CoursesService {
     const endpoint = ApiNodes.enrollInCourse;
     const url = `${this.baseUrl}${endpoint.url.replace(':id', courseId.toString())}`;
 
-    if (this.useMock) {
-      // Remove from cart after enrollment
-      this.removeFromCart(courseId).subscribe();
-      // Add to enrolled courses
-      this.addToEnrolledCourses(courseId);
-      return of(true);
-    }
-
     return this.http.post<any>(url, { courseId }).pipe(
       map(() => {
         this.removeFromCart(courseId).subscribe();
@@ -790,23 +756,11 @@ export class CoursesService {
   }
 
   /**
-   * Toggle mock mode for development
-   */
-  setUseMock(useMock: boolean): void {
-    this.useMock = useMock;
-  }
-
-  /**
    * Check if user is enrolled in a course
    */
   isEnrolledInCourse(courseId: number): Observable<boolean> {
     const endpoint = ApiNodes.checkEnrollment;
     const url = `${this.baseUrl}${endpoint.url.replace(':id', courseId.toString())}`;
-
-    if (this.useMock) {
-      const enrolledCourses = this.getEnrolledCoursesFromStorage();
-      return of(enrolledCourses.includes(courseId));
-    }
 
     return this.http.get<{ enrolled: boolean }>(url).pipe(
       map(response => response.enrolled),
@@ -824,28 +778,15 @@ export class CoursesService {
     const endpoint = ApiNodes.getEnrolledCourses;
     const url = `${this.baseUrl}${endpoint.url}`;
 
-    if (this.useMock) {
-      const enrolledCourseIds = this.getEnrolledCoursesFromStorage();
-      const allCourses = this.getMockCourses();
-      const enrolledCourses = allCourses.filter((course: Course) => enrolledCourseIds.includes(course.id));
-      return of(enrolledCourses);
-    }
-
     return this.http.get<Course[]>(url).pipe(
       catchError(() => {
-        const enrolledCourseIds = this.getEnrolledCoursesFromStorage();
-        const allCourses = this.getMockCourses();
-        const enrolledCourses = allCourses.filter((course: Course) => enrolledCourseIds.includes(course.id));
-        return of(enrolledCourses);
+        // Return empty array if API fails
+        return of([]);
       })
     );
   }
 
   // Private helper methods
-
-  private getMockCourses(): Course[] {
-    return ApiNodes.getAllCourses.mockData;
-  }
 
   private getEnrolledCoursesFromStorage(): number[] {
     try {

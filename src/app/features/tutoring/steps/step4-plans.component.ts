@@ -53,7 +53,6 @@ export class Step4HoursComponent implements OnInit {
   ngOnInit(): void {
     this.restoreState();
     this.loadSubjects();
-    this.loadDiscountTiers();
   }
 
   restoreState(): void {
@@ -231,42 +230,6 @@ export class Step4HoursComponent implements OnInit {
     const multiSubject = this.getMultiSubjectDiscount(studentId);
     const hours = this.getEffectiveHoursDiscount(studentId);
     return Math.min(multiSubject + hours, MAX_TOTAL_DISCOUNT);
-  }
-
-  private loadDiscountTiers(): void {
-    this.tutoringService.getDiscountRules().subscribe({
-      next: (response: any) => {
-        const data = response.data || response;
-
-        // Load hours discount tiers
-        if (data.hoursDiscount?.tiers) {
-          this.hoursDiscountTiers = {
-            hours20: data.hoursDiscount.tiers.hours20 || 5,
-            hours30: data.hoursDiscount.tiers.hours30 || 10
-          };
-        }
-
-        // Load multi-subject discount tiers
-        if (data.multiSubjectDiscount?.tiers) {
-          const tiers = data.multiSubjectDiscount.tiers;
-          this.subjectDiscountTiers = [
-            { minSubjects: 2, percentage: tiers.subjects2 || 5 },
-            { minSubjects: 3, percentage: tiers.subjects3 || 10 },
-            { minSubjects: 4, percentage: tiers.subjects4 || 15 },
-            { minSubjects: 5, percentage: tiers.subjects5 || 20 }
-          ];
-        }
-
-        console.log('✅ Loaded discount tiers:', {
-          hours: this.hoursDiscountTiers,
-          subjects: this.subjectDiscountTiers
-        });
-      },
-      error: (err) => {
-        console.error('Error loading discount tiers:', err);
-        // Keep default tiers on error (already set in initialization)
-      }
-    });
   }
 
   canProceed(): boolean {

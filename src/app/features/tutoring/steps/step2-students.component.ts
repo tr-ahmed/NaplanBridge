@@ -40,8 +40,15 @@ export class Step2SubjectsComponent implements OnInit {
 
   ngOnInit(): void {
     this.restoreState();
+
+    // Redirect to step 1 if no students selected
+    if (this.students.length === 0) {
+      console.warn('⚠️ No students found, redirecting to step 1');
+      this.stateService.setCurrentStep(1);
+      return;
+    }
+
     this.loadSubjects();
-    this.loadDiscountTiers();
   }
 
   restoreState(): void {
@@ -134,44 +141,6 @@ export class Step2SubjectsComponent implements OnInit {
       }
     }
     return discount;
-  }
-
-  private loadDiscountTiers(): void {
-    this.tutoringService.getDiscountRules().subscribe({
-      next: (response: any) => {
-        const data = response.data || response;
-
-        if (data.multiSubjectDiscount?.tiers) {
-          const tiers = data.multiSubjectDiscount.tiers;
-          this.discountTiers = [
-            { minSubjects: 2, percentage: tiers.subjects2 || 5 },
-            { minSubjects: 3, percentage: tiers.subjects3 || 10 },
-            { minSubjects: 4, percentage: tiers.subjects4 || 15 },
-            { minSubjects: 5, percentage: tiers.subjects5 || 20 }
-          ];
-        } else {
-          // Fallback to default tiers
-          this.discountTiers = [
-            { minSubjects: 2, percentage: 5 },
-            { minSubjects: 3, percentage: 10 },
-            { minSubjects: 4, percentage: 15 },
-            { minSubjects: 5, percentage: 20 }
-          ];
-        }
-
-        console.log('✅ Loaded subject discount tiers:', this.discountTiers);
-      },
-      error: (err) => {
-        console.error('Error loading discount tiers:', err);
-        // Use default tiers on error
-        this.discountTiers = [
-          { minSubjects: 2, percentage: 5 },
-          { minSubjects: 3, percentage: 10 },
-          { minSubjects: 4, percentage: 15 },
-          { minSubjects: 5, percentage: 20 }
-        ];
-      }
-    });
   }
 
   getTutoringPrice(subject: Subject): number {
