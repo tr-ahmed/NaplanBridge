@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://naplan2.runasp.net/api',
-  frontendUrl: 'http://naplan.babaservice.online', // Production frontend URL
+  apiBaseUrl: 'https://api.naplanbridge.com/api',
+  frontendUrl: 'http://naplanbridge.com', // Production frontend URL
   useMock: false,
   enableMockFallback: false, // Disable mock fallback in production
   apiTimeout: 15000,

@@ -102,6 +102,8 @@
     }
   },
   "cli": {
-    "analytics": false
+    "analytics": {
+      "enabled": false
+    }
   }
 }

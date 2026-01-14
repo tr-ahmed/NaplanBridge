@@ -31,7 +31,7 @@ import { environment } from '../../../environments/environment';
 export class SubscriptionService {
   private http = inject(HttpClient);
   private mockData = inject(MockDataService);
-  private readonly baseUrl = environment.apiBaseUrl || 'https://naplan2.runasp.net/api';
+  private readonly baseUrl = environment.apiBaseUrl || 'https://api.naplanbridge.com/api';
 
   // State signals
   public loading = signal(false);

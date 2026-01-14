@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-const API_BASE_URL = 'https://naplan2.runasp.net/api';
+const API_BASE_URL = 'https://api.naplanbridge.com/api';
 
 export interface AcademicTerm {
   id?: number;

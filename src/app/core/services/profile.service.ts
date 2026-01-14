@@ -85,9 +85,9 @@ export interface StudentProfileData {
   providedIn: 'root'
 })
 export class ProfileService {
-  private apiUrl = 'https://naplan2.runasp.net/api/user';
-  private accountApiUrl = 'https://naplan2.runasp.net/api/account';
-  private mediaApiUrl = 'https://naplan2.runasp.net/api/media';
+  private apiUrl = 'https://api.naplanbridge.com/api/user';
+  private accountApiUrl = 'https://api.naplanbridge.com/api/account';
+  private mediaApiUrl = 'https://api.naplanbridge.com/api/media';
 
   private http = inject(HttpClient);
   private uploadService = inject(UploadService);

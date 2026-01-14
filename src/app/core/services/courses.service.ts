@@ -19,7 +19,7 @@ export interface CoursesResponse {
   providedIn: 'root'
 })
 export class CoursesService {
-  private readonly baseUrl = environment.apiBaseUrl || 'https://naplan2.runasp.net/api';
+  private readonly baseUrl = environment.apiBaseUrl || 'https://api.naplanbridge.com/api';
   private useMock = environment.useMock || false; // Set to true for development with mock data
 
   // Cart management
