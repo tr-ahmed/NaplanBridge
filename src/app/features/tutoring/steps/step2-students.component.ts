@@ -93,7 +93,9 @@ export class Step2SubjectsComponent implements OnInit {
   }
 
   getSubjectsForStudent(yearId: number): Subject[] {
-    return this.subjectsByYear.get(yearId) || [];
+    const subjects = this.subjectsByYear.get(yearId) || [];
+    // Filter to show only subjects with tutoringPricePerHour > 0
+    return subjects.filter(subject => subject.tutoringPricePerHour && subject.tutoringPricePerHour > 0);
   }
 
   toggleSubject(studentId: number, subject: Subject): void {

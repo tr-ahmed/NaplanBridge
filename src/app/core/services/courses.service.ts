@@ -98,14 +98,14 @@ export class CoursesService {
       params.searchTerm = filter.search.trim();
     }
 
-    console.log('🔍 [CoursesService] getCourses - Request params:', params);
+    console.log(' [CoursesService] getCourses - Request params:', params);
 
     return this.http.get<any>(url, { params }).pipe(
       map(response => {
         // Handle both paginated response and direct array
         const courses = response.items || response.data || response;
         const totalCount = response.totalCount || courses.length;
-        console.log('📦 API Response:', {
+        console.log(' API Response:', {
           type: response.items ? 'Paginated' : 'Direct Array',
           totalCount: totalCount,
           receivedCount: courses.length,
@@ -184,17 +184,17 @@ export class CoursesService {
    * Add course to cart
    */
   addToCart(course: Course): Observable<boolean> {
-    console.log('🛒 Starting addToCart for course:', course.id, course.name || course.subjectName);
+    console.log(' Starting addToCart for course:', course.id, course.name || course.subjectName);
 
     // ✅ Check if course has subscription plans
     if (!course.subscriptionPlans || course.subscriptionPlans.length === 0) {
-      console.warn('⚠️ No subscription plans available for this course');
+      console.warn(' No subscription plans available for this course');
       this.toastService.showError('No subscription plans available for this subject');
       return of(false);
     }
 
     // ✅ Always show modal for plan selection (even if single plan)
-    console.log('📋 Opening plan selection modal with', course.subscriptionPlans.length, 'plans');
+    console.log(' Opening plan selection modal with', course.subscriptionPlans.length, 'plans');
     this.showPlanModalSubject.next({ show: true, course });
     return of(true); // Modal will handle the actual add
   }
@@ -221,30 +221,30 @@ export class CoursesService {
     // ✅ NEW: Accept providedStudentId for parent role
     if (providedStudentId) {
       studentId = providedStudentId;
-      console.log('✅ Using provided Student.Id (from parent):', studentId);
-      console.log('📊 Parent is adding to cart for selected student');
+      console.log('Using provided Student.Id (from parent):', studentId);
+      console.log('Parent is adding to cart for selected student');
     } else if (currentUser.studentId) {
       // ✅ CORRECT: Use studentId from token (Student.Id from Students table)
       studentId = currentUser.studentId;
-      console.log('✅ Using Student.Id from token:', studentId);
-      console.log('📊 This is the correct ID for cart/orders');
+      console.log('Using Student.Id from token:', studentId);
+      console.log('This is the correct ID for cart/orders');
     } else {
       // ⚠️ FALLBACK: This should not happen for students
       // Token should always have studentId for student role
-      console.error('❌ studentId NOT found in token!');
-      console.error('❌ Cannot add to cart without Student.Id');
-      console.error('🔧 User needs to re-login to get new token with studentId');
+      console.error('studentId NOT found in token!');
+      console.error('Cannot add to cart without Student.Id');
+      console.error('User needs to re-login to get new token with studentId');
 
       this.toastService.showError('Student ID not found. Please logout and login again.');
       return of(false);
     }
 
     // ✅ CRITICAL: Load cart from backend first to get latest data
-    console.log('📥 Loading cart from backend before validation...');
+    console.log('Loading cart from backend before validation...');
 
     return this.loadCartFromBackend(studentId).pipe(
       switchMap((loadedCart) => {
-        console.log('✅ Cart loaded for validation:', loadedCart);
+        console.log('Cart loaded for validation:', loadedCart);
 
         // Extract year from plan name (most accurate) or course name or yearId
         const planYearMatch = planName ? planName.match(/Year\s+(\d+)/i) : null;
@@ -253,8 +253,8 @@ export class CoursesService {
                           (courseYearMatch ? parseInt(courseYearMatch[1]) : course.yearId);
 
         // Now check if subject already exists in cart
-        console.log('🔍 Checking for duplicate subject in cart...');
-        console.log('📚 New course:', {
+        console.log('Checking for duplicate subject in cart...');
+        console.log('New course:', {
           id: course.id,
           name: course.subjectName || course.name,
           planName: planName,
@@ -284,7 +284,7 @@ export class CoursesService {
                                newSubjectName.toLowerCase().includes(itemSubjectName.toLowerCase());
           const isSameYear = itemYear === newYear;
 
-          console.log('🔄 Comparing:', {
+          console.log('Comparing:', {
             itemSubjectName,
             newSubjectName,
             isSameSubject,
@@ -298,12 +298,12 @@ export class CoursesService {
         });
 
         if (subjectAlreadyInCart) {
-          console.warn('⚠️ Subject already in cart for this year');
+          console.warn('Subject already in cart for this year');
           this.toastService.showWarning('This subject is already in your cart for this year. Please remove the existing plan first if you want to change it.');
           return of(false);
         }
 
-        console.log('✅ No duplicate found, proceeding to add...');
+        console.log('No duplicate found, proceeding to add...');
 
         return this.addPlanToCartBackend(planId, studentId, course);
       })
@@ -322,7 +322,7 @@ export class CoursesService {
       quantity: 1
     };
 
-    console.log('🛒 Adding to cart:', {
+    console.log('Adding to cart:', {
       url,
       requestBody,
       studentIdType: typeof studentId,
@@ -333,23 +333,23 @@ export class CoursesService {
     // ✅ Use correct API format with subscriptionPlanId
     return this.http.post<any>(url, requestBody).pipe(
       tap(() => {
-        console.log('📦 Cart API call initiated...');
+        console.log('Cart API call initiated...');
       }),
       switchMap((response) => {
-        console.log('✅ Cart API Success Response:', response);
-        console.log('✅ Status: Item added to cart successfully');
+        console.log('Cart API Success Response:', response);
+        console.log('Status: Item added to cart successfully');
 
         const courseName = course.name || course.subjectName;
         this.toastService.showSuccess(`${courseName} has been added to your cart successfully!`);
 
         // ✅ CRITICAL: Reload cart from backend to update UI
-        console.log('🔄 Reloading cart from backend to update UI...');
+        console.log('Reloading cart from backend to update UI...');
         return this.loadCartFromBackend(studentId).pipe(
           map(() => true)
         );
       }),
       catchError((error) => {
-        console.error('❌ Cart API Error:', {
+        console.error('Cart API Error:', {
           status: error.status,
           statusText: error.statusText,
           message: error.error?.message,
@@ -359,15 +359,15 @@ export class CoursesService {
         });
 
         // Log the error details as separate line for clarity
-        console.error('❌ Full Backend Error:', error.error);
-        console.error('❌ Error Message:', error.error?.message || 'No message');
+        console.error('Full Backend Error:', error.error);
+        console.error('Error Message:', error.error?.message || 'No message');
 
         // ✅ Better error messages with backend feedback
         if (error.status === 401) {
           this.toastService.showWarning('Please log in to sync your cart with the server');
         } else if (error.status === 400) {
           const msg = error.error?.message || 'Invalid data';
-          console.error('❌ 400 Bad Request:', msg);
+          console.error('400 Bad Request:', msg);
           this.toastService.showError(msg);
         } else if (error.status === 404) {
           const msg = error.error?.message || 'Selected plan not found';
@@ -398,13 +398,13 @@ export class CoursesService {
       ? `${this.baseUrl}/Cart?studentId=${studentId}`
       : `${this.baseUrl}/Cart`;
 
-    console.log('📥 Loading cart from backend for studentId:', studentId);
-    console.log('📡 Cart URL:', url);
+    console.log('Loading cart from backend for studentId:', studentId);
+    console.log('Cart URL:', url);
 
     return this.http.get<any>(url).pipe(
       map((response) => {
-        console.log('✅ Cart loaded from backend (RAW):', response);
-        console.log('📊 Response structure:', {
+        console.log('Cart loaded from backend (RAW):', response);
+        console.log('Response structure:', {
           hasItems: 'items' in response,
           hasCartItems: 'cartItems' in response,
           hasData: 'data' in response,
@@ -422,12 +422,12 @@ export class CoursesService {
           rawItems = response.cartItems;
         }
 
-        console.log('📦 Extracted raw items:', rawItems);
-        console.log('🔢 Items count:', rawItems.length);
+        console.log('Extracted raw items:', rawItems);
+        console.log('Items count:', rawItems.length);
 
         // Log first item structure to see what backend returns
         if (rawItems.length > 0) {
-          console.log('🔍 First item structure:', JSON.stringify(rawItems[0], null, 2));
+          console.log('First item structure:', JSON.stringify(rawItems[0], null, 2));
         }
 
         // Transform backend items to frontend CartItem structure
@@ -497,7 +497,7 @@ export class CoursesService {
         } as any;
         });
 
-        console.log('✅ Cart items transformed:', items.length, 'items');
+        console.log('Cart items transformed:', items.length, 'items');
 
         const cart: Cart = {
           items: items,
@@ -505,7 +505,7 @@ export class CoursesService {
           totalItems: items.length
         };
 
-        console.log('✅ Transformed cart:', cart);
+        console.log('Transformed cart:', cart);
 
         // Update local cart
         this.cartSubject.next(cart);
@@ -514,7 +514,7 @@ export class CoursesService {
         return cart;
       }),
       catchError((error) => {
-        console.error('❌ Failed to load cart from backend:', error);
+        console.error('Failed to load cart from backend:', error);
 
         // Return empty cart on error
         const emptyCart: Cart = {
@@ -567,7 +567,7 @@ export class CoursesService {
    * Remove course from cart
    */
   removeFromCart(itemIdToRemove: number): Observable<boolean> {
-    console.log('🗑️ Removing cart item ID:', itemIdToRemove);
+    console.log('Removing cart item ID:', itemIdToRemove);
 
     // Check if user is authenticated before making API call
     if (!this.authService.isAuthenticated()) {
@@ -582,19 +582,19 @@ export class CoursesService {
     });
 
     if (!cartItem) {
-      console.error('❌ Cart item not found:', itemIdToRemove);
+      console.error('Cart item not found:', itemIdToRemove);
       this.toastService.showError('Item not found in cart');
       return of(false);
     }
 
-    const cartItemId = itemIdToRemove;    console.log('🗑️ Removing cartItemId:', cartItemId, 'from backend');
+    const cartItemId = itemIdToRemove;    console.log('Removing cartItemId:', cartItemId, 'from backend');
 
     // Use correct backend endpoint: DELETE /api/Cart/items/{cartItemId}
     const url = `${this.baseUrl}/Cart/items/${cartItemId}`;
 
     return this.http.delete<any>(url).pipe(
       switchMap(() => {
-        console.log('✅ Item removed from backend successfully');
+        console.log('Item removed from backend successfully');
         this.toastService.showSuccess('Course removed from cart!');
 
         // Reload cart from backend to sync
@@ -699,7 +699,7 @@ export class CoursesService {
       return false;
     }
 
-    console.log('🔍 isSubjectInCart checking (legacy method):', {
+    console.log('isSubjectInCart checking (legacy method):', {
       subjectName,
       yearId,
       cartItemsCount: cart.items.length
@@ -714,7 +714,7 @@ export class CoursesService {
         const match = item.subjectName.toLowerCase() === subjectName.toLowerCase() &&
                      (!yearId || item.yearId === yearId);
 
-        console.log('� Checking cart item (new structure):', {
+        console.log('Checking cart item (new structure):', {
           itemSubjectName: item.subjectName,
           targetSubjectName: subjectName,
           itemYearId: item.yearId,
@@ -884,11 +884,11 @@ export class CoursesService {
       url += `?subjectId=${subjectId}`;
     }
 
-    console.log('📅 Fetching current term/week:', { studentId, subjectId, url });
+    console.log('Fetching current term/week:', { studentId, subjectId, url });
 
     return this.http.get<CurrentTermWeekDto>(url).pipe(
       tap(result => {
-        console.log('✅ Current term/week response:', {
+        console.log('Current term/week response:', {
           hasAccess: result.hasAccess,
           currentTerm: result.currentTermName,
           currentWeek: result.currentWeekNumber,
@@ -897,7 +897,7 @@ export class CoursesService {
         });
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ Error fetching current term/week:', error);
+        console.error('Error fetching current term/week:', error);
 
         // Return a default "no access" response on error
         const defaultResponse: CurrentTermWeekDto = {
@@ -939,12 +939,12 @@ export class CoursesService {
   getTermAccessStatus(studentId: number, subjectId: number): Observable<TermAccessStatusDto> {
     const url = `${this.baseUrl}/StudentSubjects/student/${studentId}/subject/${subjectId}/term-access`;
 
-    console.log('🔒 Fetching term access status:', { studentId, subjectId, url });
+    console.log('Fetching term access status:', { studentId, subjectId, url });
 
     return this.http.get<TermAccessStatusDto>(url).pipe(
       tap(response => {
-        console.log('📡 RAW Response from term-access endpoint:', response);
-        console.log('✅ Term access status:', {
+        console.log('RAW Response from term-access endpoint:', response);
+        console.log('Term access status:', {
           subject: response.subjectName,
           currentTerm: response.currentTermNumber,
           termsArrayLength: response.terms?.length || 0,
@@ -953,7 +953,7 @@ export class CoursesService {
         });
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ Error fetching term access status:', error);
+        console.error('Error fetching term access status:', error);
         this.toastService?.showError('Unable to load subscription information');
         throw error;
       })
@@ -970,14 +970,14 @@ export class CoursesService {
   hasAccessToTerm(studentId: number, subjectId: number, termNumber: number): Observable<boolean> {
     const url = `${this.baseUrl}/StudentSubjects/student/${studentId}/subject/${subjectId}/term/${termNumber}/has-access`;
 
-    console.log('🔍 Checking term access:', { studentId, subjectId, termNumber, url });
+    console.log('Checking term access:', { studentId, subjectId, termNumber, url });
 
     return this.http.get<boolean>(url).pipe(
       tap(hasAccess => {
-        console.log(hasAccess ? '✅ Access granted' : '🔒 Access denied', { termNumber });
+        console.log(hasAccess ? 'Access granted' : 'Access denied', { termNumber });
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ Error checking term access:', error);
+        console.error('Error checking term access:', error);
         return of(false); // Default to no access on error
       })
     );
@@ -992,14 +992,14 @@ export class CoursesService {
   getLessonsWithProgress(subjectId: number, studentId: number): Observable<LessonWithProgress[]> {
     const url = `${this.baseUrl}/Lessons/subject/${subjectId}/with-progress/${studentId}`;
 
-    console.log('📚 Fetching lessons with progress:', { subjectId, studentId, url });
+    console.log('Fetching lessons with progress:', { subjectId, studentId, url });
 
     return this.http.get<LessonWithProgress[]>(url).pipe(
       tap(lessons => {
-        console.log('✅ Lessons with progress:', lessons);
+        console.log('Lessons with progress:', lessons);
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ Error fetching lessons with progress:', error);
+        console.error('Error fetching lessons with progress:', error);
         return of([]);
       })
     );
@@ -1017,17 +1017,17 @@ export class CoursesService {
   getLessonsByTermNumber(subjectId: number, termNumber: number, studentId: number): Observable<LessonWithProgress[]> {
     const url = `${this.baseUrl}/Lessons/subject/${subjectId}/term-number/${termNumber}/with-progress/${studentId}`;
 
-    console.log('📚 Fetching lessons by term number:', { subjectId, termNumber, studentId, url });
+    console.log('Fetching lessons by term number:', { subjectId, termNumber, studentId, url });
 
     return this.http.get<LessonWithProgress[]>(url).pipe(
       tap(lessons => {
-        console.log(`✅ Lessons for term ${termNumber}:`, lessons);
+        console.log(`Lessons for term ${termNumber}:`, lessons);
       }),
       switchMap(lessons => {
         // ⚠️ CRITICAL FIX: Backend endpoint returns empty even when lessons exist
         // If empty, use fallback: get terms, find matching termNumber, use termId
         if (lessons.length === 0) {
-          console.warn(`⚠️ New endpoint returned empty, trying fallback for subject ${subjectId} term ${termNumber}`);
+          console.warn(`New endpoint returned empty, trying fallback for subject ${subjectId} term ${termNumber}`);
 
           // Get terms for this subject
           return this.http.get<any[]>(`${this.baseUrl}/Terms/by-subject/${subjectId}`).pipe(
@@ -1035,10 +1035,10 @@ export class CoursesService {
               // Find the term with matching term number
               const matchingTerm = terms.find((t: any) => t.termNumber === termNumber);
               if (matchingTerm) {
-                console.log(`🔄 Fallback: Found termId ${matchingTerm.id} for term ${termNumber}`);
+                console.log(`Fallback: Found termId ${matchingTerm.id} for term ${termNumber}`);
                 return matchingTerm.id;
               }
-              console.error(`❌ Fallback failed: No term found with number ${termNumber}`);
+              console.error(`Fallback failed: No term found with number ${termNumber}`);
               return null;
             }),
             switchMap(termId => {
@@ -1047,19 +1047,19 @@ export class CoursesService {
               }
               // Use old endpoint with termId
               const fallbackUrl = `${this.baseUrl}/Lessons/term/${termId}/with-progress/${studentId}`;
-              console.log(`🔄 Using fallback endpoint: ${fallbackUrl}`);
+              console.log(`Using fallback endpoint: ${fallbackUrl}`);
               return this.http.get<LessonWithProgress[]>(fallbackUrl).pipe(
                 tap(fallbackLessons => {
-                  console.log(`✅ Fallback success: ${fallbackLessons.length} lessons found`);
+                  console.log(`Fallback success: ${fallbackLessons.length} lessons found`);
                 }),
                 catchError(fallbackError => {
-                  console.error(`❌ Fallback also failed:`, fallbackError);
+                  console.error(`Fallback also failed:`, fallbackError);
                   return of([]);
                 })
               );
             }),
             catchError(error => {
-              console.error(`❌ Error in fallback mechanism:`, error);
+              console.error(`Error in fallback mechanism:`, error);
               return of([]);
             })
           );
@@ -1068,7 +1068,7 @@ export class CoursesService {
         return of(lessons);
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error(`❌ Error fetching lessons for term ${termNumber}:`, error);
+        console.error(`Error fetching lessons for term ${termNumber}:`, error);
         return of([]);
       })
     );
