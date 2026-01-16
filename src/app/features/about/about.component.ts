@@ -10,48 +10,6 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./about.component.scss']
 })
 export class AboutComponent {
-  teamMembers = [
-    {
-      name: 'Dr. Sarah Johnson',
-      role: 'Founder & CEO',
-      image: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
-      bio: 'Educational technology expert with 15+ years of experience in curriculum development.',
-      social: {
-        linkedin: '#',
-        twitter: '#'
-      }
-    },
-    {
-      name: 'Michael Chen',
-      role: 'Head of Technology',
-      image: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
-      bio: 'Software architect passionate about creating innovative learning solutions.',
-      social: {
-        linkedin: '#',
-        twitter: '#'
-      }
-    },
-    {
-      name: 'Emily Rodriguez',
-      role: 'Lead Educator',
-      image: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
-      bio: 'Master teacher specializing in NAPLAN preparation and student success.',
-      social: {
-        linkedin: '#',
-        twitter: '#'
-      }
-    },
-    {
-      name: 'David Thompson',
-      role: 'Content Director',
-      image: 'https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg',
-      bio: 'Curriculum specialist dedicated to developing engaging educational content.',
-      social: {
-        linkedin: '#',
-        twitter: '#'
-      }
-    }
-  ];
 
   stats = [
     { icon: 'fa-users', number: '10,000+', label: 'Active Students' },
