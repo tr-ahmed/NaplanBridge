@@ -37,22 +37,40 @@
             }
           </div>
           @if (registerForm.get('userName')?.hasError('required') && registerForm.get('userName')?.touched) {
-            <small class="text-red-500 text-xs mt-1 block">Username is required.</small>
+            <div class="flex items-center gap-1.5 text-red-600 text-xs mt-1 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>Username is required</span>
+            </div>
           }
           @if (registerForm.get('userName')?.hasError('minlength') && registerForm.get('userName')?.touched) {
-            <small class="text-red-500 text-xs mt-1 block">Username must be at least 4 characters.</small>
+            <div class="flex items-center gap-1.5 text-amber-600 text-xs mt-1 bg-amber-50 px-3 py-2 rounded-md border border-amber-200">
+              <i class="fas fa-info-circle"></i>
+              <span>Username must be at least 4 characters</span>
+            </div>
           }
           @if (registerForm.get('userName')?.hasError('numbersOnly') && registerForm.get('userName')?.touched) {
-            <small class="text-red-500 text-xs mt-1 block">Username cannot be only numbers.</small>
+            <div class="flex items-center gap-1.5 text-red-600 text-xs mt-1 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>Username cannot be only numbers</span>
+            </div>
           }
           @if (registerForm.get('userName')?.hasError('invalidChars') && registerForm.get('userName')?.touched) {
-            <small class="text-red-500 text-xs mt-1 block">Username can only contain letters, numbers, and underscores.</small>
+            <div class="flex items-center gap-1.5 text-red-600 text-xs mt-1 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>Username can only contain letters, numbers, and underscores</span>
+            </div>
           }
           @if (registerForm.get('userName')?.hasError('usernameTaken') && registerForm.get('userName')?.touched) {
-            <small class="text-red-500 text-xs mt-1 block">❌ This username is already taken. Please choose another one.</small>
+            <div class="flex items-center gap-1.5 text-red-600 text-xs mt-1 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+              <i class="fas fa-times-circle"></i>
+              <span>This username is already taken. Please choose another one</span>
+            </div>
           }
           @if (!registerForm.get('userName')?.hasError('usernameTaken') && !checkingUsername() && registerForm.get('userName')?.valid && registerForm.get('userName')?.touched) {
-            <small class="text-green-600 text-xs mt-1 block">✅</small>
+            <div class="flex items-center gap-1.5 text-green-600 text-xs mt-1 bg-green-50 px-3 py-2 rounded-md border border-green-200">
+              <i class="fas fa-check-circle"></i>
+              <span>Username is available</span>
+            </div>
           }
         </div>
 
@@ -78,10 +96,16 @@
             }
           </div>
           @if (hasFieldError('phoneNumber')) {
-            <small class="text-red-500 text-xs mt-1 block">{{ getFieldError('phoneNumber') }}</small>
+            <div class="flex items-center gap-1.5 text-red-600 text-xs mt-1 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>{{ getFieldError('phoneNumber') }}</span>
+            </div>
           }
           @if (!registerForm.get('phoneNumber')?.hasError('phoneTaken') && !checkingPhone() && registerForm.get('phoneNumber')?.valid && registerForm.get('phoneNumber')?.touched) {
-            <small class="text-green-600 text-xs mt-1 block">✅</small>
+            <div class="flex items-center gap-1.5 text-green-600 text-xs mt-1 bg-green-50 px-3 py-2 rounded-md border border-green-200">
+              <i class="fas fa-check-circle"></i>
+              <span>Phone number is available</span>
+            </div>
           }
         </div>
 
@@ -107,16 +131,28 @@
             }
           </div>
           @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
-            <small class="text-red-500 text-xs mt-1 block">Email is required.</small>
+            <div class="flex items-center gap-1.5 text-red-600 text-xs mt-1 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>Email is required</span>
+            </div>
           }
           @if (registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched) {
-            <small class="text-red-500 text-xs mt-1 block">Please enter a valid email address (e.g. user@example.com).</small>
+            <div class="flex items-center gap-1.5 text-amber-600 text-xs mt-1 bg-amber-50 px-3 py-2 rounded-md border border-amber-200">
+              <i class="fas fa-info-circle"></i>
+              <span>Please enter a valid email address (e.g. user@example.com)</span>
+            </div>
           }
           @if (registerForm.get('email')?.hasError('emailTaken') && registerForm.get('email')?.touched) {
-            <small class="text-red-500 text-xs mt-1 block">❌ This email is already registered. Please use another email or login.</small>
+            <div class="flex items-center gap-1.5 text-red-600 text-xs mt-1 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+              <i class="fas fa-times-circle"></i>
+              <span>This email is already registered. Please use another email or login</span>
+            </div>
           }
           @if (!registerForm.get('email')?.hasError('emailTaken') && !checkingEmail() && registerForm.get('email')?.valid && registerForm.get('email')?.touched) {
-            <small class="text-green-600 text-xs mt-1 block">✅</small>
+            <div class="flex items-center gap-1.5 text-green-600 text-xs mt-1 bg-green-50 px-3 py-2 rounded-md border border-green-200">
+              <i class="fas fa-check-circle"></i>
+              <span>Email is available</span>
+            </div>
           }
         </div>
 
@@ -134,7 +170,10 @@
             max="100"
           />
           @if (hasFieldError('age')) {
-            <small class="text-red-500 text-xs mt-1">{{ getFieldError('age') }}</small>
+            <div class="flex items-center gap-1.5 text-red-600 text-xs mt-1 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>{{ getFieldError('age') }}</span>
+            </div>
           }
         </div>
 
@@ -149,18 +188,24 @@
               'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200'"
             placeholder="Enter password"
           />
-          <!-- @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
-            <small class="text-red-500 text-xs mt-1 block">Password is required.</small>
-          } -->
           @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
-            <small class="text-red-500 text-xs mt-1 block">Password must be at least 8 characters.</small>
+            <div class="flex items-center gap-1.5 text-amber-600 text-xs mt-1 bg-amber-50 px-3 py-2 rounded-md border border-amber-200">
+              <i class="fas fa-info-circle"></i>
+              <span>Password must be at least 8 characters</span>
+            </div>
           }
           @if (hasFieldError('password')) {
-            <small class="text-red-500 text-xs mt-1 block">{{ getFieldError('password') }}</small>
+            <div class="flex items-center gap-1.5 text-red-600 text-xs mt-1 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>{{ getFieldError('password') }}</span>
+            </div>
           }
-          <small class="text-gray-500 text-xs block mt-1">
-            Password must be at least 8 characters
-          </small>
+          @if (!registerForm.get('password')?.hasError('minlength') && !registerForm.get('password')?.errors && !registerForm.get('password')?.touched) {
+            <div class="flex items-center gap-1.5 text-gray-500 text-xs mt-1 bg-gray-50 px-3 py-2 rounded-md border border-gray-200">
+              <i class="fas fa-info-circle"></i>
+              <span>Password must be at least 8 characters</span>
+            </div>
+          }
         </div>
 
         <!-- Confirm Password -->
@@ -175,7 +220,10 @@
             placeholder="Confirm your password"
           />
           @if (hasFieldError('confirmPassword')) {
-            <small class="text-red-500 text-xs mt-1">{{ getFieldError('confirmPassword') }}</small>
+            <div class="flex items-center gap-1.5 text-red-600 text-xs mt-1 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>{{ getFieldError('confirmPassword') }}</span>
+            </div>
           }
         </div>
       </div>
@@ -192,7 +240,10 @@
         </label>
       </div>
       @if (registerForm.get('termsAccepted')?.errors?.['required'] && registerForm.get('termsAccepted')?.touched) {
-        <small class="text-red-500 text-xs">You must accept the terms and conditions</small>
+        <div class="flex items-center gap-1.5 text-red-600 text-xs mt-2 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>You must accept the terms and conditions</span>
+        </div>
       }
 
       <!-- Submit Button -->
