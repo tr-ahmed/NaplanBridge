@@ -137,19 +137,22 @@ onLogin(): void {
 
           // ✅ Check if email verification is required
           if ('requiresVerification' in result && result.requiresVerification === true) {
-            this.showResendVerification.set(true);
-
             // Extract email from result or use identifier if it's an email
             const errorEmail = ('email' in result && typeof result.email === 'string') ? result.email : undefined;
             const identifierIsEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValue.identifier);
-
-            this.unverifiedEmail.set(errorEmail || (identifierIsEmail ? formValue.identifier : ''));
+            const emailToUse = errorEmail || (identifierIsEmail ? formValue.identifier : '');
 
             // Show warning toast
             this.toastService.showWarning(
               errorMessage,
-              10000
+              8000
             );
+
+            // Redirect to verify-email page immediately
+            this.router.navigate(['/auth/verify-email'], {
+              queryParams: { email: emailToUse }
+            });
+            return; // Exit early to prevent any other UI updates
           } else {
             // Handle other login errors
             this.handleLoginError(errorMessage);
@@ -171,11 +174,21 @@ onLogin(): void {
         } else if (code === 'INVALID_PASSWORD') {
           friendly = message || 'Incorrect password. Please try again.';
         } else if (code === 'EMAIL_NOT_VERIFIED') {
-          friendly = message || 'Email is not verified. Please verify your email to continue.';
-          this.showResendVerification.set(true);
           const identifierValue = this.loginForm.get('identifier')?.value;
           const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifierValue);
-          this.unverifiedEmail.set(backend.email || (isEmail ? identifierValue : ''));
+          const emailToUse = backend.email || (isEmail ? identifierValue : '');
+
+          // Show warning toast
+          this.toastService.showWarning(
+            'Please verify your email address before logging in. Check your inbox for the verification link.',
+            8000
+          );
+
+          // Redirect to verify-email page immediately
+          this.router.navigate(['/auth/verify-email'], {
+            queryParams: { email: emailToUse }
+          });
+          return; // Exit early to skip the error handling below
         } else if (error?.status === 401) {
           // Generic unauthorized without specific code
           friendly = message || 'Invalid email/username or password. Please check your credentials and try again.';

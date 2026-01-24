@@ -228,15 +228,12 @@ export class RegisterComponent {
                 10000
               );
 
-              // Redirect to check-email page or login after delay
-              setTimeout(() => {
-                this.router.navigate(['/auth/check-email'], {
-                  queryParams: {
-                    email: result.data!.email,
-                    type: 'registration'
-                  }
-                });
-              }, 3000);
+              // Redirect directly to verify-email page (no delay to prevent flash)
+              this.router.navigate(['/auth/verify-email'], {
+                queryParams: {
+                  email: result.data!.email
+                }
+              });
             } else {
               // Fallback for old behavior (shouldn't happen with new backend)
               this.toastService.showSuccess('Registration successful!');
