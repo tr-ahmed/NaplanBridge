@@ -19,7 +19,7 @@ export interface CoursesResponse {
   providedIn: 'root'
 })
 export class CoursesService {
-  private readonly baseUrl = environment.apiBaseUrl || 'https://api.naplanbridge.com/api';
+  private readonly baseUrl = environment.apiBaseUrl;
 
   // Cart management
   private cartSubject = new BehaviorSubject<Cart>({

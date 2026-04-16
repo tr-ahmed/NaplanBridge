@@ -357,7 +357,7 @@ Please also review these related endpoints for similar permission issues:
 
 #### Test 1: Unauthorized Exam Creation (Should FAIL with 403)
 ```bash
-curl -X POST "https://api.naplanbridge.com/api/Exam" \
+curl -X POST "https://https://localhost:5001/api/Exam" \
   -H "Authorization: Bearer <teacher_token_without_math_permission>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -384,7 +384,7 @@ curl -X POST "https://api.naplanbridge.com/api/Exam" \
 
 #### Test 2: Authorized Exam Creation (Should SUCCEED)
 ```bash
-curl -X POST "https://api.naplanbridge.com/api/Exam" \
+curl -X POST "https://https://localhost:5001/api/Exam" \
   -H "Authorization: Bearer <teacher_token_with_math_permission>" \
   -H "Content-Type: application/json" \
   -d '{

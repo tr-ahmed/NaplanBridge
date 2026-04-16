@@ -1,7 +1,8 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.naplanbridge.com/api',
-  frontendUrl: 'http://naplanbridge.com', // Production frontend URL
+  apiBaseUrl: 'https://api.naplanbridge.com.au/api',
+  // apiBaseUrl: 'https://https://localhost:5001/api',
+  frontendUrl: 'https://naplanbridge.com.au',// Production frontend URL
   useMock: false,
   enableMockFallback: false, // Disable mock fallback in production
   apiTimeout: 15000,

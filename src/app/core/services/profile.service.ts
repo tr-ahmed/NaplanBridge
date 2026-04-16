@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 import { UploadService } from './upload.service';
+import { environment } from '../../../environments/environment';
 
 /**
  * User Profile Interfaces
@@ -85,9 +86,9 @@ export interface StudentProfileData {
   providedIn: 'root'
 })
 export class ProfileService {
-  private apiUrl = 'https://api.naplanbridge.com/api/user';
-  private accountApiUrl = 'https://api.naplanbridge.com/api/account';
-  private mediaApiUrl = 'https://api.naplanbridge.com/api/media';
+  private apiUrl = `${environment.apiBaseUrl}/user`;
+  private accountApiUrl = `${environment.apiBaseUrl}/account`;
+  private mediaApiUrl = `${environment.apiBaseUrl}/media`;
 
   private http = inject(HttpClient);
   private uploadService = inject(UploadService);

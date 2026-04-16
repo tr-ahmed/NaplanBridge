@@ -169,7 +169,7 @@ After the fix, test with:
 
 ### Valid Request:
 ```bash
-curl -X POST "https://api.naplanbridge.com/api/Subjects" \
+curl -X POST "https://localhost:5001/api/Subjects" \
   -H "Authorization: Bearer {teacher_token}" \
   -H "Content-Type: multipart/form-data" \
   -F "YearId=6" \

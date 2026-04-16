@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-const API_BASE_URL = 'https://api.naplanbridge.com/api';
+import { environment } from '../../../environments/environment';
 
 export interface AcademicTerm {
   id?: number;
@@ -50,7 +49,7 @@ export interface TermVerificationResult {
   providedIn: 'root'
 })
 export class AcademicTermsService {
-  private apiUrl = `${API_BASE_URL}/AcademicTerms`;
+  private apiUrl = `${environment.apiBaseUrl}/AcademicTerms`;
 
   constructor(private http: HttpClient) {}
 
