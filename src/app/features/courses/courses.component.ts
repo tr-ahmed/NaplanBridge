@@ -117,14 +117,9 @@ export class CoursesComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    console.log('🚀 CoursesComponent ngOnInit - Starting...');
-
     // Check if user is logged in
     const user = this.authService.getCurrentUser();
-    console.log('👤 Current user:', user ? 'Logged in' : 'Guest', user);
-
     if (user) {
-      console.log('✅ User is logged in - Loading years from API...');
       // ✅ IMPORTANT: Load years FIRST - they will trigger filtering when loaded (only for logged-in users)
       this.loadAvailableYears(); // Load years from database first
 
@@ -143,7 +138,6 @@ export class CoursesComponent implements OnInit, OnDestroy {
         this.loadCourses();
       }
     } else {
-      console.log('🔓 Guest user - Loading years for guest...');
       // Guest user - load years from database and filter by available subjects
       this.loadAvailableYearsForGuest();
     }
@@ -169,18 +163,13 @@ export class CoursesComponent implements OnInit, OnDestroy {
   private loadAvailableYears(): void {
     this.categoryService.getYears().subscribe({
       next: (years) => {
-        console.log('🔍 RAW API Response from /api/Years:', years);
-
         const formattedYears = years.map(year => {
-          console.log(`📊 Mapping year: id=${year.id}, yearNumber=${year.yearNumber}`);
           return {
             id: year.id,                    // ✅ Database ID (e.g., 11)
             yearNumber: year.yearNumber,    // ✅ Display number (e.g., 8)
             name: year.yearNumber === 0 ? 'Global' : `Year ${year.yearNumber}` // ✅ Display name (e.g., "Year 8" or "Global")
           };
         });
-
-        console.log('✅ Formatted years for UI:', formattedYears);
         this.availableYears.set(formattedYears);
         this.logger.log('✅ Loaded years from API /api/Years:', formattedYears);
 
@@ -277,23 +266,16 @@ export class CoursesComponent implements OnInit, OnDestroy {
    * ✅ UPDATED (Dec 5, 2025): Use /api/Years API instead of extracting from subjects
    */
   private loadAvailableYearsForGuest(): void {
-    console.log('📞 Guest - Loading years from /api/Years...');
-
     // ✅ Use the same API as logged-in users
     this.categoryService.getYears().subscribe({
       next: (years) => {
-        console.log('🔍 Guest - RAW API Response from /api/Years:', years);
-
         const formattedYears = years.map(year => {
-          console.log(`📊 Guest - Mapping year: id=${year.id}, yearNumber=${year.yearNumber}`);
           return {
             id: year.id,                    // ✅ Database ID (e.g., 11)
             yearNumber: year.yearNumber,    // ✅ Display number (e.g., 8)
             name: year.yearNumber === 0 ? 'Global' : `Year ${year.yearNumber}` // ✅ Display name (e.g., "Year 8" or "Global")
           };
         });
-
-        console.log('✅ Guest - Formatted years for UI:', formattedYears);
         this.availableYears.set(formattedYears);
         this.logger.log('✅ Guest - Loaded years from API /api/Years:', formattedYears);
 
@@ -1337,8 +1319,6 @@ export class CoursesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (termAccess: any) => {
-          console.log('🔍 RAW API Response from getTermAccessStatus:', termAccess);
-
           this.logger.log('✅ Term access info received:', {
             courseId: course.id,
             courseName: course.name || course.subjectName,
@@ -1354,8 +1334,6 @@ export class CoursesComponent implements OnInit, OnDestroy {
           // assume student has access to current term (backend bug)
           if (!accessibleTerm && termAccess.currentTermNumber) {
             console.warn('⚠️ Backend bug: No accessible terms found, but currentTermNumber is set');
-            console.log('🔧 Workaround: Assuming access to current term', termAccess.currentTermNumber);
-
             // Find current term and assume it has access
             accessibleTerm = termAccess.terms?.find((t: any) =>
               t.termNumber === termAccess.currentTermNumber || t.isCurrentTerm
@@ -1369,13 +1347,6 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
           const targetTermNumber = accessibleTerm?.termNumber || termAccess.currentTermNumber || 1;
           const hasAnyAccess = accessibleTerm?.hasAccess || (termAccess.currentTermNumber !== null);
-
-          console.log('🎯 Navigation decision:', {
-            targetTermNumber,
-            hasAccess: hasAnyAccess,
-            reason: accessibleTerm?.hasAccess ? 'Found accessible term' : 'Using current term (workaround)'
-          });
-
           // ✅ Navigate to the term (accessible or current)
           this.router.navigate(['/lessons'], {
             queryParams: {

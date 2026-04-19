@@ -6,6 +6,7 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
+import '@mux/mux-player';
 import Hls from 'hls.js';
 import * as PlyrNamespace from 'plyr';
 type Plyr = PlyrNamespace.default;
